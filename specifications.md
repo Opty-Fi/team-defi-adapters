@@ -24,15 +24,27 @@
 
 | Name                   | Input Parameters                                                                  | visibility | Return Parameters | Called By                   | Description                                             |
 | ---------------------- | --------------------------------------------------------------------------------- | ---------- | ----------------- | --------------------------- | ------------------------------------------------------- |
-| enableTokens           | `address _token`                                                                  | external   | N/A               | Owner/Governance/Strategist | enable token in `tokens` mapping.                       |
+| enableTokens           | `address _token`                                                                  | `external`   | N/A               | Owner/Governance/Strategist | enable token in `tokens` mapping.                       |
 | disableTokens          | `address _token`                                                                  | external   | N/A               | Owner/Governance/Strategist | disable token from `tokens` mapping.                    |
-| enableStrategyProfile  | `uint _strategyProfileId`                                                         | external   | N/A               | Owner/Governance/Strategist | enable a new strategy profile using `strategyProfile`   |
-| disableStrategyProfile | `uint _strategyProfileId`                                                         | external   | N/A               | Owner/Governance/Strategist | disable a new strategy profile using `strategyProfile`  |
-| enableStrategy         | `address _token, uint _strategyProfileId, StrategyComponent[] _strategyComponent` | external   | `uint strategyId` | Owner/Governance/Strategist | enable strategies using `tokensToStrategy` mapping.     |
-| disableStrategy        | `address _token, uint _strategyProfileId, uint _strategyId`                       | external   | N/A               | Owner/Governance/Strategist | disable strategies using `tokensToStrategy` mapping.    |
-| enableLiquidityPool    | `address _liquidityPool`                                                          | external   | N/A               | Owner/Governance/Strategy   | enable or add new liquidity pool using `liquidityPools` |
-| disableLiquidityPool   | `address _liquidityPool`                                                          | external   | N/A               | Owner/Governance/Strategy   | disable a liquidity pool using `liquidityPools`         |
-| rateLiquidityPool      | `address _liquidityPool, uint _rating`                                            | external   | N/A               | Owner/Governance/Strategy   | give rating to liquidty pool                            |
+| enableStrategyProfile  | `uint _strategyProfileId`                                                         | `external`   | N/A               | Owner/Governance/Strategist | enable a new strategy profile using `strategyProfiles`   |
+| disableStrategyProfile | `uint _strategyProfileId`                                                         | external   | N/A               | Owner/Governance/Strategist | disable a new strategy profile using `strategyProfiles`  |
+| enableStrategy         | `address _token, uint _strategyProfileId, StrategyComponent[] _strategyComponent` | `external`   | N/A | Owner/Governance/Strategist | enable strategies using `tokensToStrategy` mapping.     |
+| disableStrategy        | `address _token, uint _strategyProfileId, uint _strategyId`                       | `external`   | N/A               | Owner/Governance/Strategist | disable strategies using `tokensToStrategy` mapping.    |
+| enableLiquidityPool    | `address _liquidityPool`                                                          | `external`   | N/A               | Owner/Governance/Strategy   | enable or add new liquidity pool using `liquidityPools` |
+| disableLiquidityPool   | `address _liquidityPool`                                                          | `external`   | N/A               | Owner/Governance/Strategy   | disable a liquidity pool using `liquidityPools`         |
+| rateLiquidityPool      | `address _liquidityPool, uint _rating`                                            | `external`   | N/A               | Owner/Governance/Strategy   | give rating to liquidty pool                            |
+| scoreStrategy | `address _token, uint _strategyProfileId, uint _strategyId, uint _score` | `external` | N/A | Owner/Governance/Strategy | score the strategy  |
+
+### Events
+
+| Event name | Parameters | Description |
+|------------|------------|-------------|
+| LogToken | `address token, bool enabled` | Logs when token is enabled/disabled |
+| LogStrategyProfile | `uint strategyProfileId, bool enabled` | Logs when a strategy is enabled/disabled |
+| LogStrategy | `address token, uint strategyProfileId, StrategyComponent[] strategyComponents, uint steps, uint blockNumber, bool enabled` | Logs when a strategy is enabled/disabled |
+| LogLiquidityPool | `address liquidityPool, bool enabled` | Logs when a liquidity pool is enabled/disabled |
+| LogRateLiquidityPool | `address liquidityPool, uint rate` | Logs when a liquidity pool is rated |
+| LogScoreStrategy | `address token, uint strategyProfileId, uint strategyId, uint blockNumber, uint score, StrategyComponent[] strategyComponents` | Log when the strategy is scored |
 
 ## `OptyLiquidityPoolInterface.sol`
 
@@ -47,14 +59,23 @@
 
 ## `OptyFi<strategy-profile-id>XXXPool.sol` where xxx is DAI, USDC etc.
 
+### Interfaces
+
+- [IERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol)
+
+### Contracts
+- [ERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol)
+
+### libraries
+
+- [SafeERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/SafeERC20.sol)
+- [SafeMath](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol)
+
 ### Variables
 
 | Name                     | Type          | Structure                                                                                                                                     | visibility   | purpose                                                                |
 | ------------------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------- |
-|decimals| `uint` | N/A | `public` | e.g. 1e18|
-|symbol| `string` | N/A | `public` | e.g. op0dai|
-|name| `string` | N/A | `public` | e.g. opty-fi-basic-dai|
-| totalSupply | `uint` | N/A | `public` |  |
+| riskManager | `address` | N/A | `public` | the risk manager contract address |
 
 ### Functions
 
