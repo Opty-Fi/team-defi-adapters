@@ -7,11 +7,29 @@ import "./libraries/Addresses.sol";
 
 contract OptyRegistry is Modifiers {
     using Address for address;
+
+    struct StrategyStep {
+        address token; 
+        address creditPool; 
+        address borrowToken; 
+        address liquidityPool; 
+        address strategyContract;
+    }
     
-    mapping(address => bool) public tokens;
-    mapping(address => bool) public liquidityPools;
-    mapping(address => uint) public liquidityPoolRatings;
+    struct Strategy{
+        StrategyStep[] strategySteps; 
+        uint8 score; 
+        uint256 blockNumber;
+        bool enabled;
+    }
     
+    mapping(address => bool)                                         public tokens;
+    mapping(address => bool)                                         public liquidityPools;
+    mapping(address => uint)                                         public liquidityPoolRatings;
+    mapping(string => bool)                                          public strategyProfiles;
+    mapping(address => mapping(string => uint))                      public poolToStrategyIdCounter;
+    mapping(address => mapping(string => mapping(uint => Strategy))) public tokensToStrategy;
+
     /**
      * @dev Sets the value for {owner}, {governance} and {strategist}, initializes
      * the dai, usdt, usdc, tusd, wbtc, weth defualt address.
@@ -72,11 +90,11 @@ contract OptyRegistry is Modifiers {
      * 
      * Requirements:
      * 
-     * - the caller should be either owner
+     * - the caller should be governance
      * - `_poolToken` cannot be a zero address`
      * - `_poolToken` should be a contract's address and not EOA.
      */
-    function enableLiquidityPool(address _poolToken) public onlyValidAddress onlyOwner returns(bool) {
+    function enableLiquidityPool(address _poolToken) public onlyValidAddress onlyGovernance returns(bool) {
         require(_poolToken != address(0), "poolToken address is a zero address");
         require(address(_poolToken).isContract(), "Call to non-contract address");
         require(!liquidityPools[_poolToken],"Pool is already enabled");
@@ -89,7 +107,7 @@ contract OptyRegistry is Modifiers {
      * 
      * Requirements:
      * 
-     * - the caller should be either owner or governance or strategist
+     * - the caller should be either governance
      * - `_poolToken` cannot be a zero address`
      * - `_poolToken` should be a contract's address and not EOA.
      */
@@ -106,7 +124,7 @@ contract OptyRegistry is Modifiers {
      * 
      * Requirements:
      * 
-     * - the caller should be either owner or governance or strategist
+     * - the caller should be governance
      * - `_poolToken` cannot be a zero address`
      * - `_poolToken` should be a contract's address and not EOA.
      * - `_poolToken` should be enabled
@@ -117,5 +135,97 @@ contract OptyRegistry is Modifiers {
         require(liquidityPools[_poolToken],"Pool is not enabled");
         liquidityPoolRatings[_poolToken] = _rate;
         return liquidityPoolRatings[_poolToken];
+    }
+
+     /**
+     * @dev Returns the status of strategy profile whether it is enabled or disabled after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be governance
+     * - `_strategyProfileId` should not be enabled`
+     */
+    function enableStrategyProfile(string memory _strategyProfile) public onlyGovernance returns(bool){
+        require(!strategyProfiles[_strategyProfile],"strategy is already enabled");
+        strategyProfiles[_strategyProfile] = true;
+        return strategyProfiles[_strategyProfile];
+    }
+
+     /**
+     * @dev Returns the status of strategy profile whether it is enabled or disabled after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be governance
+     * - `_strategyProfileId` should not be disabled`
+     */
+    function disableStrategyProfile(string memory _strategyProfile) public onlyGovernance returns(bool){
+        require(strategyProfiles[_strategyProfile],"strategy is already disabled");
+        strategyProfiles[_strategyProfile] = false;
+        return strategyProfiles[_strategyProfile];
+    }
+
+    /**
+     * @dev Returns the strategy Id after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be owner
+     * - `_token` should be enabled`
+     * - `_strategyProfile` should be enabled
+     */
+    function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyOwner returns(uint){
+        require(tokens[_token],"token is not enabled");
+        require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
+        uint strategyId = poolToStrategyIdCounter[_token][_strategyProfile];
+        for(uint i = 0 ; i < _strategySteps.length; i++) {
+        tokensToStrategy[_token][_strategyProfile][strategyId].strategySteps.push(
+            StrategyStep(_strategySteps[i].token,_strategySteps[i].creditPool,_strategySteps[i].borrowToken,_strategySteps[i].liquidityPool,_strategySteps[i].strategyContract));
+        }
+        tokensToStrategy[_token][_strategyProfile][strategyId].blockNumber = block.number; 
+        poolToStrategyIdCounter[_token][_strategyProfile]++;
+        return strategyId;
+    }
+    
+    function getStrategy(address _token, string memory _strategyProfile,uint _strategyId) public view returns(StrategyStep[] memory) {
+        return tokensToStrategy[_token][_strategyProfile][_strategyId].strategySteps;
+    }
+
+    /**
+     * @dev Returns the status of strategy it is enabled or disabled after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be governance
+     * - `_token` should be enabled`
+     * - `_strategyProfile` should be enabled`
+     * - `_StrategyId` should not be enabled
+     */
+    function enableStrategy(address _token, string memory _strategyProfile, uint _strategyId) public onlyGovernance returns(bool){
+        require(tokens[_token],"token is not enabled");
+        require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
+        require(!tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already enabled");
+        tokensToStrategy[_token][_strategyProfile][_strategyId].enabled = true;
+        tokensToStrategy[_token][_strategyProfile][_strategyId].blockNumber = block.number; 
+        return tokensToStrategy[_token][_strategyProfile][_strategyId].enabled;
+    }
+
+    /**
+     * @dev Returns the status of strategy whether it is enabled or disabled after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be governance
+     * - `_token` should be enabled`
+     * - `_strategyProfile` should be enabled`
+     * - `_strategyId` should not be disabled
+     */
+    function disableStrategy(address _token, string memory _strategyProfile, uint _strategyId) public onlyGovernance returns(bool){
+        require(tokens[_token],"token is not enabled");
+        require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
+        require(tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already disabled");
+        tokensToStrategy[_token][_strategyProfile][_strategyId].enabled = false;
+        tokensToStrategy[_token][_strategyProfile][_strategyId].blockNumber = block.number; 
+        return tokensToStrategy[_token][_strategyProfile][_strategyId].enabled;
     }
 }
