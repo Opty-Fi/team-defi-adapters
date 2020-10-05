@@ -228,4 +228,23 @@ contract OptyRegistry is Modifiers {
         tokensToStrategy[_token][_strategyProfile][_strategyId].blockNumber = block.number; 
         return tokensToStrategy[_token][_strategyProfile][_strategyId].enabled;
     }
+
+    /**
+     * @dev Returns the score of strategy after the function call.
+     * 
+     * Requirements:
+     * 
+     * - the caller should be governance
+     * - `_token` should be enabled`
+     * - `_strategyProfile` should be enabled`
+     * - `_strategyId` should be enabled
+     */
+    function scoreStrategy(address _token, string memory _strategyProfile, uint _strategyId,uint _score ) public onlyGovernance returns(uint){
+        require(tokens[_token],"token is not enabled");
+        require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
+        require(tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is disabled");
+        tokensToStrategy[_token][_strategyProfile][_strategyId].score = _score;
+        tokensToStrategy[_token][_strategyProfile][_strategyId].blockNumber = block.number; 
+        return tokensToStrategy[_token][_strategyProfile][_strategyId].score;
+    }
 }
