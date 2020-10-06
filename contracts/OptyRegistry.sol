@@ -20,10 +20,10 @@ contract OptyRegistry is Modifiers {
     }
     
     struct Strategy{
-        StrategyStep[] strategySteps; 
+        uint256 blockNumber; 
         uint8 score; 
-        uint256 blockNumber;
         bool enabled;
+        StrategyStep[] strategySteps;
     }
     
     mapping(address => bool)                                          public tokens;
