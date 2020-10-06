@@ -5,6 +5,9 @@ pragma solidity ^0.6.10;
 import "./utils/Modifiers.sol";
 import "./libraries/Addresses.sol";
 
+/**
+ * @dev Contract for Opty Strategy Registry
+ */
 contract OptyRegistry is Modifiers {
     using Address for address;
 
@@ -16,19 +19,19 @@ contract OptyRegistry is Modifiers {
         address strategyContract;
     }
     
-    struct Strategy{
-        StrategyStep[] strategySteps; 
+    struct Strategy{ 
         uint8 score; 
-        uint256 blockNumber;
         bool enabled;
+        uint256 blockNumber;
+        StrategyStep[] strategySteps;
     }
     
-    mapping(address => bool)                                         public tokens;
-    mapping(address => bool)                                         public liquidityPools;
-    mapping(address => uint)                                         public liquidityPoolRatings;
-    mapping(string => bool)                                          public strategyProfiles;
-    mapping(address => mapping(string => uint))                      public poolToStrategyIdCounter;
-    mapping(address => mapping(string => mapping(uint => Strategy))) public tokensToStrategy;
+    mapping(address => bool)                                          public tokens;
+    mapping(address => bool)                                          public liquidityPools;
+    mapping(address => uint8)                                         public liquidityPoolRatings;
+    mapping(string => bool)                                           public strategyProfiles;
+    mapping(address => mapping(string => uint8))                      public poolToStrategyIdCounter;
+    mapping(address => mapping(string => mapping(uint8 => Strategy))) public tokensToStrategy;
 
     /**
      * @dev Sets the value for {owner}, {governance} and {strategist}, initializes
@@ -129,7 +132,7 @@ contract OptyRegistry is Modifiers {
      * - `_poolToken` should be a contract's address and not EOA.
      * - `_poolToken` should be enabled
      */
-    function rateLiquidityPool(address _poolToken, uint _rate) public onlyValidAddress onlyGovernance returns(uint) {
+    function rateLiquidityPool(address _poolToken, uint8 _rate) public onlyValidAddress onlyGovernance returns(uint8) {
         require(_poolToken != address(0), "poolToken address is a zero address");
         require(address(_poolToken).isContract(), "Call to non-contract address");
         require(liquidityPools[_poolToken],"Pool is not enabled");
@@ -160,6 +163,7 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfileId` should not be disabled`
      */
     function disableStrategyProfile(string memory _strategyProfile) public onlyGovernance returns(bool){
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(strategyProfiles[_strategyProfile],"strategy is already disabled");
         strategyProfiles[_strategyProfile] = false;
         return strategyProfiles[_strategyProfile];
@@ -170,15 +174,17 @@ contract OptyRegistry is Modifiers {
      * 
      * Requirements:
      * 
-     * - the caller should be owner
+     * - the caller should be strategist
      * - `_token` should be enabled`
      * - `_strategyProfile` should be enabled
      */
-    function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyOwner returns(uint){
+    function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyStrategist returns(uint8){
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(_token != address(0), "token address is a zero address");
         require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
-        uint strategyId = poolToStrategyIdCounter[_token][_strategyProfile];
-        for(uint i = 0 ; i < _strategySteps.length; i++) {
+        uint8 strategyId = poolToStrategyIdCounter[_token][_strategyProfile];
+        for(uint8 i = 0 ; i < _strategySteps.length; i++) {
         tokensToStrategy[_token][_strategyProfile][strategyId].strategySteps.push(
             StrategyStep(_strategySteps[i].token,_strategySteps[i].creditPool,_strategySteps[i].borrowToken,_strategySteps[i].liquidityPool,_strategySteps[i].strategyContract));
         }
@@ -187,7 +193,9 @@ contract OptyRegistry is Modifiers {
         return strategyId;
     }
     
-    function getStrategy(address _token, string memory _strategyProfile,uint _strategyId) public view returns(StrategyStep[] memory) {
+    function getStrategy(address _token, string memory _strategyProfile,uint8 _strategyId) public view returns(StrategyStep[] memory) {
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(_token != address(0), "token address is a zero address");
         return tokensToStrategy[_token][_strategyProfile][_strategyId].strategySteps;
     }
 
@@ -201,8 +209,9 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfile` should be enabled`
      * - `_StrategyId` should not be enabled
      */
-    function enableStrategy(address _token, string memory _strategyProfile, uint _strategyId) public onlyGovernance returns(bool){
-        require(tokens[_token],"token is not enabled");
+    function enableStrategy(address _token, string memory _strategyProfile, uint8 _strategyId) public onlyGovernance returns(bool){
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(_token != address(0), "token address is a zero address");require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
         require(!tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already enabled");
         tokensToStrategy[_token][_strategyProfile][_strategyId].enabled = true;
@@ -220,8 +229,9 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfile` should be enabled`
      * - `_strategyId` should not be disabled
      */
-    function disableStrategy(address _token, string memory _strategyProfile, uint _strategyId) public onlyGovernance returns(bool){
-        require(tokens[_token],"token is not enabled");
+    function disableStrategy(address _token, string memory _strategyProfile, uint8 _strategyId) public onlyGovernance returns(bool){
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(_token != address(0), "token address is a zero address");require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
         require(tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already disabled");
         tokensToStrategy[_token][_strategyProfile][_strategyId].enabled = false;
@@ -239,7 +249,9 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfile` should be enabled`
      * - `_strategyId` should be enabled
      */
-    function scoreStrategy(address _token, string memory _strategyProfile, uint _strategyId,uint _score ) public onlyGovernance returns(uint){
+    function scoreStrategy(address _token, string memory _strategyProfile, uint8 _strategyId,uint8 _score ) public onlyGovernance returns(uint8){
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(_token != address(0), "token address is a zero address");
         require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
         require(tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is disabled");
