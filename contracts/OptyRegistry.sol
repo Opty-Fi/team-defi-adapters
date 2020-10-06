@@ -19,10 +19,10 @@ contract OptyRegistry is Modifiers {
         address strategyContract;
     }
     
-    struct Strategy{
-        uint256 blockNumber; 
+    struct Strategy{ 
         uint8 score; 
         bool enabled;
+        uint256 blockNumber;
         StrategyStep[] strategySteps;
     }
     
@@ -174,11 +174,11 @@ contract OptyRegistry is Modifiers {
      * 
      * Requirements:
      * 
-     * - the caller should be owner
+     * - the caller should be strategist
      * - `_token` should be enabled`
      * - `_strategyProfile` should be enabled
      */
-    function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyOwner returns(uint8){
+    function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyStrategist returns(uint8){
         require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");
         require(tokens[_token],"token is not enabled");
