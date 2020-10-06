@@ -163,7 +163,7 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfileId` should not be disabled`
      */
     function disableStrategyProfile(string memory _strategyProfile) public onlyGovernance returns(bool){
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(strategyProfiles[_strategyProfile],"strategy is already disabled");
         strategyProfiles[_strategyProfile] = false;
         return strategyProfiles[_strategyProfile];
@@ -179,7 +179,7 @@ contract OptyRegistry is Modifiers {
      * - `_strategyProfile` should be enabled
      */
     function initialiseStrategy(address _token, string memory _strategyProfile, StrategyStep[] memory _strategySteps) public onlyOwner returns(uint8){
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");
         require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
@@ -194,7 +194,7 @@ contract OptyRegistry is Modifiers {
     }
     
     function getStrategy(address _token, string memory _strategyProfile,uint8 _strategyId) public view returns(StrategyStep[] memory) {
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");
         return tokensToStrategy[_token][_strategyProfile][_strategyId].strategySteps;
     }
@@ -210,7 +210,7 @@ contract OptyRegistry is Modifiers {
      * - `_StrategyId` should not be enabled
      */
     function enableStrategy(address _token, string memory _strategyProfile, uint8 _strategyId) public onlyGovernance returns(bool){
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
         require(!tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already enabled");
@@ -230,7 +230,7 @@ contract OptyRegistry is Modifiers {
      * - `_strategyId` should not be disabled
      */
     function disableStrategy(address _token, string memory _strategyProfile, uint8 _strategyId) public onlyGovernance returns(bool){
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
         require(tokensToStrategy[_token][_strategyProfile][_strategyId].enabled,"strategy is already disabled");
@@ -250,7 +250,7 @@ contract OptyRegistry is Modifiers {
      * - `_strategyId` should be enabled
      */
     function scoreStrategy(address _token, string memory _strategyProfile, uint8 _strategyId,uint8 _score ) public onlyGovernance returns(uint8){
-        (bytes(_strategyProfile).length > 0,"Strategy profile is empty");
+        require(bytes(_strategyProfile).length > 0,"Strategy profile is empty");
         require(_token != address(0), "token address is a zero address");
         require(tokens[_token],"token is not enabled");
         require(strategyProfiles[_strategyProfile],"strategy profile is not enabled");
