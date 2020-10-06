@@ -10,6 +10,7 @@ contract Modifiers {
     address public owner;
     address public governance;
     address public strategist;
+    uint256 private _guardCounter;
     
     /**
      * @dev Sets the owner, governance and strategist while deploying the contract
@@ -18,6 +19,7 @@ contract Modifiers {
         owner = msg.sender;
         governance = msg.sender;
         strategist = msg.sender;
+        _guardCounter = 1;
     }
     
     /**
@@ -51,8 +53,11 @@ contract Modifiers {
         require(msg.sender == strategist, "Caller is not strategist");
         _;
     }
-}
 
-/**
- * @dev Contract for Opty Strategy Registry
- */
+    modifier nonReentrant() {
+        _guardCounter += 1;
+        uint256 localCounter = _guardCounter;
+        _;
+        require(localCounter == _guardCounter, "ReentrancyGuard: reentrant call");
+    }
+}
