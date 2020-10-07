@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "./utils/Modifiers.sol";
 import "./libraries/Addresses.sol";
@@ -64,8 +65,9 @@ contract OptyRegistry is Modifiers {
      * - `_token` cannot be a zero address`
      * - `_token` should be a contract's address and not EOA.
      */
-    function enableTokens(address _token) public onlyValidAddress onlyOwner onlyGovernance onlyStrategist returns(bool) {
-        require(_token != address(0), "token address is a zero address");
+    function enableTokens(address _token) public onlyValidAddress returns(bool) {
+        require(isZeroAddress(_token), "Token address is a zero address");
+        require(eitherOwnerGovernanceStrategist(), "Caller is Neither owner nor governance nor strategist");
         require(address(_token).isContract(), "Call to non-contract address");
         require(!tokens[_token],"Pool is already enabled");
         tokens[_token] = true;
@@ -81,8 +83,9 @@ contract OptyRegistry is Modifiers {
      * - `_token` cannot be a zero address`
      * - `_token` should be a contract's address and not EOA.
      */
-    function disableTokens(address _token) public onlyValidAddress onlyOwner onlyGovernance onlyStrategist returns(bool) {
-        require(_token != address(0), "Token address is a zero address");
+    function disableTokens(address _token) external onlyValidAddress returns(bool) {
+        require(isZeroAddress(_token), "Token address is a zero address");
+        require(eitherOwnerGovernanceStrategist(), "Caller is Neither owner nor governance nor strategist");
         require(address(_token).isContract(), "Call to non-contract address");
         require(tokens[_token], "Token address doesn't exist");
         tokens[_token] = false;

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
 
@@ -23,9 +23,28 @@ contract Modifiers {
     }
     
     /**
+     * @dev Function to check if the address is zero address or not
+     */
+    function isZeroAddress(address _address) internal pure returns(bool) {
+        require(_address != address(0), "Modifiers: caller is zero address");
+        return true;
+    }
+    
+    /**
+     * @dev Function to check caller is either of owner or governance or strategist
+     */
+    function eitherOwnerGovernanceStrategist() internal view returns(bool) {
+        if (msg.sender == owner || msg.sender == governance || msg.sender == strategist) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
      * @dev Modifier to check if the address is zero address or not
      */
-    modifier onlyValidAddress(){
+    modifier onlyValidAddress() {
         require(msg.sender != address(0), "caller is zero address");
         _;
     }
@@ -54,6 +73,9 @@ contract Modifiers {
         _;
     }
 
+    /**
+     * @dev Modifier to check re-entrancy issue
+     */
     modifier nonReentrant() {
         _guardCounter += 1;
         uint256 localCounter = _guardCounter;
