@@ -6,45 +6,34 @@
 
 - [Addresses.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Address.sol)
 
-### Utils
-
-- [Modifiers.sol](./contracts/utils/Modifiers.sol)
-
 ### Variables
 
 | Name                     | Type          | Structure                                                                                                                                     | visibility   | purpose                                                                |
 | ------------------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------- |
-| owner | `address` | N/A | `public` | Stores the address of the owner |
 | governance | `address` | N/A | `public` | Stores the address of the governance |
 | strategist | `address` | N/A | `public` | Stores the address of the strategist |
 | tokens                   | `mapping`     | `mapping(address tokenContract => bool enabled)`                                                                                              | `public`     | stores the tokens supported by Opty.Fi's Earn platform                 |
 | StrategyStep      | `struct`      | `{address token; address creditPool; address borrowToken; address liquidityPool; address strategyContract;}`                                  | `public`     | store the strategy step                                           |
 | Strategy                 | `struct`      | `{StrategyStep[] strategySteps; uint8 score; uint256 blockNumber; bool enabled;}` | `public`     | store the strategy steps in sequence with and its score           |
-| tokensToStrategy         | `mapping`     | `mapping(address token => mapping(uint8 strategyProfileId => mapping(uint strategyId => Strategy)))`                                 | `public`     | store the lookup for supported token and its corresponding strategies. |
-| poolToStrategyIdCounter  | `mapping`     | `mapping(address token => mapping(uint strategyProfileId => uint strategyId))`                                                                | `public`     | store the count of strategies per StrategyProfile                      |
-| ~~t1~~                   | ~~`mapping`~~ | ~~`mapping(address t1Pool => bool enabled)`~~                                                                                                 | ~~`public`~~ | ~~list of T1 protocols~~                                               |
-| ~~t2~~                   | ~~`mapping`~~ | ~~`mapping(address t1Pool => bool enabled)`~~                                                                                                 | ~~`public`~~ | ~~list of T2 protocols~~                                               |
-| ~~t3~~                   | ~~`mapping`~~ | ~~`mapping(address t1Pool => bool enabled)`~~                                                                                                 | ~~`public`~~ | ~~list of T3 protocols~~                                               |
-| liquidityPools           | `mapping`     | `mapping(address liquidityPool => bool enabled)`                                                                                              | `public`     | stores the liquidity pools                                             |
-| liquidityPoolRating      | `mapping`     | `mapping(address liquidityPool => uint rating)`                                                                                               | `public`     | store the liquidity pool ratings                                       |
-| ~~StrategyProfile~~      | ~~`enum`~~    | ~~`{BASIC,ADVANCED,ADVANCED_PLUS}`~~                                                                                                          | ~~`public`~~ | ~~possible strategy risk profiles~~                                    |
-| strategyProfiles         | `mapping`     | `mapping(uint strategyProfileId => bool enable)`                                                                                              | `public`     | store all strategy profiles                                            |
-| strategyProfileIdCounter | `mapping`     | `mapping(address token => uint strategyProfileId)`                                                                                              | `public`     | store all strategy profiles                                            |
+| tokenToStrategies        | `mapping`     | `mapping(address token => bytes32[])`                                 | `public`     | store the lookup for supported token and its corresponding strategy hashes. |
+| strategyIndexes         | `bytes32`     | `bytes32[] strategyIndexes`                                 | `public`     | store list of unique strategy hashes. |
+| LiquidityPool         | `struct`     | `{uint8 rating, bool isLiquidityPool}`                                 | `public`     | attributes of liquidity pools. |
+| liquidityPools         | `mapping`     | `mapping(address liquidityPool => bytes32[] strategies)`                                 | `public`     | store list of liquidity pools. |
 
 ### Functions
 
 | Name                   | Input Parameters                                                                  | visibility | Return Parameters | Called By                   | Description                                             |
 | ---------------------- | --------------------------------------------------------------------------------- | ---------- | ----------------- | --------------------------- | ------------------------------------------------------- |
-| enableTokens           | `address _token`                                                                  | `public`   |    `bool`            | Owner/Governance/Strategist | enable token in `tokens` mapping.                       |
-| disableTokens          | `address _token`                                                                  | `external`   | `bool`               | Owner/Governance/Strategist | disable token from `tokens` mapping.                    |
-| enableStrategyProfile  | `uint _strategyProfileId`                                                         | `external`   | N/A               | Owner/Governance/Strategist | enable a new strategy profile using `strategyProfiles`   |
-| disableStrategyProfile | `uint _strategyProfileId`                                                         | `external`   | N/A               | Owner/Governance/Strategist | disable a new strategy profile using `strategyProfiles`  |
+| approveToken           | `address _token`                                                                  | `public`   |    `bool`            | Governance | enable token in `tokens` mapping.                       |
+| revokeToken          | `address _token`                                                                  | `public`   | `bool`               | Governance | disable token from `tokens` mapping.                    |
+| |  |    |   |  |   |
+|  |  |  |  |  |  |
 | enableStrategy         | `address _token, uint _strategyProfileId, StrategyStep[] _strategyStep` | `external`   | N/A | Owner/Governance/Strategist | enable strategies using `tokensToStrategy` mapping.     |
 | disableStrategy        | `address _token, uint _strategyProfileId, uint _strategyId`                       | `external`   | N/A               | Owner/Governance/Strategist | disable strategies using `tokensToStrategy` mapping.    |
 | enableLiquidityPool    | `address _liquidityPool`                                                          | `external`   | N/A               | Owner/Governance/Strategy   | enable or add new liquidity pool using `liquidityPools` |
 | disableLiquidityPool   | `address _liquidityPool`                                                          | `external`   | N/A               | Owner/Governance/Strategy   | disable a liquidity pool using `liquidityPools`         |
-| rateLiquidityPool      | `address _liquidityPool, uint _rating`                                            | `external`   | N/A               | Owner/Governance/Strategy   | give rating to liquidty pool                            |
-| scoreStrategy | `address _token, uint _strategyProfileId, uint _strategyId, uint _score` | `external` | N/A | Owner/Governance/Strategy | score the strategy  |
+| rateLiquidityPool      | `address _pool, uint _rate`                                            | `public`   | N/A               | Governance   | give rating to liquidty pool                            |
+| scoreStrategy | `bytes32 _hash, uint8 _score` | `public` | N/A | Governance | score the strategy  |
 
 ### Events
 
