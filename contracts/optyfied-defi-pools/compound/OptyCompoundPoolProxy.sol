@@ -12,6 +12,7 @@ import "../../libraries/SafeERC20.sol";
 contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
     
     using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
     function deploy(address _underlyingToken,address _lendingPool,address _lendingPoolToken, uint _amount) public override returns(bool){
         IERC20(_underlyingToken).safeApprove(_lendingPool, uint(0));
