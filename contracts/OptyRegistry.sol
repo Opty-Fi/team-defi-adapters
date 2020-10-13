@@ -216,9 +216,8 @@ contract OptyRegistry {
         bytes32  hash = keccak256(abi.encodePacked(hashes));
         require(_isNewStrategy(hash),"isNewStrategy");
         for(uint8 i = 0 ; i < _strategySteps.length ; i++) {
-            if((address(_strategySteps[i].creditPool) == address(0) && address(_strategySteps[i].borrowToken) == address(0)) || 
-            (address(_strategySteps[i].creditPool).isContract() && address(_strategySteps[i].borrowToken).isContract())){
-            require(address(_strategySteps[i].token).isContract() && address(_strategySteps[i].liquidityPool).isContract() && 
+            if(address(_strategySteps[i].creditPool) == address(0) && address(_strategySteps[i].borrowToken) == address(0)){
+                require(address(_strategySteps[i].token).isContract() && address(_strategySteps[i].liquidityPool).isContract() && 
             address(_strategySteps[i].strategyContract).isContract() && 
             liquidityPools[address(_strategySteps[i].liquidityPool)].isLiquidityPool &&
             tokens[address(_strategySteps[i].token)],"!strategyStep");
@@ -226,7 +225,11 @@ contract OptyRegistry {
                         StrategyStep(_strategySteps[i].token,_strategySteps[i].creditPool,_strategySteps[i].borrowToken,
                         _strategySteps[i].liquidityPool,_strategySteps[i].strategyContract)
                         );
-            } else {
+            }
+            else if(address(_strategySteps[i].creditPool).isContract() && address(_strategySteps[i].borrowToken).isContract()){
+                revert("!CP-not-implemented");
+            }
+            else {
                 revert("!strategyStep-CP");
             }
         }
