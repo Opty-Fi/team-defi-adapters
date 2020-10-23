@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity ^0.6.10;
@@ -43,6 +42,8 @@ contract OptyRegistry {
     mapping(bytes32 => Strategy)      public strategies;
     mapping(address => bytes32[])     public tokenToStrategies;
     mapping(address => LiquidityPool) public liquidityPools;
+    mapping(address => address[])     public liquidityPoolToUnderlyingTokens;
+    mapping(address => address[])     public liquidityPoolToLPTokens;
 
     /**
      * @dev Sets the value for {governance} and {strategist}, 
@@ -59,12 +60,30 @@ contract OptyRegistry {
         address tusd = address(0x0000000000085d4780B73119b644AE5ecd22b376);
         address wbtc = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
         address weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+        address cDAILPToken = address(0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643);
+        address aDAILPToken = address(0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d);
+        address cDAILiquidityPool = address(0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643);
+        address aaveLendingPoolAddressProvider = address(0x24a42fD28C976A61Df5D00D0599C34c4f90748c8);
+        address aDAILiquidityPool = address(0x398eC7346DcD622eDc5ae82352F02bE94C62d119);
         approveToken(dai);
         approveToken(usdt);
         approveToken(usdc);
         approveToken(tusd);
         approveToken(wbtc);
         approveToken(weth);
+        approveToken(cDAILPToken);
+        approveToken(aDAILPToken);
+        approveLiquidityPool(cDAILiquidityPool);
+        approveLiquidityPool(aDAILiquidityPool);
+        approveLiquidityPool(aaveLendingPoolAddressProvider);
+        address[] memory ts = new address[](1);
+        ts[0] = dai;
+        setLiquidityPoolToUnderlyingTokens(cDAILiquidityPool,ts);
+        setLiquidityPoolToUnderlyingTokens(aDAILiquidityPool,ts);
+        ts[0] = cDAILPToken;
+        setLiquidityPoolToLPTokens(cDAILiquidityPool,ts);
+        ts[0] = aDAILPToken;
+        setLiquidityPoolToLPTokens(aDAILiquidityPool,ts);
     }
     
     /**
@@ -72,6 +91,7 @@ contract OptyRegistry {
      * Can only be called by the current governance.
      */    
     function transferGovernance(address _governance) public onlyValidAddress onlyGovernance {
+        require(_governance != address(0),"!_governance");
         governance = _governance;
     }
     
@@ -80,6 +100,7 @@ contract OptyRegistry {
      * Can only be called by the current governance.
      */
     function transferStrategist(address _strategist) public onlyValidAddress onlyGovernance {
+        require(_strategist != address(0),"!_governance");
         strategist = _strategist;
     }
     
@@ -189,6 +210,68 @@ contract OptyRegistry {
         require(liquidityPools[_pool].isLiquidityPool,"liquidityPools.isLiquidityPool");
         liquidityPools[_pool].rating = _rate;
         emit LogRateLiquidityPool(msg.sender,_pool,liquidityPools[_pool].rating);
+        return true;
+    }
+    
+    /**
+     * @dev Assign `_tokens` to `_pool` in the {liquidityPoolToUnderlyingTokens} mapping.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {LogSetLiquidityPoolToUnderlyingTokens} event.
+     *
+     * Requirements:
+     *
+     * - `_pool` cannot be the zero address or an EOA.
+     * - msg.sender should be governance.
+     * - `_pool` should be approved
+     * - `_tokens` should be approved
+     */
+    function setLiquidityPoolToUnderlyingTokens(address _pool, address[] memory _tokens) public onlyValidAddress onlyGovernance returns(bool) {
+        require(_pool != address(0), "zero address");
+        require(address(_pool).isContract(), "isContract");
+        require(liquidityPools[_pool].isLiquidityPool,"liquidityPools.isLiquidityPool");
+        for(uint8 i = 0; i < _tokens.length ; i++) {
+            require(tokens[_tokens[i]],"!tokens");
+            liquidityPoolToUnderlyingTokens[_pool].push(_tokens[i]);   
+        }
+        emit LogSetLiquidityPoolToUnderlyingTokens(msg.sender,_pool,keccak256(abi.encodePacked(_tokens)));
+        return true;
+    }
+    
+    /**
+     * @dev Returns the list of tokens by `_pool`.
+     */
+    function getUnderlyingTokens(address _pool) public view returns(address[] memory) {
+        require(_pool != address(0), "zero address");
+        require(address(_pool).isContract(), "isContract");
+        require(liquidityPools[_pool].isLiquidityPool,"liquidityPools.isLiquidityPool");
+        return liquidityPoolToUnderlyingTokens[_pool];
+    }
+    
+    /**
+     * @dev Assign liquidity pool tokens `_tokens` to `_pool` in the {liquidityPoolToLPTokens} mapping.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {LogSetLiquidityPoolToLPTokens} event.
+     *
+     * Requirements:
+     *
+     * - `_pool` cannot be the zero address or an EOA.
+     * - msg.sender should be governance.
+     * - `_pool` should be approved
+     * - `_tokens` should be approved
+     */
+    function setLiquidityPoolToLPTokens(address _pool, address[] memory _tokens) public onlyValidAddress onlyGovernance returns(bool) {
+        require(_pool != address(0), "zero address");
+        require(address(_pool).isContract(), "isContract");
+        require(liquidityPools[_pool].isLiquidityPool,"liquidityPools.isLiquidityPool");
+        for(uint8 i = 0; i < _tokens.length ; i++) {
+            require(tokens[_tokens[i]],"!tokens");
+            liquidityPoolToLPTokens[_pool].push(_tokens[i]);   
+        }
+        emit LogSetLiquidityPoolToLPTokens(msg.sender,_pool,keccak256(abi.encodePacked(_tokens)));
         return true;
     }
 
@@ -327,6 +410,16 @@ contract OptyRegistry {
     }
     
     /**
+     * @dev Returns the list of strategy hashes by `_token`.
+     */
+    function getTokenStrategies(address _token) public view returns(bytes32[] memory) {
+        require(_token != address(0), "zero address");
+        require(address(_token).isContract(), "isContract");
+        require(tokens[_token],"!tokens");
+        return tokenToStrategies[_token];
+    }
+    
+    /**
      * @dev Check duplicate `_hash` Startegy from the {strategyIndexes} mapping.
      *
      * Returns a boolean value indicating whether duplicate `_hash` exists or not.
@@ -407,4 +500,22 @@ contract OptyRegistry {
      * Note that `hash` startegy should exist in {strategyIndexes}.
      */
     event LogScoreStrategy(address indexed caller, bytes32 indexed hash, uint8 indexed score);
+    
+    /**
+     * @dev Emitted when `tokens` are assigned to pool.
+     *
+     * Note that `pool` and `tokens` should be approved in {liquidityPools} and {tokens} respectively.
+     */
+    event LogSetLiquidityPoolToUnderlyingTokens(address indexed caller, address indexed pool, bytes32 indexed tokens);
+    
+    /**
+     * @dev Emitted when liquidity pool `tokens` are assigned to pool.
+     *
+     * Note that `pool` and `tokens` should be approved in {liquidityPools} and {tokens} respectively.
+     */
+    event LogSetLiquidityPoolToLPTokens(address indexed caller, address indexed pool, bytes32 indexed tokens);
 }
+
+
+
+
