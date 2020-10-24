@@ -57,7 +57,7 @@ contract OptyAavePoolProxy is IOptyLiquidityPoolProxy {
          return IERC20(_token).balanceOf(_holder);
     } 
     
-    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _reserve) public override returns(uint _borrowAmount) {
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _reserve) public override returns(bool success) {
         address _lendingPool = getLendingPool(_lendingPoolAddressProvider);
         address _priceOracle = getPriceOracle(_lendingPoolAddressProvider);
         IAave(_lendingPool).setUserUseReserveAsCollateral(_underlyingToken,true);
@@ -66,8 +66,9 @@ contract OptyAavePoolProxy is IOptyLiquidityPoolProxy {
         IAave.UserAccountData memory _userAccountData = IAave(_lendingPool).getUserAccountData(address(this));
         uint _reservePriceInWei = IPriceOracle(_priceOracle).getAssetPrice(_reserve);
         uint _reserveDecimals = 10 ** uint((IERC20(_reserve).decimals()));
-        _borrowAmount = (_reserveDecimals.mul(_userAccountData.availableBorrowsETH)).div(_reservePriceInWei);
+        uint _borrowAmount = (_reserveDecimals.mul(_userAccountData.availableBorrowsETH)).div(_reservePriceInWei);
         IAave(_lendingPool).borrow(_reserve, _borrowAmount, 2,  0);
         IERC20(_reserve).transfer(msg.sender,_borrowAmount);
+        success = true;
     }
 }

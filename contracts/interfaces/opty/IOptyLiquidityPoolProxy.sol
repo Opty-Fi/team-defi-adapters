@@ -23,9 +23,9 @@ interface IOptyLiquidityPoolProxy {
     /**
      * @dev Borrow `amount` of `reserve` token and sets the `underlyingToken` as collateral`.
      *
-     * Returns amount of reserve borrowed.
+     * Returns a boolean value indicating whether the operation succeeded
      */
-    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address reserve) external returns(uint);
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address reserve) external returns(bool);
     
     /**
      * @dev Returns the amount of {token} tokens owned by account.
