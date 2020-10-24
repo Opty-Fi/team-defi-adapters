@@ -21,6 +21,13 @@ interface IOptyLiquidityPoolProxy {
     function recall(address underlyingToken,address lendingPoolToken,uint amount) external returns(bool);
     
     /**
+     * @dev Borrow `amount` of `reserve` token and sets the `underlyingToken` as collateral`.
+     *
+     * Returns amount of reserve borrowed.
+     */
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address reserve) external returns(uint);
+    
+    /**
      * @dev Returns the amount of {token} tokens owned by account.
      */
     function balance(address token,address account) external view returns(uint);
@@ -31,8 +38,5 @@ interface IOptyLiquidityPoolProxy {
     function balanceInToken(address lendingPoolToken, address account) external view returns(uint);
 
     // TODO : Dhruvin
-    // enter collateral market
-    // exit collateral market
-    // borrow
     // repay
 }
