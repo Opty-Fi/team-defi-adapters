@@ -57,18 +57,31 @@ contract OptyAavePoolProxy is IOptyLiquidityPoolProxy {
          return IERC20(_token).balanceOf(_holder);
     } 
     
-    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _reserve) public override returns(bool success) {
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken) public override returns(bool success) {
         address _lendingPool = getLendingPool(_lendingPoolAddressProvider);
         address _priceOracle = getPriceOracle(_lendingPoolAddressProvider);
         IAave(_lendingPool).setUserUseReserveAsCollateral(_underlyingToken,true);
         IAave.UserReserveData memory _userReserveData = IAave(_lendingPool).getUserReserveData(_underlyingToken, address(this));
         require(_userReserveData.enabled,"!_userReserveData.enabled");
         IAave.UserAccountData memory _userAccountData = IAave(_lendingPool).getUserAccountData(address(this));
-        uint _reservePriceInWei = IPriceOracle(_priceOracle).getAssetPrice(_reserve);
-        uint _reserveDecimals = 10 ** uint((IERC20(_reserve).decimals()));
-        uint _borrowAmount = (_reserveDecimals.mul(_userAccountData.availableBorrowsETH)).div(_reservePriceInWei);
-        IAave(_lendingPool).borrow(_reserve, _borrowAmount, 2,  0);
-        IERC20(_reserve).transfer(msg.sender,_borrowAmount);
+        uint _borrowTokenPriceInWei = IPriceOracle(_priceOracle).getAssetPrice(_borrowToken);
+        uint _borrowTokenDecimals = 10 ** uint((IERC20(_borrowToken).decimals()));
+        uint _borrowAmount = (_borrowTokenDecimals.mul(_userAccountData.availableBorrowsETH)).div(_borrowTokenPriceInWei);
+        IAave(_lendingPool).borrow(_borrowToken, _borrowAmount, 2,  0);
+        IERC20(_borrowToken).transfer(msg.sender,_borrowAmount);
         success = true;
     }
+    
+    function repay(address _lendingPoolAddressProvider, address _borrowToken,address _lendingPoolToken) public override returns(bool success) {
+        address _lendingPoolCore = getLendingPoolCore(_lendingPoolAddressProvider);
+        address _lendingPool = getLendingPool(_lendingPoolAddressProvider);
+        uint256 _amount = IERC20(_borrowToken).balanceOf(address(this));
+        IERC20(_borrowToken).safeApprove(_lendingPoolCore, 0);
+        IERC20(_borrowToken).safeApprove(_lendingPoolCore, _amount);
+        IAave(_lendingPool).repay(_borrowToken,_amount,address(uint160(address(this))));
+        _amount = IERC20(_lendingPoolToken).balanceOf(address(this));
+        IERC20(_lendingPoolToken).transfer(msg.sender,_amount);
+        success = true;
+    }
+
 }

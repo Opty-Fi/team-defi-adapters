@@ -21,11 +21,18 @@ interface IOptyLiquidityPoolProxy {
     function recall(address underlyingToken,address lendingPoolToken,uint amount) external returns(bool);
     
     /**
-     * @dev Borrow `amount` of `reserve` token and sets the `underlyingToken` as collateral`.
+     * @dev Borrow `amount` of `_borrowToken` token and sets the `underlyingToken` as collateral`.
      *
      * Returns a boolean value indicating whether the operation succeeded
      */
-    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address reserve) external returns(bool);
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken) external returns(bool);
+    
+    /**
+     * @dev Repay `borrowToken` token and free collateral.
+     *
+     * Returns a boolean value indicating whether the operation succeeded
+     */
+    function repay(address _lendingPoolAddressProvider, address _borrowToken,address _lendingPoolToken) external returns(bool);
     
     /**
      * @dev Returns the amount of {token} tokens owned by account.
