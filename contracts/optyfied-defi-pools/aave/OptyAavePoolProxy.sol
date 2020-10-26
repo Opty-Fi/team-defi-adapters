@@ -83,5 +83,4 @@ contract OptyAavePoolProxy is IOptyLiquidityPoolProxy {
         IERC20(_lendingPoolToken).transfer(msg.sender,_amount);
         success = true;
     }
-
 }
