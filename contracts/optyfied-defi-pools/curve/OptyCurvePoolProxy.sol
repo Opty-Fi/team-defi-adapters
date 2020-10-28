@@ -16,13 +16,7 @@ import "../../OptyRegistry.sol";
 
 contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     
-    using SafeERC20 for IERC20;
-    
-    /**
-    * @dev Opty Registry hard-coded contract address
-    */
-    address OptyRegistryAddress = address(0x1EA30475f9c7f89b95A94e42865C1b5DAC8972aF);
-    
+    using SafeERC20 for IERC20;    
     
     /**
     * @dev Mapping to store the number of different tokens that each pool has
@@ -34,8 +28,20 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     */
     mapping (address => address) LPToken;
     
-    OptyRegistry OptyRegistryContract = OptyRegistry(OptyRegistryAddress);
-
+    OptyRegistry optyRegistryContract;
+    
+    /**
+    * @dev Constructor function to store OptyRegistry contract address
+    * 
+    * @param optyRegistryAddress Address of OptyRegistry contract
+    */
+    constructor(address optyRegistryAddress) public {
+        optyRegistryContract = OptyRegistry(optyRegistryAddress);
+    }
+    
+    function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken) public override returns(bool) { return true; }
+    function repay(address _lendingPoolAddressProvider, address _borrowToken,address _lendingPoolToken) public override returns(bool) { return true; }
+    
     /**
     * @dev Calls the appropriate deploy function depending on N_COINS
     * 
@@ -45,7 +51,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _underlyingToken to deposit
     */
     function deploy(address _underlyingToken,address _liquidityPool,address _liquidityPoolToken,uint _amount) public override returns(bool){
-        uint N_COINS = OptyRegistryContract.getNumberOfTokens(_liquidityPool);
+        uint N_COINS = optyRegistryContract.getNumberOfTokens(_liquidityPool);
         if (N_COINS == uint(2)){
             deploy2(_underlyingToken, _liquidityPool, _liquidityPoolToken, _amount);
         }
@@ -67,7 +73,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _underlyingToken to deposit
     */
     function deploy2(address _underlyingToken,address _liquidityPool,address _liquidityPoolToken,uint _amount) internal returns(bool){
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[2] memory amountsIn;
         for (uint i=0; i<uint(2); i++){
             if(tokensList[i] == _underlyingToken){
@@ -95,7 +101,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _underlyingToken to deposit
     */
     function deploy3(address _underlyingToken,address _liquidityPool,address _liquidityPoolToken,uint _amount) internal returns(bool){
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[3] memory amountsIn;
         for (uint i=0; i<uint(3); i++){
             if(tokensList[i] == _underlyingToken){
@@ -123,7 +129,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _underlyingToken to deposit
     */
     function deploy4(address _underlyingToken,address _liquidityPool,address _liquidityPoolToken,uint _amount) internal returns(bool){
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[4] memory amountsIn;
         for (uint i=0; i<uint(4); i++){
             if(tokensList[i] == _underlyingToken){
@@ -150,8 +156,8 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
     */
     function recall(address _underlyingToken, address _liquidityPoolToken, uint _amount) public override returns(bool) {
-        address liquidityPool = OptyRegistryContract.getLPTokenToLiquidityPool(_liquidityPoolToken);
-        address[] memory tokensList = OptyRegistryContract.getLPTokenToUnderlyingTokens(_liquidityPoolToken);
+        address liquidityPool = optyRegistryContract.getLPTokenToLiquidityPool(_liquidityPoolToken);
+        address[] memory tokensList = optyRegistryContract.getLPTokenToUnderlyingTokens(_liquidityPoolToken);
         uint8 N_COINS = uint8(tokensList.length);
         int128 i;
         for (uint8 j=0; j<N_COINS; j++){
@@ -175,8 +181,8 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
     */
     function recallAllTokens(address _liquidityPoolToken,uint _amount) public returns(bool){
-        address liquidityPool = OptyRegistryContract.getLPTokenToLiquidityPool(_liquidityPoolToken);
-        uint N_COINS = OptyRegistryContract.getLPTokenToUnderlyingTokens(_liquidityPoolToken).length;
+        address liquidityPool = optyRegistryContract.getLPTokenToLiquidityPool(_liquidityPoolToken);
+        uint N_COINS = optyRegistryContract.getLPTokenToUnderlyingTokens(_liquidityPoolToken).length;
         if (N_COINS == uint(2)){
             recallAllTokens2(liquidityPool, _liquidityPoolToken, _amount);
         }
@@ -197,7 +203,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
     */
     function recallAllTokens2(address _liquidityPool, address _liquidityPoolToken, uint _amount) internal returns(bool) {
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[2] memory minAmountOut = [uint(0), uint(0)];
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(0));
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(_amount));
@@ -216,7 +222,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
     */
     function recallAllTokens3(address _liquidityPool, address _liquidityPoolToken, uint _amount) internal returns(bool) {
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[3] memory minAmountOut = [uint(0), uint(0), uint(0)];
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(0));
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(_amount));
@@ -235,7 +241,7 @@ contract OptyCurvePoolProxy is IOptyLiquidityPoolProxy {
     * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
     */
     function recallAllTokens4(address _liquidityPool, address _liquidityPoolToken, uint _amount) internal returns(bool) {
-        address[] memory tokensList = OptyRegistryContract.getUnderlyingTokens(_liquidityPool);
+        address[] memory tokensList = optyRegistryContract.getUnderlyingTokens(_liquidityPool);
         uint[4] memory minAmountOut = [uint(0), uint(0), uint(0), uint(0)];
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(0));
         IERC20(_liquidityPoolToken).safeApprove(_liquidityPool, uint(_amount));
