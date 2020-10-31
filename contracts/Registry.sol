@@ -127,6 +127,8 @@ contract Registry is Modifiers{
         setTokensHashToTokens(tkns);
         
         //  activation for compound usdc
+        tkns = new address[](1);
+        tkns[0] = usdc;
         address cUSDCLiquidityPool = address(0x39AA39c021dfbaE8faC545936693aC917d5E7563);
         approveToken(cUSDCLiquidityPool);
         approveLiquidityPool(cUSDCLiquidityPool);
