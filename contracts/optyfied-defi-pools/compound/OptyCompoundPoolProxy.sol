@@ -1,15 +1,18 @@
 // SPDX-License-Identifier:MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import "../../interfaces/opty/IOptyLiquidityPoolProxy.sol";
 import "../../interfaces/compound/ICompound.sol";
 import "../../libraries/SafeERC20.sol";
+import "../../libraries/Addresses.sol";
 
 contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using Address for address;
 
     function deploy(address _underlyingToken,address _lendingPool,address _lendingPoolToken, uint _amount) public override returns(bool){
         IERC20(_underlyingToken).safeApprove(_lendingPool, uint(0));
@@ -40,6 +43,36 @@ contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
          return IERC20(_token).balanceOf(_holder);
     } 
     
+    function claimRewardTokens(address _comptroller, address _comp) public returns(uint256 _compTokens) {
+        require(_comptroller != address(0), "!address(0)");
+        require(_comp != address(0), "!address(0)");
+        require(address(_comptroller).isContract(), "!isContract");
+        require(address(_comp).isContract(), "!isContract");
+        ICompound(_comptroller).claimComp(address(this));
+        _compTokens = IERC20(_comp).balanceOf(address(this));
+        return _compTokens;
+    }
+    
+    // struct CompBalanceMetadata {
+    //     uint balance;
+    //     uint votes;
+    //     address delegate;
+    // }
+    
+    function getCompViaLens() public view returns(ICompound.CompBalanceMetadata memory) {
+        address compoundLens = address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074);
+        address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+        ICompound.CompBalanceMetadata memory output = ICompound(compoundLens).getCompBalanceMetadata(comp, address(this));
+        return output;
+    }
+    
+    function getCompBalanceMetadataExt() public returns(ICompound.CompBalanceMetadataExt memory) {
+        address compoundLens = address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074);
+        address comptroller = address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
+        address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+        ICompound.CompBalanceMetadataExt memory output = ICompound(compoundLens).getCompBalanceMetadataExt(comp, comptroller, address(this));
+        return output;
+    }
     function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken) public override returns(bool success) {
         revert("not implemented");
     }
@@ -48,3 +81,12 @@ contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
         revert("not implemented");    }
     
 }
+
+// dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F
+// cdai = 0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643
+
+// _comp = 0xc00e94Cb662C3520282E6f5717214004A7f26888
+// _comptroller = 0x7b5e3521a049C8fF88e6349f33044c6Cc33c113c
+// _unitroller = 0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B
+// 0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b
+
