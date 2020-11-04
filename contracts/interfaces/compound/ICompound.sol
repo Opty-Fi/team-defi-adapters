@@ -18,7 +18,6 @@ interface ICompound {
         uint allocated;
     }
 
-    function claimComp(address holder, address[] memory cTokens) external;
     function getCompBalanceMetadata(address comp, address account) external view returns (CompBalanceMetadata memory);
     function getCompBalanceMetadataExt(address comp, address comptroller, address account) external returns (CompBalanceMetadataExt memory);
     function mint ( uint256 mintAmount ) external returns ( uint256 );
