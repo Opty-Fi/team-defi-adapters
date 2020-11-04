@@ -43,14 +43,27 @@ contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
          return IERC20(_token).balanceOf(_holder);
     } 
     
-    function claimRewardTokens(address _comptroller, address _comp) public returns(uint256 _compTokens) {
-        require(_comptroller != address(0), "!address(0)");
-        require(_comp != address(0), "!address(0)");
-        require(address(_comptroller).isContract(), "!isContract");
-        require(address(_comp).isContract(), "!isContract");
-        ICompound(_comptroller).claimComp(address(this));
-        _compTokens = IERC20(_comp).balanceOf(address(this));
+    function claimRewardTokens() public returns(uint256 _compTokens) {
+        address comptroller = address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
+        address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+        require(comptroller != address(0), "!address(0)");
+        require(comp != address(0), "!address(0)");
+        require(address(comptroller).isContract(), "!isContract");
+        require(address(comp).isContract(), "!isContract");
+        ICompound(comptroller).claimComp(msg.sender);
+        _compTokens = IERC20(comp).balanceOf(msg.sender);
         return _compTokens;
+    }
+    
+    function claimCompAllMarket() public returns(uint _compTokens) {
+        address comptroller = address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
+        address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+        address[] memory allMarkets = new address[](1);
+        allMarkets[0] = address(0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643);
+        
+        ICompound(comptroller).claimComp(msg.sender, allMarkets);
+        _compTokens = IERC20(comp).balanceOf(msg.sender);
+        
     }
     
     // struct CompBalanceMetadata {
@@ -59,19 +72,19 @@ contract OptyCompoundPoolProxy is IOptyLiquidityPoolProxy {
     //     address delegate;
     // }
     
-    function getCompViaLens() public view returns(ICompound.CompBalanceMetadata memory) {
+    function getCompBalanceMetadata() public view returns(ICompound.CompBalanceMetadata memory) {
         address compoundLens = address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074);
         address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
-        ICompound.CompBalanceMetadata memory output = ICompound(compoundLens).getCompBalanceMetadata(comp, address(this));
+        ICompound.CompBalanceMetadata memory output = ICompound(compoundLens).getCompBalanceMetadata(comp, msg.sender);
         return output;
     }
     
-    function getCompBalanceMetadataExt() public returns(ICompound.CompBalanceMetadataExt memory) {
+    function claimCompGetCompBalance() public returns(uint, uint) {
         address compoundLens = address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074);
         address comptroller = address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
         address comp = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
         ICompound.CompBalanceMetadataExt memory output = ICompound(compoundLens).getCompBalanceMetadataExt(comp, comptroller, address(this));
-        return output;
+        return (output.balance, output.votes) ;
     }
     function borrow(address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken) public override returns(bool success) {
         revert("not implemented");
