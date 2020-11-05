@@ -171,20 +171,19 @@
 
 ### Interfaces
 
-- [IERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol)
 - [IOptyStrategy]()
 - [IOptyLiquidityPoolProxy]()
 - [IRiskManager]()
 
-### Contracts
+### Utils
 - [ERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol)
+- [ERC20Detailed.sol]()
 - [ReentrancyGuard]()
 - [Ownable]()
 
 ### libraries
 
 - [SafeERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/SafeERC20.sol)
-- [SafeMath](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol)
 
 ### Variables
 
@@ -206,19 +205,22 @@
 | setRiskManager | `address _riskManager` | `public` | N/A | Owner | assigns risk manager's contract address to `riskManager` |
 | setToken | `address _token` | `public` | N/A | Owner | assigns token address to `token` |
 | setOptyStrategy | `address _token` | `public` | N/A | Owner | assigns token address to `token` |
-| userDepositRebalance | `uint _amount` | `external` | `bool _success` | User | allows user to invest tokens |
-| userWithdrawRebalance | `uint _amount` | `external` | `bool _success` | User | allows user to withdraw investments from strategy |
-| userWithdraw | `uint _shares` | `external` | `bool _success` | User | allows user to withdraw tokens from opty pool |
-| userDeposit | `uint _shares` | `external` | `bool _success` | User | allows user to deposit tokens to opty pool|
+| supplyToken | `uint amount` | `public` | N/A | User | deposits the underlying tokens to the strategy specified by `strategyHash` |
 | rebalance | N/A | `external` | N/A | User | allows user to deposit in most recent best strategy |
 | _rebalance | N/A | `internal` | N/A | N/A | rebalances the pool during redeem action by the user  |
+| userDepositRebalance | `uint _amount` | `external` | `bool _success` | User | allows user to invest tokens |
 | calcPoolValueInToken | N/A | `public` | `uint amount` | User | reads the total tokens invested in `Strategy` | 
-| supplyToken | `uint amount` | `public` | N/A | User | deposits the underlying tokens to the strategy specified by `strategyHash` |
 | balance | N/A | `public` | `uint amount` | User | returns the underlying token balance of the contract |
 | _balance | N/A | `internal` | `uint amount` | N/A | returns the underlying token balance of the contract |
+| userWithdraw | `uint _shares` | `external` | `bool _success` | User | allows user to withdraw tokens from opty pool |
 | _userWithdrawAll | N/A | `internal` | N/A | N/A | withdraw pool's deployment from the current strategy |
 | _userWithdrawToken | `uint amount` | `internal` | N/A | N/A | redeem the investments and receive underlying token  |
 | _userWithdrawSome | N/A | `internal` | N/A | N/A | withdraw investment proportional to inestor's amount |
+| _userWithdrawToken(uint _amount)  |   `uint256 amount`    |   `internal`  |   N/A |   N/A |   withdraw underlying tokens and transfer it to the optystrategy and then withdraw from there |
+| userWithdrawRebalance | `uint _amount` | `external` | `bool _success` | User | allows user to withdraw investments from strategy |
+|   `[Note: Following function is not used as of now and kept in specs for future reference and can be removed later if not needed]`
+| userDeposit | `uint _shares` | `external` | `bool _success` | User | allows user to deposit tokens to opty pool|
+
 
 ### Modifiers
 
