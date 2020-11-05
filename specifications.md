@@ -238,8 +238,10 @@
 | poolWithdraw | `address underlyingToken,address lendingPoolToken,uint amount` | `extenal` | `bool success` | N/A | redeem liquidity pool token for underlying token |
 | balance | `address token,address account` | `extenal` | `uint amount` | N/A | return the token balance holded by account |
 | balanceInToken | `address lendingPoolToken, address account` | `extenal` | `uint amount` | N/A | return equivalent of liquidity token holding in underlying token |
-| borrow    | `address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken` | public | `bool success`| N/A | For borrowing  the token from credit providers |
-| repay | `address _lendingPoolAddressProvider, address _borrowToken,address _lendingPoolToken` | public | `bool success` | N/A | Repay  for the collateral |
+| borrow    | `address _underlyingToken,address _lendingPoolAddressProvider, address _borrowToken` | `external`    | `bool success`| N/A | For borrowing  the token from credit providers |
+| repay | `address _lendingPoolAddressProvider, address _borrowToken,address _lendingPoolToken` | `external`    | `bool success` | N/A | Repay  for the collateral |
+| balance | `address token,address account` | `external`   |    `uint`  |   N/A |   Returns the amount of {token} tokens owned by account   |
+| balanceInToken    |   `address lendingPoolToken, address account` |   `external`  |   `uint`  |   N/A |   Returns the equivalent value of {lendingPoolToken} tokens in underlying tokens owned by account |
 
 ## IAToken.sol 
 [Note: Names of functions and variables are as per Aave contract]
