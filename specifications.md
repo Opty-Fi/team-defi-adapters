@@ -139,6 +139,10 @@
 
 - [IOptyRegistry]();
 
+### Libraries
+
+- [Addresses]()
+
 ### Variables
 
 | Name                     | Type          | Structure                                                                                                                                     | visibility   | purpose                                                                |
@@ -151,9 +155,11 @@
 | Name                   | Input Parameters                                                                  | visibility | Return Parameters | Called By                   | Description                                             |
 | ---------------------- | --------------------------------------------------------------------------------- | ---------- | ----------------- | --------------------------- | ------------------------------------------------------- |
 | constructor | `address optyRegistry` | `public` | N/A | N/A | initialize the optyRegistry |
-| setOptyStartegy | `address _token` | `public` | N/A | Owner | assigns token address to `token` |
+| setOptyStrategy | `address _token` | `public` | N/A | Owner | assigns token address to `token` |
 | getBestStrategy | `string memory _profile, address _underlyingToken` | `public` | `bytes32 hash` | N/A | returns best strategy hash of underlying token |
-| getBestBasicStrategy | `address _underlyingToken` | `public` | `bytes32 hash` | N/A | returns best basic strategy hash  for underlying token |
+|   getBestStrategy |   `string memory _profile, address[] memory _underlyingTokens`    |   `public`    |   `bytes32 strategyHash`  |   N/A |  Get the best strategy for the Basic/Advance Pool    |
+| _getBestBasicStrategy | `bytes32 _tokenHash` | `internal` | `bytes32 strategyHash` | N/A | returns best basic strategy hash for underlying token |
+| _getBestAdvanceStrategy | `bytes32 _tokenHash` | `internal` | `bytes32 strategyHash` | N/A | returns best advance strategy hash for underlying token |
 
 ### Modifiers
 
