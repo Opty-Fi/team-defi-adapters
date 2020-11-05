@@ -274,10 +274,19 @@
 ## ICompound.sol
 [Note: Names of functions and variables are as per Compound contract]
 
+### Variables
+
+| Name                     | Type          | Structure                                                                                                                                     | visibility   | purpose                                                                |
+| ------------------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------- |
+|   CompBalanceMetadata |   `struct`    |   `{uint balance; uint votes address delegate;}`  |   `public`    |   Stores the balance of the COMP token    |
+|   CompBalanceMetadataExt  |   `struct`    |   `{uint balance; uint votes; address delegate; uint allocated;}` |   `public`    |   Stores the balance of COMP plus allocated availble to the user for voting   |
+
 ### Functions
 
 | Name                   | Input Parameters                                                                  | visibility | Return Parameters | Called By                   | Description                                             |
 | ---------------------- | --------------------------------------------------------------------------------- | ---------- | ----------------- | --------------------------- | ------------------------------------------------------- |
+|   getCompBalanceMetadata  |   `address comp, address account` |   `external`  |   `CompBalanceMetadata memory`    |   Get the balance of the COMP tokens for the user |
+|   getCompBalanceMetadataExt   |   `address comp, address comptroller, address account`    |   `external`  |   `CompBalanceMetadataExt memory` |   Used to claim the COMP tokens for the  user(account)    |
 | mint | `uint256 mintAmount` | `external` | `uint256 result` | N/A | mint cTokens on compound pool |
 | redeem | `uint256 redeemTokens` | `external` | `uint256 result` | N/A | redeem cTokens for underlying tokens |
 | exchangeRateStored | N/A | `external` | `uint exchangeRate` | N/A | return cToken exchange rate with underlying token |
