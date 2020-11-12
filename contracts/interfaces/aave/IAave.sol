@@ -61,6 +61,21 @@ interface IAave {
     function repay( address _reserve, uint256 _amount, address payable _onBehalfOf) external;
     function getReserveConfigurationData(address _reserve) external view returns(ReserveConfigurationData memory);
     function getUserAccountData(address _user) external view returns(UserAccountData memory);
-    function getUserReserveData(address _reserve, address _user) external view returns(UserReserveData memory);
-    function getReserveData(address _reserve) external view returns(ReserveData memory);
+    function getUserReserveData(address _reserve, address _user) external view
+    returns(UserReserveData memory);
+    function getReserveData(address _reserve) external view returns(
+            uint256 totalLiquidity,
+            uint256 availableLiquidity,
+            uint256 totalBorrowsStable,
+            uint256 totalBorrowsVariable,
+            uint256 liquidityRate,
+            uint256 variableBorrowRate,
+            uint256 stableBorrowRate,
+            uint256 averageStableBorrowRate,
+            uint256 utilizationRate,
+            uint256 liquidityIndex,
+            uint256 variableBorrowIndex,
+            address aTokenAddress,
+            uint40 lastUpdateTimestamp
+            );
 }
