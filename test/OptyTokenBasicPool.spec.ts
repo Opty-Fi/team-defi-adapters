@@ -136,7 +136,7 @@ describe('OptyTokenBasicPool for DAI', async () => {
 
   })
 
-  it ('DAI userDepost()', async () => {
+  it.skip ('DAI userDepost()', async () => {
 
     await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
     expect(await tokenContractInstance.allowance(wallet.address, optyTokenBasicPool.address)).to.equal(TEST_AMOUNT);
