@@ -48,9 +48,9 @@ contract OptyFulcrumDepositPoolProxy is IOptyDepositPoolProxy,Modifiers {
     function balanceInToken(address[] memory _underlyingTokens, address, address _lendingPool, address _holder) public override view returns(uint) {
         address _lendingPoolToken = OptyRegistryContract.getLiquidityPoolToLPToken(_lendingPool,_underlyingTokens);
         uint b = IERC20(_lendingPoolToken).balanceOf(_holder);
-    //     if (b > 0) {
-    //         b = b.mul(IYearn(_vault).getPricePerFullShare()).div(1e18);
-    //     }
+        if (b > 0) {
+            b = b.mul(IFulcrum(_lendingPool).tokenPrice()).div(1e18);
+        }
         return b;
     }
 }
