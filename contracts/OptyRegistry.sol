@@ -108,6 +108,12 @@ contract OptyRegistry is Modifiers{
         approveLiquidityPool(harvestDAIvault);
         setLiquidityPoolToLPToken(harvestDAIvault,tkns,harvestDAIvault);
         
+        // activation for fulcrum dai
+        address fulcrumDAILendingPool = address(0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0);
+        approveLiquidityPool(fulcrumDAILendingPool);
+        approveToken(fulcrumDAILendingPool);
+        setLiquidityPoolToLPToken(fulcrumDAILendingPool,tkns,fulcrumDAILendingPool);
+        
         //  activation for compound usdc
         tkns = new address[](1);
         tkns[0] = usdc;
