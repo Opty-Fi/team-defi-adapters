@@ -42,7 +42,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
                                 string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(),_profile)),
                                 ERC20Detailed(_underlyingToken).decimals()
                             ) {
-        
+
         setProfile(_profile);
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
