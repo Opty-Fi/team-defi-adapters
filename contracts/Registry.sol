@@ -128,6 +128,8 @@ contract Registry is Modifiers{
         
         //  activation for compound usdc
         address cUSDCLiquidityPool = address(0x39AA39c021dfbaE8faC545936693aC917d5E7563);
+        // intialized token(usdc) hash to usdc
+        setTokensHashToTokens(tkns);
         approveToken(cUSDCLiquidityPool);
         approveLiquidityPool(cUSDCLiquidityPool);
         setLiquidityPoolToLPToken(cUSDCLiquidityPool,tkns,cUSDCLiquidityPool);
