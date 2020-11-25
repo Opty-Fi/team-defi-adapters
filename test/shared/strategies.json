@@ -1,0 +1,82 @@
+{
+    "dai": {
+        "basic": [
+            [
+                {
+                    "pool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                    "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                    "isBorrow": false,
+                    "poolSymbol": "cDAI",
+                    "outputTokenSymbol": "cDAI"
+                }
+            ],
+            [
+                {
+                    "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                    "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+                    "isBorrow": false,
+                    "poolSymbol": "aaveLendingPoolAddressProvider",
+                    "outputTokenSymbol": "aDai"
+                }
+            ],
+            [
+                {
+                    "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                    "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+                    "isBorrow": false,
+                    "poolSymbol": "crv_deposit_pool",
+                    "outputTokenSymbol": "crvDAI"
+                }
+            ],
+            [
+                {
+                    "pool": "3crv_pool_address",
+                    "outputToken": "3crv_token_address",
+                    "isBorrow": false,
+                    "poolSymbol": "cDAI",
+                    "outputTokenSymbol": "cDAI"
+                },
+                {
+                    "pool": "gUSD3crv_pool_address",
+                    "outputToken": "gUSD3crv_token_address",
+                    "isBorrow": false,
+                    "poolSymbol": "cDAI",
+                    "outputTokenSymbol": "cDAI"
+                }
+            ]
+        ],
+        "advance": [
+            [
+                {
+                    "pool": "cDAI",
+                    "outputToken": "cDAI",
+                    "isBorrow": false
+                }
+            ],
+            [
+                {
+                    "pool": "AaveLendingPoolAddressProvider",
+                    "outputToken": "USDC_token_address",
+                    "isBorrow": true
+                },
+                {
+                    "pool": "cUSDC_pool_address",
+                    "outputToken": "cUSDC_token_address",
+                    "isBorrow": false
+                }
+            ],
+            [
+                {
+                    "pool": "Aave",
+                    "outputToken": "USDT",
+                    "isBorrow": true
+                },
+                {
+                    "pool": "cUSDT",
+                    "outputToken": "cUSDT",
+                    "isBorrow": false
+                }
+            ]
+        ]
+    }
+}
