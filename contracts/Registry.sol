@@ -128,8 +128,6 @@ contract Registry is Modifiers{
         
         //  activation for compound usdc
         address cUSDCLiquidityPool = address(0x39AA39c021dfbaE8faC545936693aC917d5E7563);
-        // intialized token(usdc) hash to usdc
-        setTokensHashToTokens(tkns);
         approveToken(cUSDCLiquidityPool);
         approveLiquidityPool(cUSDCLiquidityPool);
         setLiquidityPoolToLPToken(cUSDCLiquidityPool,tkns,cUSDCLiquidityPool);
@@ -139,11 +137,7 @@ contract Registry is Modifiers{
         approveLiquidityPool(crUSDCLendingPool);
         approveToken(crUSDCLendingPool);
         setLiquidityPoolToLPToken(crUSDCLendingPool,tkns,crUSDCLendingPool);
-        
-        //  activation for aave usdc
-        address aUSDCLPToken = address(0x9bA00D6856a4eDF4665BcA2C2309936572473B7E);
-        approveToken(aUSDCLPToken);
-        setLiquidityPoolToLPToken(aaveLendingPoolAddressProvider,tkns,aUSDCLPToken);
+
         
         // activation for curve compound (dai + usdc)
         tkns = new address[](2);

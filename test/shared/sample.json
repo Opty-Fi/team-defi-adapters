@@ -1,0 +1,86 @@
+// strategies.json
+
+{
+    "dai": {
+        "basic": [
+                [
+                    {
+                        "pool": "cDAI_pool_address",
+                        "outputToken": "cDAI_pool_address",
+                        "isBorrow": false,
+                        "poolSymbol":"cDAI",
+                        "outputTokenSymbol":"cDAI"
+                    }
+                ],
+                [
+                    {
+                        "pool": "aave_lending_pool_provider_address",
+                        "outputToken": "aDAI_token_address",
+                        "isBorrow": false,
+                        "poolSymbol":"cDAI",
+                        "outputTokenSymbol":"cDAI"
+                    }
+                ],
+                [
+                    {
+                        "pool": "curve_deposit_pool_address",
+                        "outputToken": "curve_Dai_token_address",
+                        "isBorrow": false,
+                        "poolSymbol":"cDAI",
+                        "outputTokenSymbol":"cDAI"
+                    }
+                ],
+                [
+                    {
+                        "pool": "3crv_pool_address",
+                        "outputToken": "3crv_token_address",
+                        "isBorrow": false,
+                        "poolSymbol":"cDAI",
+                        "outputTokenSymbol":"cDAI"
+                    },
+                    {
+                        "pool": "gUSD3crv_pool_address",
+                        "outputToken": "gUSD3crv_token_address",
+                        "isBorrow": false,
+                        "poolSymbol":"cDAI",
+                        "outputTokenSymbol":"cDAI"
+                    }
+                ]
+            ],
+            "advance": [
+                [
+                    {
+                        "pool": "cDAI",
+                        "outputToken": "cDAI",
+                        "isBorrow": false
+                    }
+                ],
+                [
+                    {
+                        "pool": "AaveLendingPoolAddressProvider",
+                        "outputToken": "USDC_token_address",
+                        "isBorrow": true
+                    },
+                    {
+                        "pool": "cUSDC_pool_address",
+                        "outputToken": "cUSDC_token_address",
+                        "isBorrow": false
+                    }
+                ],
+                [
+                    {
+                        "pool": "Aave",
+                        "outputToken": "USDT",
+                        "isBorrow": true
+                    },
+                    {
+                        "pool": "cUSDT",
+                        "outputToken": "cUSDT",
+                        "isBorrow": false
+                    }
+                ]
+            ]
+        }
+
+    
+}
