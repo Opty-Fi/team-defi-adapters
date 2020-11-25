@@ -140,6 +140,11 @@ contract Registry is Modifiers{
         approveToken(crUSDCLendingPool);
         setLiquidityPoolToLPToken(crUSDCLendingPool,tkns,crUSDCLendingPool);
         
+        //  activation for aave usdc
+        address aUSDCLPToken = address(0x9bA00D6856a4eDF4665BcA2C2309936572473B7E);
+        approveToken(aUSDCLPToken);
+        setLiquidityPoolToLPToken(aaveLendingPoolAddressProvider,tkns,aUSDCLPToken);
+        
         // activation for curve compound (dai + usdc)
         tkns = new address[](2);
         tkns[0] = dai;
