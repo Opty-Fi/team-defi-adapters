@@ -1,0 +1,57 @@
+// pool.json
+{
+    "opDAIBsc" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy"],
+    "opDAIAdv" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy"],
+    "opDAIAdv+" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy","CreamDepositPoolProxy","DForceDepositPoolProxy"],
+    "opUSDCBsc" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy"],
+    "opUSDCAdv" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy"],
+    "opUSDCAdv+" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy","CreamDepositPoolProxy","DForceDepositPoolProxy"]
+}
+
+// defiPools.json
+
+{
+    "CompoundDepositPoolProxy" :{
+        "dai" : {
+            "pool":"cDAI",
+            "lpToken":"cDAI"
+        },
+        "usdc":{
+            "pool":"cUSDC",
+            "lpToken":"cUSDC"
+        }
+    },
+    "AaveDepositPoolProxy" : {
+        "dai":{
+            "pool":"lendingPoolAddressProvider",
+            "lpToken":"aave DAI Token"
+        },
+        "usdc": {
+            "pool" :"lendingPoolAddressProvider",
+            "lpToke":"aave USDC token"
+       }
+    },
+    "CurveDepositPoolProxy" : {
+        "dai" : {
+            "pool" :"cDAI+cUSDC",
+            "lpToken":"cDAI+cUSDC 's token"
+        },
+        "usdc" : {
+            "pool" :"cDAI+cUSDC",
+            "lpToken":"cDAI+cUSDC 's token"
+        },
+        "dai+usdc" : {
+            "pool" :"cDAI+cUSDC",
+            "lpToken":"cDAI+cUSDC 's token"
+        }
+    }
+}
+
+ProxyContractABIs.json
+
+{
+    "compoundDeposit" : ["ABI"],
+    "compoundBorrow" : ["ABI"],
+    "aaveDeposit" : ["ABI"],
+    "aaveBorrow" : ["ABI"]
+}

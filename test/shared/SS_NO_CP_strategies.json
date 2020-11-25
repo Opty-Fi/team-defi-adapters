@@ -1,26 +1,26 @@
 {
     "dai": {
-        "compound": [
-            "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            false
-        ],
-        "aave": [
-            "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-            "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-            false
-        ]
+        "compound": {
+            "pool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "isBorrow": false
+        },
+        "aave": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+            "isBorrow": false
+        }
     },
     "usdc": {
-        "compound": [
-            "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            false
-        ],
-        "aave": [
-            "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-            "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-            false
-        ]
+        "compound": {
+            "pool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "isBorrow": false
+        },
+        "aave": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+            "isBorrow": false
+        }
     }
 }
