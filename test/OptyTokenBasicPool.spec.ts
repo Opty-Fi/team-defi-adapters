@@ -3,12 +3,12 @@ import { Contract, ethers, utils } from 'ethers'
 import { solidity, deployContract } from 'ethereum-waffle'
 
 import { expandToTokenDecimals, fundWallet } from './shared/utilities'
-import OptyTokenBasicPool from "../build/OptyTokenBasicPool.json";
-import OptyRegistry from "../build/OptyRegistry.json";
-import RiskManager from "../build/OptyRiskManager.json";
-import OptyStrategy from "../build/OptyStrategy.json";
-import OptyCompoundDepositPoolProxy from "../build/OptyCompoundDepositPoolProxy.json";
-import OptyAaveDepositPoolProxy from "../build/OptyAaveDepositPoolProxy.json";
+import OptyTokenBasicPool from "../build/BasicPool.json";
+import OptyRegistry from "../build/Registry.json";
+import RiskManager from "../build/RiskManager.json";
+import OptyStrategy from "../build/StrategyManager.json";
+import OptyCompoundDepositPoolProxy from "../build/CompoundDepositPoolProxy.json";
+import OptyAaveDepositPoolProxy from "../build/AaveDepositPoolProxy.json";
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
 import ssNoCPStrategies from "./shared/SS_NO_CP_strategies.json";
@@ -20,7 +20,7 @@ chai.use(solidity)
 const Ganache = require("ganache-core")
 const abi = require('ethereumjs-abi')
 const MAINNET_NODE_URL = process.env.MAINNET_NODE_URL;
-const TEST_AMOUNT_NUM: number = 3;
+const TEST_AMOUNT_NUM: number = 2;
 let TEST_AMOUNT:ethers.utils.BigNumber
 
 async function startChain() {
@@ -43,7 +43,7 @@ describe('OptyTokenBasicPool for DAI', async () => {
   let optyStrategy: Contract
   let profile = "basic";
   let underlyingToken = tokenAddresses.dai;
-  const tokens = [tokenAddresses.dai];
+  const tokens = [underlyingToken];
   let tokenContractInstance: Contract;
   let userTokenBalanceWei
   let userInitialTokenBalance: number
@@ -58,10 +58,7 @@ describe('OptyTokenBasicPool for DAI', async () => {
   let optyAaveDepositPoolProxy: Contract
   let underlyingTokenDecimals: number
   let underlyingTokenName
-  let strategies:{
-    compound: string[];
-    aave: string[];
-}
+  let strategies:{ compound: (string | boolean)[]; aave: (string | boolean)[]; }
   let tokensHash: string
 
   // util function for converting expanded values to Deimals number for readability and Testing
@@ -84,11 +81,11 @@ describe('OptyTokenBasicPool for DAI', async () => {
     optyTokenBasicPool = await deployContract(wallet, OptyTokenBasicPool, [profile, riskManager.address, underlyingToken, optyStrategy.address]);
     assert.isDefined(optyTokenBasicPool, "OptyTokenBasicPool contract not deployed");
 
-    optyCompoundDepositPoolProxy = await deployContract(wallet, OptyCompoundDepositPoolProxy, [optyRegistry.address]);
+    optyCompoundDepositPoolProxy = await deployContract(wallet, OptyCompoundDepositPoolProxy);
     console.log("Compound Pool Proxy: ", optyCompoundDepositPoolProxy.address)
     assert.isDefined(optyCompoundDepositPoolProxy, "OptyCompoundDepositPoolProxy contract not deployed");
 
-    optyAaveDepositPoolProxy = await deployContract(wallet, OptyAaveDepositPoolProxy, [optyRegistry.address]);
+    optyAaveDepositPoolProxy = await deployContract(wallet, OptyAaveDepositPoolProxy);
     console.log("Aave Pool Proxy: ", optyAaveDepositPoolProxy.address)
     assert.isDefined(optyAaveDepositPoolProxy, "OptyAaveDepositPoolProxy contract not deployed");
 
@@ -161,7 +158,7 @@ describe('OptyTokenBasicPool for DAI', async () => {
   //  TODO: Have to  modify this strategies logic once new strategy struct has been implemented
   //        - Deepanshu
   for (var key of Object.keys(ssNoCPStrategies)) {
-    let strategySteps:string[][]
+    let strategySteps:(string | boolean)[][]
 
         if (key == "dai") {
           strategies = ssNoCPStrategies[key]
@@ -169,14 +166,17 @@ describe('OptyTokenBasicPool for DAI', async () => {
           for (var protocol of Object.keys(strategies)){
             if (protocol == "compound") {
               it (key.toUpperCase() + ' userDepositRebalance() for ' + protocol + ' protocol', async () => {
-              strategies.compound[4] = optyCompoundDepositPoolProxy.address.toString()
+              // await optyRegistry.approveLiquidityPool(strategies.compound[0])
+              await optyRegistry.setLiquidityPoolToDepositPoolProxy(strategies.compound[0], optyCompoundDepositPoolProxy.address)
+              // strategies.compound[4] = optyCompoundDepositPoolProxy.address.toString()
               strategySteps = [strategies.compound]
               
               await testUserDepositRebalance(strategySteps)
             })
             } else if (protocol == "aave") {    
               it (key.toUpperCase() + ' userDepositRebalance() for ' + protocol + ' protocol', async () => {
-              strategies.aave[4] = optyAaveDepositPoolProxy.address.toString()
+              await optyRegistry.setLiquidityPoolToDepositPoolProxy(strategies.aave[0], optyAaveDepositPoolProxy.address)
+              // strategies.aave[4] = optyAaveDepositPoolProxy.address.toString()
               strategySteps = [strategies.aave]
               
               await testUserDepositRebalance(strategySteps)
@@ -188,7 +188,7 @@ describe('OptyTokenBasicPool for DAI', async () => {
   }
 
   //  Function to test the userDepositRebalance() of optyTokenBasicPool contract
-  async function testUserDepositRebalance(strategySteps:string[][]) {
+  async function testUserDepositRebalance(strategySteps:(string | boolean)[][]) {
 
     let prevUserOptyTokenBalanceWei:ethers.utils.BigNumber 
     prevUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(wallet.address)
@@ -205,7 +205,9 @@ describe('OptyTokenBasicPool for DAI', async () => {
       await optyRegistry.approveStrategy(strategyHash.toString());
       strategy = await optyRegistry.getStrategy(strategyHash.toString());
       assert.isTrue(strategy["_isStrategy"], "Strategy is not approved");
+      await optyRegistry.scoreStrategy(strategyHash.toString(), 10);
     }
+
 
     await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
     expect(await tokenContractInstance.allowance(wallet.address, optyTokenBasicPool.address)).to.equal(TEST_AMOUNT);
