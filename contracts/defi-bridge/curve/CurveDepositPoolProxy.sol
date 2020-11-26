@@ -216,7 +216,7 @@ contract CurveDepositPoolProxy is IDepositPoolProxy,Modifiers {
         if(swaps[_liquidityPool]) {
             ICurveSwap(_liquidityPool).remove_liquidity_one_coin(_amount, i, minAmountOut);   
         }
-        // IERC20(_underlyingToken).safeTransfer(msg.sender, IERC20(_underlyingToken).balanceOf(address(this)));
+        IERC20(_underlyingToken).safeTransfer(msg.sender, IERC20(_underlyingToken).balanceOf(address(this)));
         return true;
     }
 
