@@ -241,17 +241,27 @@ describe("OptyTokenBasicPool", async () => {
         for (let strategies of allStrategies.dai.basic) {
             console.log("Strategy length: ", strategies.length);
             let strategySteps: (string | boolean)[][] = [];
+            let previousStepOutputToken = ""
             for (let index = 0; index < strategies.length; index++) {
                 console.log("2nd loop");
                 let tempArr: (string | boolean)[] = [];
+                if (previousStepOutputToken.length > 0) {
+                    // let outputTokenHash = "0x" + abi.soliditySHA3(["address[]"], [[previousStepOutputToken]]).toString("hex");
+                    await optyRegistry.setTokensHashToTokens([previousStepOutputToken]);
+                    // await optyRegistry.approveToken(previousStepOutputToken);
+                    await optyRegistry.setLiquidityPoolToLPToken(strategies[index].pool,[previousStepOutputToken],strategies[index].outputToken)
+                }
                 tempArr.push(
                     strategies[index].pool,
                     strategies[index].outputToken,
                     strategies[index].isBorrow
                 );
+                previousStepOutputToken = strategies[index].outputToken
                 // strategySteps = [tempArr];
                 strategySteps.push(tempArr);
             }
+            tokensHash = "0x" + abi.soliditySHA3(["address[]"], [[underlyingToken, previousStepOutputToken]]).toString("hex");
+            await optyRegistry.setTokensHashToTokens([underlyingToken, previousStepOutputToken]);
             console.log("Strategy Steps: ", strategySteps);
             const setStrategyTx = await optyRegistry.setStrategy(
                 tokensHash,
@@ -291,7 +301,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     });
 
-    it("Contract deployed", async () => {
+    it.skip("Contract deployed", async () => {
         assert.isOk(optyTokenBasicPool.address, "Contract is not deployed");
         console.log(
             "\nDeployed OptyTokenBasicPool Contract address: ",
@@ -301,7 +311,7 @@ describe("OptyTokenBasicPool", async () => {
         console.log("\nTokens Hash: ", tokensHash);
     });
 
-    it("DAI userDepost()", async () => {
+    it.skip("DAI userDepost()", async () => {
         await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
         expect(
             await tokenContractInstance.allowance(
@@ -328,7 +338,7 @@ describe("OptyTokenBasicPool", async () => {
         expect(userOptyTokenBalance).to.equal(TEST_AMOUNT_NUM);
     });
 
-    it("DAI userDepositRebalance()", async () => {
+    it.skip("DAI userDepositRebalance()", async () => {
         await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
         expect(
             await tokenContractInstance.allowance(

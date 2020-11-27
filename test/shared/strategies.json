@@ -9,6 +9,22 @@
                     "poolSymbol": "cDAI",
                     "outputTokenSymbol": "cDAI"
                 }
+            ],
+            [
+                {
+                    "pool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                    "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                    "isBorrow": false,
+                    "poolSymbol": "cDAI",
+                    "outputTokenSymbol": "cDAI"
+                },
+                {
+                    "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                    "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+                    "isBorrow": false,
+                    "poolSymbol": "cDAI",
+                    "outputTokenSymbol": "cDAI"
+                }
             ]
         ],
         "advance": [

@@ -33,15 +33,17 @@ contract StrategyManager is Modifiers{
                         address _account
                         ) public view returns(uint _balance) {
         _balance = 0;
-        require(_hash != 0x0000000000000000000000000000000000000000000000000000000000000000,"!_hash");
-        StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
-        require(_strategySteps.length > 0 , "!_strategySteps.length");
-        uint index = _strategySteps.length - 1;
-        if(_strategySteps[index].isBorrow) {
-            // TODO: Return the marke t value of underlying token
-        } else {
-            _balance = IDepositPoolProxy(_strategySteps[index].pool).
-                    balanceInToken(_underlyingToken,_strategySteps[index].pool, _account);
+        if (_hash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+            require(_strategySteps.length > 0 , "!_strategySteps.length");
+            uint index = _strategySteps.length - 1;
+            if(_strategySteps[index].isBorrow) {
+                // TODO: Return the marke t value of underlying token
+            } else {
+                address _optyPoolProxy = RegistryContract.liquidityPoolToDepositPoolProxy(_strategySteps[index].pool);
+                _balance = IDepositPoolProxy(_optyPoolProxy).
+                            balanceInToken(_underlyingToken,_strategySteps[index].pool,_strategySteps[index].outputToken, _account);
+            }
         }
     }
     
