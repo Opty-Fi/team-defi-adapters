@@ -418,7 +418,13 @@ contract Registry is Modifiers{
             }
             else {
                 require(liquidityPools[_strategySteps[i].pool].isLiquidityPool,"!isLiquidityPool");
-                require(liquidityPoolToLPTokens[_strategySteps[i].pool][_tokensHash] == _strategySteps[i].outputToken,"!liquidityPoolToLPTokens");   
+                if (i == 0){
+                    require(liquidityPoolToLPTokens[_strategySteps[i].pool][_tokensHash] == _strategySteps[i].outputToken,"!liquidityPoolToLPTokens");   
+                } else {
+                    address[] memory _tokenArr = new address[](1);
+                    _tokenArr[0] = _strategySteps[i-1].outputToken;
+                    require(liquidityPoolToLPTokens[_strategySteps[i].pool][keccak256(abi.encodePacked(_tokenArr))] == _strategySteps[i].outputToken,"!liquidityPoolToLPTokens");      
+                }
             }
             strategies[hash].strategySteps.push(
                                             StrategyStep(
