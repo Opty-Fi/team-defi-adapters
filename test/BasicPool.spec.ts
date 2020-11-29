@@ -107,7 +107,7 @@ describe("OptyTokenBasicPool", async () => {
         compound: { pool: string; outputToken: string; isBorrow: boolean };
         aave: { pool: string; outputToken: string; isBorrow: boolean };
     };
-    let tokensHash: string;
+    let tokensHash: string = "";
 
     // util function for converting expanded values to Deimals number for readability and Testing
     const fromWei = (x: string) => ethers.utils.formatUnits(x, underlyingTokenDecimals);
@@ -246,11 +246,13 @@ describe("OptyTokenBasicPool", async () => {
                 console.log("2nd loop");
                 let tempArr: (string | boolean)[] = [];
                 if (previousStepOutputToken.length > 0) {
+                    console.log("previous token detected")
                     // let outputTokenHash = "0x" + abi.soliditySHA3(["address[]"], [[previousStepOutputToken]]).toString("hex");
                     await optyRegistry.setTokensHashToTokens([previousStepOutputToken]);
                     // await optyRegistry.approveToken(previousStepOutputToken);
                     await optyRegistry.setLiquidityPoolToLPToken(strategies[index].pool,[previousStepOutputToken],strategies[index].outputToken)
                 }
+                console.log("2nd loop continuess.....")
                 tempArr.push(
                     strategies[index].pool,
                     strategies[index].outputToken,
@@ -260,8 +262,7 @@ describe("OptyTokenBasicPool", async () => {
                 // strategySteps = [tempArr];
                 strategySteps.push(tempArr);
             }
-            tokensHash = "0x" + abi.soliditySHA3(["address[]"], [[underlyingToken, previousStepOutputToken]]).toString("hex");
-            await optyRegistry.setTokensHashToTokens([underlyingToken, previousStepOutputToken]);
+            
             console.log("Strategy Steps: ", strategySteps);
             const setStrategyTx = await optyRegistry.setStrategy(
                 tokensHash,
@@ -278,9 +279,14 @@ describe("OptyTokenBasicPool", async () => {
                 await optyRegistry.approveStrategy(strategyHash.toString());
                 strategy = await optyRegistry.getStrategy(strategyHash.toString());
                 assert.isTrue(strategy["_isStrategy"], "Strategy is not approved");
-                await optyRegistry.scoreStrategy(strategyHash.toString(), 10);
+                let strategyScore = Math.floor(Math.random() * 25) + 1;
+                await optyRegistry.scoreStrategy(strategyHash.toString(), strategyScore);
             }
         }
+        let bestStrategyHash = await riskManager.getBestStrategy(profile, [underlyingToken]);
+        console.log("Best Strategy Hash: ",bestStrategyHash);
+        let bestStrategy = await optyRegistry.getStrategy(bestStrategyHash.toString());
+        console.log("Best Strategy: ", bestStrategy)
     });
 
     beforeEach(async () => {
@@ -301,7 +307,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     });
 
-    it.skip("Contract deployed", async () => {
+    it("Contract deployed", async () => {
         assert.isOk(optyTokenBasicPool.address, "Contract is not deployed");
         console.log(
             "\nDeployed OptyTokenBasicPool Contract address: ",
@@ -311,7 +317,7 @@ describe("OptyTokenBasicPool", async () => {
         console.log("\nTokens Hash: ", tokensHash);
     });
 
-    it.skip("DAI userDepost()", async () => {
+    it("DAI userDepost()", async () => {
         await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
         expect(
             await tokenContractInstance.allowance(
