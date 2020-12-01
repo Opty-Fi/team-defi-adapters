@@ -1,5 +1,5 @@
 {
-    "opDAIBsc" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy"],
+    "opDAIBsc" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","AaveBorrowPoolProxy","CurveDepositPoolProxy","CreamDepositPoolProxy","DForceDepositPoolProxy","FulcrumDepositPoolProxy","YearnDepositPoolProxy"],
     "opDAIAdv" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy"],
     "opDAIAdv+" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy","YearnDepositPoolProxy","FulcrumDepositPoolProxy","CreamDepositPoolProxy","DForceDepositPoolProxy","HarvestDepositPoolProxy"],
     "opUSDCBsc" : ["CompoundDepositPoolProxy","AaveDepositPoolProxy","CurveDepositPoolProxy"],
