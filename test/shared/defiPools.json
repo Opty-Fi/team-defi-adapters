@@ -39,6 +39,12 @@
             "lpToken": "0xFC4B8ED459e00e5400be803A9BB3954234FD50e3"
         }
     },
+    "AaveBorrowPoolProxy": {
+        "dai": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+        }
+    },
     "CurveDepositPoolProxy": {
         "dai": {
             "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
@@ -49,6 +55,30 @@
             "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
         },
         "dai+usdc": {
+            "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+            "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
+        }
+    },
+    "CreamDepositPoolProxy":{
+        "dai": {
+            "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+            "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
+        }
+    },
+    "DForceDepositPoolProxy":{
+        "dai": {
+            "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+            "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
+        }
+    },
+    "FulcrumDepositPoolProxy":{
+        "dai": {
+            "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+            "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
+        }
+    },
+    "YearnDepositPoolProxy": {
+        "dai": {
             "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
             "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2"
         }

@@ -43,13 +43,16 @@ interface PoolProxyContract {
 
 let poolProxyContract: PoolProxyContract = {
     CompoundDepositPoolProxy,
-    AaveDepositPoolProxy
+    AaveDepositPoolProxy,
+    AaveBorrowPoolProxy
 };
 
-interface PoolProxyContractVariable {
-    [id: string]: Contract;
+interface OptyPoolProxyContractVariables {
+    [id: string]: Contract
 }
-let poolProxyContractVariable: PoolProxyContractVariable
+let optyPoolProxyContractVariables: OptyPoolProxyContractVariables = {}
+let poolProxiesKey: keyof typeof poolProxies;
+let defiPoolsKey: keyof typeof defiPools;
 
 async function startChain() {
     const ganache = await Ganache.provider({
@@ -150,17 +153,6 @@ describe("OptyTokenBasicPool", async () => {
             optyTokenBasicPool,
             "OptyTokenBasicPool contract not deployed"
         );
-
-        // let poolProxiesKeys = Object.keys(poolProxies);
-        // Object.keys(poolProxies).forEach(proxy => {
-        //     poolProxies[proxy]
-        // })
-        interface OptyPoolProxyContractVariables {
-            [id: string]: Contract
-        }
-        let optyPoolProxyContractVariables: OptyPoolProxyContractVariables = {}
-        let poolProxiesKey: keyof typeof poolProxies;
-        let defiPoolsKey: keyof typeof defiPools;
         
         for (poolProxiesKey in poolProxies) {
             if (poolProxiesKey == "opDAIBsc") {
@@ -170,14 +162,23 @@ describe("OptyTokenBasicPool", async () => {
                 // let poolProxyConttractKey: keyof typeof poolProxyConttract;
                 let count = 1
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
-                    if (count <= 2) {
+                    if (count <= 3) {
                         if (poolProxyContract.hasOwnProperty(optyPoolProxyContractsKey.toString())) {
                             console.log("coming....")
                             // console.log("key value: ", optyPoolProxyContractsKey.toString())
-                            optyPoolProxyContract = await deployContract(
-                                wallet,
-                                poolProxyContract[optyPoolProxyContractsKey]
-                            );
+                            if (optyPoolProxyContractsKey.toString().includes("Borrow")) {
+                                optyPoolProxyContract = await deployContract(
+                                    wallet,
+                                    poolProxyContract[optyPoolProxyContractsKey],
+                                    [optyRegistry.address]
+                                );
+                            } else {
+
+                                optyPoolProxyContract = await deployContract(
+                                    wallet,
+                                    poolProxyContract[optyPoolProxyContractsKey]
+                                );
+                            }
                             optyPoolProxyContractVariables[optyPoolProxyContractsKey] = optyPoolProxyContract
                             
                             console.log("Deployed.... ", optyPoolProxyContractsKey);
@@ -187,80 +188,115 @@ describe("OptyTokenBasicPool", async () => {
                                 "optyPoolProxyContract contract not deployed"
                             );
                             for (defiPoolsKey in defiPools) {
+                                // console.log("FOR LOOP, POOL NAME: ", defiPoolsKey)
+                                // console.log("OPTYPOOLSpROXYcONTRACTSkEY: ", optyPoolProxyContractsKey)
                                 if (defiPoolsKey.toString() == optyPoolProxyContractsKey.toString()) {
-                                    console.log("-- defiPools key: ", defiPoolsKey)
-                                    console.log("-- defiPools key's value: ", defiPools[defiPoolsKey])
+                                    // console.log("-- defiPools key: ", defiPoolsKey)
+                                    // console.log("-- defiPools key's value: ", defiPools[defiPoolsKey])
                                     let defiPoolsUnderlyingTokens = defiPools[defiPoolsKey]
                                     let defiPoolsUnderlyingTokensKey: keyof typeof defiPoolsUnderlyingTokens
                                     for (defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
-                                        console.log("-- Underlying Token-- : ", defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey]);
-                                        await approveLpCpAndMapLpToPoolProxy(
-                                            defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].pool,
-                                            optyPoolProxyContractVariables[optyPoolProxyContractsKey].address
-                                        );
+                                        // console.log("BEFORE POOL NAME: ", defiPoolsKey)
+                                        // console.log("-- Underlying Token-- : ", defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey]);
+                                        if (defiPoolsKey.toString().includes("Borrow")) {
+                                            await approveLpCpAndMapLpToPoolProxy(
+                                                defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].pool,
+                                                optyPoolProxyContractVariables[optyPoolProxyContractsKey].address,
+                                                true
+                                            );
+                                        } else {
+                                            await approveLpCpAndMapLpToPoolProxy(
+                                                defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].pool,
+                                                optyPoolProxyContractVariables[optyPoolProxyContractsKey].address,
+                                                false
+                                            );
+                                        }
+                                        
                                     }
                                 }
                             }
-                            // await approveLpCpAndMapLpToPoolProxy(
-                            //     defiPools.CompoundDepositPoolProxy.dai.pool,
-                            //     optyCompoundDepositPoolProxy.address
-                            // );
-                            // await approveLpCpAndMapLpToPoolProxy(
-                            //     defiPools.CompoundDepositPoolProxy.usdc.pool,
-                            //     optyCompoundDepositPoolProxy.address
-                            // );
-                            // await approveLpCpAndMapLpToPoolProxy(
-                            //     defiPools.CompoundDepositPoolProxy.usdt.pool,
-                            //     optyCompoundDepositPoolProxy.address
-                            // );
-                            // await approveLpCpAndMapLpToPoolProxy(
-                            //     defiPools.CompoundDepositPoolProxy.wbtc.pool,
-                            //     optyCompoundDepositPoolProxy.address
-                            // );
                             
                         }
                     }
                     count++;
-                    if (
-                        poolProxyContract[optyPoolProxyContractsKey] ==
-                        CompoundDepositPoolProxy
-                    ) {
-
-                        console.log("1st Loop");
-                        // optyCompoundDepositPoolProxy = await deployContract(
-                        //     wallet,
-                        //     OptyCompoundDepositPoolProxy
-                        // );
-                        // console.log("Deployed....");
-                        // assert.isDefined(
-                        //     optyCompoundDepositPoolProxy,
-                        //     "OptyCompoundDepositPoolProxy contract not deployed"
-                        // );
-                        // await approveSetLP(
-                        //     defiPools.CompoundDepositPoolProxy.dai.pool,
-                        //     optyCompoundDepositPoolProxy.address
-                        // );
-                        // await approveSetLP(
-                        //     defiPools.CompoundDepositPoolProxy.usdc.pool,
-                        //     optyCompoundDepositPoolProxy.address
-                        // );
-                        // await approveSetLP(
-                        //     defiPools.CompoundDepositPoolProxy.usdt.pool,
-                        //     optyCompoundDepositPoolProxy.address
-                        // );
-                        // await approveSetLP(
-                        //     defiPools.CompoundDepositPoolProxy.wbtc.pool,
-                        //     optyCompoundDepositPoolProxy.address
-                        // );
-                    }
+                    
                 }
             }
         }
+    });
 
-        // let key = "dai"
-        let count = 1
+    beforeEach(async () => {
+        await checkAndFundWallet();
+    });
+
+    async function checkAndFundWallet() {
+        userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
+        userInitialTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
+        userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(wallet.address);
+        userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
+        if (userInitialTokenBalance == 0 || userInitialTokenBalance == undefined) {
+            let TEST_AMOUNT_HEX = "0x" + Number(TEST_AMOUNT).toString(16);
+
+            //  Fund the user's wallet with some amount of tokens
+            await fundWallet(underlyingToken, wallet, TEST_AMOUNT_HEX);
+
+            // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
+            userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
+            userInitialTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
+            expect(userInitialTokenBalance).to.equal(TEST_AMOUNT_NUM);
+        }
+    }
+
+    it("should check if the conttacts are deployed", async () => {
+        assert.isOk(optyTokenBasicPool.address, "BasicPool Contract is not deployed");
+        console.log(
+            "\nDeployed OptyTokenBasicPool Contract address: ",
+            optyTokenBasicPool.address
+        );
+        console.log("\nUser's Wallet address: ", wallet.address);
+        console.log("\nTokens Hash: ", tokensHash);
+        
+        assert.isOk(optyPoolProxyContractVariables.CompoundDepositPoolProxy.address, "CompoundDepositPoolProxy Contract is not deployed");
+        assert.isOk(optyPoolProxyContractVariables.AaveDepositPoolProxy.address, "AaveDepositPoolProxy Contract is not deployed");
+        assert.isOk(optyPoolProxyContractVariables.AaveBorrowPoolProxy.address, "AaveBorrowPoolProxy Contract is not deployed");
+
+    });
+
+    it("should deposit using userDeposit()", async () => {
+        await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
+        expect(
+            await tokenContractInstance.allowance(
+                wallet.address,
+                optyTokenBasicPool.address
+            )
+        ).to.equal(TEST_AMOUNT);
+        const userDepositOutput = await optyTokenBasicPool.userDeposit(TEST_AMOUNT);
+        assert.isOk(userDepositOutput, "UserDeposit() call failed");
+
+        // Check Token and opToken balance after userDeposit() call
+        userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
+        const userNewTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
+        expect(userNewTokenBalance).to.equal(userInitialTokenBalance - TEST_AMOUNT_NUM);
+
+        contractTokenBalanceWei = await tokenContractInstance.balanceOf(
+            optyTokenBasicPool.address
+        );
+        contractTokenBalance = parseFloat(fromWei(contractTokenBalanceWei));
+        expect(contractTokenBalance).to.equal(TEST_AMOUNT_NUM);
+
+        userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(wallet.address);
+        userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
+        expect(userOptyTokenBalance).to.equal(TEST_AMOUNT_NUM);
+    });
+
+    it("should deposit using userDepositRebalance() using each Strategy", async () => {
+        await  setAndScoreStrategy();
+    });
+
+    async function setAndScoreStrategy() {
+        let strategyScore = 1
         for (let strategies of allStrategies.dai.basic) {
-            if (count <= 2) {
+            if (strategyScore <= 2) {
             console.log("Strategy length: ", strategies.length);
             let strategySteps: (string | boolean)[][] = [];
             let previousStepOutputToken = ""
@@ -301,74 +337,25 @@ describe("OptyTokenBasicPool", async () => {
                 await optyRegistry.approveStrategy(strategyHash.toString());
                 strategy = await optyRegistry.getStrategy(strategyHash.toString());
                 assert.isTrue(strategy["_isStrategy"], "Strategy is not approved");
-                let strategyScore = Math.floor(Math.random() * 25) + 1;
+                // let strategyScore = count + 1;
                 await optyRegistry.scoreStrategy(strategyHash.toString(), strategyScore);
             }
+            await checkAndFundWallet();
+            await testUserDepositRebalance();
+            console.log("\n---------- UserDepositRebalance() passed for Strategy -", strategyScore, " ------------\n");
         }
-        count++
+        strategyScore++
         }
         let bestStrategyHash = await riskManager.getBestStrategy(profile, [underlyingToken]);
         console.log("Best Strategy Hash: ",bestStrategyHash);
         let bestStrategy = await optyRegistry.getStrategy(bestStrategyHash.toString());
-        console.log("Best Strategy: ", bestStrategy)
-    });
+        // console.log("Best Strategy: ", bestStrategy)
+        // awaut testUserDepositRebalance()
+    }
 
-    beforeEach(async () => {
-        userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
-        userInitialTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
-        userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(wallet.address);
-        userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
-        if (userInitialTokenBalance == 0 || userInitialTokenBalance == undefined) {
-            let TEST_AMOUNT_HEX = "0x" + Number(TEST_AMOUNT).toString(16);
-
-            //  Fund the user's wallet with some amount of tokens
-            await fundWallet(underlyingToken, wallet, TEST_AMOUNT_HEX);
-
-            // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
-            userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
-            userInitialTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
-            expect(userInitialTokenBalance).to.equal(TEST_AMOUNT_NUM);
-        }
-    });
-
-    it("Contract deployed", async () => {
-        assert.isOk(optyTokenBasicPool.address, "Contract is not deployed");
-        console.log(
-            "\nDeployed OptyTokenBasicPool Contract address: ",
-            optyTokenBasicPool.address
-        );
-        console.log("\nUser's Wallet address: ", wallet.address);
-        console.log("\nTokens Hash: ", tokensHash);
-    });
-
-    it("DAI userDepost()", async () => {
-        await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
-        expect(
-            await tokenContractInstance.allowance(
-                wallet.address,
-                optyTokenBasicPool.address
-            )
-        ).to.equal(TEST_AMOUNT);
-        const userDepositOutput = await optyTokenBasicPool.userDeposit(TEST_AMOUNT);
-        assert.isOk(userDepositOutput, "UserDeposit() call failed");
-
-        // Check Token and opToken balance after userDeposit() call
-        userTokenBalanceWei = await tokenContractInstance.balanceOf(wallet.address);
-        const userNewTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
-        expect(userNewTokenBalance).to.equal(userInitialTokenBalance - TEST_AMOUNT_NUM);
-
-        contractTokenBalanceWei = await tokenContractInstance.balanceOf(
-            optyTokenBasicPool.address
-        );
-        contractTokenBalance = parseFloat(fromWei(contractTokenBalanceWei));
-        expect(contractTokenBalance).to.equal(TEST_AMOUNT_NUM);
-
-        userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(wallet.address);
-        userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
-        expect(userOptyTokenBalance).to.equal(TEST_AMOUNT_NUM);
-    });
-
-    it("DAI userDepositRebalance()", async () => {
+    async function testUserDepositRebalance() {
+        console.log("---- TESTING USER_DEPOSIT_REBALANCE ----")
+        // console.log("-- OPTY token basic pool address: ", optyTokenBasicPool.address)
         await tokenContractInstance.approve(optyTokenBasicPool.address, TEST_AMOUNT);
         expect(
             await tokenContractInstance.allowance(
@@ -399,17 +386,25 @@ describe("OptyTokenBasicPool", async () => {
         //  TODO: Need to fix this assertion error for the decimals values - Deepanshu
         // expect(userNewOptyTokenBalance).to.equal(userOptyTokenBalance + TEST_AMOUNT_NUM);
         userOptyTokenBalance = userNewOptyTokenBalance;
-    });
+    }
 
-    async function approveLpCpAndMapLpToPoolProxy(pool: string, poolProxy: string) {
+    async function approveLpCpAndMapLpToPoolProxy(pool: string, poolProxy: string, isBorrow: boolean) {
         let liquidityPools = await optyRegistry.liquidityPools(pool);
         let creditPools = await optyRegistry.creditPools(pool);
         if (!liquidityPools.isLiquidityPool) {
+            // console.log("Approving Liquidity Pool")
             await optyRegistry.approveLiquidityPool(pool);
         }
         if (!creditPools.isLiquidityPool) {
+            // console.log("Approving  Credit Pool")
             await optyRegistry.approveCreditPool(pool);
         }
-        await optyRegistry.setLiquidityPoolToDepositPoolProxy(pool, poolProxy);
+        if (isBorrow) {
+            console.log("Mapping Borrow Pool Proxy")
+            await optyRegistry.setLiquidityPoolToBorrowPoolProxy(pool, poolProxy);
+        } else {
+            console.log("Mapping Deposit Pool Proxy")
+            await optyRegistry.setLiquidityPoolToDepositPoolProxy(pool, poolProxy);
+        }
     }
 });
