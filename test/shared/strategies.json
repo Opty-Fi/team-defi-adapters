@@ -3,7 +3,7 @@
         "basic": [
             [
                 {
-                    "pool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                    "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
                     "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
                     "isBorrow": false,
                     "poolSymbol": "cDAI",
@@ -12,17 +12,16 @@
             ],
             [
                 {
-                    "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                    "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                     "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
                     "isBorrow": false,
                     "poolSymbol": "aDAI_pool",
                     "outputTokenSymbol": "aDAI"
                 }
             ],
-            
             [
                 {
-                    "pool": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+                    "contract": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
                     "outputToken": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
                     "isBorrow": false,
                     "poolSymbol": "fulcrumDAI_pool",
@@ -31,7 +30,7 @@
             ],
             [
                 {
-                    "pool": "0x02285AcaafEB533e03A7306C55EC031297df9224",
+                    "contract": "0x02285AcaafEB533e03A7306C55EC031297df9224",
                     "outputToken": "0x02285AcaafEB533e03A7306C55EC031297df9224",
                     "isBorrow": false,
                     "poolSymbol": "dForceDAI_pool",
@@ -40,7 +39,7 @@
             ],
             [
                 {
-                    "pool": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+                    "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
                     "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
                     "isBorrow": false,
                     "poolSymbol": "harvestDAI_pool",
@@ -49,42 +48,51 @@
             ],
             [
                 {
-                    "pool": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
+                    "contract": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
                     "outputToken": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
                     "isBorrow": false,
                     "poolSymbol": "yDAI_pool",
                     "outputTokenSymbol": "yDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                    "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+                    "isBorrow": false,
+                    "poolSymbol": "curveDAI_deposit_pool",
+                    "outputTokenSymbol": "curveDAI"
                 }
             ]
         ],
         "advance": [
             [
                 {
-                    "pool": "cDAI_pool_address",
+                    "contract": "cDAI_pool_address",
                     "outputToken": "cDAI_token_address",
                     "isBorrow": false
                 }
             ],
             [
                 {
-                    "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                    "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                     "outputToken": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
                     "isBorrow": true
                 },
                 {
-                    "pool": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                    "contract": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
                     "outputToken": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
                     "isBorrow": false
                 }
             ],
             [
                 {
-                    "pool": "AaveLendingPoolAddressProvider",
+                    "contract": "AaveLendingPoolAddressProvider",
                     "outputToken": "USDT_token_address",
                     "isBorrow": true
                 },
                 {
-                    "pool": "cUSDT_pool_address",
+                    "contract": "cUSDT_pool_address",
                     "outputToken": "cUSDT_token_address",
                     "isBorrow": false
                 }
