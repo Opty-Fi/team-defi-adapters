@@ -98,5 +98,105 @@
                 }
             ]
         ]
+    },
+    "usdc": {
+        "basic": [
+            [
+                {
+                    "contract": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                    "outputToken": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                    "isBorrow": false,
+                    "poolSymbol": "cUSDC",
+                    "outputTokenSymbol": "cUSDC"
+                }
+            ],
+            [
+                {
+                    "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                    "outputToken": "0x9bA00D6856a4eDF4665BcA2C2309936572473B7E",
+                    "isBorrow": false,
+                    "poolSymbol": "aDAI_pool",
+                    "outputTokenSymbol": "aDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+                    "outputToken": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+                    "isBorrow": false,
+                    "poolSymbol": "fulcrumDAI_pool",
+                    "outputTokenSymbol": "fDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0x02285AcaafEB533e03A7306C55EC031297df9224",
+                    "outputToken": "0x02285AcaafEB533e03A7306C55EC031297df9224",
+                    "isBorrow": false,
+                    "poolSymbol": "dForceDAI_pool",
+                    "outputTokenSymbol": "dfDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+                    "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+                    "isBorrow": false,
+                    "poolSymbol": "harvestDAI_pool",
+                    "outputTokenSymbol": "harvestDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
+                    "outputToken": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
+                    "isBorrow": false,
+                    "poolSymbol": "yDAI_pool",
+                    "outputTokenSymbol": "yDAI"
+                }
+            ],
+            [
+                {
+                    "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                    "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+                    "isBorrow": false,
+                    "poolSymbol": "curveDAI_deposit_pool",
+                    "outputTokenSymbol": "curveDAI"
+                }
+            ]
+        ],
+        "advance": [
+            [
+                {
+                    "contract": "cDAI_pool_address",
+                    "outputToken": "cDAI_token_address",
+                    "isBorrow": false
+                }
+            ],
+            [
+                {
+                    "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                    "outputToken": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                    "isBorrow": true
+                },
+                {
+                    "contract": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                    "outputToken": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                    "isBorrow": false
+                }
+            ],
+            [
+                {
+                    "contract": "AaveLendingPoolAddressProvider",
+                    "outputToken": "USDT_token_address",
+                    "isBorrow": true
+                },
+                {
+                    "contract": "cUSDT_pool_address",
+                    "outputToken": "cUSDT_token_address",
+                    "isBorrow": false
+                }
+            ]
+        ]
     }
 }
