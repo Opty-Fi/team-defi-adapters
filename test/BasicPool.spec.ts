@@ -20,6 +20,7 @@ import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
 import allStrategies from "./shared/strategies.json";
+// import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
@@ -93,7 +94,7 @@ describe("OptyTokenBasicPool", async () => {
     let optyHarvestDepositPoolProxy: Contract;
     let optyYearnDepositPoolProxy: Contract;
     let profile = "basic";
-    let underlyingToken = tokenAddresses.usdc;
+    let underlyingToken = tokenAddresses.dai;
     const tokens = [underlyingToken];
     let tokenContractInstance: Contract;
     let userTokenBalanceWei;
@@ -174,7 +175,7 @@ describe("OptyTokenBasicPool", async () => {
                 // let poolProxyConttractKey: keyof typeof poolProxyConttract;
                 let count = 1;
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
-                    if (count <= 2) {
+                    if (count <= 8) {
                         if (
                             poolProxyContract.hasOwnProperty(
                                 optyPoolProxyContractsKey.toString()
@@ -233,8 +234,19 @@ describe("OptyTokenBasicPool", async () => {
                                     for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
                                         // console.log("BEFORE POOL NAME: ", defiPoolsKey)
                                         // console.log("-- Underlying Token-- : ", defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey]);
-                                        await approveTokenLpToken(defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].lpToken, defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].tokens)
-                                        await setTokensHashToTokens(defiPoolsUnderlyingTokens[defiPoolsUnderlyingTokensKey].tokens);
+                                        await approveTokenLpToken(
+                                            defiPoolsUnderlyingTokens[
+                                                defiPoolsUnderlyingTokensKey
+                                            ].lpToken,
+                                            defiPoolsUnderlyingTokens[
+                                                defiPoolsUnderlyingTokensKey
+                                            ].tokens
+                                        );
+                                        await setTokensHashToTokens(
+                                            defiPoolsUnderlyingTokens[
+                                                defiPoolsUnderlyingTokensKey
+                                            ].tokens
+                                        );
                                         if (
                                             defiPoolsKey.toString().includes("Borrow")
                                         ) {
@@ -323,7 +335,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     }
 
-    it.skip("should check if the conttacts are deployed", async () => {
+    it("should check if the pool proxy contracts are deployed", async () => {
         assert.isOk(optyTokenBasicPool.address, "BasicPool Contract is not deployed");
         console.log(
             "\nDeployed OptyTokenBasicPool Contract address: ",
@@ -384,91 +396,161 @@ describe("OptyTokenBasicPool", async () => {
 
     // async function setAndScoreStrategy() {
     // for (let strategies of allStrategies.dai.basic) {
-    allStrategies.usdc.basic.forEach(async (strategies, index) => {
-        if (index <= 1) {
-            it(
-                "should deposit using userDepositRebalance() using Strategy - " +
-                    (index + 1),
-                async () => {
-                    // console.log("Strategy length: ", strategies.length);
-                    let strategySteps: (string | boolean)[][] = [];
-                    let previousStepOutputToken = "";
-                    for (let index = 0; index < strategies.length; index++) {
-                        // console.log("2nd loop");
-                        let tempArr: (string | boolean)[] = [];
-                        if (previousStepOutputToken.length > 0) {
-                            console.log("previous token detected");
-                            // let outputTokenHash = "0x" + abi.soliditySHA3(["address[]"], [[previousStepOutputToken]]).toString("hex");
-                            await optyRegistry.setTokensHashToTokens([
-                                previousStepOutputToken,
-                            ]);
-                            // await optyRegistry.approveToken(previousStepOutputToken);
-                            await optyRegistry.setLiquidityPoolToLPToken(
-                                strategies[index].contract,
-                                [previousStepOutputToken],
-                                strategies[index].outputToken
+    let strategyKey: keyof typeof allStrategies;
+
+    for (strategyKey in allStrategies) {
+        allStrategies[strategyKey].basic.forEach(async (strategies, index) => {
+            if (index <= 3) {
+                it(
+                    "should deposit using userDepositRebalance() using Strategy - " +
+                        strategies.strategyName,
+                    async () => {
+                        // console.log("Strategy length: ", strategies.length);
+                        let strategySteps: (string | boolean)[][] = [];
+                        let previousStepOutputToken = "";
+                        for (
+                            let index = 0;
+                            index < strategies.strategy.length;
+                            index++
+                        ) {
+                            // console.log("2nd loop");
+                            let tempArr: (string | boolean)[] = [];
+                            if (previousStepOutputToken.length > 0) {
+                                console.log("previous token detected");
+                                // let outputTokenHash = "0x" + abi.soliditySHA3(["address[]"], [[previousStepOutputToken]]).toString("hex");
+                                await optyRegistry.setTokensHashToTokens([
+                                    previousStepOutputToken,
+                                ]);
+                                // await optyRegistry.approveToken(previousStepOutputToken);
+                                await optyRegistry.setLiquidityPoolToLPToken(
+                                    strategies.strategy[index].contract,
+                                    [previousStepOutputToken],
+                                    strategies.strategy[index].outputToken
+                                );
+                            }
+                            // console.log("2nd loop continuess.....")
+                            tempArr.push(
+                                strategies.strategy[index].contract,
+                                strategies.strategy[index].outputToken,
+                                strategies.strategy[index].isBorrow
                             );
+                            previousStepOutputToken =
+                                strategies.strategy[index].outputToken;
+                            // strategySteps = [tempArr];
+                            strategySteps.push(tempArr);
                         }
-                        // console.log("2nd loop continuess.....")
-                        tempArr.push(
-                            strategies[index].contract,
-                            strategies[index].outputToken,
-                            strategies[index].isBorrow
+
+                        console.log("Strategy Steps: ", strategySteps);
+                        // let tmpStrategyHash = "0x" + abi.soliditySHA3(["address[]"], [strategySteps]).toString("hex");
+                        // let strategyHashIndex: ethers.utils.BigNumber = await optyRegistry.strategies(tokensHash)
+                        // let strategyStepHash: string[] = []
+                        // strategySteps.forEach((strategyStep, index) => {
+                        //     strategyStepHash[index] = "0x" + abi.soliditySHA3(["address,address,bool"], [strategyStep[0],strategyStep[1],strategyStep[2]]).toString("hex");
+                        // })
+                        // let tokenToStrategyStepsHash = "0x" + abi.soliditySHA3(["bytes32,bytes32[]"], [tokensHash,strategyStepHash]).toString("hex");
+                        // console.log("tokenToStrategyStepsHash: ",  tokenToStrategyStepsHash)
+                        // let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(tokensHash)
+                        // console.log("tokenToStrategyHashes: ", tokenToStrategyHashes)
+
+                        console.log("After SETTING  STRATEGY STEPS== ");
+                        let strategyStepHash: string[] = [];
+                        strategySteps.forEach((tempStrategyStep, index) => {
+                            console.log("== FOR EACH ==");
+                            console.log("For loop strategy step: ", tempStrategyStep);
+                            strategyStepHash[index] =
+                                "0x" +
+                                abi
+                                    .soliditySHA3(
+                                        ["address", "address", "bool"],
+                                        [
+                                            tempStrategyStep[0],
+                                            tempStrategyStep[1],
+                                            tempStrategyStep[2],
+                                        ]
+                                    )
+                                    .toString("hex");
+                        });
+                        console.log("== FOR EACH ENDS == ");
+                        console.log("== STRATEGY STEPS HASH: ", strategyStepHash);
+                        let tokenToStrategyStepsHash =
+                            "0x" +
+                            abi
+                                .soliditySHA3(
+                                    ["bytes32", "bytes32[]"],
+                                    [tokensHash, strategyStepHash]
+                                )
+                                .toString("hex");
+                        console.log(
+                            "tokenToStrategyStepsHash: ",
+                            tokenToStrategyStepsHash
                         );
-                        previousStepOutputToken = strategies[index].outputToken;
-                        // strategySteps = [tempArr];
-                        strategySteps.push(tempArr);
+
+                        let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(
+                            tokensHash
+                        );
+                        console.log(
+                            "== tokenToStrategyHashes status: ",
+                            tokenToStrategyHashes.includes(tokenToStrategyStepsHash)
+                        );
+                        if (tokenToStrategyHashes.includes(tokenToStrategyStepsHash)) {
+                            await expectRevert(
+                                optyRegistry.setStrategy(tokensHash, strategySteps),
+                                "isNewStrategy"
+                            );
+                        } else {
+                            const setStrategyTx = await optyRegistry.setStrategy(
+                                tokensHash,
+                                strategySteps
+                            );
+                            assert.isDefined(
+                                setStrategyTx,
+                                "Setting StrategySteps has failed!"
+                            );
+
+                            const receipt = await setStrategyTx.wait();
+                            let strategyHash = receipt.events[0].args[2];
+                            expect(strategyHash.toString().length).to.equal(66);
+
+                            let strategy = await optyRegistry.getStrategy(
+                                strategyHash.toString()
+                            );
+                            if (!strategy["_isStrategy"]) {
+                                await optyRegistry.approveStrategy(
+                                    strategyHash.toString()
+                                );
+                                strategy = await optyRegistry.getStrategy(
+                                    strategyHash.toString()
+                                );
+                                assert.isTrue(
+                                    strategy["_isStrategy"],
+                                    "Strategy is not approved"
+                                );
+                                // let strategyScore = count + 1;
+                                await optyRegistry.scoreStrategy(
+                                    strategyHash.toString(),
+                                    index + 1
+                                );
+                            }
+                            // await checkAndFundWallet();
+                            let bestStrategyHash = await riskManager.getBestStrategy(
+                                profile,
+                                [underlyingToken]
+                            );
+                            console.log("Best Strategy Hash: ", bestStrategyHash);
+                            let bestStrategy = await optyRegistry.getStrategy(
+                                bestStrategyHash.toString()
+                            );
+                            console.log("Best Strategy: ", bestStrategy);
+
+                            await testUserDepositRebalance();
+                            // console.log("\n---------- UserDepositRebalance() passed for Strategy -", strategyScore, " ------------\n");
+                            strategyScore = strategyScore + 1;
+                        }
                     }
-
-                    console.log("Strategy Steps: ", strategySteps);
-                    const setStrategyTx = await optyRegistry.setStrategy(
-                        tokensHash,
-                        strategySteps
-                    );
-                    assert.isDefined(
-                        setStrategyTx,
-                        "Setting StrategySteps has failed!"
-                    );
-
-                    const receipt = await setStrategyTx.wait();
-                    let strategyHash = receipt.events[0].args[2];
-                    expect(strategyHash.toString().length).to.equal(66);
-
-                    let strategy = await optyRegistry.getStrategy(
-                        strategyHash.toString()
-                    );
-                    if (!strategy["_isStrategy"]) {
-                        await optyRegistry.approveStrategy(strategyHash.toString());
-                        strategy = await optyRegistry.getStrategy(
-                            strategyHash.toString()
-                        );
-                        assert.isTrue(
-                            strategy["_isStrategy"],
-                            "Strategy is not approved"
-                        );
-                        // let strategyScore = count + 1;
-                        await optyRegistry.scoreStrategy(
-                            strategyHash.toString(),
-                            index + 1
-                        );
-                    }
-                    // await checkAndFundWallet();
-                    let bestStrategyHash = await riskManager.getBestStrategy(profile, [
-                        underlyingToken,
-                    ]);
-                    console.log("Best Strategy Hash: ", bestStrategyHash);
-                    let bestStrategy = await optyRegistry.getStrategy(
-                        bestStrategyHash.toString()
-                    );
-                    console.log("Best Strategy: ", bestStrategy);
-
-                    await testUserDepositRebalance();
-                    // console.log("\n---------- UserDepositRebalance() passed for Strategy -", strategyScore, " ------------\n");
-                    strategyScore = strategyScore + 1;
-                }
-            );
-        }
-    });
+                );
+            }
+        });
+    }
     // let bestStrategyHash = await riskManager.getBestStrategy(profile, [underlyingToken]);
     // console.log("Best Strategy Hash: ",bestStrategyHash);
     // let bestStrategy = await optyRegistry.getStrategy(bestStrategyHash.toString());
@@ -531,26 +613,33 @@ describe("OptyTokenBasicPool", async () => {
     }
 
     async function approveTokenLpToken(lpToken: string, tokens: string[]) {
-        let lpTokenApproveStatus = await optyRegistry.tokens(lpToken)
+        let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
         if (!lpTokenApproveStatus) {
-            await optyRegistry.approveToken(lpToken)
+            await optyRegistry.approveToken(lpToken);
         }
         // console.log("lpTokenStatus: ", lpTokenApproveStatus)
         tokens.forEach(async (token) => {
-            let tokenApproveStatus = await optyRegistry.tokens(token)
+            let tokenApproveStatus = await optyRegistry.tokens(token);
             if (!tokenApproveStatus) {
-                await optyRegistry.approveToken(token)
+                await optyRegistry.approveToken(token);
             }
             // console.log("tokenApprove Status: ", tokenApproveStatus)
-        })
+        });
     }
 
     async function setTokensHashToTokens(tokens: string[]) {
         // 0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80
-        let tokensHash = "0x" + abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
-        let tokensHashIndex: ethers.utils.BigNumber = await optyRegistry.tokensHashToTokens(tokensHash)
+        let tokensHash =
+            "0x" + abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
+        let tokensHashIndex: ethers.utils.BigNumber = await optyRegistry.tokensHashToTokens(
+            tokensHash
+        );
         // console.log("tokensHashIndex: ", tokensHashIndex)
-        if (tokensHashIndex.eq(0) && (tokensHash !== "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80")) {
+        if (
+            tokensHashIndex.eq(0) &&
+            tokensHash !==
+                "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+        ) {
             // console.log("tokensHashIndex in  IF CONDITION: ", tokensHashIndex)
             await optyRegistry.setTokensHashToTokens(tokens);
         }
@@ -579,4 +668,40 @@ describe("OptyTokenBasicPool", async () => {
             await optyRegistry.setLiquidityPoolToDepositPoolProxy(pool, poolProxy);
         }
     }
+
+    // Handle revert exception occured further..
+    async function expectException(promise: Promise<any>, expectedError: any) {
+        try {
+            await promise;
+        } catch (error) {
+            if (error.message.indexOf(expectedError) === -1) {
+                // When the exception was a revert, the resulting string will include only
+                // the revert reason, otherwise it will be the type of exception (e.g. 'invalid opcode')
+                const actualError = error.message.replace(
+                    /Returned error: VM Exception while processing transaction: (revert )?/,
+                    ""
+                );
+                expect(actualError).to.equal(
+                    expectedError,
+                    "Wrong kind of exception received"
+                );
+            }
+            return;
+        }
+        expect.fail("Expected an exception but none was received");
+    }
+
+    // function for checking the revert conditions
+    const expectRevert = async function (promise: Promise<any>, expectedError: any) {
+        promise.catch(() => {}); // Avoids uncaught promise rejections in case an input validation causes us to return early
+
+        if (!expectedError) {
+            throw Error(
+                "No revert reason specified: call expectRevert with the reason string, or use expectRevert.unspecified \
+        if your 'require' statement doesn't have one."
+            );
+        }
+
+        await expectException(promise, expectedError);
+    };
 });
