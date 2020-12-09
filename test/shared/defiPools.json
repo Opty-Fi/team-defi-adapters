@@ -178,6 +178,13 @@
             "tokens":["0x6b175474e89094c44da98b954eedeac495271d0f","0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","0xdac17f958d2ee523a2206206994597c13d831ec7","0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
         }
     },
+    "dYdXDepositPoolProxy": {
+        "dai": {
+            "pool": "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
+            "lpToken": "0x0000000000000000000000000000000000000000",
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+        }
+    },
     "CreamDepositPoolProxy":{
         "usdc": {
             "pool": "0x44fbeBd2F576670a6C33f6Fc0B00aA8c5753b322",
