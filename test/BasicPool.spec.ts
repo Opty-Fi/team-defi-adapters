@@ -16,6 +16,7 @@ import DForceDepositPoolProxy from "../build/DForceDepositPoolProxy.json";
 import FulcrumDepositPoolProxy from "../build/FulcrumDepositPoolProxy.json";
 import HarvestDepositPoolProxy from "../build/HarvestDepositPoolProxy.json";
 import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
+import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
 // import { CompoundDepositPoolProxy, AaveDepositPoolProxy } from "../build/";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
@@ -55,6 +56,7 @@ let poolProxyContract: PoolProxyContract = {
     HarvestDepositPoolProxy,
     YearnDepositPoolProxy,
     CurveDepositPoolProxy,
+    dYdXDepositPoolProxy,
     CreamDepositPoolProxy,
 };
 
@@ -158,13 +160,12 @@ describe("OptyTokenBasicPool", async () => {
                 let count = 1;
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                     // if (optyPoolProxyContractsKey == "CurveDepositPoolProxy") {
-                    if (count <= 8) {
+                    if (count <= 9) {
                         if (
                             poolProxyContract.hasOwnProperty(
                                 optyPoolProxyContractsKey.toString()
                             )
                         ) {
-                            
                             if (
                                 optyPoolProxyContractsKey.toString().includes("Borrow")
                             ) {
@@ -194,7 +195,6 @@ describe("OptyTokenBasicPool", async () => {
                                     defiPoolsKey.toString() ==
                                     optyPoolProxyContractsKey.toString()
                                 ) {
-
                                     let defiPoolsUnderlyingTokens: DefiPools =
                                         defiPools[defiPoolsKey];
                                     for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
@@ -236,17 +236,23 @@ describe("OptyTokenBasicPool", async () => {
                                                 false
                                             );
                                         }
-                                        await optyRegistry.setLiquidityPoolToLPToken(
+                                        if (
                                             defiPoolsUnderlyingTokens[
                                                 defiPoolsUnderlyingTokensKey
-                                            ].pool,
-                                            defiPoolsUnderlyingTokens[
-                                                defiPoolsUnderlyingTokensKey
-                                            ].tokens,
-                                            defiPoolsUnderlyingTokens[
-                                                defiPoolsUnderlyingTokensKey
-                                            ].lpToken
-                                        );
+                                            ].lpToken != "0x0000000000000000000000000000000000000000"
+                                        ) {
+                                            await optyRegistry.setLiquidityPoolToLPToken(
+                                                defiPoolsUnderlyingTokens[
+                                                    defiPoolsUnderlyingTokensKey
+                                                ].pool,
+                                                defiPoolsUnderlyingTokens[
+                                                    defiPoolsUnderlyingTokensKey
+                                                ].tokens,
+                                                defiPoolsUnderlyingTokens[
+                                                    defiPoolsUnderlyingTokensKey
+                                                ].lpToken
+                                            );
+                                        }
                                         let mapResult = await optyRegistry.liquidityPoolToLPTokens(
                                             defiPoolsUnderlyingTokens[
                                                 defiPoolsUnderlyingTokensKey
@@ -263,7 +269,6 @@ describe("OptyTokenBasicPool", async () => {
                                                     )
                                                     .toString("hex")
                                         );
-                                        
                                         // }
                                     }
                                 }
@@ -316,7 +321,6 @@ describe("OptyTokenBasicPool", async () => {
                         <keyof typeof tokenAddresses>strategiesTokenKey.toLowerCase()
                     ];
                 tokens = [underlyingToken];
-                
                 // Instantiate token contract
                 tokenContractInstance = new ethers.Contract(
                     underlyingToken,
@@ -333,11 +337,17 @@ describe("OptyTokenBasicPool", async () => {
 
                 underlyingTokenName = await tokenContractInstance.symbol();
 
+                console.log(
+                    "DYDX DEPOSIT POOL PROXY CONTRACT ADDRESS: ",
+                    optyPoolProxyContractVariables.dYdXDepositPoolProxy.address
+                );
                 optyTokenBasicPool = await deployContract(wallet, OptyTokenBasicPool, [
                     profile,
                     riskManager.address,
                     underlyingToken,
                     optyStrategyManager.address,
+                    "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
+                    optyPoolProxyContractVariables.dYdXDepositPoolProxy.address,
                 ]);
                 assert.isDefined(
                     optyTokenBasicPool,
@@ -350,12 +360,10 @@ describe("OptyTokenBasicPool", async () => {
             });
 
             async function checkAndFundWallet() {
-                
                 userTokenBalanceWei = await tokenContractInstance.balanceOf(
                     wallet.address
                 );
                 userInitialTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
-                
                 userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
                     wallet.address
                 );
@@ -387,7 +395,6 @@ describe("OptyTokenBasicPool", async () => {
                     optyTokenBasicPool.address,
                     "BasicPool Contract is not deployed"
                 );
-                
             });
 
             it("should deposit using userDeposit()", async () => {
@@ -436,7 +443,6 @@ describe("OptyTokenBasicPool", async () => {
                             "should deposit using userDepositRebalance() using Strategy - " +
                                 strategies.strategyName,
                             async () => {
-                                
                                 let strategySteps: (string | boolean)[][] = [];
                                 let previousStepOutputToken = "";
                                 for (
@@ -444,10 +450,8 @@ describe("OptyTokenBasicPool", async () => {
                                     index < strategies.strategy.length;
                                     index++
                                 ) {
-                                    
                                     let tempArr: (string | boolean)[] = [];
                                     if (previousStepOutputToken.length > 0) {
-                                        
                                         await optyRegistry.setTokensHashToTokens([
                                             previousStepOutputToken,
                                         ]);
@@ -458,7 +462,6 @@ describe("OptyTokenBasicPool", async () => {
                                             strategies.strategy[index].outputToken
                                         );
                                     }
-                                    
                                     tempArr.push(
                                         strategies.strategy[index].contract,
                                         strategies.strategy[index].outputToken,
@@ -472,7 +475,6 @@ describe("OptyTokenBasicPool", async () => {
 
                                 let strategyStepHash: string[] = [];
                                 strategySteps.forEach((tempStrategyStep, index) => {
-                                    
                                     strategyStepHash[index] =
                                         "0x" +
                                         abi
@@ -486,7 +488,6 @@ describe("OptyTokenBasicPool", async () => {
                                             )
                                             .toString("hex");
                                 });
-                                
                                 let tokenToStrategyStepsHash =
                                     "0x" +
                                     abi
@@ -499,7 +500,6 @@ describe("OptyTokenBasicPool", async () => {
                                 let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(
                                     tokensHash
                                 );
-                                
                                 if (
                                     tokenToStrategyHashes.includes(
                                         tokenToStrategyStepsHash
@@ -551,11 +551,11 @@ describe("OptyTokenBasicPool", async () => {
                                         profile,
                                         [underlyingToken]
                                     );
-                                    
+
                                     let bestStrategy = await optyRegistry.getStrategy(
                                         bestStrategyHash.toString()
                                     );
-                                    
+
                                     await testUserDepositRebalance();
                                     strategyScore = strategyScore + 1;
                                 }
@@ -566,7 +566,6 @@ describe("OptyTokenBasicPool", async () => {
             );
 
             async function testUserDepositRebalance() {
-                
                 await tokenContractInstance.approve(
                     optyTokenBasicPool.address,
                     TEST_AMOUNT,
@@ -620,17 +619,22 @@ describe("OptyTokenBasicPool", async () => {
     }
 
     async function approveTokenLpToken(lpToken: string, tokens: string[]) {
-        let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
-        if (!lpTokenApproveStatus) {
-            await optyRegistry.approveToken(lpToken);
-        }
-        
-        tokens.forEach(async (token) => {
-            let tokenApproveStatus = await optyRegistry.tokens(token);
-            if (!tokenApproveStatus) {
-                await optyRegistry.approveToken(token);
+        // if (!!lpToken || lpToken.length > 0) {
+        if (lpToken != "0x0000000000000000000000000000000000000000") {
+            let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
+            if (!lpTokenApproveStatus) {
+                await optyRegistry.approveToken(lpToken);
             }
-        });
+        }
+
+        if (tokens.length > 0) {
+            tokens.forEach(async (token) => {
+                let tokenApproveStatus = await optyRegistry.tokens(token);
+                if (!tokenApproveStatus) {
+                    await optyRegistry.approveToken(token);
+                }
+            });
+        }
     }
 
     async function setTokensHashToTokens(tokens: string[]) {
@@ -639,13 +643,11 @@ describe("OptyTokenBasicPool", async () => {
         let tokensHashIndex: ethers.utils.BigNumber = await optyRegistry.tokensHashToTokens(
             tokensHash
         );
-        
         if (
             tokensHashIndex.eq(0) &&
             tokensHash !==
                 "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
         ) {
-            
             await optyRegistry.setTokensHashToTokens(tokens);
         }
     }
