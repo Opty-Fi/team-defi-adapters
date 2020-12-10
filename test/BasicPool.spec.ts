@@ -647,6 +647,7 @@ describe("OptyTokenBasicPool", async () => {
                     console.log(
                         "Minor decimals Value difference -- need to be checked"
                     );
+                    expect(userOptyTokenBalanceWei.lte(userExpectedOptyTokenBalance)).to.be.true;
                 }
 
                 //  Storing the user's New Opty tokens balance in number format
