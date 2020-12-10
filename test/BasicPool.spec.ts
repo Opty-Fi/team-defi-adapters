@@ -437,7 +437,7 @@ describe("OptyTokenBasicPool", async () => {
 
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
-                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "DAI-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD") {
+                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD") {
                     if (index <= 30) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
@@ -612,7 +612,7 @@ describe("OptyTokenBasicPool", async () => {
                 );
                 console.log("User's Opty token balance: ", userNewOptyTokenBalance);
                 //  TODO: Need to fix this assertion error for the decimals values - Deepanshu
-                // expect(userNewOptyTokenBalance).to.equal(userOptyTokenBalance + TEST_AMOUNT_NUM);
+                // expect(userOptyTokenBalanceWei).to.equal(tempUserPreviousBalance.add(shares));
                 userOptyTokenBalance = userNewOptyTokenBalance;
             }
         });
