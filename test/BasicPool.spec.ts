@@ -286,7 +286,11 @@ describe("OptyTokenBasicPool", async () => {
 
     let strategiesTokenKey: keyof typeof allStrategies;
     for (strategiesTokenKey in allStrategies) {
-        if (strategiesTokenKey == "DAI" || strategiesTokenKey == "USDC") {
+        if (
+            strategiesTokenKey == "DAI" ||
+            strategiesTokenKey == "USDC" ||
+            strategiesTokenKey == "USDT"
+        ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }
@@ -304,7 +308,7 @@ describe("OptyTokenBasicPool", async () => {
                         <keyof typeof tokenAddresses>strategiesTokenKey.toLowerCase()
                     ];
                 tokens = [underlyingToken];
-                
+
                 // Instantiate token contract
                 tokenContractInstance = new ethers.Contract(
                     underlyingToken,
@@ -368,50 +372,61 @@ describe("OptyTokenBasicPool", async () => {
                 }
             }
 
-            it("should check OptyTokenBasicPool contract is deployed for " + strategiesTokenKey, async () => {
-                assert.isOk(
-                    optyTokenBasicPool.address,
-                    "BasicPool Contract for " + strategiesTokenKey + "is not deployed"
-                );
-            });
+            it(
+                "should check OptyTokenBasicPool contract is deployed for " +
+                    strategiesTokenKey,
+                async () => {
+                    assert.isOk(
+                        optyTokenBasicPool.address,
+                        "BasicPool Contract for " +
+                            strategiesTokenKey +
+                            "is not deployed"
+                    );
+                }
+            );
 
-            it("should deposit using userDeposit() for " + strategiesTokenKey, async () => {
-                await tokenContractInstance.approve(
-                    optyTokenBasicPool.address,
-                    TEST_AMOUNT
-                );
-                expect(
-                    await tokenContractInstance.allowance(
-                        wallet.address,
+            it(
+                "should deposit using userDeposit() for " + strategiesTokenKey,
+                async () => {
+                    await tokenContractInstance.approve(
+                        optyTokenBasicPool.address,
+                        TEST_AMOUNT
+                    );
+                    expect(
+                        await tokenContractInstance.allowance(
+                            wallet.address,
+                            optyTokenBasicPool.address
+                        )
+                    ).to.equal(TEST_AMOUNT);
+                    const userDepositOutput = await optyTokenBasicPool.userDeposit(
+                        TEST_AMOUNT
+                    );
+                    assert.isOk(userDepositOutput, "UserDeposit() call failed");
+
+                    // Check Token and opToken balance after userDeposit() call
+                    userTokenBalanceWei = await tokenContractInstance.balanceOf(
+                        wallet.address
+                    );
+                    const userNewTokenBalance = parseFloat(
+                        fromWei(userTokenBalanceWei)
+                    );
+                    expect(userNewTokenBalance).to.equal(
+                        userInitialTokenBalance - TEST_AMOUNT_NUM
+                    );
+
+                    contractTokenBalanceWei = await tokenContractInstance.balanceOf(
                         optyTokenBasicPool.address
-                    )
-                ).to.equal(TEST_AMOUNT);
-                const userDepositOutput = await optyTokenBasicPool.userDeposit(
-                    TEST_AMOUNT
-                );
-                assert.isOk(userDepositOutput, "UserDeposit() call failed");
+                    );
+                    contractTokenBalance = parseFloat(fromWei(contractTokenBalanceWei));
+                    expect(contractTokenBalance).to.equal(TEST_AMOUNT_NUM);
 
-                // Check Token and opToken balance after userDeposit() call
-                userTokenBalanceWei = await tokenContractInstance.balanceOf(
-                    wallet.address
-                );
-                const userNewTokenBalance = parseFloat(fromWei(userTokenBalanceWei));
-                expect(userNewTokenBalance).to.equal(
-                    userInitialTokenBalance - TEST_AMOUNT_NUM
-                );
-
-                contractTokenBalanceWei = await tokenContractInstance.balanceOf(
-                    optyTokenBasicPool.address
-                );
-                contractTokenBalance = parseFloat(fromWei(contractTokenBalanceWei));
-                expect(contractTokenBalance).to.equal(TEST_AMOUNT_NUM);
-
-                userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
-                    wallet.address
-                );
-                userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
-                expect(userOptyTokenBalance).to.equal(TEST_AMOUNT_NUM);
-            });
+                    userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+                        wallet.address
+                    );
+                    userOptyTokenBalance = parseFloat(fromWei(userOptyTokenBalanceWei));
+                    expect(userOptyTokenBalance).to.equal(TEST_AMOUNT_NUM);
+                }
+            );
 
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
@@ -449,7 +464,7 @@ describe("OptyTokenBasicPool", async () => {
                                     );
                                     previousStepOutputToken =
                                         strategies.strategy[index].outputToken;
-                                    
+
                                     strategySteps.push(tempArr);
                                 }
 
@@ -520,13 +535,13 @@ describe("OptyTokenBasicPool", async () => {
                                             strategy["_isStrategy"],
                                             "Strategy is not approved"
                                         );
-                                        
+
                                         await optyRegistry.scoreStrategy(
                                             strategyHash.toString(),
                                             index + 1
                                         );
                                     }
-                                    
+
                                     let bestStrategyHash = await riskManager.getBestStrategy(
                                         profile,
                                         [underlyingToken]
@@ -647,7 +662,8 @@ describe("OptyTokenBasicPool", async () => {
                     console.log(
                         "Minor decimals Value difference -- need to be checked"
                     );
-                    expect(userOptyTokenBalanceWei.lte(userExpectedOptyTokenBalance)).to.be.true;
+                    expect(userOptyTokenBalanceWei.lte(userExpectedOptyTokenBalance)).to
+                        .be.true;
                 }
 
                 //  Storing the user's New Opty tokens balance in number format
