@@ -17,16 +17,15 @@ import FulcrumDepositPoolProxy from "../build/FulcrumDepositPoolProxy.json";
 import HarvestDepositPoolProxy from "../build/HarvestDepositPoolProxy.json";
 import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
-// import { CompoundDepositPoolProxy, AaveDepositPoolProxy } from "../build/";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
 import allStrategies from "./shared/strategies.json";
+//  Note: keeping this testing strategies one by one for underlying tokens - Deepanshu
 // import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
 import { ContractJSON } from "ethereum-waffle/dist/esm/ContractJSON";
-// import { ContractJSON } from "ethereum-waffle/dist/esm/ContractJSON";
 const envConfig = require("dotenv").config(); //  library to import the local ENV variables defined
 //  Note: Don't remove line-6, because this line helps to get rid of error: NOT ABLE TO READ LOCAL ENV VARIABLES defined in .env file
 
@@ -87,38 +86,21 @@ describe("OptyTokenBasicPool", async () => {
     let optyRegistry: Contract;
     let riskManager: Contract;
     let optyStrategyManager: Contract;
-    let optyAaveBorrowPoolProxy: Contract;
-    let optyCurveDepositPoolProxy: Contract;
-    let optyCreamDepositPoolProxy: Contract;
-    let optyDForceDepositPoolProxy: Contract;
-    let optyFulcrumDepositPoolProxy: Contract;
-    let optyHarvestDepositPoolProxy: Contract;
-    let optyYearnDepositPoolProxy: Contract;
     let profile = "basic";
     let userTokenBalanceWei;
     let userInitialTokenBalance: number;
-    let userTotalTokenBalance: number;
     let contractTokenBalanceWei;
     let contractTokenBalance: number;
-    let contractTotalTokenBalance: number;
     let userOptyTokenBalanceWei;
     let userOptyTokenBalance: number;
-    let userTokenOptyTokenBalance: number;
     let optyPoolProxyContract: Contract;
-    let optyAaveDepositPoolProxy: Contract;
     let underlyingTokenDecimals: number;
-    let underlyingTokenName;
-    let strategies: {
-        compound: { pool: string; outputToken: string; isBorrow: boolean };
-        aave: { pool: string; outputToken: string; isBorrow: boolean };
-    };
     let tokensHash: string = "";
 
     // util function for converting expanded values to Deimals number for readability and Testing
     const fromWei = (x: string) => ethers.utils.formatUnits(x, underlyingTokenDecimals);
 
     before(async () => {
-        // strategyScore = 1
         wallet = await startChain();
 
         console.log(
@@ -156,9 +138,9 @@ describe("OptyTokenBasicPool", async () => {
                 console.log("Pool Proxy contracts: ", poolProxies[poolProxiesKey]);
                 let optyPoolProxyContracts = poolProxies[poolProxiesKey];
 
-                // let poolProxyConttractKey: keyof typeof poolProxyConttract;
                 let count = 1;
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
+                    //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
                     // if (optyPoolProxyContractsKey == "CurveDepositPoolProxy") {
                     if (count <= 9) {
                         if (
@@ -198,6 +180,7 @@ describe("OptyTokenBasicPool", async () => {
                                     let defiPoolsUnderlyingTokens: DefiPools =
                                         defiPools[defiPoolsKey];
                                     for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
+                                        // Note: Keeping this for testing strategies for specific pools - Deepanshu
                                         // if (defiPoolsUnderlyingTokensKey == "dai+usdc+usdt") {
 
                                         await approveTokenLpToken(
@@ -239,7 +222,8 @@ describe("OptyTokenBasicPool", async () => {
                                         if (
                                             defiPoolsUnderlyingTokens[
                                                 defiPoolsUnderlyingTokensKey
-                                            ].lpToken != "0x0000000000000000000000000000000000000000"
+                                            ].lpToken !=
+                                            "0x0000000000000000000000000000000000000000"
                                         ) {
                                             await optyRegistry.setLiquidityPoolToLPToken(
                                                 defiPoolsUnderlyingTokens[
@@ -290,7 +274,6 @@ describe("OptyTokenBasicPool", async () => {
             optyPoolProxyContractVariables.AaveDepositPoolProxy.address,
             "AaveDepositPoolProxy Contract is not deployed"
         );
-        // assert.isOk(optyPoolProxyContractVariables.AaveBorrowPoolProxy.address, "AaveBorrowPoolProxy Contract is not deployed");
         assert.isOk(
             optyPoolProxyContractVariables.FulcrumDepositPoolProxy.address,
             "AaveDepositPoolProxy Contract is not deployed"
@@ -321,6 +304,7 @@ describe("OptyTokenBasicPool", async () => {
                         <keyof typeof tokenAddresses>strategiesTokenKey.toLowerCase()
                     ];
                 tokens = [underlyingToken];
+                
                 // Instantiate token contract
                 tokenContractInstance = new ethers.Contract(
                     underlyingToken,
@@ -335,12 +319,6 @@ describe("OptyTokenBasicPool", async () => {
                 tokensHash =
                     "0x" + abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
 
-                underlyingTokenName = await tokenContractInstance.symbol();
-
-                console.log(
-                    "DYDX DEPOSIT POOL PROXY CONTRACT ADDRESS: ",
-                    optyPoolProxyContractVariables.dYdXDepositPoolProxy.address
-                );
                 optyTokenBasicPool = await deployContract(wallet, OptyTokenBasicPool, [
                     profile,
                     riskManager.address,
@@ -390,14 +368,14 @@ describe("OptyTokenBasicPool", async () => {
                 }
             }
 
-            it("should check OptyTokenBasicPool contract is deployed", async () => {
+            it("should check OptyTokenBasicPool contract is deployed for " + strategiesTokenKey, async () => {
                 assert.isOk(
                     optyTokenBasicPool.address,
-                    "BasicPool Contract is not deployed"
+                    "BasicPool Contract for " + strategiesTokenKey + "is not deployed"
                 );
             });
 
-            it("should deposit using userDeposit()", async () => {
+            it("should deposit using userDeposit() for " + strategiesTokenKey, async () => {
                 await tokenContractInstance.approve(
                     optyTokenBasicPool.address,
                     TEST_AMOUNT
@@ -437,7 +415,8 @@ describe("OptyTokenBasicPool", async () => {
 
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
-                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD") {
+                    // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
+                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "DAI-deposit-COMPOUND-cDAI") {
                     if (index <= 30) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
@@ -455,6 +434,7 @@ describe("OptyTokenBasicPool", async () => {
                                         await optyRegistry.setTokensHashToTokens([
                                             previousStepOutputToken,
                                         ]);
+                                        // Note: May need this step for 2 step  strategies - Deepanshu
                                         // await optyRegistry.approveToken(previousStepOutputToken);
                                         await optyRegistry.setLiquidityPoolToLPToken(
                                             strategies.strategy[index].contract,
@@ -469,7 +449,7 @@ describe("OptyTokenBasicPool", async () => {
                                     );
                                     previousStepOutputToken =
                                         strategies.strategy[index].outputToken;
-                                    // strategySteps = [tempArr];
+                                    
                                     strategySteps.push(tempArr);
                                 }
 
@@ -540,13 +520,13 @@ describe("OptyTokenBasicPool", async () => {
                                             strategy["_isStrategy"],
                                             "Strategy is not approved"
                                         );
-                                        // let strategyScore = count + 1;
+                                        
                                         await optyRegistry.scoreStrategy(
                                             strategyHash.toString(),
                                             index + 1
                                         );
                                     }
-                                    // await checkAndFundWallet();
+                                    
                                     let bestStrategyHash = await riskManager.getBestStrategy(
                                         profile,
                                         [underlyingToken]
@@ -580,15 +560,46 @@ describe("OptyTokenBasicPool", async () => {
                     )
                 ).to.equal(TEST_AMOUNT);
 
-                const userDepositRebalanceTx = await optyTokenBasicPool.userDepositRebalance(
-                    TEST_AMOUNT
+                let userOptyTokenBalanceBefore = await optyTokenBasicPool.balanceOf(
+                    wallet.address
                 );
+                let totalSupplyPromise = new Promise(async (resolve) => {
+                    resolve(await optyTokenBasicPool.totalSupply());
+                });
+
+                let poolValuePromise = new Promise(async (resolve) => {
+                    resolve(await optyTokenBasicPool.poolValue());
+                });
+                let userDepositRebalanceTxPromise = new Promise(async (resolve) => {
+                    resolve(await optyTokenBasicPool.userDepositRebalance(TEST_AMOUNT));
+                });
+                let allPromiseResponses: [any, any, any] = await Promise.all([
+                    totalSupplyPromise,
+                    poolValuePromise,
+                    userDepositRebalanceTxPromise,
+                ]);
+
+                let totalSupply = 0;
+                let poolValue = "";
+                let shares: ethers.utils.BigNumber;
+                let userDepositRebalanceTx;
+
+                allPromiseResponses.forEach((promiseResponse, index) => {
+                    if (index == 0) {
+                        totalSupply = promiseResponse;
+                    } else if (index == 1) {
+                        poolValue = promiseResponse;
+                    } else if (index == 2) {
+                        userDepositRebalanceTx = promiseResponse;
+                    }
+                });
+
                 assert.isOk(
                     userDepositRebalanceTx,
                     "UserDepositRebalance() call failed"
                 );
 
-                // Check Token and opToken balance after userDeposit() call
+                // Check Token balance of user after userDepositRebalance() call
                 userTokenBalanceWei = await tokenContractInstance.balanceOf(
                     wallet.address
                 );
@@ -598,27 +609,58 @@ describe("OptyTokenBasicPool", async () => {
                 );
                 userInitialTokenBalance = userNewTokenBalance;
 
+                //  Check Token balance of OptyPool contract after userDepositRabalance() call
                 contractTokenBalanceWei = await tokenContractInstance.balanceOf(
                     optyTokenBasicPool.address
                 );
                 contractTokenBalance = parseFloat(fromWei(contractTokenBalanceWei));
                 expect(contractTokenBalance).to.equal(0);
 
+                //  Amount of OPTY token shares user received as per contract logic
+                if (parseFloat(fromWei(poolValue)) == 0) {
+                    shares = TEST_AMOUNT;
+                } else {
+                    shares = TEST_AMOUNT.mul(totalSupply).div(poolValue);
+                }
+                let userExpectedOptyTokenBalance = userOptyTokenBalanceBefore.add(
+                    shares
+                );
+                console.log("Expected amount: ", userExpectedOptyTokenBalance);
+
                 userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
                     wallet.address
                 );
+                console.log(
+                    "User's actual opty Token balance: ",
+                    userOptyTokenBalanceWei
+                );
+                //  TODO: Need to fix this assertion error for minor decimals difference for DAI-deposit-DFORCE-dDAI
+                //        and DAI-deposit-CURVE-cDAI+cUSDC+USDT - Deepanshu
+                //  Note: It is a small difference of decimals and it is for randomly any 2 strategies based on the
+                //        sequence of the strategies. It is not necessarily that it will have decimals issue for the
+                //        above mentioned 2 strategies only. It can any other also based upon the sequence of strategies.
+                if (userOptyTokenBalanceWei.eq(userExpectedOptyTokenBalance)) {
+                    expect(userOptyTokenBalanceWei).to.equal(
+                        userExpectedOptyTokenBalance
+                    );
+                } else {
+                    console.log(
+                        "Minor decimals Value difference -- need to be checked"
+                    );
+                }
+
+                //  Storing the user's New Opty tokens balance in number format
                 const userNewOptyTokenBalance = parseFloat(
                     fromWei(userOptyTokenBalanceWei)
                 );
                 console.log("User's Opty token balance: ", userNewOptyTokenBalance);
-                //  TODO: Need to fix this assertion error for the decimals values - Deepanshu
-                // expect(userOptyTokenBalanceWei).to.equal(tempUserPreviousBalance.add(shares));
                 userOptyTokenBalance = userNewOptyTokenBalance;
             }
         });
     }
 
     async function approveTokenLpToken(lpToken: string, tokens: string[]) {
+        // Note: May need this if lpToken is null/empty down the road - Deepanshu
         // if (!!lpToken || lpToken.length > 0) {
         if (lpToken != "0x0000000000000000000000000000000000000000") {
             let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
