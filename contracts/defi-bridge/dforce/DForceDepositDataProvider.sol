@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/IDepositPoolProxy.sol";
+import "../../interfaces/opty/IDepositDataProvider.sol";
 import "../../Registry.sol";
 import "../../interfaces/dforce/IDForceDeposit.sol";
 import "../../interfaces/dforce/IDForceStake.sol";
@@ -11,29 +11,35 @@ import "../../libraries/SafeERC20.sol";
 import "../../libraries/Addresses.sol";
 import "../../utils/Modifiers.sol";
 
-contract DForceDepositPoolProxy is IDepositPoolProxy,Modifiers {
+contract DForceDepositDataProvider is IDepositDataProvider,Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint;
     using Address for address;
-
-    function deposit(address, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
-        IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(_amounts[0]));
-        IDForceDeposit(_liquidityPool).mint(msg.sender, _amounts[0]);
-        return true;
+    
+    function getDepositCodes(address _optyPool, address[] memory, address _liquidityPool, address , uint[] memory _amounts) public override view returns(bytes[] memory _codes) {
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPool,abi.encodeWithSignature("mint(address,uint256)",_optyPool,_amounts[0]));
     }
     
-    function withdraw(address, address[] memory _underlyingTokens, address _liquidityPool, address _liquidityPoolToken, uint _redeemAmount) public override returns(bool) {
-        IERC20(_liquidityPoolToken).safeTransferFrom(msg.sender,address(this),_redeemAmount);
-        IDForceDeposit(_liquidityPool).redeem(address(this), _redeemAmount);
-        IERC20(_underlyingTokens[0]).safeTransfer(msg.sender, IERC20(_underlyingTokens[0]).balanceOf(address(this)));
-        return true;
+    function getWithdrawCodes(address _optyPool, address[] memory , address , address _liquidityPoolToken, uint _redeemAmount) public override view returns(bytes[] memory _codes) {
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("redeem(address,uint256)",_optyPool, _redeemAmount));
+    }
+    
+    function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
+        if (_liquidityPoolTokenAmount > 0) {
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IDForceDeposit(_liquidityPoolToken).getExchangeRate()).div(1e18);
+         }
+         return _liquidityPoolTokenAmount;
+    }
+    
+    function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
+        return _depositAmount.mul(1e18).div(IDForceDeposit(_liquidityPoolToken).getExchangeRate());
     }
 
-    function balanceInToken(address, address, address, address _liquidityPoolToken, address _holder) public override view returns(uint) {
-        uint b = IERC20(_liquidityPoolToken).balanceOf(_holder);
+    function balanceInToken(address _optyPool, address, address, address _liquidityPoolToken) public override view returns(uint) {
+        uint b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
         if (b > 0) {
             b = b.mul(IDForceDeposit(_liquidityPoolToken).getExchangeRate()).div(1e18);
         }
@@ -56,7 +62,7 @@ contract DForceDepositPoolProxy is IDepositPoolProxy,Modifiers {
         return true;
     }
     
-    function getLiquidityPoolToken(address _liquidityPool) public override view returns(address){
+    function getLiquidityPoolToken(address ,address _liquidityPool) public override view returns(address){
             return _liquidityPool;
     }
     

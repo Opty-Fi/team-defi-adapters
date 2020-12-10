@@ -1,55 +1,57 @@
 // SPDX-License-Identifier:MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/IDepositPoolProxy.sol";
+import "../../interfaces/opty/IDepositDataProvider.sol";
 import "../../interfaces/harvest.finance/IHarvestDeposit.sol";
 import "../../interfaces/harvest.finance/IHarvestFarm.sol";
 import "../../libraries/SafeERC20.sol";
 
-contract HarvestDepositPoolProxy is IDepositPoolProxy {
+contract HarvestDepositDataProvider is IDepositDataProvider {
 
     using SafeERC20 for IERC20;
     using SafeMath for uint;
 
-    function deposit(address, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
-        IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(_amounts[0]));
-        IHarvestDeposit(_liquidityPoolToken).deposit(_amounts[0]);
-
+    function getDepositCodes(address, address[] memory, address _liquidityPool, address , uint[] memory _amounts) public override view returns(bytes[] memory _codes) {
         // This commented code corresponds to including staking feature inside deposit function:
-
         // address _vaultFarm = 0x15d3A64B2d5ab9E152F16593Cdebc4bB165B5B4A;
         // IERC20(_liquidityPoolToken).safeApprove(_vaultFarm, uint(0));
         // IERC20(_liquidityPoolToken).safeApprove(_vaultFarm, IERC20(_vaultToken).balanceOf(address(this)));
         // IHarvestFarm(_vaultFarm).stake(IERC20(_vaultToken).balanceOf(address(this)));
-
-        IERC20(_liquidityPoolToken).safeTransfer(msg.sender, IERC20(_liquidityPoolToken).balanceOf(address(this)));
-        return true;
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPool,abi.encodeWithSignature("deposit(uint256)",_amounts[0]));
     }
 
-    function withdraw(address, address[] memory _underlyingTokens, address _liquidityPool, address _liquidityPoolToken, uint _shares) public override returns(bool) {
+    function getWithdrawCodes(address, address[] memory, address , address _liquidityPoolToken, uint _shares) public override view returns(bytes[] memory _codes) {
         // This commented code corresponds to including unstaking and getting rewards features inside withdraw function:
-
         // address _vaultFarm = 0x15d3A64B2d5ab9E152F16593Cdebc4bB165B5B4A;
         // address _farmToken = 0xa0246c9032bC3A600820415aE600c6388619A14D;
         // IHarvestFarm(_vaultFarm).exit();
         // IERC20(_farmToken).safeTransfer(msg.sender,IERC20(_farmToken).balanceOf(address(this)));
         // IHarvestDeposit(_vaultToken).withdraw(IERC20(_vaultToken).balanceOf(address(this)));
 
-        IERC20(_liquidityPoolToken).safeTransferFrom(msg.sender,address(this),_shares);
-        IHarvestDeposit(_liquidityPool).withdraw(_shares);
-        IERC20(_underlyingTokens[0]).safeTransfer(msg.sender, IERC20(_underlyingTokens[0]).balanceOf(address(this)));
-        return true;
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("withdraw(uint256)",_shares));
     }
 
-    function balanceInToken(address, address, address _liquidityPool, address , address _holder) public override view returns(uint) {
-        uint b = IERC20(_liquidityPool).balanceOf(_holder);
+    function balanceInToken(address _optyPool, address, address _liquidityPool, address) public override view returns(uint) {
+        uint b = IERC20(_liquidityPool).balanceOf(_optyPool);
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(1e18);
         }
         return b;
+    }
+    
+    function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
+        if (_liquidityPoolTokenAmount > 0) {
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IHarvestDeposit(_liquidityPoolToken).getPricePerFullShare()).div(1e18);
+         }
+         return _liquidityPoolTokenAmount;
+    }
+    
+    function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
+        return _depositAmount.mul(1e18).div(IHarvestDeposit(_liquidityPoolToken).getPricePerFullShare());
     }
     
     /** 
@@ -90,7 +92,7 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy {
         return IHarvestDeposit(_liquidityPoolToken).underlying();
     }
     
-    function getLiquidityPoolToken(address _liquidityPool) public override view returns(address) {
+    function getLiquidityPoolToken(address, address _liquidityPool) public override view returns(address) {
         return _liquidityPool;
     }
 }

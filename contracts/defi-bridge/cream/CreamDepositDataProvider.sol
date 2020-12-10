@@ -3,14 +3,14 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/IDepositPoolProxy.sol";
+import "../../interfaces/opty/IDepositDataProvider.sol";
 import "../../Registry.sol";
 import "../../interfaces/cream/ICream.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../libraries/Addresses.sol";
 import "../../utils/Modifiers.sol";
 
-contract CreamDepositPoolProxy is IDepositPoolProxy,Modifiers {
+contract CreamDepositDataProvider is IDepositDataProvider,Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -37,32 +37,35 @@ contract CreamDepositPoolProxy is IDepositPoolProxy,Modifiers {
     function setCream(address _cream) public onlyOwner {
         cream = _cream;
     }
-
-    function deposit(address, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
-        IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(_amounts[0]));
-        uint result = ICream(_liquidityPoolToken).mint(_amounts[0]);
-        require(result == 0);
-        IERC20(_liquidityPoolToken).safeTransfer(msg.sender, IERC20(_liquidityPoolToken).balanceOf(address(this)));
-        return true;
+    
+    function getDepositCodes(address, address[] memory , address _liquidityPool, address , uint[] memory _amounts) public override view returns(bytes[] memory _codes) {
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPool,abi.encodeWithSignature("mint(uint256)",_amounts[0]));
     }
     
-    function withdraw(address, address[] memory _underlyingTokens, address _liquidityPool, address _liquidityPoolToken, uint _amount) public override returns(bool) {
-        IERC20(_liquidityPoolToken).safeTransferFrom(msg.sender,address(this),_amount);
-        uint result = ICream(_liquidityPool).redeem(_amount);
-        require(result == 0);
-        IERC20(_underlyingTokens[0]).safeTransfer(msg.sender, IERC20(_underlyingTokens[0]).balanceOf(address(this)));
-        return true;
+    function getWithdrawCodes(address, address[] memory, address , address _liquidityPoolToken, uint _amount) public override view returns(bytes[] memory _codes) {
+        _codes = new bytes[](1);
+        _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("redeem(uint256)",_amount));
     }
 
-    function balanceInToken(address, address, address, address _liquidityPoolToken, address _holder) public override view returns(uint256) {
+    function balanceInToken(address _optyPool, address, address, address _liquidityPoolToken) public override view returns(uint256) {
         // Mantisa 1e18 to decimals
-        uint256 b = IERC20(_liquidityPoolToken).balanceOf(_holder);
+        uint256 b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
         if (b > 0) {
             b = b.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e18);
          }
          return b;
+    }
+    
+    function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
+        if (_liquidityPoolTokenAmount > 0) {
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e18);
+         }
+         return _liquidityPoolTokenAmount;
+    }
+    
+    function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
+        return _depositAmount.mul(1e18).div(ICream(_liquidityPoolToken).exchangeRateStored());
     }
             
     function getCompBalanceMetadata() public view returns(ICream.CompBalanceMetadata memory) {
@@ -80,8 +83,8 @@ contract CreamDepositPoolProxy is IDepositPoolProxy,Modifiers {
         _underlyingTokens[0] = ICream(_liquidityPool).underlying();
     }
     
-    function getLiquidityPoolToken(address _lendingPool) public override view returns(address) {
-        return _lendingPool;
+    function getLiquidityPoolToken(address , address _liquidityPool) public override view returns(address) {
+        return _liquidityPool;
     }
 }
 
