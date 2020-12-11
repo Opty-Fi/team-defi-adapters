@@ -19,9 +19,9 @@ import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
-// import allStrategies from "./shared/strategies.json";
+import allStrategies from "./shared/strategies.json";
 //  Note: keeping this testing strategies one by one for underlying tokens - Deepanshu
-import allStrategies from "./shared/sample_strategies.json";
+// import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
@@ -295,11 +295,9 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "USDT" ||
             strategiesTokenKey == "WBTC" ||
             strategiesTokenKey == "TUSD" ||
-            strategiesTokenKey == "WETH"
+            strategiesTokenKey == "WETH" ||
+            strategiesTokenKey == "SUSD"
         ) {
-        // if (
-        //     strategiesTokenKey == "WETH"
-        // ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }

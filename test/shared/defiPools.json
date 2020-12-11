@@ -46,6 +46,11 @@
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0xFC4B8ED459e00e5400be803A9BB3954234FD50e3",
             "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "susd": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0x625aE63000f46200499120B906716420bd059240",
+            "tokens": ["0x57ab1ec28d129707052df4df418d58a2d46d5f51"]
         }
     },
     "DForceDepositPoolProxy": {
@@ -243,6 +248,11 @@
             "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
             "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
             "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+        },
+        "susd_crvPlain3andSUSD": {
+            "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
+            "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
+            "tokens": ["0x57ab1ec28d129707052df4df418d58a2d46d5f51"]
         },
         "dai_3crv": {
             "pool": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",

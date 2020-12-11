@@ -18,7 +18,7 @@ export async function fundWallet(
         wallet
     );
     if (tokenAddresses.weth.toLowerCase() == tokenAddress.toLowerCase()) {
-        console.log("COMING TO FUND WALLET FOR WETH")
+        // console.log("COMING TO FUND WALLET FOR WETH")
         const wEthInstance = new ethers.Contract(
             exchange.weth.address,
             exchange.weth.abi,
@@ -28,7 +28,7 @@ export async function fundWallet(
             { value: amount }
         );
     } else {
-        console.log("FUND WALLET WITH TOKENS EXCEPT WETH")
+        // console.log("FUND WALLET WITH TOKENS EXCEPT WETH")
         await uniswapInstance.swapETHForExactTokens(
             amount,
             [tokenAddresses.weth, tokenAddress],
