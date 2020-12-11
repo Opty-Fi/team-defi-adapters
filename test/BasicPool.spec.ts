@@ -71,12 +71,14 @@ async function startChain() {
         fork: MAINNET_NODE_URL,
         network_id: 1,
         mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
+        default_balance_ether: 10000,
     });
     const provider = new ethers.providers.Web3Provider(ganache);
     const wallet = ethers.Wallet.fromMnemonic(
         `${process.env.MY_METAMASK_MNEMONIC}`
     ).connect(provider);
-
+    let balance = await provider.getBalance(wallet.address);
+    console.log("USER'S ETHER BALANCE: ", ethers.utils.formatEther(balance));
     return wallet;
 }
 
@@ -289,7 +291,8 @@ describe("OptyTokenBasicPool", async () => {
         if (
             strategiesTokenKey == "DAI" ||
             strategiesTokenKey == "USDC" ||
-            strategiesTokenKey == "USDT"
+            strategiesTokenKey == "USDT" ||
+            strategiesTokenKey == "WBTC"
         ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
@@ -359,10 +362,10 @@ describe("OptyTokenBasicPool", async () => {
                         underlyingTokenDecimals
                     );
                     let TEST_AMOUNT_HEX = "0x" + Number(FUND_AMOUNT).toString(16);
-
+                    // console.log("Fund wallet getting called..");
                     //  Fund the user's wallet with some amount of tokens
                     await fundWallet(underlyingToken, wallet, TEST_AMOUNT_HEX);
-
+                    // console.log("Fund wallet function call ends..");
                     // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
                     userTokenBalanceWei = await tokenContractInstance.balanceOf(
                         wallet.address
