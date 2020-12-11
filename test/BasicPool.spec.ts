@@ -19,9 +19,9 @@ import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
-import allStrategies from "./shared/strategies.json";
+// import allStrategies from "./shared/strategies.json";
 //  Note: keeping this testing strategies one by one for underlying tokens - Deepanshu
-// import allStrategies from "./shared/sample_strategies.json";
+import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
@@ -65,6 +65,7 @@ interface OptyPoolProxyContractVariables {
 let optyPoolProxyContractVariables: OptyPoolProxyContractVariables = {};
 let poolProxiesKey: keyof typeof poolProxies;
 let defiPoolsKey: keyof typeof defiPools;
+let provider: ethers.providers.Web3Provider
 
 async function startChain() {
     const ganache = await Ganache.provider({
@@ -73,12 +74,12 @@ async function startChain() {
         mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
         default_balance_ether: 10000,
     });
-    const provider = new ethers.providers.Web3Provider(ganache);
+    provider = new ethers.providers.Web3Provider(ganache);
     const wallet = ethers.Wallet.fromMnemonic(
         `${process.env.MY_METAMASK_MNEMONIC}`
     ).connect(provider);
     let balance = await provider.getBalance(wallet.address);
-    console.log("USER'S ETHER BALANCE: ", ethers.utils.formatEther(balance));
+    console.log("USER'S ETHER BALANCE BEFORE STARTING TEST SUITE: ", ethers.utils.formatEther(balance));
     return wallet;
 }
 
@@ -292,8 +293,12 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "DAI" ||
             strategiesTokenKey == "USDC" ||
             strategiesTokenKey == "USDT" ||
-            strategiesTokenKey == "WBTC"
+            strategiesTokenKey == "WBTC" ||
+            strategiesTokenKey == "TUSD"
         ) {
+        // if (
+        //     strategiesTokenKey == "TUSD"
+        // ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }
@@ -676,6 +681,11 @@ describe("OptyTokenBasicPool", async () => {
                 console.log("User's Opty token balance: ", userNewOptyTokenBalance);
                 userOptyTokenBalance = userNewOptyTokenBalance;
             }
+
+            after(async () => {
+                let balance = await provider.getBalance(wallet.address);
+                console.log("USER'S ETHER BALANCE AFTER ALL TEST SUITS: ", ethers.utils.formatEther(balance));
+            })
         });
     }
 

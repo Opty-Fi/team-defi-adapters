@@ -63,6 +63,11 @@
             "pool": "0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8",
             "lpToken": "0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8",
             "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+        },
+        "tusd": {
+            "pool": "0x55BCf7173C8840d5517424eD19b7bbF11CFb9F2B",
+            "lpToken": "0x55bcf7173c8840d5517424ed19b7bbf11cfb9f2b",
+            "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
         }
     },
     "FulcrumDepositPoolProxy": {
@@ -92,6 +97,11 @@
             "pool": "0x5d9d25c7C457dD82fc8668FFC6B9746b674d4EcB",
             "lpToken": "0x5d9d25c7C457dD82fc8668FFC6B9746b674d4EcB",
             "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "tusd": {
+            "pool": "0x7674622c63Bee7F46E86a4A5A18976693D54441b",
+            "lpToken": "0x7674622c63Bee7F46E86a4A5A18976693D54441b",
+            "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
         }
     },
     "YearnDepositPoolProxy": {
@@ -114,6 +124,11 @@
             "pool": "0x9cA85572E6A3EbF24dEDd195623F188735A5179f",
             "lpToken": "0x9cA85572E6A3EbF24dEDd195623F188735A5179f",
             "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "tusd": {
+            "pool": "0x37d19d1c4E1fa9DC47bD1eA12f742a0887eDa74a",
+            "lpToken": "0x37d19d1c4E1fa9DC47bD1eA12f742a0887eDa74a",
+            "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
         }
     },
     "CurveDepositPoolProxy": {
