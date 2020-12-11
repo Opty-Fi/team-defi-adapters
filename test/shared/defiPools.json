@@ -102,6 +102,11 @@
             "pool": "0x7674622c63Bee7F46E86a4A5A18976693D54441b",
             "lpToken": "0x7674622c63Bee7F46E86a4A5A18976693D54441b",
             "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
+        },
+        "weth": {
+            "pool": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+            "lpToken": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+            "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
         }
     },
     "YearnDepositPoolProxy": {
@@ -129,6 +134,11 @@
             "pool": "0x37d19d1c4E1fa9DC47bD1eA12f742a0887eDa74a",
             "lpToken": "0x37d19d1c4E1fa9DC47bD1eA12f742a0887eDa74a",
             "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
+        },
+        "weth": {
+            "pool": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+            "lpToken": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+            "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
         }
     },
     "CurveDepositPoolProxy": {

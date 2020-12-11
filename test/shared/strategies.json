@@ -43268,5 +43268,62 @@
             }
         ],
         "advancedPlus": []
+    },
+    "WETH": {
+        "basic": [
+            {
+                "strategyName": "WETH-deposit-YEARN-yWETH",
+                "strategy": [
+                    {
+                        "contract": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+                        "outputTokenSymbol": "yWETH",
+                        "outputToken": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "WETH-deposit-HARVEST-fWETH",
+                "strategy": [
+                    {
+                        "contract": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+                        "outputTokenSymbol": "fWETH",
+                        "outputToken": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "WETH-deposit-HARVEST-fWETH",
+                "strategy": [
+                    {
+                        "contract": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+                        "outputTokenSymbol": "fWETH",
+                        "outputToken": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ],
+        "advanced": [
+            {
+                "strategyName": "WETH-deposit-YEARN-yWETH-deposit-CREAM-crYETH",
+                "strategy": [
+                    {
+                        "contract": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+                        "outputTokenSymbol": "yWETH",
+                        "outputToken": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
+                        "isBorrow": false
+                    },
+                    {
+                        "contract": "0x01da76DEa59703578040012357b81ffE62015C2d",
+                        "outputTokenSymbol": "crYETH",
+                        "outputToken": "0x01da76DEa59703578040012357b81ffE62015C2d",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ],
+        "advancedPlus": []
     }
 }

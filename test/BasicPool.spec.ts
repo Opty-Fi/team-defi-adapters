@@ -294,10 +294,11 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "USDC" ||
             strategiesTokenKey == "USDT" ||
             strategiesTokenKey == "WBTC" ||
-            strategiesTokenKey == "TUSD"
+            strategiesTokenKey == "TUSD" ||
+            strategiesTokenKey == "WETH"
         ) {
         // if (
-        //     strategiesTokenKey == "TUSD"
+        //     strategiesTokenKey == "WETH"
         // ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
