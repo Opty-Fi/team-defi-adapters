@@ -144,7 +144,7 @@ describe("OptyTokenBasicPool", async () => {
                 let count = 1;
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                     //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
-                    // if (optyPoolProxyContractsKey == "CurveDepositPoolProxy") {
+                    // if (optyPoolProxyContractsKey == "dYdXDepositPoolProxy") {
                     if (count <= 9) {
                         if (
                             poolProxyContract.hasOwnProperty(
@@ -279,11 +279,31 @@ describe("OptyTokenBasicPool", async () => {
         );
         assert.isOk(
             optyPoolProxyContractVariables.FulcrumDepositPoolProxy.address,
-            "AaveDepositPoolProxy Contract is not deployed"
+            "FulcrumDepositPoolProxy Contract is not deployed"
         );
         assert.isOk(
             optyPoolProxyContractVariables.DForceDepositPoolProxy.address,
-            "AaveDepositPoolProxy Contract is not deployed"
+            "DForceDepositPoolProxy Contract is not deployed"
+        );
+        assert.isOk(
+            optyPoolProxyContractVariables.HarvestDepositPoolProxy.address,
+            "HarvestDepositPoolProxy Contract is not deployed"
+        );
+        assert.isOk(
+            optyPoolProxyContractVariables.YearnDepositPoolProxy.address,
+            "YearnDepositPoolProxy Contract is not deployed"
+        );
+        assert.isOk(
+            optyPoolProxyContractVariables.CurveDepositPoolProxy.address,
+            "CurveDepositPoolProxy Contract is not deployed"
+        );
+        assert.isOk(
+            optyPoolProxyContractVariables.dYdXDepositPoolProxy.address,
+            "dYdXDepositPoolProxy Contract is not deployed"
+        );
+        assert.isOk(
+            optyPoolProxyContractVariables.CreamDepositPoolProxy.address,
+            "CreamDepositPoolProxy Contract is not deployed"
         );
     });
 
@@ -296,7 +316,8 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "WBTC" ||
             strategiesTokenKey == "TUSD" ||
             strategiesTokenKey == "WETH" ||
-            strategiesTokenKey == "SUSD"
+            strategiesTokenKey == "SUSD" ||
+            strategiesTokenKey == "3Crv"
         ) {
             await runTokenTestSuite(strategiesTokenKey);
         }
@@ -365,11 +386,9 @@ describe("OptyTokenBasicPool", async () => {
                         TEST_AMOUNT_NUM - userInitialTokenBalance,
                         underlyingTokenDecimals
                     );
-                    let TEST_AMOUNT_HEX = "0x" + Number(FUND_AMOUNT).toString(16);
-                    // console.log("Fund wallet getting called..");
-                    //  Fund the user's wallet with some amount of tokens
-                    await fundWallet(underlyingToken, wallet, TEST_AMOUNT_HEX);
-                    // console.log("Fund wallet function call ends..");
+                    //  Fund the user's wallet with some TEST_AMOUNT_NUM of tokens
+                    await fundWallet(underlyingToken, wallet, FUND_AMOUNT);
+                    
                     // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
                     userTokenBalanceWei = await tokenContractInstance.balanceOf(
                         wallet.address
@@ -438,7 +457,7 @@ describe("OptyTokenBasicPool", async () => {
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
-                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "DAI-deposit-COMPOUND-cDAI") {
+                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "3Crv-deposit-YEARN-y3Crv") {
                     if (index <= 30) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
