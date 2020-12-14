@@ -112,6 +112,11 @@
             "pool": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
             "lpToken": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
             "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
+        },
+        "3crv": {
+            "pool": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
+            "lpToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
         }
     },
     "YearnDepositPoolProxy": {
@@ -313,6 +318,46 @@
             "pool": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",
             "lpToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
             "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "3crv_gusd3CRV": {
+            "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
+            "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_husd3CRV": {
+            "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
+            "lpToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_usdk3CRV": {
+            "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
+            "lpToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_usdn3CRV": {
+            "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
+            "lpToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_LinkUSD3CRV": {
+            "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
+            "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_musd3CRV": {
+            "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
+            "lpToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_rsv3CRV": {
+            "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
+            "lpToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "3crv_dusd3CRV": {
+            "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
+            "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
+            "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
         }
     },
     "dYdXDepositPoolProxy": {
