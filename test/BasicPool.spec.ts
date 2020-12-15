@@ -37,9 +37,11 @@ const MAINNET_NODE_URL = process.env.MAINNET_NODE_URL;
 const TEST_AMOUNT_NUM: number = 2;
 let TEST_AMOUNT: ethers.utils.BigNumber;
 
+//  Interface for storing the Abi's of PoolProxy Contracts
 interface PoolProxyContract {
     [id: string]: ContractJSON;
 }
+//  Interface for getting the pools, lpTokens and underlyingTokens corresponding to PoolProxy Contract
 interface DefiPools {
     [id: string]: {
         pool: string;
@@ -47,6 +49,7 @@ interface DefiPools {
         tokens: string[];
     };
 }
+//  Json of PoolProxyContract for storing the Abi's of PoolProxyContracts
 let poolProxyContract: PoolProxyContract = {
     CompoundDepositPoolProxy,
     AaveDepositPoolProxy,
@@ -58,15 +61,17 @@ let poolProxyContract: PoolProxyContract = {
     dYdXDepositPoolProxy,
     CreamDepositPoolProxy,
 };
-
+//  Interface for mapping the PoolProxy Contracts deployed with their variable name for using them in the code
 interface OptyPoolProxyContractVariables {
     [id: string]: Contract;
 }
 let optyPoolProxyContractVariables: OptyPoolProxyContractVariables = {};
-let poolProxiesKey: keyof typeof poolProxies;
-let defiPoolsKey: keyof typeof defiPools;
+let poolProxiesKey: keyof typeof poolProxies;   //  Getting the op<XXX>Pool contracts as key corresponding to the PoolProxy Contracts 
+let defiPoolsKey: keyof typeof defiPools;   //  Keys of defiPools.json corresponding to PoolProxy Contracts
 let provider: ethers.providers.Web3Provider
 
+//  Function to start the Ganache provider with forked mainnet using chainstack's network URL
+//  Getting 2 Wallets in return - one acting as Owner and another one acting as user
 async function startChain() {
     const ganache = await Ganache.provider({
         fork: MAINNET_NODE_URL,
@@ -136,6 +141,9 @@ describe("OptyTokenBasicPool", async () => {
         );
         console.log("Strategy Manager: ", optyStrategyManager.address);
 
+        /*
+            Interating through list of underlyingTokens and approving them if not approved
+        */
         let token: keyof typeof tokenAddresses;
         for (token in tokenAddresses) {
             if (token != "uniswapFactory") {
@@ -145,11 +153,19 @@ describe("OptyTokenBasicPool", async () => {
                 }
             }
         }
+
+        /*  
+            Iterating through poolProxies.json and getting the corresponding PoolProxy Contracts mapped to
+            respective op<XXX><Profile> Pool    
+        */
         for (poolProxiesKey in poolProxies) {
             if (poolProxiesKey == "opDAIBsc") {
                 console.log("Pool Proxy contracts: ", poolProxies[poolProxiesKey]);
                 let optyPoolProxyContracts = poolProxies[poolProxiesKey];
 
+                /*  
+                    Iterating through the list of PoolProxy Contracts for deploying them
+                */
                 let count = 1;
                 for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                     //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
@@ -160,6 +176,8 @@ describe("OptyTokenBasicPool", async () => {
                                 optyPoolProxyContractsKey.toString()
                             )
                         ) {
+                            //  Check if key contains Borrow keyword or not, If yes then deploying BorrowPoolProxy
+                            //  contract else deploy DepositPoolProxy Contract
                             if (
                                 optyPoolProxyContractsKey.toString().includes("Borrow")
                             ) {
@@ -184,6 +202,9 @@ describe("OptyTokenBasicPool", async () => {
                                 ],
                                 "optyPoolProxyContract contract not deployed"
                             );
+                            //  Iterating through defiPools.json to approve LpTokens/Tokens, set Tokens hash
+                            //  mapping to tokens, approve LP/CP, map Lp to PoolProxy Contract and setting the 
+                            //  Lp to LpToken
                             for (defiPoolsKey in defiPools) {
                                 if (
                                     defiPoolsKey.toString() ==
@@ -191,6 +212,8 @@ describe("OptyTokenBasicPool", async () => {
                                 ) {
                                     let defiPoolsUnderlyingTokens: DefiPools =
                                         defiPools[defiPoolsKey];
+                                    //  Iteracting through all the underlying tokens available corresponding to this
+                                    //  current PoolProxy Contract Key
                                     for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
                                         // Note: Keeping this for testing strategies for specific pools - Deepanshu
                                         // if (defiPoolsUnderlyingTokensKey == "dai+usdc+usdt") {
@@ -316,6 +339,7 @@ describe("OptyTokenBasicPool", async () => {
         );
     });
 
+    //  Iterating through all the strategies by picking underlyingTokens as key
     let strategiesTokenKey: keyof typeof allStrategies;
     for (strategiesTokenKey in allStrategies) {
         if (
@@ -332,6 +356,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     }
 
+    //  Function to execute the test suite for underlying tokens one by one
     async function runTokenTestSuite(strategiesTokenKey: keyof typeof allStrategies) {
         describe("TEST CASES FOR: " + strategiesTokenKey.toUpperCase(), async () => {
             let underlyingToken: string;
@@ -340,6 +365,7 @@ describe("OptyTokenBasicPool", async () => {
             let optyTokenBasicPool: Contract;
 
             before(async () => {
+                //  Getting the underlying token's contract instance
                 underlyingToken =
                     tokenAddresses[
                         <keyof typeof tokenAddresses>strategiesTokenKey.toLowerCase()
@@ -357,9 +383,11 @@ describe("OptyTokenBasicPool", async () => {
                     TEST_AMOUNT_NUM,
                     underlyingTokenDecimals
                 );
+                //  Setting the TokensHash corresponding to the list of tokens
                 tokensHash =
                     "0x" + abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
-
+                
+                //  Deploying the BasicPool Contract each time for every underlying token
                 optyTokenBasicPool = await deployContract(ownerWallet, OptyTokenBasicPool, [
                     profile,
                     riskManager.address,
@@ -375,9 +403,11 @@ describe("OptyTokenBasicPool", async () => {
             });
 
             beforeEach(async () => {
+                //  Funding the wallet before running the test cases
                 await checkAndFundWallet();
             });
 
+            //  Function to fund the wallet with the underlying tokens equivalent to TEST_AMOUNT_NUM
             async function checkAndFundWallet() {
                 userTokenBalanceWei = await tokenContractInstance.balanceOf(
                     userWallet.address
@@ -423,6 +453,8 @@ describe("OptyTokenBasicPool", async () => {
             it(
                 "should deposit using userDeposit() for " + strategiesTokenKey,
                 async () => {
+                    //  Getting the underlying token contract instance for user's wallet and approving 
+                    //  BasicPool contract for spending underlying token on behalf of user
                     let tokenContractInstanceAsSignerUser =  tokenContractInstance.connect(userWallet)
                     await tokenContractInstanceAsSignerUser.approve(
                         optyTokenBasicPool.address,
@@ -435,6 +467,7 @@ describe("OptyTokenBasicPool", async () => {
                         )
                     ).to.equal(TEST_AMOUNT);
 
+                    //  Connect the BasicPool Contract with the user's Wallet for making userDeposit()
                     let optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(userWallet)
                     const userDepositOutput = await optyTokenBasicPoolAsSignerUser.userDeposit(
                         TEST_AMOUNT
@@ -466,6 +499,8 @@ describe("OptyTokenBasicPool", async () => {
                 }
             );
 
+            /*  Iterating through each strategy one by one, setting, approving and scroing the each 
+                strategy and then making userDepositRebalance() call */
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
@@ -483,6 +518,7 @@ describe("OptyTokenBasicPool", async () => {
                                     index++
                                 ) {
                                     let tempArr: (string | boolean)[] = [];
+                                    //  If condition For 2 step strategies
                                     if (previousStepOutputToken.length > 0) {
                                         await optyRegistry.setTokensHashToTokens([
                                             previousStepOutputToken,
@@ -506,6 +542,7 @@ describe("OptyTokenBasicPool", async () => {
                                     strategySteps.push(tempArr);
                                 }
 
+                                //  Iterating through each strategy step and generate the strategy Hash
                                 let strategyStepHash: string[] = [];
                                 strategySteps.forEach((tempStrategyStep, index) => {
                                     strategyStepHash[index] =
@@ -529,10 +566,12 @@ describe("OptyTokenBasicPool", async () => {
                                             [tokensHash, strategyStepHash]
                                         )
                                         .toString("hex");
-
+                                
+                                //  Getting the strategy hash corresponding to underluing token
                                 let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(
                                     tokensHash
                                 );
+                                //  If strategyHash is always then check revert error meesage from Contract
                                 if (
                                     tokenToStrategyHashes.includes(
                                         tokenToStrategyStepsHash
@@ -546,6 +585,7 @@ describe("OptyTokenBasicPool", async () => {
                                         "isNewStrategy"
                                     );
                                 } else {
+                                    //  Setting the strategy
                                     const setStrategyTx = await optyRegistry.setStrategy(
                                         tokensHash,
                                         strategySteps
@@ -562,6 +602,7 @@ describe("OptyTokenBasicPool", async () => {
                                     let strategy = await optyRegistry.getStrategy(
                                         strategyHash.toString()
                                     );
+                                    //  Approving and scoring the strategy
                                     if (!strategy["_isStrategy"]) {
                                         await optyRegistry.approveStrategy(
                                             strategyHash.toString()
@@ -588,7 +629,8 @@ describe("OptyTokenBasicPool", async () => {
                                     let bestStrategy = await optyRegistry.getStrategy(
                                         bestStrategyHash.toString()
                                     );
-
+                                    
+                                    //  Function call to test userDepositRebalance()
                                     await testUserDepositRebalance();
                                     strategyScore = strategyScore + 1;
                                 }
@@ -598,6 +640,7 @@ describe("OptyTokenBasicPool", async () => {
                 }
             );
 
+            //  Function to deposit the underlying tokens into Opty<XXX>Pool and test the userDepositRebalance()
             async function testUserDepositRebalance() {
                 let tokenContractInstanceAsSignerUser = tokenContractInstance.connect(userWallet)
                 await tokenContractInstanceAsSignerUser.approve(
@@ -613,10 +656,14 @@ describe("OptyTokenBasicPool", async () => {
                         optyTokenBasicPool.address
                     )
                 ).to.equal(TEST_AMOUNT);
-
+                
+                //  Getting initial balance of OptyBasicTokens for user
                 let userOptyTokenBalanceBefore = await optyTokenBasicPool.balanceOf(
                     userWallet.address
                 );
+
+                //  Promises for getting totalSupply, poolValue and making userDepositRebalance() in parallel
+                //  for getting latest values of totalSuppy and poolValue while Deposit txn is made
                 let totalSupplyPromise = new Promise(async (resolve) => {
                     resolve(await optyTokenBasicPool.totalSupply());
                 });
@@ -624,7 +671,7 @@ describe("OptyTokenBasicPool", async () => {
                 let poolValuePromise = new Promise(async (resolve) => {
                     resolve(await optyTokenBasicPool.poolValue());
                 });
-                
+
                 let optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(userWallet)
                 let userDepositRebalanceTxPromise = new Promise(async (resolve) => {
                     resolve(await optyTokenBasicPoolAsSignerUser.userDepositRebalance(TEST_AMOUNT));
@@ -716,6 +763,7 @@ describe("OptyTokenBasicPool", async () => {
             }
 
             after(async () => {
+                //  Checking Owner and User's Ether balance left after all the transactions
                 let balance = await provider.getBalance(ownerWallet.address);
                 console.log("OWNER'S ETHER BALANCE AFTER ALL TEST SUITS: ", ethers.utils.formatEther(balance));
                 let userBalance = await provider.getBalance(userWallet.address);
@@ -724,6 +772,7 @@ describe("OptyTokenBasicPool", async () => {
         });
     }
 
+    //  Function to approve the LpTokens as tokens and underlyingTokens from tokens list
     async function approveTokenLpToken(lpToken: string, tokens: string[]) {
         // Note: May need this if lpToken is null/empty down the road - Deepanshu
         // if (!!lpToken || lpToken.length > 0) {
@@ -744,6 +793,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     }
 
+    //  Function to set the hash for the list of underlying tokens
     async function setTokensHashToTokens(tokens: string[]) {
         let tokensHash =
             "0x" + abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
@@ -759,6 +809,7 @@ describe("OptyTokenBasicPool", async () => {
         }
     }
 
+    //  Function to approve the liquidity/credit pool and map the Lp to the PoolProxy Contract
     async function approveLpCpAndMapLpToPoolProxy(
         pool: string,
         poolProxy: string,
