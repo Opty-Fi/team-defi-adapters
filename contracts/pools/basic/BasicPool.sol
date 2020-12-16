@@ -166,25 +166,32 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
             }
         }
         else{
-            _withdrawNoLP();
+            _withdrawToken(StrategyManagerContract.balanceInToken(strategyHash,token,address(this)));
         }
     }
     
     function _withdrawSome(uint _amount) internal {
         require(_amount > 0,"insufficient funds");
         address _lendingPoolToken = StrategyManagerContract.getOutputToken(strategyHash);
-        uint256 b = IERC20(_lendingPoolToken).balanceOf(address(this));
-        uint256 bT = StrategyManagerContract.balanceInToken(strategyHash,token,address(this));
-        require(bT >= _amount, "insufficient funds");
-        // can have unintentional rounding errors
-        uint256 amount = (b.mul(_amount)).div(bT).add(1);
-        _withdrawToken(amount);
+        if(_lendingPoolToken != address(0)){
+            uint256 b = IERC20(_lendingPoolToken).balanceOf(address(this));
+            uint256 bT = StrategyManagerContract.balanceInToken(strategyHash,token,address(this));
+            require(bT >= _amount, "insufficient funds");
+            // can have unintentional rounding errors
+            uint256 amount = (b.mul(_amount)).div(bT).add(1);
+            _withdrawToken(amount); // Amount in LP tokens
+        }
+        else{
+            _withdrawToken(_amount); // Amount in underlying tokens.
+        }
     }
     
     function _withdrawToken(uint _amount) internal {
         require(_amount > 0,"insufficient funds");
         address _lendingPoolToken = StrategyManagerContract.getOutputToken(strategyHash);
-        IERC20(_lendingPoolToken).safeApprove(address(StrategyManagerContract),_amount);
+        if(_lendingPoolToken != address(0)){
+            IERC20(_lendingPoolToken).safeApprove(address(StrategyManagerContract),_amount);
+        }
         require(StrategyManagerContract.poolWithdraw(token,_amount,strategyHash));
     }
     
@@ -310,7 +317,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         
         // Check Token balance
         uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-         bytes32 newStrategyHash =  strategyHash;
+        bytes32 newStrategyHash =  strategyHash;
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = token;
         if (tokenBalance < redeemAmountInToken) {
