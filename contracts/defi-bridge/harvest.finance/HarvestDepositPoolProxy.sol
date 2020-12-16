@@ -26,7 +26,8 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy,Modifiers {
     function setGatherer(address _gatherer) public onlyGovernance{
         gatherer = _gatherer;
     }
-    function deposit(address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
+    
+    function deposit(address, address, address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
         address _underlyingToken = _getUnderlyingToken(_liquidityPoolToken);
         IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);
         IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
@@ -42,8 +43,8 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy,Modifiers {
         // IERC20(_liquidityPoolToken).safeTransfer(msg.sender, IERC20(_liquidityPoolToken).balanceOf(address(this)));
         return true;
     }
-
-    function withdraw(address[] memory, address, address _liquidityPoolToken, uint) public override returns(bool) {
+    
+    function withdraw(address, address[] memory, address, address _liquidityPoolToken, uint) public override returns(bool) {
         address _underlyingToken = _getUnderlyingToken(_liquidityPoolToken);
         
         // This commented code corresponds to including unstaking and getting rewards features inside withdraw function:

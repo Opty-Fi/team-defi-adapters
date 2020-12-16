@@ -6,6 +6,7 @@ import { expandToTokenDecimals, fundWallet } from "./shared/utilities";
 import OptyTokenBasicPool from "../build/BasicPool.json";
 import OptyRegistry from "../build/Registry.json";
 import RiskManager from "../build/RiskManager.json";
+import Gatherer from "../build/Gatherer.json"
 import OptyStrategyManager from "../build/StrategyManager.json";
 import CompoundDepositPoolProxy from "../build/CompoundDepositPoolProxy.json";
 import AaveDepositPoolProxy from "../build/AaveDepositPoolProxy.json";
@@ -100,6 +101,7 @@ describe("OptyTokenBasicPool", async () => {
     let userWallet: ethers.Wallet;
     let optyRegistry: Contract;
     let riskManager: Contract;
+    let gatherer: Contract
     let optyStrategyManager: Contract;
     let profile = "basic";
     let userTokenBalanceWei;
@@ -131,6 +133,10 @@ describe("OptyTokenBasicPool", async () => {
         riskManager = await deployContract(ownerWallet, RiskManager, [optyRegistry.address]);
         assert.isDefined(riskManager, "RiskManager contract not deployed");
         console.log("Risk Manager: ", riskManager.address);
+
+        gatherer = await deployContract(ownerWallet, Gatherer);
+        assert.isDefined(riskManager, "Gatherer contract not deployed");
+        console.log("Gatherer: ", gatherer.address);
 
         optyStrategyManager = await deployContract(ownerWallet, OptyStrategyManager, [
             optyRegistry.address,
@@ -185,6 +191,13 @@ describe("OptyTokenBasicPool", async () => {
                                     ownerWallet,
                                     poolProxyContract[optyPoolProxyContractsKey],
                                     [optyRegistry.address]
+                                );
+                            } else if (optyPoolProxyContractsKey.toString().toLowerCase() == "harvestdepositpoolproxy") {
+                                console.log("==== Depoying HarvestDepositPoolProxy  Contract ====")
+                                optyPoolProxyContract = await deployContract(
+                                    ownerWallet,
+                                    poolProxyContract[optyPoolProxyContractsKey],
+                                    [gatherer.address]
                                 );
                             } else {
                                 optyPoolProxyContract = await deployContract(
