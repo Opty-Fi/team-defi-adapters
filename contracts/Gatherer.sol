@@ -34,7 +34,7 @@ contract Gatherer is Modifiers{
         IERC20(_rewardToken).safeTransferFrom(msg.sender,address(this),IERC20(_rewardToken).balanceOf(msg.sender));
         IERC20(_rewardToken).safeApprove(router, uint(0));
         IERC20(_rewardToken).safeApprove(router, IERC20(_rewardToken).balanceOf(address(this)));
-        IUniswap(router).swapExactTokensForTokens(IERC20(_rewardToken).balanceOf(address(this)), uint(0), rewardToUnderlyingToPaths[_rewardToken][_underlyingToken], msg.sender,uint(2606938117));
+        IUniswap(router).swapExactTokensForTokens(IERC20(_rewardToken).balanceOf(address(this)), uint(0), rewardToUnderlyingToPaths[_rewardToken][_underlyingToken], msg.sender,uint(-1));
         return true;
     }
     
@@ -42,8 +42,10 @@ contract Gatherer is Modifiers{
         rewardToUnderlyingToPaths[_path[0]][_path[_path.length-1]] = _path;
     }
     
-    function rewardBalanceInUnderlyingTokens(address _rewardToken, address _underlyingToken, address _holder) public view returns(uint[] memory amounts){
-        return IUniswap(router).getAmountsOut(IERC20(_rewardToken).balanceOf(_holder),rewardToUnderlyingToPaths[_rewardToken][_underlyingToken]);
+    function rewardBalanceInUnderlyingTokens(address _rewardToken, address _underlyingToken, uint _amount) public view returns(uint){
+        uint[] memory amounts = new uint[](rewardToUnderlyingToPaths[_rewardToken][_underlyingToken].length);
+        amounts = IUniswap(router).getAmountsOut(_amount,rewardToUnderlyingToPaths[_rewardToken][_underlyingToken]);
+        return amounts[rewardToUnderlyingToPaths[_rewardToken][_underlyingToken].length - 1];
     }
     
     function setRouter(address _router) public onlyGovernance {
