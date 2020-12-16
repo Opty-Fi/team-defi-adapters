@@ -78,12 +78,14 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy,Modifiers {
         return true;
     }
 
-    function balanceInToken(address, address, address _liquidityPool, address , address _holder) public override view returns(uint) {
+    function balanceInToken(address, address, address _liquidityPool, address, address _holder) public override view returns(uint) {
         uint b = IHarvestFarm(getLiquidityPoolToStakingPool(_liquidityPool)).balanceOf(_holder);
         address[] memory _underlyingToken = getUnderlyingTokens(_liquidityPool, _liquidityPool);
         if (b > 0) {
-            b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(1e18); // fToken to token
-            b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken[0], IHarvestFarm(getLiquidityPoolToStakingPool(_liquidityPool)).earned(address(this))));
+            b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(10**(uint256(IHarvestDeposit(_liquidityPool).decimals()))); // fToken to token
+            if (IHarvestFarm(getLiquidityPoolToStakingPool(_liquidityPool)).earned(address(this))>0){
+                b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken[0], IHarvestFarm(getLiquidityPoolToStakingPool(_liquidityPool)).earned(address(this))));
+            }
         }
         return b;
     }
