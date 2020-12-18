@@ -53,6 +53,7 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy,Modifiers {
     function setGatherer(address _gatherer) public onlyGovernance {
         gatherer = _gatherer;
     }
+    
     function deposit(address, address, address _liquidityPool, address, uint[] memory _amounts) public override returns(bool) {
         address _underlyingToken = _getUnderlyingToken(_liquidityPool);
         IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);

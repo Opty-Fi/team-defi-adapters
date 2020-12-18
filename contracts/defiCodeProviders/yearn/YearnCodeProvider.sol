@@ -21,24 +21,32 @@ contract YearnCodeProvider is ICodeProvider {
         _codes = new bytes[](1);
         _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("withdraw(uint256)",_shares));
     }
-
-    function balanceInToken(address _optyPool, address, address _liquidityPool, address) public override view returns(uint) {
-        uint b = IERC20(_liquidityPool).balanceOf(_optyPool);
-        if (b > 0) {
-            b = b.mul(IYearn(_liquidityPool).getPricePerFullShare()).div(1e18);
-        }
-        return b;
-    }
     
     function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYearn(_liquidityPoolToken).getPricePerFullShare()).div(1e18);
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYearn(_liquidityPoolToken).getPricePerFullShare()).div(IYearn(_liquidityPoolToken).decimals());
          }
          return _liquidityPoolTokenAmount;
     }
     
     function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
-        return _depositAmount.mul(1e18).div(IYearn(_liquidityPoolToken).getPricePerFullShare());
+        return _depositAmount.mul(IYearn(_liquidityPoolToken).decimals()).div(IYearn(_liquidityPoolToken).getPricePerFullShare());
+    }
+    
+    function balanceInToken(address _optyPool, address, address _liquidityPool, address) public override view returns(uint) {
+        uint b = IERC20(_liquidityPool).balanceOf(_optyPool);
+        if (b > 0) {
+            b = b.mul(IYearn(_liquidityPool).getPricePerFullShare()).div(IYearn(_liquidityPool).decimals());
+        }
+        return b;
+    }
+
+    function balanceInTokenStaked(address , address, address , address) public override view returns(uint) {
+        revert("!empty");
+    }
+
+    function getLiquidityPoolToken(address , address _liquidityPool) public override view returns(address) {
+        return _liquidityPool;
     }
     
     function getUnderlyingTokens(address _liquidityPool, address) public override view returns(address[] memory _underlyingTokens) {
@@ -46,15 +54,27 @@ contract YearnCodeProvider is ICodeProvider {
         _underlyingTokens[0] = IYearn(_liquidityPool).token();
     }
 
-    function getLiquidityPoolToken(address , address _liquidityPool) public override view returns(address) {
-        return _liquidityPool;
-    }
-    
     function canStake(address , address , address , address , uint ) public override view returns(bool) {
         return false;
     }
     
+    function getStakeCodes(address , address , address , address , uint ) public override view returns(bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getUnstakeCodes(address , address , address , address , uint ) public override view returns(bytes[] memory) {
+        revert("!empty");
+    }
+
     function getRewardToken(address , address , address , address ) public override view returns(address) {
          return address(0);
+    }
+    
+    function getUnclaimedRewardTokenAmount(address , address , address , address ) public override view returns(uint) {
+        revert("!empty");
+    }
+    
+    function getClaimRewardTokenCode(address , address , address , address ) public override view returns(bytes[] memory) {
+        revert("!empty");
     }
 }

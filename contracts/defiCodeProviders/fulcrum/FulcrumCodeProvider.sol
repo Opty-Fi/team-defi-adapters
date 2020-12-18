@@ -22,24 +22,32 @@ contract FulcrumCodeprovider is ICodeProvider {
         _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("burn(address,uint256)",_optyPool,_burnAmount));
     }
 
-    function balanceInToken(address _optyPool, address _underlyingToken,address _liquidityPool, address) public override view returns(uint) {
-        address _liquidityPoolToken = getLiquidityPoolToken(_underlyingToken,_liquidityPool);
-        uint b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
-        if (b > 0) {
-            b = b.mul(IFulcrum(_liquidityPool).tokenPrice()).div(1e18);
-        }
-        return b;
-    }
-    
     function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IFulcrum(_liquidityPoolToken).tokenPrice()).div(1e18);
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IFulcrum(_liquidityPoolToken).tokenPrice()).div(10**(IFulcrum(_liquidityPoolToken).decimals()));
          }
          return _liquidityPoolTokenAmount;
     }
     
     function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
-        return _depositAmount.mul(1e18).div(IFulcrum(_liquidityPoolToken).tokenPrice());
+        return _depositAmount.mul(10**(IFulcrum(_liquidityPoolToken).decimals())).div(IFulcrum(_liquidityPoolToken).tokenPrice());
+    }
+
+    function balanceInToken(address _optyPool, address _underlyingToken,address _liquidityPool, address) public override view returns(uint) {
+        address _liquidityPoolToken = getLiquidityPoolToken(_underlyingToken,_liquidityPool);
+        uint b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
+        if (b > 0) {
+            b = b.mul(IFulcrum(_liquidityPool).tokenPrice()).div(10**(IFulcrum(_liquidityPoolToken).decimals()));
+        }
+        return b;
+    }
+    
+    function balanceInTokenStaked(address , address ,address , address ) public override view returns(uint256) {
+        revert("!empty");
+    }
+    
+    function getLiquidityPoolToken(address , address _liquidityPool) public override view returns(address) {
+        return _liquidityPool;
     }
     
     function getUnderlyingTokens(address _liquidityPool, address) public override view returns(address[] memory _underlyingTokens) {
@@ -47,15 +55,27 @@ contract FulcrumCodeprovider is ICodeProvider {
         _underlyingTokens[0] = IFulcrum(_liquidityPool).loanTokenAddress();
     }
 
-    function getLiquidityPoolToken(address , address _liquidityPool) public override view returns(address) {
-        return _liquidityPool;
-    }
-    
     function canStake(address , address , address , address , uint ) public override view returns(bool) {
         return false;
     }
     
-     function getRewardToken(address , address , address , address ) public override view returns(address) {
-         return address(0);
-     }
+    function getStakeCodes(address , address , address , address , uint ) public override view returns(bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getUnstakeCodes(address , address , address , address , uint ) public override view returns(bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRewardToken(address , address , address , address ) public override view returns(address) {
+        return address(0);
+    }
+    
+    function getUnclaimedRewardTokenAmount(address , address , address , address ) public override view returns(uint256){
+        revert("!empty");
+    }
+    
+    function getClaimRewardTokenCode(address , address , address , address ) public override view returns(bytes[] memory) {
+        revert("!empty");
+    }
 }
