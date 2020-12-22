@@ -11,7 +11,8 @@ contract Modifiers {
     
     address public owner;
     address public governance;
-    address public controller;
+    address public operator;
+    address public strategist;
     
     using Address for address;
     
@@ -21,6 +22,8 @@ contract Modifiers {
     constructor () internal {
                owner = msg.sender;
           governance = msg.sender;
+            operator = msg.sender;
+          strategist = msg.sender;
     }
     
     /**
@@ -40,14 +43,23 @@ contract Modifiers {
     }
     
     /**
-     * @dev Transfers controller to a new account (`_governance`).
+     * @dev Transfers operator to a new account (`_governance`).
      * Can only be called by the governance.
      */    
-    function setController(address _controller) public onlyGovernance {
-        require(_controller.isContract(),"!isContract");
-        controller = _controller;
+    function setOperator(address _operator) public onlyGovernance {
+        require(_operator.isContract(),"!isContract");
+        operator = _operator;
     }
     
+    /**
+     * @dev Transfers operator to a new account (`_governance`).
+     * Can only be called by the governance.
+     */    
+    function setStrategist(address _strategist) public onlyGovernance {
+        require(_strategist.isContract(),"!isContract");
+        strategist = _strategist;
+    }
+
     /**
      * @dev Transfers ownership to a new account (`_owner`).
      * Can only be called by the current owner.
@@ -81,10 +93,10 @@ contract Modifiers {
     }
     
     /**
-     * @dev Modifier to check caller is controller or not
+     * @dev Modifier to check caller is operator or not
      */
-    modifier onlyController() {
-        require(msg.sender == controller, "caller is not constructor");
+    modifier onlyOperator() {
+        require(msg.sender == operator, "caller is not the operator");
         _;
     }
 }

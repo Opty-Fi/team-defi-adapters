@@ -36,7 +36,6 @@ contract Registry is Modifiers{
         address[] tokens;
     }
 
-    address   public strategist;
     bytes32[] public strategyHashIndexes;
     bytes32[] public tokensHashIndexes;
     
@@ -58,7 +57,6 @@ contract Registry is Modifiers{
      * All these tokens can be approved by governance only
      */    
     constructor () public {
-        strategist = msg.sender;
         
         // underlying tokens
         address  dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
