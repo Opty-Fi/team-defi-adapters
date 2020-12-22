@@ -400,6 +400,9 @@ contract Registry is Modifiers{
      */
     function setStrategy(bytes32 _tokensHash,StrategyStep[] memory _strategySteps) public eitherGovernanceOrStrategist returns(bytes32) {
         require(!_isNewTokensHash(_tokensHash),"_isNewTokensHash");
+        for(uint8 i = 0 ; i < _strategySteps.length ; i++){
+            require(liquidityPoolToDepositPoolProxy[_strategySteps[i].pool] != address(0), "Invalid deposit pool proxy.");
+        }
         bytes32[] memory hashes = new bytes32[](_strategySteps.length);
         for(uint8 i = 0 ; i < _strategySteps.length ; i++) {
             hashes[i] = keccak256(
