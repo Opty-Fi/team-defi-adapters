@@ -132,6 +132,11 @@
             "pool": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
             "lpToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
             "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        },
+        "renbtc": {
+            "pool": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+            "lpToken": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
         }
     },
     "YearnDepositPoolProxy": {
@@ -344,6 +349,16 @@
             "lpToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
             "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
         },
+        "renbtc_crvRenWBTC": {
+            "pool": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
+            "lpToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+        },
+        "renbtc_crvRenWSBTC": {
+            "pool": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
+            "lpToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+        },
         "3crv_gusd3CRV": {
             "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
             "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
@@ -412,6 +427,11 @@
             "pool": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
             "lpToken": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
             "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
+        },
+        "renbtc": {
+            "pool": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+            "lpToken": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
         }
     },
     "AaveBorrowPoolProxy": {

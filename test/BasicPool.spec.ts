@@ -81,7 +81,7 @@ async function startChain() {
         fork: MAINNET_NODE_URL,
         network_id: 1,
         mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
-        default_balance_ether: 20000,
+        default_balance_ether: 50000,
     });
     provider = new ethers.providers.Web3Provider(ganache);
     const ownerWallet = ethers.Wallet.fromMnemonic(
@@ -381,9 +381,10 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "SUSD" ||
             strategiesTokenKey == "3Crv" ||
             strategiesTokenKey == "LINK" ||
-            strategiesTokenKey == "BUSD"
+            strategiesTokenKey == "BUSD" ||
+            strategiesTokenKey == "renBTC"
         ) {
-        // if (strategiesTokenKey == "BUSD") {
+        // if (strategiesTokenKey == "renBTC") {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }

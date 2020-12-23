@@ -93,7 +93,7 @@ export async function fundWallet(
             [tokenAddresses.weth, tokenAddress],
             wallet.address,
             "1000000000000000000",
-            { value: ethers.utils.hexlify(ethers.utils.parseEther("2000")) }
+            { value: ethers.utils.hexlify(ethers.utils.parseEther("9500")) }
         );
     }
 }

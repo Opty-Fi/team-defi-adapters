@@ -52145,5 +52145,75 @@
                 ]
             }
         ]
+    },
+    "renBTC": {
+        "basic": [
+            {
+                "strategyName": "renBTC-deposit-CREAM-crRENBTC",
+                "strategy": [
+                    {
+                        "contract": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+                        "outputTokenSymbol": "crRENBTC",
+                        "outputToken": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "renBTC-deposit-CURVE-crvRenWBTC",
+                "strategy": [
+                    {
+                        "contract": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
+                        "outputTokenSymbol": "crvRenWBTC",
+                        "outputToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "renBTC-deposit-CURVE-crvRenWSBTC",
+                "strategy": [
+                    {
+                        "contract": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
+                        "outputTokenSymbol": "crvRenWSBTC",
+                        "outputToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "renBTC-deposit-HARVEST-frenBTC",
+                "strategy": [
+                    {
+                        "contract": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+                        "outputTokenSymbol": "frenBTC",
+                        "outputToken": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "renBTC-deposit-CREAM-crRENBTC",
+                "strategy": [
+                    {
+                        "contract": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+                        "outputTokenSymbol": "crRENBTC",
+                        "outputToken": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "renBTC-deposit-HARVEST-frenBTC",
+                "strategy": [
+                    {
+                        "contract": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+                        "outputTokenSymbol": "frenBTC",
+                        "outputToken": "0xC391d1b08c1403313B0c28D47202DFDA015633C4",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }
