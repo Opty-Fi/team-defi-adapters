@@ -51,6 +51,16 @@
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0x625aE63000f46200499120B906716420bd059240",
             "tokens": ["0x57ab1ec28d129707052df4df418d58a2d46d5f51"]
+        },
+        "link": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0xA64BD6C70Cb9051F6A9ba1F163Fdc07E0DfB5F84",
+            "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
+        },
+        "busd": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8",
+            "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
         }
     },
     "DForceDepositPoolProxy": {
@@ -80,6 +90,11 @@
             "pool": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
             "lpToken": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
             "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+        },
+        "link": {
+            "pool": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+            "lpToken": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+            "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
         }
     },
     "HarvestDepositPoolProxy": {
@@ -149,6 +164,16 @@
             "pool": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
             "lpToken": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
             "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
+        },
+        "link_yLINK": {
+            "pool": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+            "lpToken": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+            "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
+        },
+        "busd": {
+            "pool": "0x04bc0ab673d88ae9dbc9da2380cb6b79c4bca9ae",
+            "lpToken": "0x04bc0ab673d88ae9dbc9da2380cb6b79c4bca9ae",
+            "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
         }
     },
     "CurveDepositPoolProxy": {
@@ -377,6 +402,16 @@
             "pool": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
             "lpToken": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
             "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+        },
+        "link": {
+            "pool": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+            "lpToken": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+            "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
+        },
+        "busd": {
+            "pool": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+            "lpToken": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+            "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
         }
     },
     "AaveBorrowPoolProxy": {

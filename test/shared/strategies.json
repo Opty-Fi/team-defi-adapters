@@ -134,6 +134,17 @@
                 ]
             },
             {
+                "strategyName": "DAI-deposit-DYDX-dyDAI",
+                "strategy": [
+                    {
+                        "contract": "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
+                        "outputTokenSymbol": "dyDAI",
+                        "outputToken": "0x0000000000000000000000000000000000000000",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "DAI-deposit-AAVE-aDAI",
                 "strategy": [
                     {
@@ -51972,5 +51983,167 @@
             }
         ],
         "advancedPlus": []
+    },
+    "LINK": {
+        "basic": [
+            {
+                "strategyName": "LINK-deposit-AAVE-aLINK",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aLINK",
+                        "outputToken": "0xA64BD6C70Cb9051F6A9ba1F163Fdc07E0DfB5F84",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-CREAM-crLINK",
+                "strategy": [
+                    {
+                        "contract": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+                        "outputTokenSymbol": "crLINK",
+                        "outputToken": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-YEARN-yLINK",
+                "strategy": [
+                    {
+                        "contract": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+                        "outputTokenSymbol": "yLINK",
+                        "outputToken": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-BZX-iLINK",
+                "strategy": [
+                    {
+                        "contract": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+                        "outputTokenSymbol": "iLINK",
+                        "outputToken": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-AAVE-aLINK",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aLINK",
+                        "outputToken": "0xA64BD6C70Cb9051F6A9ba1F163Fdc07E0DfB5F84",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-CREAM-crLINK",
+                "strategy": [
+                    {
+                        "contract": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+                        "outputTokenSymbol": "crLINK",
+                        "outputToken": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-YEARN-yLINK",
+                "strategy": [
+                    {
+                        "contract": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+                        "outputTokenSymbol": "yLINK",
+                        "outputToken": "0x881b06da56BB5675c54E4Ed311c21E54C5025298",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "LINK-deposit-BZX-iLINK",
+                "strategy": [
+                    {
+                        "contract": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+                        "outputTokenSymbol": "iLINK",
+                        "outputToken": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
+    },
+    "BUSD": {
+        "basic": [
+            {
+                "strategyName": "BUSD-deposit-AAVE-aBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aBUSD",
+                        "outputToken": "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-CREAM-crBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+                        "outputTokenSymbol": "crBUSD",
+                        "outputToken": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD",
+                "strategy": [
+                    {
+                        "contract": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
+                        "outputTokenSymbol": "yDAI+yUSDC+yUSDT+yBUSD",
+                        "outputToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-YEARN-yBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x04bc0ab673d88ae9dbc9da2380cb6b79c4bca9ae",
+                        "outputTokenSymbol": "yBUSD",
+                        "outputToken": "0x04bc0ab673d88ae9dbc9da2380cb6b79c4bca9ae",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-AAVE-aBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aBUSD",
+                        "outputToken": "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-CREAM-crBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+                        "outputTokenSymbol": "crBUSD",
+                        "outputToken": "0x1FF8CDB51219a8838b52E9cAc09b71e591BC998e",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }
