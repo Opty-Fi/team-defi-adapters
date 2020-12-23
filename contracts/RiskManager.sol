@@ -12,6 +12,9 @@ contract RiskManager is Modifiers{
     using Address for address;
     string public constant BASIC = "basic";
     string public constant ADVANCE = "advance";
+    uint public T1_limit;
+    uint public T2_limit;
+    uint public T3_limit;
 
     Registry RegistryContract;
 
@@ -23,6 +26,20 @@ contract RiskManager is Modifiers{
         require(_registry != address(0),"!_registry");
         require(_registry.isContract(),"!_registry.isContract");
         RegistryContract = Registry(_registry);
+    }
+    
+    /**
+     * @dev Set limit values for T1, T2 and T3 ranges  
+     * 
+     * Returns the hash of the best strategy for Basic Pool
+     * 
+     */
+    function setLimits(uint _T1_limit, uint _T2_limit, uint _T3_limit) public onlyGovernance returns(bool) {
+        require(_T1_limit > _T2_limit && _T2_limit > _T3_limit && _T3_limit > uint(0), "Invalid values for score limits.");
+        T1_limit = _T1_limit;
+        T2_limit = _T2_limit;
+        T3_limit = _T3_limit;
+        return true;
     }
 
     /**
@@ -73,7 +90,7 @@ contract RiskManager is Modifiers{
             if(
                 isStrategy && 
                 RegistryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool && 
-                RegistryContract.getLiquidityPool(_strategySteps[0].pool).rating == uint8(0)
+                RegistryContract.getLiquidityPool(_strategySteps[0].pool).rating >= T1_limit
             ){
                 if(score > maxScore){
                     maxScore = score;
@@ -102,15 +119,11 @@ contract RiskManager is Modifiers{
             RegistryContract.getStrategy(hashes[i]);
             if(isStrategy){
                 if((_strategySteps[0].isBorrow && RegistryContract.getCreditPool(_strategySteps[0].pool).isLiquidityPool 
-                && (
-                    RegistryContract.getCreditPool(_strategySteps[0].pool).rating == uint8(0) || 
-                    RegistryContract.getCreditPool(_strategySteps[0].pool).rating == uint8(1)
-                    )
+                && RegistryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit 
                 ) || 
                 (!_strategySteps[0].isBorrow && RegistryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool 
                 && (
-                    RegistryContract.getLiquidityPool(_strategySteps[0].pool).rating == uint8(0) || 
-                    RegistryContract.getLiquidityPool(_strategySteps[0].pool).rating == uint8(1)
+                    RegistryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit
                     )
                 )) {
                     if (score > maxScore) {
