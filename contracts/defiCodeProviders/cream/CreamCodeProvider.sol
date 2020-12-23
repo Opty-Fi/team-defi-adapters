@@ -30,7 +30,7 @@ contract CreamCodeProvider is ICodeProvider,Modifiers {
     
     function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e8);
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e18);
          }
          return _liquidityPoolTokenAmount;
     }
@@ -43,7 +43,7 @@ contract CreamCodeProvider is ICodeProvider,Modifiers {
         // Mantisa 1e18 to decimals
         uint256 b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
         if (b > 0) {
-            b = b.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e8);
+            b = b.mul(ICream(_liquidityPoolToken).exchangeRateStored()).div(1e18);
          }
          return b;
     }
