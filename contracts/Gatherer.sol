@@ -51,7 +51,7 @@ contract Gatherer is Modifiers {
         return true;
     }
     
-    function setPath(address[] memory _path) public onlyGovernance {
+    function setPath(address[] memory _path) public onlyOperator {
         rewardToUnderlyingToPaths[_path[0]][_path[_path.length-1]] = _path;
     }
     
@@ -61,7 +61,7 @@ contract Gatherer is Modifiers {
         return amounts[rewardToUnderlyingToPaths[_rewardToken][_underlyingToken].length - 1];
     }
     
-    function setRouter(address _router) public onlyGovernance {
+    function setRouter(address _router) public onlyOperator {
         router = _router;
     }
 }
