@@ -30,20 +30,20 @@ contract CompoundCodeProvider is ICodeProvider {
 
     function calculateAmountInToken(address ,address, address _liquidityPoolToken, uint _liquidityPoolTokenAmount) public override view returns(uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICompound(_liquidityPoolToken).exchangeRateStored()).div(1e8);
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICompound(_liquidityPoolToken).exchangeRateStored()).div(1e18);
          }
          return _liquidityPoolTokenAmount;
     }
 
     function calculateAmountInLPToken(address, address, address _liquidityPoolToken,uint _depositAmount) public override view returns(uint256) {
-        return _depositAmount.mul(1e8).div(ICompound(_liquidityPoolToken).exchangeRateStored());
+        return _depositAmount.mul(1e18).div(ICompound(_liquidityPoolToken).exchangeRateStored());
     }
 
     function balanceInToken(address _optyPool,address,address, address _liquidityPoolToken) public override view returns(uint256) {
         // Mantisa 1e18 to decimals
         uint256 b = IERC20(_liquidityPoolToken).balanceOf(_optyPool);
         if (b > 0) {
-            b = b.mul(ICompound(_liquidityPoolToken).exchangeRateStored()).div(1e8);
+            b = b.mul(ICompound(_liquidityPoolToken).exchangeRateStored()).div(1e18);
          }
          return b;
     }
