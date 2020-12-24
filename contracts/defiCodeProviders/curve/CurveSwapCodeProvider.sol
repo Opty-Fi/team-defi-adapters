@@ -327,21 +327,29 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         return 0;
     }
 
-    function balanceInTokenStaked(address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, address _holder) public override view returns(uint) {
+    function balanceInTokenStaked(address _underlyingToken, address _liquidityPool, address , address _holder) public override view returns(uint) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
+        address[] memory _targetToken = new address[](1);
+        _targetToken[0] = _underlyingToken;
+        address _gauge = swapPoolToGauges[_liquidityPool];
         for(uint8 i = 0 ; i < _underlyingTokens.length ; i++) {
             if(_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
-        uint _liquidityPoolTokenAmount = IERC20(_liquidityPoolToken).balanceOf(_holder);
+        uint _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_holder);
         if(_liquidityPoolTokenAmount > 0) {
-            return ICurveSwap(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            uint b = ICurveSwap(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            
+            // TODO : get the amount of unclaimed CRV tokens (claimable_tokens is not a read function)
+            // if (ICurveGauge(_gauge).claimable_tokens(_holder)>uint(0)){
+            //     b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(crv, _targetToken[0], ICurveGauge(_gauge).claimable_tokens(_holder)));
+            // }
+            
+            return b;
         }
-        else {
-            return uint(0);
-        }
+        return 0;
     }
             
     function getLiquidityPoolToken(address, address _liquidityPool) public override view returns(address) {

@@ -64,12 +64,8 @@ contract HarvestCodeProvider is ICodeProvider, Modifiers {
 
     function balanceInToken(address _optyPool, address, address _liquidityPool, address) public override view returns(uint) {
         uint b = IERC20(_liquidityPool).balanceOf(_optyPool);
-        address[] memory _underlyingToken = getUnderlyingTokens(_liquidityPool, _liquidityPool);
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(10**(IHarvestDeposit(_liquidityPool).decimals()));
-            if (IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(address(this))>0){
-                b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken[0], IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(address(this))));
-            }
         }
         return b;
     }

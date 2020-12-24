@@ -10,10 +10,14 @@ import "../../interfaces/curve/ICurveDAO.sol";
 import "../../interfaces/curve/ITokenMinter.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../utils/Modifiers.sol";
+import "../../Gatherer.sol";
 
 contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     
-    using SafeERC20 for IERC20;  
+    using SafeERC20 for IERC20;
+    using SafeMath for uint;
+    
+    Gatherer gathererContract;
     
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
     mapping(address => address) public liquidityPoolToGauges;
@@ -189,17 +193,27 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
         return 0;
     }
 
-    function balanceInTokenStaked(address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, address _holder) public override view returns(uint) {
+    function balanceInTokenStaked(address _underlyingToken, address _liquidityPool, address , address _holder) public override view returns(uint) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
+        address[] memory _targetToken = new address[](1);
+        _targetToken[0] = _underlyingToken;
+        address _gauge = liquidityPoolToGauges[_liquidityPool];
         for(uint8 i = 0 ; i < _underlyingTokens.length ; i++) {
             if(_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
-        uint _liquidityPoolTokenAmount = IERC20(_liquidityPoolToken).balanceOf(_holder);
+        uint _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_holder);
         if(_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            uint b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            
+            // TODO : get the amount of unclaimed CRV tokens (claimable_tokens is not a read function)
+            // if (ICurveGauge(_gauge).claimable_tokens(_holder)>uint(0)){
+            //     b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(crv, _targetToken[0], ICurveGauge(_gauge).claimable_tokens(_holder)));
+            // }
+            
+            return b;
         }
         return 0;
     }
