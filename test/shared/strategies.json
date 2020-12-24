@@ -52215,5 +52215,53 @@
                 ]
             }
         ]
+    },
+    "KNC": {
+        "basic": [
+            {
+                "strategyName": "KNC-deposit-AAVE-aKNC",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aKNC",
+                        "outputToken": "0x9D91BE44C06d373a8a226E1f3b146956083803eB",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "KNC-deposit-BZX-iKNC",
+                "strategy": [
+                    {
+                        "contract": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+                        "outputTokenSymbol": "iKNC",
+                        "outputToken": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "KNC-deposit-AAVE-aKNC",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aKNC",
+                        "outputToken": "0x9D91BE44C06d373a8a226E1f3b146956083803eB",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "KNC-deposit-BZX-iKNC",
+                "strategy": [
+                    {
+                        "contract": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+                        "outputTokenSymbol": "iKNC",
+                        "outputToken": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }

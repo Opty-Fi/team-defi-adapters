@@ -382,9 +382,10 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "3Crv" ||
             strategiesTokenKey == "LINK" ||
             strategiesTokenKey == "BUSD" ||
-            strategiesTokenKey == "renBTC"
+            strategiesTokenKey == "renBTC" ||
+            strategiesTokenKey == "KNC"
         ) {
-        // if (strategiesTokenKey == "renBTC") {
+        // if (strategiesTokenKey == "KNC") {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }

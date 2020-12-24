@@ -61,6 +61,11 @@
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8",
             "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"]
+        },
+        "knc": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0x9D91BE44C06d373a8a226E1f3b146956083803eB",
+            "tokens": ["0xdd974D5C2e2928deA5F71b9825b8b646686BD200"]
         }
     },
     "DForceDepositPoolProxy": {
@@ -95,6 +100,11 @@
             "pool": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
             "lpToken": "0x463538705E7d22aA7f03Ebf8ab09B067e1001B54",
             "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
+        },
+        "knc": {
+            "pool": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+            "lpToken": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
+            "tokens": ["0xdd974D5C2e2928deA5F71b9825b8b646686BD200"]
         }
     },
     "HarvestDepositPoolProxy": {
