@@ -10,7 +10,7 @@ import "../../libraries/SafeERC20.sol";
 import "../../libraries/Addresses.sol";
 import "../../utils/Modifiers.sol";
 
-contract dYdXDepositPoolProxy is ICodeProvider,Modifiers {
+contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint;
@@ -26,7 +26,7 @@ contract dYdXDepositPoolProxy is ICodeProvider,Modifiers {
     mapping(address => uint8) public marketToIndexes;
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
     
-    constructor() public{
+    constructor(address _registry) public Modifiers(_registry) {
         address[] memory _dYdXUnderlyingTokens = new address[](4);
         _dYdXUnderlyingTokens[0] = WETH;
         _dYdXUnderlyingTokens[1] = SAI;
@@ -124,11 +124,11 @@ contract dYdXDepositPoolProxy is ICodeProvider,Modifiers {
         revert("!empty");
     }
     
-    function addMarket(address _underlyingToken, uint8 _marketIndex) public onlyGovernance {
+    function addMarket(address _underlyingToken, uint8 _marketIndex) public onlyOperator {
         marketToIndexes[_underlyingToken] = _marketIndex;
     }
     
-    function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyGovernance {
+    function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
         liquidityPoolToUnderlyingTokens[_lendingPool] = _tokens;
     }
 }

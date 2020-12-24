@@ -10,7 +10,7 @@ import "../../interfaces/curve/ICurveDAO.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../utils/Modifiers.sol";
 
-contract CurveSwapCodeProvider is ICodeProvider,Modifiers {
+contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     
     using SafeERC20 for IERC20;  
     
@@ -94,7 +94,7 @@ contract CurveSwapCodeProvider is ICodeProvider,Modifiers {
     /**
     * @dev mapp coins and tokens to curve deposit pool
     */
-    constructor() public {
+    constructor(address _registry) public Modifiers(_registry) {
         // swap pool
         address[] memory _compoundUnderTokens = new address[](2);
         _compoundUnderTokens[0] = CDAI; 
@@ -417,11 +417,11 @@ contract CurveSwapCodeProvider is ICodeProvider,Modifiers {
         }
     }
         
-    function setLiquidityPoolToken(address _swapPool,address _liquidityPoolToken) public onlyGovernance {
+    function setLiquidityPoolToken(address _swapPool,address _liquidityPoolToken) public onlyOperator {
         swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
     }
     
-    function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyGovernance {
+    function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
         swapPoolToUnderlyingTokens[_lendingPool] = _tokens;
     }
     
@@ -556,7 +556,7 @@ contract CurveSwapCodeProvider is ICodeProvider,Modifiers {
         _code = abi.encode(_liquidityPool,abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])",_amount,_minAmountOut));
     }
     
-    function setSwapPoolToGauges(address _pool, address _gauge) public onlyGovernance {
+    function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
         swapPoolToGauges[_pool] = _gauge;
     }    
     function _getUnderlyingTokens(address  _liquidityPool) internal view returns(address[] memory _underlyingTokens) {

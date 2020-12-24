@@ -6,7 +6,7 @@ import "./interfaces/opty/IUniswap.sol";
 import "./libraries/SafeERC20.sol";
 import "./utils/Modifiers.sol";
 
-contract Gatherer is Modifiers{
+contract Gatherer is Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint;
@@ -15,7 +15,7 @@ contract Gatherer is Modifiers{
     
     mapping(address => mapping(address => address[])) public rewardToUnderlyingToPaths;
     
-    constructor() public {
+    constructor(address _registry) public Modifiers(_registry) {
         router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
         address[] memory path = new address[](3);
         path[0] = address(0xD533a949740bb3306d119CC777fa900bA034cd52);

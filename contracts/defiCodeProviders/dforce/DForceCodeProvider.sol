@@ -12,7 +12,7 @@ import "../../libraries/Addresses.sol";
 import "../../utils/Modifiers.sol";
 import "../../Gatherer.sol";
 
-contract DForceCodeProvider is ICodeProvider,Modifiers {
+contract DForceCodeProvider is ICodeProvider, Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint;
@@ -24,7 +24,7 @@ contract DForceCodeProvider is ICodeProvider,Modifiers {
     
     mapping(address => address) public liquidityPoolToStakingPool;
     
-    constructor() public {
+    constructor(address _registry) public Modifiers(_registry) {
         rewardToken = address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0);
         setLiquidityPoolToStakingPool(address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8), address(0x324EebDAa45829c6A8eE903aFBc7B61AF48538df));
         setLiquidityPoolToStakingPool(address(0x16c9cF62d8daC4a38FB50Ae5fa5d51E9170F3179), address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5));
@@ -116,7 +116,7 @@ contract DForceCodeProvider is ICodeProvider,Modifiers {
         _codes[0] = abi.encode(_stakingPool,abi.encodeWithSignature("getReward()"));
     }
     
-    function setLiquidityPoolToStakingPool(address _liquidityPool, address _stakingPool) public onlyGovernance {
+    function setLiquidityPoolToStakingPool(address _liquidityPool, address _stakingPool) public onlyOperator {
         require(liquidityPoolToStakingPool[_liquidityPool] != _stakingPool, "liquidityPoolToStakingPool already set");
         liquidityPoolToStakingPool[_liquidityPool] = _stakingPool;
     }

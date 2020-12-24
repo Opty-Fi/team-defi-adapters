@@ -4,7 +4,7 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/Addresses.sol";
-import "./utils/Modifiers.sol";
+import "./utils/ModifiersController.sol";
 
 struct StrategyStep {
     address pool;
@@ -20,7 +20,7 @@ struct LiquidityPool {
 /**
  * @dev Contract for Opty Strategy Registry
  */
-contract Registry is Modifiers{
+contract Registry is ModifiersController {
     using Address for address;
     
     struct Strategy { 
@@ -56,7 +56,7 @@ contract Registry is Modifiers{
      * 
      * All these tokens can be approved by governance only
      */    
-    constructor () public {
+    constructor () public ModifiersController(msg.sender, msg.sender, msg.sender) {
         
         // underlying tokens
         address  dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);

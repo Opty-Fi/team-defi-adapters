@@ -7,9 +7,8 @@ import "../../interfaces/opty/ICodeProvider.sol";
 import "../../interfaces/compound/ICompound.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../libraries/Addresses.sol";
-import "../../utils/Modifiers.sol";
 
-contract CompoundCodeProvider is ICodeProvider,Modifiers {
+contract CompoundCodeProvider is ICodeProvider {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;

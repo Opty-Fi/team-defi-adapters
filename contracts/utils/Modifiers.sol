@@ -3,27 +3,22 @@
 pragma solidity ^0.6.10;
 
 import "./../libraries/Addresses.sol";
+import "./ModifiersController.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
 contract Modifiers {
     
-    address public owner;
-    address public governance;
-    address public operator;
-    address public strategist;
+    ModifiersController public modifiersControllerContract;
     
     using Address for address;
     
     /**
      * @dev Sets the owner, governance and strategist while deploying the contract
      */
-    constructor () internal {
-               owner = msg.sender;
-          governance = msg.sender;
-            operator = msg.sender;
-          strategist = msg.sender;
+    constructor (address _registry) internal {
+        modifiersControllerContract = ModifiersController(_registry);
     }
     
     /**
@@ -33,41 +28,7 @@ contract Modifiers {
         require(_address != address(0), "Modifiers: caller is zero address");
         return true;
     }
-    
-    /**
-     * @dev Transfers governance to a new account (`_governance`).
-     * Can only be called by the current governance.
-     */    
-    function transferGovernance(address _governance) public onlyGovernance {
-        governance = _governance;
-    }
-    
-    /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
-     */    
-    function setOperator(address _operator) public onlyGovernance {
-        require(_operator.isContract(),"!isContract");
-        operator = _operator;
-    }
-    
-    /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
-     */    
-    function setStrategist(address _strategist) public onlyGovernance {
-        require(_strategist.isContract(),"!isContract");
-        strategist = _strategist;
-    }
 
-    /**
-     * @dev Transfers ownership to a new account (`_owner`).
-     * Can only be called by the current owner.
-     */    
-    function transferOwnership(address _owner) public onlyOwner {
-        owner = _owner;
-    }
-    
     /**
      * @dev Modifier to check if the address is zero address or not
      */
@@ -75,20 +36,12 @@ contract Modifiers {
         require(msg.sender != address(0), "caller is zero address");
         _;
     }
-    
-    /**
-     * @dev Modifier to check caller is owner or not
-     */
-    modifier onlyOwner() {
-        require(msg.sender == owner, "caller is not owner");
-        _;
-    }
-    
+
     /**
      * @dev Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
-        require(msg.sender == governance, "caller is not having governance");
+        require(msg.sender == modifiersControllerContract.governance(), "caller is not having governance");
         _;
     }
     
@@ -96,7 +49,15 @@ contract Modifiers {
      * @dev Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
-        require(msg.sender == operator, "caller is not the operator");
+        require(msg.sender == modifiersControllerContract.operator(), "caller is not the operator");
+        _;
+    }
+    
+    /**
+     * @dev Modifier to check caller is operator or not
+     */
+    modifier onlyStrategist() {
+        require(msg.sender == modifiersControllerContract.strategist(), "caller is not the strategist");
         _;
     }
 }

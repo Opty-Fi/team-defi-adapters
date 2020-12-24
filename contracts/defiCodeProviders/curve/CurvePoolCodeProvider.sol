@@ -11,7 +11,7 @@ import "../../interfaces/curve/ITokenMinter.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../utils/Modifiers.sol";
 
-contract CurvePoolCodeProvider is ICodeProvider,Modifiers {
+contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     
     using SafeERC20 for IERC20;  
     
@@ -42,7 +42,7 @@ contract CurvePoolCodeProvider is ICodeProvider,Modifiers {
     /**
     * @dev map coins and tokens to curve deposit pool
     */
-    constructor() public {
+    constructor(address _registry) public Modifiers(_registry) {
         
         // deposit pool
         address[] memory _compoundUnderlyingTokens = new address[](2);
@@ -376,11 +376,11 @@ contract CurvePoolCodeProvider is ICodeProvider,Modifiers {
         _code = abi.encode(_liquidityPool,abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])",_amount,_minAmountOut));
     }
     
-    function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyGovernance {
+    function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
         liquidityPoolToUnderlyingTokens[_lendingPool] = _tokens;
     }
     
-    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyGovernance {
+    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
         liquidityPoolToGauges[_pool] = _gauge;
     }
     

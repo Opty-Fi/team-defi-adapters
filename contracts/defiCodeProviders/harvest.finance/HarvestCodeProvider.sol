@@ -22,7 +22,7 @@ contract HarvestCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public liquidityPoolToStakingPool;
     
     
-    constructor(address _gatherer) public {
+    constructor(address _registry, address _gatherer) public Modifiers(_registry) {
         setGathererContract(_gatherer);
         setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
         setLiquidityPoolToStakingPool(address(0x640704D106E79e105FDA424f05467F005418F1B5), address(0x017eC1772A45d2cf68c429A820eF374f0662C57c));
@@ -138,16 +138,16 @@ contract HarvestCodeProvider is ICodeProvider, Modifiers {
         _codes[0] = abi.encode(_stakingPool,abi.encodeWithSignature("getReward()"));
     }
 
-    function setRewardToken(address _rewardToken) public onlyGovernance {
+    function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }
     
-    function setLiquidityPoolToStakingPool(address _liquidityPool, address _stakingPool) public onlyGovernance {
+    function setLiquidityPoolToStakingPool(address _liquidityPool, address _stakingPool) public onlyOperator {
         require(liquidityPoolToStakingPool[_liquidityPool] != _stakingPool, "liquidityPoolToStakingPool already set");
         liquidityPoolToStakingPool[_liquidityPool] = _stakingPool;
     }
     
-    function setGathererContract(address _gatherer) public onlyGovernance {
+    function setGathererContract(address _gatherer) public onlyOperator {
         gathererContract = Gatherer(_gatherer);
     }
     
