@@ -351,7 +351,7 @@ contract Registry is ModifiersController {
      * - msg.sender should be governance.
      * - `_poolProxy` should be contract
      */
-    function setLiquidityPoolToBorrowPoolProxy(address _pool, address _poolProxy) public onlyGovernance returns(bool) {
+    function setLiquidityPoolToBorrowPoolProxy(address _pool, address _poolProxy) public onlyOperator returns(bool) {
         require(_poolProxy.isContract(),"!_poolProxy.isContract()");
         require(creditPools[_pool].isLiquidityPool,"!liquidityPools");
         liquidityPoolToBorrowPoolProxy[_pool] = _poolProxy;
@@ -372,7 +372,7 @@ contract Registry is ModifiersController {
      * - msg.sender should be governance.
      * - `_poolProxy` should be contract
      */
-    function setLiquidityPoolToDepositPoolProxy(address _pool, address _poolProxy) public onlyGovernance returns(bool) {
+    function setLiquidityPoolToDepositPoolProxy(address _pool, address _poolProxy) public onlyOperator returns(bool) {
         require(_poolProxy.isContract(),"!_poolProxy.isContract()");
         require(liquidityPools[_pool].isLiquidityPool,"!liquidityPools");
         liquidityPoolToDepositPoolProxy[_pool] = _poolProxy;
@@ -396,7 +396,7 @@ contract Registry is ModifiersController {
      * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
      * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
      */
-    function setStrategy(bytes32 _tokensHash,StrategyStep[] memory _strategySteps) public eitherGovernanceOrStrategist returns(bytes32) {
+    function setStrategy(bytes32 _tokensHash,StrategyStep[] memory _strategySteps) public onlyOperator returns(bytes32) {
         require(!_isNewTokensHash(_tokensHash),"_isNewTokensHash");
         for(uint8 i = 0 ; i < _strategySteps.length ; i++){
             require(liquidityPoolToDepositPoolProxy[_strategySteps[i].pool] != address(0), "Invalid deposit pool proxy.");
@@ -510,7 +510,7 @@ contract Registry is ModifiersController {
      * - `_hash` strategy should be approved
      * - `_hash` strategy should exist in {strategyHashIndexes}
      */
-    function scoreStrategy(bytes32 _hash, uint8 _score) public onlyGovernance returns(bool){
+    function scoreStrategy(bytes32 _hash, uint8 _score) public onlyStrategist returns(bool){
          require(!_isNewStrategy(_hash),"!isNewStrategy");
          require(strategies[_hash].isStrategy,"strategies.isStrategy");
          strategies[_hash].score = _score;
@@ -539,7 +539,7 @@ contract Registry is ModifiersController {
      * - `_tokens` should be approved
      * - `_poolToken` should be approved
      */
-     function setLiquidityPoolToLPToken(address _pool, address[] memory _tokens, address _poolToken) public onlyGovernance returns(bool success){
+     function setLiquidityPoolToLPToken(address _pool, address[] memory _tokens, address _poolToken) public onlyOperator returns(bool success){
         require(liquidityPools[_pool].isLiquidityPool,"!liquidityPools.isLiquidityPool");
         // require(tokens[_poolToken],"!tokens");
         for(uint8 i = 0 ; i < _tokens.length ; i++) {
@@ -567,7 +567,7 @@ contract Registry is ModifiersController {
      * - `_tokens` should be approved
      * - `_poolToken` should be approved
      */
-    function setTokensHashToTokens(address[] memory _tokens) public onlyGovernance {
+    function setTokensHashToTokens(address[] memory _tokens) public onlyOperator {
         for(uint8 i = 0 ;i < _tokens.length ; i++) {
             require(tokens[_tokens[i]],"!tokens");
         }
