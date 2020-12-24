@@ -24,6 +24,11 @@
             "pool": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
             "lpToken": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
             "tokens": ["0xe41d2489571d322189246dafa5ebde1f4699f498"]
+        },
+        "uni": {
+            "pool": "0x35a18000230da775cac24873d00ff85bccded550",
+            "lpToken": "0x35a18000230da775cac24873d00ff85bccded550",
+            "tokens": ["0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"]
         }
     },
     "AaveDepositPoolProxy": {
@@ -76,6 +81,11 @@
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0x6Fb0855c404E09c47C3fBCA25f08d4E41f9F062f",
             "tokens": ["0xe41d2489571d322189246dafa5ebde1f4699f498"]
+        },
+        "uni": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0xB124541127A0A657f056D9Dd06188c4F1b0e5aab",
+            "tokens": ["0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"]
         }
     },
     "DForceDepositPoolProxy": {
@@ -115,6 +125,11 @@
             "pool": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
             "lpToken": "0x687642347a9282Be8FD809d8309910A3f984Ac5a",
             "tokens": ["0xdd974D5C2e2928deA5F71b9825b8b646686BD200"]
+        },
+        "uni": {
+            "pool": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+            "lpToken": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+            "tokens": ["0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"]
         }
     },
     "HarvestDepositPoolProxy": {
@@ -452,6 +467,11 @@
             "pool": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
             "lpToken": "0x17107f40d70f4470d20CB3f138a052cAE8EbD4bE",
             "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+        },
+        "uni": {
+            "pool": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+            "lpToken": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+            "tokens": ["0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"]
         }
     },
     "AaveBorrowPoolProxy": {

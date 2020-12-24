@@ -384,7 +384,8 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "BUSD" ||
             strategiesTokenKey == "renBTC" ||
             strategiesTokenKey == "KNC" ||
-            strategiesTokenKey == "ZRX"
+            strategiesTokenKey == "ZRX" ||
+            strategiesTokenKey == "UNI"
         ) {
         // if (strategiesTokenKey == "UNI") {
             await runTokenTestSuite(strategiesTokenKey);
@@ -696,7 +697,7 @@ describe("OptyTokenBasicPool", async () => {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-YEARN-yaLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-BZX-iLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-cDAI+cUSDC+USDT") {
-                    if (index < 1) {
+                    if (index < 31) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
                                 strategies.strategyName,

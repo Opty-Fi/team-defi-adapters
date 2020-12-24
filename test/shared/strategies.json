@@ -52311,5 +52311,97 @@
                 ]
             }
         ]
+    },
+    "UNI": {
+        "basic": [
+            {
+                "strategyName": "UNI-deposit-AAVE-aUNI",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aUNI",
+                        "outputToken": "0xB124541127A0A657f056D9Dd06188c4F1b0e5aab",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-COMPOUND-cUNI",
+                "strategy": [
+                    {
+                        "contract": "0x35a18000230da775cac24873d00ff85bccded550",
+                        "outputTokenSymbol": "cUNI",
+                        "outputToken": "0x35a18000230da775cac24873d00ff85bccded550",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-CREAM-crUNI",
+                "strategy": [
+                    {
+                        "contract": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+                        "outputTokenSymbol": "crUNI",
+                        "outputToken": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-BZX-iUNI",
+                "strategy": [
+                    {
+                        "contract": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+                        "outputTokenSymbol": "iUNI",
+                        "outputToken": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-AAVE-aUNI",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aUNI",
+                        "outputToken": "0xB124541127A0A657f056D9Dd06188c4F1b0e5aab",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-COMPOUND-cUNI",
+                "strategy": [
+                    {
+                        "contract": "0x35a18000230da775cac24873d00ff85bccded550",
+                        "outputTokenSymbol": "cUNI",
+                        "outputToken": "0x35a18000230da775cac24873d00ff85bccded550",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-CREAM-crUNI",
+                "strategy": [
+                    {
+                        "contract": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+                        "outputTokenSymbol": "crUNI",
+                        "outputToken": "0xe89a6D0509faF730BD707bf868d9A2A744a363C7",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-BZX-iUNI",
+                "strategy": [
+                    {
+                        "contract": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+                        "outputTokenSymbol": "iUNI",
+                        "outputToken": "0x0a625FceC657053Fe2D9FFFdeb1DBb4e412Cf8A8",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }
