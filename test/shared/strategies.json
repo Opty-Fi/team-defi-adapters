@@ -52263,5 +52263,53 @@
                 ]
             }
         ]
+    },
+    "ZRX": {
+        "basic": [
+            {
+                "strategyName": "ZRX-deposit-AAVE-aZRX",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aZRX",
+                        "outputToken": "0x6Fb0855c404E09c47C3fBCA25f08d4E41f9F062f",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "ZRX-deposit-COMPOUND-cZRX",
+                "strategy": [
+                    {
+                        "contract": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+                        "outputTokenSymbol": "cZRX",
+                        "outputToken": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "ZRX-deposit-AAVE-aZRX",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aZRX",
+                        "outputToken": "0x6Fb0855c404E09c47C3fBCA25f08d4E41f9F062f",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "ZRX-deposit-COMPOUND-cZRX",
+                "strategy": [
+                    {
+                        "contract": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+                        "outputTokenSymbol": "cZRX",
+                        "outputToken": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }

@@ -81,7 +81,7 @@ async function startChain() {
         fork: MAINNET_NODE_URL,
         network_id: 1,
         mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
-        default_balance_ether: 50000,
+        default_balance_ether: 200000,
     });
     provider = new ethers.providers.Web3Provider(ganache);
     const ownerWallet = ethers.Wallet.fromMnemonic(
@@ -383,9 +383,10 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "LINK" ||
             strategiesTokenKey == "BUSD" ||
             strategiesTokenKey == "renBTC" ||
-            strategiesTokenKey == "KNC"
+            strategiesTokenKey == "KNC" ||
+            strategiesTokenKey == "ZRX"
         ) {
-        // if (strategiesTokenKey == "KNC") {
+        // if (strategiesTokenKey == "UNI") {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }
@@ -695,7 +696,7 @@ describe("OptyTokenBasicPool", async () => {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-YEARN-yaLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-BZX-iLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-cDAI+cUSDC+USDT") {
-                    if (index < 31) {
+                    if (index < 1) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
                                 strategies.strategyName,
@@ -1100,10 +1101,17 @@ describe("OptyTokenBasicPool", async () => {
                 let optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
                     userWallet
                 );
-
+                
+                let gasEstimated = await optyTokenBasicPoolAsSignerUser.estimate.userWithdraw(
+                    initialUserOptyTokenBalanceWei.sub(1)
+                );
+                console.log("WIthdraw call gas estimate: ", gasEstimated.toNumber())
                 console.log("STEP-2");
                 const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdraw(
-                    initialUserOptyTokenBalanceWei.sub(1)
+                    initialUserOptyTokenBalanceWei.sub(1),
+                    {
+                        gasLimit: 2590162,
+                    }
                 );
                 console.log("withdrawal txn. successful");
                 let receipt = await userWithdrawTxOutput.wait();

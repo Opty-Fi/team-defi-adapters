@@ -19,6 +19,11 @@
             "pool": "0xC11b1268C1A384e55C48c2391d8d480264A3A7F4",
             "lpToken": "0xC11b1268C1A384e55C48c2391d8d480264A3A7F4",
             "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "zrx": {
+            "pool": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+            "lpToken": "0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407",
+            "tokens": ["0xe41d2489571d322189246dafa5ebde1f4699f498"]
         }
     },
     "AaveDepositPoolProxy": {
@@ -66,6 +71,11 @@
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0x9D91BE44C06d373a8a226E1f3b146956083803eB",
             "tokens": ["0xdd974D5C2e2928deA5F71b9825b8b646686BD200"]
+        },
+        "zrx": {
+            "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+            "lpToken": "0x6Fb0855c404E09c47C3fBCA25f08d4E41f9F062f",
+            "tokens": ["0xe41d2489571d322189246dafa5ebde1f4699f498"]
         }
     },
     "DForceDepositPoolProxy": {
