@@ -76,8 +76,8 @@ contract HarvestCodeProvider is ICodeProvider, Modifiers {
         address[] memory _underlyingToken = getUnderlyingTokens(_liquidityPool, _liquidityPool);
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(10**(IHarvestDeposit(_liquidityPool).decimals()));
-            if (IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(address(this))>0){
-                b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken[0], IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(address(this))));
+            if (IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(_optyPool)>0){
+                b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken[0], IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(_optyPool)));
             }
         }
         return b;
