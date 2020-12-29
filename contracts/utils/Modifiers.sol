@@ -3,14 +3,14 @@
 pragma solidity ^0.6.10;
 
 import "./../libraries/Addresses.sol";
-import "./ModifiersController.sol";
+import "../Registry.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
 contract Modifiers {
     
-    ModifiersController public modifiersControllerContract;
+    Registry public registryContract;
     
     using Address for address;
     
@@ -18,7 +18,7 @@ contract Modifiers {
      * @dev Sets the owner, governance and strategist while deploying the contract
      */
     constructor (address _registry) internal {
-        modifiersControllerContract = ModifiersController(_registry);
+        registryContract = Registry(_registry);
     }
     
     /**
@@ -28,7 +28,9 @@ contract Modifiers {
         require(_address != address(0), "Modifiers: caller is zero address");
         return true;
     }
-
+function setRegistry(address _registry) onlyOperator public {
+         registryContract = Registry(_registry);
+}
     /**
      * @dev Modifier to check if the address is zero address or not
      */
@@ -41,7 +43,7 @@ contract Modifiers {
      * @dev Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
-        require(msg.sender == modifiersControllerContract.governance(), "caller is not having governance");
+        require(msg.sender == registryContract.governance(), "caller is not having governance");
         _;
     }
     
@@ -49,7 +51,7 @@ contract Modifiers {
      * @dev Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
-        require(msg.sender == modifiersControllerContract.operator(), "caller is not the operator");
+        require(msg.sender == registryContract.operator(), "caller is not the operator");
         _;
     }
     
@@ -57,7 +59,7 @@ contract Modifiers {
      * @dev Modifier to check caller is operator or not
      */
     modifier onlyStrategist() {
-        require(msg.sender == modifiersControllerContract.strategist(), "caller is not the strategist");
+        require(msg.sender == registryContract.strategist(), "caller is not the strategist");
         _;
     }
 }
