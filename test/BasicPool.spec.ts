@@ -20,9 +20,9 @@ import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
-import allStrategies from "./shared/strategies.json";
+// import allStrategies from "./shared/strategies.json";
 //  Note: keeping this testing strategies one by one for underlying tokens - Deepanshu
-// import allStrategies from "./shared/sample_strategies.json";
+import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
@@ -82,6 +82,8 @@ async function startChain() {
         network_id: 1,
         mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
         default_balance_ether: 200000,
+        total_accounts: 21,
+        locked: false
     });
     provider = new ethers.providers.Web3Provider(ganache);
     const ownerWallet = ethers.Wallet.fromMnemonic(
@@ -385,9 +387,10 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "renBTC" ||
             strategiesTokenKey == "KNC" ||
             strategiesTokenKey == "ZRX" ||
-            strategiesTokenKey == "UNI"
+            strategiesTokenKey == "UNI" ||
+            strategiesTokenKey == "BAT"
         ) {
-        // if (strategiesTokenKey == "UNI") {
+        // if (strategiesTokenKey == "REP") {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }
@@ -694,7 +697,7 @@ describe("OptyTokenBasicPool", async () => {
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
-                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-YEARN-yaLINK") {
+                    // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "REP-deposit-COMPOUND-cREP") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-BZX-iLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-cDAI+cUSDC+USDT") {
                     if (index < 31) {
@@ -831,8 +834,9 @@ describe("OptyTokenBasicPool", async () => {
                                             "GAS USED for scoring: ",
                                             scoreStrategyReceipt.gasUsed.toNumber()
                                         );
+                                        // TODO: Add POOL NAME, OUTPUT TOKEN, isBORROW - Deepanshu
                                         console.log(
-                                            "Total gas used for setting and scoring strategy: ",
+                                            "Total gas used for setting and scoring strategy: ", 
                                             setStrategyReceipt.gasUsed
                                                 .add(scoreStrategyReceipt.gasUsed)
                                                 .toNumber()
@@ -965,6 +969,10 @@ describe("OptyTokenBasicPool", async () => {
                 let optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
                     userWallet
                 );
+                let gasEstimated = await optyTokenBasicPoolAsSignerUser.estimate.userDepositRebalance(
+                    TEST_AMOUNT
+                )
+                console.log("User Deposit Rebalance Gas Estimate: ", gasEstimated.toNumber())
                 let userDepositRebalanceTxPromise = new Promise(async (resolve) => {
                     resolve(
                         await optyTokenBasicPoolAsSignerUser.userDepositRebalance(

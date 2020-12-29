@@ -52403,5 +52403,101 @@
                 ]
             }
         ]
+    },
+    "BAT": {
+        "basic": [
+            {
+                "strategyName": "BAT-deposit-AAVE-aBAT",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aBAT",
+                        "outputToken": "0xE1BA0FB44CCb0D11b80F92f4f8Ed94CA3fF51D00",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BAT-deposit-COMPOUND-cBAT",
+                "strategy": [
+                    {
+                        "contract": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",
+                        "outputTokenSymbol": "cBAT",
+                        "outputToken": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BAT-deposit-AAVE-aBAT",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aBAT",
+                        "outputToken": "0xE1BA0FB44CCb0D11b80F92f4f8Ed94CA3fF51D00",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BAT-deposit-COMPOUND-cBAT",
+                "strategy": [
+                    {
+                        "contract": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",
+                        "outputTokenSymbol": "cBAT",
+                        "outputToken": "0x6C8c6b02E7b2BE14d4fA6022Dfd6d75921D90E4E",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
+    },
+    "REP": {
+        "basic": [
+            {
+                "strategyName": "REP-deposit-AAVE-aREP",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aREP",
+                        "outputToken": "0x71010A9D003445aC60C4e6A7017c1E89A477B438",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "REP-deposit-COMPOUND-cREP",
+                "strategy": [
+                    {
+                        "contract": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+                        "outputTokenSymbol": "cREP",
+                        "outputToken": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "REP-deposit-AAVE-aREP",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aREP",
+                        "outputToken": "0x71010A9D003445aC60C4e6A7017c1E89A477B438",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "REP-deposit-COMPOUND-cREP",
+                "strategy": [
+                    {
+                        "contract": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+                        "outputTokenSymbol": "cREP",
+                        "outputToken": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
     }
 }
