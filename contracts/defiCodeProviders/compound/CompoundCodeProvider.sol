@@ -7,16 +7,23 @@ import "../../interfaces/opty/ICodeProvider.sol";
 import "../../interfaces/compound/ICompound.sol";
 import "../../libraries/SafeERC20.sol";
 import "../../libraries/Addresses.sol";
+import "../../utils/Modifiers.sol";
 
-contract CompoundCodeProvider is ICodeProvider {
+contract CompoundCodeProvider is ICodeProvider, Modifiers {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using Address for address;
 
-    address public compoundLens = address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074);
-    address public comptroller = address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
-    address public rewardToken = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+    address public compoundLens;
+    address public comptroller;
+    address public rewardToken;
+    
+    constructor(address _registry) public Modifiers(_registry) {
+        setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
+        setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
+        setCompoundLens(address(0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074));
+    }
     
     function getDepositCodes(address , address[] memory,address _liquidityPool, address , uint[] memory _amounts) public override view returns(bytes[] memory _codes) {
         _codes = new bytes[](1);
@@ -94,5 +101,17 @@ contract CompoundCodeProvider is ICodeProvider {
     function claimCompGetCompBalance() public returns(uint _compTokens) {
         ICompound.CompBalanceMetadataExt memory output = ICompound(compoundLens).getCompBalanceMetadataExt(rewardToken, comptroller, msg.sender);
         return output.balance;
+    }
+    
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+    
+    function setComptroller(address _comptroller) public onlyOperator {
+        comptroller = _comptroller;
+    }
+    
+    function setCompoundLens(address _compoundLens) public onlyOperator {
+        compoundLens = _compoundLens;
     }
 }

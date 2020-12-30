@@ -23,8 +23,8 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public liquidityPoolToGauges;
     
     // reward token
-    address public crv = address(0xD533a949740bb3306d119CC777fa900bA034cd52);
-    address public tokenMinter = address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0);
+    address public rewardToken;
+    address public tokenMinter;
     
     // underlying token
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -47,6 +47,9 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     * @dev map coins and tokens to curve deposit pool
     */
     constructor(address _registry) public Modifiers(_registry) {
+        
+        setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
+        setTokenMinter(address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0));
         
         // deposit pool
         address[] memory _compoundUnderlyingTokens = new address[](2);
@@ -243,7 +246,7 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     }
     
     function getRewardToken(address , address , address , address) public override view returns(address) {
-        return crv;
+        return rewardToken;
     }
     
     function getUnclaimedRewardTokenAmount(address , address , address _liquidityPool, address) public override view returns(uint256){
@@ -402,4 +405,11 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
         _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
     }
 
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+    
+    function setTokenMinter(address _tokenMinter) public onlyOperator {
+        tokenMinter = _tokenMinter;
+    }
 }

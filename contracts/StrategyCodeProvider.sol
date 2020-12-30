@@ -10,22 +10,17 @@ import "./libraries/Addresses.sol";
 import "./utils/ERC20.sol";
 import "./utils/Modifiers.sol";
 
-contract StrategyCodeProvider is Modifiers{
+contract StrategyCodeProvider is Modifiers {
     
     using SafeERC20 for IERC20;
     using Address for address;
 
     Registry RegistryContract;
 
-    constructor(address _registry) public {
-        setRegistry(_registry);
-    }
-
-    function setRegistry(address _registry) public onlyGovernance {
-        require(_registry.isContract(),"!_registry");
+    constructor(address _registry) public Modifiers(_registry) {
         RegistryContract = Registry(_registry);
     }
-    
+
     function getStrategyStepsCount(bytes32 _hash) public view returns(uint) {
         return _getStrategySteps(_hash).length;
     }

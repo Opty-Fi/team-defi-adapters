@@ -13,8 +13,8 @@ struct StrategyStep {
 }
 
 struct LiquidityPool {
-        uint8 rating;
-        bool  isLiquidityPool;
+    uint8 rating;
+    bool  isLiquidityPool;
 }
 
 /**
@@ -246,8 +246,8 @@ contract Registry is ModifiersController {
     /**
      * @dev Returns the liquidity pool by `_pool`.
      */
-   function getLiquidityPool(address _pool) public view returns(LiquidityPool memory _liquidityPool) {	   
-         _liquidityPool = liquidityPools[_pool];	    
+    function getLiquidityPool(address _pool) public view returns(LiquidityPool memory _liquidityPool) {	   
+        _liquidityPool = liquidityPools[_pool];	    
     }
     
     /**
@@ -314,8 +314,8 @@ contract Registry is ModifiersController {
     /**
      * @dev Returns the credit pool by `_pool`.
      */
-   function getCreditPool(address _pool) public view returns(LiquidityPool memory _creditPool) {	   
-         _creditPool = creditPools[_pool];	    
+    function getCreditPool(address _pool) public view returns(LiquidityPool memory _creditPool) {	   
+        _creditPool = creditPools[_pool];	    
     }
     
     /**
@@ -447,12 +447,12 @@ contract Registry is ModifiersController {
     /**
      * @dev Returns the Strategy by `_hash`.
      */
-   function getStrategy(bytes32 _hash) public view returns(uint8 _score, bool _isStrategy, uint256 _index, uint256 _blockNumber, StrategyStep[] memory _strategySteps) {	   
-         _score = strategies[_hash].score;	    
-         _isStrategy = strategies[_hash].isStrategy;	    
-         _index = strategies[_hash].index;	    
-         _blockNumber = strategies[_hash].blockNumber;	    
-         _strategySteps = strategies[_hash].strategySteps;	    
+    function getStrategy(bytes32 _hash) public view returns(uint8 _score, bool _isStrategy, uint256 _index, uint256 _blockNumber, StrategyStep[] memory _strategySteps) {	   
+        _score = strategies[_hash].score;	    
+        _isStrategy = strategies[_hash].isStrategy;	    
+        _index = strategies[_hash].index;	    
+        _blockNumber = strategies[_hash].blockNumber;	    
+        _strategySteps = strategies[_hash].strategySteps;	    
     }
     
     /**
@@ -511,19 +511,19 @@ contract Registry is ModifiersController {
      * - `_hash` strategy should exist in {strategyHashIndexes}
      */
     function scoreStrategy(bytes32 _hash, uint8 _score) public onlyStrategist returns(bool){
-         require(!_isNewStrategy(_hash),"!isNewStrategy");
-         require(strategies[_hash].isStrategy,"strategies.isStrategy");
-         strategies[_hash].score = _score;
-         emit LogScoreStrategy(msg.sender,_hash,strategies[_hash].score);
-         return true;
-     }
+        require(!_isNewStrategy(_hash),"!isNewStrategy");
+        require(strategies[_hash].isStrategy,"strategies.isStrategy");
+        strategies[_hash].score = _score;
+        emit LogScoreStrategy(msg.sender,_hash,strategies[_hash].score);
+        return true;
+    }
     
     /**
      * @dev Returns the list of strategy hashes by `_token`.
      */
     function getTokenToStrategies(bytes32 _tokensHash) public view returns(bytes32[] memory) {
-         return tokenToStrategies[_tokensHash];
-     }
+        return tokenToStrategies[_tokensHash];
+    }
      
      /**
      * @dev Sets `_poolToken` to the `_pool` from the {liquidityPoolToLPTokens} mapping.
@@ -597,13 +597,13 @@ contract Registry is ModifiersController {
      * - {strategyHashIndexes} length should be more than zero.
      */
     function _isNewStrategy(bytes32 _hash) private view returns(bool) {
-         if (strategyHashIndexes.length == 0) {
-             return true;
-         }
-         return (strategyHashIndexes[strategies[_hash].index] != _hash);
-     }
+        if (strategyHashIndexes.length == 0) {
+            return true;
+        }
+        return (strategyHashIndexes[strategies[_hash].index] != _hash);
+    }
      
-     /**
+    /**
      * @dev Check duplicate `_hash` tokensHash from the {tokensHashIndexes} mapping.
      *
      * Returns a boolean value indicating whether duplicate `_hash` exists or not.
@@ -613,11 +613,11 @@ contract Registry is ModifiersController {
      * - {tokensHashIndexes} length should be more than zero.
      */
     function _isNewTokensHash(bytes32 _hash) private view returns(bool) {
-         if (tokensHashIndexes.length == 0) {
-             return true;
-         }
-         return (tokensHashIndexes[tokensHashToTokens[_hash].index] != _hash);
-     }
+        if (tokensHashIndexes.length == 0) {
+            return true;
+        }
+        return (tokensHashIndexes[tokensHashToTokens[_hash].index] != _hash);
+    }
     
     /**
      * @dev Modifier to check caller is governance or strategist

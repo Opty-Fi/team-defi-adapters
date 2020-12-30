@@ -28,9 +28,11 @@ contract Modifiers {
         require(_address != address(0), "Modifiers: caller is zero address");
         return true;
     }
-function setRegistry(address _registry) onlyOperator public {
-         registryContract = Registry(_registry);
-}
+    
+    function setRegistry(address _registry) onlyOperator public {
+        registryContract = Registry(_registry);
+    }
+    
     /**
      * @dev Modifier to check if the address is zero address or not
      */

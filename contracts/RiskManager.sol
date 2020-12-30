@@ -7,7 +7,7 @@ import "./Registry.sol";
 import "./libraries/Addresses.sol";
 import "./utils/Modifiers.sol";
 
-contract RiskManager is Modifiers{
+contract RiskManager is Modifiers {
     
     using Address for address;
     string public constant BASIC = "basic";
@@ -18,14 +18,8 @@ contract RiskManager is Modifiers{
 
     Registry RegistryContract;
 
-    constructor(address _optyRegistry) public {
-        setOptyRegistry(_optyRegistry);
-    }
-
-    function setOptyRegistry(address _registry) public onlyGovernance {
-        require(_registry != address(0),"!_registry");
-        require(_registry.isContract(),"!_registry.isContract");
-        RegistryContract = Registry(_registry);
+    constructor(address _registry) public Modifiers(_registry) {
+        setRegistry(_registry);
     }
     
     /**

@@ -19,7 +19,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public swapPoolToGauges;
     
     // reward token
-    address public crv = address(0xD533a949740bb3306d119CC777fa900bA034cd52);
+    address public rewardToken;
     
     // underlying token
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -95,6 +95,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     * @dev mapp coins and tokens to curve deposit pool
     */
     constructor(address _registry) public Modifiers(_registry) {
+        
+        setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
+        
         // swap pool
         address[] memory _compoundUnderTokens = new address[](2);
         _compoundUnderTokens[0] = CDAI; 
@@ -408,7 +411,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
     
     function getRewardToken(address , address , address , address ) public override view returns(address) {
-        return crv;
+        return rewardToken;
     }
     
     function getUnclaimedRewardTokenAmount(address , address , address _liquidityPool, address) public override view returns(uint256){
@@ -570,7 +573,10 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     function _getUnderlyingTokens(address  _liquidityPool) internal view returns(address[] memory _underlyingTokens) {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
     }
-            
+    
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }        
 }
 
 // Curve Compound useful addresses:
