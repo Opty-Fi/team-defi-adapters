@@ -16,7 +16,7 @@ contract Gatherer is Modifiers {
     mapping(address => mapping(address => address[])) public rewardToUnderlyingToPaths;
     
     constructor(address _registry) public Modifiers(_registry) {
-        router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        setRouter(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D));
         address[] memory path = new address[](3);
         path[0] = address(0xD533a949740bb3306d119CC777fa900bA034cd52);
         path[1] = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -42,7 +42,9 @@ contract Gatherer is Modifiers {
         path[1] = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
         setPath(path);
     }
-    
+    function setRouter(address _router) public onlyOperator {
+                   router = _router;
+    }
     function harvest(address _rewardToken, address _underlyingToken) public returns(bool){
         IERC20(_rewardToken).safeTransferFrom(msg.sender,address(this),IERC20(_rewardToken).balanceOf(msg.sender));
         IERC20(_rewardToken).safeApprove(router, uint(0));
