@@ -38,14 +38,12 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
     constructor(
         string memory _profile, 
         address _riskManager, 
-        address _underlyingToken, 
+        address _underlyingToken,
         address _strategyManager,
         address _dydxSolo,
         address _dydxPoolProxy
         ) public ERC20Detailed(
-                                string(abi.encodePacked("opty ",ERC20Detailed(_underlyingToken).name()," ",_profile)),
-                                string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(),_profile)),
-                                ERC20Detailed(_underlyingToken).decimals()
+                                _underlyingToken, _profile
                             ) {
         setDYDXPoolProxy(_dydxPoolProxy);                        
         setDYDXSolo(_dydxSolo);

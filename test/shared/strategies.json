@@ -52452,6 +52452,54 @@
             }
         ]
     },
+    "MKR": {
+        "basic": [
+            {
+                "strategyName": "MKR-deposit-AAVE-aMKR",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aMKR",
+                        "outputToken": "0x7deB5e830be29F91E298ba5FF1356BB7f8146998",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "MKR-deposit-BZX-iMKR",
+                "strategy": [
+                    {
+                        "contract": "0x9189c499727f88F8eCC7dC4EEA22c828E6AaC015",
+                        "outputTokenSymbol": "iMKR",
+                        "outputToken": "0x9189c499727f88F8eCC7dC4EEA22c828E6AaC015",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "MKR-deposit-AAVE-aMKR",
+                "strategy": [
+                    {
+                        "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                        "outputTokenSymbol": "aMKR",
+                        "outputToken": "0x7deB5e830be29F91E298ba5FF1356BB7f8146998",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "MKR-deposit-BZX-iMKR",
+                "strategy": [
+                    {
+                        "contract": "0x9189c499727f88F8eCC7dC4EEA22c828E6AaC015",
+                        "outputTokenSymbol": "iMKR",
+                        "outputToken": "0x9189c499727f88F8eCC7dC4EEA22c828E6AaC015",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
+    },
     "REP": {
         "basic": [
             {
