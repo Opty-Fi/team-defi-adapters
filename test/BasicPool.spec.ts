@@ -20,9 +20,9 @@ import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
 import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
-import allStrategies from "./shared/strategies.json";
+// import allStrategies from "./shared/strategies.json";
 //  Note: keeping this testing strategies one by one for underlying tokens - Deepanshu
-// import allStrategies from "./shared/sample_strategies.json";
+import allStrategies from "./shared/sample_strategies.json";
 
 import tokenAddresses from "./shared/TokenAddresses.json";
 import addressAbis from "./shared/AddressAbis.json";
@@ -389,9 +389,12 @@ describe("OptyTokenBasicPool", async () => {
             strategiesTokenKey == "ZRX" ||
             strategiesTokenKey == "UNI" ||
             strategiesTokenKey == "BAT" ||
-            strategiesTokenKey == "MKR"
+            strategiesTokenKey == "MKR" ||
+            strategiesTokenKey == "COMP" ||
+            strategiesTokenKey == "YFI" ||
+            strategiesTokenKey == "AAVE"
         ) {
-        // if (strategiesTokenKey == "MKR") {
+        // if (strategiesTokenKey == "DAI") {
             await runTokenTestSuite(strategiesTokenKey);
         }
     }
@@ -701,7 +704,7 @@ describe("OptyTokenBasicPool", async () => {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "REP-deposit-COMPOUND-cREP") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "LINK-deposit-BZX-iLINK") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-cDAI+cUSDC+USDT") {
-                    if (index < 31) {
+                    if (index < 1) {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
                                 strategies.strategyName,
