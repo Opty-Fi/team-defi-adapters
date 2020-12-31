@@ -23,12 +23,20 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     address public rewardToken;
     
     mapping(address => address) public liquidityPoolToStakingPool;
+    // deposit pools
+    address public constant usdtDepositPool = address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8);
+    address public constant usdcDepositPool =  address(0x16c9cF62d8daC4a38FB50Ae5fa5d51E9170F3179);
+    address public constant daiDepositPool = address(0x02285AcaafEB533e03A7306C55EC031297df9224);
     
+    // staking pools
+    address public constant usdtStakingPool = address(0x324EebDAa45829c6A8eE903aFBc7B61AF48538df);
+    address public constant usdcStakingPool = address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5);
+    address public constant daiStakingPool = address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B);
     constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
-        setLiquidityPoolToStakingPool(address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8), address(0x324EebDAa45829c6A8eE903aFBc7B61AF48538df));
-        setLiquidityPoolToStakingPool(address(0x16c9cF62d8daC4a38FB50Ae5fa5d51E9170F3179), address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5));
-        setLiquidityPoolToStakingPool(address(0x02285AcaafEB533e03A7306C55EC031297df9224), address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B));
+setLiquidityPoolToStakingPool(usdtDepositPool, usdtStakingPool);
+setLiquidityPoolToStakingPool(usdcDepositPool, usdcStakingPool);
+setLiquidityPoolToStakingPool(daiDepositPool, daiStakingPool);
     }
     
     function getDepositCodes(address _optyPool, address[] memory, address _liquidityPool, address , uint[] memory _amounts) public override view returns(bytes[] memory _codes) {
