@@ -10,22 +10,14 @@ import "./libraries/Addresses.sol";
 import "./utils/ERC20.sol";
 import "./utils/Modifiers.sol";
 
-contract StrategyCodeProvider is Modifiers{
+contract StrategyCodeProvider is Modifiers {
     
     using SafeERC20 for IERC20;
     using Address for address;
 
-    Registry RegistryContract;
-
-    constructor(address _registry) public {
-        setRegistry(_registry);
+    constructor(address _registry) public Modifiers(_registry) {
     }
 
-    function setRegistry(address _registry) public onlyGovernance {
-        require(_registry.isContract(),"!_registry");
-        RegistryContract = Registry(_registry);
-    }
-    
     function getStrategyStepsCount(bytes32 _hash) public view returns(uint) {
         return _getStrategySteps(_hash).length;
     }
@@ -34,7 +26,7 @@ contract StrategyCodeProvider is Modifiers{
     returns(bytes[] memory _codes) {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         if(!_strategySteps[_stepIndex].isBorrow) {
-            address _optyPoolProxy = RegistryContract.liquidityPoolToDepositPoolProxy(_strategySteps[_stepIndex].pool);
+            address _optyPoolProxy = registryContract.liquidityPoolToDepositPoolProxy(_strategySteps[_stepIndex].pool);
             address[] memory _underlyingTokens = ICodeProvider(_optyPoolProxy).getUnderlyingTokens(_strategySteps[_stepIndex].pool, _strategySteps[_stepIndex].outputToken);
             uint[] memory _amounts = new uint[](_underlyingTokens.length);
             if(_stepIndex != 0) {
@@ -58,7 +50,7 @@ contract StrategyCodeProvider is Modifiers{
     function getPoolWithdrawCodes(address _optyPool, address _underlyingToken, bytes32 _hash, uint _redeemAmount, uint _stepIndex) public view returns(bytes[] memory _codes) {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         if(!_strategySteps[_stepIndex].isBorrow) {
-            address _optyPoolProxy = RegistryContract.liquidityPoolToDepositPoolProxy(_strategySteps[_stepIndex].pool);
+            address _optyPoolProxy = registryContract.liquidityPoolToDepositPoolProxy(_strategySteps[_stepIndex].pool);
             if(_stepIndex != 0) {
                 _underlyingToken = _strategySteps[_stepIndex-1].outputToken;
             }
@@ -82,7 +74,7 @@ contract StrategyCodeProvider is Modifiers{
             uint _iterator = _steps - 1 - _i;
             if(!_strategySteps[_iterator].isBorrow) {
                 address _liquidityPool = _strategySteps[_iterator].pool;
-                address _optyPoolProxy = RegistryContract.liquidityPoolToDepositPoolProxy(_liquidityPool);
+                address _optyPoolProxy = registryContract.liquidityPoolToDepositPoolProxy(_liquidityPool);
                 address _liquidityPoolToken = _strategySteps[_iterator].outputToken;
                 address _inputToken = _underlyingToken;
                 if(_iterator != 0) {
@@ -101,7 +93,7 @@ contract StrategyCodeProvider is Modifiers{
     }
     
     function _getStrategySteps(bytes32 _hash) internal view returns(StrategyStep[] memory _strategySteps) {
-        (,,,, _strategySteps) = RegistryContract.getStrategy(_hash);
+        (,,,, _strategySteps) = registryContract.getStrategy(_hash);
     }
     
     function getOutputToken(bytes32 _hash) public view returns(address _outputToken) {

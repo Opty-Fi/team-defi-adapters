@@ -33,9 +33,14 @@ interface ICodeProvider {
     function calculateAmountInLPToken(address _underlyingToken, address _liquidityPool, address _liquidityPoolToken,uint _underlygingTokenAmount) external view returns(uint256);
 
     /**
-     * @dev Returns the balance in underlying for liquidityPoolToken balance of holder
+     * @dev Returns the balance in underlying for liquidityPoolToken and claimable rewardToken balance of holder
      */
     function balanceInToken(address _optyPool, address _underlyingToken,address _liquidityPool, address _liquidityPoolToken) external view returns(uint256);
+    
+    /**
+     * @dev Returns the balance in underlying for staked liquidityPoolToken and claimable rewardToken balance of holder
+     */
+    function balanceInTokenStaked(address _optyPool, address _underlyingToken,address _liquidityPool, address _liquidityPoolToken) external view returns(uint256);
     
     /**
      * @dev Returns the lending pool token given lending pool for Curve, lendingPoolToken for Aave,Compound.
@@ -51,19 +56,33 @@ interface ICodeProvider {
      * @dev Returns whether the protocol can stake 
      */
     function canStake(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint _stakingAmount) external view returns(bool);
-     
-     /**
-      * @dev Returns reward token address
-      */
+    
+    /**
+     * @dev Stakes a certain amount of LPToken in a protocol.
+     * 
+     * Returns a bytes value to be executed.
+     */
+    function getStakeCodes(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint _stakingAmount) external view returns(bytes[] memory);
+    
+    /**
+     * @dev Unstakes a certain amount of LPToken from a protocol.
+     * 
+     * Returns a bytes value to be executed.
+     */
+    function getUnstakeCodes(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint _stakingAmount) external view returns(bytes[] memory);
+    
+    /**
+     * @dev Returns reward token address
+     */
     function getRewardToken(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken) external view returns(address);
     
-     /**
-      * @dev Returns the amount of accrued reward tokens
-      */
+    /**
+     * @dev Returns the amount of accrued reward tokens
+     */
     function getUnclaimedRewardTokenAmount(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken) external view returns(uint256);
     
-     /**
-      * @dev Returns code for claiming the tokens
-      */
+    /**
+     * @dev Returns code for claiming the tokens
+     */
     function getClaimRewardTokenCode(address _optyPool, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken) external view returns(bytes[] memory);
 }
