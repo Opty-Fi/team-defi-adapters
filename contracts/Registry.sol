@@ -47,8 +47,7 @@ contract Registry is ModifiersController {
     mapping(bytes32 => bytes32[])                   public tokenToStrategies;
     mapping(address => mapping(bytes32 => address)) public liquidityPoolToLPTokens;
     mapping(address => mapping(address => bytes32)) public liquidityPoolToTokenHashes;
-    mapping(address => address)                     public liquidityPoolToDepositPoolProxy;
-    mapping(address => address)                     public liquidityPoolToBorrowPoolProxy;
+    mapping(address => address)                     public liquidityPoolToCodeProvider;
     
     /**
      * @dev Sets the value for {governance} and {strategist}, 
@@ -354,7 +353,7 @@ contract Registry is ModifiersController {
     function setLiquidityPoolToBorrowPoolProxy(address _pool, address _poolProxy) public onlyOperator returns(bool) {
         require(_poolProxy.isContract(),"!_poolProxy.isContract()");
         require(creditPools[_pool].isLiquidityPool,"!liquidityPools");
-        liquidityPoolToBorrowPoolProxy[_pool] = _poolProxy;
+        liquidityPoolToCodeProvider[_pool] = _poolProxy;
         emit LogLiquidityPoolToBorrowToken(msg.sender, _pool, _poolProxy);
         return true;
     }
@@ -375,7 +374,7 @@ contract Registry is ModifiersController {
     function setLiquidityPoolToDepositPoolProxy(address _pool, address _poolProxy) public onlyOperator returns(bool) {
         require(_poolProxy.isContract(),"!_poolProxy.isContract()");
         require(liquidityPools[_pool].isLiquidityPool,"!liquidityPools");
-        liquidityPoolToDepositPoolProxy[_pool] = _poolProxy;
+        liquidityPoolToCodeProvider[_pool] = _poolProxy;
         emit LogLiquidityPoolToDepositToken(msg.sender, _pool, _poolProxy);
         return true;
     }
@@ -399,7 +398,7 @@ contract Registry is ModifiersController {
     function setStrategy(bytes32 _tokensHash,StrategyStep[] memory _strategySteps) public onlyOperator returns(bytes32) {
         require(!_isNewTokensHash(_tokensHash),"_isNewTokensHash");
         for(uint8 i = 0 ; i < _strategySteps.length ; i++){
-            require(liquidityPoolToDepositPoolProxy[_strategySteps[i].pool] != address(0), "Invalid deposit pool proxy.");
+            require(liquidityPoolToCodeProvider[_strategySteps[i].pool] != address(0), "Invalid deposit pool proxy.");
         }
         bytes32[] memory hashes = new bytes32[](_strategySteps.length);
         for(uint8 i = 0 ; i < _strategySteps.length ; i++) {
