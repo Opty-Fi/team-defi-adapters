@@ -16,10 +16,7 @@ contract RiskManager is Modifiers {
     uint public T2_limit;
     uint public T3_limit;
 
-    Registry RegistryContract;
-
     constructor(address _registry) public Modifiers(_registry) {
-        setRegistry(_registry);
     }
     
     /**
@@ -74,17 +71,18 @@ contract RiskManager is Modifiers {
      * 
      */
     function _getBestBasicStrategy(bytes32 _tokensHash) internal view returns(bytes32){
-        bytes32[] memory hashes = RegistryContract.getTokenToStrategies(_tokensHash);
+        bytes32[] memory hashes = registryContract.getTokenToStrategies(_tokensHash);
         require(hashes.length > 0,"!hashes.length");
         uint8 maxScore = 0;
         bytes32 bestStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
         for(uint8 i = 0; i < hashes.length ; i++) {
             (uint8 score, bool isStrategy,,,StrategyStep[] memory _strategySteps) = 
-            RegistryContract.getStrategy(hashes[i]);
+            registryContract.getStrategy(hashes[i]);
             if(
                 isStrategy && 
-                RegistryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool && 
-                RegistryContract.getLiquidityPool(_strategySteps[0].pool).rating >= T1_limit
+                !_strategySteps[0].isBorrow &&
+                registryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool && 
+                registryContract.getLiquidityPool(_strategySteps[0].pool).rating >= T1_limit
             ){
                 if(score > maxScore){
                     maxScore = score;
@@ -104,20 +102,20 @@ contract RiskManager is Modifiers {
      * 
      */
     function _getBestAdvanceStrategy (bytes32 _tokensHash) internal view returns(bytes32) {
-        bytes32[] memory hashes = RegistryContract.getTokenToStrategies(_tokensHash);
+        bytes32[] memory hashes = registryContract.getTokenToStrategies(_tokensHash);
         require(hashes.length > 0, "!hashes.length");
         uint8 maxScore = 0;
         bytes32 bestStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
         for(uint8 i = 0; i < hashes.length; i++) {
             (uint8 score, bool isStrategy,,,StrategyStep[] memory _strategySteps) = 
-            RegistryContract.getStrategy(hashes[i]);
+            registryContract.getStrategy(hashes[i]);
             if(isStrategy){
-                if((_strategySteps[0].isBorrow && RegistryContract.getCreditPool(_strategySteps[0].pool).isLiquidityPool 
-                && RegistryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit 
+                if((_strategySteps[0].isBorrow && registryContract.getCreditPool(_strategySteps[0].pool).isLiquidityPool 
+                && registryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit 
                 ) || 
-                (!_strategySteps[0].isBorrow && RegistryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool 
+                (!_strategySteps[0].isBorrow && registryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool 
                 && (
-                    RegistryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit
+                    registryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit
                     )
                 )) {
                     if (score > maxScore) {
