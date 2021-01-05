@@ -8945,6 +8945,17 @@
                 ]
             },
             {
+                "strategyName": "USDC-deposit-BZX-iUSDC",
+                "strategy": [
+                    {
+                        "contract": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+                        "outputTokenSymbol": "iUSDC",
+                        "outputToken": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "USDC-deposit-AAVE-aUSDC",
                 "strategy": [
                     {
@@ -9017,6 +9028,17 @@
                         "contract": "0xf0358e8c3CD5Fa238a29301d0bEa3D63A17bEdBE",
                         "outputTokenSymbol": "fUSDC",
                         "outputToken": "0xf0358e8c3CD5Fa238a29301d0bEa3D63A17bEdBE",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "USDC-deposit-BZX-iUSDC",
+                "strategy": [
+                    {
+                        "contract": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+                        "outputTokenSymbol": "iUSDC",
+                        "outputToken": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
                         "isBorrow": false
                     }
                 ]
@@ -17728,6 +17750,17 @@
                 ]
             },
             {
+                "strategyName": "USDT-deposit-BZX-iUSDT",
+                "strategy": [
+                    {
+                        "contract": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
+                        "outputTokenSymbol": "iUSDT",
+                        "outputToken": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "USDT-deposit-AAVE-aUSDT",
                 "strategy": [
                     {
@@ -17800,6 +17833,17 @@
                         "contract": "0x053c80eA73Dc6941F518a68E2FC52Ac45BDE7c9C",
                         "outputTokenSymbol": "fUSDT",
                         "outputToken": "0x053c80eA73Dc6941F518a68E2FC52Ac45BDE7c9C",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "USDT-deposit-BZX-iUSDT",
+                "strategy": [
+                    {
+                        "contract": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
+                        "outputTokenSymbol": "iUSDT",
+                        "outputToken": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
                         "isBorrow": false
                     }
                 ]
@@ -26411,6 +26455,17 @@
                 ]
             },
             {
+                "strategyName": "WBTC-deposit-BZX-iWBTC",
+                "strategy": [
+                    {
+                        "contract": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
+                        "outputTokenSymbol": "iWBTC",
+                        "outputToken": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "WBTC-deposit-AAVE-aWBTC",
                 "strategy": [
                     {
@@ -26450,6 +26505,17 @@
                         "contract": "0x5d9d25c7C457dD82fc8668FFC6B9746b674d4EcB",
                         "outputTokenSymbol": "fWBTC",
                         "outputToken": "0x5d9d25c7C457dD82fc8668FFC6B9746b674d4EcB",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "WBTC-deposit-BZX-iWBTC",
+                "strategy": [
+                    {
+                        "contract": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
+                        "outputTokenSymbol": "iWBTC",
+                        "outputToken": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
                         "isBorrow": false
                     }
                 ]
@@ -52730,6 +52796,54 @@
                         "contract": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
                         "outputTokenSymbol": "cREP",
                         "outputToken": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+                        "isBorrow": false
+                    }
+                ]
+            }
+        ]
+    },
+    "HBTC": {
+        "basic": [
+            {
+                "strategyName": "HBTC-deposit-CREAM-crHBTC",
+                "strategy": [
+                    {
+                        "contract": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
+                        "outputTokenSymbol": "crHBTC",
+                        "outputToken": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "HBTC-deposit-CURVE-hCRV",
+                "strategy": [
+                    {
+                        "contract": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",
+                        "outputTokenSymbol": "hCRV",
+                        "outputToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "HBTC-deposit-CREAM-crHBTC",
+                "strategy": [
+                    {
+                        "contract": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
+                        "outputTokenSymbol": "crHBTC",
+                        "outputToken": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "HBTC-deposit-CURVE-hCRV",
+                "strategy": [
+                    {
+                        "contract": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",
+                        "outputTokenSymbol": "hCRV",
+                        "outputToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
                         "isBorrow": false
                     }
                 ]

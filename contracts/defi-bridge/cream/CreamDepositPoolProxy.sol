@@ -40,7 +40,8 @@ contract CreamDepositPoolProxy is IDepositPoolProxy,Modifiers {
 
     function deposit(address, address _underlyingToken, address _liquidityPool, address _liquidityPoolToken, uint[] memory _amounts) public override returns(bool) {
         IERC20(_underlyingToken).safeTransferFrom(msg.sender,address(this),_amounts[0]);
-        IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
+        // We can add if-else condition for HBTC token to not approve amount = 0 for HBTC later on - Deepanshu
+        // IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(0));
         IERC20(_underlyingToken).safeApprove(_liquidityPool, uint(_amounts[0]));
         uint result = ICream(_liquidityPoolToken).mint(_amounts[0]);
         require(result == 0);

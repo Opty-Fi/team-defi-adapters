@@ -62,7 +62,7 @@ export async function fundWallet(
             )
         
         //  Funding wallet with 3Crv tokens
-        var overrideOptions = { gasLimit: ethers.utils.hexlify(268201) };
+        var overrideOptions = { gasLimit: ethers.utils.hexlify(468201) };
         let mint_amount = FUND_AMOUNT.add(expandToTokenDecimals(1,18)) 
         let zero_number = expandToTokenDecimals(0,18)
         await curveSwapContractInstance.add_liquidity(
@@ -93,7 +93,9 @@ export async function fundWallet(
             [tokenAddresses.weth, tokenAddress],
             wallet.address,
             "1000000000000000000",
-            { value: ethers.utils.hexlify(ethers.utils.parseEther("9500")) }
+            { value: ethers.utils.hexlify(ethers.utils.parseEther("9500")),
+              gasLimit: 4590162
+            }
         );
     }
 }

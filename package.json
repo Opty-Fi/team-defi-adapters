@@ -40,7 +40,6 @@
         "clean": "rimraf ./build/",
         "precompile": "yarn clean",
         "compile": "waffle .waffle.json",
-        
         "test": "mocha",
         "prepublishOnly": "yarn test",
         "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol"
@@ -49,6 +48,7 @@
     "dependencies": {
         "dotenv": "^8.2.0",
         "ethereumjs-abi": "^0.6.8",
+        "ethers": "^4.0.48",
         "web3": "^1.3.0"
     }
 }

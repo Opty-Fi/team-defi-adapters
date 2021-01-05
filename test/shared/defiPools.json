@@ -180,6 +180,21 @@
             "pool": "0x0cae8d91E0b1b7Bd00D906E990C3625b2c220db1",
             "lpToken": "0x0cae8d91E0b1b7Bd00D906E990C3625b2c220db1",
             "tokens": ["0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"]
+        },
+        "usdt": {
+            "pool": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
+            "lpToken": "0x7e9997a38A439b2be7ed9c9C4628391d3e055D48",
+            "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+        },
+        "usdc": {
+            "pool": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+            "lpToken": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+            "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+        },
+        "wbtc": {
+            "pool": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
+            "lpToken": "0x2ffa85f655752fB2aCB210287c60b9ef335f5b6E",
+            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
         }
     },
     "HarvestDepositPoolProxy": {

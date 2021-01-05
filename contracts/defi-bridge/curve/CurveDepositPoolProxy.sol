@@ -50,6 +50,16 @@ contract CurveDepositPoolProxy is IDepositPoolProxy,Modifiers {
         crvRenWBTCUnderTokens[0] = address(0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D); // renWBTC
         crvRenWBTCUnderTokens[1] = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599); // WBTC
         setLendingPoolToUnderlyingTokens(_crvRenWBTC,crvRenWBTCUnderTokens);
+        
+        address _crvhbtc = address(0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F);
+        
+        swaps[_crvhbtc] = true;
+        
+        // crvHBTC
+        address[] memory crvHBTCUnderTokens = new address[](2);
+        crvHBTCUnderTokens[0] = address(0x0316EB71485b0Ab14103307bf65a021042c6d380); // HBTC
+        crvHBTCUnderTokens[1] = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599); // WBTC
+        setLendingPoolToUnderlyingTokens(_crvhbtc,crvHBTCUnderTokens);
     }
     
     function setLendingPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyGovernance {
@@ -99,7 +109,8 @@ contract CurveDepositPoolProxy is IDepositPoolProxy,Modifiers {
             amountsIn[i] = _amounts[i];
             if(amountsIn[i] > 0) {
                 IERC20(_underlyingTokens[i]).safeTransferFrom(msg.sender,address(this),amountsIn[i]);
-                IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
+                // We can add if-else condition for HBTC token to not approve amount = 0 for HBTC later on - Deepanshu
+                // IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
                 IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, amountsIn[i]);    
             }
         }
@@ -127,7 +138,8 @@ contract CurveDepositPoolProxy is IDepositPoolProxy,Modifiers {
             amountsIn[i] = _amounts[i];
             if(amountsIn[i] > 0) {
                 IERC20(_underlyingTokens[i]).safeTransferFrom(msg.sender,address(this),amountsIn[i]);
-                IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
+                // We can add if-else condition for HBTC token to not approve amount = 0 for HBTC later on - Deepanshu
+                // IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
                 IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, amountsIn[i]);    
             }
         }
@@ -156,7 +168,8 @@ contract CurveDepositPoolProxy is IDepositPoolProxy,Modifiers {
             amountsIn[i] = _amounts[i];
             if(amountsIn[i] > 0) {
                 IERC20(_underlyingTokens[i]).safeTransferFrom(msg.sender,address(this),amountsIn[i]);
-                IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
+                // We can add if-else condition for HBTC token to not approve amount = 0 for HBTC later on - Deepanshu
+                // IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, uint(0));
                 IERC20(_underlyingTokens[i]).safeApprove(_liquidityPool, amountsIn[i]);    
             }
         }
