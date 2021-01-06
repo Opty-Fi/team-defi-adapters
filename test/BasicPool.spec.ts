@@ -32,13 +32,36 @@ const envConfig = require("dotenv").config(); //  library to import the local EN
 
 chai.use(solidity);
 
-const Ganache = require("ganache-core");
+const { program } = require("commander");
+
+program
+    .description("Takes symbol and recipeint, send tokens to recipient")
+    .requiredOption("-s, --symbol <dai|usdc|usdt|wbtc|weth|susd|tusd|busd|3crv|link|renbtc|knc|zrx|uni|bat|mkr|comp|yfi|aave|hbtc|rep>", "stable coin symbol")
+    .option("-sn, --strategyName <string>","name of the strategy to run", null)
+    .option("-ta, --testAmount <number>","amount with which you want to test", 6)
+    .option("-sc --strategiesCount <number>","number of strategies you want to run",0)
+    .usage("-s <token-symbol> ")
+    .version("0.0.1")
+    .action(async (command: { symbol:  string; strategyName: string; testAmount: number; strategiesCount: number; }) => {
+        
+        const underlyingTokenSymbol = command.symbol.toString().toUpperCase()
+        console.log("Underlying token Symbol from CMD: ", underlyingTokenSymbol);
+        console.log("Test Amount from CMD: ", command.testAmount)
+        
+        const Ganache = require("ganache-core");
 const abi = require("ethereumjs-abi");
 const MAINNET_NODE_URL = process.env.MAINNET_NODE_URL;
 // Note: This test amount should be >= 44 for USDC-deposit-CURVE-cDAI+cUSDC+USDT and this amount should be >= 46
 // for USDC-deposit-CURVE-cDAI+cUSDC due to some timing issues. But it is working fine with any amount while
 // testing from Remix for these 2 strategies. Have to re-visit this again for test scripts.
-let TEST_AMOUNT_NUM: number = 6;
+// let TEST_AMOUNT_NUM: number = 6;
+let TEST_AMOUNT_NUM: number;
+if  (command.testAmount > 0) {
+    TEST_AMOUNT_NUM = command.testAmount;
+} else {
+    console.error("ERROR: Invalid  TEST_AMOUNT entered for testing");
+    process.exit(1);
+}
 let TEST_AMOUNT: ethers.utils.BigNumber;
 
 //  Interface for storing the Abi's of PoolProxy Contracts
@@ -134,7 +157,7 @@ describe("OptyTokenBasicPool", async () => {
         userWallet = allWallets[1];
 
         console.log(
-            "\n------ Deploying Registry, RiskManager and StrategyManager Contracts ---------\n"
+            "\n" + `------ Deploying Registry, RiskManager and StrategyManager Contracts for ${underlyingTokenSymbol}---------` + "\n"
         );
         //  Deploying Registry, RiskManager and StrategyManager Contract
         optyRegistry = await deployContract(ownerWallet, OptyRegistry);
@@ -372,31 +395,16 @@ describe("OptyTokenBasicPool", async () => {
 
     //  Iterating through all the strategies by picking underlyingTokens as key
     let strategiesTokenKey: keyof typeof allStrategies;
+    let allStrategiesTokenKeys = Object.keys(allStrategies).map(item => item.toUpperCase());
     for (strategiesTokenKey in allStrategies) {
-        if (
-            strategiesTokenKey == "DAI" ||
-            strategiesTokenKey == "USDC" ||
-            strategiesTokenKey == "USDT" ||
-            strategiesTokenKey == "WBTC" ||
-            strategiesTokenKey == "TUSD" ||
-            strategiesTokenKey == "WETH" ||
-            strategiesTokenKey == "SUSD" ||
-            strategiesTokenKey == "3Crv" ||
-            strategiesTokenKey == "LINK" ||
-            strategiesTokenKey == "BUSD" ||
-            strategiesTokenKey == "renBTC" ||
-            strategiesTokenKey == "KNC" ||
-            strategiesTokenKey == "ZRX" ||
-            strategiesTokenKey == "UNI" ||
-            strategiesTokenKey == "BAT" ||
-            strategiesTokenKey == "MKR" ||
-            strategiesTokenKey == "COMP" ||
-            strategiesTokenKey == "YFI" ||
-            strategiesTokenKey == "AAVE" ||
-            strategiesTokenKey == "HBTC"
-        ) {
-        // if (strategiesTokenKey == "HBTC") {
+        if (strategiesTokenKey.toUpperCase() == `${underlyingTokenSymbol}`) {
             await runTokenTestSuite(strategiesTokenKey);
+        } 
+        else {
+            if (!allStrategiesTokenKeys.includes(underlyingTokenSymbol)) {
+                console.error("ERROR: Invalid Token symbol!")
+                process.exit(2)
+            }
         }
     }
 
@@ -727,16 +735,48 @@ describe("OptyTokenBasicPool", async () => {
                     );
                 }
             );
-
+            
+            let allStrategyNames = allStrategies[strategiesTokenKey].basic.map(element => element.strategyName.toLowerCase())
             /*  Iterating through each strategy one by one, setting, approving and scroing the each 
                 strategy and then making userDepositRebalance() call */
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
+                    console.log("Strategy iterator count: ", index)
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "HBTC-deposit-CURVE-hCRV") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "DAI-deposit-AAVE-aDAI") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "USDC-deposit-CURVE-cDAI+cUSDC+USDT") {
-                    if (index < 31) {
+                    
+                    // if (index < 1) {
+                    if (command.strategyName == null) {
+                        if (command.strategiesCount < 0) {
+                            console.error("ERROR: Invalid Number of Strategies Count: ", command.strategiesCount)
+                            process.exit(3)
+                        } else {
+                            if (command.strategiesCount == 0) {
+                                if (index < allStrategies[strategiesTokenKey].basic.length) {
+                                    await runDepositWithdrawTestCases()
+                                } else {
+                                    console.error("ERROR: Invalid Number of existing strategies length")
+                                    process.exit(4)
+                                }
+                            } else {
+                                if (index < command.strategiesCount) {
+                                    await runDepositWithdrawTestCases()
+                                } 
+                            }
+                        }
+                    } else {
+                        if (!allStrategyNames.includes(command.strategyName.toLowerCase())) {
+                            console.error("ERROR: Invalid Strategy Name: ", command.strategyName)
+                            process.exit(5)
+                        }
+                        else if (allStrategies[strategiesTokenKey].basic[index].strategyName.toLowerCase() == command.strategyName.toLowerCase()) {
+                            await runDepositWithdrawTestCases()
+                        }
+                    }
+
+                    async function runDepositWithdrawTestCases() {
                         it(
                             "should deposit using userDepositRebalance() using Strategy - " +
                                 strategies.strategyName,
@@ -770,10 +810,10 @@ describe("OptyTokenBasicPool", async () => {
                                     );
                                     previousStepOutputToken =
                                         strategies.strategy[index].outputToken;
-
+        
                                     strategySteps.push(tempArr);
                                 }
-
+        
                                 //  Iterating through each strategy step and generate the strategy Hash
                                 let strategyStepHash: string[] = [];
                                 strategySteps.forEach((tempStrategyStep, index) => {
@@ -798,7 +838,7 @@ describe("OptyTokenBasicPool", async () => {
                                             [tokensHash, strategyStepHash]
                                         )
                                         .toString("hex");
-
+        
                                 //  Getting the strategy hash corresponding to underluing token
                                 let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(
                                     tokensHash
@@ -821,7 +861,7 @@ describe("OptyTokenBasicPool", async () => {
                                         tokensHash,
                                         strategySteps
                                     );
-
+        
                                     //  Setting the strategy
                                     const setStrategyTx = await optyRegistry.setStrategy(
                                         tokensHash,
@@ -831,7 +871,7 @@ describe("OptyTokenBasicPool", async () => {
                                         setStrategyTx,
                                         "Setting StrategySteps has failed!"
                                     );
-
+        
                                     const setStrategyReceipt = await setStrategyTx.wait();
                                     console.log(
                                         "GAS ESTIMATED: ",
@@ -844,7 +884,7 @@ describe("OptyTokenBasicPool", async () => {
                                     let strategyHash =
                                         setStrategyReceipt.events[0].args[2];
                                     expect(strategyHash.toString().length).to.equal(66);
-
+        
                                     let strategy = await optyRegistry.getStrategy(
                                         strategyHash.toString()
                                     );
@@ -860,7 +900,7 @@ describe("OptyTokenBasicPool", async () => {
                                             strategy["_isStrategy"],
                                             "Strategy is not approved"
                                         );
-
+        
                                         let scoreStrategyTx = await optyRegistry.scoreStrategy(
                                             strategyHash.toString(),
                                             index + 1
@@ -901,23 +941,23 @@ describe("OptyTokenBasicPool", async () => {
                                                 .toNumber()
                                         );
                                     }
-
+        
                                     let bestStrategyHash = await riskManager.getBestStrategy(
                                         profile,
                                         [underlyingToken]
                                     );
-
+        
                                     let bestStrategy = await optyRegistry.getStrategy(
                                         bestStrategyHash.toString()
                                     );
-
+        
                                     //  Function call to test userDepositRebalance()
                                     await testUserDepositRebalance();
                                     strategyScore = strategyScore + 1;
                                 }
                             }
                         );
-
+        
                         it(
                             "should withdraw using userWithdrawRebalance() using Strategy - " +
                                 strategies.strategyName,
@@ -929,7 +969,7 @@ describe("OptyTokenBasicPool", async () => {
                                 );
                                 // console.log("Prior Balance: ", ethers.utils.formatEther(initialUserOptyTokenBalanceWei))
                                 // console.log("Prior cal. amount: ", ethers.utils.formatEther(initialUserOptyTokenBalanceWei.sub(expandToTokenDecimals(1,11))))
-
+        
                                 //  If condition is checking if the withdrawal is 0 or not. This can happen when
                                 //  depositRebalance() is called after setting up the same strategy. This can happen
                                 //  user doesn't have any Op<Token>Bsc tokens.
@@ -977,6 +1017,7 @@ describe("OptyTokenBasicPool", async () => {
                             }
                         );
                     }
+
                 }
             );
 
@@ -1402,3 +1443,7 @@ describe("OptyTokenBasicPool", async () => {
         console.log("REVERT STATUS: ", status);
     };
 });
+    
+    });
+
+    program.parse(process.argv);
