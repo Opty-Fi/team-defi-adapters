@@ -36,7 +36,7 @@ const { program } = require("commander");
 
 program
     .description("Takes symbol and recipeint, send tokens to recipient")
-    .requiredOption("-s, --symbol <dai|usdc|usdt|wbtc|weth|susd|tusd|busd|3crv|link|renbtc|knc|zrx|uni|bat|mkr|comp|yfi|aave|hbtc|rep>", "stable coin symbol")
+    .option("-s, --symbol <dai|usdc|usdt|wbtc|weth|susd|tusd|busd|3crv|link|renbtc|knc|zrx|uni|bat|mkr|comp|yfi|aave|hbtc|rep>", "stable coin symbol", null)
     .option("-sn, --strategyName <string>","name of the strategy to run", null)
     .option("-ta, --testAmount <number>","amount with which you want to test", 6)
     .option("-sc --strategiesCount <number>","number of strategies you want to run",0)
@@ -44,8 +44,13 @@ program
     .version("0.0.1")
     .action(async (command: { symbol:  string; strategyName: string; testAmount: number; strategiesCount: number; }) => {
         
-        const underlyingTokenSymbol = command.symbol.toString().toUpperCase()
-        console.log("Underlying token Symbol from CMD: ", underlyingTokenSymbol);
+        let underlyingTokenSymbol: string
+        if (command.symbol == null) {
+            console.log("NO TOKEN PASSED FROM CMD..")
+        } else {
+            underlyingTokenSymbol = command.symbol.toString().toUpperCase()
+            console.log("Underlying token Symbol from CMD: ", underlyingTokenSymbol);
+        }
         console.log("Test Amount from CMD: ", command.testAmount)
         
         const Ganache = require("ganache-core");
@@ -76,6 +81,21 @@ interface DefiPools {
         tokens: string[];
     };
 }
+
+// interface GasUsedRecord {
+//     strategyName: string;
+//     setStrategy: number;
+//     scoreStrategy: number;
+//     setAndScoreStrategy: number;
+//     userDepositRebalanceTx: number;
+//     userWithdrawRebalanceTx: number;
+// }
+// interface GasUsedRecords {
+//     [id: string]: {
+//         Date: string;
+//         GasRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
+//     };
+// };
 //  Json of PoolProxyContract for storing the Abi's of PoolProxyContracts
 let poolProxyContract: PoolProxyContract = {
     CompoundDepositPoolProxy,
@@ -354,6 +374,11 @@ describe("OptyTokenBasicPool", async () => {
         }
     });
 
+    let finalJson = {}
+    after(async() => {
+        console.log("IT SHOULD BE PRINTED ONLY ONCE..")
+    })
+
     it("should check if the pool proxy contracts are deployed", async () => {
         assert.isOk(
             optyPoolProxyContractVariables.CompoundDepositPoolProxy.address,
@@ -397,13 +422,25 @@ describe("OptyTokenBasicPool", async () => {
     let strategiesTokenKey: keyof typeof allStrategies;
     let allStrategiesTokenKeys = Object.keys(allStrategies).map(item => item.toUpperCase());
     for (strategiesTokenKey in allStrategies) {
-        if (strategiesTokenKey.toUpperCase() == `${underlyingTokenSymbol}`) {
-            await runTokenTestSuite(strategiesTokenKey);
-        } 
-        else {
-            if (!allStrategiesTokenKeys.includes(underlyingTokenSymbol)) {
-                console.error("ERROR: Invalid Token symbol!")
-                process.exit(2)
+        if (command.symbol == null) {
+            console.log("coming in when no symbol is passed!")
+            // if (
+            //     strategiesTokenKey.toUpperCase() != "REP" 
+            // ) {
+            if (
+                strategiesTokenKey.toUpperCase() == "DAI" || strategiesTokenKey.toUpperCase() == "USDC"
+            ) {
+                await runTokenTestSuite(strategiesTokenKey);
+            } 
+        } else {
+            if (strategiesTokenKey.toUpperCase() == `${underlyingTokenSymbol}`) {
+                await runTokenTestSuite(strategiesTokenKey);
+            } 
+            else {
+                if (!allStrategiesTokenKeys.includes(underlyingTokenSymbol)) {
+                    console.error("ERROR: Invalid Token symbol!")
+                    process.exit(2)
+                }
             }
         }
     }
@@ -735,12 +772,24 @@ describe("OptyTokenBasicPool", async () => {
                     );
                 }
             );
-            
+            // let strategyDetails: string;
+            // let setStrategyTxGasUsed: number = 0;
+            //         let scoreStrategyTxGasUsed: number = 0;
+            //         let setAndScoreStrategyTotalGasUsed: number = 0;
+            //         let userDepositRebalanceTxGasUsed: number = 0;
+            //         let userWithdrawRebalanceTxGasUsed: number = 0;
+            let allStrategiesGasUsedRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
             let allStrategyNames = allStrategies[strategiesTokenKey].basic.map(element => element.strategyName.toLowerCase())
             /*  Iterating through each strategy one by one, setting, approving and scroing the each 
                 strategy and then making userDepositRebalance() call */
             allStrategies[strategiesTokenKey].basic.forEach(
                 async (strategies, index) => {
+                    // strategyDetails = strategies.strategyName
+                    let setStrategyTxGasUsed: number = 0;
+                    let scoreStrategyTxGasUsed: number = 0;
+                    let setAndScoreStrategyTotalGasUsed: number = 0;
+                    let userDepositRebalanceTxGasUsed: number = 0;
+                    let userWithdrawRebalanceTxGasUsed: number = 0;
                     console.log("Strategy iterator count: ", index)
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "HBTC-deposit-CURVE-hCRV") {
@@ -873,13 +922,14 @@ describe("OptyTokenBasicPool", async () => {
                                     );
         
                                     const setStrategyReceipt = await setStrategyTx.wait();
+                                    setStrategyTxGasUsed = setStrategyReceipt.gasUsed.toNumber()
+                                    // console.log(
+                                    //     "GAS ESTIMATED: ",
+                                    //     gasEstimatedBefore.toNumber()
+                                    // );
                                     console.log(
-                                        "GAS ESTIMATED: ",
-                                        gasEstimatedBefore.toNumber()
-                                    );
-                                    console.log(
-                                        "Actual Gas used: ",
-                                        setStrategyReceipt.gasUsed.toNumber()
+                                        "SetStrategy Gas used: ",
+                                        setStrategyTxGasUsed
                                     );
                                     let strategyHash =
                                         setStrategyReceipt.events[0].args[2];
@@ -906,24 +956,22 @@ describe("OptyTokenBasicPool", async () => {
                                             index + 1
                                         );
                                         let scoreStrategyReceipt = await scoreStrategyTx.wait();
+                                        scoreStrategyTxGasUsed = scoreStrategyReceipt.gasUsed.toNumber()
                                         console.log(
                                             "GAS USED for scoring: ",
-                                            scoreStrategyReceipt.gasUsed.toNumber()
+                                            scoreStrategyTxGasUsed
                                         );
-                                        // TODO: Add POOL NAME, OUTPUT TOKEN, isBORROW - Deepanshu
-                                        // let strategyJson = {
-                                        //     POOL_NAME: strategies.strategyName,
-                                        //     OUTPUT_TOKEN: strategies.strategy[index].outputTokenSymbol,
-                                        //     isBorrow: strategies.strategy[index].isBorrow,
-                                        //     TOTAL_GAS: setStrategyReceipt.gasUsed.add(scoreStrategyReceipt.gasUsed).toNumber()
-                                        // }
-                                        // console.log("Strategy: ", strategyJson)
+                                        
                                         console.log(
                                             "Total gas used for setting and scoring strategy: ", 
                                             setStrategyReceipt.gasUsed
                                                 .add(scoreStrategyReceipt.gasUsed)
                                                 .toNumber()
                                         );
+                                        setAndScoreStrategyTotalGasUsed = setStrategyReceipt.gasUsed
+                                        .add(scoreStrategyReceipt.gasUsed)
+                                        .toNumber()
+                                        
                                     } else {
                                         let scoreStrategyTx = await optyRegistry.scoreStrategy(
                                             strategyHash.toString(),
@@ -1018,10 +1066,8 @@ describe("OptyTokenBasicPool", async () => {
                         );
                     }
 
-                }
-            );
 
-            //  Function to deposit the underlying tokens into Opty<XXX>Pool and test the userDepositRebalance()
+                //  Function to deposit the underlying tokens into Opty<XXX>Pool and test the userDepositRebalance()
             async function testUserDepositRebalance() {
                 console.log("TEsting userDeposit Rebalance() ");
                 let userInitialTokenBalanceWei = await tokenContractInstance.balanceOf(
@@ -1083,7 +1129,7 @@ describe("OptyTokenBasicPool", async () => {
                 let poolValue = "";
                 let shares: ethers.utils.BigNumber;
                 let userDepositRebalanceTx;
-                let userDepositRebalanceTxGasUsed;
+                // let userDepositRebalanceTxGasUsed;
                 console.log("CHECK-4");
 
                 allPromiseResponses.forEach(async (promiseResponse, index) => {
@@ -1095,6 +1141,7 @@ describe("OptyTokenBasicPool", async () => {
                         userDepositRebalanceTx = promiseResponse;
                         let userDepositTxReceipt = await userDepositRebalanceTx.wait();
                         userDepositRebalanceTxGasUsed = userDepositTxReceipt.gasUsed.toNumber();
+
                         console.log("Gas used for user depsoit rebalance txn: ", userDepositRebalanceTxGasUsed)
                     }
                 });
@@ -1217,7 +1264,7 @@ describe("OptyTokenBasicPool", async () => {
                 );
                 console.log("withdrawal txn. successful");
                 let receipt = await userWithdrawTxOutput.wait();
-                let userWithdrawRebalanceTxGasUsed = receipt.gasUsed.toNumber();
+                userWithdrawRebalanceTxGasUsed = receipt.gasUsed.toNumber();
                 console.log("Gas used for user withdraw rebalance: ", userWithdrawRebalanceTxGasUsed)
                 // console.log("User withdraw txn Receipt: ", receipt);
 
@@ -1329,8 +1376,37 @@ describe("OptyTokenBasicPool", async () => {
                         )
                     ).to.be.true;
                 }
-            }
 
+                // TODO: Add POOL NAME, OUTPUT TOKEN, isBORROW - Deepanshu
+                let strategyGasUsedJson = {
+                    strategyName: strategies.strategyName,
+                    setStrategy: setStrategyTxGasUsed,
+                    scoreStrategy: scoreStrategyTxGasUsed,
+                    setAndScoreStrategy: setAndScoreStrategyTotalGasUsed,
+                    userDepositRebalanceTx: userDepositRebalanceTxGasUsed,
+                    userWithdrawRebalanceTx: userWithdrawRebalanceTxGasUsed
+                }
+
+                allStrategiesGasUsedRecords.push(strategyGasUsedJson)
+            }
+                }
+            );
+
+
+            // interface GasUsedRecord {
+            //     strategyName: string;
+            //     setStrategy: number;
+            //     scoreStrategy: number;
+            //     setAndScoreStrategy: number;
+            //     userDepositRebalanceTx: number;
+            //     userWithdrawRebalanceTx: number;
+            // }
+            type GasUsedRecords = {
+                [id in keyof typeof allStrategies]?: {
+                    Date: string;
+                    GasRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
+                };
+            };;
             after(async () => {
                 //  Checking Owner and User's Ether balance left after all the transactions
                 let balance = await provider.getBalance(ownerWallet.address);
@@ -1343,6 +1419,16 @@ describe("OptyTokenBasicPool", async () => {
                     "USER'S ETHER BALANCE AFTER ALL TEST SUITS: ",
                     ethers.utils.formatEther(userBalance)
                 );
+                let tokenStrategyGasUsedRecord: GasUsedRecords = {}
+                tokenStrategyGasUsedRecord = {
+                    DAI : {
+                        Date: new Date().toISOString().slice(0,10),
+                        GasRecords: allStrategiesGasUsedRecords
+                    }
+                }
+                console.log("Strategy Gas Records: ", allStrategiesGasUsedRecords)
+                console.log("token-vise gas used token list: ", tokenStrategyGasUsedRecord)
+                console.log("FROM INSIDE: ", tokenStrategyGasUsedRecord.DAI?.GasRecords)
             });
         });
     }
