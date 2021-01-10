@@ -19,6 +19,7 @@ contract ModifiersController {
      * @dev Sets the owner, governance and strategist while deploying the contract
      */
     constructor (address _governance, address _strategist, address _operator) internal {
+        require(_governance != address(0),"!address(0)");
         governance = _governance;
         setStrategist(_strategist);
         setOperator(_operator);
@@ -29,6 +30,7 @@ contract ModifiersController {
      * Can only be called by the current governance.
      */    
     function transferGovernance(address _governance) public onlyGovernance {
+        require(_governance != address(0),"!address(0)");
         governance = _governance;
     }
     
@@ -37,16 +39,16 @@ contract ModifiersController {
      * Can only be called by the governance.
      */    
     function setOperator(address _operator) public onlyGovernance {
-        require(_operator.isContract(),"!isContract");
+        require(_operator != address(0),"!address(0)");
         operator = _operator;
     }
     
     /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
-     */    
+     * @dev Transfers strategist to a new account (`_strategist`).
+     * Can only be called by the current governance.
+     */   
     function setStrategist(address _strategist) public onlyGovernance {
-        require(_strategist.isContract(),"!isContract");
+        require(_strategist != address(0),"!address(0)");
         strategist = _strategist;
     }
     
