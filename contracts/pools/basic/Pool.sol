@@ -236,4 +236,8 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         }
         return true;
     }
+
+    function getPricePerFullShare() public view returns(uint) {
+        return calPoolValueInToken().div(totalSupply());
+    }
 }

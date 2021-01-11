@@ -57,7 +57,7 @@ contract HarvestDepositPoolProxy is IDepositPoolProxy,Modifiers {
         setGatherer(_gatherer);
         gathererContract = Gatherer(gatherer);
         setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
-setLiquidityPoolToStakingPool(tBTCsBTCCrvDepositPool,tBTCsBTCCrvStakePool);
+        setLiquidityPoolToStakingPool(tBTCsBTCCrvDepositPool,tBTCsBTCCrvStakePool);
         setLiquidityPoolToStakingPool(threeCrvDepositPool,threeCrvStakePool);
         setLiquidityPoolToStakingPool(yDAIyUSDCyUSDTyTUSDDepositPool,yDAIyUSDCyUSDTyTUSDStakePool);
         setLiquidityPoolToStakingPool(fDAIDepositPool,fDAIStakePool);

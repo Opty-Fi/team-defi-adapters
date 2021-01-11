@@ -43,6 +43,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         address _dydxSolo,
         address _dydxPoolProxy,
         address _registry
+        address _dydxPoolProxy
         ) public ERC20Detailed(
                                 string(abi.encodePacked("opty ",ERC20Detailed(_underlyingToken).name()," ",_profile)),
                                 string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(),_profile)),
@@ -61,34 +62,34 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         
     }
     
-    function setDYDXPoolProxy(address _dydxPoolProxy) public onlyOperator onlyValidAddress returns (bool _success) {
+    function setDYDXPoolProxy(address _dydxPoolProxy) public onlyOperator returns (bool _success) {
         require(_dydxPoolProxy != address(0),"!_dydxPoolProxy");
         require(_dydxPoolProxy.isContract(),"!_dydxPoolProxy.isContract");
         dydxPoolProxy = _dydxPoolProxy;
         _success = true;
     }
     
-    function setDYDXSolo(address _dydxSolo) public onlyOperator onlyValidAddress returns (bool _success) {
+    function setDYDXSolo(address _dydxSolo) public onlyOperator returns (bool _success) {
         require(_dydxSolo != address(0),"!_dydxSolo");
         require(_dydxSolo.isContract(),"!_dydxSolo.isContract");
         dydxSolo = _dydxSolo;
         _success = true;
     }
     
-    function setProfile(string memory _profile) public onlyOperator onlyValidAddress returns (bool _success)  {
+    function setProfile(string memory _profile) public onlyOperator returns (bool _success)  {
         require(bytes(_profile).length > 0, "empty!");
         profile = _profile;
         _success = true;
     }
     
-    function setRiskManager(address _riskManager) public onlyOperator onlyValidAddress returns (bool _success) {
+    function setRiskManager(address _riskManager) public onlyOperator returns (bool _success) {
         require(_riskManager != address(0),"!_riskManager");
         require(_riskManager.isContract(),"!_riskManager.isContract");
         RiskManagerContract = RiskManager(_riskManager);
         _success = true;
     }
 
-    function setToken(address _underlyingToken) public onlyOperator onlyValidAddress returns (bool _success) {
+    function setToken(address _underlyingToken) public onlyOperator returns (bool _success) {
         require(_underlyingToken != address(0),"!_underlyingToken");
         require(_underlyingToken.isContract(),"!_underlyingToken.isContract");
          token = _underlyingToken;
