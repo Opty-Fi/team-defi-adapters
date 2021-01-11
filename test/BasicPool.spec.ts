@@ -2,7 +2,7 @@ import chai, { assert, expect } from "chai";
 import { Contract, ethers, utils } from "ethers";
 import { solidity, deployContract } from "ethereum-waffle";
 
-import { expandToTokenDecimals, fundWallet } from "./shared/utilities";
+import { expandToTokenDecimals, fundWallet, insertGasUsedRecordsIntoDB } from "./shared/utilities";
 import OptyTokenBasicPool from "../build/BasicPool.json";
 import OptyRegistry from "../build/Registry.json";
 import RiskManager from "../build/RiskManager.json";
@@ -39,10 +39,13 @@ program
     .option("-s, --symbol <dai|usdc|usdt|wbtc|weth|susd|tusd|busd|3crv|link|renbtc|knc|zrx|uni|bat|mkr|comp|yfi|aave|hbtc|rep>", "stable coin symbol", null)
     .option("-sn, --strategyName <string>","name of the strategy to run", null)
     .option("-ta, --testAmount <number>","amount with which you want to test", 6)
-    .option("-sc --strategiesCount <number>","number of strategies you want to run",0)
+    .option("-sc, --strategiesCount <number>","number of strategies you want to run",0)
+    .option("-db, --insertGasRecordsInDB <boolean>", "Insert GasUsed Records into DB",false)
+    .option("-f, --insertGasRecordsInFile <boolean>", "Generate JSON file having all the GasUsed Records", false)
     .usage("-s <token-symbol> ")
     .version("0.0.1")
-    .action(async (command: { symbol:  string; strategyName: string; testAmount: number; strategiesCount: number; }) => {
+    .action(async (command: { symbol:  string; strategyName: string; testAmount: number; 
+        strategiesCount: number; insertGasRecordsInDB: boolean; insertGasRecordsInFile: boolean}) => {
         
         let underlyingTokenSymbol: string
         if (command.symbol == null) {
@@ -90,12 +93,12 @@ interface DefiPools {
 //     userDepositRebalanceTx: number;
 //     userWithdrawRebalanceTx: number;
 // }
-// interface GasUsedRecords {
-//     [id: string]: {
-//         Date: string;
-//         GasRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
-//     };
-// };
+interface GasUsedRecords {
+    [id: string] : {
+        GasRecords: { dateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
+    };
+};
+
 //  Json of PoolProxyContract for storing the Abi's of PoolProxyContracts
 let poolProxyContract: PoolProxyContract = {
     CompoundDepositPoolProxy,
@@ -778,7 +781,7 @@ describe("OptyTokenBasicPool", async () => {
             //         let setAndScoreStrategyTotalGasUsed: number = 0;
             //         let userDepositRebalanceTxGasUsed: number = 0;
             //         let userWithdrawRebalanceTxGasUsed: number = 0;
-            let allStrategiesGasUsedRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
+            let allStrategiesGasUsedRecords: { dateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
             let allStrategyNames = allStrategies[strategiesTokenKey].basic.map(element => element.strategyName.toLowerCase())
             /*  Iterating through each strategy one by one, setting, approving and scroing the each 
                 strategy and then making userDepositRebalance() call */
@@ -1379,6 +1382,7 @@ describe("OptyTokenBasicPool", async () => {
 
                 // TODO: Add POOL NAME, OUTPUT TOKEN, isBORROW - Deepanshu
                 let strategyGasUsedJson = {
+                    dateAndTime: Date.now(),
                     strategyName: strategies.strategyName,
                     setStrategy: setStrategyTxGasUsed,
                     scoreStrategy: scoreStrategyTxGasUsed,
@@ -1392,21 +1396,6 @@ describe("OptyTokenBasicPool", async () => {
                 }
             );
 
-
-            // interface GasUsedRecord {
-            //     strategyName: string;
-            //     setStrategy: number;
-            //     scoreStrategy: number;
-            //     setAndScoreStrategy: number;
-            //     userDepositRebalanceTx: number;
-            //     userWithdrawRebalanceTx: number;
-            // }
-            type GasUsedRecords = {
-                [id in keyof typeof allStrategies]?: {
-                    Date: string;
-                    GasRecords: { strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
-                };
-            };;
             after(async () => {
                 //  Checking Owner and User's Ether balance left after all the transactions
                 let balance = await provider.getBalance(ownerWallet.address);
@@ -1419,16 +1408,34 @@ describe("OptyTokenBasicPool", async () => {
                     "USER'S ETHER BALANCE AFTER ALL TEST SUITS: ",
                     ethers.utils.formatEther(userBalance)
                 );
+
                 let tokenStrategyGasUsedRecord: GasUsedRecords = {}
-                tokenStrategyGasUsedRecord = {
-                    DAI : {
-                        Date: new Date().toISOString().slice(0,10),
-                        GasRecords: allStrategiesGasUsedRecords
-                    }
+                tokenStrategyGasUsedRecord[strategiesTokenKey] = {
+                    GasRecords: allStrategiesGasUsedRecords
                 }
                 console.log("Strategy Gas Records: ", allStrategiesGasUsedRecords)
                 console.log("token-vise gas used token list: ", tokenStrategyGasUsedRecord)
-                console.log("FROM INSIDE: ", tokenStrategyGasUsedRecord.DAI?.GasRecords)
+                console.log("FROM INSIDE: ", tokenStrategyGasUsedRecord[strategiesTokenKey].GasRecords)
+
+                if (command.insertGasRecordsInDB) {
+                    console.log("****    Coming INTO PUTTING THE DATA INTO DB    ****")
+                    allStrategiesGasUsedRecords.forEach(async (gasRecordItem) => {
+                        const inserQueryResponse: number = await insertGasUsedRecordsIntoDB(gasRecordItem.dateAndTime, strategiesTokenKey, gasRecordItem.strategyName,
+                        gasRecordItem.setStrategy, gasRecordItem.scoreStrategy, gasRecordItem.setAndScoreStrategy, 
+                        gasRecordItem.userDepositRebalanceTx, gasRecordItem.userWithdrawRebalanceTx)
+                        console.log("Checking row is inserted or not....")
+                        expect(inserQueryResponse).to.equal(
+                            1,
+                            "All records for gas used are not entered into DB!"
+                        );
+                    })
+                }
+
+                if (command.insertGasRecordsInFile) {
+                    console.log("****    Coming into putting records into FILE    ****")
+                    //  TODO: Generate JSON file for gas records
+                }
+                
             });
         });
     }
