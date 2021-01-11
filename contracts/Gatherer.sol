@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/opty/IUniswap.sol";
+import "./interfaces/uniswap/IUniswap.sol";
 import "./libraries/SafeERC20.sol";
 import "./utils/Modifiers.sol";
 
