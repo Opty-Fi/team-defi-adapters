@@ -2,7 +2,7 @@ import chai, { assert, expect } from "chai";
 import { Contract, ethers, utils } from "ethers";
 import { solidity, deployContract } from "ethereum-waffle";
 
-import { expandToTokenDecimals, fundWallet, insertGasUsedRecordsIntoDB } from "./shared/utilities";
+import { appendInFile, expandToTokenDecimals, fundWallet, insertGasUsedRecordsIntoDB, writeInFile } from "./shared/utilities";
 import OptyTokenBasicPool from "../build/BasicPool.json";
 import OptyRegistry from "../build/Registry.json";
 import RiskManager from "../build/RiskManager.json";
@@ -33,6 +33,7 @@ const envConfig = require("dotenv").config(); //  library to import the local EN
 chai.use(solidity);
 
 const { program } = require("commander");
+const fs = require("fs"); //    library to read/write to a particular file
 
 program
     .description("Takes symbol and recipeint, send tokens to recipient")
@@ -41,18 +42,21 @@ program
     .option("-ta, --testAmount <number>","amount with which you want to test", 6)
     .option("-sc, --strategiesCount <number>","number of strategies you want to run",0)
     .option("-db, --insertGasRecordsInDB <boolean>", "Insert GasUsed Records into DB",false)
-    .option("-f, --insertGasRecordsInFile <boolean>", "Generate JSON file having all the GasUsed Records", false)
+    .option("-wf, --writeGasRecordsInFile <boolean>", "Generate JSON file having all the GasUsed Records", false)
     .usage("-s <token-symbol> ")
     .version("0.0.1")
     .action(async (command: { symbol:  string; strategyName: string; testAmount: number; 
-        strategiesCount: number; insertGasRecordsInDB: boolean; insertGasRecordsInFile: boolean}) => {
+        strategiesCount: number; insertGasRecordsInDB: boolean; writeGasRecordsInFile: boolean}) => {
         
         let underlyingTokenSymbol: string
+        let gasRecordsFileName: string
         if (command.symbol == null) {
             console.log("NO TOKEN PASSED FROM CMD..")
+            gasRecordsFileName = "AllTokenStrategiesGasRecords_" + Date.now().toString();
         } else {
             underlyingTokenSymbol = command.symbol.toString().toUpperCase()
             console.log("Underlying token Symbol from CMD: ", underlyingTokenSymbol);
+            gasRecordsFileName = underlyingTokenSymbol + "_" + Date.now().toString();
         }
         console.log("Test Amount from CMD: ", command.testAmount)
         
@@ -775,12 +779,7 @@ describe("OptyTokenBasicPool", async () => {
                     );
                 }
             );
-            // let strategyDetails: string;
-            // let setStrategyTxGasUsed: number = 0;
-            //         let scoreStrategyTxGasUsed: number = 0;
-            //         let setAndScoreStrategyTotalGasUsed: number = 0;
-            //         let userDepositRebalanceTxGasUsed: number = 0;
-            //         let userWithdrawRebalanceTxGasUsed: number = 0;
+            
             let allStrategiesGasUsedRecords: { dateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
             let allStrategyNames = allStrategies[strategiesTokenKey].basic.map(element => element.strategyName.toLowerCase())
             /*  Iterating through each strategy one by one, setting, approving and scroing the each 
@@ -1431,9 +1430,31 @@ describe("OptyTokenBasicPool", async () => {
                     })
                 }
 
-                if (command.insertGasRecordsInFile) {
+                if (command.writeGasRecordsInFile) {
                     console.log("****    Coming into putting records into FILE    ****")
-                    //  TODO: Generate JSON file for gas records
+                    let path = process.env.PWD;
+                    if (path?.endsWith("earn-protocol")){
+                        path = path + "/test/gasRecordFiles/"
+                    } else if (path?.endsWith("test")) {
+                        path = path + "/gasRecordFiles/"
+                    }
+                    
+                    const fileName: string = path + gasRecordsFileName + ".json"
+                    
+                    fs.stat(fileName, async function(err: { code: string; } | null, stat: any) {
+                        if(err == null) {
+                            console.log('File exists, therefore appending..');
+                            await appendInFile(fileName, tokenStrategyGasUsedRecord)
+                            console.log("appending done..")
+                            // await formatFile(fileName);
+                        } else if(err.code === 'ENOENT') {
+                            // file does not exist
+                            console.log("File doesn't exists.. therefore writing..")
+                            await writeInFile(fileName, tokenStrategyGasUsedRecord)
+                        } else {
+                            console.log('Some other error: ', err.code);
+                        }
+                    });
                 }
                 
             });
