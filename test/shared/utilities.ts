@@ -116,18 +116,19 @@ export async function fundWallet(
 
 export async function insertGasUsedRecordsIntoDB(
     dateAndTime: number,
-    tokenName: string,
+    tokenSymbol: string,
     strategyName: string,
     setStrategyGasUsed: number,
     scoreStrategyGasUsed: number,
     setAndScoreStrategyGasUsed: number,
     userDepositRebalanceTxGasUsed: number,
-    userWithdrawRebalanceTxGasUsed: number
+    userWithdrawRebalanceTxGasUsed: number,
+    runTimeVersion: string
 ): Promise<number> {
     return new Promise(async (resolve, reject) => {
         try {
             const res = await pool.query(
-                `INSERT INTO public."gasRecords" VALUES (${dateAndTime},'${tokenName}','${strategyName}',${setStrategyGasUsed},${scoreStrategyGasUsed},${setAndScoreStrategyGasUsed},${userDepositRebalanceTxGasUsed},${userWithdrawRebalanceTxGasUsed})`
+                `INSERT INTO public."gasRecords" VALUES (${dateAndTime},'${tokenSymbol}','${strategyName}',${setStrategyGasUsed},${scoreStrategyGasUsed},${setAndScoreStrategyGasUsed},${userDepositRebalanceTxGasUsed},${userWithdrawRebalanceTxGasUsed},'${runTimeVersion}')`
             );
             resolve(res.rowCount);
         } catch (error) {
@@ -168,15 +169,15 @@ export async function appendInFile(fileName: string, data:any) {
 
 async function formatFile(fileName: string) {
     await fs.readFile(fileName, 'utf8', async function (err: any,data: string) {
-        console.log("ENTERED loop-3")
+        // console.log("ENTERED loop-3")
         if (err) {
           return console.log(err);
         }
-        console.log("Data: ", data)
+        // console.log("Data: ", data)
         var result = data.replace(/}","{/g, ',');
         var final_data = JSON.parse(result)
-        console.log("Result: ", final_data)
-        console.log("loop-4")
+        // console.log("Result: ", final_data)
+        // console.log("loop-4")
         await writeInFile(fileName, final_data);
       });
 }

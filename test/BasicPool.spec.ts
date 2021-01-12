@@ -43,20 +43,25 @@ program
     .option("-sc, --strategiesCount <number>","number of strategies you want to run",0)
     .option("-db, --insertGasRecordsInDB <boolean>", "Insert GasUsed Records into DB",false)
     .option("-wf, --writeGasRecordsInFile <boolean>", "Generate JSON file having all the GasUsed Records", false)
+    .option("-v, --runTimeversion <string>", "version of the gasUsed records stored", "0.0.0")
     .usage("-s <token-symbol> ")
     .version("0.0.1")
     .action(async (command: { symbol:  string; strategyName: string; testAmount: number; 
-        strategiesCount: number; insertGasRecordsInDB: boolean; writeGasRecordsInFile: boolean}) => {
+        strategiesCount: number; insertGasRecordsInDB: boolean; writeGasRecordsInFile: boolean;
+        runTimeversion: string}) => {
         
         let underlyingTokenSymbol: string
         let gasRecordsFileName: string
+        let testScriptRunTimeDateAndTime: number
         if (command.symbol == null) {
             console.log("NO TOKEN PASSED FROM CMD..")
-            gasRecordsFileName = "AllTokenStrategiesGasRecords_" + Date.now().toString();
+            testScriptRunTimeDateAndTime = Date.now();
+            gasRecordsFileName = "AllTokenStrategiesGasRecords_" + testScriptRunTimeDateAndTime.toString();
         } else {
             underlyingTokenSymbol = command.symbol.toString().toUpperCase()
             console.log("Underlying token Symbol from CMD: ", underlyingTokenSymbol);
-            gasRecordsFileName = underlyingTokenSymbol + "_" + Date.now().toString();
+            testScriptRunTimeDateAndTime = Date.now();
+            gasRecordsFileName = underlyingTokenSymbol + "_" + testScriptRunTimeDateAndTime.toString();
         }
         console.log("Test Amount from CMD: ", command.testAmount)
         
@@ -99,7 +104,7 @@ interface DefiPools {
 // }
 interface GasUsedRecords {
     [id: string] : {
-        GasRecords: { dateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
+        GasRecords: { testScriptRunDateAndTime: number; strategyRunDateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[];
     };
 };
 
@@ -780,7 +785,7 @@ describe("OptyTokenBasicPool", async () => {
                 }
             );
             
-            let allStrategiesGasUsedRecords: { dateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
+            let allStrategiesGasUsedRecords: { testScriptRunDateAndTime: number; strategyRunDateAndTime: number; strategyName: string; setStrategy: number; scoreStrategy: number; setAndScoreStrategy: number; userDepositRebalanceTx: number; userWithdrawRebalanceTx: number; }[] = []
             let allStrategyNames = allStrategies[strategiesTokenKey].basic.map(element => element.strategyName.toLowerCase())
             /*  Iterating through each strategy one by one, setting, approving and scroing the each 
                 strategy and then making userDepositRebalance() call */
@@ -1381,7 +1386,8 @@ describe("OptyTokenBasicPool", async () => {
 
                 // TODO: Add POOL NAME, OUTPUT TOKEN, isBORROW - Deepanshu
                 let strategyGasUsedJson = {
-                    dateAndTime: Date.now(),
+                    testScriptRunDateAndTime: testScriptRunTimeDateAndTime,
+                    strategyRunDateAndTime: Date.now(),
                     strategyName: strategies.strategyName,
                     setStrategy: setStrategyTxGasUsed,
                     scoreStrategy: scoreStrategyTxGasUsed,
@@ -1419,9 +1425,9 @@ describe("OptyTokenBasicPool", async () => {
                 if (command.insertGasRecordsInDB) {
                     console.log("****    Coming INTO PUTTING THE DATA INTO DB    ****")
                     allStrategiesGasUsedRecords.forEach(async (gasRecordItem) => {
-                        const inserQueryResponse: number = await insertGasUsedRecordsIntoDB(gasRecordItem.dateAndTime, strategiesTokenKey, gasRecordItem.strategyName,
+                        const inserQueryResponse: number = await insertGasUsedRecordsIntoDB(testScriptRunTimeDateAndTime, strategiesTokenKey, gasRecordItem.strategyName,
                         gasRecordItem.setStrategy, gasRecordItem.scoreStrategy, gasRecordItem.setAndScoreStrategy, 
-                        gasRecordItem.userDepositRebalanceTx, gasRecordItem.userWithdrawRebalanceTx)
+                        gasRecordItem.userDepositRebalanceTx, gasRecordItem.userWithdrawRebalanceTx, command.runTimeversion)
                         console.log("Checking row is inserted or not....")
                         expect(inserQueryResponse).to.equal(
                             1,
