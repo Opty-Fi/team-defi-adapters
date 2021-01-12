@@ -1,0 +1,24 @@
+{
+    "WETH": {
+        "GasRecords": [
+            {
+                "dateAndTime": 1610466606765,
+                "strategyName": "WETH-deposit-YEARN-yWETH",
+                "setStrategy": 70301,
+                "scoreStrategy": 35196,
+                "setAndScoreStrategy": 105497,
+                "userDepositRebalanceTx": 222031,
+                "userWithdrawRebalanceTx": 312098
+            },
+            {
+                "dateAndTime": 1610466624105,
+                "strategyName": "WETH-deposit-HARVEST-fWETH",
+                "setStrategy": 87860,
+                "scoreStrategy": 35196,
+                "setAndScoreStrategy": 123056,
+                "userDepositRebalanceTx": 301470,
+                "userWithdrawRebalanceTx": 84315
+            }
+        ]
+    }
+}
