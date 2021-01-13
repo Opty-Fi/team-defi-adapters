@@ -192,7 +192,10 @@ describe("OptyTokenBasicPool", async () => {
             "\n" + `------ Deploying Registry, RiskManager and StrategyManager Contracts for ${underlyingTokenSymbol}---------` + "\n"
         );
         //  Deploying Registry, RiskManager and StrategyManager Contract
-        optyRegistry = await deployContract(ownerWallet, OptyRegistry);
+        optyRegistry = await deployContract(ownerWallet, OptyRegistry, [],
+            {
+                gasLimit: 5648580,
+            });
         assert.isDefined(optyRegistry, "OptyRegistry contract not deployed");
         console.log("Registry: ", optyRegistry.address);
 
@@ -797,7 +800,7 @@ describe("OptyTokenBasicPool", async () => {
                     let setAndScoreStrategyTotalGasUsed: number = 0;
                     let userDepositRebalanceTxGasUsed: number = 0;
                     let userWithdrawRebalanceTxGasUsed: number = 0;
-                    console.log("Strategy iterator count: ", index)
+                    // console.log("Strategy iterator count: ", index)
                     // Note: Keep this condition for future specific strategy testing purpose - Deepanshu
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "HBTC-deposit-CURVE-hCRV") {
                     // if (allStrategies[strategiesTokenKey].basic[index].strategyName == "DAI-deposit-AAVE-aDAI") {
