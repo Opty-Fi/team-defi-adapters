@@ -148,37 +148,38 @@ export async function writeInFile(fileName: string, data: any) {
     });
 }
 
-export async function appendInFile(fileName: string, data:any) {
-    await fs.appendFileSync(fileName, JSON.stringify("\,"), "utf8", function (err: any) {
+export async function appendInFile(fileName: string, data: any) {
+    await fs.appendFileSync(fileName, JSON.stringify(","), "utf8", function (err: any) {
         if (err) {
             console.log("An error occured while appending JSON Object to File.");
             return console.log(err);
         }
         console.log(fileName, " file has been saved.-- Append-1");
     });
-    await fs.appendFileSync(fileName, JSON.stringify(data), "utf8", function (err: any) {
+    await fs.appendFileSync(fileName, JSON.stringify(data), "utf8", function (
+        err: any
+    ) {
         if (err) {
             console.log("An error occured while appending JSON Object to File.");
             return console.log(err);
         }
         console.log(fileName, " file has been saved.-- Append-2");
     });
-    console.log("last STEP..")
+    console.log("last STEP..");
     await formatFile(fileName);
 }
 
 async function formatFile(fileName: string) {
-    await fs.readFile(fileName, 'utf8', async function (err: any,data: string) {
+    await fs.readFile(fileName, "utf8", async function (err: any, data: string) {
         // console.log("ENTERED loop-3")
         if (err) {
-          return console.log(err);
+            return console.log(err);
         }
         // console.log("Data: ", data)
-        var result = data.replace(/}","{/g, ',');
-        var final_data = JSON.parse(result)
+        var result = data.replace(/}","{/g, ",");
+        var final_data = JSON.parse(result);
         // console.log("Result: ", final_data)
         // console.log("loop-4")
         await writeInFile(fileName, final_data);
-      });
+    });
 }
-
