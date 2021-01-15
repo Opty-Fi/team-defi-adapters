@@ -8,7 +8,7 @@ import "../../interfaces/fulcrum/IFulcrum.sol";
 import "../../libraries/SafeMath.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 
-contract FulcrumCodeprovider is ICodeProvider {
+contract FulcrumCodeProvider is ICodeProvider {
     using SafeMath for uint256;
 
     function getDepositSomeCodes(

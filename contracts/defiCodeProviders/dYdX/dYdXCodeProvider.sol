@@ -8,7 +8,7 @@ import "../../interfaces/dydx/IdYdX.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../utils/Modifiers.sol";
 
-contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
+contract dYdXCodeProvider is ICodeProvider, Modifiers {
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
 
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
