@@ -10,20 +10,22 @@ import {
     writeInFile,
 } from "./shared/utilities";
 import OptyTokenBasicPool from "../build/BasicPool.json";
+import OptyTokenBasicPoolMkr from "../build/BasicPoolMkr.json";
 import OptyRegistry from "../build/Registry.json";
 import RiskManager from "../build/RiskManager.json";
 import Gatherer from "../build/Gatherer.json";
-import OptyStrategyManager from "../build/StrategyManager.json";
-import CompoundDepositPoolProxy from "../build/CompoundDepositPoolProxy.json";
-import AaveDepositPoolProxy from "../build/AaveDepositPoolProxy.json";
-import AaveBorrowPoolProxy from "../build/AaveBorrowPoolProxy.json";
-import CurveDepositPoolProxy from "../build/CurveDepositPoolProxy.json";
-import CreamDepositPoolProxy from "../build/CreamDepositPoolProxy.json";
-import DForceDepositPoolProxy from "../build/DForceDepositPoolProxy.json";
-import FulcrumDepositPoolProxy from "../build/FulcrumDepositPoolProxy.json";
-import HarvestDepositPoolProxy from "../build/HarvestDepositPoolProxy.json";
-import YearnDepositPoolProxy from "../build/YearnDepositPoolProxy.json";
-import dYdXDepositPoolProxy from "../build/dYdXDepositPoolProxy.json";
+import OptyStrategyCodeProvider from "../build/StrategyCodeProvider.json";
+import CompoundCodeProvider from "../build/CompoundCodeProvider.json";
+import AaveCodeProvider from "../build/AaveCodeProvider.json";
+// import AaveBorrowPoolProxy from "../build/AaveBorrowPoolProxy.json";
+import CurvePoolCodeProvider from "../build/CurvePoolCodeProvider.json";
+import CurveSwapCodeProvider from "../build/CurveSwapCodeProvider.json";
+import CreamCodeProvider from "../build/CreamCodeProvider.json";
+import DForceCodeProvider from "../build/DForceCodeProvider.json";
+import FulcrumCodeProvider from "../build/FulcrumCodeProvider.json";
+import HarvestCodeProvider from "../build/HarvestCodeProvider.json";
+import YearnCodeProvider from "../build/YearnCodeProvider.json";
+import dYdXCodeProvider from "../build/dYdXCodeProvider.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
 import allStrategies from "./shared/strategies.json";
@@ -159,15 +161,15 @@ program
 
             //  Json of PoolProxyContract for storing the Abi's of PoolProxyContracts
             let poolProxyContract: PoolProxyContract = {
-                CompoundDepositPoolProxy,
-                AaveDepositPoolProxy,
-                FulcrumDepositPoolProxy,
-                DForceDepositPoolProxy,
-                HarvestDepositPoolProxy,
-                YearnDepositPoolProxy,
-                CurveDepositPoolProxy,
-                dYdXDepositPoolProxy,
-                CreamDepositPoolProxy,
+                CompoundCodeProvider,
+                AaveCodeProvider,
+                FulcrumCodeProvider,
+                DForceCodeProvider,
+                HarvestCodeProvider,
+                YearnCodeProvider,
+                CurvePoolCodeProvider,
+                dYdXCodeProvider,
+                CreamCodeProvider,
             };
             //  Interface for mapping the PoolProxy Contracts deployed with their variable name for using them in the code
             interface OptyPoolProxyContractVariables {
@@ -217,7 +219,7 @@ program
                 let optyRegistry: Contract;
                 let riskManager: Contract;
                 let gatherer: Contract;
-                let optyStrategyManager: Contract;
+                let optyStrategyCodeProvider: Contract;
                 let profile = "basic";
                 let userTokenBalanceWei;
                 let userInitialTokenBalance: number;
@@ -244,7 +246,7 @@ program
                     );
                     //  Deploying Registry, RiskManager and StrategyManager Contract
                     optyRegistry = await deployContract(ownerWallet, OptyRegistry, [], {
-                        gasLimit: 5648580,
+                        gasLimit: 5141327,
                     });
                     assert.isDefined(
                         optyRegistry,
@@ -258,20 +260,22 @@ program
                     assert.isDefined(riskManager, "RiskManager contract not deployed");
                     console.log("Risk Manager: ", riskManager.address);
 
-                    gatherer = await deployContract(ownerWallet, Gatherer);
-                    assert.isDefined(riskManager, "Gatherer contract not deployed");
+                    gatherer = await deployContract(ownerWallet, Gatherer, [
+                        optyRegistry.address,
+                    ]);
+                    assert.isDefined(gatherer, "Gatherer contract not deployed");
                     console.log("Gatherer: ", gatherer.address);
 
-                    optyStrategyManager = await deployContract(
+                    optyStrategyCodeProvider = await deployContract(
                         ownerWallet,
-                        OptyStrategyManager,
+                        OptyStrategyCodeProvider,
                         [optyRegistry.address]
                     );
                     assert.isDefined(
-                        optyStrategyManager,
-                        "OptyStrategyManager contract not deployed"
+                        optyStrategyCodeProvider,
+                        "OptyStrategyCodeProvider contract not deployed"
                     );
-                    console.log("Strategy Manager: ", optyStrategyManager.address);
+                    console.log("Strategy Manager: ", optyStrategyCodeProvider.address);
 
                     /*
             Interating through list of underlyingTokens and approving them if not approved
@@ -306,20 +310,39 @@ program
                             let count = 1;
                             for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                                 //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
-                                // if (optyPoolProxyContractsKey == "dYdXDepositPoolProxy" || optyPoolProxyContractsKey == "CurveDepositPoolProxy") {
+                                // if (optyPoolProxyContractsKey == "dYdXCodeProvider" || optyPoolProxyContractsKey == "CurvePoolCodeProvider") {
                                 if (count <= 9) {
                                     if (
                                         poolProxyContract.hasOwnProperty(
                                             optyPoolProxyContractsKey.toString()
                                         )
                                     ) {
-                                        //  Check if key contains Borrow keyword or not, If yes then deploying BorrowPoolProxy
-                                        //  contract else deploy DepositPoolProxy Contract
+                                        // console.log(
+                                        //     "Entered into deploying Code Providers one by one.."
+                                        // );
+                                        //  In if condition, deploying the code provider contract with only registry address
+                                        //  and in else deploy CodeProvider Contract with registry and gatherer addresses
                                         if (
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .includes("Borrow")
+                                                .toLowerCase() == "dydxcodeprovider" ||
+                                            optyPoolProxyContractsKey
+                                                .toString()
+                                                .toLowerCase() == "aavecodeprovider" ||
+                                            optyPoolProxyContractsKey
+                                                .toString()
+                                                .toLowerCase() ==
+                                                "fulcrumcodeprovider" ||
+                                            optyPoolProxyContractsKey
+                                                .toString()
+                                                .toLowerCase() == "yearncodeprovider"
                                         ) {
+                                            console.log(
+                                                "==== 1. Depoying " +
+                                                    optyPoolProxyContractsKey +
+                                                    "  Contract ===="
+                                            );
+
                                             optyPoolProxyContract = await deployContract(
                                                 ownerWallet,
                                                 poolProxyContract[
@@ -327,30 +350,27 @@ program
                                                 ],
                                                 [optyRegistry.address]
                                             );
-                                        } else if (
-                                            optyPoolProxyContractsKey
-                                                .toString()
-                                                .toLowerCase() ==
-                                            "harvestdepositpoolproxy"
-                                        ) {
+                                        } else {
                                             console.log(
-                                                "==== Depoying HarvestDepositPoolProxy  Contract ===="
+                                                "==== 2. Depoying " +
+                                                    optyPoolProxyContractsKey +
+                                                    "  Contract ===="
                                             );
                                             optyPoolProxyContract = await deployContract(
                                                 ownerWallet,
                                                 poolProxyContract[
                                                     optyPoolProxyContractsKey
                                                 ],
-                                                [gatherer.address]
-                                            );
-                                        } else {
-                                            optyPoolProxyContract = await deployContract(
-                                                ownerWallet,
-                                                poolProxyContract[
-                                                    optyPoolProxyContractsKey
-                                                ]
+                                                [
+                                                    optyRegistry.address,
+                                                    gatherer.address,
+                                                ],
+                                                {
+                                                    gasLimit: 6700000,
+                                                }
                                             );
                                         }
+
                                         optyPoolProxyContractVariables[
                                             optyPoolProxyContractsKey
                                         ] = optyPoolProxyContract;
@@ -365,10 +385,16 @@ program
                                         //  mapping to tokens, approve LP/CP, map Lp to PoolProxy Contract and setting the
                                         //  Lp to LpToken
                                         for (defiPoolsKey in defiPools) {
+                                            // console.log(
+                                            //     "** Coming in DEFIPOOLS LOOP **"
+                                            // );
                                             if (
                                                 defiPoolsKey.toString() ==
                                                 optyPoolProxyContractsKey.toString()
                                             ) {
+                                                // console.log(
+                                                //     "** Coming in if condition **"
+                                                // );
                                                 let defiPoolsUnderlyingTokens: DefiPools =
                                                     defiPools[defiPoolsKey];
                                                 //  Iteracting through all the underlying tokens available corresponding to this
@@ -376,7 +402,7 @@ program
                                                 for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
                                                     // Note: Keeping this for testing strategies for specific pools - Deepanshu
                                                     // if (defiPoolsUnderlyingTokensKey == "dai+usdc+usdt") {
-
+                                                    // console.log("1st Approval");
                                                     await approveTokenLpToken(
                                                         defiPoolsUnderlyingTokens[
                                                             defiPoolsUnderlyingTokensKey
@@ -385,6 +411,7 @@ program
                                                             defiPoolsUnderlyingTokensKey
                                                         ].tokens
                                                     );
+                                                    // console.log("2nd Approval");
                                                     await setTokensHashToTokens(
                                                         defiPoolsUnderlyingTokens[
                                                             defiPoolsUnderlyingTokensKey
@@ -395,6 +422,7 @@ program
                                                             .toString()
                                                             .includes("Borrow")
                                                     ) {
+                                                        // console.log("Borrow Approval");
                                                         await approveLpCpAndMapLpToPoolProxy(
                                                             defiPoolsUnderlyingTokens[
                                                                 defiPoolsUnderlyingTokensKey
@@ -405,6 +433,7 @@ program
                                                             true
                                                         );
                                                     } else {
+                                                        // console.log("3rd Approval");
                                                         await approveLpCpAndMapLpToPoolProxy(
                                                             defiPoolsUnderlyingTokens[
                                                                 defiPoolsUnderlyingTokensKey
@@ -421,6 +450,7 @@ program
                                                         ].lpToken !=
                                                         "0x0000000000000000000000000000000000000000"
                                                     ) {
+                                                        // console.log("4th Approval");
                                                         await optyRegistry.setLiquidityPoolToLPToken(
                                                             defiPoolsUnderlyingTokens[
                                                                 defiPoolsUnderlyingTokensKey
@@ -433,6 +463,7 @@ program
                                                             ].lpToken
                                                         );
                                                     }
+                                                    // console.log("5th Approval");
                                                     let mapResult = await optyRegistry.liquidityPoolToLPTokens(
                                                         defiPoolsUnderlyingTokens[
                                                             defiPoolsUnderlyingTokensKey
@@ -453,6 +484,7 @@ program
                                                 }
                                             }
                                         }
+                                        // }
                                     }
                                 }
                                 count++;
@@ -466,42 +498,42 @@ program
                     console.log("IT SHOULD BE PRINTED ONLY ONCE..");
                 });
 
-                it("should check if the pool proxy contracts are deployed", async () => {
+                it("should check if the code provider contracts are deployed", async () => {
                     assert.isOk(
-                        optyPoolProxyContractVariables.CompoundDepositPoolProxy.address,
-                        "CompoundDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.CompoundCodeProvider.address,
+                        "CompoundCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.AaveDepositPoolProxy.address,
-                        "AaveDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.AaveCodeProvider.address,
+                        "AaveCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.FulcrumDepositPoolProxy.address,
-                        "FulcrumDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.FulcrumCodeProvider.address,
+                        "FulcrumCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.DForceDepositPoolProxy.address,
-                        "DForceDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.DForceCodeProvider.address,
+                        "DForceCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.HarvestDepositPoolProxy.address,
-                        "HarvestDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.HarvestCodeProvider.address,
+                        "HarvestCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.YearnDepositPoolProxy.address,
-                        "YearnDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.YearnCodeProvider.address,
+                        "YearnCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.CurveDepositPoolProxy.address,
-                        "CurveDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.CurvePoolCodeProvider.address,
+                        "CurvePoolCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.dYdXDepositPoolProxy.address,
-                        "dYdXDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.dYdXCodeProvider.address,
+                        "dYdXCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.CreamDepositPoolProxy.address,
-                        "CreamDepositPoolProxy Contract is not deployed"
+                        optyPoolProxyContractVariables.CreamCodeProvider.address,
+                        "CreamCodeProvider Contract is not deployed"
                     );
                 });
 
@@ -513,13 +545,13 @@ program
                 for (strategiesTokenKey in allStrategies) {
                     if (command.symbol == null) {
                         console.log("coming in when no symbol is passed!");
-                        // if (
-                        //     strategiesTokenKey.toUpperCase() != "REP"
-                        // ) {
                         if (
-                            strategiesTokenKey.toUpperCase() == "DAI" ||
-                            strategiesTokenKey.toUpperCase() == "USDC"
+                            strategiesTokenKey.toUpperCase() != "REP"
                         ) {
+                        // if (
+                        //     strategiesTokenKey.toUpperCase() == "DAI" ||
+                        //     strategiesTokenKey.toUpperCase() == "USDC"
+                        // ) {
                             await runTokenTestSuite(strategiesTokenKey);
                         }
                     } else {
@@ -594,24 +626,41 @@ program
                                         .soliditySHA3(["address[]"], [tokens])
                                         .toString("hex");
 
-                                //  Deploying the BasicPool Contract each time for every underlying token
-                                optyTokenBasicPool = await deployContract(
-                                    ownerWallet,
-                                    OptyTokenBasicPool,
-                                    [
-                                        profile,
-                                        riskManager.address,
-                                        underlyingToken,
-                                        optyStrategyManager.address,
-                                        "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
-                                        optyPoolProxyContractVariables
-                                            .dYdXDepositPoolProxy.address,
-                                    ]
-                                );
+                                //  Deploying the BasicPool Contract each time for MKR underlying token
+                                if (
+                                    underlyingToken ==
+                                    "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"
+                                ) {
+                                    optyTokenBasicPool = await deployContract(
+                                        ownerWallet,
+                                        OptyTokenBasicPoolMkr,
+                                        [
+                                            optyRegistry.address,
+                                            riskManager.address,
+                                            underlyingToken,
+                                            optyStrategyCodeProvider.address,
+                                        ]
+                                    );
+                                } else {
+                                    //  Deploying the BasicPool Contract each time for every underlying token
+                                    optyTokenBasicPool = await deployContract(
+                                        ownerWallet,
+                                        OptyTokenBasicPool,
+                                        [
+                                            optyRegistry.address,
+                                            riskManager.address,
+                                            underlyingToken,
+                                            optyStrategyCodeProvider.address,
+                                        ]
+                                    );
+                                }
 
                                 assert.isDefined(
                                     optyTokenBasicPool,
                                     "OptyTokenBasicPool contract not deployed"
+                                );
+                                console.log(
+                                    "** OPTY BASIC POOL CONTRACT DEPLOYED.. **"
                                 );
                             });
 
@@ -718,7 +767,7 @@ program
                                 }
                             );
 
-                            it(
+                            it.skip(
                                 "should deposit using userDeposit() for " +
                                     strategiesTokenKey,
                                 async () => {
@@ -795,7 +844,7 @@ program
                                 }
                             );
 
-                            it(
+                            it.skip(
                                 "should withdraw using userWithdraw() for " +
                                     strategiesTokenKey,
                                 async () => {
@@ -1152,7 +1201,7 @@ program
                                                             strategy["_isStrategy"],
                                                             "Strategy is not approved"
                                                         );
-
+                                                        console.log("** Strategy Score: ", index + 1)
                                                         let scoreStrategyTx = await optyRegistry.scoreStrategy(
                                                             strategyHash.toString(),
                                                             index + 1
@@ -1205,6 +1254,7 @@ program
                                                     let bestStrategy = await optyRegistry.getStrategy(
                                                         bestStrategyHash.toString()
                                                     );
+                                                    console.log("Best strategy: ", bestStrategy)
 
                                                     //  Function call to test userDepositRebalance()
                                                     await testUserDepositRebalance();
@@ -1538,17 +1588,34 @@ program
                                         console.log("STEP-2");
                                         console.log("Rounding delta: ", roundingDelta);
                                         console.log(
-                                            "less amount 11: ",
-                                            ethers.utils.formatEther(
+                                            "---- Actual amount less than rounding delta: ",
+                                            ethers.utils.formatUnits(
                                                 initialUserOptyTokenBalanceWei.sub(
                                                     roundingDelta
-                                                )
+                                                ), underlyingTokenDecimals
                                             )
                                         );
-                                        const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdraw(
-                                            initialUserOptyTokenBalanceWei.sub(
-                                                roundingDelta
-                                            ),
+                                        // console.log("---- Manual withdrawal amount: ", ethers.utils.formatUnits(expandToTokenDecimals(5999999999,9),underlyingTokenDecimals))
+                                        console.log("---- Manual withdrawal amount: ", ethers.utils.formatUnits(initialUserOptyTokenBalanceWei,underlyingTokenDecimals))
+                                        console.log(
+                                            "****  BEFORE WITHDRAW TXN, Actual withdrawal amount: ",
+                                            ethers.utils.formatUnits(
+                                                initialUserOptyTokenBalanceWei,
+                                                underlyingTokenDecimals
+                                            )
+                                        );
+                                        // const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdrawRebalance(
+                                        //     initialUserOptyTokenBalanceWei.sub(
+                                        //         roundingDelta
+                                        //     ),
+                                        //     {
+                                        //         gasLimit: 4590162,
+                                        //     }
+                                        // );
+                                        // expandToTokenDecimals(5999999999,9) -- working
+                                        // (initialUserOptyTokenBalanceWei.sub(expandToTokenDecimals(1,18))).sub(1)
+                                        const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdrawRebalance(
+                                            initialUserOptyTokenBalanceWei,
                                             {
                                                 gasLimit: 4590162,
                                             }
@@ -1614,9 +1681,14 @@ program
                                             "noOfTokensReceived from receipt: ",
                                             ethers.utils.formatEther(noOfTokensReceived)
                                         );
+                                        // expect(
+                                        //     afterUserOptyTokenBalanceWei.eq(
+                                        //         roundingDelta
+                                        //     )
+                                        // ).to.be.true;
                                         expect(
                                             afterUserOptyTokenBalanceWei.eq(
-                                                roundingDelta
+                                                0
                                             )
                                         ).to.be.true;
 
@@ -1652,6 +1724,7 @@ program
                                                 noOfTokensReceivedFromFormula
                                             )
                                         ) {
+                                            console.log("After token balance matched with tokens calculated from formula....")
                                             expect(afterUserTokenBalanceWei).to.equal(
                                                 noOfTokensReceivedFromFormula
                                             );
@@ -1919,7 +1992,7 @@ program
                             poolProxy
                         );
                     } else {
-                        await optyRegistry.setLiquidityPoolToDepositPoolProxy(
+                        await optyRegistry.setLiquidityPoolToCodeProvider(
                             pool,
                             poolProxy
                         );

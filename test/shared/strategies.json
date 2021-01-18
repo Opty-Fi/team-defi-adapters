@@ -13,23 +13,23 @@
                 ]
             },
             {
-                "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
-                "strategy": [
-                    {
-                        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
-                        "outputTokenSymbol": "cDAI+cUSDC",
-                        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
-                        "isBorrow": false
-                    }
-                ]
-            },
-            {
                 "strategyName": "DAI-deposit-AAVE-aDAI",
                 "strategy": [
                     {
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aDAI",
                         "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
+                "strategy": [
+                    {
+                        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                        "outputTokenSymbol": "cDAI+cUSDC",
+                        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
                         "isBorrow": false
                     }
                 ]
