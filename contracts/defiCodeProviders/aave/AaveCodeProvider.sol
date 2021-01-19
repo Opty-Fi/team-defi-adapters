@@ -8,23 +8,40 @@ import "../../interfaces/aave/ILendingPoolAddressesProvider.sol";
 import "../../interfaces/aave/IAave.sol";
 import "../../interfaces/aave/IAToken.sol";
 import "../../interfaces/ERC20/IERC20.sol";
+import "../../libraries/SafeMath.sol";
+import "../../utils/Modifiers.sol";
 
-contract AaveCodeProvider is ICodeProvider {
+contract AaveCodeProvider is ICodeProvider, Modifiers {
+    using SafeMath for uint256;
+
+    uint256 public maxExposure; // basis points
+
+    constructor(address _registry) public Modifiers(_registry) {
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address _liquidityPoolAddressProvider, address _underlyingToken) public view override returns (uint256) {
+        return IAave(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
+    }
+
     function getDepositSomeCodes(
         address,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, uint256(0)));
-        _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, _amounts[0]));
-        _codes[2] = abi.encode(
-            _lendingPool,
-            abi.encodeWithSignature("deposit(address,uint256,uint16)", _underlyingTokens[0], _amounts[0], uint16(0))
-        );
+        if(_amounts[0] > 0) {
+            address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+            address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
+            uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingTokens[0], _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, uint256(0)));
+            _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, _depositAmount));
+            _codes[2] = abi.encode(
+                _lendingPool,
+                abi.encodeWithSignature("deposit(address,uint256,uint16)", _underlyingTokens[0], _depositAmount, uint16(0))
+            );
+        }
     }
 
     function getDepositAllCodes(
@@ -43,11 +60,13 @@ contract AaveCodeProvider is ICodeProvider {
         address _liquidityPoolAddressProvider,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(
-            getLiquidityPoolToken(_underlyingTokens[0], _liquidityPoolAddressProvider),
-            abi.encodeWithSignature("redeem(uint256)", _amount)
-        );
+        if(_amount > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPoolAddressProvider),
+                abi.encodeWithSignature("redeem(uint256)", _amount)
+            );
+        }
     }
 
     function getWithdrawAllCodes(
@@ -221,11 +240,28 @@ contract AaveCodeProvider is ICodeProvider {
         revert("!empty");
     }
 
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
+    }
+
     function _getLendingPool(address _lendingPoolAddressProvider) internal view returns (address) {
         return ILendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPool();
     }
 
     function _getLendingPoolCore(address _lendingPoolAddressProvider) internal view returns (address) {
         return ILendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPoolCore();
+    }
+
+    function _getDepositAmount(
+        address _liquidityPoolAddressProvider,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
+        _depositAmount = _amount;
+        uint256 _poolValue = getPoolValue(_liquidityPoolAddressProvider, _underlyingToken);
+        uint256 _limit = (_poolValue.mul(maxExposure)).div(uint256(10000));
+        if (_depositAmount > _limit) {
+            _depositAmount = _limit;
+        }
     }
 }

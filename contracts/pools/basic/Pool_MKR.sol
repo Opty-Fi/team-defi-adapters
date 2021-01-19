@@ -13,7 +13,7 @@ import "./../../StrategyCodeProvider.sol";
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
  */
-contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
+contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Address for address;
 
@@ -38,8 +38,8 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
     )
         public
         ERC20Detailed(
-            string(abi.encodePacked("op ", ERC20Detailed(_underlyingToken).name(), " basic", " pool")),
-            string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(), "BscPool")),
+            string(abi.encodePacked("op ", "Maker", " basic", " pool")),
+            string(abi.encodePacked("op", "MKR", "BscPool")),
             ERC20Detailed(_underlyingToken).decimals()
         )
         Modifiers(_registry)
