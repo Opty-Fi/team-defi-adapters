@@ -1,14 +1,15 @@
 {
     "opDAIBsc": [
-        "CompoundDepositPoolProxy",
-        "AaveDepositPoolProxy",
-        "FulcrumDepositPoolProxy",
-        "DForceDepositPoolProxy",
-        "HarvestDepositPoolProxy",
-        "YearnDepositPoolProxy",
-        "CurveDepositPoolProxy",
-        "dYdXDepositPoolProxy",
-        "CreamDepositPoolProxy"
+        "CompoundCodeProvider",
+        "AaveCodeProvider",
+        "FulcrumCodeProvider",
+        "DForceCodeProvider",
+        "HarvestCodeProvider",
+        "YearnCodeProvider",
+        "CurvePoolCodeProvider",
+        "CurveSwapCodeProvider",
+        "dYdXCodeProvider",
+        "CreamCodeProvider"
     ],
     "opDAIAdv": [
         "CompoundDepositPoolProxy",

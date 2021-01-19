@@ -13,23 +13,45 @@
                 ]
             },
             {
-                "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
-                "strategy": [
-                    {
-                        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
-                        "outputTokenSymbol": "cDAI+cUSDC",
-                        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
-                        "isBorrow": false
-                    }
-                ]
-            },
-            {
                 "strategyName": "DAI-deposit-AAVE-aDAI",
                 "strategy": [
                     {
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aDAI",
                         "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "DAI-deposit-HARVEST-fDAI",
+                "strategy": [
+                    {
+                        "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+                        "outputTokenSymbol": "fDAI",
+                        "outputToken": "0xab7fa2b2985bccfc13c6d86b1d5a17486ab1e04c",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "DAI-deposit-CURVE-3Crv",
+                "strategy": [
+                    {
+                        "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
+                        "outputTokenSymbol": "3Crv",
+                        "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
+                "strategy": [
+                    {
+                        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                        "outputTokenSymbol": "cDAI+cUSDC",
+                        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
                         "isBorrow": false
                     }
                 ]
@@ -107,28 +129,6 @@
                         "contract": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
                         "outputTokenSymbol": "crvPlain3andSUSD",
                         "outputToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
-                        "isBorrow": false
-                    }
-                ]
-            },
-            {
-                "strategyName": "DAI-deposit-CURVE-3Crv",
-                "strategy": [
-                    {
-                        "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                        "outputTokenSymbol": "3Crv",
-                        "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                        "isBorrow": false
-                    }
-                ]
-            },
-            {
-                "strategyName": "DAI-deposit-HARVEST-fDAI",
-                "strategy": [
-                    {
-                        "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                        "outputTokenSymbol": "fDAI",
-                        "outputToken": "0xab7fa2b2985bccfc13c6d86b1d5a17486ab1e04c",
                         "isBorrow": false
                     }
                 ]
