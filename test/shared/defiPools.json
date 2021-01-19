@@ -439,31 +439,6 @@
                 "0x4Fabb145d64652a948d72533023f6E7A623C7C53"
             ]
         },
-        "wbtc_crvRenWBTC": {
-            "pool": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
-            "lpToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
-            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
-        },
-        "wbtc_crvRenWSBTC": {
-            "pool": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
-            "lpToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
-            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
-        },
-        "wbtc_hCRV": {
-            "pool": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",
-            "lpToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
-            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
-        },
-        "renbtc_crvRenWBTC": {
-            "pool": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
-            "lpToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
-            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
-        },
-        "renbtc_crvRenWSBTC": {
-            "pool": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
-            "lpToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
-            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
-        },
         "3crv_gusd3CRV": {
             "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
             "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
@@ -503,6 +478,33 @@
             "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
             "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
             "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"]
+        }
+    },
+    "CurveSwapCodeProvider": {
+        "wbtc_crvRenWBTC": {
+            "pool": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
+            "lpToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "renbtc_crvRenWBTC": {
+            "pool": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
+            "lpToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+        },
+        "wbtc_crvRenWSBTC": {
+            "pool": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
+            "lpToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+        },
+        "renbtc_crvRenWSBTC": {
+            "pool": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
+            "lpToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+            "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+        },
+        "wbtc_hCRV": {
+            "pool": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",
+            "lpToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
+            "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
         },
         "hbtc": {
             "pool": "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",

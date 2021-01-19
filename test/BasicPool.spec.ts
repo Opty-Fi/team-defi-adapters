@@ -168,6 +168,7 @@ program
                 HarvestCodeProvider,
                 YearnCodeProvider,
                 CurvePoolCodeProvider,
+                CurveSwapCodeProvider,
                 dYdXCodeProvider,
                 CreamCodeProvider,
             };
@@ -311,7 +312,7 @@ program
                             for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                                 //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
                                 // if (optyPoolProxyContractsKey == "dYdXCodeProvider" || optyPoolProxyContractsKey == "CurvePoolCodeProvider") {
-                                if (count <= 9) {
+                                if (count <= 10) {
                                     if (
                                         poolProxyContract.hasOwnProperty(
                                             optyPoolProxyContractsKey.toString()
@@ -526,6 +527,10 @@ program
                     assert.isOk(
                         optyPoolProxyContractVariables.CurvePoolCodeProvider.address,
                         "CurvePoolCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyPoolProxyContractVariables.CurveSwapCodeProvider.address,
+                        "CurveSwapCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
                         optyPoolProxyContractVariables.dYdXCodeProvider.address,
