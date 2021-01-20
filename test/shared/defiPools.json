@@ -239,7 +239,7 @@
             "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
         }
     },
-    "YearnCodeProvider": {
+    "YVaultCodeProvider": {
         "dai": {
             "pool": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
             "lpToken": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",

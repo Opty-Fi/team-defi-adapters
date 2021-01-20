@@ -24,7 +24,8 @@ import CreamCodeProvider from "../build/CreamCodeProvider.json";
 import DForceCodeProvider from "../build/DForceCodeProvider.json";
 import FulcrumCodeProvider from "../build/FulcrumCodeProvider.json";
 import HarvestCodeProvider from "../build/HarvestCodeProvider.json";
-import YearnCodeProvider from "../build/YearnCodeProvider.json";
+// import YearnCodeProvider from "../build/YearnCodeProvider.json";
+import YVaultCodeProvider from "../build/YVaultCodeProvider.json";
 import dYdXCodeProvider from "../build/dYdXCodeProvider.json";
 import poolProxies from "./shared/poolProxies.json";
 import defiPools from "./shared/defiPools.json";
@@ -166,7 +167,7 @@ program
                 FulcrumCodeProvider,
                 DForceCodeProvider,
                 HarvestCodeProvider,
-                YearnCodeProvider,
+                YVaultCodeProvider,
                 CurvePoolCodeProvider,
                 CurveSwapCodeProvider,
                 dYdXCodeProvider,
@@ -336,7 +337,7 @@ program
                                                 "fulcrumcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .toLowerCase() == "yearncodeprovider"
+                                                .toLowerCase() == "yvaultcodeprovider"
                                         ) {
                                             console.log(
                                                 "==== 1. Depoying " +
@@ -521,8 +522,8 @@ program
                         "HarvestCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.YearnCodeProvider.address,
-                        "YearnCodeProvider Contract is not deployed"
+                        optyPoolProxyContractVariables.YVaultCodeProvider.address,
+                        "YVaultCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
                         optyPoolProxyContractVariables.CurvePoolCodeProvider.address,

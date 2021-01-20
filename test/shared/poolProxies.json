@@ -5,7 +5,7 @@
         "FulcrumCodeProvider",
         "DForceCodeProvider",
         "HarvestCodeProvider",
-        "YearnCodeProvider",
+        "YVaultCodeProvider",
         "CurvePoolCodeProvider",
         "CurveSwapCodeProvider",
         "dYdXCodeProvider",
