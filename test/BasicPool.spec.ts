@@ -1813,6 +1813,8 @@ program
                                                 roundingDelta
                                             )
                                         ).to.be.true;
+                                        // expect(afterUserOptyTokenBalanceWei.eq(0)).to.be
+                                        //    .true;
 
                                         console.log("STEP-3");
                                         console.log(
