@@ -1,5 +1,5 @@
 import { BigNumber, bigNumberify } from "ethers/utils";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import exchange from "./exchange.json";
 import addressAbis from "./AddressAbis.json";
 import tokenAddresses from "./TokenAddresses.json";
@@ -17,14 +17,17 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-export function expandToTokenDecimals(n: number, exponent: number): BigNumber {
-    return bigNumberify(n).mul(bigNumberify(10).pow(exponent));
+export function expandToTokenDecimals(n: number, exponent: number): ethers.BigNumber {
+    // bigNumberify(n).mul(bigNumberify(10).pow(exponent)); -> ethers_V4.0.48 working code (kept until testing gets completed)
+    return ethers.BigNumber.from(n).mul(
+        ethers.BigNumber.from("10").pow(ethers.BigNumber.from(exponent))
+    );
 }
 
 export async function fundWallet(
     tokenAddress: string,
     wallet: ethers.Wallet,
-    FUND_AMOUNT: ethers.utils.BigNumber
+    FUND_AMOUNT: ethers.BigNumber
 ) {
     let amount = "0x" + Number(FUND_AMOUNT).toString(16);
     const uniswapInstance = new ethers.Contract(
@@ -68,7 +71,7 @@ export async function fundWallet(
         // Instantiate Curve Swap contract
         let curveSwapContractInstance = new ethers.Contract(
             exchange.curveSwapContract.address,
-            exchange.curveSwapContract.abi,
+            <ethers.ContractInterface>exchange.curveSwapContract.abi,
             wallet
         );
 

@@ -1,6 +1,7 @@
 import chai, { assert, expect } from "chai";
-import { Contract, ethers, utils } from "ethers";
-import { solidity, deployContract } from "ethereum-waffle";
+// import { Contract, ethers, utils } from "ethers";
+import { Contract, ethers } from "ethers";
+import { solidity, MockProvider, deployContract } from "ethereum-waffle";
 
 import {
     appendInFile,
@@ -73,6 +74,11 @@ program
         "version of the gasUsed records stored",
         "0.0.0"
     )
+    .option(
+        "-cp, --codeProvider <string>",
+        "code provider to deploy if you want to give",
+        null
+    )
     .usage("-s <token-symbol> ")
     .version("0.0.1")
     .action(
@@ -84,6 +90,7 @@ program
             insertGasRecordsInDB: boolean;
             writeGasRecordsInFile: boolean;
             runTimeversion: string;
+            codeProvider: string;
         }) => {
             let underlyingTokenSymbol: string;
             let gasRecordsFileName: string;
@@ -122,7 +129,8 @@ program
                 console.error("ERROR: Invalid  TEST_AMOUNT entered for testing");
                 process.exit(1);
             }
-            let TEST_AMOUNT: ethers.utils.BigNumber;
+            // let TEST_AMOUNT: ethers.utils.BigNumber;
+            let TEST_AMOUNT: ethers.BigNumber;
 
             //  Interface for storing the Abi's of PoolProxy Contracts
             interface PoolProxyContract {
@@ -280,8 +288,8 @@ program
                     console.log("Strategy Manager: ", optyStrategyCodeProvider.address);
 
                     /*
-            Interating through list of underlyingTokens and approving them if not approved
-        */
+                        Interating through list of underlyingTokens and approving them if not approved
+                    */
                     let token: keyof typeof tokenAddresses;
                     for (token in tokenAddresses) {
                         if (token != "uniswapFactory") {
@@ -295,9 +303,9 @@ program
                     }
 
                     /*  
-            Iterating through poolProxies.json and getting the corresponding PoolProxy Contracts mapped to
-            respective op<XXX><Profile> Pool    
-        */
+                        Iterating through poolProxies.json and getting the corresponding PoolProxy Contracts mapped to
+                        respective op<XXX><Profile> Pool    
+                    */
                     for (poolProxiesKey in poolProxies) {
                         if (poolProxiesKey == "opDAIBsc") {
                             console.log(
@@ -307,13 +315,25 @@ program
                             let optyPoolProxyContracts = poolProxies[poolProxiesKey];
 
                             /*  
-                    Iterating through the list of PoolProxy Contracts for deploying them
-                */
+                                Iterating through the list of PoolProxy Contracts for deploying them
+                            */
                             let count = 1;
                             for (let optyPoolProxyContractsKey of optyPoolProxyContracts) {
                                 //  Note: Keeping this for testing particular Pool Proxy contract - Deepanshu
-                                // if (optyPoolProxyContractsKey == "dYdXCodeProvider" || optyPoolProxyContractsKey == "CurvePoolCodeProvider") {
-                                if (count <= 10) {
+                                // if (optyPoolProxyContractsKey == "HarvestCodeProvider" || optyPoolProxyContractsKey == "CurvePoolCodeProvider") {
+                                let flag: boolean;
+                                if (optyPoolProxyContractsKey == command.codeProvider) {
+                                    console.log("matched");
+                                    flag = true;
+                                } else if (command.codeProvider == null) {
+                                    console.log("all");
+                                    flag = true;
+                                } else {
+                                    console.log("not matched");
+                                    flag = false;
+                                }
+
+                                if (flag && count <= 10) {
                                     if (
                                         poolProxyContract.hasOwnProperty(
                                             optyPoolProxyContractsKey.toString()
@@ -500,7 +520,7 @@ program
                     console.log("IT SHOULD BE PRINTED ONLY ONCE..");
                 });
 
-                it("should check if the code provider contracts are deployed", async () => {
+                it.skip("should check if the code provider contracts are deployed", async () => {
                     assert.isOk(
                         optyPoolProxyContractVariables.CompoundCodeProvider.address,
                         "CompoundCodeProvider Contract is not deployed"
@@ -551,13 +571,11 @@ program
                 for (strategiesTokenKey in allStrategies) {
                     if (command.symbol == null) {
                         console.log("coming in when no symbol is passed!");
-                        if (
-                            strategiesTokenKey.toUpperCase() != "REP"
-                        ) {
-                        // if (
-                        //     strategiesTokenKey.toUpperCase() == "DAI" ||
-                        //     strategiesTokenKey.toUpperCase() == "USDC"
-                        // ) {
+                        if (strategiesTokenKey.toUpperCase() != "REP") {
+                            // if (
+                            //     strategiesTokenKey.toUpperCase() == "DAI" ||
+                            //     strategiesTokenKey.toUpperCase() == "USDC"
+                            // ) {
                             await runTokenTestSuite(strategiesTokenKey);
                         }
                     } else {
@@ -760,7 +778,7 @@ program
                                 }
                             }
 
-                            it(
+                            it.skip(
                                 "should check OptyTokenBasicPool contract is deployed for " +
                                     strategiesTokenKey,
                                 async () => {
@@ -1160,7 +1178,10 @@ program
                                                         "isNewStrategy"
                                                     );
                                                 } else {
-                                                    let gasEstimatedBefore = await optyRegistry.estimate.setStrategy(
+                                                    console.log(
+                                                        "SETTING THE STRATEGY LOOP"
+                                                    );
+                                                    let gasEstimatedBefore = await optyRegistry.estimateGas.setStrategy(
                                                         tokensHash,
                                                         strategySteps
                                                     );
@@ -1207,7 +1228,10 @@ program
                                                             strategy["_isStrategy"],
                                                             "Strategy is not approved"
                                                         );
-                                                        console.log("** Strategy Score: ", index + 1)
+                                                        console.log(
+                                                            "** Strategy Score: ",
+                                                            index + 1
+                                                        );
                                                         let scoreStrategyTx = await optyRegistry.scoreStrategy(
                                                             strategyHash.toString(),
                                                             index + 1
@@ -1260,7 +1284,10 @@ program
                                                     let bestStrategy = await optyRegistry.getStrategy(
                                                         bestStrategyHash.toString()
                                                     );
-                                                    console.log("Best strategy: ", bestStrategy)
+                                                    console.log(
+                                                        "Best strategy: ",
+                                                        bestStrategy
+                                                    );
 
                                                     //  Function call to test userDepositRebalance()
                                                     await testUserDepositRebalance();
@@ -1278,7 +1305,13 @@ program
                                                 let initialUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
                                                     userWallet.address
                                                 );
-                                                // console.log("Prior Balance: ", ethers.utils.formatEther(initialUserOptyTokenBalanceWei))
+                                                console.log(
+                                                    "Prior Balance: ",
+                                                    ethers.utils.formatUnits(
+                                                        initialUserOptyTokenBalanceWei,
+                                                        underlyingTokenDecimals
+                                                    )
+                                                );
                                                 // console.log("Prior cal. amount: ", ethers.utils.formatEther(initialUserOptyTokenBalanceWei.sub(expandToTokenDecimals(1,11))))
 
                                                 //  If condition is checking if the withdrawal is 0 or not. This can happen when
@@ -1340,6 +1373,9 @@ program
                                                             roundingDelta
                                                         );
                                                     } else {
+                                                        console.log(
+                                                            "Withdraw test Else condition.."
+                                                        );
                                                         let roundingDelta = 1;
                                                         await testUserWithdrawRebalance(
                                                             initialUserOptyTokenBalanceWei,
@@ -1427,11 +1463,13 @@ program
                                         );
                                         let totalSupply = 0;
                                         let poolValue = "";
-                                        let shares: ethers.utils.BigNumber;
+                                        // let shares: ethers.utils.BigNumber;
+                                        let shares: ethers.BigNumber;
                                         let userDepositRebalanceTx;
                                         // let userDepositRebalanceTxGasUsed;
                                         console.log("CHECK-4");
-
+                                        // const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdrawAllRebalance()
+                                        // console.log("Withdraw txn output: ", userWithdrawTxOutput)
                                         allPromiseResponses.forEach(
                                             async (promiseResponse, index) => {
                                                 if (index == 0) {
@@ -1598,11 +1636,18 @@ program
                                             ethers.utils.formatUnits(
                                                 initialUserOptyTokenBalanceWei.sub(
                                                     roundingDelta
-                                                ), underlyingTokenDecimals
+                                                ),
+                                                underlyingTokenDecimals
                                             )
                                         );
                                         // console.log("---- Manual withdrawal amount: ", ethers.utils.formatUnits(expandToTokenDecimals(5999999999,9),underlyingTokenDecimals))
-                                        console.log("---- Manual withdrawal amount: ", ethers.utils.formatUnits(initialUserOptyTokenBalanceWei,underlyingTokenDecimals))
+                                        console.log(
+                                            "---- Manual withdrawal amount: ",
+                                            ethers.utils.formatUnits(
+                                                initialUserOptyTokenBalanceWei,
+                                                underlyingTokenDecimals
+                                            )
+                                        );
                                         console.log(
                                             "****  BEFORE WITHDRAW TXN, Actual withdrawal amount: ",
                                             ethers.utils.formatUnits(
@@ -1620,10 +1665,11 @@ program
                                         // );
                                         // expandToTokenDecimals(5999999999,9) -- working
                                         // (initialUserOptyTokenBalanceWei.sub(expandToTokenDecimals(1,18))).sub(1)
-                                        const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdrawRebalance(
+                                        // const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.userWithdrawAllRebalance()
+                                        const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.functions.userWithdrawRebalance(
                                             initialUserOptyTokenBalanceWei,
                                             {
-                                                gasLimit: 4590162,
+                                                gasLimit: 5141327,
                                             }
                                         );
                                         console.log("withdrawal txn. successful");
@@ -1662,7 +1708,19 @@ program
                                                 underlyingTokenDecimals
                                             )
                                         );
-                                        let noOfTokensReceived = ethers.utils.bigNumberify(
+                                        // let noOfTokensReceived = ethers.utils.bigNumberify(
+                                        //     "0x" +
+                                        //         receipt.events[
+                                        //             receipt.events.length - 1
+                                        //         ].data
+                                        //             .toString()
+                                        //             .substr(
+                                        //                 receipt.events[
+                                        //                     receipt.events.length - 1
+                                        //                 ].data.length - 16
+                                        //             )
+                                        // );
+                                        let noOfTokensReceived = ethers.BigNumber.from(
                                             "0x" +
                                                 receipt.events[
                                                     receipt.events.length - 1
@@ -1692,11 +1750,13 @@ program
                                         //         roundingDelta
                                         //     )
                                         // ).to.be.true;
-                                        expect(
-                                            afterUserOptyTokenBalanceWei.eq(
-                                                0
-                                            )
-                                        ).to.be.true;
+                                        expect(afterUserOptyTokenBalanceWei.eq(0)).to.be
+                                            .true;
+                                        // expect(
+                                        //     afterUserOptyTokenBalanceWei.eq(
+                                        //         expandToTokenDecimals(3,underlyingTokenDecimals)
+                                        //     )
+                                        // ).to.be.true;
 
                                         console.log("STEP-3");
                                         console.log(
@@ -1730,7 +1790,9 @@ program
                                                 noOfTokensReceivedFromFormula
                                             )
                                         ) {
-                                            console.log("After token balance matched with tokens calculated from formula....")
+                                            console.log(
+                                                "After token balance matched with tokens calculated from formula...."
+                                            );
                                             expect(afterUserTokenBalanceWei).to.equal(
                                                 noOfTokensReceivedFromFormula
                                             );
@@ -1946,14 +2008,19 @@ program
                     if (lpToken != "0x0000000000000000000000000000000000000000") {
                         let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
                         if (!lpTokenApproveStatus) {
+                            console.log("Approving LpToken: ", lpToken);
                             await optyRegistry.approveToken(lpToken);
                         }
                     }
 
+                    console.log("STep-1 approve");
                     if (tokens.length > 0) {
+                        console.log("step2 approve");
                         tokens.forEach(async (token) => {
+                            console.log("step3 approve");
                             let tokenApproveStatus = await optyRegistry.tokens(token);
                             if (!tokenApproveStatus) {
+                                console.log("Approving token: ", token);
                                 await optyRegistry.approveToken(token);
                             }
                         });
@@ -1965,7 +2032,10 @@ program
                     let tokensHash =
                         "0x" +
                         abi.soliditySHA3(["address[]"], [tokens]).toString("hex");
-                    let tokensHashIndex: ethers.utils.BigNumber = await optyRegistry.tokensHashToTokens(
+                    // let tokensHashIndex: ethers.utils.BigNumber = await optyRegistry.tokensHashToTokens(
+                    //     tokensHash
+                    // );
+                    let tokensHashIndex: ethers.BigNumber = await optyRegistry.tokensHashToTokens(
                         tokensHash
                     );
                     if (
@@ -1973,7 +2043,18 @@ program
                         tokensHash !==
                             "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
                     ) {
-                        await optyRegistry.setTokensHashToTokens(tokens);
+                        console.log(
+                            "Tokens Hash generated from SHA3 lib: ",
+                            tokensHash
+                        );
+                        const setTokensHashTx = await optyRegistry.setTokensHashToTokens(
+                            tokens
+                        );
+                        const setTokensHashTxOutput = await setTokensHashTx.wait();
+                        console.log(
+                            "set Tokens hash output from contract: ",
+                            setTokensHashTxOutput
+                        );
                     }
                 }
 
@@ -1998,6 +2079,7 @@ program
                             poolProxy
                         );
                     } else {
+                        console.log("Mapping code provider to lp");
                         await optyRegistry.setLiquidityPoolToCodeProvider(
                             pool,
                             poolProxy
