@@ -34,10 +34,18 @@ contract Gatherer is Modifiers {
     
     function getHarvestCodes(address _optyPool, address _rewardToken, address _underlyingToken, uint _rewardTokenAmount) public view returns(bytes[] memory _codes) {
         if (_rewardTokenAmount > 0) {
-            address[] memory path = new address[](3);
-            path[0] = _rewardToken;
-            path[1] = WETH;
-            path[2] = _underlyingToken;
+            address[] memory path;
+            if (_underlyingToken == WETH) {
+                path = new address[](2);
+                path[0] = _rewardToken;
+                path[1] = WETH;
+            } 
+            else {
+                path = new address[](3);
+                path[0] = _rewardToken;
+                path[1] = WETH;
+                path[2] = _underlyingToken;
+            }
             _codes = new bytes[](3);
             _codes[0] = abi.encode(_rewardToken,abi.encodeWithSignature("approve(address,uint256)",router,uint(0)));
             _codes[1] = abi.encode(_rewardToken,abi.encodeWithSignature("approve(address,uint256)",router,_rewardTokenAmount));
