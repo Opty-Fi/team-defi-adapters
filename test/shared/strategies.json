@@ -8813,17 +8813,6 @@
                 ]
             },
             {
-                "strategyName": "USDC-deposit-COMPOUND-cUSDC",
-                "strategy": [
-                    {
-                        "contract": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
-                        "outputTokenSymbol": "cUSDC",
-                        "outputToken": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
-                        "isBorrow": false
-                    }
-                ]
-            },
-            {
                 "strategyName": "USDC-deposit-DFORCE-dUSDC",
                 "strategy": [
                     {
@@ -8874,6 +8863,17 @@
                         "contract": "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
                         "outputTokenSymbol": "cDAI+cUSDC+USDT",
                         "outputToken": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "USDC-deposit-CURVE-cDAI+cUSDC",
+                "strategy": [
+                    {
+                        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+                        "outputTokenSymbol": "cDAI+cUSDC",
+                        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
                         "isBorrow": false
                     }
                 ]
@@ -9039,6 +9039,17 @@
                         "contract": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
                         "outputTokenSymbol": "iUSDC",
                         "outputToken": "0x32E4c68B3A4a813b710595AebA7f6B7604Ab9c15",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "USDC-deposit-COMPOUND-cUSDC",
+                "strategy": [
+                    {
+                        "contract": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+                        "outputTokenSymbol": "cUSDC",
+                        "outputToken": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
                         "isBorrow": false
                     }
                 ]
