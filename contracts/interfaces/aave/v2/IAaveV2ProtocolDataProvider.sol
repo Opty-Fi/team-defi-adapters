@@ -23,7 +23,7 @@ struct ReserveConfigurationData {
     bool isFrozen;
 }
 
-struct ReserveData {
+struct ReserveDataProtocol {
     uint256 availableLiquidity;
     uint256 totalStableDebt;
     uint256 totalVariableDebt;
@@ -59,7 +59,7 @@ interface IAaveV2ProtocolDataProvider {
   function getAllReservesTokens() external view returns (TokenData[] memory);
   function getAllATokens() external view returns (TokenData[] memory);
   function getReserveConfigurationData(address _asset) external view returns (ReserveConfigurationData memory);
-  function getReserveData(address _asset) external view returns (ReserveData memory);
+  function getReserveData(address _asset) external view returns (ReserveDataProtocol memory);
   function getUserReserveData(address _asset, address _user) external view returns (UserReserveData memory);
   function getReserveTokensAddresses(address _asset) external view returns (ReserveTokensAddresses memory);
 }
