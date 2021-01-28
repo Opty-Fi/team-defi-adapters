@@ -4,16 +4,16 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "../../interfaces/opty/ICodeProvider.sol";
-import "../../interfaces/aave/IPriceOracle.sol";
-import "../../interfaces/aave/ILendingPoolAddressesProvider.sol";
-import "../../interfaces/aave/IAave.sol";
-import "../../interfaces/aave/IAToken.sol";
+import "../../interfaces/aave/v1/IAaveV1PriceOracle.sol";
+import "../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";
+import "../../interfaces/aave/v1/IAaveV1.sol";
+import "../../interfaces/aave/v1/IAaveV1Token.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
 import "../../utils/ERC20Detailed.sol";
 
-contract AaveCodeProvider is ICodeProvider, Modifiers {
+contract AaveV1CodeProvider is ICodeProvider, Modifiers {
     using SafeMath for uint256;
 
     uint256 public maxExposure; // basis points
@@ -27,7 +27,7 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getPoolValue(address _liquidityPoolAddressProvider, address _underlyingToken) public view override returns (uint256) {
-        return IAave(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
+        return IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
     }
 
     function getDepositSomeCodes(
@@ -67,11 +67,11 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        ReserveConfigurationData memory _reserveConfigurationData = IAave(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
+        ReserveConfigurationData memory _reserveConfigurationData = IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
         if (_reserveConfigurationData.usageAsCollateralEnabled && _reserveConfigurationData.stableBorrowRateEnabled) {
             uint256 _borrow = _availableToBorrowReserve(_optyPool, _liquidityPoolAddressProvider, _outputToken);
             if (_borrow > 0) {
-                bool _isUserCollateralEnabled = IAave(_lendingPool).getUserReserveData(_underlyingTokens[0], _optyPool).enabled;
+                bool _isUserCollateralEnabled = IAaveV1(_lendingPool).getUserReserveData(_underlyingTokens[0], _optyPool).enabled;
                 if (_isUserCollateralEnabled) {
                     _codes = new bytes[](1);
                     _codes[0] = abi.encode(
@@ -158,13 +158,13 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
 
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider) public view override returns (address) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        ReserveData memory _reserveData = IAave(_lendingPool).getReserveData(_underlyingToken);
+        ReserveData memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
         return _reserveData.aTokenAddress;
     }
 
     function getUnderlyingTokens(address, address _liquidityPoolToken) public view override returns (address[] memory _underlyingTokens) {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = IAToken(_liquidityPoolToken).underlyingAssetAddress();
+        _underlyingTokens[0] = IAaveV1Token(_liquidityPoolToken).underlyingAssetAddress();
     }
 
     function getAllAmountInToken(
@@ -323,15 +323,15 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
     }
 
     function _getLendingPool(address _lendingPoolAddressProvider) internal view returns (address) {
-        return ILendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPool();
+        return IAaveV1LendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPool();
     }
 
     function _getLendingPoolCore(address _lendingPoolAddressProvider) internal view returns (address) {
-        return ILendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPoolCore();
+        return IAaveV1LendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPoolCore();
     }
 
     function _getPriceOracle(address _lendingPoolAddressProvider) internal view returns (address) {
-        return ILendingPoolAddressesProvider(_lendingPoolAddressProvider).getPriceOracle();
+        return IAaveV1LendingPoolAddressesProvider(_lendingPoolAddressProvider).getPriceOracle();
     }
 
     function _getDepositAmount(
@@ -356,7 +356,7 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
             uint256 availableBorrowsETH
         )
     {
-        UserAccountData memory _userAccountData = IAave(_getLendingPool(_liquidityPoolAddressProvider)).getUserAccountData(_optyPool);
+        UserAccountData memory _userAccountData = IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getUserAccountData(_optyPool);
         uint256 _totalBorrowsETH = _userAccountData.totalBorrowsETH;
         uint256 _availableBorrowsETH = _userAccountData.availableBorrowsETH;
         uint256 _maxBorrowETH = (_totalBorrowsETH.add(_availableBorrowsETH));
@@ -378,7 +378,7 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
     }
 
     function _getReservePriceETH(address _liquidityPoolAddressProvider, address _token) internal view returns (uint256) {
-        return IPriceOracle(_getPriceOracle(_liquidityPoolAddressProvider)).getAssetPrice(_token);
+        return IAaveV1PriceOracle(_getPriceOracle(_liquidityPoolAddressProvider)).getAssetPrice(_token);
     }
 
     function _availableToBorrowReserve(
@@ -444,7 +444,7 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
         address _underlyingToken,
         address _optyPool
     ) internal view returns (UserReserveData memory) {
-        return IAave(_lendingPool).getUserReserveData(_underlyingToken, _optyPool);
+        return IAaveV1(_lendingPool).getUserReserveData(_underlyingToken, _optyPool);
     }
 
     function _debt(
@@ -452,7 +452,7 @@ contract AaveCodeProvider is ICodeProvider, Modifiers {
         address _lendingPool,
         address _outputToken
     ) public view returns (uint256) {
-        return IAave(_lendingPool).getUserReserveData(_outputToken, _optyPool).currentBorrowBalance;
+        return IAaveV1(_lendingPool).getUserReserveData(_outputToken, _optyPool).currentBorrowBalance;
     }
 
     // % of tokens locked and cannot be withdrawn per user
