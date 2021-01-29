@@ -23,13 +23,14 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
     uint256 public healthFactor = 2;
     uint256 public ltv = 65;
     uint256 public max = 100;
+    bytes32 public constant protocolDataProviderId = 0x0100000000000000000000000000000000000000000000000000000000000000;
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxExposure(uint256(5000)); // 50%
     }
 
     function getPoolValue(address _liquidityPoolAddressProviderRegistry, address _underlyingToken) public view override returns (uint256) {
-        return _getReserveData(_liquidityPoolAddressProviderRegistry,_underlyingToken).availableLiquidity;
+        return _getReserveData(_liquidityPoolAddressProviderRegistry, _underlyingToken).availableLiquidity;
     }
 
     function getDepositSomeCodes(
@@ -46,7 +47,7 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
             _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _depositAmount));
             _codes[2] = abi.encode(
                 _lendingPool,
-                abi.encodeWithSignature("deposit(address,uint256,address,uint16)", _underlyingTokens[0], _depositAmount, _optyPool , uint16(0))
+                abi.encodeWithSignature("deposit(address,uint256,address,uint16)", _underlyingTokens[0], _depositAmount, _optyPool, uint16(0))
             );
         }
     }
@@ -68,16 +69,33 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
-        ReserveConfigurationData memory _reserveConfigurationData = IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getReserveConfigurationData(_underlyingTokens[0]);
-        if (_reserveConfigurationData.usageAsCollateralEnabled && _reserveConfigurationData.stableBorrowRateEnabled) {
+        ReserveConfigurationData memory _reserveConfigurationData =
+            IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getReserveConfigurationData(
+                _underlyingTokens[0]
+            );
+        if (
+            _reserveConfigurationData.usageAsCollateralEnabled &&
+            _reserveConfigurationData.stableBorrowRateEnabled &&
+            _reserveConfigurationData.borrowingEnabled &&
+            _reserveConfigurationData.isActive &&
+            !_reserveConfigurationData.isFrozen
+        ) {
             uint256 _borrow = _availableToBorrowReserve(_optyPool, _liquidityPoolAddressProviderRegistry, _outputToken);
             if (_borrow > 0) {
-                bool _isUserCollateralEnabled = _getUserReserveData(_liquidityPoolAddressProviderRegistry, _underlyingTokens[0],_optyPool).usageAsCollateralEnabled;
+                bool _isUserCollateralEnabled =
+                    _getUserReserveData(_liquidityPoolAddressProviderRegistry, _underlyingTokens[0], _optyPool).usageAsCollateralEnabled;
                 if (_isUserCollateralEnabled) {
                     _codes = new bytes[](1);
                     _codes[0] = abi.encode(
                         _lendingPool,
-                        abi.encodeWithSignature("borrow(address,uint256,uint256,uint16,address)", _outputToken, _borrow, uint256(1), uint16(0), _optyPool)
+                        abi.encodeWithSignature(
+                            "borrow(address,uint256,uint256,uint16,address)",
+                            _outputToken,
+                            _borrow,
+                            uint256(1),
+                            uint16(0),
+                            _optyPool
+                        )
                     );
                 } else {
                     _codes = new bytes[](2);
@@ -87,7 +105,14 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
                     );
                     _codes[1] = abi.encode(
                         _lendingPool,
-                        abi.encodeWithSignature("borrow(address,uint256,uint256,uint16)", _outputToken, _borrow, uint256(1), uint16(0))
+                        abi.encodeWithSignature(
+                            "borrow(address,uint256,uint256,uint16,address)",
+                            _outputToken,
+                            _borrow,
+                            uint256(1),
+                            uint16(0),
+                            _optyPool
+                        )
                     );
                 }
             }
@@ -103,14 +128,17 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyPool, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
+        uint256 _liquidityPoolTokenBalance =
+            getLiquidityPoolTokenBalance(_optyPool, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
 
         // // borrow token amount
         uint256 _borrowAmount = IERC20(_outputToken).balanceOf(_optyPool);
 
-        uint256 _aTokenAmount = _maxWithdrawal(_optyPool, _lendingPool, _liquidityPoolTokenBalance, _outputToken, _borrowAmount);
+        uint256 _aTokenAmount =
+            _maxWithdrawal(_optyPool, _liquidityPoolAddressProviderRegistry, _liquidityPoolTokenBalance, _outputToken, _borrowAmount);
 
-        uint256 _outputTokenRepayable = _over(_optyPool, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry, _outputToken, _aTokenAmount);
+        uint256 _outputTokenRepayable =
+            _over(_optyPool, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry, _outputToken, _aTokenAmount);
 
         if (_outputTokenRepayable > 0) {
             if (_outputTokenRepayable > _borrowAmount) {
@@ -123,11 +151,14 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
                 _codes[1] = abi.encode(_outputToken, abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _borrowAmount));
                 _codes[2] = abi.encode(
                     _lendingPool,
-                    abi.encodeWithSignature("repay(address,uint256,uint256,address)", _outputToken, _borrowAmount,uint256(1), _optyPool)
+                    abi.encodeWithSignature("repay(address,uint256,uint256,address)", _outputToken, _borrowAmount, uint256(1), _optyPool)
                 );
                 _codes[3] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _lendingPool, uint256(0)));
                 _codes[4] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _aTokenAmount));
-                _codes[5] = abi.encode(_lendingPool, abi.encodeWithSignature("withdraw(address,uint256,address)",_underlyingTokens[0], _aTokenAmount,_optyPool));
+                _codes[5] = abi.encode(
+                    _lendingPool,
+                    abi.encodeWithSignature("withdraw(address,uint256,address)", _underlyingTokens[0], _aTokenAmount, _optyPool)
+                );
             }
         }
     }
@@ -140,13 +171,13 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
-            address _liquidityPoolToken = getLiquidityPoolToken(_underlyingTokens[0],_liquidityPoolAddressProviderRegistry);
+            address _liquidityPoolToken = getLiquidityPoolToken(_underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
             _codes = new bytes[](3);
-            _codes[0] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("approve(address,uint256)",_lendingPool,uint256(0)));
-            _codes[1] = abi.encode(_liquidityPoolToken,abi.encodeWithSignature("approve(address,uint256)",_lendingPool,_amount));
+            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _lendingPool, uint256(0)));
+            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _amount));
             _codes[2] = abi.encode(
                 _lendingPool,
-                abi.encodeWithSignature("withdraw(address,uint256,address)",_underlyingTokens[0], _amount,_optyPool)
+                abi.encodeWithSignature("withdraw(address,uint256,address)", _underlyingTokens[0], _amount, _optyPool)
             );
         }
     }
@@ -160,7 +191,12 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         return getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
     }
 
-    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry) public view override returns (address) {
+    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
+        public
+        view
+        override
+        returns (address)
+    {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
         ReserveData memory _reserveData = IAaveV2(_lendingPool).getReserveData(_underlyingToken);
         return _reserveData.aTokenAddress;
@@ -444,13 +480,18 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         address _underlyingToken,
         address _optyPool
     ) internal view returns (UserReserveData memory) {
-        return IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getUserReserveData(_underlyingToken, _optyPool);
+        return
+            IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getUserReserveData(
+                _underlyingToken,
+                _optyPool
+            );
     }
-    
-    function _getReserveData(
-        address _liquidityPoolAddressProviderRegistry,
-        address _underlyingToken
-    ) internal view returns (ReserveDataProtocol memory) {
+
+    function _getReserveData(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)
+        internal
+        view
+        returns (ReserveDataProtocol memory)
+    {
         return IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getReserveData(_underlyingToken);
     }
 
@@ -458,30 +499,34 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         address _optyPool,
         address _liquidityPoolAddressProviderRegistry,
         address _outputToken
-    ) public view returns (uint256) {
-        return IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry)).getUserReserveData(_outputToken, _optyPool).currentStableDebt;
+    ) internal view returns (uint256) {
+        return
+            IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry))
+                .getUserReserveData(_outputToken, _optyPool)
+                .currentStableDebt;
     }
 
     // % of tokens locked and cannot be withdrawn per user
     // this is impermanent locked, unless the debt out accrues the strategy
     function _locked(
         address _optyPool,
-        address _lendingPool,
+        address _liquidityPoolAddressProviderRegistry,
         address _borrowToken,
         uint256 _borrowAmount
     ) internal view returns (uint256) {
-        return _borrowAmount.mul(1e18).div(_debt(_optyPool, _lendingPool, _borrowToken));
+        return _borrowAmount.mul(1e18).div(_debt(_optyPool, _liquidityPoolAddressProviderRegistry, _borrowToken));
     }
 
     // Calculates in impermanent lock due to debt
     function _maxWithdrawal(
         address _optyPool,
-        address _lendingPool,
+        address _liquidityPoolAddressProviderRegistry,
         uint256 _aTokenAmount,
         address _borrowToken,
         uint256 _borrowAmount
     ) internal view returns (uint256) {
-        uint256 _safeWithdraw = _aTokenAmount.mul(_locked(_optyPool, _lendingPool, _borrowToken, _borrowAmount)).div(1e18);
+        uint256 _safeWithdraw =
+            _aTokenAmount.mul(_locked(_optyPool, _liquidityPoolAddressProviderRegistry, _borrowToken, _borrowAmount)).div(1e18);
         if (_safeWithdraw > _aTokenAmount) {
             return _aTokenAmount;
         } else {
@@ -489,12 +534,15 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
             return _aTokenAmount.sub(_diff.mul(healthFactor)); // technically 150%, not 200%, but adding buffer
         }
     }
-    
-    function _getLendingPoolAddressProvider(address _liquidityPoolAddressProviderRegistry) internal view returns(address) {
+
+    function _getLendingPoolAddressProvider(address _liquidityPoolAddressProviderRegistry) internal view returns (address) {
         return IAaveV2LendingPoolAddressProviderRegistry(_liquidityPoolAddressProviderRegistry).getAddressesProvidersList()[0];
     }
-    
-    function _getProtocolDataProvider(address _liquidityPoolAddressProviderRegistry) internal view returns(address) {
-        return IAaveV2LendingPoolAddressesProvider(_getLendingPool(_liquidityPoolAddressProviderRegistry)).getAddress("0x01");
+
+    function _getProtocolDataProvider(address _liquidityPoolAddressProviderRegistry) internal view returns (address) {
+        return
+            IAaveV2LendingPoolAddressesProvider(_getLendingPoolAddressProvider(_liquidityPoolAddressProviderRegistry)).getAddress(
+                protocolDataProviderId
+            );
     }
 }

@@ -3,7 +3,6 @@
 pragma solidity ^0.6.10;
 
 interface IAaveV2LendingPoolAddressesProvider {
-    
     function getMarketId() external view returns (string memory);
 
     function getAddress(bytes32 _id) external view returns (address);
