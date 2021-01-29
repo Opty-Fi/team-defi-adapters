@@ -2,9 +2,9 @@
 
 pragma solidity ^0.6.10;
 
-import "..//ERC20/IERC20.sol";
+import "../../ERC20/IERC20.sol";
 
-interface IAToken {
+interface IAaveV1Token {
     function redeem(uint256 amount) external;
 
     function isTransferAllowed(address user, uint256 amount) external view returns (bool);

@@ -54,7 +54,7 @@ struct ReserveConfigurationData {
     bool isActive;
 }
 
-interface IAave {
+interface IAaveV1 {
     function deposit(
         address _reserve,
         uint256 _amount,
