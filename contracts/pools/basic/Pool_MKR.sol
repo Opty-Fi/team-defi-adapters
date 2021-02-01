@@ -77,12 +77,12 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         _success = true;
     }
 
-    function supplyAll() public onlyValidAddress {
+    function supplyAll() public ifNotDiscontinued {
         uint256 _tokenBalance = IERC20(token).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
         uint256 _steps = strategyCodeProviderContract.getDepositAllStepCount(strategyHash);
         for (uint256 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(address(this), token, strategyHash, _i);
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), token, strategyHash, _i);
             for (uint256 _j = 0; _j < _codes.length; _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -91,8 +91,8 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         }
     }
 
-    function rebalance() public {
-        require(totalSupply() > 0,"!totalSupply()>0");
+    function rebalance() public ifNotDiscontinued {
+        require(totalSupply() > 0, "!totalSupply()>0");
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = token;
         bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -121,7 +121,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
      *    credit pool like compound is added.
      */
     function _calPoolValueInToken() internal view returns (uint256) {
-        uint256 balanceInToken = strategyCodeProviderContract.getBalanceInToken(address(this), token, strategyHash);
+        uint256 balanceInToken = strategyCodeProviderContract.getBalanceInToken(payable(address(this)), token, strategyHash);
         return balanceInToken.add(balance());
     }
 
@@ -140,7 +140,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         uint256 _steps = strategyCodeProviderContract.getWithdrawAllStepsCount(strategyHash);
         for (uint256 _i = 0; _i < _steps; _i++) {
             uint256 _iterator = _steps - 1 - _i;
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolWithdrawAllCodes(address(this), token, strategyHash, _iterator);
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolWithdrawAllCodes(payable(address(this)), token, strategyHash, _iterator);
             for (uint256 _j = 0; _j < _codes.length; _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool _success, ) = pool.call(data);
@@ -153,7 +153,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         require(_hash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!invalidHash");
         uint256 _claimRewardSteps = strategyCodeProviderContract.getClaimRewardStepsCount(_hash);
         for (uint256 _i = 0; _i < _claimRewardSteps; _i++) {
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolClaimAllRewardCodes(address(this), _hash, _i);
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolClaimAllRewardCodes(payable(address(this)), _hash, _i);
             for (uint256 _j = 0; _j < _codes.length; _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -162,7 +162,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         }
         uint256 _harvestSteps = strategyCodeProviderContract.getHarvestRewardStepsCount(_hash);
         for (uint256 _i = 0; _i < _harvestSteps; _i++) {
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolHarvestAllRewardCodes(address(this), token, _hash, _i);
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolHarvestAllRewardCodes(payable(address(this)), token, _hash, _i);
             for (uint256 _j = 0; _j < _codes.length; _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -183,7 +183,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
      *  - Amount should be greater than 0
      *  - Amount is in wad units, Eg: _amount = 1e18 wad means _amount = 1 DAI
      */
-    function userDepositRebalance(uint256 _amount) public nonReentrant returns (bool _success) {
+    function userDepositRebalance(uint256 _amount) public nonReentrant ifNotDiscontinued returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
         IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
 
@@ -227,8 +227,10 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "Insufficient balance");
 
-        _withdrawAll();
-        harvest(strategyHash);
+        if (!isDiscontinue) {
+            _withdrawAll();
+            harvest(strategyHash);
+        }
 
         uint256 redeemAmountInToken = (balance().mul(_redeemAmount)).div(totalSupply());
 
@@ -238,7 +240,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
         emit Transfer(msg.sender, address(0), _redeemAmount);
 
         IERC20(token).safeTransfer(msg.sender, redeemAmountInToken);
-        if (balance() > 0) {
+        if (!isDiscontinue && (balance() > 0)) {
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = token;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -249,5 +251,11 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard {
 
     function getPricePerFullShare() public view returns (uint256) {
         return _calPoolValueInToken().div(totalSupply());
+    }
+
+    function discontinue() public onlyOperator {
+        isDiscontinue = true;
+        _withdrawAll();
+        harvest(strategyHash);
     }
 }
