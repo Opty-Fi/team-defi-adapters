@@ -24,6 +24,17 @@
                 ]
             },
             {
+                "strategyName": "DAI-deposit-AAVE_V2-aDAI",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aDAI",
+                        "outputToken": "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "DAI-deposit-HARVEST-fDAI",
                 "strategy": [
                     {
