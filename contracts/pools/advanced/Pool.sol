@@ -60,17 +60,31 @@ contract OptyDAIAdvancePool is ERC20, ERC20Detailed, Ownable, ReentrancyGuard {
          optyStrategy = _optyStrategy;
          _success = true;
     }
-    
-    function supplyToken(uint _amount) public onlyValidAddress {
-        require(_amount > 0,"withdraw must be greater than 0");
-       IERC20(token).safeTransfer(optyStrategy, _amount);
-       IOptyStrategy(optyStrategy).deploy(_amount,strategyHash);
+
+    function supplyAll() public ifNotDiscontinued ifNotPaused {
+        uint256 _tokenBalance = IERC20(token).balanceOf(address(this));
+        require(_tokenBalance > 0, "!amount>0");
+        uint256 _steps = strategyCodeProviderContract.getDepositAllStepCount(strategyHash);
+        for (uint256 _i = 0; _i < _steps; _i++) {
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), token, strategyHash, _i);
+            for (uint256 _j = 0; _j < _codes.length; _j++) {
+                (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                (bool success, ) = pool.call(data);
+                require(success);
+            }
+        }
     }
-    
-    function rebalance() public onlyValidAddress {
-        bytes32 newStrategyHash = IRiskManager(riskManager).getBestStrategy(profile,token);
-        
-        if (keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(strategyHash))) {
+
+    function rebalance() public ifNotDiscontinued ifNotPaused {
+        require(totalSupply() > 0, "!totalSupply()>0");
+        address[] memory _underlyingTokens = new address[](1);
+        _underlyingTokens[0] = token;
+        bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+
+        if (
+            keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(strategyHash)) &&
+            strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000
+        ) {
             _withdrawAll();
         }
         
@@ -150,8 +164,9 @@ contract OptyDAIAdvancePool is ERC20, ERC20Detailed, Ownable, ReentrancyGuard {
      *  - _withdrawalAmount should be greater than 0
      *  - _withdrawalAmount is in waopdai units, Eg: _withdrawalAmount = 1e18 waopdai means _withdrawalAmount = 1 opDai
      */
-    function _withdraw(uint256 _withdrawalAmount) external nonReentrant returns (bool _success) {
-        require(_withdrawalAmount > 0, "Withdrawal amount must be greater than 0");
+    function userDepositRebalance(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
+        require(_amount > 0, "!(_amount>0)");
+        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
 
         uint256 opDaiUserBalanceBefore = balanceOf(msg.sender);
         require(_withdrawalAmount <= opDaiUserBalanceBefore, "Insufficient balance");
@@ -203,46 +218,51 @@ contract OptyDAIAdvancePool is ERC20, ERC20Detailed, Ownable, ReentrancyGuard {
      *  -   _redeemAmount: amount to withdraw from the compound dai's liquidity pool. Its uints are: 
      *      in  weth uints i.e. 1e18
      */
-    function redeem(uint256 _redeemAmount) external onlyValidAddress nonReentrant returns(bool) {
+    function userWithdrawRebalance(uint256 _redeemAmount) public ifNotPaused nonReentrant returns (bool) {
         require(_redeemAmount > 0, "withdraw must be greater than 0");
         
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "Insufficient balance");
-        
-        poolValue = calPoolValueInToken();
-        uint256 redeemAmountInToken = (poolValue.mul(_redeemAmount)).div(totalSupply());
-        
+
+        if (!discontinued) {
+            _withdrawAll();
+            harvest(strategyHash);
+        }
+
+        uint256 redeemAmountInToken = (balance().mul(_redeemAmount)).div(totalSupply());
+
         //  Updating the totalSupply of op tokens
         _balances[msg.sender] = _balances[msg.sender].sub(_redeemAmount, "Redeem amount exceeds balance");
         _totalSupply = _totalSupply.sub(_redeemAmount);
         emit Transfer(msg.sender, address(0), _redeemAmount);
-        
-        // Check Token balance
-      uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-      bytes32 newStrategyHash =  strategyHash;
-      if (tokenBalance < redeemAmountInToken) {
-          newStrategyHash = IRiskManager(riskManager).getBestStrategy(profile,token);
-          if (keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(strategyHash))) {
-              _withdrawAll();
-          }
-          else {
-              _withdrawSome(redeemAmountInToken.sub(tokenBalance));
-          }
-      }
-       IERC20(token).safeTransfer(msg.sender, redeemAmountInToken);
-       if (keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(strategyHash))) {
-           strategyHash = _newStrategyHash;
-           _rebalance();
-      }
-      poolValue = calPoolValueInToken();
-      return true;
+
+        IERC20(token).safeTransfer(msg.sender, redeemAmountInToken);
+        if (!discontinued && (balance() > 0)) {
+            address[] memory _underlyingTokens = new address[](1);
+            _underlyingTokens[0] = token;
+            strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            supplyAll();
+        }
+        return true;
     }
-    
-    /**
-     * @dev Modifier to check if the address is zero address or not
-     */
-    modifier onlyValidAddress(){
-        require(msg.sender != address(0), "zero address");
-        _;
+
+    function getPricePerFullShare() public view returns (uint256) {
+        return _calPoolValueInToken().div(totalSupply());
+    }
+
+    function discontinue() public onlyOperator {
+        discontinued = true;
+        if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            _withdrawAll();
+            harvest(strategyHash);
+        }
+    }
+
+    function setPaused(bool _paused) public onlyOperator {
+        paused = _paused;
+        if (paused && strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            _withdrawAll();
+            harvest(strategyHash);
+        }
     }
 }
