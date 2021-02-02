@@ -8824,6 +8824,17 @@
                 ]
             },
             {
+                "strategyName": "USDC-deposit-AAVE_V2-aUSDC",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aUSDC",
+                        "outputToken": "0xBcca60bB61934080951369a648Fb03DF4F96263C",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "USDC-deposit-DFORCE-dUSDC",
                 "strategy": [
                     {
@@ -17651,6 +17662,17 @@
                 ]
             },
             {
+                "strategyName": "USDT-deposit-AAVE_V2-aUSDT",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aUSDT",
+                        "outputToken": "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "USDT-deposit-COMPOUND-cUSDT",
                 "strategy": [
                     {
@@ -26422,6 +26444,17 @@
                 ]
             },
             {
+                "strategyName": "WBTC-deposit-AAVE_V2-aWBTC",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aWBTC",
+                        "outputToken": "0x9ff58f4fFB29fA2266Ab25e75e2A8b3503311656",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "WBTC-deposit-COMPOUND-cWBTC",
                 "strategy": [
                     {
@@ -34907,6 +34940,17 @@
                 ]
             },
             {
+                "strategyName": "TUSD-deposit-AAVE_V2-aTUSD",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aTUSD",
+                        "outputToken": "0x101cc05f4A51C0319f570d5E146a8C625198e636",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "TUSD-deposit-DFORCE-dTUSD",
                 "strategy": [
                     {
@@ -43371,6 +43415,17 @@
     "WETH": {
         "basic": [
             {
+                "strategyName": "WETH-deposit-Aave_V2-yWETH",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "yWETH",
+                        "outputToken": "0x030bA81f1c18d280636F32af80b9AAd02Cf0854e",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "WETH-deposit-YEARN-yWETH",
                 "strategy": [
                     {
@@ -43434,6 +43489,17 @@
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aSUSD",
                         "outputToken": "0x625aE63000f46200499120B906716420bd059240",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "SUSD-deposit-AAVE_V2-aSUSD",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aSUSD",
+                        "outputToken": "0x6C5024Cd4F8A59110119C56f8933403A539555EB",
                         "isBorrow": false
                     }
                 ]
@@ -52086,6 +52152,17 @@
                 ]
             },
             {
+                "strategyName": "LINK-deposit-AAVE_V2-aLINK",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aLINK",
+                        "outputToken": "0xa06bC25B5805d5F8d82847D191Cb4Af5A3e873E0",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "LINK-deposit-CREAM-crLINK",
                 "strategy": [
                     {
@@ -52173,6 +52250,17 @@
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aBUSD",
                         "outputToken": "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "BUSD-deposit-AAVE_V2-aBUSD",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aBUSD",
+                        "outputToken": "0xA361718326c15715591c299427c62086F69923D9",
                         "isBorrow": false
                     }
                 ]
@@ -52318,6 +52406,17 @@
                 ]
             },
             {
+                "strategyName": "KNC-deposit-AAVE_V2-aKNC",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aKNC",
+                        "outputToken": "0x39C6b3e42d6A679d7D776778Fe880BC9487C2EDA",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "KNC-deposit-BZX-iKNC",
                 "strategy": [
                     {
@@ -52366,6 +52465,17 @@
                 ]
             },
             {
+                "strategyName": "ZRX-deposit-AAVE_V2-aZRX",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aZRX",
+                        "outputToken": "0xDf7FF54aAcAcbFf42dfe29DD6144A69b629f8C9e",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "ZRX-deposit-COMPOUND-cZRX",
                 "strategy": [
                     {
@@ -52409,6 +52519,17 @@
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aUNI",
                         "outputToken": "0xB124541127A0A657f056D9Dd06188c4F1b0e5aab",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "UNI-deposit-AAVE_V2-aUNI",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aUNI",
+                        "outputToken": "0xB9D7CB55f463405CDfBe4E90a6D2Df01C2B92BF1",
                         "isBorrow": false
                     }
                 ]
@@ -52506,6 +52627,17 @@
                 ]
             },
             {
+                "strategyName": "BAT-deposit-AAVE_V2-aBAT",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aBAT",
+                        "outputToken": "0x05Ec93c0365baAeAbF7AefFb0972ea7ECdD39CF1",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
                 "strategyName": "BAT-deposit-COMPOUND-cBAT",
                 "strategy": [
                     {
@@ -52549,6 +52681,17 @@
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aMKR",
                         "outputToken": "0x7deB5e830be29F91E298ba5FF1356BB7f8146998",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "MKR-deposit-AAVE_V2-aMKR",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aMKR",
+                        "outputToken": "0xc713e5E149D5D0715DcD1c156a020976e7E56B88",
                         "isBorrow": false
                     }
                 ]
@@ -52623,6 +52766,17 @@
                         "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
                         "outputTokenSymbol": "aYFI",
                         "outputToken": "0x12e51E77DAAA58aA0E9247db7510Ea4B46F9bEAd",
+                        "isBorrow": false
+                    }
+                ]
+            },
+            {
+                "strategyName": "YFI-deposit-AAVE_V2-aYFI",
+                "strategy": [
+                    {
+                        "contract": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+                        "outputTokenSymbol": "aYFI",
+                        "outputToken": "0x5165d24277cD063F5ac44Efd447B27025e888f37",
                         "isBorrow": false
                     }
                 ]
