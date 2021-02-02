@@ -17,6 +17,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public liquidityPoolToStakingPool;
     address public rewardToken;
     Gatherer public gathererContract;
+    uint256 public maxExposure; // basis points
 
     // deposit pools
     address public constant USDT_DEPOSIT_POOL = address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8);
@@ -34,22 +35,30 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
         setLiquidityPoolToStakingPool(USDT_DEPOSIT_POOL, USDT_STAKING_POOL);
         setLiquidityPoolToStakingPool(USDC_DEPOSIT_POOL, USDC_STAKING_POOL);
         setLiquidityPoolToStakingPool(DAI_DEPOSIT_POOL, DAI_STAKING_POOL);
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return IDForceDeposit(_liquidityPool).getLiquidity();
     }
 
     function getDepositSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[0]));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(address,uint256)", _optyPool, _amounts[0]));
+        if (_amounts[0] > 0) {
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(address,uint256)", _optyPool, _depositAmount));
+        }
     }
 
     function getDepositAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -58,21 +67,41 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    function getBorrowAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRepayAndWithdrawAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
     function getWithdrawSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(
-            getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-            abi.encodeWithSignature("redeem(address,uint256)", _optyPool, _redeemAmount)
-        );
+        if (_redeemAmount > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                abi.encodeWithSignature("redeem(address,uint256)", _optyPool, _redeemAmount)
+            );
+        }
     }
 
     function getWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -90,7 +119,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getAllAmountInToken(
-        address _optyPool,
+        address payable _optyPool,
         address,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -98,7 +127,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getLiquidityPoolTokenBalance(
-        address _optyPool,
+        address payable _optyPool,
         address,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -127,7 +156,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -139,7 +168,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficient(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -152,18 +181,18 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
         return rewardToken;
     }
 
-    function getUnclaimedRewardTokenAmount(address _optyPool, address _liquidityPool) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable _optyPool, address _liquidityPool) public view override returns (uint256) {
         return IDForceStake(liquidityPoolToStakingPool[_liquidityPool]).earned(_optyPool);
     }
 
-    function getClaimRewardTokenCode(address, address _liquidityPool) public view override returns (bytes[] memory _codes) {
+    function getClaimRewardTokenCode(address payable, address _liquidityPool) public view override returns (bytes[] memory _codes) {
         address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
         _codes = new bytes[](1);
         _codes[0] = abi.encode(_stakingPool, abi.encodeWithSignature("getReward()"));
     }
 
     function getHarvestSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
@@ -172,7 +201,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getHarvestAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -185,16 +214,18 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getStakeSomeCodes(address _liquidityPool, uint256 _shares) public view override returns (bytes[] memory _codes) {
-        address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
-        address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _stakingPool, uint256(0)));
-        _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _stakingPool, _shares));
-        _codes[2] = abi.encode(_stakingPool, abi.encodeWithSignature("stake(uint256)", _shares));
+        if (_shares > 0) {
+            address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _stakingPool, uint256(0)));
+            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _stakingPool, _shares));
+            _codes[2] = abi.encode(_stakingPool, abi.encodeWithSignature("stake(uint256)", _shares));
+        }
     }
 
     function getStakeAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -203,18 +234,20 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _shares) public view override returns (bytes[] memory _codes) {
-        address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(_stakingPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+        if (_shares > 0) {
+            address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(_stakingPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+        }
     }
 
-    function getUnstakeAllCodes(address _optyPool, address _liquidityPool) public view override returns (bytes[] memory _codes) {
+    function getUnstakeAllCodes(address payable _optyPool, address _liquidityPool) public view override returns (bytes[] memory _codes) {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyPool, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
     function getAllAmountInTokenStake(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -230,13 +263,13 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
         return b;
     }
 
-    function getLiquidityPoolTokenBalanceStake(address _optyPool, address _liquidityPool) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable _optyPool, address _liquidityPool) public view override returns (uint256) {
         address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
         return IERC20(_stakingPool).balanceOf(_optyPool);
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address _optyPool,
+        address payable _optyPool,
         address,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -249,7 +282,7 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficientStake(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -259,18 +292,20 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](2);
-        _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
-        _codes[1] = getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount)[0];
+        if (_redeemAmount > 0) {
+            _codes = new bytes[](2);
+            _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
+            _codes[1] = getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount)[0];
+        }
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -289,5 +324,18 @@ contract DForceCodeProvider is ICodeProvider, Modifiers {
 
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
+    }
+
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
+    }
+
+    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+        _depositAmount = _amount;
+        uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
+        uint256 _limit = (_poolValue.mul(maxExposure)).div(uint256(10000));
+        if (_depositAmount > _limit) {
+            _depositAmount = _limit;
+        }
     }
 }

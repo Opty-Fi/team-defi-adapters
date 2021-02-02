@@ -19,6 +19,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public swapPoolToGauges;
     mapping(address => bool) public noRemoveLiquidityOneCoin;
     Gatherer public gathererContract;
+    uint256 public maxExposure; // basis points
 
     // reward token
     address public rewardToken;
@@ -51,6 +52,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     address public constant YUSDT = address(0xE6354ed5bC4b393a5Aad09f21c46E101e692d447);
     address public constant YTUSD = address(0x73a052500105205d34Daf004eAb301916DA8190f);
     address public constant YBUSD = address(0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE);
+    address public constant DUSD = address(0x5BC25f649fc4e26069dDF4cF4010F9f706c23831);
 
     // swap pool
     address public constant COMPOUND_SWAP_POOL = address(0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56);
@@ -201,31 +203,31 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address[] memory _usdnUnderlyingTokens = new address[](2);
         _usdnUnderlyingTokens[0] = USDN;
         _usdnUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(USDN_SWAP_POOL, LINKUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(USDK_SWAP_POOL, _usdnUnderlyingTokens);
+        setLiquidityPoolToken(USDN_SWAP_POOL, USDN_THREE_CRV);
+        setSwapPoolToUnderlyingTokens(USDN_SWAP_POOL, _usdnUnderlyingTokens);
 
         address[] memory _linkusdUnderlyingTokens = new address[](2);
         _linkusdUnderlyingTokens[0] = LINKUSD;
         _linkusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(LINKUSD_SWAP_POOL, MUSD_THREE_CRV);
+        setLiquidityPoolToken(LINKUSD_SWAP_POOL, LINKUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(LINKUSD_SWAP_POOL, _linkusdUnderlyingTokens);
 
         address[] memory _musdUnderlyingTokens = new address[](2);
         _musdUnderlyingTokens[0] = MUSD;
         _musdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(MUSD_SWAP_POOL, RSV_THREE_CRV);
+        setLiquidityPoolToken(MUSD_SWAP_POOL, MUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(MUSD_SWAP_POOL, _musdUnderlyingTokens);
 
         address[] memory _rsvUnderlyingTokens = new address[](2);
         _rsvUnderlyingTokens[0] = RSV;
         _rsvUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(RSV_SWAP_POOL, TBTC_SBTC_CRV);
+        setLiquidityPoolToken(RSV_SWAP_POOL, RSV_THREE_CRV);
         setSwapPoolToUnderlyingTokens(RSV_SWAP_POOL, _rsvUnderlyingTokens);
 
         address[] memory _tbtcUnderlyingTokens = new address[](2);
         _tbtcUnderlyingTokens[0] = TBTC;
-        _tbtcUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(TBTC_SWAP_POOL, DUSD_THREE_CRV);
+        _tbtcUnderlyingTokens[1] = CRV_REN_BTC_WBTC_SBTC;
+        setLiquidityPoolToken(TBTC_SWAP_POOL, TBTC_SBTC_CRV);
         setSwapPoolToUnderlyingTokens(TBTC_SWAP_POOL, _tbtcUnderlyingTokens);
 
         setSwapPoolToGauges(COMPOUND_SWAP_POOL, address(0x7ca5b0a2910B33e9759DC7dDB0413949071D7575));
@@ -246,6 +248,12 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         setSwapPoolToGauges(RSV_SWAP_POOL, address(0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7));
         setSwapPoolToGauges(TBTC_SWAP_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
         setSwapPoolToGauges(DUSD_SWAP_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
+
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address, address) public view override returns (uint256) {
+        revert("!empty");
     }
 
     /**
@@ -255,7 +263,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     * @param _amounts Quantity of _underlyingToken to deposit
     */
     function getDepositSomeCodes(
-        address,
+        address payable,
         address[] memory,
         address _liquidityPool,
         uint256[] memory _amounts
@@ -273,7 +281,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getDepositAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -286,6 +294,24 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    function getBorrowAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRepayAndWithdrawAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
     /**
      * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
      *
@@ -293,7 +319,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
      */
     function getWithdrawSomeCodes(
-        address,
+        address payable,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
@@ -311,7 +337,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -334,7 +360,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      *      the user's balance in _liquidityPoolToken
      */
     function getAllAmountInToken(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -343,7 +369,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getLiquidityPoolTokenBalance(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -389,7 +415,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -401,7 +427,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficient(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -417,14 +443,14 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address, address _liquidityPool) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool) public view override returns (uint256) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
         }
         return uint256(0);
     }
 
-    function getClaimRewardTokenCode(address, address _liquidityPool) public view override returns (bytes[] memory _codes) {
+    function getClaimRewardTokenCode(address payable, address _liquidityPool) public view override returns (bytes[] memory _codes) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
@@ -435,7 +461,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getHarvestSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
@@ -444,7 +470,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getHarvestAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -469,7 +495,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getStakeAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -483,7 +509,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         _codes[0] = abi.encode(_gauge, abi.encodeWithSignature("withdraw(uint256)", _unstakeAmount));
     }
 
-    function getUnstakeAllCodes(address _optyPool, address _liquidityPool) public view override returns (bytes[] memory _codes) {
+    function getUnstakeAllCodes(address payable _optyPool, address _liquidityPool) public view override returns (bytes[] memory _codes) {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyPool, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
@@ -495,7 +521,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      *      the user's balance in _liquidityPoolToken in staking pool(gauge)
      */
     function getAllAmountInTokenStake(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -521,12 +547,12 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         return _b;
     }
 
-    function getLiquidityPoolTokenBalanceStake(address _optyPool, address _liquidityPool) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable _optyPool, address _liquidityPool) public view override returns (uint256) {
         return ICurveGauge(swapPoolToGauges[_liquidityPool]).balanceOf(_optyPool);
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -538,7 +564,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficientStake(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -548,21 +574,23 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](4);
-        _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
-        bytes[] memory _withdrawCodes = getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount);
-        _codes[1] = _withdrawCodes[0];
-        _codes[2] = _withdrawCodes[1];
-        _codes[3] = _withdrawCodes[2];
+        if (_redeemAmount > 0) {
+            _codes = new bytes[](4);
+            _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
+            bytes[] memory _withdrawCodes = getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount);
+            _codes[1] = _withdrawCodes[0];
+            _codes[2] = _withdrawCodes[1];
+            _codes[3] = _withdrawCodes[2];
+        }
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -611,6 +639,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     ) internal pure returns (bytes[] memory _codes) {
         uint256[2] memory _amountsIn;
         uint8 _codeLength = 1;
+        bool _IsAmount = false;
         // calculator for lines of code
         for (uint8 i = 0; i < 2; i++) {
             _amountsIn[i] = _amounts[i];
@@ -626,6 +655,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         uint8 _j = 0;
         for (uint8 i = 0; i < 2; i++) {
             if (_amountsIn[i] > 0) {
+                _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
                     _codes[_j++] = abi.encode(
                         _underlyingTokens[i],
@@ -643,7 +673,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
                 }
             }
         }
-        _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _amountsIn, uint256(0)));
+        if (_IsAmount) {
+            _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _amountsIn, uint256(0)));
+        }
     }
 
     /**
@@ -659,6 +691,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     ) internal pure returns (bytes[] memory _codes) {
         uint256[3] memory _amountsIn;
         uint8 _codeLength = 1;
+        bool _IsAmount = false;
         // calculator for lines of code
         for (uint8 i = 0; i < 3; i++) {
             _amountsIn[i] = _amounts[i];
@@ -674,6 +707,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         uint8 _j = 0;
         for (uint8 i = 0; i < 3; i++) {
             if (_amountsIn[i] > 0) {
+                _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
                     _codes[_j++] = abi.encode(
                         _underlyingTokens[i],
@@ -691,7 +725,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
                 }
             }
         }
-        _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _amountsIn, uint256(0)));
+        if (_IsAmount) {
+            _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _amountsIn, uint256(0)));
+        }
     }
 
     /**
@@ -707,6 +743,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     ) internal pure returns (bytes[] memory _codes) {
         uint256[4] memory _amountsIn;
         uint8 _codeLength = 1;
+        bool _IsAmount = false;
         // calculator for lines of code
         for (uint8 i = 0; i < 4; i++) {
             _amountsIn[i] = _amounts[i];
@@ -722,6 +759,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         uint8 _j = 0;
         for (uint8 i = 0; i < 4; i++) {
             if (_amountsIn[i] > 0) {
+                _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
                     _codes[_j++] = abi.encode(
                         _underlyingTokens[i],
@@ -739,7 +777,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
                 }
             }
         }
-        _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _amountsIn, uint256(0)));
+        if (_IsAmount) {
+            _codes[_j] = abi.encode(_liquidityPool, abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _amountsIn, uint256(0)));
+        }
     }
 
     /**
@@ -753,25 +793,27 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address _liquidityPool,
         uint256 _amount
     ) internal view returns (bytes[] memory _codes) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 i = 0;
-        for (uint8 j = 0; j < _underlyingTokens.length; j++) {
-            if (_underlyingTokens[j] == _underlyingToken) {
-                i = j;
+        if (_amount > 0) {
+            address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+            int128 i = 0;
+            for (uint8 j = 0; j < _underlyingTokens.length; j++) {
+                if (_underlyingTokens[j] == _underlyingToken) {
+                    i = j;
+                }
             }
-        }
-        address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-        _codes = new bytes[](3);
-        if (!noRemoveLiquidityOneCoin[_liquidityPool]) {
-            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("remove_liquidity_one_coin(uint256,int128,uint256)", _amount, i, uint256(0))
-            );
-        } else {
-            // Note : swap pools of compound,usdt,pax,y,susd and busd does not have remove_liquidity_one_coin function
-            revert("!remove_one_coin");
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+            _codes = new bytes[](3);
+            if (!noRemoveLiquidityOneCoin[_liquidityPool]) {
+                _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+                _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("remove_liquidity_one_coin(uint256,int128,uint256)", _amount, i, uint256(0))
+                );
+            } else {
+                // Note : swap pools of compound,usdt,pax,y,susd and busd does not have remove_liquidity_one_coin function
+                revert("!remove_one_coin");
+            }
         }
     }
 
@@ -782,12 +824,14 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
     function _getWithdraw2Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
-        address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut));
+        if (_amount > 0) {
+            uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut));
+        }
     }
 
     /**
@@ -797,12 +841,14 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
     function _getWithdraw3Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
-        address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut));
+        if (_amount > 0) {
+            uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut));
+        }
     }
 
     /**
@@ -812,12 +858,14 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
     function _getWithdraw4Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
-        address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut));
+        if (_amount > 0) {
+            uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_liquidityPoolToken, abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut));
+        }
     }
 
     function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
@@ -826,5 +874,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
 
     function setGatherer(address _gatherer) public onlyOperator {
         gathererContract = Gatherer(_gatherer);
+    }
+
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
     }
 }

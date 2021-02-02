@@ -7,8 +7,13 @@ import "../../interfaces/opty/ICodeProvider.sol";
 import "../../interfaces/dydx/IdYdX.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../utils/Modifiers.sol";
+import "../../libraries/SafeMath.sol";
 
-contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
+contract dYdXCodeProvider is ICodeProvider, Modifiers {
+    using SafeMath for uint256;
+
+    uint256 public maxExposure; // basis points
+
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
 
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -30,52 +35,63 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
         addMarket(SAI, 1);
         addMarket(USDC, 2);
         addMarket(DAI, 3);
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
+        return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
     }
 
     function getDepositSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
         uint256 _underlyingTokenIndex;
+        bool _IsAmount = false;
         for (uint256 i = 0; i < _amounts.length; i++) {
             if (_amounts[i] > 0) {
+                _IsAmount = true;
                 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];
             }
         }
-        AccountInfo[] memory _accountInfos = new AccountInfo[](1);
-        _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
-        AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _amounts[_underlyingTokenIndex]);
-        ActionArgs memory _actionArg;
-        _actionArg.actionType = ActionType.Deposit;
-        _actionArg.accountId = 0;
-        _actionArg.amount = _amt;
-        _actionArg.primaryMarketId = _underlyingTokenIndex;
-        _actionArg.otherAddress = _optyPool;
-        ActionArgs[] memory _actionArgs = new ActionArgs[](1);
-        _actionArgs[0] = _actionArg;
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(
-            _underlyingTokens[_underlyingTokenIndex],
-            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-        );
-        _codes[1] = abi.encode(
-            _underlyingTokens[_underlyingTokenIndex],
-            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
-        );
-        _codes[2] = abi.encode(
-            _liquidityPool,
-            abi.encodeWithSignature(
-                "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
-                _accountInfos,
-                _actionArgs
-            )
-        );
+        if (_IsAmount) {
+            uint256 _depositAmount =
+                _getDepositAmount(_liquidityPool, _underlyingTokens[_underlyingTokenIndex], _amounts[_underlyingTokenIndex]);
+            AccountInfo[] memory _accountInfos = new AccountInfo[](1);
+            _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
+            AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
+            ActionArgs memory _actionArg;
+            _actionArg.actionType = ActionType.Deposit;
+            _actionArg.accountId = 0;
+            _actionArg.amount = _amt;
+            _actionArg.primaryMarketId = _underlyingTokenIndex;
+            _actionArg.otherAddress = _optyPool;
+            ActionArgs[] memory _actionArgs = new ActionArgs[](1);
+            _actionArgs[0] = _actionArg;
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(
+                _underlyingTokens[_underlyingTokenIndex],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _underlyingTokens[_underlyingTokenIndex],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
+            );
+            _codes[2] = abi.encode(
+                _liquidityPool,
+                abi.encodeWithSignature(
+                    "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
+                    _accountInfos,
+                    _actionArgs
+                )
+            );
+        }
     }
 
     function getDepositAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -86,37 +102,57 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    function getBorrowAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRepayAndWithdrawAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
     function getWithdrawSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[0]];
-        AccountInfo[] memory _accountInfos = new AccountInfo[](1);
-        _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
-        AssetAmount memory _amt = AssetAmount(false, AssetDenomination.Wei, AssetReference.Delta, _amount);
-        ActionArgs memory _actionArg;
-        _actionArg.actionType = ActionType.Withdraw;
-        _actionArg.accountId = 0;
-        _actionArg.amount = _amt;
-        _actionArg.primaryMarketId = _underlyingTokenIndex;
-        _actionArg.otherAddress = _optyPool;
-        ActionArgs[] memory _actionArgs = new ActionArgs[](1);
-        _actionArgs[0] = _actionArg;
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(
-            _liquidityPool,
-            abi.encodeWithSignature(
-                "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
-                _accountInfos,
-                _actionArgs
-            )
-        );
+        if (_amount > 0) {
+            uint256 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[0]];
+            AccountInfo[] memory _accountInfos = new AccountInfo[](1);
+            _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
+            AssetAmount memory _amt = AssetAmount(false, AssetDenomination.Wei, AssetReference.Delta, _amount);
+            ActionArgs memory _actionArg;
+            _actionArg.actionType = ActionType.Withdraw;
+            _actionArg.accountId = 0;
+            _actionArg.amount = _amt;
+            _actionArg.primaryMarketId = _underlyingTokenIndex;
+            _actionArg.otherAddress = _optyPool;
+            ActionArgs[] memory _actionArgs = new ActionArgs[](1);
+            _actionArgs[0] = _actionArg;
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                _liquidityPool,
+                abi.encodeWithSignature(
+                    "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
+                    _accountInfos,
+                    _actionArgs
+                )
+            );
+        }
     }
 
     function getWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -133,7 +169,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getAllAmountInToken(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -144,7 +180,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getLiquidityPoolTokenBalance(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -168,7 +204,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address,
+        address payable,
         address,
         address,
         uint256 _redeemAmount
@@ -177,7 +213,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficient(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -190,16 +226,16 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
         return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address, address) public view override returns (bytes[] memory) {
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     function getHarvestSomeCodes(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -208,7 +244,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getHarvestAllCodes(
-        address,
+        address payable,
         address,
         address
     ) public view override returns (bytes[] memory) {
@@ -224,7 +260,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getStakeAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
@@ -235,24 +271,24 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address, address) public view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     function getAllAmountInTokenStake(
-        address,
+        address payable,
         address,
         address
     ) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address, address) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -261,7 +297,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficientStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -270,7 +306,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address,
+        address payable,
         address[] memory,
         address,
         uint256
@@ -279,7 +315,7 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
@@ -292,5 +328,22 @@ contract dYdXDepositPoolProxy is ICodeProvider, Modifiers {
 
     function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
         liquidityPoolToUnderlyingTokens[_lendingPool] = _tokens;
+    }
+
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
+    }
+
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
+        _depositAmount = _amount;
+        uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
+        uint256 _limit = (_poolValue.mul(maxExposure)).div(uint256(10000));
+        if (_depositAmount > _limit) {
+            _depositAmount = _limit;
+        }
     }
 }

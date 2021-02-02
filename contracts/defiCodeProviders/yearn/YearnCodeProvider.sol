@@ -7,24 +7,38 @@ import "../../interfaces/opty/ICodeProvider.sol";
 import "../../interfaces/yearn/IYearn.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
+import "../../utils/Modifiers.sol";
 
-contract YearnCodeProvider is ICodeProvider {
+contract YearnCodeProvider is ICodeProvider, Modifiers {
     using SafeMath for uint256;
 
+    uint256 public maxExposure; // basis points
+
+    constructor(address _registry) public Modifiers(_registry) {
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return IYearn(_liquidityPool).calcPoolValueInToken();
+    }
+
     function getDepositSomeCodes(
-        address,
+        address payable,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[0]));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _amounts[0]));
+        if (_amounts[0] > 0) {
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _depositAmount));
+        }
     }
 
     function getDepositAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -33,18 +47,38 @@ contract YearnCodeProvider is ICodeProvider {
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    function getWithdrawSomeCodes(
+    function getBorrowAllCodes(
+        address payable,
+        address[] memory,
         address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRepayAndWithdrawAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getWithdrawSomeCodes(
+        address payable,
         address[] memory,
         address _liquidityPool,
         uint256 _shares
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+        if (_shares > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+        }
     }
 
     function getWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -62,7 +96,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getAllAmountInToken(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -70,7 +104,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getLiquidityPoolTokenBalance(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -99,7 +133,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -111,7 +145,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function isRedeemableAmountSufficient(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -124,16 +158,16 @@ contract YearnCodeProvider is ICodeProvider {
         return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address, address) public view override returns (bytes[] memory) {
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     function getHarvestSomeCodes(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -142,7 +176,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getHarvestAllCodes(
-        address,
+        address payable,
         address,
         address
     ) public view override returns (bytes[] memory) {
@@ -158,7 +192,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getStakeAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
@@ -169,24 +203,24 @@ contract YearnCodeProvider is ICodeProvider {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address, address) public view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     function getAllAmountInTokenStake(
-        address,
+        address payable,
         address,
         address
     ) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address, address) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -195,7 +229,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function isRedeemableAmountSufficientStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -204,7 +238,7 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address,
+        address payable,
         address[] memory,
         address,
         uint256
@@ -213,10 +247,23 @@ contract YearnCodeProvider is ICodeProvider {
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
         revert("!empty");
+    }
+
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
+    }
+
+    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+        _depositAmount = _amount;
+        uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
+        uint256 _limit = (_poolValue.mul(maxExposure)).div(uint256(10000));
+        if (_depositAmount > _limit) {
+            _depositAmount = _limit;
+        }
     }
 }

@@ -4,31 +4,22 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "../../interfaces/opty/ICodeProvider.sol";
-import "../../interfaces/cream/ICream.sol";
+import "../../interfaces/yearn/IYVault.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
-import "../../Gatherer.sol";
 
-contract CreamCodeProvider is ICodeProvider, Modifiers {
+contract YVaultCodeProvider is ICodeProvider, Modifiers {
     using SafeMath for uint256;
 
-    address public comptroller;
-    address public rewardToken;
-    Gatherer public gathererContract;
     uint256 public maxExposure; // basis points
 
-    address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
-
-    constructor(address _registry, address _gatherer) public Modifiers(_registry) {
-        setComptroller(address(0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258));
-        setRewardToken(address(0x2ba592F78dB6436527729929AAf6c908497cB200));
-        setGatherer(_gatherer);
+    constructor(address _registry) public Modifiers(_registry) {
         setMaxExposure(uint256(5000)); // 50%
     }
 
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return ICream(_liquidityPool).getCash();
+        return IYVault(_liquidityPool).balance();
     }
 
     function getDepositSomeCodes(
@@ -39,19 +30,10 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         if (_amounts[0] > 0) {
             uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
-            if (_underlyingTokens[0] == HBTC) {
-                _codes = new bytes[](2);
-                _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[0]));
-                _codes[1] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", _depositAmount));
-            } else {
-                _codes = new bytes[](3);
-                _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-                _codes[1] = abi.encode(
-                    _underlyingTokens[0],
-                    abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
-                );
-                _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", _depositAmount));
-            }
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _depositAmount));
         }
     }
 
@@ -85,16 +67,13 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
 
     function getWithdrawSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address[] memory,
         address _liquidityPool,
-        uint256 _amount
+        uint256 _shares
     ) public view override returns (bytes[] memory _codes) {
-        if (_amount > 0) {
+        if (_shares > 0) {
             _codes = new bytes[](1);
-            _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-                abi.encodeWithSignature("redeem(uint256)", _amount)
-            );
+            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
         }
     }
 
@@ -113,7 +92,7 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
 
     function getUnderlyingTokens(address _liquidityPool, address) public view override returns (address[] memory _underlyingTokens) {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = ICream(_liquidityPool).underlying();
+        _underlyingTokens[0] = IYVault(_liquidityPool).token();
     }
 
     function getAllAmountInToken(
@@ -121,14 +100,7 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        // Mantisa 1e18 to decimals
-        uint256 b =
-            getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool));
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyPool, _liquidityPool);
-        if (_unclaimedReward > 0) {
-            b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken, _unclaimedReward));
-        }
-        return b;
+        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool));
     }
 
     function getLiquidityPoolTokenBalance(
@@ -145,17 +117,19 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(ICream(_liquidityPool).exchangeRateStored()).div(1e18);
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYVault(_liquidityPool).getPricePerFullShare()).div(
+                10**IYVault(_liquidityPool).decimals()
+            );
         }
         return _liquidityPoolTokenAmount;
     }
 
     function calculateAmountInLPToken(
-        address _underlyingToken,
+        address,
         address _liquidityPool,
         uint256 _depositAmount
     ) public view override returns (uint256) {
-        return _depositAmount.mul(1e18).div(ICream(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).exchangeRateStored());
+        return _depositAmount.mul(10**IYVault(_liquidityPool).decimals()).div(IYVault(_liquidityPool).getPricePerFullShare());
     }
 
     function calculateRedeemableLPTokenAmount(
@@ -181,34 +155,32 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+        return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address payable _optyPool, address) public view override returns (uint256) {
-        return ICream(comptroller).compAccrued(_optyPool);
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
+        revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address payable _optyPool, address) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _optyPool));
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
+        revert("!empty");
     }
 
     function getHarvestSomeCodes(
-        address payable _optyPool,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
-        return gathererContract.getHarvestCodes(_optyPool, getRewardToken(_liquidityPool), _underlyingToken, _rewardTokenAmount);
+        address payable,
+        address,
+        address,
+        uint256
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
     }
 
     function getHarvestAllCodes(
-        address payable _optyPool,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyPool);
-        return getHarvestSomeCodes(_optyPool, _underlyingToken, _liquidityPool, _rewardTokenAmount);
+        address payable,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
     }
 
     function canStake(address) public view override returns (bool) {
@@ -280,18 +252,6 @@ contract CreamCodeProvider is ICodeProvider, Modifiers {
         address
     ) public view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    function setComptroller(address _comptroller) public onlyOperator {
-        comptroller = _comptroller;
-    }
-
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
-    function setGatherer(address _gatherer) public onlyOperator {
-        gathererContract = Gatherer(_gatherer);
     }
 
     function setMaxExposure(uint256 _maxExposure) public onlyOperator {

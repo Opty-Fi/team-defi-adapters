@@ -17,6 +17,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
 
     address public comptroller;
     address public rewardToken;
+    uint256 public maxExposure; // basis points
 
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
@@ -24,22 +25,30 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setGatherer(_gatherer);
+        setMaxExposure(uint256(5000)); // 50%
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return ICompound(_liquidityPool).getCash();
     }
 
     function getDepositSomeCodes(
-        address,
+        address payable,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](3);
-        _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
-        _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[0]));
-        _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", uint256(_amounts[0])));
+        if (_amounts[0] > 0) {
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
+            _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", uint256(_depositAmount)));
+        }
     }
 
     function getDepositAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -48,21 +57,41 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    function getWithdrawSomeCodes(
+    function getBorrowAllCodes(
+        address payable,
+        address[] memory,
         address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getRepayAndWithdrawAllCodes(
+        address payable,
+        address[] memory,
+        address,
+        address
+    ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getWithdrawSomeCodes(
+        address payable,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        _codes = new bytes[](1);
-        _codes[0] = abi.encode(
-            getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-            abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
-        );
+        if (_amount > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
+            );
+        }
     }
 
     function getWithdrawAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -80,7 +109,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getAllAmountInToken(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -95,7 +124,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getLiquidityPoolTokenBalance(
-        address _optyPool,
+        address payable _optyPool,
         address,
         address _liquidityPool
     ) public view override returns (uint256) {
@@ -122,7 +151,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -134,7 +163,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficient(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -147,17 +176,17 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
         return rewardToken;
     }
 
-    function getUnclaimedRewardTokenAmount(address _optyPool, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable _optyPool, address) public view override returns (uint256) {
         return ICompound(comptroller).compAccrued(_optyPool);
     }
 
-    function getClaimRewardTokenCode(address _optyPool, address) public view override returns (bytes[] memory _codes) {
+    function getClaimRewardTokenCode(address payable _optyPool, address) public view override returns (bytes[] memory _codes) {
         _codes = new bytes[](1);
         _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _optyPool));
     }
 
     function getHarvestSomeCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
@@ -166,7 +195,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getHarvestAllCodes(
-        address _optyPool,
+        address payable _optyPool,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
@@ -183,7 +212,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getStakeAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
@@ -194,24 +223,24 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address, address) public view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     function getAllAmountInTokenStake(
-        address,
+        address payable,
         address,
         address
     ) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address, address) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -220,7 +249,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function isRedeemableAmountSufficientStake(
-        address,
+        address payable,
         address,
         address,
         uint256
@@ -229,7 +258,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address,
+        address payable,
         address[] memory,
         address,
         uint256
@@ -238,7 +267,7 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address,
+        address payable,
         address[] memory,
         address
     ) public view override returns (bytes[] memory) {
@@ -255,5 +284,18 @@ contract CompoundCodeProvider is ICodeProvider, Modifiers {
 
     function setGatherer(address _gatherer) public onlyOperator {
         gathererContract = Gatherer(_gatherer);
+    }
+
+    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
+        maxExposure = _maxExposure;
+    }
+
+    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+        _depositAmount = _amount;
+        uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
+        uint256 _limit = (_poolValue.mul(maxExposure)).div(uint256(10000));
+        if (_depositAmount > _limit) {
+            _depositAmount = _limit;
+        }
     }
 }
