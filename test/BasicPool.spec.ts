@@ -183,7 +183,7 @@ program
                 CurveSwapCodeProvider,
                 dYdXCodeProvider,
                 CreamCodeProvider,
-                AaveV2CodeProvider
+                AaveV2CodeProvider,
             };
             //  Interface for mapping the PoolProxy Contracts deployed with their variable name for using them in the code
             interface OptyPoolProxyContractVariables {
@@ -354,14 +354,16 @@ program
                                                 .toLowerCase() == "dydxcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .toLowerCase() == "aavev1codeprovider" ||
+                                                .toLowerCase() ==
+                                                "aavev1codeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
                                                 .toLowerCase() ==
                                                 "fulcrumcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .toLowerCase() == "yvaultcodeprovider" ||
+                                                .toLowerCase() ==
+                                                "yvaultcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
                                                 .toLowerCase() == "aavev2codeprovider"
@@ -379,8 +381,13 @@ program
                                                 ],
                                                 [optyRegistry.address]
                                             );
-                                            console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
-                                                // process.exit(32)
+                                            console.log(
+                                                "Printing " +
+                                                    optyPoolProxyContractsKey +
+                                                    "'s address: ",
+                                                optyPoolProxyContract.address
+                                            );
+                                            // process.exit(32)
                                         } else {
                                             console.log(
                                                 "==== 2. Depoying " +
@@ -390,29 +397,47 @@ program
                                             var overrideOptions: ethers.providers.TransactionRequest = {
                                                 gasLimit: 6721975,
                                             };
-                                            let contractJson: any = poolProxyContract[
-                                                optyPoolProxyContractsKey
-                                            ].bytecode
-                                            
-                                            if (optyPoolProxyContractsKey == "CurveSwapCodeProvider") {
+                                            let contractJson: any =
+                                                poolProxyContract[
+                                                    optyPoolProxyContractsKey
+                                                ].bytecode;
+
+                                            if (
+                                                optyPoolProxyContractsKey ==
+                                                "CurveSwapCodeProvider"
+                                            ) {
                                                 var overrideOptions: ethers.providers.TransactionRequest = {
                                                     gasLimit: 6721975,
                                                 };
-                                                console.log("Deploy in IF condition..")
-                                                let factory = new ethers.ContractFactory(poolProxyContract[
-                                                    optyPoolProxyContractsKey
-                                                ].abi, ByteCodes.CurveSwapCodeProvider, ownerWallet)
-                                                console.log("deploying curveSwap contract")
-                                                optyPoolProxyContract = await factory.deploy(optyRegistry.address, gatherer.address, overrideOptions);
-                                                console.log("deployed curve swap.....")
+                                                console.log("Deploy in IF condition..");
+                                                let factory = new ethers.ContractFactory(
+                                                    poolProxyContract[
+                                                        optyPoolProxyContractsKey
+                                                    ].abi,
+                                                    ByteCodes.CurveSwapCodeProvider,
+                                                    ownerWallet
+                                                );
+                                                console.log(
+                                                    "deploying curveSwap contract"
+                                                );
+                                                optyPoolProxyContract = await factory.deploy(
+                                                    optyRegistry.address,
+                                                    gatherer.address,
+                                                    overrideOptions
+                                                );
+                                                console.log("deployed curve swap.....");
                                                 // console.log("deploying txn: ", optyPoolProxyContract.deployTransaction)
-                                                let curveSwapDeployReceipt = await optyPoolProxyContract.deployTransaction.wait()
+                                                let curveSwapDeployReceipt = await optyPoolProxyContract.deployTransaction.wait();
                                                 // console.log("Curve swap deployed receipt:  ", curveSwapDeployReceipt)
-                                                console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
+                                                console.log(
+                                                    "Printing " +
+                                                        optyPoolProxyContractsKey +
+                                                        "'s address: ",
+                                                    optyPoolProxyContract.address
+                                                );
                                                 // process.exit(32)
-                                            }
-                                            else {
-                                                console.log("Deploy in else condition")
+                                            } else {
+                                                console.log("Deploy in else condition");
                                                 var overrideOptions: ethers.providers.TransactionRequest = {
                                                     gasLimit: 6721975,
                                                 };
@@ -427,10 +452,14 @@ program
                                                     ],
                                                     overrideOptions
                                                 );
-                                                console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
+                                                console.log(
+                                                    "Printing " +
+                                                        optyPoolProxyContractsKey +
+                                                        "'s address: ",
+                                                    optyPoolProxyContract.address
+                                                );
                                                 // process.exit(32)
                                             }
-
 
                                             //  Setting the liquidityPoolToken, SwapPoolTOUnderlyingTokens and gauge address as pre-requisites for CurveSwapCodeProvider
                                             let curveSwapDataProviderKey: keyof typeof curveSwapDataProvider;
@@ -464,30 +493,32 @@ program
                                                         let _underlyingTokens =
                                                             tokenPairs[tokenPair]
                                                                 .underlyingTokens;
-                                                        
+
                                                         var overrideOptions: ethers.providers.TransactionRequest = {
                                                             value: 0,
                                                             gasLimit: 6721970,
                                                         };
-                                                        console.log("step-1")
-                                                        let optyPoolProxyContractOwnerSigner = optyPoolProxyContract.connect(ownerWallet)
-                                                        
-                                                        console.log("step-1a")
+                                                        console.log("step-1");
+                                                        let optyPoolProxyContractOwnerSigner = optyPoolProxyContract.connect(
+                                                            ownerWallet
+                                                        );
+
+                                                        console.log("step-1a");
                                                         // console.log("Contract: ", optyPoolProxyContract)
                                                         await optyPoolProxyContractOwnerSigner.functions.setLiquidityPoolToken(
                                                             _swapPool,
                                                             _liquidityPoolToken,
                                                             {
-                                                                gasLimit: 6700000
+                                                                gasLimit: 6700000,
                                                             }
                                                         );
                                                         // process.exit(33)
-                                                        console.log("step-2")
+                                                        console.log("step-2");
                                                         await optyPoolProxyContract.setSwapPoolToUnderlyingTokens(
                                                             _swapPool,
                                                             _underlyingTokens
                                                         );
-                                                        console.log("step-3")
+                                                        console.log("step-3");
                                                         await optyPoolProxyContract.setSwapPoolToGauges(
                                                             _swapPool,
                                                             _guage
