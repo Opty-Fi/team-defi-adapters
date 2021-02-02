@@ -17,10 +17,12 @@ import RiskManager from "../build/RiskManager.json";
 import Gatherer from "../build/Gatherer.json";
 import OptyStrategyCodeProvider from "../build/StrategyCodeProvider.json";
 import CompoundCodeProvider from "../build/CompoundCodeProvider.json";
-import AaveCodeProvider from "../build/AaveCodeProvider.json";
+import AaveV1CodeProvider from "../build/AaveV1CodeProvider.json";
+import AaveV2CodeProvider from "../build/AaveV2CodeProvider.json";
 // import AaveBorrowPoolProxy from "../build/AaveBorrowPoolProxy.json";
 import CurvePoolCodeProvider from "../build/CurvePoolCodeProvider.json";
 import CurveSwapCodeProvider from "../build/CurveSwapCodeProvider.json";
+import ByteCodes from "./shared/Bytecodes.json";
 import CreamCodeProvider from "../build/CreamCodeProvider.json";
 import DForceCodeProvider from "../build/DForceCodeProvider.json";
 import FulcrumCodeProvider from "../build/FulcrumCodeProvider.json";
@@ -135,7 +137,7 @@ program
 
             //  Interface for storing the Abi's of PoolProxy Contracts
             interface PoolProxyContract {
-                [id: string]: ContractJSON;
+                [id: string]: any;
             }
             //  Interface for getting the pools, lpTokens and underlyingTokens corresponding to PoolProxy Contract
             interface DefiPools {
@@ -172,7 +174,7 @@ program
             //  Json of PoolProxyContract for storing the Abi's of PoolProxyContracts
             let poolProxyContract: PoolProxyContract = {
                 CompoundCodeProvider,
-                AaveCodeProvider,
+                AaveV1CodeProvider,
                 FulcrumCodeProvider,
                 DForceCodeProvider,
                 HarvestCodeProvider,
@@ -181,6 +183,7 @@ program
                 CurveSwapCodeProvider,
                 dYdXCodeProvider,
                 CreamCodeProvider,
+                AaveV2CodeProvider
             };
             //  Interface for mapping the PoolProxy Contracts deployed with their variable name for using them in the code
             interface OptyPoolProxyContractVariables {
@@ -238,7 +241,7 @@ program
                 let contractTokenBalance: number;
                 let userOptyTokenBalanceWei;
                 let userOptyTokenBalance: number;
-                let optyPoolProxyContract: Contract;
+                let optyPoolProxyContract: any;
                 // let underlyingTokenDecimals: number;
                 // let tokensHash: string = "";
 
@@ -334,7 +337,7 @@ program
                                     flag = false;
                                 }
 
-                                if (flag && count <= 10) {
+                                if (flag && count <= 11) {
                                     if (
                                         poolProxyContract.hasOwnProperty(
                                             optyPoolProxyContractsKey.toString()
@@ -351,14 +354,17 @@ program
                                                 .toLowerCase() == "dydxcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .toLowerCase() == "aavecodeprovider" ||
+                                                .toLowerCase() == "aavev1codeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
                                                 .toLowerCase() ==
                                                 "fulcrumcodeprovider" ||
                                             optyPoolProxyContractsKey
                                                 .toString()
-                                                .toLowerCase() == "yvaultcodeprovider"
+                                                .toLowerCase() == "yvaultcodeprovider" ||
+                                            optyPoolProxyContractsKey
+                                                .toString()
+                                                .toLowerCase() == "aavev2codeprovider"
                                         ) {
                                             console.log(
                                                 "==== 1. Depoying " +
@@ -373,6 +379,8 @@ program
                                                 ],
                                                 [optyRegistry.address]
                                             );
+                                            console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
+                                                // process.exit(32)
                                         } else {
                                             console.log(
                                                 "==== 2. Depoying " +
@@ -382,17 +390,47 @@ program
                                             var overrideOptions: ethers.providers.TransactionRequest = {
                                                 gasLimit: 6721975,
                                             };
-                                            optyPoolProxyContract = await deployContract(
-                                                ownerWallet,
-                                                poolProxyContract[
+                                            let contractJson: any = poolProxyContract[
+                                                optyPoolProxyContractsKey
+                                            ].bytecode
+                                            
+                                            if (optyPoolProxyContractsKey == "CurveSwapCodeProvider") {
+                                                var overrideOptions: ethers.providers.TransactionRequest = {
+                                                    gasLimit: 6721975,
+                                                };
+                                                console.log("Deploy in IF condition..")
+                                                let factory = new ethers.ContractFactory(poolProxyContract[
                                                     optyPoolProxyContractsKey
-                                                ],
-                                                [
-                                                    optyRegistry.address,
-                                                    gatherer.address,
-                                                ],
-                                                overrideOptions
-                                            );
+                                                ].abi, ByteCodes.CurveSwapCodeProvider, ownerWallet)
+                                                console.log("deploying curveSwap contract")
+                                                optyPoolProxyContract = await factory.deploy(optyRegistry.address, gatherer.address, overrideOptions);
+                                                console.log("deployed curve swap.....")
+                                                // console.log("deploying txn: ", optyPoolProxyContract.deployTransaction)
+                                                let curveSwapDeployReceipt = await optyPoolProxyContract.deployTransaction.wait()
+                                                // console.log("Curve swap deployed receipt:  ", curveSwapDeployReceipt)
+                                                console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
+                                                // process.exit(32)
+                                            }
+                                            else {
+                                                console.log("Deploy in else condition")
+                                                var overrideOptions: ethers.providers.TransactionRequest = {
+                                                    gasLimit: 6721975,
+                                                };
+                                                optyPoolProxyContract = await deployContract(
+                                                    ownerWallet,
+                                                    poolProxyContract[
+                                                        optyPoolProxyContractsKey
+                                                    ],
+                                                    [
+                                                        optyRegistry.address,
+                                                        gatherer.address,
+                                                    ],
+                                                    overrideOptions
+                                                );
+                                                console.log("Printing " + optyPoolProxyContractsKey + "'s address: ", optyPoolProxyContract.address)
+                                                // process.exit(32)
+                                            }
+
 
                                             //  Setting the liquidityPoolToken, SwapPoolTOUnderlyingTokens and gauge address as pre-requisites for CurveSwapCodeProvider
                                             let curveSwapDataProviderKey: keyof typeof curveSwapDataProvider;
@@ -426,14 +464,30 @@ program
                                                         let _underlyingTokens =
                                                             tokenPairs[tokenPair]
                                                                 .underlyingTokens;
-                                                        await optyPoolProxyContract.setLiquidityPoolToken(
+                                                        
+                                                        var overrideOptions: ethers.providers.TransactionRequest = {
+                                                            value: 0,
+                                                            gasLimit: 6721970,
+                                                        };
+                                                        console.log("step-1")
+                                                        let optyPoolProxyContractOwnerSigner = optyPoolProxyContract.connect(ownerWallet)
+                                                        
+                                                        console.log("step-1a")
+                                                        // console.log("Contract: ", optyPoolProxyContract)
+                                                        await optyPoolProxyContractOwnerSigner.functions.setLiquidityPoolToken(
                                                             _swapPool,
-                                                            _liquidityPoolToken
+                                                            _liquidityPoolToken,
+                                                            {
+                                                                gasLimit: 6700000
+                                                            }
                                                         );
+                                                        // process.exit(33)
+                                                        console.log("step-2")
                                                         await optyPoolProxyContract.setSwapPoolToUnderlyingTokens(
                                                             _swapPool,
                                                             _underlyingTokens
                                                         );
+                                                        console.log("step-3")
                                                         await optyPoolProxyContract.setSwapPoolToGauges(
                                                             _swapPool,
                                                             _guage
@@ -576,8 +630,8 @@ program
                         "CompoundCodeProvider Contract is not deployed"
                     );
                     assert.isOk(
-                        optyPoolProxyContractVariables.AaveCodeProvider.address,
-                        "AaveCodeProvider Contract is not deployed"
+                        optyPoolProxyContractVariables.AaveV1CodeProvider.address,
+                        "AaveV1CodeProvider Contract is not deployed"
                     );
                     assert.isOk(
                         optyPoolProxyContractVariables.FulcrumCodeProvider.address,

@@ -41,7 +41,7 @@
             "tokens": ["0x1985365e9f78359a9b6ad760e32412f4a445e862"]
         }
     },
-    "AaveCodeProvider": {
+    "AaveV1CodeProvider": {
         "dai": {
             "pool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
             "lpToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
@@ -569,6 +569,13 @@
             "pool": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
             "lpToken": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
             "tokens": ["0x0316EB71485b0Ab14103307bf65a021042c6d380"]
+        }
+    },
+    "AaveV2CodeProvider": {
+        "dai": {
+            "pool": "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413",
+            "lpToken": "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
         }
     },
     "AaveBorrowPoolProxy": {
