@@ -174,13 +174,18 @@ contract OptyDAIAdvancePool is ERC20, ERC20Detailed, Ownable, ReentrancyGuard {
         poolValue = calPoolValueInToken();
         uint256 redeemOpDaiInDai = (poolValue.mul(_withdrawalAmount)).div(totalSupply());
 
-        _balances[msg.sender] = _balances[msg.sender].sub(_withdrawalAmount, "withdrawal amount exceeds balance");
-        _totalSupply = _totalSupply.sub(_withdrawalAmount);
-        emit Transfer(msg.sender, address(0), _withdrawalAmount);
-
-        IERC20(token).safeTransfer(msg.sender, redeemOpDaiInDai);
-        poolValue = calPoolValueInToken();
-        emit Transfer(address(this), msg.sender, redeemOpDaiInDai);
+        if (_tokenBalance.sub(_amount) == 0 || totalSupply() == 0) {
+            shares = _amount;
+        } else {
+            shares = (_amount.mul(totalSupply())).div((_tokenBalance.sub(_amount)));
+        }
+        if (balance() > 0) {
+            address[] memory _underlyingTokens = new address[](1);
+            _underlyingTokens[0] = token;
+            strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            supplyAll();
+        }
+        _mint(msg.sender, shares);
         _success = true;
     }
     
