@@ -1,0 +1,33 @@
+{
+    "BasicPool": [
+        "CompoundCodeProvider",
+        "AaveV1CodeProvider",
+        "FulcrumCodeProvider",
+        "DForceCodeProvider",
+        "HarvestCodeProvider",
+        "YVaultCodeProvider",
+        "CurvePoolCodeProvider",
+        "CurveSwapCodeProvider",
+        "dYdXCodeProvider",
+        "CreamCodeProvider",
+        "AaveV2CodeProvider",
+        "YearnCodeProvider"
+    ],
+    "AdvancePool": [
+        "CompoundDepositPoolProxy",
+        "AaveV1CodeProvider",
+        "CurveDepositPoolProxy",
+        "YearnDepositPoolProxy",
+        "FulcrumDepositPoolProxy"
+    ],
+    "AdvancePlusPool": [
+        "CompoundDepositPoolProxy",
+        "AaveV1CodeProvider",
+        "CurveDepositPoolProxy",
+        "YearnDepositPoolProxy",
+        "FulcrumDepositPoolProxy",
+        "CreamDepositPoolProxy",
+        "DForceDepositPoolProxy",
+        "HarvestDepositPoolProxy"
+    ]
+}
