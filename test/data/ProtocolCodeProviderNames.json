@@ -14,20 +14,31 @@
         "YearnCodeProvider"
     ],
     "AdvancePool": [
-        "CompoundDepositPoolProxy",
+        "CompoundCodeProvider",
         "AaveV1CodeProvider",
-        "CurveDepositPoolProxy",
-        "YearnDepositPoolProxy",
-        "FulcrumDepositPoolProxy"
+        "FulcrumCodeProvider",
+        "DForceCodeProvider",
+        "HarvestCodeProvider",
+        "YVaultCodeProvider",
+        "CurvePoolCodeProvider",
+        "CurveSwapCodeProvider",
+        "dYdXCodeProvider",
+        "CreamCodeProvider",
+        "AaveV2CodeProvider",
+        "YearnCodeProvider"
     ],
     "AdvancePlusPool": [
-        "CompoundDepositPoolProxy",
+        "CompoundCodeProvider",
         "AaveV1CodeProvider",
-        "CurveDepositPoolProxy",
-        "YearnDepositPoolProxy",
-        "FulcrumDepositPoolProxy",
-        "CreamDepositPoolProxy",
-        "DForceDepositPoolProxy",
-        "HarvestDepositPoolProxy"
+        "FulcrumCodeProvider",
+        "DForceCodeProvider",
+        "HarvestCodeProvider",
+        "YVaultCodeProvider",
+        "CurvePoolCodeProvider",
+        "CurveSwapCodeProvider",
+        "dYdXCodeProvider",
+        "CreamCodeProvider",
+        "AaveV2CodeProvider",
+        "YearnCodeProvider"
     ]
 }
