@@ -26,7 +26,7 @@ let codeProviderContract: CodeProviderContract = {
     CreamCodeProvider: CreamCodeProvider,
     AaveV2CodeProvider: AaveV2CodeProvider,
     YearnCodeProvider: YearnCodeProvider,
-};
+}; 
 
 export {
     codeProviderContract

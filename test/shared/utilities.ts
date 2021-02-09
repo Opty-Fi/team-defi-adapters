@@ -1,11 +1,12 @@
 import Ganache from "ganache-core";
 import { ethers } from "ethers";
+import { deployContract } from "ethereum-waffle";
+import { expect } from "chai";
 import exchange from "../data/exchange.json";
 import addressAbis from "../data/AddressAbis.json";
 import tokenAddresses from "../data/TokenAddresses.json";
-import { expect } from "chai";
 import * as OtherImports from "./OtherImports";
-import { deployContract } from "ethereum-waffle";
+import * as Constants from "./constants";
 
 const Pool = require("pg").Pool;
 const fs = require("fs"); //    library to read/write to a particular file
@@ -248,14 +249,15 @@ export async function deployCodeProviderContracts(
     GathererAddress: any
 ) {
     let optyCodeProviderContract;
+    optyCodeProviderContractsKey = optyCodeProviderContractsKey.toString().toLowerCase();
     if (
-        optyCodeProviderContractsKey.toString().toLowerCase() == "dydxcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev1codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() ==
-        "fulcrumcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yvaultcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev2codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yearncodeprovider"
+        optyCodeProviderContractsKey == Constants.DYDXCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.AAVEV1CODEPROVIDER ||
+        optyCodeProviderContractsKey ==
+        Constants.FULCRUMCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.YVAULTCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.AAVEV2CODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.YEARNCODEPROVIDER
     ) {
         //  Deploying the code provider contracts
         optyCodeProviderContract = await deployContract(ownerWallet, codeProviderAbi, [
@@ -267,7 +269,7 @@ export async function deployCodeProviderContracts(
         };
 
         //  Special case for deploying the CurveSwapCodeProvider.sol
-        if (optyCodeProviderContractsKey == "CurveSwapCodeProvider") {
+        if (optyCodeProviderContractsKey == Constants.CURVESWAPCODEPROVIDER) {
             var overrideOptions: ethers.providers.TransactionRequest = {
                 gasLimit: 6721975,
             };
@@ -283,7 +285,7 @@ export async function deployCodeProviderContracts(
                 overrideOptions
             );
 
-            let curveSwapDeployReceipt = await optyCodeProviderContract.deployTransaction.wait();
+            await optyCodeProviderContract.deployTransaction.wait();
         } else {
             var overrideOptions: ethers.providers.TransactionRequest = {
                 gasLimit: 6721975,
@@ -303,7 +305,7 @@ export async function deployCodeProviderContracts(
         for (curveSwapDataProviderKey in OtherImports.curveSwapDataProvider) {
             if (
                 curveSwapDataProviderKey.toString().toLowerCase() ==
-                optyCodeProviderContractsKey.toString().toLowerCase()
+                optyCodeProviderContractsKey
             ) {
                 let tokenPairs =
                     OtherImports.curveSwapDataProvider[curveSwapDataProviderKey];
