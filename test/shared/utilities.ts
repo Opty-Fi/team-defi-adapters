@@ -1,15 +1,13 @@
-import { BigNumber, bigNumberify } from "ethers/utils";
-import { Contract, ethers } from "ethers";
+import Ganache from "ganache-core";
+import { ethers } from "ethers";
+import { deployContract } from "ethereum-waffle";
+import { expect } from "chai";
 import exchange from "../data/exchange.json";
 import addressAbis from "../data/AddressAbis.json";
 import tokenAddresses from "../data/TokenAddresses.json";
-import { expect } from "chai";
 import * as OtherImports from "./OtherImports";
-import { OptyRegistry } from "./GovernanceContract";
-import { solidity, deployContract } from "ethereum-waffle";
+import * as Constants from "./constants";
 
-const dotenv = require("dotenv");
-dotenv.config();
 const Pool = require("pg").Pool;
 const fs = require("fs"); //    library to read/write to a particular file
 
@@ -21,40 +19,21 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-const Ganache = require("ganache-core");
 let provider: ethers.providers.Web3Provider;
-const MAINNET_NODE_URL = process.env.MAINNET_NODE_URL;
 
 //  Function to start the Ganache provider with forked mainnet using chainstack's network URL
 //  Getting 2 Wallets in return - one acting as Owner and another one acting as user
-export async function startChain() {
-    const ganache = await Ganache.provider({
-        fork: MAINNET_NODE_URL,
+export function getForkedMainnetProvider(ethereumNodeProvider: string, mnemonic: string, default_balance_ether: number, total_accounts: number, locked: boolean) {
+    const ganache = Ganache.provider({
+        fork: ethereumNodeProvider,
         network_id: 1,
-        mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
-        default_balance_ether: 200000,
-        total_accounts: 21,
-        locked: false,
+        mnemonic,
+        default_balance_ether,
+        total_accounts,
+        locked,
     });
-    provider = new ethers.providers.Web3Provider(ganache);
-    const ownerWallet = ethers.Wallet.fromMnemonic(
-        `${process.env.MY_METAMASK_MNEMONIC}`
-    ).connect(provider);
-    let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
-    console.log(
-        "OWNER'S ETHER BALANCE BEFORE STARTING TEST SUITE: ",
-        ethers.utils.formatEther(ownerWalletBalance)
-    );
-    const userWallet = ethers.Wallet.fromMnemonic(
-        `${process.env.MY_METAMASK_MNEMONIC}`,
-        `m/44'/60'/0'/0/1`
-    ).connect(provider);
-    let userWalletBalance = await provider.getBalance(ownerWallet.address);
-    console.log(
-        "USER'S ETHER BALANCE BEFORE STARTING TEST SUITE: ",
-        ethers.utils.formatEther(userWalletBalance)
-    );
-    return [ownerWallet, userWallet, provider];
+    provider = new ethers.providers.Web3Provider(ganache as any);
+    return provider;
 }
 
 export function expandToTokenDecimals(n: number, exponent: number): ethers.BigNumber {
@@ -245,7 +224,7 @@ export async function expectException(promise: Promise<any>, expectedError: any)
 
 // function for checking the revert conditions
 export async function expectRevert(promise: Promise<any>, expectedError: any) {
-    promise.catch(() => {}); // Avoids uncaught promise rejections in case an input validation causes us to return early
+    promise.catch(() => { }); // Avoids uncaught promise rejections in case an input validation causes us to return early
 
     if (!expectedError) {
         throw Error(
@@ -270,14 +249,15 @@ export async function deployCodeProviderContracts(
     GathererAddress: any
 ) {
     let optyCodeProviderContract;
+    optyCodeProviderContractsKey = optyCodeProviderContractsKey.toString().toLowerCase();
     if (
-        optyCodeProviderContractsKey.toString().toLowerCase() == "dydxcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev1codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() ==
-            "fulcrumcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yvaultcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev2codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yearncodeprovider"
+        optyCodeProviderContractsKey == Constants.DYDXCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.AAVEV1CODEPROVIDER ||
+        optyCodeProviderContractsKey ==
+        Constants.FULCRUMCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.YVAULTCODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.AAVEV2CODEPROVIDER ||
+        optyCodeProviderContractsKey == Constants.YEARNCODEPROVIDER
     ) {
         //  Deploying the code provider contracts
         optyCodeProviderContract = await deployContract(ownerWallet, codeProviderAbi, [
@@ -289,7 +269,7 @@ export async function deployCodeProviderContracts(
         };
 
         //  Special case for deploying the CurveSwapCodeProvider.sol
-        if (optyCodeProviderContractsKey == "CurveSwapCodeProvider") {
+        if (optyCodeProviderContractsKey == Constants.CURVESWAPCODEPROVIDER) {
             var overrideOptions: ethers.providers.TransactionRequest = {
                 gasLimit: 6721975,
             };
@@ -305,7 +285,7 @@ export async function deployCodeProviderContracts(
                 overrideOptions
             );
 
-            let curveSwapDeployReceipt = await optyCodeProviderContract.deployTransaction.wait();
+            await optyCodeProviderContract.deployTransaction.wait();
         } else {
             var overrideOptions: ethers.providers.TransactionRequest = {
                 gasLimit: 6721975,
@@ -325,7 +305,7 @@ export async function deployCodeProviderContracts(
         for (curveSwapDataProviderKey in OtherImports.curveSwapDataProvider) {
             if (
                 curveSwapDataProviderKey.toString().toLowerCase() ==
-                optyCodeProviderContractsKey.toString().toLowerCase()
+                optyCodeProviderContractsKey
             ) {
                 let tokenPairs =
                     OtherImports.curveSwapDataProvider[curveSwapDataProviderKey];
@@ -371,4 +351,13 @@ export async function deployCodeProviderContracts(
     }
 
     return optyCodeProviderContract;
+}
+
+export function getPath(filePath: string): string {
+    if (filePath?.endsWith("earn-protocol")) {
+        return `${filePath}/test/gasRecordFiles/`;
+    } else if (filePath?.endsWith("test")) {
+        return `${filePath}/gasRecordFiles/`;
+    }
+    return filePath;
 }

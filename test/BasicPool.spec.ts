@@ -1,34 +1,39 @@
+require("dotenv").config();
 import chai, { assert, expect } from "chai";
 import { Contract, ethers } from "ethers";
 import { solidity, deployContract } from "ethereum-waffle";
+import abi from "ethereumjs-abi";
+import { program } from "commander";
+import { codeProviderContract } from "./shared/ProtocolCodeProviderContracts";
 import * as utilities from "./shared/utilities";
 import * as PoolContracts from "./shared/PoolContracts";
 import * as GovernanceContracts from "./shared/GovernanceContract";
-import * as ProtocolCodeProviderContracts from "./shared/ProtocolCodeProviderContracts";
 import * as OtherImports from "./shared/OtherImports";
-import * as RegistryFunctions from "./shared/OptyRegistryFunctions";
-
-const envConfig = require("dotenv").config(); //  library to import the local ENV variables defined
-//  Note: Don't remove line-6, because this line helps to get rid of error: NOT ABLE TO READ LOCAL ENV VARIABLES defined in .env file
+import * as RegistryFunctions from "./shared/RegistryFunctions";
+import * as Interfaces from "./shared/interfaces";
+import * as Types from "./shared/types";
 
 chai.use(solidity);
 
-const { program } = require("commander"); //  library to handle the command line arguments
-const fs = require("fs"); //  library to read/write to a particular file
+const MNEMONIC: string = "misery entire skirt bridge limit shy south tomato tip spatial home rich";
+const INITIAL_ACCOUNT_BALANCE_ETHER: number = 20000;
+const MAINNET_NODE_URL: string = process.env.MAINNET_NODE_URL as string;
+const PWD: string = process.env.PWD as string;
+const ACCOUNTS: number = 21;
+const UNLOCK_ACCOUNTS = true;
 
 program
-    .description("Takes symbol and recipeint, send tokens to recipient")
+    .description("Takes symbol and recipient, send tokens to recipient")
     .option(
         "-s, --symbol <dai|usdc|usdt|wbtc|weth|susd|tusd|busd|3crv|link|renbtc|knc|zrx|uni|bat|mkr|comp|yfi|aave|hbtc|rep>",
-        "stable coin symbol",
-        null
+        "stable coin symbol"
     )
-    .option("-sn, --strategyName <string>", "name of the strategy to run", null)
-    .option("-ta, --testAmount <number>", "amount with which you want to test", 6)
+    .option("-sn, --strategyName <string>", "name of the strategy to run")
+    .option("-ta, --testAmount <number>", "amount with which you want to test", "6")
     .option(
         "-sc, --strategiesCount <number>",
         "number of strategies you want to run",
-        0
+        "0"
     )
     .option(
         "-db, --insertGasRecordsInDB <boolean>",
@@ -41,33 +46,24 @@ program
         false
     )
     .option(
-        "-v, --runTimeversion <string>",
+        "-v, --runTimeVersion <string>",
         "version of the gasUsed records stored",
         "0.0.3"
     )
     .option(
         "-cp, --codeProvider <string>",
-        "code provider to deploy if you want to give",
-        null
+        "code provider to deploy if you want to give"
     )
     .usage("-s <token-symbol> ")
     .version("0.0.1")
     .action(
-        async (command: {
-            symbol: string;
-            strategyName: string;
-            testAmount: number;
-            strategiesCount: number;
-            insertGasRecordsInDB: boolean;
-            writeGasRecordsInFile: boolean;
-            runTimeversion: string;
-            codeProvider: string;
-        }) => {
+        async (command: Types.cmdType) => {
+
             let underlyingTokenSymbol: string; //  keep track of underlying token
             let gasRecordsFileName: string; //  store file name for recording the gasUsed
             let testScriptRunTimeDateAndTime: number; //  timestamp for storing the execution of test script
 
-            //  Creatubg the file name based on underlying token passed or not
+            //  Creating the file name based on underlying token passed or not
             if (command.symbol == null) {
                 testScriptRunTimeDateAndTime = Date.now();
                 gasRecordsFileName =
@@ -83,7 +79,7 @@ program
                     testScriptRunTimeDateAndTime.toString();
             }
 
-            const abi = require("ethereumjs-abi");
+
 
             let TEST_AMOUNT_NUM: number;
 
@@ -97,65 +93,11 @@ program
 
             let TEST_AMOUNT: ethers.BigNumber; //  convert the test amount passed in to big number for testing
 
-            //  Interface for storing the Abi's of CodeProvider Contracts
-            interface CodeProviderContract {
-                [id: string]: any;
-            }
-            //  Interface for mapping the CodeProvider Contracts deployed with their variable name for using them in the code
-            interface OptyCodeProviderContractVariables {
-                [id: string]: Contract;
-            }
-
-            //  Interface for getting the pools, lpTokens and underlyingTokens corresponding to CodeProvider Contract
-            interface DefiPools {
-                [id: string]: {
-                    pool: string;
-                    lpToken: string;
-                    tokens: string[];
-                };
-            }
-
-            // Interface to store the gasRecords only
-            interface GasRecord {
-                testScriptRunDateAndTime: number;
-                strategyRunDateAndTime: number;
-                strategyName: string;
-                setStrategy: number;
-                scoreStrategy: number;
-                setAndScoreStrategy: number;
-                userDepositRebalanceTx: number;
-                userWithdrawRebalanceTx: number;
-            }
-
-            //  Interface for mapping the gasUsed records corresponding to underlying token
-            interface GasUsedRecords {
-                [id: string]: {
-                    GasRecords: GasRecord[];
-                };
-            }
-
-            //  Json of CodeProviderContract for storing the Abi's of CodeProviderContracts
-            let codeProviderContract: CodeProviderContract = {
-                CompoundCodeProvider: ProtocolCodeProviderContracts.CompoundCodeProvider,
-                AaveV1CodeProvider: ProtocolCodeProviderContracts.AaveV1CodeProvider,
-                FulcrumCodeProvider: ProtocolCodeProviderContracts.FulcrumCodeProvider,
-                DForceCodeProvider: ProtocolCodeProviderContracts.DForceCodeProvider,
-                HarvestCodeProvider: ProtocolCodeProviderContracts.HarvestCodeProvider,
-                YVaultCodeProvider: ProtocolCodeProviderContracts.YVaultCodeProvider,
-                CurvePoolCodeProvider: ProtocolCodeProviderContracts.CurvePoolCodeProvider,
-                CurveSwapCodeProvider: ProtocolCodeProviderContracts.CurveSwapCodeProvider,
-                dYdXCodeProvider: ProtocolCodeProviderContracts.dYdXCodeProvider,
-                CreamCodeProvider: ProtocolCodeProviderContracts.CreamCodeProvider,
-                AaveV2CodeProvider: ProtocolCodeProviderContracts.AaveV2CodeProvider,
-                YearnCodeProvider: ProtocolCodeProviderContracts.YearnCodeProvider,
-            };
-
-            let optyCodeProviderContractVariables: OptyCodeProviderContractVariables = {};
-            let ProtocolCodeProviderNamesKey: keyof typeof OtherImports.ProtocolCodeProviderNames; //  Getting the op<XXX>Pool contracts as key corresponding to the CodeProvider Contracts
+            let optyCodeProviderContractVariables: Interfaces.OptyCodeProviderContractVariables = {};
             let defiPoolsKey: keyof typeof OtherImports.defiPools; //  Keys of defiPools.json corresponding to CodeProvider Contracts
             let provider: ethers.providers.Web3Provider;
 
-            describe("OptyTokenBasicPool", async () => {
+            describe("OPTokenBasicPool", async () => {
                 //  local variables used throughout the testing
                 let strategyScore: number = 1;
                 let ownerWallet: ethers.Wallet;
@@ -174,11 +116,19 @@ program
                 let optyCodeProviderContract: any;
 
                 before(async () => {
-                    let allParams = await utilities.startChain();
-                    provider = <ethers.providers.Web3Provider>allParams[2];
-                    ownerWallet = <ethers.Wallet>allParams[0];
-                    userWallet = <ethers.Wallet>allParams[1];
-
+                    provider = utilities.getForkedMainnetProvider(MAINNET_NODE_URL, MNEMONIC, INITIAL_ACCOUNT_BALANCE_ETHER, ACCOUNTS, !UNLOCK_ACCOUNTS);
+                    ownerWallet = ethers.Wallet.fromMnemonic(
+                        MNEMONIC
+                    ).connect(provider);
+                    let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
+                    assert(ethers.BigNumber.from(INITIAL_ACCOUNT_BALANCE_ETHER).mul(ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18))).eq(ownerWalletBalance), `Owner's ether balance is not ${ethers.utils.formatEther(ownerWalletBalance)} before starting test suite`);
+                    userWallet = ethers.Wallet.fromMnemonic(
+                        MNEMONIC,
+                        `m/44'/60'/0'/0/1`
+                    ).connect(provider);
+                    let userWalletBalance = await provider.getBalance(ownerWallet.address);
+                    assert(ethers.BigNumber.from(INITIAL_ACCOUNT_BALANCE_ETHER).mul(ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18))).eq(userWalletBalance), `User's ether balance is not ${ethers.utils.formatEther(userWalletBalance)} before starting test suite`);
+                    
                     //  Deploying Registry, RiskManager, Gatherer and StrategyCodeProvider Contracts
                     optyRegistry = await deployContract(
                         ownerWallet,
@@ -270,7 +220,7 @@ program
 
                                 assert.isDefined(
                                     optyCodeProviderContractVariables[
-                                        optyCodeProviderContractsKey
+                                    optyCodeProviderContractsKey
                                     ],
                                     "optyCodeProviderContract contract not deployed"
                                 );
@@ -282,7 +232,7 @@ program
                                         defiPoolsKey.toString() ==
                                         optyCodeProviderContractsKey.toString()
                                     ) {
-                                        let defiPoolsUnderlyingTokens: DefiPools =
+                                        let defiPoolsUnderlyingTokens: Interfaces.DefiPools =
                                             OtherImports.defiPools[defiPoolsKey];
                                         //  Iteracting through all the underlying tokens available corresponding to this
                                         //  current CodeProvider Contract Key
@@ -343,13 +293,7 @@ program
                         }
                         count++;
                     }
-                });
 
-                after(async () => {
-                    console.log("TESTING COMPLETED..");
-                });
-
-                it("should check if the code provider contracts are deployed", async () => {
                     assert.isOk(
                         optyCodeProviderContractVariables.CompoundCodeProvider.address,
                         "CompoundCodeProvider Contract is not deployed"
@@ -452,9 +396,9 @@ program
                                 //  Getting the underlying token's contract instance
                                 underlyingToken =
                                     OtherImports.tokenAddresses[
-                                        <keyof typeof OtherImports.tokenAddresses>(
-                                            strategiesTokenKey.toLowerCase()
-                                        )
+                                    <keyof typeof OtherImports.tokenAddresses>(
+                                        strategiesTokenKey.toLowerCase()
+                                    )
                                     ];
                                 tokens = [underlyingToken];
 
@@ -586,28 +530,19 @@ program
 
                             it(
                                 "should check OptyTokenBasicPool contract is deployed for " +
-                                    strategiesTokenKey,
+                                strategiesTokenKey,
                                 async () => {
                                     assert.isOk(
                                         optyTokenBasicPool.address,
                                         "BasicPool Contract for " +
-                                            strategiesTokenKey +
-                                            "is not deployed"
+                                        strategiesTokenKey +
+                                        "is not deployed"
                                     );
                                 }
                             );
 
                             //  Recording GasUsed for all strategies to push data into DB and file at last
-                            let allStrategiesGasUsedRecords: {
-                                testScriptRunDateAndTime: number;
-                                strategyRunDateAndTime: number;
-                                strategyName: string;
-                                setStrategy: number;
-                                scoreStrategy: number;
-                                setAndScoreStrategy: number;
-                                userDepositRebalanceTx: number;
-                                userWithdrawRebalanceTx: number;
-                            }[] = [];
+                            let allStrategiesGasUsedRecords: Types.allStrategiesGasUsedRecordsType[] = [];
                             let allStrategyNames = OtherImports.allStrategies[
                                 strategiesTokenKey
                             ].basic.map((element) =>
@@ -685,7 +620,7 @@ program
                                 async function runDepositWithdrawTestCases() {
                                     it(
                                         "should deposit using userDepositRebalance() using Strategy - " +
-                                            strategies.strategyName,
+                                        strategies.strategyName,
                                         async () => {
                                             //  Setting the strategy and making it the best strategy so that each strategy can be tested
                                             //  before testing depositRebalance() and withdrawRebalance()
@@ -862,7 +797,7 @@ program
 
                                     it(
                                         "should withdraw using userWithdrawRebalance() using Strategy - " +
-                                            strategies.strategyName,
+                                        strategies.strategyName,
                                         async () => {
                                             //  Connect the BasicPool Contract with the user's Wallet for making userDeposit()
                                             let initialUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
@@ -896,14 +831,14 @@ program
                                                 let EdgeCaseStrategiesKeys: keyof typeof OtherImports.EdgeCaseStrategies;
                                                 EdgeCaseStrategiesKeys = <
                                                     keyof typeof OtherImports.EdgeCaseStrategies
-                                                >strategies.strategyName.toString();
+                                                    >strategies.strategyName.toString();
                                                 let sleepTimeInSec = OtherImports
                                                     .EdgeCaseStrategies[
                                                     EdgeCaseStrategiesKeys
                                                 ]
                                                     ? OtherImports.EdgeCaseStrategies[
-                                                          EdgeCaseStrategiesKeys
-                                                      ].sleepTimeInSec
+                                                        EdgeCaseStrategiesKeys
+                                                    ].sleepTimeInSec
                                                     : 0;
                                                 try {
                                                     //  Note: 1. roundingDelta = 0,1,2 - It works for all these 3 values for all other strategies
@@ -1146,15 +1081,15 @@ program
 
                                     let noOfTokensReceived = ethers.BigNumber.from(
                                         "0x" +
-                                            receipt.events[
-                                                receipt.events.length - 1
-                                            ].data
-                                                .toString()
-                                                .substr(
-                                                    receipt.events[
-                                                        receipt.events.length - 1
-                                                    ].data.length - 16
-                                                )
+                                        receipt.events[
+                                            receipt.events.length - 1
+                                        ].data
+                                            .toString()
+                                            .substr(
+                                                receipt.events[
+                                                    receipt.events.length - 1
+                                                ].data.length - 16
+                                            )
                                     );
                                     let noOfTokensReceivedFromFormula = poolValue
                                         .mul(withdrawAmount.sub(1))
@@ -1256,7 +1191,7 @@ program
                                     ethers.utils.formatEther(userBalance)
                                 );
 
-                                let tokenStrategyGasUsedRecord: GasUsedRecords = {};
+                                let tokenStrategyGasUsedRecord: Interfaces.GasUsedRecords = {};
                                 tokenStrategyGasUsedRecord[strategiesTokenKey] = {
                                     GasRecords: allStrategiesGasUsedRecords,
                                 };
@@ -1274,7 +1209,7 @@ program
                                                 gasRecordItem.setAndScoreStrategy,
                                                 gasRecordItem.userDepositRebalanceTx,
                                                 gasRecordItem.userWithdrawRebalanceTx,
-                                                command.runTimeversion
+                                                command.runTimeVersion
                                             );
 
                                             expect(inserQueryResponse).to.equal(
@@ -1287,40 +1222,10 @@ program
 
                                 //  Writing data into file
                                 if (command.writeGasRecordsInFile) {
-                                    let path = process.env.PWD;
-                                    if (path?.endsWith("earn-protocol")) {
-                                        path = path + "/test/gasRecordFiles/";
-                                    } else if (path?.endsWith("test")) {
-                                        path = path + "/gasRecordFiles/";
-                                    }
-
-                                    const fileName: string =
-                                        path + gasRecordsFileName + ".json";
-
-                                    //  Appending into the file (if exists) else creating new file and adding data into it
-                                    fs.stat(fileName, async function (
-                                        err: { code: string } | null,
-                                        stat: any
-                                    ) {
-                                        //  if file exists, then appending data to the file
-                                        if (err == null) {
-                                            await utilities.appendInFile(
-                                                fileName,
-                                                tokenStrategyGasUsedRecord
-                                            );
-                                        } else if (err.code === "ENOENT") {
-                                            // file does not exist, therefore creating new one and writing into it
-                                            await utilities.writeInFile(
-                                                fileName,
-                                                tokenStrategyGasUsedRecord
-                                            );
-                                        } else {
-                                            console.log(
-                                                "Error occured while writing into file: ",
-                                                err.code
-                                            );
-                                        }
-                                    });
+                                    await utilities.appendInFile(
+                                        `${utilities.getPath(PWD)}${gasRecordsFileName}.json`,
+                                        tokenStrategyGasUsedRecord
+                                    )
                                 }
                             });
                         }
