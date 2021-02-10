@@ -19,6 +19,12 @@ export interface DefiPools {
     };
 }
 
+export interface DeployCodeProviderContracts {
+    [id: string] : {
+        canHarvest: boolean
+    }
+}
+
 // Interface to store the gasRecords only
 export interface GasRecord {
     testScriptRunDateAndTime: number;

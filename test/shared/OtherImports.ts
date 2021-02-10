@@ -1,5 +1,5 @@
 import ByteCodes from "../data/Bytecodes.json";
-import ProtocolCodeProviderNames from "../data/ProtocolCodeProviderNames.json";
+import *  as ProtocolCodeProviderNames from "../data/ProtocolCodeProviderNames.json";
 import defiPools from "../data/defiPools.json";
 import curveSwapDataProvider from "../data/CurveSwapDataProvider.json";
 import allStrategies from "../data/strategies.json";
