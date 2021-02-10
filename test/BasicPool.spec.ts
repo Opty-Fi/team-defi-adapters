@@ -124,21 +124,18 @@ program
                 let optyCodeProviderContract: any;
 
                 before(async () => {
-                    console.log("Step-1")
                     provider = utilities.getForkedMainnetProvider(MAINNET_NODE_URL, MNEMONIC, INITIAL_ACCOUNT_BALANCE_ETHER, ACCOUNTS, !UNLOCK_ACCOUNTS);
                     ownerWallet = ethers.Wallet.fromMnemonic(
                         MNEMONIC
                     ).connect(provider);
-                    console.log("Step-2")
                     let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
-                    assert(ethers.BigNumber.from(INITIAL_ACCOUNT_BALANCE_ETHER).mul(ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18))).eq(ownerWalletBalance), `Owner's ether balance is not ${ethers.utils.formatEther(ownerWalletBalance)} before starting test suite`);
+                    assert(utilities.expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER,18).eq(ownerWalletBalance), `Owner's ether balance is not ${ethers.utils.formatEther(ownerWalletBalance)} before starting test suite`);
                     userWallet = ethers.Wallet.fromMnemonic(
                         MNEMONIC,
                         `m/44'/60'/0'/0/1`
                     ).connect(provider);
                     let userWalletBalance = await provider.getBalance(ownerWallet.address);
-                    console.log("Step-3")
-                    assert(ethers.BigNumber.from(INITIAL_ACCOUNT_BALANCE_ETHER).mul(ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18))).eq(userWalletBalance), `User's ether balance is not ${ethers.utils.formatEther(userWalletBalance)} before starting test suite`);
+                    assert(utilities.expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER,18).eq(userWalletBalance), `User's ether balance is not ${ethers.utils.formatEther(userWalletBalance)} before starting test suite`);
                     
                     //  Deploying Registry, RiskManager, Gatherer and StrategyCodeProvider Contracts
                     optyRegistry = await deployContract(
@@ -151,7 +148,6 @@ program
                         optyRegistry,
                         "OptyRegistry contract not deployed"
                     );
-                    console.log("Step-4")
                     riskManager = await deployContract(
                         ownerWallet,
                         GovernanceContracts.RiskManager,
@@ -159,7 +155,6 @@ program
                         GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(riskManager, "RiskManager contract not deployed");
-                    console.log("Step-5")
                     gatherer = await deployContract(
                         ownerWallet,
                         GovernanceContracts.Gatherer,
@@ -167,7 +162,6 @@ program
                         GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(gatherer, "Gatherer contract not deployed");
-                    console.log("Step-7")
                     optyStrategyCodeProvider = await deployContract(
                         ownerWallet,
                         GovernanceContracts.OptyStrategyCodeProvider,
@@ -178,7 +172,6 @@ program
                         optyStrategyCodeProvider,
                         "OptyStrategyCodeProvider contract not deployed"
                     );
-                    console.log("Step-8")
                     /*
                         Iterating through list of underlyingTokens and approving them if not approved
                     */
@@ -201,7 +194,6 @@ program
                     let optyCodeProviderContracts =
                         Object.keys(OtherImports.ProtocolCodeProviderNames);
                     for (let optyCodeProviderContractsKey of optyCodeProviderContracts) {
-                        console.log("coming in for loop")
                         let flag: boolean;
                         if (optyCodeProviderContractsKey == command.codeProvider) {
                             flag = true;
@@ -212,13 +204,12 @@ program
                         }
 
                         if (flag && count <= optyCodeProviderContracts.length) {
-                            console.log("1st if condition")
+
                             if (
                                 codeProviderContract.hasOwnProperty(
                                     optyCodeProviderContractsKey.toString()
                                 )
                             ) {
-                                console.log("213: ", optyCodeProviderContractsKey)
                                 //  Deploying  the  code provider contracts
                                 optyCodeProviderContract = await utilities.deployCodeProviderContracts(
                                     optyCodeProviderContractsKey,
@@ -361,11 +352,12 @@ program
                         optyCodeProviderContractVariables.CreamCodeProvider.address,
                         "CreamCodeProvider Contract is not deployed"
                     );
-                    console.log("Step-10")
                 });
 
                 after(async() => {
-                    console.log("TESTING COMPLETED..")
+                    //  Checking Owner's Ether balance left after all the transactions
+                    let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
+                    assert(ownerWalletBalance.lt(utilities.expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER,18)),`Owner's ether balance: ${ethers.utils.formatEther(ownerWalletBalance)} is not less than the balance before starting test suite`);
                 })
 
                 //  Iterating through all the strategies by picking underlyingTokens as key
@@ -521,7 +513,6 @@ program
                                 let userDepositRebalanceTxGasUsed: number = 0;
                                 let userWithdrawRebalanceTxGasUsed: number = 0;
 
-                                console.log("Coming into Strategies Iteration")
                                 //  Run for either specific strategy passed from command line or run it for all the strategies
                                 //  If any wrong strategy is passed from command line, then error will be thrown and testing will be stopped.
                                 if (command.strategyName == null) {
@@ -555,7 +546,6 @@ program
                                         }
                                     }
                                 } else {
-                                    console.log("Coming in else condition when strategy name is passed..")
                                     if (
                                         !allStrategyNames.includes(
                                             command.strategyName.toLowerCase()
@@ -807,7 +797,7 @@ program
                                                     ].sleepTimeInSec
                                                     : 0;
                                                 try {
-                                                    //  Note: 1. roundingDelta = 0,1,2 - It works for all these 3 values for all other strategies
+                                                    //  Note: 1. roundingDelta = 0,1,2 - It works for all these 3 values for all other strategies - Deepanshu
                                                     //  2. roundingDelta = 0,2,3... - It work for "USDT-deposit-CURVE-ypaxCrv". "USDT-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD", "USDT-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD" but not for roundingDelta = 1
                                                     // let roundingDelta = utilities.expandToTokenDecimals(2, underlyingTokenDecimals); // - also works
                                                     let roundingDelta = 0;
@@ -816,7 +806,6 @@ program
                                                         sleepTimeInSec * 1000
                                                     ); //  Needs to wait  for min 60 sec or above else withdraw will through a revert error
 
-                                                    // await optyTokenBasicPoolAsSignerUser.userWithdraw(initialUserOptyTokenBalanceWei.sub(1))
                                                     await testUserWithdrawRebalance(
                                                         initialUserOptyTokenBalanceWei,
                                                         roundingDelta
@@ -834,7 +823,6 @@ program
 
                                 //  Function to deposit the underlying tokens into Opty<XXX>Pool and test the userDepositRebalance()
                                 async function testUserDepositRebalance() {
-                                    console.log("coming in deposit testing")
                                     let userInitialTokenBalanceWei = await tokenContractInstance.balanceOf(
                                         userWallet.address
                                     );
@@ -1136,21 +1124,12 @@ program
                             });
 
                             after(async () => {
-                                //  Checking Owner and User's Ether balance left after all the transactions
-                                let balance = await provider.getBalance(
-                                    ownerWallet.address
-                                );
-                                console.log(
-                                    "OWNER'S ETHER BALANCE AFTER ALL TEST SUITS: ",
-                                    ethers.utils.formatEther(balance)
-                                );
-                                let userBalance = await provider.getBalance(
-                                    userWallet.address
-                                );
-                                console.log(
-                                    "USER'S ETHER BALANCE AFTER ALL TEST SUITS: ",
-                                    ethers.utils.formatEther(userBalance)
-                                );
+                                //  Checking User's Ether balance left after all the transactions
+                                let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
+                                assert(ownerWalletBalance.lt(utilities.expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER,18)),`Owner's ether balance: ${ethers.utils.formatEther(ownerWalletBalance)} is not less than the balance before starting test suite`);
+
+                                let userWalletBalance = await provider.getBalance(userWallet.address);
+                                assert(userWalletBalance.lt(utilities.expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER,18)),`User's ether balance: ${ethers.utils.formatEther(userWalletBalance)} is not less than the balance before starting test suite`);
 
                                 let tokenStrategyGasUsedRecord: Interfaces.GasUsedRecords = {};
                                 tokenStrategyGasUsedRecord[strategiesTokenKey] = {

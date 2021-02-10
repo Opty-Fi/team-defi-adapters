@@ -333,7 +333,6 @@ export async function deployCodeProviderContracts(
         OtherImports.ProtocolCodeProviderNames;
     const canHarvestStatus: Boolean =
         ProtocolCodeProviderNames[optyCodeProviderContractsKey].canHarvest;
-    console.log("STatus: ", canHarvestStatus);
 
     optyCodeProviderContractsKey = optyCodeProviderContractsKey
         .toString()
