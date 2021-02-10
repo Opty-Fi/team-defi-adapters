@@ -396,3 +396,10 @@ export function getSoliditySHA3Hash(argTypes: string[], args: any[]): string {
     const soliditySHA3Hash = "0x" + abi.soliditySHA3(argTypes, args).toString("hex");
     return soliditySHA3Hash;
 }
+
+export async function getBlockTimestamp(provider: any) {
+    const blockNumber = await provider.getBlockNumber()
+    const block = await provider.getBlock(blockNumber)
+    const timestamp = block.timestamp
+    return timestamp;
+}

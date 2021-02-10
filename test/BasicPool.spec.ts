@@ -524,12 +524,13 @@ program
                                         );
                                     }
 
+                                    const timestamp = await utilities.getBlockTimestamp(provider) * 2
                                     //  Fund the user's wallet with some TEST_AMOUNT_NUM of tokens
                                     await utilities.fundWallet(
                                         underlyingToken,
                                         userWallet,
                                         TEST_AMOUNT.sub(userTokenBalanceWei),
-                                        "1000000000000000000",
+                                        timestamp.toString(),
                                         GAS_OVERRIDE_OPTIONS,
                                         ETH_VALUE_GAS_OVERIDE_OPTIONS
                                     );
@@ -541,11 +542,12 @@ program
 
                                     //  If still user's wallet is not funded with TEST_AMOUNT, then fund the wallet again with remaining tokens
                                     if (userTokenBalanceWei.lt(TEST_AMOUNT)) {
+                                        const timestamp = await utilities.getBlockTimestamp(provider) * 2
                                         await utilities.fundWallet(
                                             underlyingToken,
                                             userWallet,
                                             TEST_AMOUNT.sub(userTokenBalanceWei),
-                                            "1000000000000000000",
+                                            timestamp.toString(),
                                             GAS_OVERRIDE_OPTIONS,
                                             ETH_VALUE_GAS_OVERIDE_OPTIONS
                                         );
