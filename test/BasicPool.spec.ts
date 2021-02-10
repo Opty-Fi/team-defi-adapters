@@ -2,7 +2,7 @@ require("dotenv").config();
 import chai, { assert, expect } from "chai";
 import { Contract, ethers } from "ethers";
 import { solidity, deployContract } from "ethereum-waffle";
-import abi from "ethereumjs-abi";
+// import abi from "ethereumjs-abi";
 // const abi = require("ethereumjs-abi");
 import { program } from "commander";
 import { codeProviderContract } from "./shared/ProtocolCodeProviderContracts";
@@ -455,11 +455,7 @@ program
                                 }
 
                                 //  Setting the TokensHash corresponding to the list of tokens
-                                tokensHash =
-                                    "0x" +
-                                    abi
-                                        .soliditySHA3(["address[]"], [tokens])
-                                        .toString("hex");
+                                tokensHash = utilities.getSoliditySHA3Hash(["address[]"], [tokens]);
 
                                 //  Deploying the BasicPool Contract each time for MKR underlying token
                                 if (
@@ -706,32 +702,21 @@ program
                                             let strategyStepHash: string[] = [];
                                             strategySteps.forEach(
                                                 (tempStrategyStep, index) => {
-                                                    strategyStepHash[index] =
-                                                        "0x" +
-                                                        abi
-                                                            .soliditySHA3(
-                                                                [
-                                                                    "address",
-                                                                    "address",
-                                                                    "bool",
-                                                                ],
-                                                                [
-                                                                    tempStrategyStep[0],
-                                                                    tempStrategyStep[1],
-                                                                    tempStrategyStep[2],
-                                                                ]
-                                                            )
-                                                            .toString("hex");
+                                                    strategyStepHash[index] = utilities.getSoliditySHA3Hash(
+                                                        [
+                                                            "address",
+                                                            "address",
+                                                            "bool",
+                                                        ],
+                                                        [
+                                                            tempStrategyStep[0],
+                                                            tempStrategyStep[1],
+                                                            tempStrategyStep[2],
+                                                        ]
+                                                    )
                                                 }
                                             );
-                                            let tokenToStrategyStepsHash =
-                                                "0x" +
-                                                abi
-                                                    .soliditySHA3(
-                                                        ["bytes32", "bytes32[]"],
-                                                        [tokensHash, strategyStepHash]
-                                                    )
-                                                    .toString("hex");
+                                            let tokenToStrategyStepsHash = utilities.getSoliditySHA3Hash(["bytes32", "bytes32[]"], [tokensHash, strategyStepHash])
 
                                             //  Getting the strategy hash corresponding to underlying token
                                             let tokenToStrategyHashes = await optyRegistry.getTokenToStrategies(
