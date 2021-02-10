@@ -2,8 +2,6 @@ require("dotenv").config();
 import chai, { assert, expect } from "chai";
 import { Contract, ethers } from "ethers";
 import { solidity, deployContract } from "ethereum-waffle";
-// import abi from "ethereumjs-abi";
-// const abi = require("ethereumjs-abi");
 import { program } from "commander";
 import { codeProviderContract } from "./shared/ProtocolCodeProviderContracts";
 import * as utilities from "./shared/utilities";
@@ -73,9 +71,6 @@ program
             let gasRecordsFileName: string; //  store file name for recording the gasUsed
             let testScriptRunTimeDateAndTime: number; //  timestamp for storing the execution of test script
 
-            console.log("Strategy name: ", command.strategyName)
-            console.log("Copy provider: ", command.codeProvider)
-            // process.exit(21)
             //  Creating the file name based on underlying token passed or not
             if (command.symbol == null) {
                 testScriptRunTimeDateAndTime = Date.now();
@@ -492,75 +487,6 @@ program
                                 );
                             });
 
-                            //  Function to fund the wallet with the underlying tokens equivalent to TEST_AMOUNT_NUM
-                            async function checkAndFundWallet() {
-                                //  user's initial underlying tokens balance
-                                userTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                    userWallet.address
-                                );
-
-                                // user's initial opXXXBsc tokens balance in Wei
-                                userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
-                                    userWallet.address
-                                );
-                                userOptyTokenBalance = parseFloat(
-                                    utilities.fromWeiToString(userOptyTokenBalanceWei, underlyingTokenDecimals)
-                                );
-                                //  If user's underlying token balance is less than TEST_AMOUNT then, fund user's wallet with underlying token
-                                if (
-                                    userTokenBalanceWei.lt(TEST_AMOUNT) ||
-                                    userTokenBalanceWei == undefined
-                                ) {
-                                    let FUND_AMOUNT;
-                                    //  Edge case for funding the HBTC token due to price impact during swapping
-                                    if (
-                                        tokenContractInstance.address ==
-                                        "0x0316EB71485b0Ab14103307bf65a021042c6d380"
-                                    ) {
-                                        FUND_AMOUNT = TEST_AMOUNT;
-                                    } else {
-                                        FUND_AMOUNT = TEST_AMOUNT.sub(
-                                            userTokenBalanceWei
-                                        );
-                                    }
-
-                                    const timestamp = await utilities.getBlockTimestamp(provider) * 2
-                                    //  Fund the user's wallet with some TEST_AMOUNT_NUM of tokens
-                                    await utilities.fundWallet(
-                                        underlyingToken,
-                                        userWallet,
-                                        TEST_AMOUNT.sub(userTokenBalanceWei),
-                                        timestamp.toString(),
-                                        GAS_OVERRIDE_OPTIONS,
-                                        ETH_VALUE_GAS_OVERIDE_OPTIONS
-                                    );
-
-                                    // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
-                                    userTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                        userWallet.address
-                                    );
-
-                                    //  If still user's wallet is not funded with TEST_AMOUNT, then fund the wallet again with remaining tokens
-                                    if (userTokenBalanceWei.lt(TEST_AMOUNT)) {
-                                        const timestamp = await utilities.getBlockTimestamp(provider) * 2
-                                        await utilities.fundWallet(
-                                            underlyingToken,
-                                            userWallet,
-                                            TEST_AMOUNT.sub(userTokenBalanceWei),
-                                            timestamp.toString(),
-                                            GAS_OVERRIDE_OPTIONS,
-                                            ETH_VALUE_GAS_OVERIDE_OPTIONS
-                                        );
-                                        userTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                            userWallet.address
-                                        );
-                                    }
-                                    userInitialTokenBalance = parseFloat(
-                                        utilities.fromWeiToString(userTokenBalanceWei, underlyingTokenDecimals)
-                                    );
-                                }
-                            }
-
                             it(
                                 "should check OptyTokenBasicPool contract is deployed for " +
                                 strategiesTokenKey,
@@ -811,7 +737,23 @@ program
                                                 );
 
                                                 // Funding the wallet with the underlying tokens before making the deposit transaction
-                                                await checkAndFundWallet();
+                                                let allFundWalletReturnParams = await utilities.checkAndFundWallet(
+                                                    underlyingToken,
+                                                    underlyingTokenDecimals,
+                                                    tokenContractInstance,
+                                                    userWallet,
+                                                    optyTokenBasicPool,
+                                                    userOptyTokenBalance,
+                                                    TEST_AMOUNT,
+                                                    userInitialTokenBalance,
+                                                    GAS_OVERRIDE_OPTIONS,
+                                                    ETH_VALUE_GAS_OVERIDE_OPTIONS
+                                                );
+                                                userTokenBalanceWei = allFundWalletReturnParams[0];
+                                                userOptyTokenBalanceWei = allFundWalletReturnParams[1];
+                                                userOptyTokenBalance = allFundWalletReturnParams[2];
+                                                userTokenBalanceWei = allFundWalletReturnParams[3];
+                                                userInitialTokenBalance = allFundWalletReturnParams[4];
                                                 //  Function call to test userDepositRebalance()
                                                 await testUserDepositRebalance();
                                                 strategyScore = strategyScore + 1;

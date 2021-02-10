@@ -1,5 +1,5 @@
 import Ganache from "ganache-core";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { deployContract } from "ethereum-waffle";
 import { expect } from "chai";
 import abi from "ethereumjs-abi";
@@ -398,8 +398,87 @@ export function getSoliditySHA3Hash(argTypes: string[], args: any[]): string {
 }
 
 export async function getBlockTimestamp(provider: any) {
-    const blockNumber = await provider.getBlockNumber()
-    const block = await provider.getBlock(blockNumber)
-    const timestamp = block.timestamp
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
+    const timestamp = block.timestamp;
     return timestamp;
+}
+
+//  Function to fund the wallet with the underlying tokens equivalent to TEST_AMOUNT_NUM
+export async function checkAndFundWallet(
+    underlyingToken: any,
+    underlyingTokenDecimals: any,
+    tokenContractInstance: Contract,
+    userWallet: any,
+    optyTokenBasicPool: Contract,
+    userOptyTokenBalance: number,
+    TEST_AMOUNT: ethers.BigNumber,
+    userInitialTokenBalance: any,
+    GAS_OVERRIDE_OPTIONS: any,
+    ETH_VALUE_GAS_OVERIDE_OPTIONS: any
+) {
+    //  user's initial underlying tokens balance
+    let userTokenBalanceWei = await tokenContractInstance.balanceOf(userWallet.address);
+
+    // user's initial opXXXBsc tokens balance in Wei
+    let userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+        userWallet.address
+    );
+    userOptyTokenBalance = parseFloat(
+        fromWeiToString(userOptyTokenBalanceWei, underlyingTokenDecimals)
+    );
+    //  If user's underlying token balance is less than TEST_AMOUNT then, fund user's wallet with underlying token
+    if (userTokenBalanceWei.lt(TEST_AMOUNT) || userTokenBalanceWei == undefined) {
+        let FUND_AMOUNT;
+        //  Edge case for funding the HBTC token due to price impact during swapping
+        if (
+            tokenContractInstance.address ==
+            "0x0316EB71485b0Ab14103307bf65a021042c6d380"
+        ) {
+            FUND_AMOUNT = TEST_AMOUNT;
+        } else {
+            FUND_AMOUNT = TEST_AMOUNT.sub(userTokenBalanceWei);
+        }
+
+        //  Getting block timestamp for passing as deadline time param for uniswap instance while swapping
+        const timestamp = (await getBlockTimestamp(provider)) * 2;
+        //  Fund the user's wallet with some TEST_AMOUNT_NUM of tokens
+        await fundWallet(
+            underlyingToken,
+            userWallet,
+            TEST_AMOUNT.sub(userTokenBalanceWei),
+            timestamp.toString(),
+            GAS_OVERRIDE_OPTIONS,
+            ETH_VALUE_GAS_OVERIDE_OPTIONS
+        );
+
+        // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
+        userTokenBalanceWei = await tokenContractInstance.balanceOf(userWallet.address);
+
+        //  If still user's wallet is not funded with TEST_AMOUNT, then fund the wallet again with remaining tokens
+        if (userTokenBalanceWei.lt(TEST_AMOUNT)) {
+            const timestamp = (await getBlockTimestamp(provider)) * 2;
+            await fundWallet(
+                underlyingToken,
+                userWallet,
+                TEST_AMOUNT.sub(userTokenBalanceWei),
+                timestamp.toString(),
+                GAS_OVERRIDE_OPTIONS,
+                ETH_VALUE_GAS_OVERIDE_OPTIONS
+            );
+            userTokenBalanceWei = await tokenContractInstance.balanceOf(
+                userWallet.address
+            );
+        }
+        userInitialTokenBalance = parseFloat(
+            fromWeiToString(userTokenBalanceWei, underlyingTokenDecimals)
+        );
+    }
+    return [
+        userTokenBalanceWei,
+        userOptyTokenBalanceWei,
+        userOptyTokenBalance,
+        userTokenBalanceWei,
+        userInitialTokenBalance,
+    ];
 }
