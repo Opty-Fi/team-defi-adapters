@@ -233,7 +233,7 @@ program
                                 optyCodeProviderContractsKey.toString().toLowerCase() ==
                                 Constants.CURVESWAPCODEPROVIDER
                             ) {
-                                CurveFunctions.swapLpMappingAndSetGauge(
+                                await CurveFunctions.swapLpMappingAndSetGauge(
                                     optyCodeProviderContractsKey,
                                     optyCodeProviderContract,
                                     ownerWallet,
@@ -878,67 +878,20 @@ program
                                         userWallet.address
                                     );
 
-                                    //  Promises for getting totalSupply, poolValue and making userDepositRebalance() in parallel
-                                    //  for getting latest values of totalSuppy and poolValue while Deposit txn is made
-                                    let totalSupplyPromise = new Promise(
-                                        async (resolve) => {
-                                            resolve(
-                                                await optyTokenBasicPool.totalSupply()
-                                            );
-                                        }
-                                    );
-
-                                    let poolValuePromise = new Promise(
-                                        async (resolve) => {
-                                            resolve(
-                                                await optyTokenBasicPool.poolValue()
-                                            );
-                                        }
-                                    );
+                                    //  Getting the totalSupply and poolValue from deposit txn.
+                                    let totalSupply = await optyTokenBasicPool.totalSupply();
+                                    let poolValue = await optyTokenBasicPool.poolValue();
 
                                     let optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
                                         userWallet
                                     );
 
-                                    let userDepositRebalanceTxPromise = new Promise(
-                                        async (resolve) => {
-                                            resolve(
-                                                await optyTokenBasicPoolAsSignerUser.userDepositRebalance(
-                                                    TEST_AMOUNT,
-                                                    GAS_OVERRIDE_OPTIONS
-                                                )
-                                            );
-                                        }
+                                    let userDepositRebalanceTx = await optyTokenBasicPoolAsSignerUser.userDepositRebalance(
+                                        TEST_AMOUNT,
+                                        GAS_OVERRIDE_OPTIONS
                                     );
-
-                                    let allPromiseResponses: [
-                                        any,
-                                        any,
-                                        any
-                                    ] = await Promise.all([
-                                        totalSupplyPromise,
-                                        poolValuePromise,
-                                        userDepositRebalanceTxPromise,
-                                    ]);
-
-                                    let totalSupply = 0;
-                                    let poolValue = "";
-                                    let shares: ethers.BigNumber;
-                                    let userDepositRebalanceTx;
-
-                                    allPromiseResponses.forEach(
-                                        async (promiseResponse, index) => {
-                                            if (index == 0) {
-                                                totalSupply = promiseResponse;
-                                            } else if (index == 1) {
-                                                poolValue = promiseResponse;
-                                            } else if (index == 2) {
-                                                userDepositRebalanceTx = promiseResponse;
-                                                let userDepositTxReceipt = await userDepositRebalanceTx.wait();
-                                                userDepositRebalanceTxGasUsed = userDepositTxReceipt.gasUsed.toNumber();
-                                            }
-                                        }
-                                    );
+                                    let userDepositTxReceipt = await userDepositRebalanceTx.wait();
+                                    userDepositRebalanceTxGasUsed = userDepositTxReceipt.gasUsed.toNumber();
 
                                     assert.isOk(
                                         userDepositRebalanceTx,
@@ -978,6 +931,7 @@ program
                                     // expect(contractTokenBalance).to.equal(0);
 
                                     //  Amount of OPTY token shares user received as per contract logic
+                                    let shares: ethers.BigNumber;
                                     if (
                                         parseFloat(
                                             utilities.fromWeiToString(
@@ -1013,7 +967,7 @@ program
                                             userExpectedOptyTokenBalance
                                         );
                                     } else {
-                                        //  Kept this code in case if all the special cases has less value then we can  keep this assertion - Deepanshu
+                                        // Kept this code in case if all the special cases has less/more value then we can keep this assertion - Deepanshu
                                         // expect(
                                         //     userOptyTokenBalanceWei.lte(
                                         //         userExpectedOptyTokenBalance
@@ -1039,9 +993,6 @@ program
                                     withdrawAmount: any,
                                     roundingDelta: any
                                 ) {
-                                    let initialUserTokenBalanceInWei = await tokenContractInstance.balanceOf(
-                                        userWallet.address
-                                    );
                                     let initialContractTokenBalanceWei = await tokenContractInstance.balanceOf(
                                         optyTokenBasicPool.address
                                     );
@@ -1075,18 +1026,6 @@ program
                                         userWallet.address
                                     );
 
-                                    let noOfTokensReceived = ethers.BigNumber.from(
-                                        "0x" +
-                                            receipt.events[
-                                                receipt.events.length - 1
-                                            ].data
-                                                .toString()
-                                                .substr(
-                                                    receipt.events[
-                                                        receipt.events.length - 1
-                                                    ].data.length - 16
-                                                )
-                                    );
                                     let noOfTokensReceivedFromFormula = poolValue
                                         .mul(withdrawAmount.sub(1))
                                         .div(totalSupply);
