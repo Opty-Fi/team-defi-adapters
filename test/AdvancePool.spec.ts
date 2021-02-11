@@ -375,54 +375,54 @@ program
                         count++;
                     }
 
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.CompoundCodeProvider.address,
-                    //     "CompoundCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.AaveV1CodeProvider.address,
-                    //     "AaveV1CodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.AaveV2CodeProvider.address,
-                    //     "AaveV2CodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.FulcrumCodeProvider.address,
-                    //     "FulcrumCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.DForceCodeProvider.address,
-                    //     "DForceCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.HarvestCodeProvider.address,
-                    //     "HarvestCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.YVaultCodeProvider.address,
-                    //     "YVaultCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.YearnCodeProvider.address,
-                    //     "YearnCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.CurvePoolCodeProvider.address,
-                    //     "CurvePoolCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.CurveSwapCodeProvider.address,
-                    //     "CurveSwapCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.dYdXCodeProvider.address,
-                    //     "dYdXCodeProvider Contract is not deployed"
-                    // );
-                    // assert.isOk(
-                    //     optyCodeProviderContractVariables.CreamCodeProvider.address,
-                    //     "CreamCodeProvider Contract is not deployed"
-                    // );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.CompoundCodeProvider.address,
+                        "CompoundCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.AaveV1CodeProvider.address,
+                        "AaveV1CodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.AaveV2CodeProvider.address,
+                        "AaveV2CodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.FulcrumCodeProvider.address,
+                        "FulcrumCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.DForceCodeProvider.address,
+                        "DForceCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.HarvestCodeProvider.address,
+                        "HarvestCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.YVaultCodeProvider.address,
+                        "YVaultCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.YearnCodeProvider.address,
+                        "YearnCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.CurvePoolCodeProvider.address,
+                        "CurvePoolCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.CurveSwapCodeProvider.address,
+                        "CurveSwapCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.dYdXCodeProvider.address,
+                        "dYdXCodeProvider Contract is not deployed"
+                    );
+                    assert.isOk(
+                        optyCodeProviderContractVariables.CreamCodeProvider.address,
+                        "CreamCodeProvider Contract is not deployed"
+                    );
                 });
 
                 after(async () => {
