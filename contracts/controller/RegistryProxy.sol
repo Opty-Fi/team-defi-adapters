@@ -43,7 +43,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /*** Admin Functions ***/
-    function _setPendingImplementation(address newPendingImplementation) public onlyGovernance {
+    function _setPendingImplementation(address newPendingImplementation) public onlyOperator {
         address oldPendingImplementation = pendingRegistryImplementation;
 
         pendingRegistryImplementation = newPendingImplementation;
@@ -78,7 +78,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
      * @dev Governance function to begin change of governance. The newPendingGovernance must call `_acceptGovernance` to finalize the transfer.
      * @param newPendingGovernance New pending governance.
      */
-    function _setPendingGovernance(address newPendingGovernance) public onlyGovernance {
+    function _setPendingGovernance(address newPendingGovernance) public onlyOperator {
         // Save current value, if any, for inclusion in log
         address oldPendingGovernance = pendingGovernance;
 
@@ -93,7 +93,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
      * @notice Accepts transfer of Governance rights. msg.sender must be pendingGovernance
      * @dev Governance function for pending governance to accept role and update Governance
      */
-    function _acceptAdmin() public returns (uint256) {
+    function _acceptGovernance() public returns (uint256) {
         require(msg.sender == pendingGovernance && msg.sender != address(0), "!pendingGovernance");
 
         // Save current values for inclusion in log
