@@ -3,60 +3,24 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "./libraries/Addresses.sol";
-import "./utils/ModifiersController.sol";
-
-struct StrategyStep {
-    address pool;
-    address outputToken;
-    bool isBorrow;
-}
-
-struct LiquidityPool {
-    uint8 rating;
-    bool  isLiquidityPool;
-}
+import "../libraries/Addresses.sol";
+import "./ModifiersController.sol";
+import "./RegistryProxy.sol";
 
 /**
  * @dev Contract for Opty Strategy Registry
  */
 contract Registry is ModifiersController {
+    
     using Address for address;
-    
-    struct Strategy { 
-        uint8          score;
-        bool           isStrategy;
-        uint256        index;
-        uint256        blockNumber;
-        StrategyStep[] strategySteps;
-    }
-    
-    struct Token {
-        uint256   index;
-        address[] tokens;
-    }
-
-    bytes32[] public strategyHashIndexes;
-    bytes32[] public tokensHashIndexes;
-    
-    mapping(address => bool)                        public tokens;
-    mapping(bytes32 => Token)                       public tokensHashToTokens;
-    mapping(address => LiquidityPool)               public liquidityPools;
-    mapping(address => LiquidityPool)               public creditPools;
-    mapping(bytes32 => Strategy)                    public strategies;
-    mapping(bytes32 => bytes32[])                   public tokenToStrategies;
-    mapping(address => mapping(bytes32 => address)) public liquidityPoolToLPTokens;
-    mapping(address => mapping(address => bytes32)) public liquidityPoolToTokenHashes;
-    mapping(address => address)                     public liquidityPoolToCodeProvider;
     
     /**
      * @dev Sets the value for {governance} and {strategist}, 
      * approves dai, usdt, usdc, tusd, wbtc, weth tokens.
      * 
      * All these tokens can be approved by governance only
-     */    
-    constructor () public ModifiersController(msg.sender, msg.sender, msg.sender, msg.sender) {
-        
+     */
+    function intialize() public onlyGovernance {
         // underlying tokens
         address  dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
         address usdt = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
@@ -415,75 +379,11 @@ contract Registry is ModifiersController {
     /**
      * @dev Returns the Strategy by `_hash`.
      */
-    function getStrategy(bytes32 _hash) public view returns(uint8 _score, bool _isStrategy, uint256 _index, uint256 _blockNumber, StrategyStep[] memory _strategySteps) {	   
-        _score = strategies[_hash].score;	    
-        _isStrategy = strategies[_hash].isStrategy;	    
+    function getStrategy(bytes32 _hash) public view returns(uint8 _score, uint256 _index, uint256 _blockNumber, StrategyStep[] memory _strategySteps) {	   
+        _score = strategies[_hash].score;
         _index = strategies[_hash].index;	    
         _blockNumber = strategies[_hash].blockNumber;	    
         _strategySteps = strategies[_hash].strategySteps;	    
-    }
-    
-    /**
-     * @dev Sets `_hash` Startegy from the {strategies} mapping.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogStrategy} event.
-     *
-     * Requirements:
-     *
-     * - `_hash`'s lengt hshould be more than zero.
-     * - msg.sender should be governance.
-     * - `_hash` strategy should not be approved
-     * - `_hash` strategy should exist in {strategyHashIndexes}
-     */
-   function approveStrategy(bytes32 _hash) public onlyGovernance returns(bool){
-        require(!_isNewStrategy(_hash),"!isNewStrategy");	    
-        require(!strategies[_hash].isStrategy,"!strategies.isStrategy");	    
-        strategies[_hash].isStrategy = true;	            
-        emit LogStrategy(msg.sender,_hash,strategies[_hash].isStrategy);	    
-        return true;	    
-    }
-    
-    /**
-     * @dev Revokes `_hash` Startegy from the {strategies} mapping.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogStrategy} event.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be governance.
-     * - `_hash` strategy should not be revoked
-     * - `_hash` strategy should exist in {strategyHashIndexes}
-     */
-    function revokeStrategy(bytes32 _hash) public onlyGovernance returns(bool){	    
-        require(strategies[_hash].isStrategy,"strategies.isStrategy");	    
-        strategies[_hash].isStrategy = false;	    
-        emit LogStrategy(msg.sender,_hash,strategies[_hash].isStrategy);	    
-        return true;	    
-    }
-    
-    /**
-     * @dev Scores `_hash` Startegy from the {strategies} mapping.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogScoreStrategy} event.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be governance.
-     * - `_hash` strategy should be approved
-     * - `_hash` strategy should exist in {strategyHashIndexes}
-     */
-    function scoreStrategy(bytes32 _hash, uint8 _score) public onlyStrategist returns(bool){
-        require(!_isNewStrategy(_hash),"!isNewStrategy");
-        require(strategies[_hash].isStrategy,"strategies.isStrategy");
-        strategies[_hash].score = _score;
-        emit LogScoreStrategy(msg.sender,_hash,strategies[_hash].score);
-        return true;
     }
     
     /**
@@ -550,6 +450,10 @@ contract Registry is ModifiersController {
      */
     function getTokensHashToTokens(bytes32 _tokensHash) public view returns(address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
+    }
+    
+    function _become(RegistryProxy _registryProxy) public onlyGovernance {
+        require(_registryProxy._acceptImplementation() == 0, "change not authorized");
     }
     
     /**
