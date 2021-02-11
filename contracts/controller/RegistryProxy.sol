@@ -6,33 +6,36 @@ import "./RegistryStorage.sol";
 import "./ModifiersController.sol";
 
 /**
- * @title ComptrollerCore
- * @dev Storage for the comptroller is at this address, while execution is delegated to the `comptrollerImplementation`.
- * CTokens should reference this contract as their comptroller.
+ * @title RegistryCore
+ * @dev Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`.
+ * Registry should reference this contract as their controller.
  */
-contract RegistryProxy is RegistryStorage, ModifiersController{
-
+contract RegistryProxy is RegistryStorage, ModifiersController {
     /**
-      * @notice Emitted when pendingComptrollerImplementation is changed
-      */
+     * @notice Emitted when pendingComptrollerImplementation is changed
+     */
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
     /**
-      * @notice Emitted when pendingComptrollerImplementation is accepted, which means comptroller implementation is updated
-      */
+     * @notice Emitted when pendingComptrollerImplementation is accepted, which means comptroller implementation is updated
+     */
     event NewImplementation(address oldImplementation, address newImplementation);
 
     /**
-      * @notice Emitted when pendingGovernance is changed
-      */
+     * @notice Emitted when pendingGovernance is changed
+     */
     event NewPendingGovernance(address oldPendingGovernance, address newPendingGovernance);
 
     /**
-      * @notice Emitted when pendingGovernance is accepted, which means governance is updated
-      */
+     * @notice Emitted when pendingGovernance is accepted, which means governance is updated
+     */
     event NewGovernance(address oldGovernance, address newGovernance);
 
-    constructor(address _strategist, address _operator, address _minter) public {
+    constructor(
+        address _strategist,
+        address _operator,
+        address _minter
+    ) public {
         governance = msg.sender;
         setStrategist(_strategist);
         setOperator(_operator);
@@ -41,7 +44,6 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
 
     /*** Admin Functions ***/
     function _setPendingImplementation(address newPendingImplementation) public onlyGovernance {
-
         address oldPendingImplementation = pendingRegistryImplementation;
 
         pendingRegistryImplementation = newPendingImplementation;
@@ -50,12 +52,12 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
     }
 
     /**
-    * @notice Accepts new implementation of registry. msg.sender must be pendingImplementation
-    * @dev Governance function for new implementation to accept it's role as implementation
-    */
-    function _acceptImplementation() public returns(uint){
+     * @notice Accepts new implementation of registry. msg.sender must be pendingImplementation
+     * @dev Governance function for new implementation to accept it's role as implementation
+     */
+    function _acceptImplementation() public returns (uint256) {
         // Check caller is pendingImplementation and pendingImplementation ≠ address(0)
-        require(msg.sender == pendingRegistryImplementation && pendingRegistryImplementation != address(0),"!pendingRegistryImplementation");
+        require(msg.sender == pendingRegistryImplementation && pendingRegistryImplementation != address(0), "!pendingRegistryImplementation");
 
         // Save current values for inclusion in log
         address oldImplementation = registryImplementation;
@@ -67,16 +69,15 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
 
         emit NewImplementation(oldImplementation, registryImplementation);
         emit NewPendingImplementation(oldPendingImplementation, pendingRegistryImplementation);
-        
-        return uint(0);
+
+        return uint256(0);
     }
 
-
     /**
-      * @notice Begins transfer of governance rights. The newPendingGovernance must call `_acceptGovernance` to finalize the transfer.
-      * @dev Governance function to begin change of governance. The newPendingGovernance must call `_acceptGovernance` to finalize the transfer.
-      * @param newPendingGovernance New pending governance.
-      */
+     * @notice Begins transfer of governance rights. The newPendingGovernance must call `_acceptGovernance` to finalize the transfer.
+     * @dev Governance function to begin change of governance. The newPendingGovernance must call `_acceptGovernance` to finalize the transfer.
+     * @param newPendingGovernance New pending governance.
+     */
     function _setPendingGovernance(address newPendingGovernance) public onlyGovernance {
         // Save current value, if any, for inclusion in log
         address oldPendingGovernance = pendingGovernance;
@@ -89,11 +90,11 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
     }
 
     /**
-      * @notice Accepts transfer of Governance rights. msg.sender must be pendingGovernance
-      * @dev Governance function for pending governance to accept role and update Governance
-      */
-    function _acceptAdmin() public returns (uint) {
-        require(msg.sender == pendingGovernance && msg.sender != address(0),"!pendingGovernance");
+     * @notice Accepts transfer of Governance rights. msg.sender must be pendingGovernance
+     * @dev Governance function for pending governance to accept role and update Governance
+     */
+    function _acceptAdmin() public returns (uint256) {
+        require(msg.sender == pendingGovernance && msg.sender != address(0), "!pendingGovernance");
 
         // Save current values for inclusion in log
         address oldGovernance = governance;
@@ -107,10 +108,10 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
 
         emit NewGovernance(oldGovernance, governance);
         emit NewPendingGovernance(oldPendingGovernance, pendingGovernance);
-        return uint(0);
+        return uint256(0);
     }
-    
-    receive() payable external {
+
+    receive() external payable {
         revert();
     }
 
@@ -119,17 +120,21 @@ contract RegistryProxy is RegistryStorage, ModifiersController{
      * It returns to the external caller whatever the implementation returns
      * or forwards reverts.
      */
-    fallback () payable external {
+    fallback() external payable {
         // delegate all other functions to current implementation
         (bool success, ) = registryImplementation.delegatecall(msg.data);
 
         assembly {
-              let free_mem_ptr := mload(0x40)
-              returndatacopy(free_mem_ptr, 0, returndatasize())
+            let free_mem_ptr := mload(0x40)
+            returndatacopy(free_mem_ptr, 0, returndatasize())
 
-              switch success
-              case 0 { revert(free_mem_ptr, returndatasize()) }
-              default { return(free_mem_ptr, returndatasize()) }
+            switch success
+                case 0 {
+                    revert(free_mem_ptr, returndatasize())
+                }
+                default {
+                    return(free_mem_ptr, returndatasize())
+                }
         }
     }
 }
