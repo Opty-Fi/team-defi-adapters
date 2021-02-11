@@ -3,13 +3,15 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "./Registry.sol";
+import "./controller/Registry.sol";
+import "./controller/RegistryStorage.sol";
 import "./libraries/Addresses.sol";
 import "./utils/Modifiers.sol";
 
-contract RiskManager is Modifiers {
+contract RiskManager is Modifiers,RegistryStorage  {
     
     using Address for address;
+    
     string public constant BASIC = "basic";
     string public constant ADVANCE = "advance";
     string public constant ADVANCEPLUS = "advanceplus";
@@ -79,10 +81,9 @@ contract RiskManager is Modifiers {
         uint8 maxScore = 0;
         bytes32 bestStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
         for(uint8 i = 0; i < hashes.length ; i++) {
-            (uint8 score, bool isStrategy,,,StrategyStep[] memory _strategySteps) = 
+            (uint8 score,,,StrategyStep[] memory _strategySteps) = 
             registryContract.getStrategy(hashes[i]);
-            if(
-                isStrategy && 
+            if( 
                 !_strategySteps[0].isBorrow &&
                 registryContract.getLiquidityPool(_strategySteps[0].pool).isLiquidityPool && 
                 registryContract.getLiquidityPool(_strategySteps[0].pool).rating >= T1_limit
@@ -110,9 +111,8 @@ contract RiskManager is Modifiers {
         uint8 maxScore = 0;
         bytes32 bestStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
         for(uint8 i = 0; i < hashes.length; i++) {
-            (uint8 score, bool isStrategy,,,StrategyStep[] memory _strategySteps) = 
+            (uint8 score,,,StrategyStep[] memory _strategySteps) = 
             registryContract.getStrategy(hashes[i]);
-            if(isStrategy) {
                 if((_strategySteps[0].isBorrow && registryContract.getCreditPool(_strategySteps[0].pool).isLiquidityPool 
                 && registryContract.getCreditPool(_strategySteps[0].pool).rating >= T2_limit 
                 ) || 
@@ -126,7 +126,6 @@ contract RiskManager is Modifiers {
                     bestStrategyHash = hashes[i];
                     }
                 }
-            }
         }
         require(bestStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000,"!bestStrategyHash");
         return bestStrategyHash;
@@ -145,9 +144,8 @@ contract RiskManager is Modifiers {
         uint8 maxScore = 0;
         bytes32 bestStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
         for(uint8 i = 0; i < hashes.length; i++) {
-            (uint8 score, bool isStrategy,,,StrategyStep[] memory _strategySteps) = 
+            (uint8 score,,,StrategyStep[] memory _strategySteps) = 
             registryContract.getStrategy(hashes[i]);
-            if(isStrategy) {
                 if((_strategySteps[0].isBorrow && registryContract.getCreditPool(_strategySteps[0].pool).isLiquidityPool 
                 && registryContract.getCreditPool(_strategySteps[0].pool).rating >= T3_limit 
                 ) || 
@@ -161,7 +159,6 @@ contract RiskManager is Modifiers {
                     bestStrategyHash = hashes[i];
                     }
                 }
-            }
         }
         require(bestStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000,"!bestStrategyHash");
         return bestStrategyHash;

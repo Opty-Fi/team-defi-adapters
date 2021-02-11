@@ -5,13 +5,14 @@ pragma experimental ABIEncoderV2;
 
 import "./libraries/SafeERC20.sol";
 import "./interfaces/opty/ICodeProvider.sol";
-import "./Registry.sol";
+import "./controller/Registry.sol";
+import "./controller/RegistryStorage.sol";
 import "./libraries/Addresses.sol";
 import "./utils/ERC20.sol";
 import "./utils/Modifiers.sol";
 import "./Gatherer.sol";
 
-contract StrategyCodeProvider is Modifiers {
+contract StrategyCodeProvider is Modifiers,RegistryStorage {
     using SafeERC20 for IERC20;
     using Address for address;
 
@@ -89,7 +90,7 @@ contract StrategyCodeProvider is Modifiers {
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (StrategyStep[] memory _strategySteps) {
-        (, , , , _strategySteps) = registryContract.getStrategy(_hash);
+        (, , , _strategySteps) = registryContract.getStrategy(_hash);
     }
 
     function _getPoolDepositAllCodes(
