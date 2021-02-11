@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 
 import "./../libraries/Addresses.sol";
-import "../Registry.sol";
+import "../controller/Registry.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
