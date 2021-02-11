@@ -1,15 +1,16 @@
-import { BigNumber, bigNumberify } from "ethers/utils";
+import Ganache from "ganache-core";
 import { Contract, ethers } from "ethers";
+import { deployContract } from "ethereum-waffle";
+import { expect } from "chai";
+import abi from "ethereumjs-abi";
 import exchange from "../data/exchange.json";
 import addressAbis from "../data/AddressAbis.json";
 import tokenAddresses from "../data/TokenAddresses.json";
-import { expect } from "chai";
 import * as OtherImports from "./OtherImports";
-import { OptyRegistry } from "./GovernanceContract";
-import { solidity, deployContract } from "ethereum-waffle";
+import * as Constants from "./constants";
+import { outputHelp } from "commander";
+import * as Interfaces from "./interfaces";
 
-const dotenv = require("dotenv");
-dotenv.config();
 const Pool = require("pg").Pool;
 const fs = require("fs"); //    library to read/write to a particular file
 
@@ -21,40 +22,27 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-const Ganache = require("ganache-core");
 let provider: ethers.providers.Web3Provider;
-const MAINNET_NODE_URL = process.env.MAINNET_NODE_URL;
 
 //  Function to start the Ganache provider with forked mainnet using chainstack's network URL
 //  Getting 2 Wallets in return - one acting as Owner and another one acting as user
-export async function startChain() {
-    const ganache = await Ganache.provider({
-        fork: MAINNET_NODE_URL,
+export function getForkedMainnetProvider(
+    ethereumNodeProvider: string,
+    mnemonic: string,
+    default_balance_ether: number,
+    total_accounts: number,
+    locked: boolean
+) {
+    const ganache = Ganache.provider({
+        fork: ethereumNodeProvider,
         network_id: 1,
-        mnemonic: `${process.env.MY_METAMASK_MNEMONIC}`,
-        default_balance_ether: 200000,
-        total_accounts: 21,
-        locked: false,
+        mnemonic,
+        default_balance_ether,
+        total_accounts,
+        locked,
     });
-    provider = new ethers.providers.Web3Provider(ganache);
-    const ownerWallet = ethers.Wallet.fromMnemonic(
-        `${process.env.MY_METAMASK_MNEMONIC}`
-    ).connect(provider);
-    let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
-    console.log(
-        "OWNER'S ETHER BALANCE BEFORE STARTING TEST SUITE: ",
-        ethers.utils.formatEther(ownerWalletBalance)
-    );
-    const userWallet = ethers.Wallet.fromMnemonic(
-        `${process.env.MY_METAMASK_MNEMONIC}`,
-        `m/44'/60'/0'/0/1`
-    ).connect(provider);
-    let userWalletBalance = await provider.getBalance(ownerWallet.address);
-    console.log(
-        "USER'S ETHER BALANCE BEFORE STARTING TEST SUITE: ",
-        ethers.utils.formatEther(userWalletBalance)
-    );
-    return [ownerWallet, userWallet, provider];
+    provider = new ethers.providers.Web3Provider(ganache as any);
+    return provider;
 }
 
 export function expandToTokenDecimals(n: number, exponent: number): ethers.BigNumber {
@@ -67,93 +55,149 @@ export function expandToTokenDecimals(n: number, exponent: number): ethers.BigNu
 export async function fundWallet(
     tokenAddress: string,
     wallet: ethers.Wallet,
-    FUND_AMOUNT: ethers.BigNumber
+    FUND_AMOUNT: ethers.BigNumber,
+    deadlineTimestamp: string,
+    GAS_OVERRIDE_OPTIONS: any,
+    ETH_VALUE_GAS_OVERIDE_OPTIONS: any
 ) {
-    let amount = "0x" + Number(FUND_AMOUNT).toString(16);
-    const uniswapInstance = new ethers.Contract(
+    if (OtherImports.tokenAddresses.weth.toLowerCase() == tokenAddress.toLowerCase()) {
+        await fundWalletWithWeth(wallet, FUND_AMOUNT);
+    } else if (
+        OtherImports.tokenAddresses["3crv"].toLowerCase() == tokenAddress.toLowerCase()
+    ) {
+        await fundWalletWith3Crv(
+            wallet,
+            FUND_AMOUNT,
+            deadlineTimestamp,
+            GAS_OVERRIDE_OPTIONS,
+            ETH_VALUE_GAS_OVERIDE_OPTIONS
+        );
+    } else {
+        await fundWalletAnyToken(
+            tokenAddress,
+            wallet,
+            FUND_AMOUNT,
+            deadlineTimestamp,
+            ETH_VALUE_GAS_OVERIDE_OPTIONS
+        );
+    }
+}
+
+async function fundWalletWithWeth(wallet: ethers.Wallet, fundAmount: ethers.BigNumber) {
+    const amount = amountInHex(fundAmount);
+    const wEthInstance = getContractInstance(
+        exchange.weth.address,
+        exchange.weth.abi,
+        wallet
+    );
+    //  Funding user's wallet with WETH tokens
+    await wEthInstance.deposit({ value: amount });
+}
+
+async function fundWalletWith3Crv(
+    wallet: ethers.Wallet,
+    fundAmount: ethers.BigNumber,
+    deadlineTimestamp: any,
+    gasOverideOptions: any,
+    ethValueGasOverrideOptions: any
+) {
+    const amount = amountInHex(fundAmount);
+    const uniswapInstance = getContractInstance(
         exchange.uniswap.address,
         exchange.uniswap.abi,
         wallet
     );
-    if (tokenAddresses.weth.toLowerCase() == tokenAddress.toLowerCase()) {
-        const wEthInstance = new ethers.Contract(
-            exchange.weth.address,
-            exchange.weth.abi,
-            wallet
-        );
-        //  Funding user's wallet with WETH tokens
-        await wEthInstance.deposit({ value: amount });
-    } else if (tokenAddress.toLowerCase() == tokenAddresses["3crv"].toLowerCase()) {
-        //  Funding user's wallet with DAI tokens
-        let daiAmount = FUND_AMOUNT.add(expandToTokenDecimals(10, 18));
-        await uniswapInstance.swapETHForExactTokens(
-            daiAmount,
-            [tokenAddresses.weth, tokenAddresses.dai],
-            wallet.address,
-            "1000000000000000000",
-            { value: ethers.utils.hexlify(ethers.utils.parseEther("90")) }
-        );
+    //  Funding user's wallet with DAI tokens
+    const daiAmount = fundAmount.add(expandToTokenDecimals(10, 18));
+    await uniswapInstance.swapETHForExactTokens(
+        daiAmount,
+        [tokenAddresses.weth, tokenAddresses.dai],
+        wallet.address,
+        deadlineTimestamp,
+        ethValueGasOverrideOptions
+    );
 
-        // Instantiate DAI token contract
-        let daiTokenContractInstance = new ethers.Contract(
-            tokenAddresses.dai,
-            addressAbis.erc20.abi,
-            wallet
-        );
+    // Instantiate DAI token contract
+    const daiTokenContractInstance = getContractInstance(
+        tokenAddresses.dai,
+        addressAbis.erc20.abi,
+        wallet
+    );
 
-        //  Approve Curve Swap contract for spending DAI on behalf of user
-        let approve_amount = FUND_AMOUNT.add(expandToTokenDecimals(100000000, 18));
-        await daiTokenContractInstance.approve(
-            exchange.curveSwapContract.address,
-            approve_amount
-        );
+    //  Approve Curve Swap contract for spending DAI on behalf of user
+    const approve_amount = fundAmount.mul(expandToTokenDecimals(100, 18));
+    await daiTokenContractInstance.approve(
+        exchange.curveSwapContract.address,
+        approve_amount
+    );
 
-        // Instantiate Curve Swap contract
-        let curveSwapContractInstance = new ethers.Contract(
-            exchange.curveSwapContract.address,
-            <ethers.ContractInterface>exchange.curveSwapContract.abi,
-            wallet
-        );
+    // Instantiate Curve Swap contract
+    const curveSwapContractInstance = getContractInstance(
+        exchange.curveSwapContract.address,
+        <ethers.ContractInterface>exchange.curveSwapContract.abi,
+        wallet
+    );
 
-        //  Funding wallet with 3Crv tokens
-        var overrideOptions = { gasLimit: ethers.utils.hexlify(468201) };
-        let mint_amount = FUND_AMOUNT.add(expandToTokenDecimals(1, 18));
-        let zero_number = expandToTokenDecimals(0, 18);
-        await curveSwapContractInstance.add_liquidity(
-            [mint_amount, zero_number, zero_number],
-            zero_number,
-            overrideOptions
-        );
+    //  Funding wallet with 3Crv tokens
+    const mint_amount = fundAmount.add(expandToTokenDecimals(1, 18));
+    const zero_number = expandToTokenDecimals(0, 18);
+    await curveSwapContractInstance.add_liquidity(
+        [mint_amount, zero_number, zero_number],
+        zero_number,
+        gasOverideOptions
+    );
 
-        // Instantiate 3Crv ERC20 token contract
-        let erc20TokenContractInstance = new ethers.Contract(
-            tokenAddresses["3crv"],
-            addressAbis.erc20.abi,
-            wallet
-        );
+    // Instantiate 3Crv ERC20 token contract
+    let erc20TokenContractInstance = getContractInstance(
+        tokenAddresses["3crv"],
+        addressAbis.erc20.abi,
+        wallet
+    );
 
-        let users3CrvBalance = await erc20TokenContractInstance.balanceOf(
-            wallet.address
-        );
+    let users3CrvBalance = await erc20TokenContractInstance.balanceOf(wallet.address);
 
-        // Make the user's wallet balance equals to the TEST_AMOUNT
-        await curveSwapContractInstance.remove_liquidity(users3CrvBalance.sub(amount), [
-            0,
-            0,
-            0,
-        ]);
-    } else {
-        await uniswapInstance.swapETHForExactTokens(
-            amount,
-            [tokenAddresses.weth, tokenAddress],
-            wallet.address,
-            "1000000000000000000",
-            {
-                value: ethers.utils.hexlify(ethers.utils.parseEther("9500")),
-                gasLimit: 4590162,
-            }
-        );
-    }
+    // Make the user's wallet balance equals to the TEST_AMOUNT
+    await curveSwapContractInstance.remove_liquidity(users3CrvBalance.sub(amount), [
+        0,
+        0,
+        0,
+    ]);
+}
+
+async function fundWalletAnyToken(
+    tokenAddress: string,
+    wallet: ethers.Wallet,
+    fundAmount: ethers.BigNumber,
+    deadlineTimestamp: any,
+    ethValueGasOverrideOptions: any
+) {
+    const amount = amountInHex(fundAmount);
+    const uniswapInstance = getContractInstance(
+        exchange.uniswap.address,
+        exchange.uniswap.abi,
+        wallet
+    );
+
+    await uniswapInstance.swapETHForExactTokens(
+        amount,
+        [tokenAddresses.weth, tokenAddress],
+        wallet.address,
+        deadlineTimestamp,
+        ethValueGasOverrideOptions
+    );
+}
+
+function amountInHex(fundAmount: ethers.BigNumber): string {
+    const amount: string = "0x" + Number(fundAmount).toString(16);
+    return amount;
+}
+
+export function getContractInstance(
+    contractAddress: string,
+    contractAbi: any,
+    signerAccount: ethers.Signer
+): ethers.Contract {
+    return new ethers.Contract(contractAddress, contractAbi, signerAccount);
 }
 
 export async function insertGasUsedRecordsIntoDB(
@@ -179,8 +223,23 @@ export async function insertGasUsedRecordsIntoDB(
     });
 }
 
-//  function to write the data(token holders addresses) in a file(scrapedData.json)
-export async function writeInFile(fileName: string, data: any) {
+//  function to write the Records in a file(Pattern: <Token>_<Data>.json)
+export async function writeRecordsInFile(fileName: string, data: any) {
+    fs.stat(fileName, async function (err: { code: string } | null, stat: any) {
+        //  if file exists, then appending data to the file
+        if (err == null) {
+            await appendInFile(fileName, data);
+        } else if (err.code === "ENOENT") {
+            // file does not exist, therefore creating new one and writing into it
+            await writeInFile(fileName, data);
+        } else {
+            console.log("Error occured while writing into file: ", err.code);
+        }
+    });
+}
+
+//  function to write into the file if file doesn't exist
+async function writeInFile(fileName: string, data: any) {
     await fs.writeFile(fileName, JSON.stringify(data), "utf8", function (err: any) {
         if (err) {
             //  Handling error occured while writing JSON Object to File
@@ -189,7 +248,7 @@ export async function writeInFile(fileName: string, data: any) {
     });
 }
 
-export async function appendInFile(fileName: string, data: any) {
+async function appendInFile(fileName: string, data: any) {
     await fs.appendFileSync(fileName, JSON.stringify(","), "utf8", function (err: any) {
         if (err) {
             //  Handling error occured while appending JSON Object to File
@@ -263,112 +322,162 @@ export async function sleep(ms: number) {
 }
 
 export async function deployCodeProviderContracts(
-    optyCodeProviderContractsKey: any,
+    optyCodeProviderContractsKey: string,
     ownerWallet: any,
     codeProviderAbi: any,
     OptyRegistryAddress: any,
-    GathererAddress: any
+    GathererAddress: any,
+    overrideOptions: any
 ) {
-    let optyCodeProviderContract;
-    if (
-        optyCodeProviderContractsKey.toString().toLowerCase() == "dydxcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev1codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() ==
-            "fulcrumcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yvaultcodeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "aavev2codeprovider" ||
-        optyCodeProviderContractsKey.toString().toLowerCase() == "yearncodeprovider"
-    ) {
-        //  Deploying the code provider contracts
-        optyCodeProviderContract = await deployContract(ownerWallet, codeProviderAbi, [
-            OptyRegistryAddress,
-        ]);
-    } else {
-        var overrideOptions: ethers.providers.TransactionRequest = {
-            gasLimit: 6721975,
-        };
+    const ProtocolCodeProviderNames: Interfaces.DeployCodeProviderContracts =
+        OtherImports.ProtocolCodeProviderNames;
+    const canHarvestStatus: Boolean =
+        ProtocolCodeProviderNames[optyCodeProviderContractsKey].canHarvest;
 
+    optyCodeProviderContractsKey = optyCodeProviderContractsKey
+        .toString()
+        .toLowerCase();
+    if (!canHarvestStatus) {
+        //  Deploying the code provider contracts
+        const optyCodeProviderContract = await deployContract(
+            ownerWallet,
+            codeProviderAbi,
+            [OptyRegistryAddress],
+            overrideOptions
+        );
+        return optyCodeProviderContract;
+    } else {
         //  Special case for deploying the CurveSwapCodeProvider.sol
-        if (optyCodeProviderContractsKey == "CurveSwapCodeProvider") {
-            var overrideOptions: ethers.providers.TransactionRequest = {
-                gasLimit: 6721975,
-            };
+        if (optyCodeProviderContractsKey == Constants.CURVESWAPCODEPROVIDER) {
             let factory = new ethers.ContractFactory(
                 codeProviderAbi.abi,
                 OtherImports.ByteCodes.CurveSwapCodeProvider,
                 ownerWallet
             );
             //  Deploying the curveSwap code provider contract
-            optyCodeProviderContract = await factory.deploy(
+            const optyCodeProviderContract = await factory.deploy(
                 OptyRegistryAddress,
                 GathererAddress,
                 overrideOptions
             );
 
-            let curveSwapDeployReceipt = await optyCodeProviderContract.deployTransaction.wait();
+            await optyCodeProviderContract.deployTransaction.wait();
+            return optyCodeProviderContract;
         } else {
-            var overrideOptions: ethers.providers.TransactionRequest = {
-                gasLimit: 6721975,
-            };
-
             //  Deploying the code provider contracts
-            optyCodeProviderContract = await deployContract(
+            const optyCodeProviderContract = await deployContract(
                 ownerWallet,
                 codeProviderAbi,
                 [OptyRegistryAddress, GathererAddress],
                 overrideOptions
             );
-        }
-
-        //  Setting/Mapping the liquidityPoolToken, SwapPoolTOUnderlyingTokens and gauge address as pre-requisites in CurveSwapCodeProvider
-        let curveSwapDataProviderKey: keyof typeof OtherImports.curveSwapDataProvider;
-        for (curveSwapDataProviderKey in OtherImports.curveSwapDataProvider) {
-            if (
-                curveSwapDataProviderKey.toString().toLowerCase() ==
-                optyCodeProviderContractsKey.toString().toLowerCase()
-            ) {
-                let tokenPairs =
-                    OtherImports.curveSwapDataProvider[curveSwapDataProviderKey];
-                let tokenPair: keyof typeof tokenPairs;
-                for (tokenPair in tokenPairs) {
-                    let _liquidityPoolToken = tokenPairs[tokenPair].liquidityPoolToken;
-                    let _swapPool = tokenPairs[tokenPair].swapPool;
-                    let _guage = tokenPairs[tokenPair].gauge;
-                    let _underlyingTokens = tokenPairs[tokenPair].underlyingTokens;
-
-                    var overrideOptions: ethers.providers.TransactionRequest = {
-                        value: 0,
-                        gasLimit: 6721970,
-                    };
-
-                    let optyCodeProviderContractOwnerSigner = optyCodeProviderContract.connect(
-                        ownerWallet
-                    );
-
-                    //  Mapping lpToken to swapPool contract
-                    await optyCodeProviderContractOwnerSigner.functions.setLiquidityPoolToken(
-                        _swapPool,
-                        _liquidityPoolToken,
-                        {
-                            gasLimit: 6700000,
-                        }
-                    );
-
-                    //  Mapping UnderlyingTokens to SwapPool Contract
-                    await optyCodeProviderContract.setSwapPoolToUnderlyingTokens(
-                        _swapPool,
-                        _underlyingTokens
-                    );
-
-                    //  Mapping Gauge contract to the SwapPool Contract
-                    await optyCodeProviderContract.setSwapPoolToGauges(
-                        _swapPool,
-                        _guage
-                    );
-                }
-            }
+            return optyCodeProviderContract;
         }
     }
+}
 
-    return optyCodeProviderContract;
+export function getPath(filePath: string): string {
+    if (filePath?.endsWith("earn-protocol")) {
+        return `${filePath}/test/gasRecordFiles/`;
+    } else if (filePath?.endsWith("test")) {
+        return `${filePath}/gasRecordFiles/`;
+    }
+    return filePath;
+}
+
+// util function for converting expanded values to Deimals number for readability and Testing
+export function fromWeiToString(weiNumber: string, tokenDecimals: number): string {
+    return ethers.utils.formatUnits(weiNumber, tokenDecimals);
+}
+
+// funtion to get the equivalient hash (as generated by the solidity) of data passed in args
+export function getSoliditySHA3Hash(argTypes: string[], args: any[]): string {
+    const soliditySHA3Hash = "0x" + abi.soliditySHA3(argTypes, args).toString("hex");
+    return soliditySHA3Hash;
+}
+
+export async function getBlockTimestamp(provider: any) {
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
+    const timestamp = block.timestamp;
+    return timestamp;
+}
+
+//  Function to fund the wallet with the underlying tokens equivalent to TEST_AMOUNT_NUM
+export async function checkAndFundWallet(
+    underlyingToken: any,
+    underlyingTokenDecimals: any,
+    tokenContractInstance: Contract,
+    userWallet: any,
+    optyTokenBasicPool: Contract,
+    userOptyTokenBalance: number,
+    TEST_AMOUNT: ethers.BigNumber,
+    userInitialTokenBalance: any,
+    GAS_OVERRIDE_OPTIONS: any,
+    ETH_VALUE_GAS_OVERIDE_OPTIONS: any
+) {
+    //  user's initial underlying tokens balance
+    let userTokenBalanceWei = await tokenContractInstance.balanceOf(userWallet.address);
+
+    // user's initial opXXXBsc tokens balance in Wei
+    let userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+        userWallet.address
+    );
+    userOptyTokenBalance = parseFloat(
+        fromWeiToString(userOptyTokenBalanceWei, underlyingTokenDecimals)
+    );
+    //  If user's underlying token balance is less than TEST_AMOUNT then, fund user's wallet with underlying token
+    if (userTokenBalanceWei.lt(TEST_AMOUNT) || userTokenBalanceWei == undefined) {
+        let FUND_AMOUNT;
+        //  Edge case for funding the HBTC token due to price impact during swapping
+        if (
+            tokenContractInstance.address ==
+            "0x0316EB71485b0Ab14103307bf65a021042c6d380"
+        ) {
+            FUND_AMOUNT = TEST_AMOUNT;
+        } else {
+            FUND_AMOUNT = TEST_AMOUNT.sub(userTokenBalanceWei);
+        }
+
+        //  Getting block timestamp for passing as deadline time param for uniswap instance while swapping
+        const timestamp = (await getBlockTimestamp(provider)) * 2;
+        //  Fund the user's wallet with some TEST_AMOUNT_NUM of tokens
+        await fundWallet(
+            underlyingToken,
+            userWallet,
+            TEST_AMOUNT.sub(userTokenBalanceWei),
+            timestamp.toString(),
+            GAS_OVERRIDE_OPTIONS,
+            ETH_VALUE_GAS_OVERIDE_OPTIONS
+        );
+
+        // Check Token and opToken balance of User's wallet and OptyTokenBaiscPool Contract
+        userTokenBalanceWei = await tokenContractInstance.balanceOf(userWallet.address);
+
+        //  If still user's wallet is not funded with TEST_AMOUNT, then fund the wallet again with remaining tokens
+        if (userTokenBalanceWei.lt(TEST_AMOUNT)) {
+            const timestamp = (await getBlockTimestamp(provider)) * 2;
+            await fundWallet(
+                underlyingToken,
+                userWallet,
+                TEST_AMOUNT.sub(userTokenBalanceWei),
+                timestamp.toString(),
+                GAS_OVERRIDE_OPTIONS,
+                ETH_VALUE_GAS_OVERIDE_OPTIONS
+            );
+            userTokenBalanceWei = await tokenContractInstance.balanceOf(
+                userWallet.address
+            );
+        }
+        userInitialTokenBalance = parseFloat(
+            fromWeiToString(userTokenBalanceWei, underlyingTokenDecimals)
+        );
+    }
+    return [
+        userTokenBalanceWei,
+        userOptyTokenBalanceWei,
+        userOptyTokenBalance,
+        userTokenBalanceWei,
+        userInitialTokenBalance,
+    ];
 }
