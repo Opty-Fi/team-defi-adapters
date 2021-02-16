@@ -16,23 +16,6 @@ import * as CurveFunctions from "./shared/Curve/Curve";
 chai.use(solidity);
 const { program } = require("commander"); //  library to handle the command line arguments
 
-const MNEMONIC: string =
-"misery entire skirt bridge limit shy south tomato tip spatial home rich";
-const INITIAL_ACCOUNT_BALANCE_ETHER: number = 20000;
-const MAINNET_NODE_URL: string = process.env.MAINNET_NODE_URL as string;
-const PWD: string = process.env.PWD as string;
-const ACCOUNTS: number = 21;
-const UNLOCK_ACCOUNTS = true;
-const GAS_OVERRIDE_OPTIONS: ethers.providers.TransactionRequest = {
-    gasLimit: 6721975,
-};
-const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-    value: ethers.utils.hexlify(ethers.utils.parseEther("9500")),
-    gasLimit: 6721975,
-};
-
-// const fs = require("fs"); //  library to read/write to a particular file
-
 program
     .description("Takes symbol and recipeint, send tokens to recipient")
     .option(
@@ -126,30 +109,30 @@ program
 
                 before(async () => {
                     provider = utilities.getForkedMainnetProvider(
-                        MAINNET_NODE_URL,
-                        MNEMONIC,
-                        INITIAL_ACCOUNT_BALANCE_ETHER,
-                        ACCOUNTS,
-                        !UNLOCK_ACCOUNTS
+                        Constants.MAINNET_NODE_URL,
+                        Constants.MNEMONIC,
+                        Constants.INITIAL_ACCOUNT_BALANCE_ETHER,
+                        Constants.ACCOUNTS,
+                        !Constants.UNLOCK_ACCOUNTS
                     );
-                    ownerWallet = ethers.Wallet.fromMnemonic(MNEMONIC).connect(provider);
+                    ownerWallet = ethers.Wallet.fromMnemonic(Constants.MNEMONIC).connect(provider);
                     let ownerWalletBalance = await provider.getBalance(ownerWallet.address);
                     assert(
                         utilities
-                            .expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER, 18)
+                            .expandToTokenDecimals(Constants.INITIAL_ACCOUNT_BALANCE_ETHER, 18)
                             .eq(ownerWalletBalance),
                         `Owner's ether balance is not ${ethers.utils.formatEther(
                             ownerWalletBalance
                         )} before starting test suite`
                     );
                     userWallet = ethers.Wallet.fromMnemonic(
-                        MNEMONIC,
+                        Constants.MNEMONIC,
                         `m/44'/60'/0'/0/1`
                     ).connect(provider);
                     let userWalletBalance = await provider.getBalance(ownerWallet.address);
                     assert(
                         utilities
-                            .expandToTokenDecimals(INITIAL_ACCOUNT_BALANCE_ETHER, 18)
+                            .expandToTokenDecimals(Constants.INITIAL_ACCOUNT_BALANCE_ETHER, 18)
                             .eq(userWalletBalance),
                         `User's ether balance is not ${ethers.utils.formatEther(
                             userWalletBalance
@@ -161,7 +144,7 @@ program
                         ownerWallet,
                         GovernanceContracts.OptyRegistry,
                         [],
-                        GAS_OVERRIDE_OPTIONS
+                        Constants.GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(
                         optyRegistry,
@@ -173,7 +156,7 @@ program
                         ownerWallet,
                         GovernanceContracts.RiskManager,
                         [optyRegistry.address],
-                        GAS_OVERRIDE_OPTIONS
+                        Constants.GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(riskManager, "RiskManager contract not deployed");
                     DEBUG &&
@@ -183,7 +166,7 @@ program
                         ownerWallet,
                         GovernanceContracts.Gatherer,
                         [optyRegistry.address],
-                        GAS_OVERRIDE_OPTIONS
+                        Constants.GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(gatherer, "Gatherer contract not deployed");
                     DEBUG && console.log("\nGatherer address: ", gatherer.address);
@@ -192,7 +175,7 @@ program
                         ownerWallet,
                         GovernanceContracts.OptyStrategyCodeProvider,
                         [optyRegistry.address, gatherer.address],
-                        GAS_OVERRIDE_OPTIONS
+                        Constants.GAS_OVERRIDE_OPTIONS
                     );
                     assert.isDefined(
                         optyStrategyCodeProvider,
@@ -252,7 +235,7 @@ program
                                     codeProviderContract[optyCodeProviderContractsKey],
                                     optyRegistry.address,
                                     gatherer.address,
-                                    GAS_OVERRIDE_OPTIONS
+                                    Constants.GAS_OVERRIDE_OPTIONS
                                 );
                                 DEBUG && console.log(
                                     "Contract " +
@@ -269,7 +252,7 @@ program
                                         optyCodeProviderContractsKey,
                                         optyCodeProviderContract,
                                         ownerWallet,
-                                        GAS_OVERRIDE_OPTIONS
+                                        Constants.GAS_OVERRIDE_OPTIONS
                                     );
                                 }
 
@@ -431,7 +414,7 @@ program
                     assert(
                         ownerWalletBalance.lt(
                             utilities.expandToTokenDecimals(
-                                INITIAL_ACCOUNT_BALANCE_ETHER,
+                                Constants.INITIAL_ACCOUNT_BALANCE_ETHER,
                                 18
                             )
                         ),
@@ -863,8 +846,8 @@ program
                                                     userOptyTokenBalance,
                                                     TEST_AMOUNT,
                                                     userInitialTokenBalance,
-                                                    GAS_OVERRIDE_OPTIONS,
-                                                    ETH_VALUE_GAS_OVERIDE_OPTIONS
+                                                    Constants.GAS_OVERRIDE_OPTIONS,
+                                                    Constants.ETH_VALUE_GAS_OVERIDE_OPTIONS
                                                 );
                                                 userTokenBalanceWei =
                                                     allFundWalletReturnParams[0];
@@ -965,7 +948,7 @@ program
                                     await tokenContractInstanceAsSignerUser.approve(
                                         optyTokenAdvancePool.address,
                                         TEST_AMOUNT,
-                                        GAS_OVERRIDE_OPTIONS
+                                        Constants.GAS_OVERRIDE_OPTIONS
                                     );
 
                                     expect(
@@ -995,7 +978,7 @@ program
 
                                     let userDepositRebalanceTx = await optyTokenAdvancePoolAsSignerUser.userDepositRebalance(
                                         TEST_AMOUNT,
-                                        GAS_OVERRIDE_OPTIONS
+                                        Constants.GAS_OVERRIDE_OPTIONS
                                     )
                                     let userDepositTxReceipt = await userDepositRebalanceTx.wait();
                                     userDepositRebalanceTxGasUsed = userDepositTxReceipt.gasUsed.toNumber();
@@ -1103,7 +1086,7 @@ program
                                     DEBUG && console.log("Withdraw txn. initiated")
                                     const userWithdrawTxOutput = await optyTokenAdvancePoolAsSignerUser.functions.userWithdrawRebalance(
                                         withdrawAmount.sub(roundingDelta),
-                                        GAS_OVERRIDE_OPTIONS
+                                        Constants.GAS_OVERRIDE_OPTIONS
                                     );
                                     DEBUG && console.log("Withdraw txn. completed")
 
@@ -1214,7 +1197,7 @@ program
                                 assert(
                                     ownerWalletBalance.lt(
                                         utilities.expandToTokenDecimals(
-                                            INITIAL_ACCOUNT_BALANCE_ETHER,
+                                            Constants.INITIAL_ACCOUNT_BALANCE_ETHER,
                                             18
                                         )
                                     ),
@@ -1229,7 +1212,7 @@ program
                                 assert(
                                     userWalletBalance.lt(
                                         utilities.expandToTokenDecimals(
-                                            INITIAL_ACCOUNT_BALANCE_ETHER,
+                                            Constants.INITIAL_ACCOUNT_BALANCE_ETHER,
                                             18
                                         )
                                     ),
@@ -1274,7 +1257,7 @@ program
                                     DEBUG && console.log("Writing into file..")
                                     await utilities.writeRecordsInFile(
                                         `${utilities.getPath(
-                                            PWD
+                                            Constants.PWD
                                         )}${gasRecordsFileName}.json`,
                                         tokenStrategyGasUsedRecord
                                     );
