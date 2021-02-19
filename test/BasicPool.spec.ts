@@ -94,6 +94,7 @@ program
             let riskManager: Contract;
             let gatherer: Contract;
             let optyStrategyCodeProvider: Contract;
+            let strategyProvider: Contract;
             let profile = "basic";
             let userTokenBalanceWei;
             let userInitialTokenBalance: number;
@@ -135,51 +136,37 @@ program
                     )} before starting test suite`
                 );
 
-                //  Deploying Registry, RiskManager, Gatherer and StrategyCodeProvider Contracts
-                optyRegistry = await deployContract(
+                //  Deploying all governance contracts - RegistryProxy, Registry, StrategyProvider, RiskManager, Gatherer, StrategyCodeProvider
+                const allGovernanceContracts = await GovernanceContracts.deployAllGovernanceContracts(
                     ownerWallet,
+                    GovernanceContracts.RegistryProxy,
                     GovernanceContracts.OptyRegistry,
-                    [],
-                    Constants.GAS_OVERRIDE_OPTIONS
-                );
-                assert.isDefined(optyRegistry, "OptyRegistry contract not deployed");
-                riskManager = await deployContract(
-                    ownerWallet,
+                    GovernanceContracts.StrategyProvider,
                     GovernanceContracts.RiskManager,
-                    [optyRegistry.address],
-                    Constants.GAS_OVERRIDE_OPTIONS
-                );
-                assert.isDefined(riskManager, "RiskManager contract not deployed");
-                gatherer = await deployContract(
-                    ownerWallet,
                     GovernanceContracts.Gatherer,
-                    [optyRegistry.address],
-                    Constants.GAS_OVERRIDE_OPTIONS
-                );
-                assert.isDefined(gatherer, "Gatherer contract not deployed");
-                optyStrategyCodeProvider = await deployContract(
-                    ownerWallet,
                     GovernanceContracts.OptyStrategyCodeProvider,
-                    [optyRegistry.address, gatherer.address],
                     Constants.GAS_OVERRIDE_OPTIONS
-                );
-                assert.isDefined(
-                    optyStrategyCodeProvider,
-                    "OptyStrategyCodeProvider contract not deployed"
-                );
+                )
+                optyRegistry = allGovernanceContracts[0]
+                strategyProvider = allGovernanceContracts[1]
+                riskManager = allGovernanceContracts[2]
+                gatherer = allGovernanceContracts[3]
+                optyStrategyCodeProvider = allGovernanceContracts[4]
+                
                 /*
                         Iterating through list of underlyingTokens and approving them if not approved
                     */
                 let token: keyof typeof OtherImports.tokenAddresses;
                 for (token in OtherImports.tokenAddresses) {
-                    let tokenStatus = await optyRegistry.tokens(
-                        OtherImports.tokenAddresses[token]
-                    );
-                    if (!tokenStatus) {
-                        await optyRegistry.approveToken(
-                            OtherImports.tokenAddresses[token]
-                        );
-                    }
+                    await RegistryFunctions.approveToken(OtherImports.tokenAddresses[token], optyRegistry)
+                    // let tokenStatus = await optyRegistry.tokens(
+                    //     OtherImports.tokenAddresses[token]
+                    // );
+                    // if (!tokenStatus) {
+                    //     await optyRegistry.approveToken(
+                    //         OtherImports.tokenAddresses[token]
+                    //     );
+                    // }
                 }
 
                 /*  
@@ -261,12 +248,13 @@ program
                                             optyRegistry
                                         );
                                         // Mapping tokensHash to token
-                                        await RegistryFunctions.setTokensHashToTokens(
+                                        let setTokenHashtoTokensReceipt = await RegistryFunctions.setTokensHashToTokens(
                                             defiPoolsUnderlyingTokens[
                                                 defiPoolsUnderlyingTokensKey
                                             ].tokens,
                                             optyRegistry
                                         );
+                                        console.log("Set token hash to tokens receipt: ", setTokenHashtoTokensReceipt)
 
                                         // Approving pool as Liquidity pool and mapping it to the CodeProvider
                                         await RegistryFunctions.approveLpCpAndMapLpToCodeProvider(
@@ -280,25 +268,6 @@ program
                                             optyRegistry
                                         );
 
-                                        if (
-                                            defiPoolsUnderlyingTokens[
-                                                defiPoolsUnderlyingTokensKey
-                                            ].lpToken !=
-                                            "0x0000000000000000000000000000000000000000"
-                                        ) {
-                                            // Mapping LiquidityPool to lpToken
-                                            await optyRegistry.setLiquidityPoolToLPToken(
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
-                                                ].pool,
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
-                                                ].tokens,
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
-                                                ].lpToken
-                                            );
-                                        }
                                     }
                                 }
                             }
@@ -603,15 +572,16 @@ program
                                                     await optyRegistry.setTokensHashToTokens(
                                                         [previousStepOutputToken]
                                                     );
+                                                    await RegistryFunctions.approveToken(previousStepOutputToken, optyRegistry)
                                                     // Note: May need this step for 2 step  strategies - Deepanshu
                                                     // await optyRegistry.approveToken(previousStepOutputToken);
-                                                    await optyRegistry.setLiquidityPoolToLPToken(
-                                                        strategies.strategy[index]
-                                                            .contract,
-                                                        [previousStepOutputToken],
-                                                        strategies.strategy[index]
-                                                            .outputToken
-                                                    );
+                                                    // await optyRegistry.setLiquidityPoolToLPToken(
+                                                    //     strategies.strategy[index]
+                                                    //         .contract,
+                                                    //     [previousStepOutputToken],
+                                                    //     strategies.strategy[index]
+                                                    //         .outputToken
+                                                    // );
                                                 }
                                                 tempArr.push(
                                                     strategies.strategy[index].contract,
@@ -658,20 +628,32 @@ program
                                                 )
                                             ) {
                                                 await utilities.expectRevert(
-                                                    optyRegistry.setStrategy(
+                                                    optyRegistry["setStrategy(bytes32,(address,address,bool)[])"](
                                                         tokensHash,
                                                         strategySteps
                                                     ),
                                                     "isNewStrategy"
                                                 );
+                                                // await utilities.expectRevert(
+                                                //     optyRegistry.setStrategy(
+                                                //         tokensHash,
+                                                //         strategySteps
+                                                //     ),
+                                                //     "isNewStrategy"
+                                                // );
                                             } else {
-                                                let gasEstimatedBefore = await optyRegistry.estimateGas.setStrategy(
-                                                    tokensHash,
-                                                    strategySteps
-                                                );
-
+                                                // let gasEstimatedBefore = await optyRegistry.estimateGas.setStrategy(
+                                                //     tokensHash,
+                                                //     strategySteps
+                                                // );
+                                                // console.log("Strategy steps: ", strategySteps)
+                                                // console.log("\nTokens Hash: ", tokensHash)
+                                                // let getTokens = await optyRegistry.getTokensHashToTokens("0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80")
+                                                // console.log("Tokens from registry contract: ", getTokens)
+                                                
+                                                console.log("Setting Strategy.. ")
                                                 //  Setting the strategy
-                                                const setStrategyTx = await optyRegistry.setStrategy(
+                                                const setStrategyTx = await optyRegistry["setStrategy(bytes32,(address,address,bool)[])"](
                                                     tokensHash,
                                                     strategySteps
                                                 );
@@ -679,52 +661,58 @@ program
                                                     setStrategyTx,
                                                     "Setting StrategySteps has failed!"
                                                 );
+                                                console.log("Strategy is set..")
 
                                                 const setStrategyReceipt = await setStrategyTx.wait();
                                                 setStrategyTxGasUsed = setStrategyReceipt.gasUsed.toNumber();
-
+                                                
+                                                console.log("Set Strategy receipt: ", setStrategyReceipt)
                                                 let strategyHash =
                                                     setStrategyReceipt.events[0]
                                                         .args[2];
                                                 expect(
                                                     strategyHash.toString().length
                                                 ).to.equal(66);
-
+                                                console.log("Strategy Hash: ", strategyHash)
                                                 let strategy = await optyRegistry.getStrategy(
                                                     strategyHash.toString()
                                                 );
+                                                console.log("Get strategy: ", strategy)
                                                 //  Approving and scoring the strategy
-                                                if (!strategy["_isStrategy"]) {
-                                                    await optyRegistry.approveStrategy(
-                                                        strategyHash.toString()
-                                                    );
-                                                    strategy = await optyRegistry.getStrategy(
-                                                        strategyHash.toString()
-                                                    );
-                                                    assert.isTrue(
-                                                        strategy["_isStrategy"],
-                                                        "Strategy is not approved"
-                                                    );
+                                                // if (!strategy["_isStrategy"]) {
+                                                //     await optyRegistry.approveStrategy(
+                                                //         strategyHash.toString()
+                                                //     );
+                                                //     strategy = await optyRegistry.getStrategy(
+                                                //         strategyHash.toString()
+                                                //     );
+                                                //     assert.isTrue(
+                                                //         strategy["_isStrategy"],
+                                                //         "Strategy is not approved"
+                                                //     );
 
-                                                    let scoreStrategyTx = await optyRegistry.scoreStrategy(
-                                                        strategyHash.toString(),
-                                                        index + 1
-                                                    );
-                                                    let scoreStrategyReceipt = await scoreStrategyTx.wait();
-                                                    scoreStrategyTxGasUsed = scoreStrategyReceipt.gasUsed.toNumber();
+                                                //     let scoreStrategyTx = await optyRegistry.scoreStrategy(
+                                                //         strategyHash.toString(),
+                                                //         index + 1
+                                                //     );
+                                                //     let scoreStrategyReceipt = await scoreStrategyTx.wait();
+                                                //     scoreStrategyTxGasUsed = scoreStrategyReceipt.gasUsed.toNumber();
 
-                                                    setAndScoreStrategyTotalGasUsed = setStrategyReceipt.gasUsed
-                                                        .add(
-                                                            scoreStrategyReceipt.gasUsed
-                                                        )
-                                                        .toNumber();
-                                                } else {
-                                                    let scoreStrategyTx = await optyRegistry.scoreStrategy(
-                                                        strategyHash.toString(),
-                                                        index + 1
-                                                    );
-                                                    await scoreStrategyTx.wait();
-                                                }
+                                                //     setAndScoreStrategyTotalGasUsed = setStrategyReceipt.gasUsed
+                                                //         .add(
+                                                //             scoreStrategyReceipt.gasUsed
+                                                //         )
+                                                //         .toNumber();
+                                                // } else {
+                                                //     let scoreStrategyTx = await optyRegistry.scoreStrategy(
+                                                //         strategyHash.toString(),
+                                                //         index + 1
+                                                //     );
+                                                //     await scoreStrategyTx.wait();
+                                                // }
+
+                                                let setBasicStrategyStatus = await strategyProvider.setBestBasicStrategy(tokensHash, strategyHash);
+                                                console.log("basic best strategy: ", setBasicStrategyStatus)
 
                                                 //  Fetching best strategy
                                                 let bestStrategyHash = await riskManager.getBestStrategy(
@@ -1132,6 +1120,7 @@ program
                                 GasRecords: allStrategiesGasUsedRecords,
                             };
 
+                            console.log("Gas records: ", allStrategiesGasUsedRecords)
                             //  Pushing data to DB
                             if (command.insertGasRecordsInDB) {
                                 allStrategiesGasUsedRecords.forEach(

@@ -1,6 +1,16 @@
 import { Contract, ethers } from "ethers";
 const abi = require("ethereumjs-abi");
 
+export async function approveToken(token: string, optyRegistry: Contract) {
+    let tokenStatus = await optyRegistry.tokens(
+        token
+    );
+    if (!tokenStatus) {
+        await optyRegistry.approveToken(
+            token
+        );
+    }
+}
 //  Function to approve the LpTokens as tokens and underlyingTokens from tokens list
 export async function approveTokenLpToken(
     lpToken: string,
@@ -10,19 +20,21 @@ export async function approveTokenLpToken(
     // Note: May need this if lpToken is null/empty down the road - Deepanshu
     // if (!!lpToken || lpToken.length > 0) {
     if (lpToken != "0x0000000000000000000000000000000000000000") {
-        let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
+        await approveToken(lpToken, optyRegistry)
+        // let lpTokenApproveStatus = await optyRegistry.tokens(lpToken);
 
-        if (!lpTokenApproveStatus) {
-            await optyRegistry.approveToken(lpToken);
-        }
+        // if (!lpTokenApproveStatus) {
+        //     await optyRegistry.approveToken(lpToken);
+        // }
     }
 
     if (tokens.length > 0) {
         tokens.forEach(async (token) => {
-            let tokenApproveStatus = await optyRegistry.tokens(token);
-            if (!tokenApproveStatus) {
-                await optyRegistry.approveToken(token);
-            }
+            await approveToken(token, optyRegistry)
+            // let tokenApproveStatus = await optyRegistry.tokens(token);
+            // if (!tokenApproveStatus) {
+            //     await optyRegistry.approveToken(token);
+            // }
         });
     }
 }
@@ -36,13 +48,21 @@ export async function setTokensHashToTokens(tokens: string[], optyRegistry: Cont
     let tokensHashIndex: ethers.BigNumber = await optyRegistry.tokensHashToTokens(
         tokensHash
     );
+    //  Get tokens corresponding to tokensHash from contract (if any)
+    let tokensFromContract = await optyRegistry.getTokensHashToTokens(tokensHash)
+        console.log("tokens length: ", tokensFromContract.length)
     if (
-        tokensHashIndex.eq(0) &&
-        tokensHash !==
-            "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
-    ) {
+            tokensHashIndex.eq(0) && (tokensFromContract.length == 0)
+        ) {
+        // tokensHash !==
+            // "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+        console.log("Setting tokens hash..")
+        console.log("tokensHashIndex: ", tokensHashIndex)
+        console.log("46: tokens: ", tokens)
         const setTokensHashTx = await optyRegistry.setTokensHashToTokens(tokens);
+        // console.log("46: set receipt: ", setTokensHashTx)
         const setTokensHashTxOutput = await setTokensHashTx.wait();
+        // console.log("Output post setting: ", setTokensHashTxOutput)
     }
 }
 
