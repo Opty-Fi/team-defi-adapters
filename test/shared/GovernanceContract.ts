@@ -50,9 +50,9 @@ export async function deployAllGovernanceContracts(
         optyRegistry.address,
         "Registry Implementation address should be equal to Registry Contract's address"
     );
-    console.log("After become status: ", registryImplementationAddress);
-    console.log("optyRegistry's old address: ", optyRegistry.address);
-    console.log("Opty Registry's ABI: ", optyRegistry.abi);
+    // console.log("After become status: ", registryImplementationAddress);
+    // console.log("optyRegistry's old address: ", optyRegistry.address);
+    // console.log("Opty Registry's ABI: ", optyRegistry.abi);
 
     optyRegistry = await utilities.getContractInstance(
         optyRegistryProxy.address,
@@ -64,8 +64,8 @@ export async function deployAllGovernanceContracts(
         optyRegistryProxy.address,
         "Registry Contract's address should be equal to RegistryProxy Contract's address"
     );
-    console.log("Registry Proxy's address: ", optyRegistryProxy.address);
-    console.log("Registry's New address: ", optyRegistry.address);
+    // console.log("Registry Proxy's address: ", optyRegistryProxy.address);
+    // console.log("Registry's New address: ", optyRegistry.address);
 
     //  Deploy StrategyProvider
     let strategyProvider = await deployContract(
@@ -75,7 +75,7 @@ export async function deployAllGovernanceContracts(
         GAS_OVERRIDE_OPTIONS
     );
     assert.isDefined(strategyProvider, "StrategyProvider contract not deployed");
-    console.log("Strategy provider: ", strategyProvider.address);
+    // console.log("Strategy provider: ", strategyProvider.address);
 
     //  Deploy RiskManager
     let riskManager = await deployContract(
@@ -106,8 +106,8 @@ export async function deployAllGovernanceContracts(
         optyStrategyCodeProvider,
         "OptyStrategyCodeProvider contract not deployed"
     );
-    console.log("Strategy Code provider: ", optyStrategyCodeProvider.address);
-    console.log("ALL governance contracts deployed..");
+    // console.log("Strategy Code provider: ", optyStrategyCodeProvider.address);
+    // console.log("ALL governance contracts deployed..");
 
     return [
         optyRegistry,
