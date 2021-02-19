@@ -15,10 +15,7 @@ export async function deployPoolContracts(
     StrategyCodeProviderAddress: any
 ) {
     //  Deploying the Pools Contract for MKR underlying token
-    if (
-        underlyingToken ==
-        "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"
-    ) {
+    if (underlyingToken == "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2") {
         const optyTokenProfilePool = await deployContract(
             ownerWallet,
             OptyTokenProfilePoolMkrContractJSON,
@@ -50,5 +47,5 @@ export {
     OptyTokenBasicPool,
     OptyTokenBasicPoolMkr,
     OptyTokenAdvancePool,
-    OptyTokenAdvancePoolMkr
-}
+    OptyTokenAdvancePoolMkr,
+};

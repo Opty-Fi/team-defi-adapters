@@ -34,15 +34,10 @@ export async function setTokensHashToTokens(tokens: string[], optyRegistry: Cont
     );
     //  Get tokens corresponding to tokensHash from contract (if any)
     let tokensFromContract = await optyRegistry.getTokensHashToTokens(tokensHash);
-    console.log("tokens length: ", tokensFromContract.length);
     if (tokensHashIndex.eq(0) && tokensFromContract.length == 0) {
-        console.log("Setting tokens hash..")
-        console.log("tokensHashIndex: ", tokensHashIndex)
-        console.log("46: tokens: ", tokens)
         const setTokensHashTx = await optyRegistry.setTokensHashToTokens(tokens);
-        // console.log("46: set receipt: ", setTokensHashTx)
         const setTokensHashTxOutput = await setTokensHashTx.wait();
-        console.log("Output post setting: ", setTokensHashTxOutput)
+        return setTokensHashTxOutput;
     }
 }
 
