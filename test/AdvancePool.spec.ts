@@ -24,7 +24,7 @@ program
         null
     )
     .option("-sn, --strategyName <string>", "name of the strategy to run", null)
-    .option("-ta, --testAmount <number>", "amount with which you want to test", 30)
+    .option("-ta, --testAmount <number>", "amount with which you want to test", 10000)
     .option(
         "-sc, --strategiesCount <number>",
         "number of strategies you want to run",
@@ -86,7 +86,7 @@ program
             let TEST_AMOUNT: ethers.BigNumber; //  convert the test amount passed in to big number for testing
 
             let optyCodeProviderContractVariables: Interfaces.OptyCodeProviderContractVariables = {};
-            let defiPoolsKey: keyof typeof OtherImports.defiPools; //  Keys of defiPools.json corresponding to CodeProvider Contracts
+            let defiPoolsAdvKey: keyof typeof OtherImports.defiPoolsAdv; //  Keys of defiPoolsAdv.json corresponding to CodeProvider Contracts
             let provider: ethers.providers.Web3Provider;
 
             describe.only("OptyTokenAdvancePool", async () => {
@@ -158,6 +158,7 @@ program
                     optyStrategyCodeProvider = allGovernanceContracts[4];
 
                     DEBUG && console.log("\nRegistry address: ", optyRegistry.address);
+                    DEBUG && console.log("\Strategy provider address: ", strategyProvider.address);
                     DEBUG &&
                         console.log("\nRiskManager address: ", riskManager.address);
                     DEBUG && console.log("\nGatherer address: ", gatherer.address);
@@ -170,12 +171,16 @@ program
                     /*
                         Iterating through list of underlyingTokens and approving them if not approved
                     */
-                    let token: keyof typeof OtherImports.tokenAddresses;
-                    for (token in OtherImports.tokenAddresses) {
-                        await RegistryFunctions.approveToken(
-                            OtherImports.tokenAddresses[token],
-                            optyRegistry
-                        );
+                    let tokenType: keyof typeof OtherImports.tokenAddresses;
+                    for (tokenType in OtherImports.tokenAddresses) {
+                        let tokens: Interfaces.TokenAddress = OtherImports.tokenAddresses[tokenType];
+                        for (let token in tokens) {
+                            DEBUG && console.log("Approving token: ", tokens[token])
+                            await RegistryFunctions.approveToken(
+                                tokens[token],
+                                optyRegistry
+                            );
+                        }
                     }
 
                     /*  
@@ -243,41 +248,41 @@ program
                                     ],
                                     "optyCodeProviderContract contract not deployed"
                                 );
-                                // //  Iterating through defiPools.json to approve LpTokens/Tokens, set Tokens hash
+                                // //  Iterating through defiPoolsAdv.json to approve LpTokens/Tokens, set Tokens hash
                                 // //  mapping to tokens, approve LP/CP, map Lp to CodeProvider Contract and setting the
                                 // //  Lp to LpToken
-                                for (defiPoolsKey in OtherImports.defiPools) {
+                                for (defiPoolsAdvKey in OtherImports.defiPoolsAdv) {
                                     if (
-                                        defiPoolsKey.toString() ==
+                                        defiPoolsAdvKey.toString() ==
                                         optyCodeProviderContractsKey.toString()
                                     ) {
-                                        let defiPoolsUnderlyingTokens: Interfaces.DefiPools =
-                                            OtherImports.defiPools[defiPoolsKey];
+                                        let defiPoolsAdvUnderlyingTokens: Interfaces.DefiPoolsAdv =
+                                            OtherImports.defiPoolsAdv[defiPoolsAdvKey];
                                         //  Iteracting through all the underlying tokens available corresponding to this
                                         //  current CodeProvider Contract Key
-                                        for (let defiPoolsUnderlyingTokensKey in defiPoolsUnderlyingTokens) {
+                                        for (let defiPoolsAdvUnderlyingTokensKey in defiPoolsAdvUnderlyingTokens) {
                                             //  Approving tokens, lpTokens
                                             await RegistryFunctions.approveTokenLpToken(
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
+                                                defiPoolsAdvUnderlyingTokens[
+                                                    defiPoolsAdvUnderlyingTokensKey
                                                 ].lpToken,
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
+                                                defiPoolsAdvUnderlyingTokens[
+                                                    defiPoolsAdvUnderlyingTokensKey
                                                 ].tokens,
                                                 optyRegistry
                                             );
                                             // Mapping tokensHash to token
                                             await RegistryFunctions.setTokensHashToTokens(
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
+                                                defiPoolsAdvUnderlyingTokens[
+                                                    defiPoolsAdvUnderlyingTokensKey
                                                 ].tokens,
                                                 optyRegistry
                                             );
 
                                             // Approving pool as Liquidity pool and mapping it to the CodeProvider
                                             await RegistryFunctions.approveLpCpAndMapLpToCodeProvider(
-                                                defiPoolsUnderlyingTokens[
-                                                    defiPoolsUnderlyingTokensKey
+                                                defiPoolsAdvUnderlyingTokens[
+                                                    defiPoolsAdvUnderlyingTokensKey
                                                 ].pool,
                                                 optyCodeProviderContractVariables[
                                                     optyCodeProviderContractsKey
@@ -408,11 +413,11 @@ program
                             before(async () => {
                                 //  Getting the underlying token's contract instance
                                 underlyingToken =
-                                    OtherImports.tokenAddresses[
-                                        <keyof typeof OtherImports.tokenAddresses>(
-                                            strategiesTokenKey.toLowerCase()
-                                        )
-                                    ];
+                                OtherImports.tokenAddresses.underlyingTokens[
+                                    <keyof typeof OtherImports.tokenAddresses.underlyingTokens>(
+                                        strategiesTokenKey.toLowerCase()
+                                    )
+                                ];
                                 tokens = [underlyingToken];
 
                                 // Instantiate token contract
@@ -625,6 +630,7 @@ program
                                                     );
                                                 }
 
+                                                DEBUG && console.log("Strategy is set and getting confirmation on txn.")
                                                 const setStrategyReceipt = await setStrategyTx.wait();
                                                 setStrategyTxGasUsed = setStrategyReceipt.gasUsed.toNumber();
 
@@ -702,6 +708,10 @@ program
                                                     "\n Credit pool rating condition: ",
                                                     creditPool.rating >= 0
                                                 );
+                                                let outputTokenStatus = await optyRegistry.tokens(
+                                                    StrategyFromRM["_strategySteps"][0].outputToken
+                                                );
+                                                DEBUG && console.log("Output token status: ", outputTokenStatus)
                                                 let liquidityPool = await optyRegistry.getLiquidityPool(
                                                     StrategyFromRM["_strategySteps"][0]
                                                         .pool
@@ -735,9 +745,13 @@ program
                                                 userInitialTokenBalance =
                                                     allFundWalletReturnParams[4];
                                                 //  Function call to test userDepositRebalance()
+                                                try {
+                                                    await testUserDepositRebalance();
+                                                    strategyScore = strategyScore + 1;
 
-                                                await testUserDepositRebalance();
-                                                strategyScore = strategyScore + 1;
+                                                } catch (error) {
+                                                    console.log("Deposit Failed with error: ", error.message)
+                                                }
                                         }
                                     );
 
