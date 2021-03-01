@@ -9,7 +9,7 @@ import "./../../utils/Ownable.sol";
 import "./../../utils/ReentrancyGuard.sol";
 import "./../../RiskManager.sol";
 import "./../../StrategyCodeProvider.sol";
-import "../PoolStorage.sol";
+import "./../../OPTYToken/OPTYMinter.sol";
 
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
@@ -17,6 +17,15 @@ import "../PoolStorage.sol";
 contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage {
     using SafeERC20 for IERC20;
     using Address for address;
+
+    bytes32 public strategyHash;
+    address public token; //  store the underlying token contract address (for example DAI)
+    uint256 public poolValue;
+    string public profile;
+
+    StrategyCodeProvider public strategyCodeProviderContract;
+    RiskManager public riskManagerContract;
+    OPTYMinter public optyMinterContract;
 
     /**
      * @dev
@@ -27,7 +36,8 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         address _registry,
         address _riskManager,
         address _underlyingToken,
-        address _strategyCodeProvider
+        address _strategyCodeProvider,
+        address _optyMinter
     )
         public
         ERC20Detailed(
@@ -41,12 +51,19 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
         setStrategyCodeProvider(_strategyCodeProvider);
-        setMaxPoolValueJump(100);
+        setOPTYMinter(_optyMinter);
     }
 
     function setProfile(string memory _profile) public onlyOperator returns (bool _success) {
         require(bytes(_profile).length > 0, "empty!");
         profile = _profile;
+        _success = true;
+    }
+    
+    function setOPTYMinter(address _optyMinter) public onlyOperator returns (bool _success) {
+        require(_optyMinter != address(0), "!_optyMinter");
+        require(_optyMinter.isContract(), "!_optyMinter.isContract");
+        optyMinterContract = OPTYMinter(_optyMinter);
         _success = true;
     }
 
@@ -200,19 +217,28 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
     }
 
     function _batchMintAndBurn() internal returns (bool _success) {
-        while (last >= first) {
-            if (queue[first].isDeposit) {
-                _mintShares(queue[first].account, balance(), queue[first].value);
-                pendingDeposits[msg.sender] -= queue[first].value;
-                depositQueue -= queue[first].value;
+        uint iterator = first;
+        while (last >= iterator) {
+            optyMinterContract.updateSupplierRewards(address(this), queue[iterator].account);
+            if (queue[iterator].isDeposit) {
+                _mintShares(queue[iterator].account, balance(), queue[iterator].value);
+                pendingDeposits[msg.sender] -= queue[iterator].value;
+                depositQueue -= queue[iterator].value;
             } else {
-                _redeemAndBurn(queue[first].account, balance(), queue[first].value);
-                pendingWithdraws[msg.sender] -= queue[first].value;
-                withdrawQueue -= queue[first].value;
+                _redeemAndBurn(queue[iterator].account, balance(), queue[iterator].value);
+                pendingWithdraws[msg.sender] -= queue[iterator].value;
+                withdrawQueue -= queue[iterator].value;
             }
+            iterator++;
+        }
+        optyMinterContract.updateOptyPoolRatePerBlockAndLPToken(address(this));
+        optyMinterContract.updateOptyPoolIndex(address(this));
+        while (last >= first) {
+            optyMinterContract.updateUserStateInPool(address(this), queue[first].account);
             delete queue[first];
             first++;
         }
+        
         _success = true;
     }
 
@@ -236,11 +262,14 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
             _withdrawAll();
             harvest(strategyHash);
         }
-        // do not consider _amount and pending deposit sum to calculate token balance
-        uint256 _tokenBalance = balance().sub(_amount).sub(depositQueue);
-
-        _emergencyBrake(_tokenBalance);
-
+        
+        // Following lines will be added if all the optyPoolRates are updated every transaction:
+        // 
+        // uint256 _optyPoolRate = OPTYMinter(optyMinterContract).optyPoolRate(address(this));
+        // uint256 _newOptyPoolRate = calculateNewOptyPoolRate();
+        // storeAllNewOptyPoolRatesInMapping();
+        
+        uint256 _tokenBalance = balance();
         uint256 shares = 0;
 
         if (_tokenBalance == 0 || totalSupply() == 0) {
@@ -248,37 +277,22 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         } else {
             shares = (_amount.mul(totalSupply())).div((_tokenBalance));
         }
+        optyMinterContract.updateSupplierRewards(address(this), msg.sender);
         _mint(msg.sender, shares);
+        optyMinterContract.updateOptyPoolRatePerBlockAndLPToken(address(this));
+        optyMinterContract.updateOptyPoolIndex(address(this));
+        optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         if (balance() > 0) {
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = token;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
-        _success = true;
-    }
-
-    function userWithdrawAll() external {
-        userWithdraw(balanceOf(msg.sender));
-    }
-
-    /**
-     * @dev Function to queu withdraw of the lp tokens from the liquidity pool (for example opDAI)
-     *
-     * Requirements:
-     *  -   contract function will be called.
-     *  -   _redeemAmount: amount to withdraw from the  liquidity pool. Its uints are:
-     *      in  weth uints i.e. 1e18
-     */
-    function userWithdraw(uint256 _redeemAmount) public ifNotPaused nonReentrant returns (bool _success) {
-        require(_redeemAmount > 0, "!_redeemAmount>0");
-        uint256 opBalance = balanceOf(msg.sender);
-        require(pendingWithdraws[msg.sender] + _redeemAmount <= opBalance, "!balance");
-        last++;
-        queue[last] = Operation(msg.sender, false, _redeemAmount);
-        pendingWithdraws[msg.sender] += _redeemAmount;
-        withdrawQueue += _redeemAmount;
-        emit WithdrawQueue(msg.sender, last, _redeemAmount);
+        optyMinterContract.updateSupplierRewards(address(this), msg.sender);
+        _mint(msg.sender, shares);
+        optyMinterContract.updateOptyPoolRatePerBlockAndLPToken(address(this));
+        optyMinterContract.updateOptyPoolIndex(address(this));
+        optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         _success = true;
     }
 
@@ -304,12 +318,15 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
             harvest(strategyHash);
         }
 
-        // subtract pending deposit from total balance
-        uint256 _balance = balance().sub(depositQueue);
-
-        _emergencyBrake(_balance);
-
-        _redeemAndBurn(msg.sender, _balance, _redeemAmount);
+        uint256 redeemAmountInToken = (balance().mul(_redeemAmount)).div(totalSupply());
+        optyMinterContract.updateSupplierRewards(address(this), msg.sender);
+        //  Updating the totalSupply of op tokens
+        _balances[msg.sender] = _balances[msg.sender].sub(_redeemAmount, "Redeem amount exceeds balance");
+        _totalSupply = _totalSupply.sub(_redeemAmount);
+        emit Transfer(msg.sender, address(0), _redeemAmount);
+        optyMinterContract.updateOptyPoolRatePerBlockAndLPToken(address(this));
+        optyMinterContract.updateOptyPoolIndex(address(this));
+        optyMinterContract.updateUserStateInPool(address(this), msg.sender);
 
         if (!discontinued && (balance() > 0)) {
             address[] memory _underlyingTokens = new address[](1);

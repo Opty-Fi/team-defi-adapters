@@ -6,5 +6,6 @@ test/SS_NO_CP_strategies.json
 .env
 **/.DS_Store*
 test/gasRecordFiles/*
+desktop.ini
 **/*strategies*.json
 !**/*strategies.example.json
