@@ -10,6 +10,7 @@ import "./../../utils/ReentrancyGuard.sol";
 import "./../../RiskManager.sol";
 import "./../../StrategyCodeProvider.sol";
 import "./../../OPTYToken/OPTYMinter.sol";
+import "./../PoolStorage.sol";
 
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
@@ -17,15 +18,6 @@ import "./../../OPTYToken/OPTYMinter.sol";
 contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage {
     using SafeERC20 for IERC20;
     using Address for address;
-
-    bytes32 public strategyHash;
-    address public token; //  store the underlying token contract address (for example DAI)
-    uint256 public poolValue;
-    string public profile;
-
-    StrategyCodeProvider public strategyCodeProviderContract;
-    RiskManager public riskManagerContract;
-    OPTYMinter public optyMinterContract;
 
     /**
      * @dev
@@ -59,7 +51,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolS
         profile = _profile;
         _success = true;
     }
-    
+
     function setOPTYMinter(address _optyMinter) public onlyOperator returns (bool _success) {
         require(_optyMinter != address(0), "!_optyMinter");
         require(_optyMinter.isContract(), "!_optyMinter.isContract");
@@ -209,7 +201,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolS
     }
 
     function _batchMintAndBurn() internal returns (bool _success) {
-        uint iterator = first;
+        uint256 iterator = first;
         while (last >= iterator) {
             optyMinterContract.updateSupplierRewards(address(this), queue[iterator].account);
             if (queue[iterator].isDeposit) {
@@ -230,7 +222,7 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolS
             delete queue[first];
             first++;
         }
-        
+
         _success = true;
     }
 
@@ -304,7 +296,6 @@ contract BasicPoolMkr is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolS
             harvest(strategyHash);
         }
 
-        uint256 redeemAmountInToken = (balance().mul(_redeemAmount)).div(totalSupply());
         optyMinterContract.updateSupplierRewards(address(this), msg.sender);
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, balance().sub(depositQueue), _redeemAmount);
