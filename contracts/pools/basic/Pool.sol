@@ -7,18 +7,18 @@ import "./../../libraries/SafeERC20.sol";
 import "./../../utils/ERC20Detailed.sol";
 import "./../../utils/Ownable.sol";
 import "./../../utils/ReentrancyGuard.sol";
+import "./../../utils/ChiDeployer.sol";
 import "./../../RiskManager.sol";
 import "./../../StrategyCodeProvider.sol";
-import "./../../OPTYToken/OPTYMinter.sol";
 import "./../PoolStorage.sol";
 
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
  */
-contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage {
+contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
     using SafeERC20 for IERC20;
     using Address for address;
-
+    
     /**
      * @dev
      *  - Constructor used to initialise the Opty.Fi token name, symbol, decimals for token (for example DAI)
@@ -245,7 +245,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
 
         _success = true;
     }
-
+    
     function userDepositAllRebalance() external {
         userDepositRebalance(IERC20(token).balanceOf(msg.sender));
     }
@@ -304,7 +304,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
     function userWithdrawAllRebalance() external {
         userWithdrawRebalance(balanceOf(msg.sender));
     }
-
+    
     /**
      * @dev Function to withdraw the lp tokens from the liquidity pool (for example cDAI)
      *
@@ -326,7 +326,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         optyMinterContract.updateSupplierRewards(address(this), msg.sender);
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, balance().sub(depositQueue), _redeemAmount);
-        optyMinterContract.updateOptyPoolRatePerBlockAndLPToken(address(this));
+        optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
         optyMinterContract.updateOptyPoolIndex(address(this));
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
 
@@ -337,6 +337,26 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
             _supplyAll();
         }
         return true;
+    }
+    
+    function userDepositWithCHI(uint256 _amount) public discountCHI {
+        userDeposit(_amount);
+    }
+    
+    function userDepositAndStakeWithCHI(uint256 _amount) public discountCHI {
+        userDepositAndStake(_amount);
+    }
+    
+    function userDepositRebalanceWithCHI(uint256 _amount) public discountCHI {
+        userDepositRebalance(_amount);
+    }
+    
+    function userDepositRebalanceAndStakeWithCHI(uint256 _amount) public discountCHI {
+        userDepositRebalanceAndStake(_amount);
+    }
+    
+    function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) public discountCHI {
+        userWithdrawRebalance(_redeemAmount);
     }
 
     function _emergencyBrake(uint256 _poolValue) private returns (bool) {
