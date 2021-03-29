@@ -3,29 +3,32 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "./../../libraries/SafeERC20.sol";
-import "./../../utils/ERC20Detailed.sol";
+import "./../../libraries/ERC20Upgradeable/SafeERC20Upgradeable.sol";
+import "./../../libraries/SafeMath.sol";
 import "./../../utils/Ownable.sol";
 import "./../../utils/ReentrancyGuard.sol";
 import "./../../utils/ChiDeployer.sol";
 import "./../../RiskManager.sol";
 import "./../../StrategyCodeProvider.sol";
 import "./../PoolStorage.sol";
+import "./../../utils/ERC20Upgradeable/ModifiersUpgradeable.sol";
 import "./../../interfaces/uniswap/IUniswap.sol";
+import "./../../utils/ERC20Upgradeable/ERC20Upgradeable.sol";
 
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
  */
-contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
-    using SafeERC20 for IERC20;
-    using Address for address;
+contract LMVault is ERC20Upgradeable, ModifiersUpgradeable, ReentrancyGuard, PoolStorage, Deployer {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address;
+    using SafeMath for uint256;
     
     /**
      * @dev
      *  - Constructor used to initialise the Opty.Fi token name, symbol, decimals for token (for example DAI)
      *  - Storing the underlying token contract address (for example DAI)
      */
-    constructor(
+    function initialize(
         address _registry,
         address _riskManager,
         address _underlyingToken,
@@ -33,13 +36,14 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         address _optyMinter
     )
         public
-        ERC20Detailed(
-            string(abi.encodePacked("op ", ERC20Detailed(_underlyingToken).name(), " basic", " pool")),
-            string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(), "BscPool")),
-            ERC20Detailed(_underlyingToken).decimals()
-        )
-        Modifiers(_registry)
+        virtual
+        initializer
     {
+        __Modifiers_init_unchained(_registry);
+        __ERC20_init_unchained(
+            string(abi.encodePacked("op ", IERC20MetadataUpgradeable(_underlyingToken).name(), " basic", " pool")),
+            string(abi.encodePacked("op", IERC20MetadataUpgradeable(_underlyingToken).symbol(), "BscPool"))
+        );
         setProfile("basic");
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
@@ -86,9 +90,6 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
     function _supplyAll() internal ifNotDiscontinued ifNotPaused {
         uint256 _tokenBalance = IERC20(token).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
-        _batchMintAndBurn();
-        first = 1;
-        last = 0;
         uint8 _steps = strategyCodeProviderContract.getDepositAllStepCount(strategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), token, strategyHash, _i, _steps);
@@ -125,7 +126,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
                 _path[1] = token;
                 uint256[] memory  _amounts = IUniswap(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D)).getAmountsOut(gasOwedToOperator,_path);
                 uint256 _gasToTransfer = _amounts[1];
-                IERC20(token).safeTransfer(registryContract.operator(), _gasToTransfer);
+                IERC20Upgradeable(token).safeTransfer(registryContract.operator(), _gasToTransfer);
             }
         }
 
@@ -221,7 +222,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
      */
     function userDeposit(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20Upgradeable(token).safeTransferFrom(msg.sender, address(this), _amount);
         last++;
         queue[last] = Operation(msg.sender, true, _amount);
         pendingDeposits[msg.sender] += _amount;
@@ -233,32 +234,6 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
     function userDepositAndStake(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
         userDeposit(_amount);
         optyMinterContract.claimAndStake(msg.sender);
-        _success = true;
-    }
-
-    function _batchMintAndBurn() internal returns (bool _success) {
-        uint256 iterator = first;
-        while (last >= iterator) {
-            optyMinterContract.updateSupplierRewards(address(this), queue[iterator].account);
-            if (queue[iterator].isDeposit) {
-                _mintShares(queue[iterator].account, balance(), queue[iterator].value);
-                pendingDeposits[msg.sender] -= queue[iterator].value;
-                depositQueue -= queue[iterator].value;
-            } else {
-                _redeemAndBurn(queue[iterator].account, balance(), queue[iterator].value);
-                pendingWithdraws[msg.sender] -= queue[iterator].value;
-                withdrawQueue -= queue[iterator].value;
-            }
-            iterator++;
-        }
-        optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
-        optyMinterContract.updateOptyPoolIndex(address(this));
-        while (last >= first) {
-            optyMinterContract.updateUserStateInPool(address(this), queue[first].account);
-            delete queue[first];
-            first++;
-        }
-
         _success = true;
     }
     
@@ -276,7 +251,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
      */
     function userDepositRebalance(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20Upgradeable(token).safeTransferFrom(msg.sender, address(this), _amount);
 
         if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
@@ -316,7 +291,7 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
         optyMinterContract.claimAndStake(msg.sender);
         _success = true;
     }
-    
+
     function userWithdrawAllRebalance() external {
         userWithdrawRebalance(balanceOf(msg.sender));
     }
@@ -341,7 +316,6 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
 
         optyMinterContract.updateSupplierRewards(address(this), msg.sender);
         // subtract pending deposit from total balance
-        _redeemAndBurn(msg.sender, balance().sub(depositQueue), _redeemAmount);
         optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
         optyMinterContract.updateOptyPoolIndex(address(this));
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
@@ -415,19 +389,6 @@ contract BasicPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStor
 
     function isMaxPoolValueJumpAllowed(uint256 _diff, uint256 _currentPoolValue) public view returns (bool) {
         return (_diff.div(_currentPoolValue)).mul(10000) < maxPoolValueJump;
-    }
-
-    function _redeemAndBurn(
-        address _account,
-        uint256 _balance,
-        uint256 _redeemAmount
-    ) private {
-        uint256 redeemAmountInToken = (_balance.mul(_redeemAmount)).div(totalSupply());
-        //  Updating the totalSupply of op tokens
-        _balances[_account] = _balances[_account].sub(_redeemAmount, "!_redeemAmount>balance");
-        _totalSupply = _totalSupply.sub(_redeemAmount);
-        emit Transfer(_account, address(0), _redeemAmount);
-        IERC20(token).safeTransfer(_account, redeemAmountInToken);
     }
 
     function _mintShares(

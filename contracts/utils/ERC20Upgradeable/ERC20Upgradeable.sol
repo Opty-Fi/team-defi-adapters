@@ -2,9 +2,10 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "./Context.sol";
-import "../interfaces/ERC20/IERC20.sol";
-import "../libraries/SafeMath.sol";
+import "./ContextUpgradeable.sol";
+import "../../interfaces/ERC20Upgradeable/IERC20Upgradeable.sol";
+import "../../libraries/ERC20Upgradeable/SafeMathUpgradeable.sol";
+import "./VersionedInitializable.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -30,14 +31,14 @@ import "../libraries/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20 {
-    using SafeMath for uint256;
+contract ERC20Upgradeable is VersionedInitializable, ContextUpgradeable, IERC20Upgradeable {
+    using SafeMathUpgradeable for uint256;
 
-    mapping (address => uint256) private _balances;
+    mapping (address => uint256) _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
-    uint256 private _totalSupply;
+    uint256 _totalSupply;
 
     string private _name;
     string private _symbol;
@@ -52,10 +53,15 @@ contract ERC20 is Context, IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name_, string memory symbol_) public {
+    function __ERC20_init(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
+        __Context_init_unchained();
+        __ERC20_init_unchained(name_, symbol_, decimals_);
+    }
+
+    function __ERC20_init_unchained(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
         _name = name_;
         _symbol = symbol_;
-        _decimals = 18;
+        _decimals = decimals_;
     }
 
     /**
@@ -277,16 +283,15 @@ contract ERC20 is Context, IERC20 {
         emit Approval(owner, spender, amount);
     }
 
-    function _setName(string memory newName) internal {
-    _name = newName;
-    }
-
-    function _setSymbol(string memory newSymbol) internal {
-        _symbol = newSymbol;
-    }
-
-    function _setDecimals(uint8 newDecimals) internal {
-        _decimals = newDecimals;
+    /**
+     * @dev Sets {decimals} to a value other than the default one of 18.
+     *
+     * WARNING: This function should only be called from the constructor. Most
+     * applications that interact with token contracts will not expect
+     * {decimals} to ever change, and may work incorrectly if it does.
+     */
+    function _setupDecimals(uint8 decimals_) internal virtual {
+        _decimals = decimals_;
     }
 
     /**
@@ -304,4 +309,5 @@ contract ERC20 is Context, IERC20 {
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+    uint256[44] private __gap;
 }
