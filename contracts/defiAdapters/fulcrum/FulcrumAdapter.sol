@@ -3,13 +3,13 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
-import "../../interfaces/yearn/IYVault.sol";
-import "../../interfaces/ERC20/IERC20.sol";
+import "../../interfaces/opty/IAdapter.sol";
+import "../../interfaces/fulcrum/IFulcrum.sol";
 import "../../libraries/SafeMath.sol";
+import "../../interfaces/ERC20/IERC20.sol";
 import "../../utils/Modifiers.sol";
 
-contract YVaultCodeProvider is ICodeProvider, Modifiers {
+contract FulcrumAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     uint256 public maxExposure; // basis points
@@ -19,11 +19,11 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IYVault(_liquidityPool).balance();
+        return IFulcrum(_liquidityPool).marketLiquidity();
     }
 
     function getDepositSomeCodes(
-        address payable,
+        address payable _optyPool,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
@@ -33,7 +33,7 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
             _codes = new bytes[](3);
             _codes[0] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0)));
             _codes[1] = abi.encode(_underlyingTokens[0], abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount));
-            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _depositAmount));
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(address,uint256)", _optyPool, _depositAmount));
         }
     }
 
@@ -66,14 +66,14 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getWithdrawSomeCodes(
-        address payable,
+        address payable _optyPool,
         address[] memory,
         address _liquidityPool,
-        uint256 _shares
+        uint256 _burnAmount
     ) public view override returns (bytes[] memory _codes) {
-        if (_shares > 0) {
+        if (_burnAmount > 0) {
             _codes = new bytes[](1);
-            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("burn(address,uint256)", _optyPool, _burnAmount));
         }
     }
 
@@ -92,7 +92,7 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
 
     function getUnderlyingTokens(address _liquidityPool, address) public view override returns (address[] memory _underlyingTokens) {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = IYVault(_liquidityPool).token();
+        _underlyingTokens[0] = IFulcrum(_liquidityPool).loanTokenAddress();
     }
 
     function getAllAmountInToken(
@@ -100,15 +100,19 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool));
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool);
+        if (_liquidityPoolTokenBalance > 0) {
+            _liquidityPoolTokenBalance = IFulcrum(_liquidityPool).assetBalanceOf(_optyPool);
+        }
+        return _liquidityPoolTokenBalance;
     }
 
     function getLiquidityPoolTokenBalance(
         address payable _optyPool,
-        address _underlyingToken,
+        address,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyPool);
+        return IERC20(_liquidityPool).balanceOf(_optyPool);
     }
 
     function getSomeAmountInToken(
@@ -117,8 +121,8 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYVault(_liquidityPool).getPricePerFullShare()).div(
-                10**IYVault(_liquidityPool).decimals()
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IFulcrum(_liquidityPool).tokenPrice()).div(
+                10**IFulcrum(_liquidityPool).decimals()
             );
         }
         return _liquidityPoolTokenAmount;
@@ -150,7 +154,7 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
         address _liquidityPool,
         uint256 _depositAmount
     ) public view override returns (uint256) {
-        return _depositAmount.mul(10**IYVault(_liquidityPool).decimals()).div(IYVault(_liquidityPool).getPricePerFullShare());
+        return _depositAmount.mul(10**(IFulcrum(_liquidityPool).decimals())).div(IFulcrum(_liquidityPool).tokenPrice());
     }
 
     function calculateRedeemableLPTokenAmount(
@@ -183,10 +187,6 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
         revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
-
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -201,6 +201,10 @@ contract YVaultCodeProvider is ICodeProvider, Modifiers {
         address,
         address
     ) public view override returns (bytes[] memory) {
+        revert("!empty");
+    }
+
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 

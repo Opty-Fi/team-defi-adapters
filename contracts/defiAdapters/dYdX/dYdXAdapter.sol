@@ -3,13 +3,13 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
+import "../../interfaces/opty/IAdapter.sol";
 import "../../interfaces/dydx/IdYdX.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../utils/Modifiers.sol";
 import "../../libraries/SafeMath.sol";
 
-contract dYdXCodeProvider is ICodeProvider, Modifiers {
+contract dYdXAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     uint256 public maxExposure; // basis points

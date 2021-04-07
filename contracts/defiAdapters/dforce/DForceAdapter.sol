@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
+import "../../interfaces/opty/IAdapter.sol";
 import "../../interfaces/dforce/IDForceDeposit.sol";
 import "../../interfaces/dforce/IDForceStake.sol";
 import "../../interfaces/ERC20/IERC20.sol";
@@ -11,7 +11,7 @@ import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
 import "../../Gatherer.sol";
 
-contract DForceCodeProvider is ICodeProvider, Modifiers {
+contract DForceAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     mapping(address => address) public liquidityPoolToStakingPool;

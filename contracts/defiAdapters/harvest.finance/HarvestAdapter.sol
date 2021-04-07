@@ -3,14 +3,14 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
+import "../../interfaces/opty/IAdapter.sol";
 import "../../interfaces/harvest.finance/IHarvestDeposit.sol";
 import "../../interfaces/harvest.finance/IHarvestFarm.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
 import "../../Gatherer.sol";
 
-contract HarvestCodeProvider is ICodeProvider, Modifiers {
+contract HarvestAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     Gatherer public gathererContract;

@@ -3,13 +3,13 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
-import "../../interfaces/yearn/IYearn.sol";
+import "../../interfaces/opty/IAdapter.sol";
+import "../../interfaces/yearn/IYVault.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
 
-contract YearnCodeProvider is ICodeProvider, Modifiers {
+contract YVaultAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     uint256 public maxExposure; // basis points
@@ -19,7 +19,7 @@ contract YearnCodeProvider is ICodeProvider, Modifiers {
     }
 
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IYearn(_liquidityPool).calcPoolValueInToken();
+        return IYVault(_liquidityPool).balance();
     }
 
     function getDepositSomeCodes(
@@ -92,7 +92,7 @@ contract YearnCodeProvider is ICodeProvider, Modifiers {
 
     function getUnderlyingTokens(address _liquidityPool, address) public view override returns (address[] memory _underlyingTokens) {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = IYearn(_liquidityPool).token();
+        _underlyingTokens[0] = IYVault(_liquidityPool).token();
     }
 
     function getAllAmountInToken(
@@ -117,8 +117,8 @@ contract YearnCodeProvider is ICodeProvider, Modifiers {
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
         if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYearn(_liquidityPool).getPricePerFullShare()).div(
-                10**IYearn(_liquidityPool).decimals()
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount.mul(IYVault(_liquidityPool).getPricePerFullShare()).div(
+                10**IYVault(_liquidityPool).decimals()
             );
         }
         return _liquidityPoolTokenAmount;
@@ -150,7 +150,7 @@ contract YearnCodeProvider is ICodeProvider, Modifiers {
         address _liquidityPool,
         uint256 _depositAmount
     ) public view override returns (uint256) {
-        return _depositAmount.mul(10**IYearn(_liquidityPool).decimals()).div(IYearn(_liquidityPool).getPricePerFullShare());
+        return _depositAmount.mul(10**IYVault(_liquidityPool).decimals()).div(IYVault(_liquidityPool).getPricePerFullShare());
     }
 
     function calculateRedeemableLPTokenAmount(

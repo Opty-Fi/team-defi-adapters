@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 /**
  * @dev Interface of the Defi protocol code provider.
  */
-interface ICodeProvider {
+interface IAdapter {
     /**
      * @dev Supply `liquidityPool`, `underlyingToken`
      * and returns pool value in underlying token for that liquidity pool.

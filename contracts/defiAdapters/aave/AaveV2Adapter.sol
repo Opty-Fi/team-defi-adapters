@@ -3,7 +3,7 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "../../interfaces/opty/ICodeProvider.sol";
+import "../../interfaces/opty/IAdapter.sol";
 import "../../interfaces/aave/v2/IAaveV2PriceOracle.sol";
 import "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import "../../interfaces/aave/v2/IAaveV2LendingPoolAddressProviderRegistry.sol";
@@ -16,7 +16,7 @@ import "../../utils/Modifiers.sol";
 import "../../utils/ERC20.sol";
 import "../../Gatherer.sol";
 
-contract AaveV2CodeProvider is ICodeProvider, Modifiers {
+contract AaveV2Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     Gatherer public gathererContract;
