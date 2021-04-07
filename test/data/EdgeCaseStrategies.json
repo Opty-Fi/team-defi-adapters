@@ -56,6 +56,9 @@
     "TUSD-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD": {
         "sleepTimeInSec": 300
     },
+    "DAI-deposit-COMPOUND-cDai": {
+        "sleepTimeInSec": 120
+    },
     "DAI-borrow-AAVE-KNC": {
         "sleepTimeInSec": 120
     },

@@ -4,6 +4,9 @@ import RiskManager from "../../build/RiskManager.json";
 import Gatherer from "../../build/Gatherer.json";
 import OptyStrategyCodeProvider from "../../build/StrategyCodeProvider.json";
 import StrategyProvider from "../../build/StrategyProvider.json";
+import Opty from "../../build/OPTY.json";
+import OptyMinter from "../../build/OPTYMinter.json";
+import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
 import { deployContract } from "ethereum-waffle";
 import * as utilities from "./utilities";
 import { assert } from "chai";
@@ -17,6 +20,9 @@ export async function deployAllGovernanceContracts(
     RiskManagerContractJSON: any,
     GathererContractJSON: any,
     StrategyCodeProviderContractJSON: any,
+    OptyContractJSON: any,
+    OptyMinterContractJSON: any,
+    HarvestCodeProviderJSON: any,
     GAS_OVERRIDE_OPTIONS: any
 ) {
     //  Deploy RegistryProxy
@@ -45,11 +51,6 @@ export async function deployAllGovernanceContracts(
 
     //  Checking status if the registry implementation is set or not
     const registryImplementationAddress = await optyRegistryProxy.registryImplementation();
-    assert.equal(
-        registryImplementationAddress,
-        optyRegistry.address,
-        "Registry Implementation address should be equal to Registry Contract's address"
-    );
 
     optyRegistry = await utilities.getContractInstance(
         optyRegistryProxy.address,
@@ -100,13 +101,29 @@ export async function deployAllGovernanceContracts(
         optyStrategyCodeProvider,
         "OptyStrategyCodeProvider contract not deployed"
     );
-
+    const opty = await deployContract(
+        ownerWallet,
+        OptyContractJSON,
+        [optyRegistryProxy.address, 0],
+        GAS_OVERRIDE_OPTIONS
+    );
+    const optyMinter = await deployContract(ownerWallet, OptyMinterContractJSON, [
+        optyRegistry.address,
+        opty.address,
+    ]);
+    const harvestCodeProvider = await deployContract(
+        ownerWallet,
+        HarvestCodeProviderJSON,
+        [optyRegistry.address, gatherer.address]
+    );
     return [
         optyRegistry,
         strategyProvider,
         riskManager,
         gatherer,
         optyStrategyCodeProvider,
+        optyMinter,
+        harvestCodeProvider,
     ];
 }
 
@@ -117,4 +134,7 @@ export {
     Gatherer,
     OptyStrategyCodeProvider,
     StrategyProvider,
+    Opty,
+    OptyMinter,
+    HarvestCodeProvider,
 };
