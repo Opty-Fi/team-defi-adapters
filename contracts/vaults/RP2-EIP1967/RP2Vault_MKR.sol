@@ -14,13 +14,13 @@ import "./../../utils/Modifiers.sol";
 import "./../../libraries/SafeERC20.sol";
 
 /**
- * @title Vault
+ * @title RP2Vault_MKR
  *
  * @author Opty.fi, inspired by the Aave V2 AToken.sol contract
  *
- * @dev Opty.Fi's RP1 Pool contract for underlying tokens (for example DAI)
+ * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
  */
-contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
+contract RP2Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
     using SafeERC20 for IERC20;
     using Address for address;
     
@@ -32,8 +32,8 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
     )
         public
         ERC20(
-            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP1", " pool")),
-            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP1Pool"))
+            string(abi.encodePacked("op ", "Maker", " RP2", " pool")),
+            string(abi.encodePacked("op", "MKR", "RP2Pool"))
         )
         Modifiers(_registry)
     {
@@ -52,13 +52,13 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         address _optyMinter
     ) external virtual initializer {
         registryContract = Registry(registry);
-        setProfile("RP1");
+        setProfile("RP2");
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
         setStrategyCodeProvider(_strategyCodeProvider);
         setOPTYMinter(_optyMinter);
-        _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP1", " pool")));
-        _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP1Pool")));
+        _setName(string(abi.encodePacked("op ", "Maker", " RP2", " pool")));
+        _setSymbol(string(abi.encodePacked("op", "MKR", "RP2Pool")));
         _setDecimals(ERC20(_underlyingToken).decimals());
     }
 
@@ -320,6 +320,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         optyMinterContract.updateOptyPoolIndex(address(this));
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         if (balance() > 0) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -370,6 +371,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
 
         if (!discontinued && (balance() > 0)) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -476,7 +478,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         uint256 _balance,
         uint256 _depositAmount
     ) private {
-        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balance));
+        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balance.sub(depositQueue)));
     }
 
     function getPricePerFullShare() public override view returns (uint256) {

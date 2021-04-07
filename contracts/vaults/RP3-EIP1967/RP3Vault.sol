@@ -8,19 +8,19 @@ import "./../../utils/ChiDeployer.sol";
 import "./../../RiskManager.sol";
 import "./../../StrategyCodeProvider.sol";
 import "./../PoolStorage.sol";
-import "./../../interfaces/opty/ILMVault.sol";
+import "./../../interfaces/opty/IVault.sol";
 import "./../../utils/ERC20Upgradeable/VersionedInitializable.sol";
 import "./../../utils/Modifiers.sol";
 import "./../../libraries/SafeERC20.sol";
 
 /**
- * @title Vault
+ * @title RP3Vault
  *
  * @author Opty.fi, inspired by the Aave V2 AToken.sol contract
  *
- * @dev Opty.Fi's RP1 Pool contract for underlying tokens (for example DAI)
+ * @dev Opty.Fi's RP3 Pool contract for underlying tokens (for example DAI)
  */
-contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
+contract RP3Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
     using SafeERC20 for IERC20;
     using Address for address;
     
@@ -32,8 +32,8 @@ contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, Reentran
     )
         public
         ERC20(
-            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " LM", " pool")),
-            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "LMPool"))
+            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP3", " pool")),
+            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP3Pool"))
         )
         Modifiers(_registry)
     {
@@ -52,13 +52,13 @@ contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, Reentran
         address _optyMinter
     ) external virtual initializer {
         registryContract = Registry(registry);
-        setProfile("RP1");
+        setProfile("RP3");
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
         setStrategyCodeProvider(_strategyCodeProvider);
         setOPTYMinter(_optyMinter);
-        _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " LM", " pool")));
-        _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "LMPool")));
+        _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP3", " pool")));
+        _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP3Pool")));
         _setDecimals(ERC20(_underlyingToken).decimals());
     }
 
@@ -320,6 +320,7 @@ contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, Reentran
         optyMinterContract.updateOptyPoolIndex(address(this));
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         if (balance() > 0) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -370,6 +371,7 @@ contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, Reentran
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
 
         if (!discontinued && (balance() > 0)) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -476,7 +478,7 @@ contract LMVault is VersionedInitializable, ILMVault, ERC20, Modifiers, Reentran
         uint256 _balance,
         uint256 _depositAmount
     ) private {
-        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balance));
+        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balance.sub(depositQueue)));
     }
 
     function getPricePerFullShare() public override view returns (uint256) {
