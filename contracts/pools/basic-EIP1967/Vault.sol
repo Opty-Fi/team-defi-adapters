@@ -320,6 +320,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         optyMinterContract.updateOptyPoolIndex(address(this));
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         if (balance() > 0) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
@@ -370,6 +371,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
 
         if (!discontinued && (balance() > 0)) {
+            _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
