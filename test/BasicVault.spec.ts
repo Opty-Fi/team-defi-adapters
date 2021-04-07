@@ -605,7 +605,7 @@ program
                                 async () => {
                                     //  Connect the BasicPool Contract with the user's Wallet for making userDeposit()
                                     const initialUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
-                                        userWallet.address
+                                        ownerWallet.address
                                     );
 
                                     //  If condition is checking if the withdrawal is 0 or not. This can happen when
@@ -674,13 +674,20 @@ program
                                         const poolValue = await optyTokenBasicPool.poolValue();
 
                                         const optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
-                                            userWallet
+                                            ownerWallet
                                         );
-
-                                        const userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.functions.userWithdrawRebalance(
-                                            withdrawAmount.sub(roundingDelta),
-                                            Constants.GAS_OVERRIDE_OPTIONS
-                                        );
+                                        let userWithdrawTxOutput;
+                                        try {
+                                            userWithdrawTxOutput = await optyTokenBasicPoolAsSignerUser.functions.userWithdrawRebalance(
+                                                withdrawAmount.sub(roundingDelta),
+                                                Constants.GAS_OVERRIDE_OPTIONS
+                                            );
+                                        } catch (error) {
+                                            throw new Error(
+                                                `UserWithdrawRebalance failed with error: ${error}`
+                                            );
+                                            process.exit(6);
+                                        }
 
                                         await userWithdrawTxOutput.wait();
 
