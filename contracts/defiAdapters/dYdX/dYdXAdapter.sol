@@ -43,7 +43,7 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function getDepositSomeCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
@@ -60,14 +60,14 @@ contract dYdXAdapter is IAdapter, Modifiers {
             uint256 _depositAmount =
                 _getDepositAmount(_liquidityPool, _underlyingTokens[_underlyingTokenIndex], _amounts[_underlyingTokenIndex]);
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
-            _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
+            _accountInfos[0] = AccountInfo(_optyVault, uint256(0));
             AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
             ActionArgs memory _actionArg;
             _actionArg.actionType = ActionType.Deposit;
             _actionArg.accountId = 0;
             _actionArg.amount = _amt;
             _actionArg.primaryMarketId = _underlyingTokenIndex;
-            _actionArg.otherAddress = _optyPool;
+            _actionArg.otherAddress = _optyVault;
             ActionArgs[] memory _actionArgs = new ActionArgs[](1);
             _actionArgs[0] = _actionArg;
             _codes = new bytes[](3);
@@ -91,17 +91,17 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function getDepositAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
         for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
-                _amounts[i] = IERC20(_underlyingTokens[0]).balanceOf(_optyPool);
+                _amounts[i] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
             }
         }
-        return getDepositSomeCodes(_optyPool, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
+        return getDepositSomeCodes(_optyVault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
     }
 
     function getBorrowAllCodes(
@@ -123,7 +123,7 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function getWithdrawSomeCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
@@ -131,14 +131,14 @@ contract dYdXAdapter is IAdapter, Modifiers {
         if (_amount > 0) {
             uint256 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[0]];
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
-            _accountInfos[0] = AccountInfo(_optyPool, uint256(0));
+            _accountInfos[0] = AccountInfo(_optyVault, uint256(0));
             AssetAmount memory _amt = AssetAmount(false, AssetDenomination.Wei, AssetReference.Delta, _amount);
             ActionArgs memory _actionArg;
             _actionArg.actionType = ActionType.Withdraw;
             _actionArg.accountId = 0;
             _actionArg.amount = _amt;
             _actionArg.primaryMarketId = _underlyingTokenIndex;
-            _actionArg.otherAddress = _optyPool;
+            _actionArg.otherAddress = _optyVault;
             ActionArgs[] memory _actionArgs = new ActionArgs[](1);
             _actionArgs[0] = _actionArg;
             _codes = new bytes[](1);
@@ -154,12 +154,12 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function getWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getAllAmountInToken(_optyPool, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount);
+        uint256 _redeemAmount = getAllAmountInToken(_optyVault, _underlyingTokens[0], _liquidityPool);
+        return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
     function getLiquidityPoolToken(address, address) public view override returns (address) {
@@ -171,22 +171,22 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function getAllAmountInToken(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
         uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
-        AccountInfo memory _accountInfo = AccountInfo(_optyPool, uint256(0));
+        AccountInfo memory _accountInfo = AccountInfo(_optyVault, uint256(0));
         (, uint256 value) = IdYdX(_liquidityPool).getAccountWei(_accountInfo, _underlyingTokenIndex);
         return value;
     }
 
     function getLiquidityPoolTokenBalance(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        return getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
     }
 
     function getSomeAmountInToken(
@@ -236,12 +236,12 @@ contract dYdXAdapter is IAdapter, Modifiers {
     }
 
     function isRedeemableAmountSufficient(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bool) {
-        uint256 _balanceInToken = getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 

@@ -8,12 +8,12 @@ import "../../interfaces/harvest.finance/IHarvestDeposit.sol";
 import "../../interfaces/harvest.finance/IHarvestFarm.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
-import "../../Gatherer.sol";
+import "../../HarvestCodeProvider.sol";
 
 contract HarvestAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
-    Gatherer public gathererContract;
+    HarvestCodeProvider public harvestCodeProviderContract;
     mapping(address => address) public liquidityPoolToStakingPool;
     address public rewardToken;
     uint256 public maxExposure; // basis points
@@ -50,8 +50,8 @@ contract HarvestAdapter is IAdapter, Modifiers {
     address public constant F_USDN_THREE_CRV_STAKE_POOL = address(0xef4Da1CE3f487DA2Ed0BE23173F76274E0D47579);
     address public constant F_YDAI_YUSDC_YUSDT_YBUSD_STAKE_POOL = address(0x093C2ae5E6F3D2A897459aa24551289D462449AD);
 
-    constructor(address _registry, Gatherer _gatherer) public Modifiers(_registry) {
-        setGatherer(_gatherer);
+    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
+        setHarvestCodeProvider(_harvestCodeProvider);
         setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
         setLiquidityPoolToStakingPool(TBTC_SBTC_CRV_DEPOSIT_POOL, TBTC_SBTC_CRV_STAKE_POOL);
         setLiquidityPoolToStakingPool(THREE_CRV_DEPOSIT_POOL, THREE_CRV_STAKE_POOL);
@@ -91,13 +91,13 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function getDepositAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyPool);
-        return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
+        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
+        return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
     function getBorrowAllCodes(
@@ -134,12 +134,12 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function getWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyPool, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount);
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
+        return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
@@ -152,19 +152,19 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function getAllAmountInToken(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool));
+        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool));
     }
 
     function getLiquidityPoolTokenBalance(
-        address payable _optyPool,
+        address payable _optyVault,
         address,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return IERC20(_liquidityPool).balanceOf(_optyPool);
+        return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
     function getSomeAmountInToken(
@@ -210,24 +210,24 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (uint256 _amount) {
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool);
-        uint256 _balanceInToken = getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     function isRedeemableAmountSufficient(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bool) {
-        uint256 _balanceInToken = getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 
@@ -235,8 +235,8 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return rewardToken;
     }
 
-    function getUnclaimedRewardTokenAmount(address payable _optyPool, address _liquidityPool) public view override returns (uint256) {
-        return IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(_optyPool);
+    function getUnclaimedRewardTokenAmount(address payable _optyVault, address _liquidityPool) public view override returns (uint256) {
+        return IHarvestFarm(liquidityPoolToStakingPool[_liquidityPool]).earned(_optyVault);
     }
 
     function getClaimRewardTokenCode(address payable, address _liquidityPool) public view override returns (bytes[] memory _codes) {
@@ -246,21 +246,21 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function getHarvestSomeCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
-        return gathererContract.getHarvestCodes(_optyPool, getRewardToken(_liquidityPool), _underlyingToken, _rewardTokenAmount);
+        return harvestCodeProviderContract.getHarvestCodes(_optyVault, getRewardToken(_liquidityPool), _underlyingToken, _rewardTokenAmount);
     }
 
     function getHarvestAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyPool);
-        return getHarvestSomeCodes(_optyPool, _underlyingToken, _liquidityPool, _rewardTokenAmount);
+        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
+        return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
     function canStake(address) public view override returns (bool) {
@@ -279,11 +279,11 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     function getStakeAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _depositAmount = getLiquidityPoolTokenBalance(_optyPool, _underlyingTokens[0], _liquidityPool);
+        uint256 _depositAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _depositAmount);
     }
 
@@ -295,58 +295,58 @@ contract HarvestAdapter is IAdapter, Modifiers {
         }
     }
 
-    function getUnstakeAllCodes(address payable _optyPool, address _liquidityPool) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyPool, _liquidityPool);
+    function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool) public view override returns (bytes[] memory _codes) {
+        uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _redeemAmount);
     }
 
     function getAllAmountInTokenStake(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
         address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
-        uint256 b = IHarvestFarm(_stakingPool).balanceOf(_optyPool);
+        uint256 b = IHarvestFarm(_stakingPool).balanceOf(_optyVault);
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(1e18);
         }
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyPool, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
         if (_unclaimedReward > 0) {
-            b = b.add(gathererContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken, _unclaimedReward));
+            b = b.add(harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(rewardToken, _underlyingToken, _unclaimedReward));
         }
         return b;
     }
 
-    function getLiquidityPoolTokenBalanceStake(address payable _optyPool, address _liquidityPool) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool) public view override returns (uint256) {
         address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
-        return IHarvestFarm(_stakingPool).balanceOf(_optyPool);
+        return IHarvestFarm(_stakingPool).balanceOf(_optyVault);
     }
 
     function calculateRedeemableLPTokenAmountStake(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (uint256 _amount) {
         address _stakingPool = liquidityPoolToStakingPool[_liquidityPool];
-        uint256 _liquidityPoolTokenBalance = IHarvestFarm(_stakingPool).balanceOf(_optyPool);
-        uint256 _balanceInToken = getAllAmountInTokenStake(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = IHarvestFarm(_stakingPool).balanceOf(_optyVault);
+        uint256 _balanceInToken = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     function isRedeemableAmountSufficientStake(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bool) {
-        uint256 _balanceInTokenStake = getAllAmountInTokenStake(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _balanceInTokenStake = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInTokenStake >= _redeemAmount;
     }
 
     function getUnstakeAndWithdrawSomeCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -354,21 +354,21 @@ contract HarvestAdapter is IAdapter, Modifiers {
         if (_redeemAmount > 0) {
             _codes = new bytes[](2);
             _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
-            _codes[1] = getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount)[0];
+            _codes[1] = getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount)[0];
         }
     }
 
     function getUnstakeAndWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyPool, _liquidityPool);
-        return getUnstakeAndWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _unstakeAmount);
+        uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _unstakeAmount);
     }
 
-    function setGatherer(Gatherer _gatherer) public onlyGovernance {
-        gathererContract = _gatherer;
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyGovernance {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     function setLiquidityPoolToStakingPool(address _liquidityPool, address _stakingPool) public onlyOperator {

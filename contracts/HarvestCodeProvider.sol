@@ -7,7 +7,7 @@ import "./interfaces/uniswap/IUniswap.sol";
 import "./libraries/SafeERC20.sol";
 import "./utils/Modifiers.sol";
 
-contract Gatherer is Modifiers {
+contract HarvestCodeProvider is Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
