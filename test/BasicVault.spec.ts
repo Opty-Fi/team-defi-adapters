@@ -13,6 +13,7 @@ import * as Interfaces from "./shared/interfaces";
 import * as Types from "./shared/types";
 import * as Constants from "./shared/constants";
 import * as CurveFunctions from "./shared/Curve/Curve";
+import EmergencyBrakeJSON from "../build/TestingEmergencyBrake.json";
 import { allStrategies } from "./shared/OtherImports";
 import { setBestBasicStrategy } from "./shared/StrategyProviderFunctions";
 chai.use(solidity);
@@ -336,6 +337,7 @@ program
                         let tokens: string[];
                         let tokenContractInstance: Contract;
                         let optyTokenBasicPool: Contract;
+                        let emergencyBrake: Contract;
                         let tokensHash = "";
 
                         before(async () => {
@@ -370,17 +372,20 @@ program
                                     underlyingTokenDecimals
                                 );
                             }
-
                             //  Setting the TokensHash corresponding to the list of tokens
                             tokensHash = utilities.getSoliditySHA3Hash(
                                 ["address[]"],
                                 [tokens]
                             );
+                            const vaultProxyAdminWallet = ethers.Wallet.fromMnemonic(
+                                Constants.MNEMONIC,
+                                `m/44'/60'/0'/0/2`
+                            ).connect(provider);
                             //  Deploying the BasicPool Contract for MKR and other underlying token
                             optyTokenBasicPool = await PoolContracts.deployPoolContracts(
                                 underlyingToken,
                                 ownerWallet,
-                                userWallet,
+                                vaultProxyAdminWallet,
                                 PoolContracts.OptyTokenBasicPoolMkr,
                                 PoolContracts.OptyTokenBasicPool,
                                 optyRegistry.address,
@@ -388,7 +393,14 @@ program
                                 optyStrategyCodeProvider.address,
                                 optyMinterContract.address
                             );
-
+                            emergencyBrake = await deployContract(
+                                ownerWallet,
+                                EmergencyBrakeJSON,
+                                [
+                                    optyTokenBasicPool.address,
+                                    tokenContractInstance.address,
+                                ]
+                            );
                             assert.isDefined(
                                 optyTokenBasicPool,
                                 "OptyTokenBasicPool contract not deployed"
@@ -437,9 +449,7 @@ program
                                     );
                                     process.exit(3);
                                 } else {
-                                    await runDepositWithdrawTestCases(
-                                        currentStrategyObject
-                                    );
+                                    await runTestCases(currentStrategyObject);
                                 }
                             } else {
                                 if (
@@ -456,16 +466,12 @@ program
                                     currentStrategyObject.strategyName ===
                                     command.strategyName
                                 ) {
-                                    await runDepositWithdrawTestCases(
-                                        currentStrategyObject
-                                    );
+                                    await runTestCases(currentStrategyObject);
                                 }
                             }
                         }
 
-                        async function runDepositWithdrawTestCases(
-                            strategyObject: any
-                        ) {
+                        async function runTestCases(strategyObject: any) {
                             it(
                                 "should deposit using userDepositRebalance() using Strategy - " +
                                     strategyObject.strategyName,
@@ -483,7 +489,7 @@ program
                                         underlyingToken,
                                         underlyingTokenDecimals,
                                         tokenContractInstance,
-                                        ownerWallet,
+                                        userWallet,
                                         optyTokenBasicPool,
                                         userOptyTokenBalance,
                                         TEST_AMOUNT,
@@ -495,7 +501,6 @@ program
                                     userOptyTokenBalanceWei =
                                         allFundWalletReturnParams[1];
                                     userOptyTokenBalance = allFundWalletReturnParams[2];
-                                    userTokenBalanceWei = allFundWalletReturnParams[3];
                                     userInitialTokenBalance =
                                         allFundWalletReturnParams[4];
                                     try {
@@ -509,10 +514,10 @@ program
 
                                     async function testUserDepositRebalance() {
                                         const userInitialTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                            ownerWallet.address
+                                            userWallet.address
                                         );
                                         const tokenContractInstanceAsSignerUser = tokenContractInstance.connect(
-                                            ownerWallet
+                                            userWallet
                                         );
 
                                         await tokenContractInstanceAsSignerUser.approve(
@@ -523,13 +528,13 @@ program
 
                                         expect(
                                             await tokenContractInstance.allowance(
-                                                ownerWallet.address,
+                                                userWallet.address,
                                                 optyTokenBasicPool.address
                                             )
                                         ).to.equal(TEST_AMOUNT);
                                         //  Getting initial balance of OptyBasicTokens for user
                                         const userOptyTokenBalanceBefore = await optyTokenBasicPool.balanceOf(
-                                            ownerWallet.address
+                                            userWallet.address
                                         );
 
                                         //  Getting the totalSupply and poolValue from deposit txn.
@@ -537,7 +542,7 @@ program
                                         const poolValue = await optyTokenBasicPool.poolValue();
 
                                         const optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
-                                            ownerWallet
+                                            userWallet
                                         );
 
                                         let userDepositRebalanceTx;
@@ -558,11 +563,11 @@ program
                                             process.exit(6);
                                         }
 
-                                        await userDepositRebalanceTx.wait();
+                                        const receipt = await userDepositRebalanceTx.wait();
 
                                         // Check Token balance of user after userDepositRebalance() call
                                         userTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                            ownerWallet.address
+                                            userWallet.address
                                         );
                                         expect(
                                             userTokenBalanceWei.eq(
@@ -590,7 +595,7 @@ program
                                             shares
                                         );
                                         userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
-                                            ownerWallet.address
+                                            userWallet.address
                                         );
                                         expect(userOptyTokenBalanceWei).to.equal(
                                             userExpectedOptyTokenBalance
@@ -605,7 +610,7 @@ program
                                 async () => {
                                     //  Connect the BasicPool Contract with the user's Wallet for making userDeposit()
                                     const initialUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
-                                        ownerWallet.address
+                                        userWallet.address
                                     );
 
                                     //  If condition is checking if the withdrawal is 0 or not. This can happen when
@@ -674,7 +679,7 @@ program
                                         const poolValue = await optyTokenBasicPool.poolValue();
 
                                         const optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
-                                            ownerWallet
+                                            userWallet
                                         );
                                         let userWithdrawTxOutput;
                                         try {
@@ -762,6 +767,131 @@ program
                                                 afterContractTokenBalanceWei
                                             ).to.equal(0);
                                         }
+                                    }
+                                }
+                            );
+                            it(
+                                "emergencyBrake should revert with double deposit in one block (following the math) - " +
+                                    strategyObject.strategyName,
+                                async () => {
+                                    const tokenContractInstanceAsSignerUser = tokenContractInstance.connect(
+                                        userWallet
+                                    );
+                                    try {
+                                        await tokenContractInstanceAsSignerUser.transfer(
+                                            emergencyBrake.address,
+                                            100000000
+                                        );
+
+                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                            100
+                                        );
+
+                                        await emergencyBrake.runDepositRebalance(1);
+                                        await emergencyBrake.runTwoTxnDepositRebalance(
+                                            1,
+                                            10000000
+                                        );
+                                    } catch (err) {
+                                        expect(err.error.message).to.equal(
+                                            "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                        );
+                                    }
+                                }
+                            );
+                            it(
+                                "emergencyBrake should revert with double withDraw in one block (following the math) - " +
+                                    strategyObject.strategyName,
+                                async () => {
+                                    const tokenContractInstanceAsSignerUser = tokenContractInstance.connect(
+                                        userWallet
+                                    );
+                                    try {
+                                        await tokenContractInstanceAsSignerUser.transfer(
+                                            emergencyBrake.address,
+                                            100000000
+                                        );
+
+                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                            100
+                                        );
+
+                                        await emergencyBrake.runDepositRebalance(
+                                            10000000
+                                        );
+
+                                        await emergencyBrake.runTwoTxnWithdrawRebalance(
+                                            1,
+                                            10000000
+                                        );
+                                    } catch (err) {
+                                        expect(err.error.message).to.equal(
+                                            "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                        );
+                                    }
+                                }
+                            );
+                            it(
+                                "emergencyBrake should revert with double rebalance in one block (following the math) - " +
+                                    strategyObject.strategyName,
+                                async () => {
+                                    const tokenContractInstanceAsSignerUser = tokenContractInstance.connect(
+                                        userWallet
+                                    );
+                                    try {
+                                        await tokenContractInstanceAsSignerUser.transfer(
+                                            emergencyBrake.address,
+                                            100000000
+                                        );
+
+                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                            100
+                                        );
+
+                                        await emergencyBrake.runDepositRebalance(
+                                            10000000
+                                        );
+
+                                        await emergencyBrake.runTwoTxnRebalance(
+                                            1,
+                                            10000000
+                                        );
+                                    } catch (err) {
+                                        expect(err.error.message).to.equal(
+                                            "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                        );
+                                    }
+                                }
+                            );
+                            it(
+                                "emergencyBrake should revert with deposit and withdraw in one block (following the math) - " +
+                                    strategyObject.strategyName,
+                                async () => {
+                                    const tokenContractInstanceAsSignerUser = tokenContractInstance.connect(
+                                        userWallet
+                                    );
+                                    try {
+                                        await tokenContractInstanceAsSignerUser.transfer(
+                                            emergencyBrake.address,
+                                            100000000
+                                        );
+
+                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                            100
+                                        );
+
+                                        await emergencyBrake.runDepositRebalance(
+                                            10000000
+                                        );
+
+                                        await emergencyBrake.runTwoTxnWithdrawAndDepositRebalance(
+                                            1,
+                                            10000000
+                                        );
+                                    } catch (err) {
+                                        expect(err.error.message).to.equal(
+                                            "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                        );
                                     }
                                 }
                             );

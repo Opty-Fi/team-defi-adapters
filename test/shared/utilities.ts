@@ -484,7 +484,6 @@ export async function checkAndFundWallet(
         userTokenBalanceWei,
         userOptyTokenBalanceWei,
         userOptyTokenBalance,
-        userTokenBalanceWei,
         userInitialTokenBalance,
     ];
 }
