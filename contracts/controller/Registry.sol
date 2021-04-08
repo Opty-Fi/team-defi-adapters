@@ -8,7 +8,11 @@ import "./ModifiersController.sol";
 import "./RegistryProxy.sol";
 
 /**
- * @dev Contract for Opty Strategy Registry
+ * @title Registry
+ * 
+ * @author Opty.fi
+ * 
+ * @dev OptyFi's Registry contract for persisting all tokens,lpTokens and lp/cp status along with all Optyfi's Vaults and LM_Vaults
  */
 contract Registry is ModifiersController {
     using Address for address;
@@ -403,6 +407,37 @@ contract Registry is ModifiersController {
         emit LogSetStrategy(msg.sender, _tokensHash, hash);
         return hash;
     }
+    
+    /**
+     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingToken` and `_riskProfile`
+     * 
+     * Returns a boolean value indicating whether the operation succeeded
+     * 
+     * Emits a {LogUnderlyingTokenRPVault} event
+     * 
+     * Requirements:
+     * 
+     * - `_underlyingToken` cannot be the zero address or EOA
+     * - `_vault` cannot be the zero address or EOA
+     * - `msg.sender` (caller) should be governance
+     * 
+     */
+    function setUnderlyingTokenToRPToVaults(address _underlyingToken, string memory _riskProfile, address _vault) public onlyGovernance returns (bool) {
+        require(_underlyingToken != address(0), "!address(0)");
+        require(address(_underlyingToken).isContract(), "!isContract");
+        require(_vault != address(0), "!address(0)");
+        require(address(_vault).isContract(), "!isContract");
+        underlyingTokenToRPToVaults[_underlyingToken][_riskProfile] = _vault;
+        emit LogUnderlyingTokenRPVault(_underlyingToken, _riskProfile, _vault);
+        return true;
+    }
+    
+    /**
+     * @dev Emitted when `token` is approved or revoked.
+     *
+     * Note that `token` cannot be zero address or EOA.
+     */
+    event LogUnderlyingTokenRPVault(address indexed underlyingToken, string indexed riskProfile, address indexed vault);
 
     /**
      * @dev Emitted when `token` is approved or revoked.
