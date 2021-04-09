@@ -14,7 +14,6 @@ import * as Types from "./shared/types";
 import * as Constants from "./shared/constants";
 import * as CurveFunctions from "./shared/Curve/Curve";
 import EmergencyBrakeJSON from "../build/TestingEmergencyBrake.json";
-import { allStrategies } from "./shared/OtherImports";
 import { setBestBasicStrategy } from "./shared/StrategyProviderFunctions";
 chai.use(solidity);
 
@@ -54,21 +53,13 @@ program
     .version("0.0.1")
     .action(async (command: Types.cmdType) => {
         let underlyingTokenSymbol: string; //  keep track of underlying token
-        let gasRecordsFileName: string; //  store file name for recording the gasUsed
-        const testScriptRunTimeDateAndTime = Date.now(); //  timestamp for storing the execution of test script
         let TEST_AMOUNT_NUM: number;
         let TEST_AMOUNT: ethers.BigNumber; //  convert the test amount passed in to big number for testing
         const optyCodeProviderContractVariables: Interfaces.OptyCodeProviderContractVariables = {};
         let defiPoolsKey: keyof typeof OtherImports.defiPools; //  Keys of defiPools.json corresponding to CodeProvider Contracts
         let provider: ethers.providers.Web3Provider;
-        if (!command.symbol) {
-            gasRecordsFileName =
-                "AllTokenStrategiesGasRecords_" +
-                testScriptRunTimeDateAndTime.toString();
-        } else {
+        if (command.symbol) {
             underlyingTokenSymbol = command.symbol.toString().toUpperCase();
-            gasRecordsFileName =
-                underlyingTokenSymbol + "_" + testScriptRunTimeDateAndTime.toString();
         }
         //  Fetch the test amount from command line and if not found, then  use the default one
         if (command.testAmount > 0) {
@@ -79,7 +70,6 @@ program
         }
 
         describe("OPTokenBasicVault", async () => {
-            const strategyScore = 1;
             let ownerWallet: ethers.Wallet;
             let userWallet: ethers.Wallet;
             let optyRegistry: Contract;
@@ -88,12 +78,9 @@ program
             let optyStrategyCodeProvider: Contract;
             let strategyProvider: Contract;
             let optyMinterContract: Contract;
-            let harvestCodeProvider: Contract;
             let optyCodeProviderContract: Contract;
             let userTokenBalanceWei;
             let userInitialTokenBalance: number;
-            let contractTokenBalanceWei;
-            let contractTokenBalance: number;
             let userOptyTokenBalanceWei;
             let userOptyTokenBalance: number;
             const profile = "basic";
@@ -161,7 +148,6 @@ program
                 gatherer = allGovernanceContracts[3];
                 optyStrategyCodeProvider = allGovernanceContracts[4];
                 optyMinterContract = allGovernanceContracts[5];
-                harvestCodeProvider = allGovernanceContracts[6];
 
                 let tokenType: keyof typeof OtherImports.tokenAddresses;
                 for (tokenType in OtherImports.tokenAddresses) {
@@ -563,7 +549,7 @@ program
                                             process.exit(6);
                                         }
 
-                                        const receipt = await userDepositRebalanceTx.wait();
+                                        await userDepositRebalanceTx.wait();
 
                                         // Check Token balance of user after userDepositRebalance() call
                                         userTokenBalanceWei = await tokenContractInstance.balanceOf(
