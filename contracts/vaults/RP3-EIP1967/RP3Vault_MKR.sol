@@ -260,7 +260,7 @@ contract RP3Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
     function _batchMintAndBurn() internal returns (bool _success) {
         uint256 iterator = first;
         while (last >= iterator) {
-            optyMinterContract.updateSupplierRewards(address(this), queue[iterator].account);
+            optyMinterContract.updateUserRewards(address(this), queue[iterator].account);
             if (queue[iterator].isDeposit) {
                 _mintShares(queue[iterator].account, balance(), queue[iterator].value);
                 pendingDeposits[msg.sender] -= queue[iterator].value;
@@ -272,10 +272,10 @@ contract RP3Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
             }
             iterator++;
         }
-        optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
-        optyMinterContract.updateOptyPoolIndex(address(this));
+        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        optyMinterContract.updateOptyVaultIndex(address(this));
         while (last >= first) {
-            optyMinterContract.updateUserStateInPool(address(this), queue[first].account);
+            optyMinterContract.updateUserStateInVault(address(this), queue[first].account);
             delete queue[first];
             first++;
         }
@@ -314,11 +314,11 @@ contract RP3Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
         
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         
-        optyMinterContract.updateSupplierRewards(address(this), msg.sender);
+        optyMinterContract.updateUserRewards(address(this), msg.sender);
         _mint(msg.sender, shares);
-        optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
-        optyMinterContract.updateOptyPoolIndex(address(this));
-        optyMinterContract.updateUserStateInPool(address(this), msg.sender);
+        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        optyMinterContract.updateOptyVaultIndex(address(this));
+        optyMinterContract.updateUserStateInVault(address(this), msg.sender);
         if (balance() > 0) {
             _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
@@ -363,12 +363,12 @@ contract RP3Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
             harvest(strategyHash);
         }
 
-        optyMinterContract.updateSupplierRewards(address(this), msg.sender);
+        optyMinterContract.updateUserRewards(address(this), msg.sender);
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, balance().sub(depositQueue), _redeemAmount);
-        optyMinterContract.updateOptyPoolRatePerSecondAndLPToken(address(this));
-        optyMinterContract.updateOptyPoolIndex(address(this));
-        optyMinterContract.updateUserStateInPool(address(this), msg.sender);
+        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        optyMinterContract.updateOptyVaultIndex(address(this));
+        optyMinterContract.updateUserStateInVault(address(this), msg.sender);
 
         if (!discontinued && (balance() > 0)) {
             _emergencyBrake(balance());

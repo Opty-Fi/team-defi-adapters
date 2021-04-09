@@ -38,13 +38,13 @@ contract YearnAdapter is IAdapter, Modifiers {
     }
 
     function getDepositAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyPool);
-        return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
+        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
+        return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
     function getBorrowAllCodes(
@@ -78,12 +78,12 @@ contract YearnAdapter is IAdapter, Modifiers {
     }
 
     function getWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyPool, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _redeemAmount);
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
+        return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
@@ -96,19 +96,19 @@ contract YearnAdapter is IAdapter, Modifiers {
     }
 
     function getAllAmountInToken(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool));
+        return getSomeAmountInToken(_underlyingToken, _liquidityPool, getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool));
     }
 
     function getLiquidityPoolTokenBalance(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyPool);
+        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
     }
 
     function getSomeAmountInToken(
@@ -154,24 +154,24 @@ contract YearnAdapter is IAdapter, Modifiers {
     }
 
     function calculateRedeemableLPTokenAmount(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (uint256 _amount) {
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyPool, _underlyingToken, _liquidityPool);
-        uint256 _balanceInToken = getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     function isRedeemableAmountSufficient(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bool) {
-        uint256 _balanceInToken = getAllAmountInToken(_optyPool, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 
