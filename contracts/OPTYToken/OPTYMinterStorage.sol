@@ -13,7 +13,7 @@ contract OPTYMinterStorage {
         uint32 timestamp;
     }
     
-    address public constant OPTYAddress = address(0xE9007f87Ed9249665D20aF616C4F805bf1B0Fd47);
+    address public constant OPTYAddress = address(0xa0D61133044ACB8Fb72Bc5a0378Fe13786538Dd0);
 
     mapping(address => uint256) public optyPoolStartTimestamp;
 
