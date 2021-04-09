@@ -4,22 +4,22 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/SafeERC20.sol";
-import "./interfaces/opty/ICodeProvider.sol";
+import "./interfaces/opty/IAdapter.sol";
 import "./controller/Registry.sol";
 import "./controller/RegistryStorage.sol";
 import "./libraries/Addresses.sol";
 import "./utils/ERC20.sol";
 import "./utils/Modifiers.sol";
-import "./Gatherer.sol";
+import "./HarvestCodeProvider.sol";
 
 contract StrategyCodeProvider is Modifiers, Structs {
     using SafeERC20 for IERC20;
     using Address for address;
 
-    Gatherer public gathererContract;
+    HarvestCodeProvider public harvestCodeProviderContract;
 
-    constructor(address _registry, address _gatherer) public Modifiers(_registry) {
-        setGatherer(_gatherer);
+    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
+        setHarvestCodeProvider(_harvestCodeProvider);
     }
 
     function getWithdrawAllStepsCount(bytes32 _hash) public view returns (uint8) {
@@ -39,54 +39,54 @@ contract StrategyCodeProvider is Modifiers, Structs {
     }
 
     function getBalanceInUnderlyingToken(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash
     ) public view returns (uint256 _balance) {
-        return _getBalanceInUnderlyingToken(_optyPool, _underlyingToken, _hash);
+        return _getBalanceInUnderlyingToken(_optyVault, _underlyingToken, _hash);
     }
 
     function getPoolDepositAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolDepositAllCodes(_optyPool, _underlyingToken, _hash, _stepIndex, _stepCount);
+        _codes = _getPoolDepositAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
     function getPoolWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolWithdrawAllCodes(_optyPool, _underlyingToken, _hash, _stepIndex, _stepCount);
+        _codes = _getPoolWithdrawAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
     function getPoolClaimAllRewardCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolClaimAllRewardCodes(_optyPool, _hash, _stepIndex, _stepCount);
+        _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
     }
 
     function getPoolHarvestAllRewardCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolHarvestAllRewardCodes(_optyPool, _underlyingToken, _hash, _stepIndex, _stepCount);
+        _codes = _getPoolHarvestAllRewardCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
-    function setGatherer(address _gatherer) public onlyOperator {
-        gathererContract = Gatherer(_gatherer);
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (StrategyStep[] memory _strategySteps) {
@@ -94,7 +94,7 @@ contract StrategyCodeProvider is Modifiers, Structs {
     }
 
     function _getPoolDepositAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8 _stepIndex,
@@ -106,48 +106,48 @@ contract StrategyCodeProvider is Modifiers, Structs {
             if (_strategySteps[_i].isBorrow) {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = ICodeProvider(_optyCodeProvider).getDepositAllCodes(_optyPool, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_optyAdapter).getDepositAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == _subStepCounter + 1) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _outputToken = _strategySteps[_i].outputToken; // borrow token
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = ICodeProvider(_optyCodeProvider).getBorrowAllCodes(_optyPool, _underlyingTokens, _liquidityPool, _outputToken);
+                    _codes = IAdapter(_optyAdapter).getBorrowAllCodes(_optyVault, _underlyingTokens, _liquidityPool, _outputToken);
                     break;
                 } // borrow at ith step
                 _subStepCounter += 2;
             } else {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = ICodeProvider(_optyCodeProvider).getDepositAllCodes(_optyPool, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_optyAdapter).getDepositAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == (_subStepCounter + 1) && _i == uint8(_strategySteps.length - 1)) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = ICodeProvider(_optyCodeProvider).getStakeAllCodes(_optyPool, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_optyAdapter).getStakeAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
                     break;
                 } // stake at ith step
                 _subStepCounter++;
@@ -156,7 +156,7 @@ contract StrategyCodeProvider is Modifiers, Structs {
     }
 
     function _getPoolWithdrawAllCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8 _stepIndex,
@@ -170,11 +170,11 @@ contract StrategyCodeProvider is Modifiers, Structs {
                 address _outputToken = _strategySteps[_iterator].outputToken;
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_strategySteps[_iterator].pool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
-                    _codes = ICodeProvider(_optyCodeProvider).getRepayAndWithdrawAllCodes(
-                        _optyPool,
+                    _codes = IAdapter(_optyAdapter).getRepayAndWithdrawAllCodes(
+                        _optyVault,
                         _underlyingTokens,
                         _strategySteps[_iterator].pool,
                         _outputToken
@@ -183,25 +183,25 @@ contract StrategyCodeProvider is Modifiers, Structs {
                 } // repayAndWithdraw at ith step
                 if (_stepIndex == _subStepCounter - 1) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_optyPool);
-                    _codes = gathererContract.getHarvestCodes(_optyPool, _outputToken, _underlyingToken, _borrowTokenRemainingAmount);
+                    uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_optyVault);
+                    _codes = harvestCodeProviderContract.getHarvestCodes(_optyVault, _outputToken, _underlyingToken, _borrowTokenRemainingAmount);
                     break;
                 } // swap at ith step
                 _subStepCounter -= 2;
             } else {
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_strategySteps[_iterator].pool);
+                    address _optyAdapter = registryContract.liquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     _codes = (_iterator == uint8(_strategySteps.length) - 1 &&
-                        ICodeProvider(_optyCodeProvider).canStake(_strategySteps[_iterator].pool))
-                        ? ICodeProvider(_optyCodeProvider).getUnstakeAndWithdrawAllCodes(
-                            _optyPool,
+                        IAdapter(_optyAdapter).canStake(_strategySteps[_iterator].pool))
+                        ? IAdapter(_optyAdapter).getUnstakeAndWithdrawAllCodes(
+                            _optyVault,
                             _underlyingTokens,
                             _strategySteps[_iterator].pool
                         )
-                        : ICodeProvider(_optyCodeProvider).getWithdrawAllCodes(_optyPool, _underlyingTokens, _strategySteps[_iterator].pool);
+                        : IAdapter(_optyAdapter).getWithdrawAllCodes(_optyVault, _underlyingTokens, _strategySteps[_iterator].pool);
                     break;
                 } // withdraw/unstakeAndWithdraw at _iterator th step
                 _subStepCounter--;
@@ -210,7 +210,7 @@ contract StrategyCodeProvider is Modifiers, Structs {
     }
 
     function _getPoolHarvestAllRewardCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash,
         uint8,
@@ -218,24 +218,24 @@ contract StrategyCodeProvider is Modifiers, Structs {
     ) internal view returns (bytes[] memory _codes) {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         address _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-        address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
-        _codes = ICodeProvider(_optyCodeProvider).getHarvestAllCodes(_optyPool, _underlyingToken, _liquidityPool);
+        address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
+        _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
     }
 
     function _getPoolClaimAllRewardCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         bytes32 _hash,
         uint8,
         uint8
     ) internal view returns (bytes[] memory _codes) {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         address _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-        address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
-        _codes = ICodeProvider(_optyCodeProvider).getClaimRewardTokenCode(_optyPool, _liquidityPool);
+        address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
+        _codes = IAdapter(_optyAdapter).getClaimRewardTokenCode(_optyVault, _liquidityPool);
     }
 
     function _getBalanceInUnderlyingToken(
-        address payable _optyPool,
+        address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash
     ) internal view returns (uint256 _balance) {
@@ -246,27 +246,27 @@ contract StrategyCodeProvider is Modifiers, Structs {
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint256 _iterator = _steps - 1 - _i;
             address _liquidityPool = _strategySteps[_iterator].pool;
-            address _optyCodeProvider = registryContract.liquidityPoolToCodeProvider(_liquidityPool);
+            address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
             address _inputToken = _underlyingToken;
             if (_iterator != 0) {
                 _inputToken = _strategySteps[_iterator - 1].outputToken;
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (ICodeProvider(_optyCodeProvider).canStake(_liquidityPool)) {
-                        _balance = ICodeProvider(_optyCodeProvider).getAllAmountInTokenStake(_optyPool, _inputToken, _liquidityPool);
+                    if (IAdapter(_optyAdapter).canStake(_liquidityPool)) {
+                        _balance = IAdapter(_optyAdapter).getAllAmountInTokenStake(_optyVault, _inputToken, _liquidityPool);
                     } else {
-                        _balance = ICodeProvider(_optyCodeProvider).getAllAmountInToken(_optyPool, _inputToken, _liquidityPool);
+                        _balance = IAdapter(_optyAdapter).getAllAmountInToken(_optyVault, _inputToken, _liquidityPool);
                     }
                 } else {
-                    _balance = ICodeProvider(_optyCodeProvider).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
+                    _balance = IAdapter(_optyAdapter).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
                 }
             }
             // deposit
             else {
                 address _borrowToken = _strategySteps[_iterator].outputToken;
-                _balance = ICodeProvider(_optyCodeProvider).getAllAmountInTokenBorrow(
-                    _optyPool,
+                _balance = IAdapter(_optyAdapter).getAllAmountInTokenBorrow(
+                    _optyVault,
                     _inputToken,
                     _liquidityPool,
                     _borrowToken,
@@ -281,8 +281,8 @@ contract StrategyCodeProvider is Modifiers, Structs {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
-        address _lastStepOptyCodeProvider = registryContract.liquidityPoolToCodeProvider(_lastStepLiquidityPool);
-        if (ICodeProvider(_lastStepOptyCodeProvider).getRewardToken(_lastStepLiquidityPool) != address(0)) {
+        address _lastStepOptyAdapter = registryContract.liquidityPoolToAdapter(_lastStepLiquidityPool);
+        if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
             return uint8(1);
         }
         return uint8(0);
@@ -292,8 +292,8 @@ contract StrategyCodeProvider is Modifiers, Structs {
         StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
-        address _lastStepOptyCodeProvider = registryContract.liquidityPoolToCodeProvider(_lastStepLiquidityPool);
-        if (ICodeProvider(_lastStepOptyCodeProvider).getRewardToken(_lastStepLiquidityPool) != address(0)) {
+        address _lastStepOptyAdapter = registryContract.liquidityPoolToAdapter(_lastStepLiquidityPool);
+        if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
             return uint8(1);
         }
         return uint8(0);
@@ -304,8 +304,8 @@ contract StrategyCodeProvider is Modifiers, Structs {
         uint8 _strategyStepCount = uint8(_strategySteps.length);
         uint8 _lastStepIndex = _strategyStepCount - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
-        address _lastStepOptyCodeProvider = registryContract.liquidityPoolToCodeProvider(_lastStepLiquidityPool);
-        if (ICodeProvider(_lastStepOptyCodeProvider).canStake(_lastStepLiquidityPool)) {
+        address _lastStepOptyAdapter = registryContract.liquidityPoolToAdapter(_lastStepLiquidityPool);
+        if (IAdapter(_lastStepOptyAdapter).canStake(_lastStepLiquidityPool)) {
             return (_strategyStepCount + 1);
         }
         for (uint8 i = 0; i < uint8(_strategySteps.length); i++) {

@@ -196,7 +196,7 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Sets liquidity `_pool` to the protocol code provider `_codeProvider` from the {liquidityPoolToCodeProvider} mapping.
+     * @dev Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
@@ -206,13 +206,13 @@ contract Registry is ModifiersController {
      *
      * - `_pool`should be approved.
      * - msg.sender should be governance.
-     * - `_codeProvider` should be contract
+     * - `_adapter` should be contract
      */
-    function setLiquidityPoolToCodeProvider(address _pool, address _codeProvider) public onlyOperator returns (bool) {
-        require(_codeProvider.isContract(), "!_codeProvider.isContract()");
+    function setLiquidityPoolToAdapter(address _pool, address _adapter) public onlyOperator returns (bool) {
+        require(_adapter.isContract(), "!_adapter.isContract()");
         require(liquidityPools[_pool].isLiquidityPool || creditPools[_pool].isLiquidityPool, "!liquidityPools");
-        liquidityPoolToCodeProvider[_pool] = _codeProvider;
-        emit LogLiquidityPoolToDepositToken(msg.sender, _pool, _codeProvider);
+        liquidityPoolToAdapter[_pool] = _adapter;
+        emit LogLiquidityPoolToDepositToken(msg.sender, _pool, _adapter);
         return true;
     }
 
@@ -382,7 +382,7 @@ contract Registry is ModifiersController {
      */
     function _setStrategy(bytes32 _tokensHash, StrategyStep[] memory _strategySteps) private returns (bytes32) {
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
-            require(liquidityPoolToCodeProvider[_strategySteps[_i].pool] != address(0), "!codeProvider.");
+            require(liquidityPoolToAdapter[_strategySteps[_i].pool] != address(0), "!adapter.");
         }
         bytes32[] memory hashes = new bytes32[](_strategySteps.length);
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
@@ -489,11 +489,11 @@ contract Registry is ModifiersController {
     event LogScoreStrategy(address indexed caller, bytes32 indexed hash, uint8 indexed score);
 
     /**
-     * @dev Emitted when liquidity pool `pool` is assigned to `codeProvider`.
+     * @dev Emitted when liquidity pool `pool` is assigned to `adapter`.
      *
      * Note that `pool` should be approved in {liquidityPools}.
      */
-    event LogLiquidityPoolToDepositToken(address indexed caller, address indexed pool, address indexed codeProvider);
+    event LogLiquidityPoolToDepositToken(address indexed caller, address indexed pool, address indexed adapter);
 
     /**
      * @dev Emitted when tokens are assigned to `_tokensHash`.
