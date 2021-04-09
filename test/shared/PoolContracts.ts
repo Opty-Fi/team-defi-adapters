@@ -1,5 +1,7 @@
-import OptyTokenBasicPool from "../../build/Vault.json";
-import OptyTokenBasicPoolMkr from "../../build/Vault_MKR.json";
+import OptyTokenBasicPool from "../../build/RP1Vault.json";
+import OptyTokenBasicPoolMkr from "../../build/RP1Vault_MKR.json";
+import OptyTokenAdvancePool from "../../build/RP2Vault.json";
+import OptyTokenAdvancePoolMkr from "../../build/RP1Vault_MKR.json";
 import RP1VaultProxy from "../../build/InitializableImmutableAdminUpgradeabilityProxy.json";
 import * as utilities from "./utilities";
 import { deployContract } from "ethereum-waffle";
@@ -79,4 +81,9 @@ export async function deployPoolContracts(
     }
 }
 
-export { OptyTokenBasicPool, OptyTokenBasicPoolMkr };
+export {
+    OptyTokenBasicPool,
+    OptyTokenBasicPoolMkr,
+    OptyTokenAdvancePool,
+    OptyTokenAdvancePoolMkr,
+};

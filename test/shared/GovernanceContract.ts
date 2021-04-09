@@ -1,12 +1,11 @@
-import OptyRegistry from "../../build/Registry.json";
+import Registry from "../../build/Registry.json";
 import RegistryProxy from "../../build/RegistryProxy.json";
 import RiskManager from "../../build/RiskManager.json";
-import Gatherer from "../../build/Gatherer.json";
-import OptyStrategyCodeProvider from "../../build/StrategyCodeProvider.json";
+import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
+import StrategyCodeProvider from "../../build/StrategyCodeProvider.json";
 import StrategyProvider from "../../build/StrategyProvider.json";
 import Opty from "../../build/OPTY.json";
 import OptyMinter from "../../build/OPTYMinter.json";
-import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
 import { deployContract } from "ethereum-waffle";
 import * as utilities from "./utilities";
 import { assert } from "chai";
@@ -14,21 +13,12 @@ import { assert } from "chai";
 //  Deploying RegistryProxy, Registry, StrategyProvider, RiskManager, Gatherer and StrategyCodeProvider Contracts
 export async function deployAllGovernanceContracts(
     ownerWallet: any,
-    RegistryProxyContractJSON: any,
-    RegistryContractJSON: any,
-    StrategyProviderContractJSON: any,
-    RiskManagerContractJSON: any,
-    GathererContractJSON: any,
-    StrategyCodeProviderContractJSON: any,
-    OptyContractJSON: any,
-    OptyMinterContractJSON: any,
-    HarvestCodeProviderJSON: any,
     GAS_OVERRIDE_OPTIONS: any
 ) {
     //  Deploy RegistryProxy
     const optyRegistryProxy = await deployContract(
         ownerWallet,
-        RegistryProxyContractJSON,
+        RegistryProxy,
         [],
         GAS_OVERRIDE_OPTIONS
     );
@@ -37,7 +27,7 @@ export async function deployAllGovernanceContracts(
     //  Deploy Registry
     let optyRegistry = await deployContract(
         ownerWallet,
-        RegistryContractJSON,
+        Registry,
         [],
         GAS_OVERRIDE_OPTIONS
     );
@@ -49,14 +39,12 @@ export async function deployAllGovernanceContracts(
     //  Setting RegistryProxy to act as Registry
     await optyRegistry.become(optyRegistryProxy.address);
 
-    //  Checking status if the registry implementation is set or not
-    const registryImplementationAddress = await optyRegistryProxy.registryImplementation();
-
     optyRegistry = await utilities.getContractInstance(
         optyRegistryProxy.address,
-        RegistryContractJSON.abi,
+        Registry.abi,
         ownerWallet
     );
+
     assert.equal(
         optyRegistry.address,
         optyRegistryProxy.address,
@@ -66,7 +54,7 @@ export async function deployAllGovernanceContracts(
     //  Deploy StrategyProvider
     const strategyProvider = await deployContract(
         ownerWallet,
-        StrategyProviderContractJSON,
+        StrategyProvider,
         [optyRegistry.address],
         GAS_OVERRIDE_OPTIONS
     );
@@ -75,26 +63,26 @@ export async function deployAllGovernanceContracts(
     //  Deploy RiskManager
     const riskManager = await deployContract(
         ownerWallet,
-        RiskManagerContractJSON,
+        RiskManager,
         [optyRegistry.address, strategyProvider.address],
         GAS_OVERRIDE_OPTIONS
     );
     assert.isDefined(riskManager, "RiskManager contract not deployed");
 
     //  Deploy Gatherer
-    const gatherer = await deployContract(
+    const harvestCodeProvider = await deployContract(
         ownerWallet,
-        GathererContractJSON,
+        HarvestCodeProvider,
         [optyRegistry.address],
         GAS_OVERRIDE_OPTIONS
     );
-    assert.isDefined(gatherer, "Gatherer contract not deployed");
+    assert.isDefined(harvestCodeProvider, "Gatherer contract not deployed");
 
     //  Deploy StrategyCodeProvider
     const optyStrategyCodeProvider = await deployContract(
         ownerWallet,
-        StrategyCodeProviderContractJSON,
-        [optyRegistry.address, gatherer.address],
+        StrategyCodeProvider,
+        [optyRegistry.address, harvestCodeProvider.address],
         GAS_OVERRIDE_OPTIONS
     );
     assert.isDefined(
@@ -103,38 +91,21 @@ export async function deployAllGovernanceContracts(
     );
     const opty = await deployContract(
         ownerWallet,
-        OptyContractJSON,
+        Opty,
         [optyRegistryProxy.address, 0],
         GAS_OVERRIDE_OPTIONS
     );
-    const optyMinter = await deployContract(ownerWallet, OptyMinterContractJSON, [
+    const optyMinter = await deployContract(ownerWallet, OptyMinter, [
         optyRegistry.address,
         opty.address,
     ]);
-    const harvestCodeProvider = await deployContract(
-        ownerWallet,
-        HarvestCodeProviderJSON,
-        [optyRegistry.address, gatherer.address]
-    );
+
     return [
         optyRegistry,
         strategyProvider,
         riskManager,
-        gatherer,
+        harvestCodeProvider,
         optyStrategyCodeProvider,
         optyMinter,
-        harvestCodeProvider,
     ];
 }
-
-export {
-    OptyRegistry,
-    RegistryProxy,
-    RiskManager,
-    Gatherer,
-    OptyStrategyCodeProvider,
-    StrategyProvider,
-    Opty,
-    OptyMinter,
-    HarvestCodeProvider,
-};

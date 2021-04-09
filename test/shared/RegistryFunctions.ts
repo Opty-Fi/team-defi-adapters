@@ -60,6 +60,6 @@ export async function approveLpCpAndMapLpToCodeProvider(
     if (isBorrow) {
         await optyRegistry.setLiquidityPoolToBorrowPoolProxy(pool, codeProvider);
     } else {
-        await optyRegistry.setLiquidityPoolToCodeProvider(pool, codeProvider);
+        await optyRegistry.setLiquidityPoolToAdapter(pool, codeProvider);
     }
 }

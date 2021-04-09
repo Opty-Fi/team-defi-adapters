@@ -1,16 +1,16 @@
 import { CodeProviderContract } from "./interfaces";
-import CompoundCodeProvider from "../../build/CompoundCodeProvider.json";
-import AaveV1CodeProvider from "../../build/AaveV1CodeProvider.json";
-import AaveV2CodeProvider from "../../build/AaveV2CodeProvider.json";
-import CurvePoolCodeProvider from "../../build/CurvePoolCodeProvider.json";
-import CurveSwapCodeProvider from "../../build/CurveSwapCodeProvider.json";
-import CreamCodeProvider from "../../build/CreamCodeProvider.json";
-import DForceCodeProvider from "../../build/DForceCodeProvider.json";
-import FulcrumCodeProvider from "../../build/FulcrumCodeProvider.json";
+import CompoundCodeProvider from "../../build/CompoundAdapter.json";
+import AaveV1CodeProvider from "../../build/AaveV1Adapter.json";
+import AaveV2CodeProvider from "../../build/AaveV2Adapter.json";
+import CurvePoolCodeProvider from "../../build/CurvePoolAdapter.json";
+import CurveSwapCodeProvider from "../../build/CurveSwapAdapter.json";
+import CreamCodeProvider from "../../build/CreamAdapter.json";
+import DForceCodeProvider from "../../build/DForceAdapter.json";
+import FulcrumCodeProvider from "../../build/FulcrumAdapter.json";
 import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
-import YVaultCodeProvider from "../../build/YVaultCodeProvider.json";
-import YearnCodeProvider from "../../build/YearnCodeProvider.json";
-import dYdXCodeProvider from "../../build/dYdXCodeProvider.json";
+import YVaultCodeProvider from "../../build/YVaultAdapter.json";
+import YearnCodeProvider from "../../build/YearnAdapter.json";
+import dYdXCodeProvider from "../../build/dYdXAdapter.json";
 
 //  Json of CodeProviderContract for storing the Abi's of CodeProviderContracts
 const codeProviderContract: CodeProviderContract = {

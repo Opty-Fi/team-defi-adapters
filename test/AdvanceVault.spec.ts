@@ -13,8 +13,8 @@ import * as Interfaces from "./shared/interfaces";
 import * as Types from "./shared/types";
 import * as Constants from "./shared/constants";
 import * as CurveFunctions from "./shared/Curve/Curve";
-import EmergencyBrakeJSON from "../build/TestingEmergencyBrakeRP1.json";
-import { setBestBasicStrategy } from "./shared/StrategyProviderFunctions";
+import EmergencyBrakeJSON from "../build/TestingEmergencyBrakeRP2.json";
+import { setBestAdvanceStrategy } from "./shared/StrategyProviderFunctions";
 chai.use(solidity);
 
 program
@@ -69,7 +69,7 @@ program
             process.exit(1);
         }
 
-        describe("OPTokenBasicVault", async () => {
+        describe("OPTokenAdvanceVault", async () => {
             let ownerWallet: ethers.Wallet;
             let userWallet: ethers.Wallet;
             let optyRegistry: Contract;
@@ -313,7 +313,7 @@ program
                         let underlyingTokenDecimals: number;
                         let tokens: string[];
                         let tokenContractInstance: Contract;
-                        let optyTokenBasicPool: Contract;
+                        let optyTokenAdvancePool: Contract;
                         let emergencyBrake: Contract;
                         let tokensHash = "";
 
@@ -359,12 +359,12 @@ program
                                 `m/44'/60'/0'/0/2`
                             ).connect(provider);
                             //  Deploying the BasicPool Contract for MKR and other underlying token
-                            optyTokenBasicPool = await PoolContracts.deployPoolContracts(
+                            optyTokenAdvancePool = await PoolContracts.deployPoolContracts(
                                 underlyingToken,
                                 ownerWallet,
                                 vaultProxyAdminWallet,
-                                PoolContracts.OptyTokenBasicPoolMkr,
-                                PoolContracts.OptyTokenBasicPool,
+                                PoolContracts.OptyTokenAdvancePoolMkr,
+                                PoolContracts.OptyTokenAdvancePool,
                                 optyRegistry.address,
                                 riskManager.address,
                                 optyStrategyCodeProvider.address,
@@ -374,12 +374,12 @@ program
                                 ownerWallet,
                                 EmergencyBrakeJSON,
                                 [
-                                    optyTokenBasicPool.address,
+                                    optyTokenAdvancePool.address,
                                     tokenContractInstance.address,
                                 ]
                             );
                             assert.isDefined(
-                                optyTokenBasicPool,
+                                optyTokenAdvancePool,
                                 "OptyTokenBasicPool contract not deployed"
                             );
                         });
@@ -389,7 +389,7 @@ program
                                 strategiesTokenKey,
                             async () => {
                                 assert.isOk(
-                                    optyTokenBasicPool.address,
+                                    optyTokenAdvancePool.address,
                                     "BasicPool Contract for " +
                                         strategiesTokenKey +
                                         "is not deployed"
@@ -453,7 +453,7 @@ program
                                 "should deposit using userDepositRebalance() using Strategy - " +
                                     strategyObject.strategyName,
                                 async () => {
-                                    await setBestBasicStrategy(
+                                    await setBestAdvanceStrategy(
                                         strategyObject,
                                         tokensHash,
                                         optyRegistry,
@@ -467,7 +467,7 @@ program
                                         underlyingTokenDecimals,
                                         tokenContractInstance,
                                         userWallet,
-                                        optyTokenBasicPool,
+                                        optyTokenAdvancePool,
                                         userOptyTokenBalance,
                                         TEST_AMOUNT,
                                         userInitialTokenBalance,
@@ -498,7 +498,7 @@ program
                                         );
 
                                         await tokenContractInstanceAsSignerUser.approve(
-                                            optyTokenBasicPool.address,
+                                            optyTokenAdvancePool.address,
                                             TEST_AMOUNT,
                                             Constants.GAS_OVERRIDE_OPTIONS
                                         );
@@ -506,19 +506,19 @@ program
                                         expect(
                                             await tokenContractInstance.allowance(
                                                 userWallet.address,
-                                                optyTokenBasicPool.address
+                                                optyTokenAdvancePool.address
                                             )
                                         ).to.equal(TEST_AMOUNT);
                                         //  Getting initial balance of OptyBasicTokens for user
-                                        const userOptyTokenBalanceBefore = await optyTokenBasicPool.balanceOf(
+                                        const userOptyTokenBalanceBefore = await optyTokenAdvancePool.balanceOf(
                                             userWallet.address
                                         );
 
                                         //  Getting the totalSupply and poolValue from deposit txn.
-                                        const totalSupply = await optyTokenBasicPool.totalSupply();
-                                        const poolValue = await optyTokenBasicPool.poolValue();
+                                        const totalSupply = await optyTokenAdvancePool.totalSupply();
+                                        const poolValue = await optyTokenAdvancePool.poolValue();
 
-                                        const optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
+                                        const optyTokenBasicPoolAsSignerUser = optyTokenAdvancePool.connect(
                                             userWallet
                                         );
 
@@ -571,7 +571,7 @@ program
                                         const userExpectedOptyTokenBalance = userOptyTokenBalanceBefore.add(
                                             shares
                                         );
-                                        userOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+                                        userOptyTokenBalanceWei = await optyTokenAdvancePool.balanceOf(
                                             userWallet.address
                                         );
                                         expect(userOptyTokenBalanceWei).to.equal(
@@ -586,7 +586,7 @@ program
                                     strategyObject.strategyName,
                                 async () => {
                                     //  Connect the BasicPool Contract with the user's Wallet for making userDeposit()
-                                    const initialUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+                                    const initialUserOptyTokenBalanceWei = await optyTokenAdvancePool.balanceOf(
                                         userWallet.address
                                     );
 
@@ -648,14 +648,14 @@ program
                                         roundingDelta: any
                                     ) {
                                         const initialContractTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                            optyTokenBasicPool.address
+                                            optyTokenAdvancePool.address
                                         );
 
-                                        const totalSupply = await optyTokenBasicPool.totalSupply();
+                                        const totalSupply = await optyTokenAdvancePool.totalSupply();
 
-                                        const poolValue = await optyTokenBasicPool.poolValue();
+                                        const poolValue = await optyTokenAdvancePool.poolValue();
 
-                                        const optyTokenBasicPoolAsSignerUser = optyTokenBasicPool.connect(
+                                        const optyTokenBasicPoolAsSignerUser = optyTokenAdvancePool.connect(
                                             userWallet
                                         );
                                         let userWithdrawTxOutput;
@@ -678,7 +678,7 @@ program
                                             "UserWithdraw() call failed"
                                         );
 
-                                        const afterUserOptyTokenBalanceWei = await optyTokenBasicPool.balanceOf(
+                                        const afterUserOptyTokenBalanceWei = await optyTokenAdvancePool.balanceOf(
                                             userWallet.address
                                         );
 
@@ -726,7 +726,7 @@ program
                                         }
 
                                         const afterContractTokenBalanceWei = await tokenContractInstance.balanceOf(
-                                            optyTokenBasicPool.address
+                                            optyTokenAdvancePool.address
                                         );
 
                                         //  Sometimes, Contract has left with some small fraction of Token like DAI etc.
@@ -760,7 +760,7 @@ program
                                             100000000
                                         );
 
-                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                        await optyTokenAdvancePool.setMaxPoolValueJump(
                                             100
                                         );
 
@@ -789,7 +789,7 @@ program
                                             100000000
                                         );
 
-                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                        await optyTokenAdvancePool.setMaxPoolValueJump(
                                             100
                                         );
 
@@ -821,7 +821,7 @@ program
                                             100000000
                                         );
 
-                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                        await optyTokenAdvancePool.setMaxPoolValueJump(
                                             100
                                         );
 
@@ -853,7 +853,7 @@ program
                                             100000000
                                         );
 
-                                        await optyTokenBasicPool.setMaxPoolValueJump(
+                                        await optyTokenAdvancePool.setMaxPoolValueJump(
                                             100
                                         );
 

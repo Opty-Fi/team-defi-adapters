@@ -118,16 +118,7 @@ export async function setBestAdvanceStrategy(
     const strategyHash = setStrategyReceipt.events[0].args[2];
 
     //  Set Best Advance strategy
-    await strategyProvider.setBestAdvanceStrategy(tokensHash, strategyHash);
-
-    //  Fetching best strategy
-    const bestStrategyHash = await riskManager.getBestStrategy(profile, [
-        underlyingToken,
-    ]);
-    //  Getting the best strategy
-    const bestStrategy = await optyRegistry.getStrategy(bestStrategyHash.toString());
-
-    const hashes = await optyRegistry.getTokenToStrategies(tokensHash);
+    await strategyProvider.setBestRP2Strategy(tokensHash, strategyHash);
 
     return setStrategyTxGasUsed;
 }
