@@ -3,10 +3,10 @@
 pragma solidity ^0.6.10;
 
 import "./../RiskManager.sol";
-import "./../StrategyCodeProvider.sol";
+import "./../StrategyManager.sol";
 import "./../OPTYToken/OPTYMinter.sol";
 
-contract PoolStorage {
+contract VaultStorage {
     struct Operation {
         address account;
         bool isDeposit;
@@ -25,7 +25,7 @@ contract PoolStorage {
     uint256 public poolValue;
     uint256 public gasOwedToOperator;
     string public profile;
-    StrategyCodeProvider public strategyCodeProviderContract;
+    StrategyManager public strategyManagerContract;
     RiskManager public riskManagerContract;
     OPTYMinter public optyMinterContract;
 

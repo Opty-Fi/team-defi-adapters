@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 import "./../../utils/ReentrancyGuard.sol";
 import "./../../utils/ChiDeployer.sol";
 import "./../../RiskManager.sol";
-import "./../../StrategyCodeProvider.sol";
 import "./../PoolStorage.sol";
 import "./../../interfaces/opty/IVault.sol";
 import "./../../utils/ERC20Upgradeable/VersionedInitializable.sol";
@@ -48,14 +47,14 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
         address registry,
         address _riskManager,
         address _underlyingToken,
-        address _strategyCodeProvider,
+        address _strategyManager,
         address _optyMinter
     ) external virtual initializer {
         registryContract = Registry(registry);
         setProfile("RP2");
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
-        setStrategyCodeProvider(_strategyCodeProvider);
+        setStrategyManager(_strategyManager);
         setOPTYMinter(_optyMinter);
         _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP2", " pool")));
         _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP2Pool")));
@@ -87,9 +86,9 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
         _success = true;
     }
 
-    function setStrategyCodeProvider(address _strategyCodeProvider) public override onlyOperator returns (bool _success) {
-        require(_strategyCodeProvider.isContract(), "!__strategyCodeProvider.isContract");
-        strategyCodeProviderContract = StrategyCodeProvider(_strategyCodeProvider);
+    function setStrategyManager(address _strategyManager) public override onlyOperator returns (bool _success) {
+        require(_strategyManager.isContract(), "!__strategyManager.isContract");
+        strategyManagerContract = StrategyManager(_strategyManager);
         _success = true;
     }
 
@@ -104,9 +103,9 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
         _batchMintAndBurn();
         first = 1;
         last = 0;
-        uint8 _steps = strategyCodeProviderContract.getDepositAllStepCount(strategyHash);
+        uint8 _steps = strategyManagerContract.getDepositAllStepCount(strategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, strategyHash, _i, _steps);
+            bytes[] memory _codes = strategyManagerContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, strategyHash, _i, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -171,7 +170,7 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
      */
     function _calPoolValueInUnderlyingToken() internal view returns (uint256) {
         if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
-            uint256 balanceInUnderlyingToken = strategyCodeProviderContract.getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, strategyHash);
+            uint256 balanceInUnderlyingToken = strategyManagerContract.getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, strategyHash);
             return balanceInUnderlyingToken.add(balance()).sub(depositQueue);
         }
         return balance().sub(depositQueue);
@@ -185,11 +184,11 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
     }
 
     function _withdrawAll() internal {
-        uint8 _steps = strategyCodeProviderContract.getWithdrawAllStepsCount(strategyHash);
+        uint8 _steps = strategyManagerContract.getWithdrawAllStepsCount(strategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
             bytes[] memory _codes =
-                strategyCodeProviderContract.getPoolWithdrawAllCodes(payable(address(this)), underlyingToken, strategyHash, _iterator, _steps);
+                strategyManagerContract.getPoolWithdrawAllCodes(payable(address(this)), underlyingToken, strategyHash, _iterator, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool _success, ) = pool.call(data);
@@ -200,20 +199,20 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
 
     function harvest(bytes32 _hash) public override {
         require(_hash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!invalidHash");
-        uint8 _claimRewardSteps = strategyCodeProviderContract.getClaimRewardStepsCount(_hash);
+        uint8 _claimRewardSteps = strategyManagerContract.getClaimRewardStepsCount(_hash);
         for (uint8 _i = 0; _i < _claimRewardSteps; _i++) {
             bytes[] memory _codes =
-                strategyCodeProviderContract.getPoolClaimAllRewardCodes(payable(address(this)), _hash, _i, _claimRewardSteps);
+                strategyManagerContract.getPoolClaimAllRewardCodes(payable(address(this)), _hash, _i, _claimRewardSteps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
                 require(success);
             }
         }
-        uint8 _harvestSteps = strategyCodeProviderContract.getHarvestRewardStepsCount(_hash);
+        uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_hash);
         for (uint8 _i = 0; _i < _harvestSteps; _i++) {
             bytes[] memory _codes =
-                strategyCodeProviderContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
+                strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);

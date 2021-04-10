@@ -16,7 +16,7 @@ interface IVault {
     
     function setToken(address _underlyingToken) external returns (bool _success);
 
-    function setStrategyCodeProvider(address _strategyCodeProvider) external returns (bool _success);
+    function setStrategyManager(address _strategyCodeProvider) external returns (bool _success);
     
     function setMaxPoolValueJump(uint256 _maxPoolValueJump) external returns (bool _success);
 
