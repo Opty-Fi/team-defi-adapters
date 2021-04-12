@@ -490,7 +490,7 @@ program
                                         userInitialTokenBalance =
                                             allFundWalletReturnParams[4];
                                         try {
-                                            //await testUserDepositRebalance();
+                                            await testUserDepositRebalance();
                                         } catch (error) {
                                             throw new Error(
                                                 `Test UserDepositRebalance failed with error: ${error}`

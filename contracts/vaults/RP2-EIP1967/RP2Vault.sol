@@ -431,7 +431,7 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
                         : blockToBlockPoolValues[block.number][_blockTransactions - 1].blockMinPoolValue,
                     blockMaxPoolValue: _poolValue > blockToBlockPoolValues[block.number][_blockTransactions - 1].blockMaxPoolValue
                         ? _poolValue
-                        : blockToBlockPoolValues[block.number][_blockTransactions - 1].blockMinPoolValue
+                        : blockToBlockPoolValues[block.number][_blockTransactions - 1].blockMaxPoolValue
                 })
             );
             require(
