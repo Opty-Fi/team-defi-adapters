@@ -7,10 +7,7 @@ export async function setBestBasicStrategy(
     strategyObject: { strategy: string | any[] },
     tokensHash: string,
     optyRegistry: Contract,
-    riskManager: Contract,
-    strategyProvider: Contract,
-    profile: string,
-    underlyingToken: string
+    strategyProvider: Contract
 ) {
     let setStrategyTxGasUsed = 0;
     //  Setting the strategy and making it the best strategy so that each strategy can be tested
@@ -79,10 +76,7 @@ export async function setBestAdvanceStrategy(
     strategyObject: { strategy: string | any[] },
     tokensHash: string,
     optyRegistry: Contract,
-    riskManager: Contract,
-    strategyProvider: Contract,
-    profile: string,
-    underlyingToken: string
+    strategyProvider: Contract
 ) {
     let setStrategyTxGasUsed = 0;
     const strategySteps: (string | boolean)[][] = [];

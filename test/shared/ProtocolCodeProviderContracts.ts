@@ -7,7 +7,7 @@ import CurveSwapCodeProvider from "../../build/CurveSwapAdapter.json";
 import CreamCodeProvider from "../../build/CreamAdapter.json";
 import DForceCodeProvider from "../../build/DForceAdapter.json";
 import FulcrumCodeProvider from "../../build/FulcrumAdapter.json";
-import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
+import HarvestCodeProvider from "../../build/HarvestAdapter.json";
 import YVaultCodeProvider from "../../build/YVaultAdapter.json";
 import YearnCodeProvider from "../../build/YearnAdapter.json";
 import dYdXCodeProvider from "../../build/dYdXAdapter.json";

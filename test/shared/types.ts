@@ -7,6 +7,7 @@ export type cmdType = {
     writeGasRecordsInFile: boolean;
     runTimeVersion: string;
     codeProvider: string;
+    profile: string;
 };
 
 export type allStrategiesGasUsedRecordsType = {
