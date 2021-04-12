@@ -32,7 +32,6 @@ interface IVault {
     
     function discontinue() external;
 
-    // function setPaused() external;
     function setPaused(bool _paused) external;
     
     // no CHI functions

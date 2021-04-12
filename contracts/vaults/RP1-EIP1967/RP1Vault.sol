@@ -489,21 +489,16 @@ contract RP1Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
     }
 
     function discontinue() public override onlyRegistry {
-        // discontinued = registryContract.discontinue();
         if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
             harvest(strategyHash);
         }
-        // registryContract.logDiscontinuedPausedEvent(msg.sender, "Discontinued", discontinued);
     }
 
     function setPaused(bool _paused) public override onlyRegistry {
-        // paused = registryContract.paused(_paused);
-        // paused = _paused;
         if (_paused && strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
             harvest(strategyHash);
         }
-        // registryContract.logDiscontinuedPausedEvent(msg.sender, "Paused", paused);
     }
 }
