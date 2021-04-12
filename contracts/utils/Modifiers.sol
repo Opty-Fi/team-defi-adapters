@@ -5,6 +5,7 @@ pragma solidity ^0.6.10;
 import "./../libraries/Addresses.sol";
 import "../controller/Registry.sol";
 
+
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
@@ -13,8 +14,8 @@ contract Modifiers {
 
     using Address for address;
 
-    bool public discontinued;
-    bool public paused;
+    // bool public discontinued;
+    // bool public paused;
 
     /**
      * @dev Sets the owner, governance and strategist while deploying the contract
@@ -75,13 +76,18 @@ contract Modifiers {
         _;
     }
 
-    modifier ifNotDiscontinued() {
-        require(!discontinued, "discontinued");
+    modifier ifNotDiscontinued(address _vault) {
+        require(!registryContract.vaultToDiscontinued(_vault), "discontinued");
         _;
     }
 
-    modifier ifNotPaused() {
-        require(!paused, "paused");
+    modifier ifNotPaused(address _vault) {
+        require(!registryContract.vaultToPaused(_vault), "paused");
+        _;
+    }
+    
+    modifier onlyRegistry() {
+        require(msg.sender == address(registryContract), "caller is not Registry contract");
         _;
     }
 }

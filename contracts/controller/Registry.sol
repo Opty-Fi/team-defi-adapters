@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "../libraries/Addresses.sol";
 import "./ModifiersController.sol";
 import "./RegistryProxy.sol";
+import "../interfaces/opty/IVault.sol";
 
 /**
  * @title Registry
@@ -433,11 +434,44 @@ contract Registry is ModifiersController {
     }
     
     /**
-     * @dev Emitted when `token` is approved or revoked.
-     *
-     * Note that `token` cannot be zero address or EOA.
+     * @dev Set Disconinue for the _vault contract 
+     * 
+     * Returns a boolean value indicating whether operation is succeeded
+     * 
+     * Emits a {LogDiscontinuedPaused} event
+     * 
+     * Requirements:
+     * 
+     * - `_vault` cannot be a zero address
+     * - `msg.sender` (caller) should be governance
      */
-    event LogUnderlyingTokenRPVault(address indexed underlyingToken, string indexed riskProfile, address indexed vault);
+    function discontinue(address _vault) public onlyGovernance returns (bool) {
+        require(_vault != address(0), "!address(0)");
+        vaultToDiscontinued[_vault] = true;
+        IVault(_vault).discontinue();
+        emit LogDiscontinuedPaused(msg.sender, "Discontinue", vaultToDiscontinued[_vault]);
+        return true;
+    }
+    
+    /**
+     * @dev Set Pause functionality for the _vault contract 
+     * 
+     * Returns a boolean value indicating whether pause is set to true or false
+     * 
+     * Emits a {LogDiscontinuedPaused} event
+     * 
+     * Requirements:
+     * 
+     * - `_vault` cannot be a zero address
+     * - `msg.sender` (caller) should be governance
+     */
+    function setPause(address _vault, bool _paused) public onlyGovernance returns (bool) {
+        require(_vault != address(0), "!address(0)");
+        vaultToPaused[_vault] = _paused;
+        IVault(_vault).setPaused(vaultToPaused[_vault]);
+        emit LogDiscontinuedPaused(_vault, "Pause", vaultToPaused[_vault]);
+        return _paused;
+    }
 
     /**
      * @dev Emitted when `token` is approved or revoked.
@@ -501,4 +535,18 @@ contract Registry is ModifiersController {
      * Note that tokens should be approved
      */
     event LogTokensToTokensHash(address indexed caller, bytes32 indexed _tokensHash);
+    
+    /**
+     * @dev Emiited when `Discontinue` or `setPause` functions are called
+     * 
+     * Note that `vault` can not be a zero address
+     */
+    event LogDiscontinuedPaused(address indexed vault, bytes32 indexed action, bool indexed actionStatus);
+    
+    /**
+     * @dev Emitted when `setUnderlyingTokenToRPToVaults` function is called.
+     *
+     * Note that `underlyingToken` cannot be zero address or EOA.
+     */
+    event LogUnderlyingTokenRPVault(address indexed underlyingToken, string indexed riskProfile, address indexed vault);
 }

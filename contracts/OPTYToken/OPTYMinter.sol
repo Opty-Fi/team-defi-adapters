@@ -16,11 +16,6 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         require(_opty != address(0), "Invalid address");
         OPTYAddress = _opty;
     }
-
-    function setOptyAddress(address _opty) internal {
-        require(_opty != address(0), "Invalid address");
-        OPTYAddress = _opty;
-    }
     
     function setStakingPool(address _stakingPool) public onlyOperator {
         require(_stakingPool != address(0), "Invalid address");

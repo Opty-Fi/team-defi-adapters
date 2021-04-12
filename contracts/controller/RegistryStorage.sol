@@ -75,4 +75,8 @@ contract RegistryStorage is RegistryAdminStorage, Structs {
     mapping(address => mapping(address => bytes32)) public liquidityPoolToTokenHashes;
     mapping(address => address) public liquidityPoolToAdapter;
     mapping(address => mapping(string => address)) public underlyingTokenToRPToVaults;
+    mapping(address => bool) public vaultToDiscontinued;
+    mapping(address => bool) public vaultToPaused;
+    // bool public discontinued;
+    // bool public paused;
 }
