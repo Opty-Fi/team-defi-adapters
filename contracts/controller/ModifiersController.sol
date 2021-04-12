@@ -10,9 +10,6 @@ import "./RegistryStorage.sol";
  */
 contract ModifiersController is RegistryStorage {
     using Address for address;
-    
-    // bool public discontinued;
-    // bool public paused;
 
     /**
      * @dev Transfers operator to a new account (`_governance`).
@@ -75,14 +72,4 @@ contract ModifiersController is RegistryStorage {
         require(msg.sender == minter, "caller is not the minter");
         _;
     }
-    
-    // modifier ifNotDiscontinued() {
-    //     require(!discontinued, "discontinued");
-    //     _;
-    // }
-
-    // modifier ifNotPaused() {
-    //     require(!paused, "paused");
-    //     _;
-    // }
 }

@@ -14,9 +14,6 @@ contract Modifiers {
 
     using Address for address;
 
-    // bool public discontinued;
-    // bool public paused;
-
     /**
      * @dev Sets the owner, governance and strategist while deploying the contract
      */
