@@ -13,31 +13,31 @@ contract OPTYMinterStorage {
         uint32 timestamp;
     }
     
-    address public constant OPTYAddress = address(0xE9007f87Ed9249665D20aF616C4F805bf1B0Fd47);
+    address public OPTYAddress;
 
-    mapping(address => uint256) public optyPoolStartTimestamp;
+    mapping(address => uint256) public optyVaultStartTimestamp;
 
-    address[] public allOptyPools;
+    address[] public allOptyVaults;
 
-    mapping(address => bool) public optyPoolEnabled;
+    mapping(address => bool) public optyVaultEnabled;
 
     /// @notice The rate at which the flywheel distributes OPTY, per block
     uint256 public optyTotalRate;
 
     /// @notice The portion of optyRate that each market currently receives
-    mapping(address => uint256) public optyPoolRatePerSecond;
+    mapping(address => uint256) public optyVaultRatePerSecond;
 
     /// @notice The portion of optyRate that each market currently receives divided by the amount of LP tokens
-    mapping(address => uint256) public optyPoolRatePerSecondAndLPToken;
+    mapping(address => uint256) public optyVaultRatePerSecondAndVaultToken;
 
     /// @notice The OPTY accrued but not yet transferred to each user
     mapping(address => uint256) public optyAccrued;
 
     /// @notice The OPTY market supply state for each optyPool
-    mapping(address => OptyState) public optyPoolState;
+    mapping(address => OptyState) public optyVaultState;
 
     /// @notice The OPTY index for each market for each user as of the last time they accrued OPTY
-    mapping(address => mapping(address => OptyState)) public optyUserStateInPool;
+    mapping(address => mapping(address => OptyState)) public optyUserStateInVault;
 
     mapping(address => mapping(address => uint256)) public lastUserUpdate;
 }
