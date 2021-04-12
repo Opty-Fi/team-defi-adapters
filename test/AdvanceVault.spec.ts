@@ -160,12 +160,13 @@ program
                     const optyCodeProviderContracts = Object.keys(
                         OtherImports.ProtocolCodeProviderNames
                     );
-                    console.log(command.codeProvider);
+
                     for (const optyCodeProviderContractsKey of optyCodeProviderContracts) {
                         let flag: boolean;
-                        if (optyCodeProviderContractsKey == command.codeProvider) {
-                            flag = true;
-                        } else if (!command.codeProvider) {
+                        if (
+                            optyCodeProviderContractsKey == command.codeProvider ||
+                            !command.codeProvider
+                        ) {
                             flag = true;
                         } else {
                             flag = false;
@@ -466,7 +467,7 @@ program
                                             strategyObject,
                                             tokensHash,
                                             optyRegistry,
-                                            riskManager
+                                            strategyProvider
                                         );
                                         const allFundWalletReturnParams: any = await utilities.checkAndFundWallet(
                                             underlyingToken,
@@ -489,7 +490,7 @@ program
                                         userInitialTokenBalance =
                                             allFundWalletReturnParams[4];
                                         try {
-                                            await testUserDepositRebalance();
+                                            //await testUserDepositRebalance();
                                         } catch (error) {
                                             throw new Error(
                                                 `Test UserDepositRebalance failed with error: ${error}`
@@ -526,14 +527,14 @@ program
                                             const totalSupply = await optyTokenAdvancePool.totalSupply();
                                             const poolValue = await optyTokenAdvancePool.poolValue();
 
-                                            const optyTokenBasicPoolAsSignerUser = optyTokenAdvancePool.connect(
+                                            const optyTokenAdvancePoolAsSignerUser = optyTokenAdvancePool.connect(
                                                 userWallet
                                             );
 
                                             let userDepositRebalanceTx;
 
                                             try {
-                                                userDepositRebalanceTx = await optyTokenBasicPoolAsSignerUser.userDepositRebalance(
+                                                userDepositRebalanceTx = await optyTokenAdvancePoolAsSignerUser.userDepositRebalance(
                                                     TEST_AMOUNT,
                                                     Constants.GAS_OVERRIDE_OPTIONS
                                                 );

@@ -464,7 +464,7 @@ program
                                             strategyObject,
                                             tokensHash,
                                             optyRegistry,
-                                            riskManager
+                                            strategyProvider
                                         );
                                         const allFundWalletReturnParams: any = await utilities.checkAndFundWallet(
                                             underlyingToken,
