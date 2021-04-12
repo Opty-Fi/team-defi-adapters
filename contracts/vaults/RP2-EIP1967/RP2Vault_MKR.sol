@@ -352,7 +352,7 @@ contract RP2Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
      *  -   _redeemAmount: amount to withdraw from the vault. Its units are:
      *      in weth uints i.e. 1e18
      */
-    function userWithdrawRebalance(uint256 _redeemAmount) public override ifNotPaused nonReentrant returns (bool) {
+    function userWithdrawRebalance(uint256 _redeemAmount) public override ifNotPaused(address(this)) nonReentrant returns (bool) {
         require(_redeemAmount > 0, "!_redeemAmount>0");
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
