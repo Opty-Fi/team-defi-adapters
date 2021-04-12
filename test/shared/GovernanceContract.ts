@@ -2,7 +2,7 @@ import Registry from "../../build/Registry.json";
 import RegistryProxy from "../../build/RegistryProxy.json";
 import RiskManager from "../../build/RiskManager.json";
 import HarvestCodeProvider from "../../build/HarvestCodeProvider.json";
-import StrategyCodeProvider from "../../build/StrategyCodeProvider.json";
+import StrategyCodeProvider from "../../build/StrategyManager.json";
 import StrategyProvider from "../../build/StrategyProvider.json";
 import Opty from "../../build/OPTY.json";
 import OptyMinter from "../../build/OPTYMinter.json";

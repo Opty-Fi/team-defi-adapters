@@ -523,9 +523,9 @@ program
                                                 userWallet.address
                                             );
 
-                                            //  Getting the totalSupply and poolValue from deposit txn.
+                                            //  Getting the totalSupply and vaultValue from deposit txn.
                                             const totalSupply = await optyTokenAdvancePool.totalSupply();
-                                            const poolValue = await optyTokenAdvancePool.poolValue();
+                                            const vaultValue = await optyTokenAdvancePool.vaultValue();
 
                                             const optyTokenAdvancePoolAsSignerUser = optyTokenAdvancePool.connect(
                                                 userWallet
@@ -566,7 +566,7 @@ program
                                             if (
                                                 parseFloat(
                                                     utilities.fromWeiToString(
-                                                        poolValue,
+                                                        vaultValue,
                                                         underlyingTokenDecimals
                                                     )
                                                 ) == 0
@@ -575,7 +575,7 @@ program
                                             } else {
                                                 shares = TEST_AMOUNT.mul(
                                                     totalSupply
-                                                ).div(poolValue);
+                                                ).div(vaultValue);
                                             }
                                             const userExpectedOptyTokenBalance = userOptyTokenBalanceBefore.add(
                                                 shares
@@ -664,7 +664,7 @@ program
 
                                             const totalSupply = await optyTokenAdvancePool.totalSupply();
 
-                                            const poolValue = await optyTokenAdvancePool.poolValue();
+                                            const vaultValue = await optyTokenAdvancePool.vaultValue();
 
                                             const optyTokenBasicPoolAsSignerUser = optyTokenAdvancePool.connect(
                                                 userWallet
@@ -697,7 +697,7 @@ program
                                                 userWallet.address
                                             );
 
-                                            const noOfTokensReceivedFromFormula = poolValue
+                                            const noOfTokensReceivedFromFormula = vaultValue
                                                 .mul(withdrawAmount.sub(1))
                                                 .div(totalSupply);
 
@@ -775,7 +775,7 @@ program
                                                 100000000
                                             );
 
-                                            await optyTokenAdvancePool.setMaxPoolValueJump(
+                                            await optyTokenAdvancePool.setMaxVaultValueJump(
                                                 100
                                             );
 
@@ -786,7 +786,7 @@ program
                                             );
                                         } catch (err) {
                                             expect(err.error.message).to.equal(
-                                                "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                                "VM Exception while processing transaction: revert !maxVaultValueJump"
                                             );
                                         }
                                     }
@@ -804,7 +804,7 @@ program
                                                 100000000
                                             );
 
-                                            await optyTokenAdvancePool.setMaxPoolValueJump(
+                                            await optyTokenAdvancePool.setMaxVaultValueJump(
                                                 100
                                             );
 
@@ -818,7 +818,7 @@ program
                                             );
                                         } catch (err) {
                                             expect(err.error.message).to.equal(
-                                                "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                                "VM Exception while processing transaction: revert !maxVaultValueJump"
                                             );
                                         }
                                     }
@@ -836,7 +836,7 @@ program
                                                 100000000
                                             );
 
-                                            await optyTokenAdvancePool.setMaxPoolValueJump(
+                                            await optyTokenAdvancePool.setMaxVaultValueJump(
                                                 100
                                             );
 
@@ -850,7 +850,7 @@ program
                                             );
                                         } catch (err) {
                                             expect(err.error.message).to.equal(
-                                                "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                                "VM Exception while processing transaction: revert !maxVaultValueJump"
                                             );
                                         }
                                     }
@@ -868,7 +868,7 @@ program
                                                 100000000
                                             );
 
-                                            await optyTokenAdvancePool.setMaxPoolValueJump(
+                                            await optyTokenAdvancePool.setMaxVaultValueJump(
                                                 100
                                             );
 
@@ -882,7 +882,7 @@ program
                                             );
                                         } catch (err) {
                                             expect(err.error.message).to.equal(
-                                                "VM Exception while processing transaction: revert !maxPoolValueJump"
+                                                "VM Exception while processing transaction: revert !maxVaultValueJump"
                                             );
                                         }
                                     }
