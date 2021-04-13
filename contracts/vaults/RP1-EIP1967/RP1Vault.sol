@@ -430,7 +430,7 @@ contract RP1Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
                         : blockToBlockVaultValues[block.number][_blockTransactions - 1].blockMinVaultValue,
                     blockMaxVaultValue: _vaultValue > blockToBlockVaultValues[block.number][_blockTransactions - 1].blockMaxVaultValue
                         ? _vaultValue
-                        : blockToBlockVaultValues[block.number][_blockTransactions - 1].blockMinVaultValue
+                        : blockToBlockVaultValues[block.number][_blockTransactions - 1].blockMaxVaultValue
                 })
             );
             require(
