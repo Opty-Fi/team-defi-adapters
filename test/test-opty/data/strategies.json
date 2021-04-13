@@ -1,6 +1,6 @@
 {
     "DAI": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "DAI-deposit-COMPOUND-cDAI",
                 "strategy": [
@@ -222,7 +222,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "DAI-borrow-AAVE-USDC-deposit-COMPOUND-cUSDC",
                 "strategy": [
@@ -8808,10 +8808,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "USDC": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "USDC-deposit-AAVE-aUSDC",
                 "strategy": [
@@ -9077,7 +9077,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "USDC-borrow-AAVE-ETH",
                 "strategy": [
@@ -17646,10 +17646,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "USDT": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "USDT-deposit-AAVE-aUSDT",
                 "strategy": [
@@ -17893,7 +17893,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "USDT-borrow-AAVE-ETH",
                 "strategy": [
@@ -26428,10 +26428,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "WBTC": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "WBTC-deposit-AAVE-aWBTC",
                 "strategy": [
@@ -26576,7 +26576,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "WBTC-borrow-AAVE-ETH",
                 "strategy": [
@@ -34924,10 +34924,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "TUSD": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "TUSD-deposit-AAVE-aTUSD",
                 "strategy": [
@@ -35028,7 +35028,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "TUSD-borrow-AAVE-ETH",
                 "strategy": [
@@ -43410,10 +43410,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "WETH": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "WETH-deposit-Aave_V2-yWETH",
                 "strategy": [
@@ -43459,7 +43459,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "WETH-deposit-YEARN-yWETH-deposit-CREAM-crYETH",
                 "strategy": [
@@ -43478,10 +43478,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "SUSD": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "SUSD-deposit-AAVE-aSUSD",
                 "strategy": [
@@ -43538,7 +43538,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "SUSD-borrow-AAVE-ETH",
                 "strategy": [
@@ -51903,10 +51903,10 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     },
     "3Crv": {
-        "basic": [
+        "RP1Vault": [
             {
                 "strategyName": "3Crv-deposit-YEARN-y3Crv",
                 "strategy": [
@@ -52117,7 +52117,7 @@
                 ]
             }
         ],
-        "advanced": [
+        "RP2Vault": [
             {
                 "strategyName": "3Crv-deposit-CURVE-usdn3CRV-deposit-HARVEST-fusdn3CRV",
                 "strategy": [
@@ -52136,6 +52136,6 @@
                 ]
             }
         ],
-        "advancedPlus": []
+        "RP3Vault": []
     }
 }
