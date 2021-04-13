@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "../../interfaces/opty/IAdapter.sol";
 import "../../interfaces/curve/ICurveDeposit.sol";
+import "../../interfaces/curve/ICurveSwap.sol";
 import "../../interfaces/curve/ICurveGauge.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
@@ -19,7 +20,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     mapping(address => address) public swapPoolToGauges;
     mapping(address => bool) public noRemoveLiquidityOneCoin;
     HarvestCodeProvider public harvestCodeProviderContract;
-    uint256 public maxExposure; // basis points
+    uint256 public maxDepositPoolPctDefault; // basis points
+    mapping(address => uint256) public maxDepositPoolPct; // basis points
+    uint256[4] public maxDepositAmountDefault;
+    mapping(address => uint256[]) public maxDepositAmount;
 
     // reward token
     address public rewardToken;
@@ -255,7 +259,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         setSwapPoolToGauges(TBTC_SWAP_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
         setSwapPoolToGauges(DUSD_SWAP_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
 
-        setMaxExposure(uint256(5000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(5000)); // 50%
     }
 
     function getPoolValue(address, address) public view override returns (uint256) {
@@ -894,6 +898,40 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
             _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut));
         }
     }
+    
+    function _getDepositAmount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+        // uint256 _amount = ICurveSwap(_liquidityPool).calc_token_amount(_amounts, true);
+        // uint256 _maxDepositPct;
+        // if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
+        //     _maxDepositPct = maxDepositPoolPctDefault;
+        // } else if (maxDepositPoolPct[_liquidityPool] == uint256(-1)) {
+        //     return _amounts;
+        // } else {
+        //     _maxDepositPct = maxDepositPoolPct[_liquidityPool];
+        // }
+        // uint256 _maxDeposit = IERC20(swapPoolToLiquidityPoolToken[_liquidityPool]).totalSupply().mul(_maxDepositPct).div(uint256(10000));
+        // if (_amount < _maxDeposit) {
+        //     return _amounts;
+        // } else {
+            
+        // }
+        uint256 N_COINS = _amounts.length;
+        uint256[] memory _maxDepositAmounts = new uint256[](N_COINS);
+        uint256[] memory _depositAmounts = new uint256[](N_COINS);
+        for (uint256 i = 0; i < N_COINS; i++) {
+            if (maxDepositAmount[_liquidityPool][i] == uint256(0)) {
+                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
+            } else {
+                _maxDepositAmounts[i] = maxDepositAmount[_liquidityPool][i];
+            }
+            if (_maxDepositAmounts[i] > _amounts[i]) {
+                _depositAmounts[i] = _amounts[i];
+            } else {
+                _depositAmounts[i] = _maxDepositAmounts[i];
+            }
+        }
+        return _depositAmounts;
+    }
 
     function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
@@ -903,7 +941,19 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
-    function setMaxExposure(uint256 _maxExposure) public onlyOperator {
-        maxExposure = _maxExposure;
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+    
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyGovernance {
+        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+    }
+    
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) public onlyGovernance {
+        maxDepositAmountDefault = _maxDepositAmountDefault;
+    }
+    
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) public onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 }

@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 interface ICurveSwap {
-    function calc_token_amount(uint256[] calldata amountsIn, bool deposit) external;
+    function calc_token_amount(uint256[] calldata amountsIn, bool deposit) external view returns(uint256);
+    
+    function get_virtual_price() external view returns(uint256);
 
     function remove_liquidity_one_coin(
         uint256 amountIn,
