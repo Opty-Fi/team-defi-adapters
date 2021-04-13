@@ -899,22 +899,25 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         }
     }
     
-    function _getDepositAmount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
-        // uint256 _amount = ICurveSwap(_liquidityPool).calc_token_amount(_amounts, true);
-        // uint256 _maxDepositPct;
-        // if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
-        //     _maxDepositPct = maxDepositPoolPctDefault;
-        // } else if (maxDepositPoolPct[_liquidityPool] == uint256(-1)) {
-        //     return _amounts;
-        // } else {
-        //     _maxDepositPct = maxDepositPoolPct[_liquidityPool];
-        // }
-        // uint256 _maxDeposit = IERC20(swapPoolToLiquidityPoolToken[_liquidityPool]).totalSupply().mul(_maxDepositPct).div(uint256(10000));
-        // if (_amount < _maxDeposit) {
-        //     return _amounts;
-        // } else {
+    // function _getDepositAmountPct(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+    //     uint256 _amount = ICurveSwap(_liquidityPool).calc_token_amount(_amounts, true);
+    //     uint256 _maxDepositPct;
+    //     if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
+    //         _maxDepositPct = maxDepositPoolPctDefault;
+    //     } else if (maxDepositPoolPct[_liquidityPool] == uint256(-1)) {
+    //         return _amounts;
+    //     } else {
+    //         _maxDepositPct = maxDepositPoolPct[_liquidityPool];
+    //     }
+    //     uint256 _maxDeposit = IERC20(swapPoolToLiquidityPoolToken[_liquidityPool]).totalSupply().mul(_maxDepositPct).div(uint256(10000));
+    //     if (_amount < _maxDeposit) {
+    //         return _amounts;
+    //     } else {
             
-        // }
+    //     }
+    // }
+        
+    function _getDepositAmount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
         uint256 N_COINS = _amounts.length;
         uint256[] memory _maxDepositAmounts = new uint256[](N_COINS);
         uint256[] memory _depositAmounts = new uint256[](N_COINS);

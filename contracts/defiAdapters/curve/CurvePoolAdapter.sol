@@ -24,8 +24,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     PriceOracle public oracleContract;
     uint256 public maxDepositPoolPctDefault; // basis points
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    uint256 public maxDepositAmountDefault;
-    mapping(address => uint256) public maxDepositAmount;
+    uint256[] public maxDepositAmountDefault;
+    mapping(address => uint256[]) public maxDepositAmount;
 
     // underlying token
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -111,14 +111,14 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _compoundUnderlyingTokens[0] = DAI;
         _compoundUnderlyingTokens[1] = USDC;
         setLiquidityPoolToUnderlyingTokens(COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
-        setLiquiidtyPoolToSwap(COMPOUND_DEPOSIT_POOL, COMPOUND_SWAP_POOL);
+        setLiquidityPoolToSwap(COMPOUND_DEPOSIT_POOL, COMPOUND_SWAP_POOL);
 
         address[] memory _usdtUnderlyingTokens = new address[](3);
         _usdtUnderlyingTokens[0] = DAI;
         _usdtUnderlyingTokens[1] = USDC;
         _usdtUnderlyingTokens[2] = USDT;
         setLiquidityPoolToUnderlyingTokens(USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
-        setLiquiidtyPoolToSwap(USDT_DEPOSIT_POOL, USDT_SWAP_POOL);
+        setLiquidityPoolToSwap(USDT_DEPOSIT_POOL, USDT_SWAP_POOL);
 
         address[] memory _paxUnderlyingTokens = new address[](4);
         _paxUnderlyingTokens[0] = DAI;
@@ -126,7 +126,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _paxUnderlyingTokens[2] = USDT;
         _paxUnderlyingTokens[3] = PAX;
         setLiquidityPoolToUnderlyingTokens(PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
-        setLiquiidtyPoolToSwap(PAX_DEPOSIT_POOL, PAX_SWAP_POOL);
+        setLiquidityPoolToSwap(PAX_DEPOSIT_POOL, PAX_SWAP_POOL);
 
         address[] memory _yUnderlyingTokens = new address[](4);
         _yUnderlyingTokens[0] = DAI;
@@ -134,7 +134,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _yUnderlyingTokens[2] = USDT;
         _yUnderlyingTokens[3] = TUSD;
         setLiquidityPoolToUnderlyingTokens(Y_DEPOSIT_POOL, _yUnderlyingTokens);
-        setLiquiidtyPoolToSwap(Y_DEPOSIT_POOL, Y_SWAP_POOL);
+        setLiquidityPoolToSwap(Y_DEPOSIT_POOL, Y_SWAP_POOL);
 
         address[] memory _busdUnderlyingTokens = new address[](4);
         _busdUnderlyingTokens[0] = DAI;
@@ -142,7 +142,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _busdUnderlyingTokens[2] = USDT;
         _busdUnderlyingTokens[3] = BUSD;
         setLiquidityPoolToUnderlyingTokens(BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
-        setLiquiidtyPoolToSwap(BUSD_DEPOSIT_POOL, BUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(BUSD_DEPOSIT_POOL, BUSD_SWAP_POOL);
 
         address[] memory _susdUnderlyingTokens = new address[](4);
         _susdUnderlyingTokens[0] = DAI;
@@ -150,7 +150,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _susdUnderlyingTokens[2] = USDT;
         _susdUnderlyingTokens[3] = SUSD;
         setLiquidityPoolToUnderlyingTokens(SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
-        setLiquiidtyPoolToSwap(SUSD_DEPOSIT_POOL, SUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(SUSD_DEPOSIT_POOL, SUSD_SWAP_POOL);
 
         address[] memory _gusdUnderlyingTokens = new address[](4);
         _gusdUnderlyingTokens[0] = GUSD;
@@ -158,7 +158,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _gusdUnderlyingTokens[2] = USDC;
         _gusdUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
-        setLiquiidtyPoolToSwap(GUSD_DEPOSIT_POOL, GUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(GUSD_DEPOSIT_POOL, GUSD_SWAP_POOL);
 
         address[] memory _husdUnderlyingTokens = new address[](4);
         _gusdUnderlyingTokens[0] = HUSD;
@@ -166,7 +166,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _gusdUnderlyingTokens[2] = USDC;
         _gusdUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
-        setLiquiidtyPoolToSwap(HUSD_DEPOSIT_POOL, HUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(HUSD_DEPOSIT_POOL, HUSD_SWAP_POOL);
 
         address[] memory _usdkUnderlyingTokens = new address[](4);
         _usdkUnderlyingTokens[0] = USDK;
@@ -174,7 +174,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _usdkUnderlyingTokens[2] = USDC;
         _usdkUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
-        setLiquiidtyPoolToSwap(USDK_DEPOSIT_POOL, USDK_SWAP_POOL);
+        setLiquidityPoolToSwap(USDK_DEPOSIT_POOL, USDK_SWAP_POOL);
 
         address[] memory _usdnUnderlyingTokens = new address[](4);
         _usdnUnderlyingTokens[0] = USDN;
@@ -182,7 +182,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _usdnUnderlyingTokens[2] = USDC;
         _usdnUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(USDN_DEPOSIT_POOL, USDN_SWAP_POOL);
+        setLiquidityPoolToSwap(USDN_DEPOSIT_POOL, USDN_SWAP_POOL);
 
         address[] memory _linkusdUnderlyingTokens = new address[](4);
         _linkusdUnderlyingTokens[0] = LINKUSD;
@@ -190,7 +190,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _linkusdUnderlyingTokens[2] = USDC;
         _linkusdUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(LINKUSD_DEPOSIT_POOL, LINKUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(LINKUSD_DEPOSIT_POOL, LINKUSD_SWAP_POOL);
 
         address[] memory _musdUnderlyingTokens = new address[](4);
         _musdUnderlyingTokens[0] = MUSD;
@@ -198,7 +198,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _musdUnderlyingTokens[2] = USDC;
         _musdUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(MUSD_DEPOSIT_POOL, MUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(MUSD_DEPOSIT_POOL, MUSD_SWAP_POOL);
 
         address[] memory _rsvUnderlyingTokens = new address[](4);
         _rsvUnderlyingTokens[0] = RSV;
@@ -206,7 +206,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _rsvUnderlyingTokens[2] = USDC;
         _rsvUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(RSV_DEPOSIT_POOL, RSV_SWAP_POOL);
+        setLiquidityPoolToSwap(RSV_DEPOSIT_POOL, RSV_SWAP_POOL);
 
         address[] memory _tbtcUnderlyingTokens = new address[](4);
         _tbtcUnderlyingTokens[0] = TBTC;
@@ -214,7 +214,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _tbtcUnderlyingTokens[2] = USDC;
         _tbtcUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(TBTC_DEPOSIT_POOL, TBTC_SWAP_POOL);
+        setLiquidityPoolToSwap(TBTC_DEPOSIT_POOL, TBTC_SWAP_POOL);
 
         address[] memory _dusdUnderlyingTokens = new address[](4);
         _dusdUnderlyingTokens[0] = DUSD;
@@ -222,7 +222,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         _dusdUnderlyingTokens[2] = USDC;
         _dusdUnderlyingTokens[3] = USDT;
         setLiquidityPoolToUnderlyingTokens(DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
-        setLiquiidtyPoolToSwap(DUSD_DEPOSIT_POOL, DUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(DUSD_DEPOSIT_POOL, DUSD_SWAP_POOL);
 
         // set liquidity pool to gauges
         setLiquiidtyPoolToGauges(COMPOUND_DEPOSIT_POOL, COMPOUND_GAUGE);
@@ -638,7 +638,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
-        uint256[2] memory _amountsIn;
+        uint256[] memory _amountsIn = new uint256[](2);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         address _swapPool = liquidityPoolToSwap[_liquidityPool];
@@ -646,7 +646,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
         // calculator for lines of code
         for (uint8 i = 0; i < 2; i++) {
-            _amountsIn[i] = _getDepositAmount(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
+            _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
                     _codeLength++;
@@ -655,6 +655,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsIn = _getDepositAmount(_liquidityPool, _amountsIn);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 2; i++) {
@@ -693,7 +694,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
-        uint256[3] memory _amountsIn;
+        uint256[] memory _amountsIn = new uint256[](3);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         address _swapPool = liquidityPoolToSwap[_liquidityPool];
@@ -701,8 +702,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
         // calculator for lines of code
         for (uint8 i = 0; i < 3; i++) {
-            _amountsIn[i] = _getDepositAmount(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
-            _amountsIn[i] = _amounts[i];
+            _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
                     _codeLength++;
@@ -711,6 +711,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsIn = _getDepositAmount(_liquidityPool, _amountsIn);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 3; i++) {
@@ -749,7 +750,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
-        uint256[4] memory _amountsIn;
+        uint256[] memory _amountsIn = new uint256[](4);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         address _swapPool = liquidityPoolToSwap[_liquidityPool];
@@ -757,8 +758,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
         // calculator for lines of code
         for (uint8 i = 0; i < 4; i++) {
-            _amountsIn[i] = _getDepositAmount(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
-            _amountsIn[i] = _amounts[i];
+            _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
                     _codeLength++;
@@ -767,6 +767,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsIn = _getDepositAmount(_liquidityPool, _amountsIn);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 4; i++) {
@@ -875,7 +876,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         }
     }
     
-    function _getDepositAmount(address _underlyingToken, address _liquidityPool, uint256 _poolValue, uint256 _amount) internal view returns (uint256) {
+    function _getDepositAmountPct(address _underlyingToken, address _liquidityPool, uint256 _poolValue, uint256 _amount) internal view returns (uint256) {
         uint256 _maxDepositPct;
         if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
             _maxDepositPct = maxDepositPoolPctDefault;
@@ -891,6 +892,25 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         } else {
             return _amount;
         }
+    }
+    
+    function _getDepositAmount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+        uint256 N_COINS = _amounts.length;
+        uint256[] memory _maxDepositAmounts = new uint256[](N_COINS);
+        uint256[] memory _depositAmounts = new uint256[](N_COINS);
+        for (uint256 i = 0; i < N_COINS; i++) {
+            if (maxDepositAmount[_liquidityPool][i] == uint256(0)) {
+                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
+            } else {
+                _maxDepositAmounts[i] = maxDepositAmount[_liquidityPool][i];
+            }
+            if (_maxDepositAmounts[i] > _amounts[i]) {
+                _depositAmounts[i] = _amounts[i];
+            } else {
+                _depositAmounts[i] = _maxDepositAmounts[i];
+            }
+        }
+        return _depositAmounts;
     }
     
     function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
@@ -909,15 +929,15 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
     
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) public onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[] memory _maxDepositAmountDefault) public onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
     
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) public onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) public onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
     
-    function setLiquiidtyPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
+    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
         liquidityPoolToSwap[_liquidityPool] = _swapPool;
     }
     
