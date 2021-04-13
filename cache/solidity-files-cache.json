@@ -944,8 +944,8 @@
       ]
     },
     "/home/leo/Documents/Optyfi/earn-protocol/contracts/vaults/RP3-EIP1967/RP3Vault.sol": {
-      "lastModificationDate": 1618243537481,
-      "contentHash": "5830a48344706e1ce7173871d6da57b7",
+      "lastModificationDate": 1618298217806,
+      "contentHash": "66e0f29f7d4aedd7d6c29b6ca48ac616",
       "sourceName": "contracts/vaults/RP3-EIP1967/RP3Vault.sol",
       "solcConfig": {
         "version": "0.6.10",
@@ -1226,8 +1226,8 @@
       ]
     },
     "/home/leo/Documents/Optyfi/earn-protocol/contracts/vaults/RP2-EIP1967/RP2Vault.sol": {
-      "lastModificationDate": 1618243537481,
-      "contentHash": "ed14b9877fc79f7e7c5ad635f4c8839d",
+      "lastModificationDate": 1618298209242,
+      "contentHash": "c0bb9252ea372ee83a1236137e81a651",
       "sourceName": "contracts/vaults/RP2-EIP1967/RP2Vault.sol",
       "solcConfig": {
         "version": "0.6.10",
@@ -1270,8 +1270,8 @@
       ]
     },
     "/home/leo/Documents/Optyfi/earn-protocol/contracts/vaults/RP1-EIP1967/RP1Vault.sol": {
-      "lastModificationDate": 1618243537481,
-      "contentHash": "9dc796da6fb789e61352550079b6beee",
+      "lastModificationDate": 1618298200158,
+      "contentHash": "5c5ea6db04e369e3debd3baaf2f79a83",
       "sourceName": "contracts/vaults/RP1-EIP1967/RP1Vault.sol",
       "solcConfig": {
         "version": "0.6.10",
