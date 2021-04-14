@@ -410,7 +410,7 @@ contract Registry is ModifiersController {
     }
     
     /**
-     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingToken` and `_riskProfile`
+     * @dev Sets `Vaults`/`LM_vaults` contract for the corresponding `_underlyingTokens` and `_riskProfiles`
      * 
      * Returns a boolean value indicating whether the operation succeeded
      * 
@@ -423,13 +423,19 @@ contract Registry is ModifiersController {
      * - `msg.sender` (caller) should be governance
      * 
      */
-    function setUnderlyingTokenToRPToVaults(address _underlyingToken, string memory _riskProfile, address _vault) public onlyGovernance returns (bool) {
-        require(_underlyingToken != address(0), "!address(0)");
-        require(address(_underlyingToken).isContract(), "!isContract");
-        require(_vault != address(0), "!address(0)");
-        require(address(_vault).isContract(), "!isContract");
-        underlyingTokenToRPToVaults[_underlyingToken][_riskProfile] = _vault;
-        emit LogUnderlyingTokenRPVault(_underlyingToken, _riskProfile, _vault);
+    function setUnderlyingTokenToRPToVaults(address[] memory _underlyingTokens, string[] memory _riskProfiles, address[][] memory _vaults) public returns (bool) {
+        require(uint8(_riskProfiles.length) == uint8(_vaults.length), "!Profileslength");
+        for (uint8 _i = 0; _i < uint8(_vaults.length); _i++) {
+            require(uint8(_vaults[_i].length) == uint8(_underlyingTokens.length), "!VaultsLength");
+            for (uint8 _j = 0; _j < _vaults[_i].length; _j++) {
+                require(_underlyingTokens[_j] != address(0), "!address(0)");
+                require(address(_underlyingTokens[_j]).isContract(), "!isContract");
+                require(_vaults[_i][_j] != address(0), "!address(0)");
+                require(address(_vaults[_i][_j]).isContract(), "!isContract");
+                underlyingTokenToRPToVaults[_underlyingTokens[_j]][_riskProfiles[_i]] = _vaults[_i][_j];
+                emit LogUnderlyingTokenRPVault(_underlyingTokens[_j], _riskProfiles[_i], _vaults[_i][_j]);
+            }
+        }
         return true;
     }
     
