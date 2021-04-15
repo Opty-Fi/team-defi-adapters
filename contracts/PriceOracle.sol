@@ -16,7 +16,7 @@ contract PriceOracle is Modifiers {
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address public constant WBTC = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
 
-    address public constant DAI_USD = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    address public constant DAI_USD = address(0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9);
     address public constant USDC_USD = address(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6);
     address public constant USDT_USD = address(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D);
     address public constant ETH_USD = address(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
