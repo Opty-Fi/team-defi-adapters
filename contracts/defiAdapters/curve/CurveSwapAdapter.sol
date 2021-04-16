@@ -23,7 +23,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     uint256 public maxDepositPoolPctDefault; // basis points
     mapping(address => uint256) public maxDepositPoolPct; // basis points
     uint256[4] public maxDepositAmountDefault;
-    mapping(address => uint256[]) public maxDepositAmount;
+    mapping(address => uint256[2]) public maxDeposit2Amount;
+    mapping(address => uint256[3]) public maxDeposit3Amount;
+    mapping(address => uint256[4]) public maxDeposit4Amount;
 
     // reward token
     address public rewardToken;
@@ -667,12 +669,18 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
+    ) internal view returns (bytes[] memory _codes) {
         uint256[2] memory _amountsIn;
+        uint256[] memory _amountsAux = new uint256[](2);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
+        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
+        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
+        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
+        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 2; i++) {
+            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -682,9 +690,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsAux = _getDeposit2Amount(_liquidityPool, _amounts);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 2; i++) {
+            _amountsIn[i] = _amountsAux[i];
             if (_amountsIn[i] > 0) {
                 _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
@@ -719,12 +729,18 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
+    ) internal view returns (bytes[] memory _codes) {
         uint256[3] memory _amountsIn;
+        uint256[] memory _amountsAux = new uint256[](3);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
+        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
+        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
+        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
+        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 3; i++) {
+            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -734,9 +750,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsAux = _getDeposit3Amount(_liquidityPool, _amounts);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 3; i++) {
+            _amountsIn[i] = _amountsAux[i];
             if (_amountsIn[i] > 0) {
                 _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
@@ -771,12 +789,18 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
-        uint256[4] memory _amountsIn;
+    ) internal view returns (bytes[] memory _codes) {
+        uint256[2] memory _amountsIn;
+        uint256[] memory _amountsAux = new uint256[](4);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
+        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
+        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
+        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
+        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 4; i++) {
+            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -786,9 +810,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
                 }
             }
         }
+        _amountsAux = _getDeposit4Amount(_liquidityPool, _amounts);
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
         for (uint8 i = 0; i < 4; i++) {
+            _amountsIn[i] = _amountsAux[i];
             if (_amountsIn[i] > 0) {
                 _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
@@ -917,15 +943,50 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     //     }
     // }
         
-    function _getDepositAmount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
-        uint256 N_COINS = _amounts.length;
-        uint256[] memory _maxDepositAmounts = new uint256[](N_COINS);
-        uint256[] memory _depositAmounts = new uint256[](N_COINS);
-        for (uint256 i = 0; i < N_COINS; i++) {
-            if (maxDepositAmount[_liquidityPool][i] == uint256(0)) {
+    function _getDeposit2Amount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+        uint256[2] memory _maxDepositAmounts;
+        uint256[] memory _depositAmounts = new uint256[](2);
+        for (uint256 i = 0; i < 2; i++) {
+            if ((maxDeposit2Amount[_liquidityPool])[i] == uint256(0)) {
                 _maxDepositAmounts[i] = maxDepositAmountDefault[i];
             } else {
-                _maxDepositAmounts[i] = maxDepositAmount[_liquidityPool][i];
+                _maxDepositAmounts[i] = maxDeposit2Amount[_liquidityPool][i];
+            }
+            if (_maxDepositAmounts[i] > _amounts[i]) {
+                _depositAmounts[i] = _amounts[i];
+            } else {
+                _depositAmounts[i] = _maxDepositAmounts[i];
+            }
+        }
+        return _depositAmounts;
+    }
+    
+    function _getDeposit3Amount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+        uint256[3] memory _maxDepositAmounts;
+        uint256[] memory _depositAmounts = new uint256[](3);
+        for (uint256 i = 0; i < 3; i++) {
+            if ((maxDeposit3Amount[_liquidityPool])[i] == uint256(0)) {
+                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
+            } else {
+                _maxDepositAmounts[i] = maxDeposit3Amount[_liquidityPool][i];
+            }
+            if (_maxDepositAmounts[i] > _amounts[i]) {
+                _depositAmounts[i] = _amounts[i];
+            } else {
+                _depositAmounts[i] = _maxDepositAmounts[i];
+            }
+        }
+        return _depositAmounts;
+    }
+    
+    function _getDeposit4Amount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
+        uint256[4] memory _maxDepositAmounts;
+        uint256[] memory _depositAmounts = new uint256[](4);
+        for (uint256 i = 0; i < 4; i++) {
+            if ((maxDeposit4Amount[_liquidityPool])[i] == uint256(0)) {
+                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
+            } else {
+                _maxDepositAmounts[i] = maxDeposit4Amount[_liquidityPool][i];
             }
             if (_maxDepositAmounts[i] > _amounts[i]) {
                 _depositAmounts[i] = _amounts[i];
@@ -956,7 +1017,15 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
     
-    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) public onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) public onlyGovernance {
+        maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
+    }
+    
+    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) public onlyGovernance {
+        maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
+    }
+    
+    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) public onlyGovernance {
+        maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 }

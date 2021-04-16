@@ -24,7 +24,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     PriceOracle public oracleContract;
     uint256 public maxDepositPoolPctDefault; // basis points
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    uint256[] public maxDepositAmountDefault;
+    uint256[4] public maxDepositAmountDefault;
     mapping(address => uint256[2]) public maxDeposit2Amount;
     mapping(address => uint256[3]) public maxDeposit3Amount;
     mapping(address => uint256[4]) public maxDeposit4Amount;
@@ -979,7 +979,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
     
-    function setMaxDepositAmountDefault(uint256[] memory _maxDepositAmountDefault) public onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) public onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
     
