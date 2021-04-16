@@ -8,6 +8,7 @@ import "./controller/RegistryStorage.sol";
 import "./libraries/Addresses.sol";
 import "./utils/Modifiers.sol";
 import "./controller/StrategyProvider.sol";
+import "./RiskManagerProxy.sol";
 
 contract RiskManager is Modifiers, Structs {
     using Address for address;
@@ -21,7 +22,11 @@ contract RiskManager is Modifiers, Structs {
     uint256 public T2_limit;
     uint256 public T3_limit;
 
-    constructor(address _registry, StrategyProvider _strategyProvider) public Modifiers(_registry) {
+    constructor(address _registry) public Modifiers(_registry) {
+        // setStrategyProvider(_strategyProvider);
+    }
+    
+    function initialize(StrategyProvider _strategyProvider) public onlyGovernance {
         setStrategyProvider(_strategyProvider);
     }
 
@@ -41,6 +46,10 @@ contract RiskManager is Modifiers, Structs {
         T2_limit = _T2_limit;
         T3_limit = _T3_limit;
         return true;
+    }
+    
+    function become(RiskManagerProxy _riskManagerProxy) public onlyGovernance {
+        require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
     }
     
     function setStrategyProvider(StrategyProvider _strategyProvider) public onlyOperator {
