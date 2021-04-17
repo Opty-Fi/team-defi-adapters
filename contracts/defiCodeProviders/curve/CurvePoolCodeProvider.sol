@@ -19,167 +19,174 @@ contract CurvePoolCodeProvider is ICodeProvider, Modifiers {
     mapping(address => address) public liquidityPoolToGauges;
     Gatherer public gathererContract;
     uint256 public maxExposure; // basis points
-
-    // underlying token
-    address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-    address public constant USDT = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    address public constant PAX = address(0x8E870D67F660D95d5be530380D0eC0bd388289E1);
-    address public constant TUSD = address(0x0000000000085d4780B73119b644AE5ecd22b376);
-    address public constant BUSD = address(0x4Fabb145d64652a948d72533023f6E7A623C7C53);
-    address public constant SUSD = address(0x57Ab1ec28D129707052df4dF418D58a2D46d5f51);
-    address public constant GUSD = address(0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd);
-    address public constant HUSD = address(0xdF574c24545E5FfEcb9a659c229253D4111d87e1);
-    address public constant USDK = address(0x1c48f86ae57291F7686349F12601910BD8D470bb);
-    address public constant USDN = address(0x674C6Ad92Fd080e4004b2312b45f796a192D27a0);
-    address public constant LINKUSD = address(0x0E2EC54fC0B509F445631Bf4b91AB8168230C752);
-    address public constant MUSD = address(0xe2f2a5C287993345a840Db3B0845fbC70f5935a5);
-    address public constant RSV = address(0x196f4727526eA7FB1e17b2071B3d8eAA38486988);
-    address public constant TBTC = address(0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa);
-    address public constant DUSD = address(0x5BC25f649fc4e26069dDF4cF4010F9f706c23831);
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
-    // deposit pool
-    address public constant COMPOUND_DEPOSIT_POOL = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
-    address public constant USDT_DEPOSIT_POOL = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
-    address public constant PAX_DEPOSIT_POOL = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
-    address public constant Y_DEPOSIT_POOL = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
-    address public constant BUSD_DEPOSIT_POOL = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
-    address public constant SUSD_DEPOSIT_POOL = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
-    address public constant GUSD_DEPOSIT_POOL = address(0x0aE274c98c0415C0651AF8cF52b010136E4a0082);
-    address public constant HUSD_DEPOSIT_POOL = address(0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E);
-    address public constant USDK_DEPOSIT_POOL = address(0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb);
-    address public constant USDN_DEPOSIT_POOL = address(0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39);
-    address public constant LINKUSD_DEPOSIT_POOL = address(0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9);
-    address public constant MUSD_DEPOSIT_POOL = address(0x78CF256256C8089d68Cde634Cf7cDEFb39286470);
-    address public constant RSV_DEPOSIT_POOL = address(0x459eAA680b47D27c8561708C96c949e0018dF5d9);
-    address public constant TBTC_DEPOSIT_POOL = address(0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c);
-    address public constant DUSD_DEPOSIT_POOL = address(0x61E10659fe3aa93d036d099405224E4Ac24996d0);
+
+    /** 
+     * ~Underlying token and deposit pool addresses~
+     * ~underlying token~
+     * address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+     * address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+     * address public constant USDT = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+     * address public constant PAX = address(0x8E870D67F660D95d5be530380D0eC0bd388289E1);
+     * address public constant TUSD = address(0x0000000000085d4780B73119b644AE5ecd22b376);
+     * address public constant BUSD = address(0x4Fabb145d64652a948d72533023f6E7A623C7C53);
+     * address public constant SUSD = address(0x57Ab1ec28D129707052df4dF418D58a2D46d5f51);
+     * address public constant GUSD = address(0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd);
+     * address public constant HUSD = address(0xdF574c24545E5FfEcb9a659c229253D4111d87e1);
+     * address public constant USDK = address(0x1c48f86ae57291F7686349F12601910BD8D470bb);
+     * address public constant USDN = address(0x674C6Ad92Fd080e4004b2312b45f796a192D27a0);
+     * address public constant LINKUSD = address(0x0E2EC54fC0B509F445631Bf4b91AB8168230C752);
+     * address public constant MUSD = address(0xe2f2a5C287993345a840Db3B0845fbC70f5935a5);
+     * address public constant RSV = address(0x196f4727526eA7FB1e17b2071B3d8eAA38486988);
+     * address public constant TBTC = address(0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa);
+     * address public constant DUSD = address(0x5BC25f649fc4e26069dDF4cF4010F9f706c23831);
+     * address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+     * 
+     * ~deposit pool~
+     * address public constant COMPOUND_DEPOSIT_POOL = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
+     * address public constant USDT_DEPOSIT_POOL = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
+     * address public constant PAX_DEPOSIT_POOL = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
+     * address public constant Y_DEPOSIT_POOL = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
+     * address public constant BUSD_DEPOSIT_POOL = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
+     * address public constant SUSD_DEPOSIT_POOL = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
+     * address public constant GUSD_DEPOSIT_POOL = address(0x0aE274c98c0415C0651AF8cF52b010136E4a0082);
+     * address public constant HUSD_DEPOSIT_POOL = address(0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E);
+     * address public constant USDK_DEPOSIT_POOL = address(0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb);
+     * address public constant USDN_DEPOSIT_POOL = address(0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39);
+     * address public constant LINKUSD_DEPOSIT_POOL = address(0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9);
+     * address public constant MUSD_DEPOSIT_POOL = address(0x78CF256256C8089d68Cde634Cf7cDEFb39286470);
+     * address public constant RSV_DEPOSIT_POOL = address(0x459eAA680b47D27c8561708C96c949e0018dF5d9);
+     * address public constant TBTC_DEPOSIT_POOL = address(0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c);
+     * address public constant DUSD_DEPOSIT_POOL = address(0x61E10659fe3aa93d036d099405224E4Ac24996d0);
+     */
+    
+    /** Manually set as per following lookups
+     * deposit pool
+     * address[] memory _compoundUnderlyingTokens = new address[](2);
+     * _compoundUnderlyingTokens[0] = DAI;
+     * _compoundUnderlyingTokens[1] = USDC;
+     * setLiquidityPoolToUnderlyingTokens(COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
+     *
+     * address[] memory _usdtUnderlyingTokens = new address[](3);
+     * _usdtUnderlyingTokens[0] = DAI;
+     * _usdtUnderlyingTokens[1] = USDC;
+     * _usdtUnderlyingTokens[2] = USDT;
+     * setLiquidityPoolToUnderlyingTokens(USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
+     *
+     * address[] memory _paxUnderlyingTokens = new address[](4);
+     * _paxUnderlyingTokens[0] = DAI;
+     * _paxUnderlyingTokens[1] = USDC;
+     * _paxUnderlyingTokens[2] = USDT;
+     * _paxUnderlyingTokens[3] = PAX;
+     * setLiquidityPoolToUnderlyingTokens(PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
+     *
+     *  address[] memory _yUnderlyingTokens = new address[](4);
+     *  _yUnderlyingTokens[0] = DAI;
+     *  _yUnderlyingTokens[1] = USDC;
+     *  _yUnderlyingTokens[2] = USDT;
+     *  _yUnderlyingTokens[3] = TUSD;
+     *  setLiquidityPoolToUnderlyingTokens(Y_DEPOSIT_POOL, _yUnderlyingTokens);
+     *
+     *  address[] memory _busdUnderlyingTokens = new address[](4);
+     *  _busdUnderlyingTokens[0] = DAI;
+     *  _busdUnderlyingTokens[1] = USDC;
+     *  _busdUnderlyingTokens[2] = USDT;
+     *  _busdUnderlyingTokens[3] = BUSD;
+     *  setLiquidityPoolToUnderlyingTokens(BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
+     *
+     *  address[] memory _susdUnderlyingTokens = new address[](4);
+     *  _susdUnderlyingTokens[0] = DAI;
+     *  _susdUnderlyingTokens[1] = USDC;
+     *  _susdUnderlyingTokens[2] = USDT;
+     *  _susdUnderlyingTokens[3] = SUSD;
+     *  setLiquidityPoolToUnderlyingTokens(SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
+     *
+     *  address[] memory _gusdUnderlyingTokens = new address[](4);
+     *  _gusdUnderlyingTokens[0] = GUSD;
+     *  _gusdUnderlyingTokens[1] = DAI;
+     *  _gusdUnderlyingTokens[2] = USDC;
+     *  _gusdUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
+     *
+     *  address[] memory _husdUnderlyingTokens = new address[](4);
+     *  _gusdUnderlyingTokens[0] = HUSD;
+     *  _gusdUnderlyingTokens[1] = DAI;
+     *  _gusdUnderlyingTokens[2] = USDC;
+     *  _gusdUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
+     *
+     *  address[] memory _usdkUnderlyingTokens = new address[](4);
+     *  _usdkUnderlyingTokens[0] = USDK;
+     *  _usdkUnderlyingTokens[1] = DAI;
+     *  _usdkUnderlyingTokens[2] = USDC;
+     *  _usdkUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
+     *
+     *  address[] memory _usdnUnderlyingTokens = new address[](4);
+     *  _usdnUnderlyingTokens[0] = USDN;
+     *  _usdnUnderlyingTokens[1] = DAI;
+     *  _usdnUnderlyingTokens[2] = USDC;
+     *  _usdnUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
+     *
+     *  address[] memory _linkusdUnderlyingTokens = new address[](4);
+     *  _linkusdUnderlyingTokens[0] = LINKUSD;
+     *  _linkusdUnderlyingTokens[1] = DAI;
+     *  _linkusdUnderlyingTokens[2] = USDC;
+     *  _linkusdUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
+     *
+     *  address[] memory _musdUnderlyingTokens = new address[](4);
+     *  _musdUnderlyingTokens[0] = MUSD;
+     *  _musdUnderlyingTokens[1] = DAI;
+     *  _musdUnderlyingTokens[2] = USDC;
+     *  _musdUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
+     *
+     *  address[] memory _rsvUnderlyingTokens = new address[](4);
+     *  _rsvUnderlyingTokens[0] = RSV;
+     *  _rsvUnderlyingTokens[1] = DAI;
+     *  _rsvUnderlyingTokens[2] = USDC;
+     *  _rsvUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
+     *
+     *  address[] memory _tbtcUnderlyingTokens = new address[](4);
+     *  _tbtcUnderlyingTokens[0] = TBTC;
+     *  _tbtcUnderlyingTokens[1] = DAI;
+     *  _tbtcUnderlyingTokens[2] = USDC;
+     *  _tbtcUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
+     *
+     *  address[] memory _dusdUnderlyingTokens = new address[](4);
+     *  _dusdUnderlyingTokens[0] = DUSD;
+     *  _dusdUnderlyingTokens[1] = DAI;
+     *  _dusdUnderlyingTokens[2] = USDC;
+     *  _dusdUnderlyingTokens[3] = USDT;
+     *  setLiquidityPoolToUnderlyingTokens(DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
+     *    
+     *   ~set liquidity pool to gauges~
+     *   setLiquiidtyPoolToGauges(COMPOUND_DEPOSIT_POOL, address(0x7ca5b0a2910B33e9759DC7dDB0413949071D7575));
+     *   setLiquiidtyPoolToGauges(USDT_DEPOSIT_POOL, address(0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53));
+     *   setLiquiidtyPoolToGauges(PAX_DEPOSIT_POOL, address(0x64E3C23bfc40722d3B649844055F1D51c1ac041d));
+     *   setLiquiidtyPoolToGauges(Y_DEPOSIT_POOL, address(0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1));
+     *   setLiquiidtyPoolToGauges(BUSD_DEPOSIT_POOL, address(0x69Fb7c45726cfE2baDeE8317005d3F94bE838840));
+     *   setLiquiidtyPoolToGauges(SUSD_DEPOSIT_POOL, address(0xA90996896660DEcC6E997655E065b23788857849));
+     *   setLiquiidtyPoolToGauges(GUSD_DEPOSIT_POOL, address(0xC5cfaDA84E902aD92DD40194f0883ad49639b023));
+     *   setLiquiidtyPoolToGauges(HUSD_DEPOSIT_POOL, address(0x2db0E83599a91b508Ac268a6197b8B14F5e72840));
+     *   setLiquiidtyPoolToGauges(USDK_DEPOSIT_POOL, address(0xC2b1DF84112619D190193E48148000e3990Bf627));
+     *   setLiquiidtyPoolToGauges(USDN_DEPOSIT_POOL, address(0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4));
+     *   setLiquiidtyPoolToGauges(MUSD_DEPOSIT_POOL, address(0x5f626c30EC1215f4EdCc9982265E8b1F411D1352));
+     *   setLiquiidtyPoolToGauges(RSV_DEPOSIT_POOL, address(0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7));
+     *   setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
+     *   setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
+     */
 
     /**
      * @dev map coins and tokens to curve deposit pool
      */
     constructor(address _registry, address _gatherer) public Modifiers(_registry) {
         setGatherer(_gatherer);
-        // deposit pool
-        address[] memory _compoundUnderlyingTokens = new address[](2);
-        _compoundUnderlyingTokens[0] = DAI;
-        _compoundUnderlyingTokens[1] = USDC;
-        setLiquidityPoolToUnderlyingTokens(COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
-
-        address[] memory _usdtUnderlyingTokens = new address[](3);
-        _usdtUnderlyingTokens[0] = DAI;
-        _usdtUnderlyingTokens[1] = USDC;
-        _usdtUnderlyingTokens[2] = USDT;
-        setLiquidityPoolToUnderlyingTokens(USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
-
-        address[] memory _paxUnderlyingTokens = new address[](4);
-        _paxUnderlyingTokens[0] = DAI;
-        _paxUnderlyingTokens[1] = USDC;
-        _paxUnderlyingTokens[2] = USDT;
-        _paxUnderlyingTokens[3] = PAX;
-        setLiquidityPoolToUnderlyingTokens(PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
-
-        address[] memory _yUnderlyingTokens = new address[](4);
-        _yUnderlyingTokens[0] = DAI;
-        _yUnderlyingTokens[1] = USDC;
-        _yUnderlyingTokens[2] = USDT;
-        _yUnderlyingTokens[3] = TUSD;
-        setLiquidityPoolToUnderlyingTokens(Y_DEPOSIT_POOL, _yUnderlyingTokens);
-
-        address[] memory _busdUnderlyingTokens = new address[](4);
-        _busdUnderlyingTokens[0] = DAI;
-        _busdUnderlyingTokens[1] = USDC;
-        _busdUnderlyingTokens[2] = USDT;
-        _busdUnderlyingTokens[3] = BUSD;
-        setLiquidityPoolToUnderlyingTokens(BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
-
-        address[] memory _susdUnderlyingTokens = new address[](4);
-        _susdUnderlyingTokens[0] = DAI;
-        _susdUnderlyingTokens[1] = USDC;
-        _susdUnderlyingTokens[2] = USDT;
-        _susdUnderlyingTokens[3] = SUSD;
-        setLiquidityPoolToUnderlyingTokens(SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
-
-        address[] memory _gusdUnderlyingTokens = new address[](4);
-        _gusdUnderlyingTokens[0] = GUSD;
-        _gusdUnderlyingTokens[1] = DAI;
-        _gusdUnderlyingTokens[2] = USDC;
-        _gusdUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
-
-        address[] memory _husdUnderlyingTokens = new address[](4);
-        _gusdUnderlyingTokens[0] = HUSD;
-        _gusdUnderlyingTokens[1] = DAI;
-        _gusdUnderlyingTokens[2] = USDC;
-        _gusdUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
-
-        address[] memory _usdkUnderlyingTokens = new address[](4);
-        _usdkUnderlyingTokens[0] = USDK;
-        _usdkUnderlyingTokens[1] = DAI;
-        _usdkUnderlyingTokens[2] = USDC;
-        _usdkUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
-
-        address[] memory _usdnUnderlyingTokens = new address[](4);
-        _usdnUnderlyingTokens[0] = USDN;
-        _usdnUnderlyingTokens[1] = DAI;
-        _usdnUnderlyingTokens[2] = USDC;
-        _usdnUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
-
-        address[] memory _linkusdUnderlyingTokens = new address[](4);
-        _linkusdUnderlyingTokens[0] = LINKUSD;
-        _linkusdUnderlyingTokens[1] = DAI;
-        _linkusdUnderlyingTokens[2] = USDC;
-        _linkusdUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
-
-        address[] memory _musdUnderlyingTokens = new address[](4);
-        _musdUnderlyingTokens[0] = MUSD;
-        _musdUnderlyingTokens[1] = DAI;
-        _musdUnderlyingTokens[2] = USDC;
-        _musdUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
-
-        address[] memory _rsvUnderlyingTokens = new address[](4);
-        _rsvUnderlyingTokens[0] = RSV;
-        _rsvUnderlyingTokens[1] = DAI;
-        _rsvUnderlyingTokens[2] = USDC;
-        _rsvUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
-
-        address[] memory _tbtcUnderlyingTokens = new address[](4);
-        _tbtcUnderlyingTokens[0] = TBTC;
-        _tbtcUnderlyingTokens[1] = DAI;
-        _tbtcUnderlyingTokens[2] = USDC;
-        _tbtcUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
-
-        address[] memory _dusdUnderlyingTokens = new address[](4);
-        _dusdUnderlyingTokens[0] = DUSD;
-        _dusdUnderlyingTokens[1] = DAI;
-        _dusdUnderlyingTokens[2] = USDC;
-        _dusdUnderlyingTokens[3] = USDT;
-        setLiquidityPoolToUnderlyingTokens(DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
-
-        // set liquidity pool to gauges
-        setLiquiidtyPoolToGauges(COMPOUND_DEPOSIT_POOL, address(0x7ca5b0a2910B33e9759DC7dDB0413949071D7575));
-        setLiquiidtyPoolToGauges(USDT_DEPOSIT_POOL, address(0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53));
-        setLiquiidtyPoolToGauges(PAX_DEPOSIT_POOL, address(0x64E3C23bfc40722d3B649844055F1D51c1ac041d));
-        setLiquiidtyPoolToGauges(Y_DEPOSIT_POOL, address(0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1));
-        setLiquiidtyPoolToGauges(BUSD_DEPOSIT_POOL, address(0x69Fb7c45726cfE2baDeE8317005d3F94bE838840));
-        setLiquiidtyPoolToGauges(SUSD_DEPOSIT_POOL, address(0xA90996896660DEcC6E997655E065b23788857849));
-        setLiquiidtyPoolToGauges(GUSD_DEPOSIT_POOL, address(0xC5cfaDA84E902aD92DD40194f0883ad49639b023));
-        setLiquiidtyPoolToGauges(HUSD_DEPOSIT_POOL, address(0x2db0E83599a91b508Ac268a6197b8B14F5e72840));
-        setLiquiidtyPoolToGauges(USDK_DEPOSIT_POOL, address(0xC2b1DF84112619D190193E48148000e3990Bf627));
-        setLiquiidtyPoolToGauges(USDN_DEPOSIT_POOL, address(0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4));
-        setLiquiidtyPoolToGauges(MUSD_DEPOSIT_POOL, address(0x5f626c30EC1215f4EdCc9982265E8b1F411D1352));
-        setLiquiidtyPoolToGauges(RSV_DEPOSIT_POOL, address(0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7));
-        setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
-        setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
-
         setMaxExposure(uint256(5000)); // 50%
     }
 

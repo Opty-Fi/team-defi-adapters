@@ -1,0 +1,3131 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/controller/ModifiersController.sol": {
+      "lastModificationDate": 1615213756346,
+      "contentHash": "d40fcd0da709da3b4058239545b49194",
+      "sourceName": "contracts/controller/ModifiersController.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../libraries/Addresses.sol",
+        "./RegistryStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ModifiersController"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/Addresses.sol": {
+      "lastModificationDate": 1613671442807,
+      "contentHash": "6838ff82fd04ebce8b7c6095d08fb2fd",
+      "sourceName": "contracts/libraries/Addresses.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/controller/RegistryStorage.sol": {
+      "lastModificationDate": 1615221900442,
+      "contentHash": "8fb0ef6dd778760bcdfe58e21ac44a62",
+      "sourceName": "contracts/controller/RegistryStorage.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "RegistryAdminStorage",
+        "RegistryStorage",
+        "Structs"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/controller/RegistryProxy.sol": {
+      "lastModificationDate": 1617979262941,
+      "contentHash": "716122b3cf38faca28f494d5b944107e",
+      "sourceName": "contracts/controller/RegistryProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./RegistryStorage.sol",
+        "./ModifiersController.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "RegistryProxy"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/StrategyCodeProvider.sol": {
+      "lastModificationDate": 1617985122600,
+      "contentHash": "040a2354a6fa254b7cf78cb91f8accd0",
+      "sourceName": "contracts/StrategyCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./libraries/SafeERC20.sol",
+        "./interfaces/opty/ICodeProvider.sol",
+        "./controller/Registry.sol",
+        "./controller/RegistryStorage.sol",
+        "./libraries/Addresses.sol",
+        "./utils/ERC20.sol",
+        "./utils/Modifiers.sol",
+        "./Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "StrategyCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/SafeERC20.sol": {
+      "lastModificationDate": 1613007958034,
+      "contentHash": "74f7f93c0091a938461a7e05f49705b2",
+      "sourceName": "contracts/libraries/SafeERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Addresses.sol",
+        "./SafeMath.sol",
+        "./../interfaces/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "SafeERC20"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/opty/ICodeProvider.sol": {
+      "lastModificationDate": 1615213756357,
+      "contentHash": "42664695922bb5566a97b504a6daabf3",
+      "sourceName": "contracts/interfaces/opty/ICodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/controller/Registry.sol": {
+      "lastModificationDate": 1617994416596,
+      "contentHash": "df3128cd463262b4b18452c05e3a9032",
+      "sourceName": "contracts/controller/Registry.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/Addresses.sol",
+        "./ModifiersController.sol",
+        "./RegistryProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Registry"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/ERC20.sol": {
+      "lastModificationDate": 1618329785197,
+      "contentHash": "4bf77f9f008c7faf1cba6c2c217b82c7",
+      "sourceName": "contracts/utils/ERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Context.sol",
+        "../interfaces/ERC20/IERC20.sol",
+        "../libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/Modifiers.sol": {
+      "lastModificationDate": 1617994315743,
+      "contentHash": "1c977da8c198696869a8a8387101fa75",
+      "sourceName": "contracts/utils/Modifiers.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../libraries/Addresses.sol",
+        "../controller/Registry.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Modifiers"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/Gatherer.sol": {
+      "lastModificationDate": 1617985123716,
+      "contentHash": "7d4bf001329bc3bfddae5b49ec60e997",
+      "sourceName": "contracts/Gatherer.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/uniswap/IUniswap.sol",
+        "./libraries/SafeERC20.sol",
+        "./utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Gatherer"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/SafeMath.sol": {
+      "lastModificationDate": 1617054745978,
+      "contentHash": "5528da796ebf3c244f6025e5cf14a300",
+      "sourceName": "contracts/libraries/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/ERC20/IERC20.sol": {
+      "lastModificationDate": 1617054745975,
+      "contentHash": "9a02a460e2e968db8dd4da7e7915ce3e",
+      "sourceName": "contracts/interfaces/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/Context.sol": {
+      "lastModificationDate": 1615213756366,
+      "contentHash": "fb0df6e61a430c4ac946e4161c295aad",
+      "sourceName": "contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/uniswap/IUniswap.sol": {
+      "lastModificationDate": 1615213756359,
+      "contentHash": "747bc93020ec3999f272b67fe41a5c14",
+      "sourceName": "contracts/interfaces/uniswap/IUniswap.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IUniswap"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/LM-vaults-EIP1967/LMVault.sol": {
+      "lastModificationDate": 1617903953860,
+      "contentHash": "e82f003180fff056ad987fe56f920b85",
+      "sourceName": "contracts/pools/LM-vaults-EIP1967/LMVault.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "./../PoolStorage.sol",
+        "./../../interfaces/opty/ILMVault.sol",
+        "./../../utils/ERC20Upgradeable/VersionedInitializable.sol",
+        "./../../utils/Modifiers.sol",
+        "./../../libraries/SafeERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "LMVault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1615213756370,
+      "contentHash": "8bf7188b1fa4e03160994fc53ccbad9e",
+      "sourceName": "contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/ChiDeployer.sol": {
+      "lastModificationDate": 1617054745983,
+      "contentHash": "ba50c8e9fb2123dd899bbc005d9ba4c4",
+      "sourceName": "contracts/utils/ChiDeployer.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Deployer",
+        "IFreeFromUpTo"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/RiskManager.sol": {
+      "lastModificationDate": 1617985124585,
+      "contentHash": "c425ff3f8a4c02ef2db96dafe0d0b5f9",
+      "sourceName": "contracts/RiskManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./controller/Registry.sol",
+        "./controller/RegistryStorage.sol",
+        "./libraries/Addresses.sol",
+        "./utils/Modifiers.sol",
+        "./controller/StrategyProvider.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "RiskManager"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/PoolStorage.sol": {
+      "lastModificationDate": 1617903953861,
+      "contentHash": "47f0ac3813963e68a43a2dd3d92b0299",
+      "sourceName": "contracts/pools/PoolStorage.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../RiskManager.sol",
+        "./../StrategyCodeProvider.sol",
+        "./../OPTYToken/OPTYMinter.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "PoolStorage"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/opty/ILMVault.sol": {
+      "lastModificationDate": 1617903953859,
+      "contentHash": "713ae89f10ca2e160f006a3bfd60b144",
+      "sourceName": "contracts/interfaces/opty/ILMVault.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ILMVault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/ERC20Upgradeable/VersionedInitializable.sol": {
+      "lastModificationDate": 1618507508110,
+      "contentHash": "1415864c0e100392c59552fb294d39bf",
+      "sourceName": "contracts/utils/ERC20Upgradeable/VersionedInitializable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "VersionedInitializable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/controller/StrategyProvider.sol": {
+      "lastModificationDate": 1617985125408,
+      "contentHash": "8329bccdb29fc1827a93bf82e8f70201",
+      "sourceName": "contracts/controller/StrategyProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "StrategyProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/OPTYMinter.sol": {
+      "lastModificationDate": 1617985118570,
+      "contentHash": "781e3528ed7d14c0c642b31ddd3ec96a",
+      "sourceName": "contracts/OPTYToken/OPTYMinter.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./OPTY.sol",
+        "./OPTYMinterStorage.sol",
+        "./ExponentialNoError.sol",
+        "./../interfaces/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "OPTYMinter"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/OPTY.sol": {
+      "lastModificationDate": 1617985121462,
+      "contentHash": "1d080523603ecb7a4013f8745aa33b69",
+      "sourceName": "contracts/OPTYToken/OPTY.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../utils/ERC20.sol",
+        "./../utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "OPTY"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/OPTYMinterStorage.sol": {
+      "lastModificationDate": 1617985120441,
+      "contentHash": "035b4a310f64c6b5d22902b12a366505",
+      "sourceName": "contracts/OPTYToken/OPTYMinterStorage.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./OPTYStakingPool.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "OPTYMinterStorage"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/ExponentialNoError.sol": {
+      "lastModificationDate": 1615213756341,
+      "contentHash": "c85bf2658c2a60cc5589c366186becfb",
+      "sourceName": "contracts/OPTYToken/ExponentialNoError.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ExponentialNoError"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/OPTYStakingPool.sol": {
+      "lastModificationDate": 1617903953858,
+      "contentHash": "82c983474c8e8b36a14039c572531eff",
+      "sourceName": "contracts/OPTYToken/OPTYStakingPool.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../libraries/SafeERC20.sol",
+        "./../utils/ERC20.sol",
+        "./../utils/Ownable.sol",
+        "./../utils/ReentrancyGuard.sol",
+        "./../RiskManager.sol",
+        "./../StrategyCodeProvider.sol",
+        "./StakingPoolStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "OPTYStakingPool"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/utils/Ownable.sol": {
+      "lastModificationDate": 1615213756369,
+      "contentHash": "b0913236f9c47c17b7e56690876f7a39",
+      "sourceName": "contracts/utils/Ownable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/OPTYToken/StakingPoolStorage.sol": {
+      "lastModificationDate": 1617054745970,
+      "contentHash": "77a135e8aea10c51ff943452933db2d2",
+      "sourceName": "contracts/OPTYToken/StakingPoolStorage.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../RiskManager.sol",
+        "./../StrategyCodeProvider.sol",
+        "./../OPTYToken/OPTYMinter.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "StakingPoolStorage"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/basic-EIP1967/Vault.sol": {
+      "lastModificationDate": 1617994382823,
+      "contentHash": "2407ababc3a6631ab349b2119a091b2a",
+      "sourceName": "contracts/pools/basic-EIP1967/Vault.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "./../PoolStorage.sol",
+        "./../../interfaces/opty/IVault.sol",
+        "./../../utils/ERC20Upgradeable/VersionedInitializable.sol",
+        "./../../utils/Modifiers.sol",
+        "./../../libraries/SafeERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Vault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/opty/IVault.sol": {
+      "lastModificationDate": 1617903953860,
+      "contentHash": "2a31c427f820ca4638ea3813f59f743c",
+      "sourceName": "contracts/interfaces/opty/IVault.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IVault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/basic-EIP1967/Vault_MKR.sol": {
+      "lastModificationDate": 1617903953861,
+      "contentHash": "1ed773310796fe176a3858f80ecfb63c",
+      "sourceName": "contracts/pools/basic-EIP1967/Vault_MKR.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "./../PoolStorage.sol",
+        "./../../interfaces/opty/IVault.sol",
+        "./../../utils/ERC20Upgradeable/VersionedInitializable.sol",
+        "./../../utils/Modifiers.sol",
+        "./../../libraries/SafeERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "Vault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/advanced/Pool.sol": {
+      "lastModificationDate": 1618509220148,
+      "contentHash": "be1c1542730f3598c4e266b29181ec17",
+      "sourceName": "contracts/pools/advanced/Pool.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../libraries/SafeERC20.sol",
+        "./../../utils/ERC20.sol",
+        "./../../utils/Ownable.sol",
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "../PoolStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AdvancePool"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/advanced/Pool_MKR.sol": {
+      "lastModificationDate": 1618509190920,
+      "contentHash": "7f3e10c31967f16d9c0a8717dcb41086",
+      "sourceName": "contracts/pools/advanced/Pool_MKR.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../libraries/SafeERC20.sol",
+        "./../../utils/ERC20.sol",
+        "./../../utils/Ownable.sol",
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "../PoolStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AdvancePoolMkr"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/advanced-plus/Pool.sol": {
+      "lastModificationDate": 1618509187360,
+      "contentHash": "2b1b32a0103c68d2b5facf04b1a97ac4",
+      "sourceName": "contracts/pools/advanced-plus/Pool.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../libraries/SafeERC20.sol",
+        "./../../utils/ERC20.sol",
+        "./../../utils/Ownable.sol",
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "../PoolStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AdvancePlusPool"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/advanced-plus/Pool_MKR.sol": {
+      "lastModificationDate": 1618509210111,
+      "contentHash": "18dbe271468024501a8a0764062c7da8",
+      "sourceName": "contracts/pools/advanced-plus/Pool_MKR.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../../libraries/SafeERC20.sol",
+        "./../../utils/ERC20.sol",
+        "./../../utils/Ownable.sol",
+        "./../../utils/ReentrancyGuard.sol",
+        "./../../utils/ChiDeployer.sol",
+        "./../../RiskManager.sol",
+        "./../../StrategyCodeProvider.sol",
+        "../PoolStorage.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AdvancePlusPoolMkr"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2DebtToken.sol": {
+      "lastModificationDate": 1612302466964,
+      "contentHash": "2411103af0f6f54561177a55c83551c4",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2DebtToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2DebtToken"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/yearn/YVaultCodeProvider.sol": {
+      "lastModificationDate": 1618352423180,
+      "contentHash": "85879127bb4203bcbf62bd97547c4e25",
+      "sourceName": "contracts/defiCodeProviders/yearn/YVaultCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/yearn/IYVault.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "YVaultCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/yearn/IYVault.sol": {
+      "lastModificationDate": 1614969862126,
+      "contentHash": "d65cc953266c0898ec148d271482dd41",
+      "sourceName": "contracts/interfaces/yearn/IYVault.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IYVault"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/yearn/YearnCodeProvider.sol": {
+      "lastModificationDate": 1618352421848,
+      "contentHash": "ba2b852ca40b6cbe911a4df41f37cf8a",
+      "sourceName": "contracts/defiCodeProviders/yearn/YearnCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/yearn/IYearn.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "YearnCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/yearn/IYearn.sol": {
+      "lastModificationDate": 1614986131794,
+      "contentHash": "548d7fb90bd43b2823fbbeead75c2149",
+      "sourceName": "contracts/interfaces/yearn/IYearn.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IYearn"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/harvest.finance/HarvestCodeProvider.sol": {
+      "lastModificationDate": 1618352424381,
+      "contentHash": "c30fb444db0aa1cf241b90c1f2426303",
+      "sourceName": "contracts/defiCodeProviders/harvest.finance/HarvestCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/harvest.finance/IHarvestDeposit.sol",
+        "../../interfaces/harvest.finance/IHarvestFarm.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "HarvestCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/harvest.finance/IHarvestDeposit.sol": {
+      "lastModificationDate": 1612302466970,
+      "contentHash": "643fa7f42882e86de81e5f567d29a842",
+      "sourceName": "contracts/interfaces/harvest.finance/IHarvestDeposit.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IHarvestDeposit"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/harvest.finance/IHarvestFarm.sol": {
+      "lastModificationDate": 1612302466971,
+      "contentHash": "01f716864a01a7dcbb5e57f3166ed9d9",
+      "sourceName": "contracts/interfaces/harvest.finance/IHarvestFarm.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IHarvestFarm"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/dforce/DForceCodeProvider.sol": {
+      "lastModificationDate": 1618352429210,
+      "contentHash": "4dac2fcfbadad609f38aebfc94312936",
+      "sourceName": "contracts/defiCodeProviders/dforce/DForceCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/dforce/IDForceDeposit.sol",
+        "../../interfaces/dforce/IDForceStake.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "DForceCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/dforce/IDForceDeposit.sol": {
+      "lastModificationDate": 1612302653866,
+      "contentHash": "a72cb6f6f263dc6c887a919c4da79b64",
+      "sourceName": "contracts/interfaces/dforce/IDForceDeposit.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IDForceDeposit"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/dforce/IDForceStake.sol": {
+      "lastModificationDate": 1612302646299,
+      "contentHash": "69a7c6c827a68974a1f7cd86460a7ef9",
+      "sourceName": "contracts/interfaces/dforce/IDForceStake.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IDForceStake"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/curve/CurveSwapCodeProvider.sol": {
+      "lastModificationDate": 1618352426849,
+      "contentHash": "76aba34fd3d97599fb6c2ebe360959e6",
+      "sourceName": "contracts/defiCodeProviders/curve/CurveSwapCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/curve/ICurveDeposit.sol",
+        "../../interfaces/curve/ICurveGauge.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "CurveSwapCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/curve/ICurveDeposit.sol": {
+      "lastModificationDate": 1612302466969,
+      "contentHash": "08f5b216c75ae3d76c1dd574f06abfee",
+      "sourceName": "contracts/interfaces/curve/ICurveDeposit.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICurveDeposit"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/curve/ICurveGauge.sol": {
+      "lastModificationDate": 1612302676260,
+      "contentHash": "862ff2333f4db2826bfcf56b58c0bb92",
+      "sourceName": "contracts/interfaces/curve/ICurveGauge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICurveGauge"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/curve/CurvePoolCodeProvider.sol": {
+      "lastModificationDate": 1618507201676,
+      "contentHash": "c7717d2c6983cdbaa7b408af6d5d6a33",
+      "sourceName": "contracts/defiCodeProviders/curve/CurvePoolCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/curve/ICurveDeposit.sol",
+        "../../interfaces/curve/ICurveGauge.sol",
+        "../../interfaces/curve/ITokenMinter.sol",
+        "../../libraries/SafeERC20.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "CurvePoolCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/curve/ITokenMinter.sol": {
+      "lastModificationDate": 1612302660455,
+      "contentHash": "d2ebbcbc986a89c52144b7b5a5ff31b3",
+      "sourceName": "contracts/interfaces/curve/ITokenMinter.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ITokenMinter"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/cream/CreamCodeProvider.sol": {
+      "lastModificationDate": 1618352433123,
+      "contentHash": "af0a8a4634c99e2368891f7af99732c3",
+      "sourceName": "contracts/defiCodeProviders/cream/CreamCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/cream/ICream.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "CreamCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/cream/ICream.sol": {
+      "lastModificationDate": 1612302726022,
+      "contentHash": "950e2e808e370d0a13b6241603dfdb7a",
+      "sourceName": "contracts/interfaces/cream/ICream.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICream"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/compound/CompoundCodeProvider.sol": {
+      "lastModificationDate": 1618352434384,
+      "contentHash": "ca200b981df6e1029c6c9f6ffe84b1aa",
+      "sourceName": "contracts/defiCodeProviders/compound/CompoundCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/compound/ICompound.sol",
+        "../../libraries/SafeMath.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../utils/Modifiers.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "CompoundCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/compound/ICompound.sol": {
+      "lastModificationDate": 1612302736286,
+      "contentHash": "8d504d2fbfd34c1ebd97b30ee0203eef",
+      "sourceName": "contracts/interfaces/compound/ICompound.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICompound"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/aave/AaveV2CodeProvider.sol": {
+      "lastModificationDate": 1618352435668,
+      "contentHash": "a7851f8e504219c0b2aaf8ba2da4e84e",
+      "sourceName": "contracts/defiCodeProviders/aave/AaveV2CodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/aave/v2/IAaveV2PriceOracle.sol",
+        "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol",
+        "../../interfaces/aave/v2/IAaveV2LendingPoolAddressProviderRegistry.sol",
+        "../../interfaces/aave/v2/IAaveV2.sol",
+        "../../interfaces/aave/v2/IAaveV2Token.sol",
+        "../../interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../utils/ERC20.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AaveV2CodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2PriceOracle.sol": {
+      "lastModificationDate": 1612302466965,
+      "contentHash": "f5e0fbc7881c55f133cec1562ab739cf",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2PriceOracle.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2PriceOracle"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol": {
+      "lastModificationDate": 1612302466965,
+      "contentHash": "a3a211756ae1791e00d27202691bf951",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2LendingPoolAddressesProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2LendingPoolAddressProviderRegistry.sol": {
+      "lastModificationDate": 1612302466964,
+      "contentHash": "b9bf4c54315acc6f51b8e19040e977d9",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2LendingPoolAddressProviderRegistry.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2LendingPoolAddressProviderRegistry"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2.sol": {
+      "lastModificationDate": 1614976436646,
+      "contentHash": "24979a91734d9087cba4e42e64234b58",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2Token.sol": {
+      "lastModificationDate": 1612302466966,
+      "contentHash": "1a27e5ad73d42b8b9a16470e1cc7c3ad",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2Token.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2Token"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol": {
+      "lastModificationDate": 1612302466966,
+      "contentHash": "8d32323741a02b5cd7f29843ad0d4f87",
+      "sourceName": "contracts/interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IAaveV2LendingPoolAddressesProvider.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV2ProtocolDataProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/aave/AaveV1CodeProvider.sol": {
+      "lastModificationDate": 1618352279944,
+      "contentHash": "b18a1d2674b2991d0e0cb082f6821deb",
+      "sourceName": "contracts/defiCodeProviders/aave/AaveV1CodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/aave/v1/IAaveV1PriceOracle.sol",
+        "../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol",
+        "../../interfaces/aave/v1/IAaveV1.sol",
+        "../../interfaces/aave/v1/IAaveV1Token.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../libraries/SafeMath.sol",
+        "../../utils/Modifiers.sol",
+        "../../utils/ERC20.sol",
+        "../../Gatherer.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AaveV1CodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v1/IAaveV1PriceOracle.sol": {
+      "lastModificationDate": 1612302467055,
+      "contentHash": "5029bf41701e72bb613bf716af374076",
+      "sourceName": "contracts/interfaces/aave/v1/IAaveV1PriceOracle.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV1PriceOracle"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol": {
+      "lastModificationDate": 1612302467055,
+      "contentHash": "4de5e8bad51ab6f39b6180db0afd70b4",
+      "sourceName": "contracts/interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV1LendingPoolAddressesProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v1/IAaveV1.sol": {
+      "lastModificationDate": 1614963375728,
+      "contentHash": "1e0afdff1bc0a4f632841647df172df4",
+      "sourceName": "contracts/interfaces/aave/v1/IAaveV1.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV1"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/aave/v1/IAaveV1Token.sol": {
+      "lastModificationDate": 1612302467054,
+      "contentHash": "31a0110a16a834758a002717e0069a50",
+      "sourceName": "contracts/interfaces/aave/v1/IAaveV1Token.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IAaveV1Token"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/fulcrum/FulcrumCodeProvider.sol": {
+      "lastModificationDate": 1618352428110,
+      "contentHash": "2f3b5d7421ec6b19e6fdab2b9b0993ca",
+      "sourceName": "contracts/defiCodeProviders/fulcrum/FulcrumCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/fulcrum/IFulcrum.sol",
+        "../../libraries/SafeMath.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../utils/Modifiers.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "FulcrumCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/fulcrum/IFulcrum.sol": {
+      "lastModificationDate": 1612302621718,
+      "contentHash": "dce3cbe6182c5d4814e30a842a1e21c9",
+      "sourceName": "contracts/interfaces/fulcrum/IFulcrum.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IFulcrum"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/defiCodeProviders/dYdX/dYdXCodeProvider.sol": {
+      "lastModificationDate": 1618352430268,
+      "contentHash": "da3a144c4c965442447e2fea7d4cdb8a",
+      "sourceName": "contracts/defiCodeProviders/dYdX/dYdXCodeProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/opty/ICodeProvider.sol",
+        "../../interfaces/dydx/IdYdX.sol",
+        "../../interfaces/ERC20/IERC20.sol",
+        "../../utils/Modifiers.sol",
+        "../../libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "dYdXCodeProvider"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/dydx/IdYdX.sol": {
+      "lastModificationDate": 1612320285462,
+      "contentHash": "f66d325b12160970ca5e528bd21fb9cc",
+      "sourceName": "contracts/interfaces/dydx/IdYdX.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IdYdX"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/curve/ICurveDAO.sol": {
+      "lastModificationDate": 1612302466968,
+      "contentHash": "37fa0af62cd739eac4bb9dc65204f575",
+      "sourceName": "contracts/interfaces/curve/ICurveDAO.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICurveDAO"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/curve/ICurveSwap.sol": {
+      "lastModificationDate": 1612302667250,
+      "contentHash": "c99fb580b2ff859f189f2acd57af1618",
+      "sourceName": "contracts/interfaces/curve/ICurveSwap.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "ICurveSwap"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/ERC20Upgradeable/IERC20MetadataUpgradeable.sol": {
+      "lastModificationDate": 1617054745975,
+      "contentHash": "a21515372439a2a325e1978371e11d6c",
+      "sourceName": "contracts/interfaces/ERC20Upgradeable/IERC20MetadataUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20Upgradeable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "IERC20MetadataUpgradeable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/interfaces/ERC20Upgradeable/IERC20Upgradeable.sol": {
+      "lastModificationDate": 1617054745975,
+      "contentHash": "49761febab52e18b9ab47fcc605f7003",
+      "sourceName": "contracts/interfaces/ERC20Upgradeable/IERC20Upgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC20Upgradeable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/ERC20Upgradeable/SafeERC20Upgradeable.sol": {
+      "lastModificationDate": 1617054745976,
+      "contentHash": "638e58f9e48b70978bff5b00e4c16fd7",
+      "sourceName": "contracts/libraries/ERC20Upgradeable/SafeERC20Upgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/ERC20Upgradeable/IERC20Upgradeable.sol",
+        "../../libraries/ERC20Upgradeable/SafeMathUpgradeable.sol",
+        "./AddressUpgradeable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeERC20Upgradeable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/ERC20Upgradeable/SafeMathUpgradeable.sol": {
+      "lastModificationDate": 1617054745976,
+      "contentHash": "0c2fb1693b700e88ae1e43dbde2653a9",
+      "sourceName": "contracts/libraries/ERC20Upgradeable/SafeMathUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeMathUpgradeable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/libraries/ERC20Upgradeable/AddressUpgradeable.sol": {
+      "lastModificationDate": 1617054745976,
+      "contentHash": "6bf0690829e9f835e74f24a18ec62f7f",
+      "sourceName": "contracts/libraries/ERC20Upgradeable/AddressUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.10"
+      ],
+      "artifacts": [
+        "AddressUpgradeable"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/basic-EIP1967/VaultProxy.sol": {
+      "lastModificationDate": 1617994314799,
+      "contentHash": "700c7c762d96096e9f8fb832668b6c58",
+      "sourceName": "contracts/pools/basic-EIP1967/VaultProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Address",
+        "BaseImmutableAdminUpgradeabilityProxy",
+        "BaseUpgradeabilityProxy",
+        "InitializableImmutableAdminUpgradeabilityProxy",
+        "InitializableUpgradeabilityProxy",
+        "Proxy"
+      ]
+    },
+    "/Users/dhruvin/optyfi/earn-protocol/contracts/pools/LM-vaults-EIP1967/LMVaultProxy.sol": {
+      "lastModificationDate": 1617054745979,
+      "contentHash": "700c7c762d96096e9f8fb832668b6c58",
+      "sourceName": "contracts/pools/LM-vaults-EIP1967/LMVaultProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "istanbul",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Address",
+        "BaseImmutableAdminUpgradeabilityProxy",
+        "BaseUpgradeabilityProxy",
+        "InitializableImmutableAdminUpgradeabilityProxy",
+        "InitializableUpgradeabilityProxy",
+        "Proxy"
+      ]
+    }
+  }
+}

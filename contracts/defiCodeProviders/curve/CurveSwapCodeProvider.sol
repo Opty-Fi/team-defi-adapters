@@ -11,6 +11,7 @@ import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
 import "../../Gatherer.sol";
 
+
 contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     using SafeMath for uint256;
 
@@ -104,137 +105,137 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         // reward token
         setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
 
-        // swap pool
-        address[] memory _compoundUnderTokens = new address[](2);
-        _compoundUnderTokens[0] = CDAI;
-        _compoundUnderTokens[1] = CUSDC;
-        setLiquidityPoolToken(COMPOUND_SWAP_POOL, CDAI_CUSDC);
-        setSwapPoolToUnderlyingTokens(COMPOUND_SWAP_POOL, _compoundUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(COMPOUND_SWAP_POOL);
+        // // swap pool
+        // address[] memory _compoundUnderTokens = new address[](2);
+        // _compoundUnderTokens[0] = CDAI;
+        // _compoundUnderTokens[1] = CUSDC;
+        // setLiquidityPoolToken(COMPOUND_SWAP_POOL, CDAI_CUSDC);
+        // setSwapPoolToUnderlyingTokens(COMPOUND_SWAP_POOL, _compoundUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(COMPOUND_SWAP_POOL);
 
-        address[] memory _usdtUnderTokens = new address[](3);
-        _usdtUnderTokens[0] = CDAI;
-        _usdtUnderTokens[1] = CUSDC;
-        _usdtUnderTokens[2] = USDT;
-        setLiquidityPoolToken(USDT_SWAP_POOL, CDAI_CUSD_CUSDT);
-        setSwapPoolToUnderlyingTokens(USDT_SWAP_POOL, _usdtUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(USDT_SWAP_POOL);
+        // address[] memory _usdtUnderTokens = new address[](3);
+        // _usdtUnderTokens[0] = CDAI;
+        // _usdtUnderTokens[1] = CUSDC;
+        // _usdtUnderTokens[2] = USDT;
+        // setLiquidityPoolToken(USDT_SWAP_POOL, CDAI_CUSD_CUSDT);
+        // setSwapPoolToUnderlyingTokens(USDT_SWAP_POOL, _usdtUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(USDT_SWAP_POOL);
 
-        address[] memory _paxUnderTokens = new address[](4);
-        _paxUnderTokens[0] = YCDAI;
-        _paxUnderTokens[1] = YCUSDC;
-        _paxUnderTokens[2] = YCUSDT;
-        _paxUnderTokens[3] = PAX;
-        setLiquidityPoolToken(PAX_SWAP_POOL, Y_PAX_CRV);
-        setSwapPoolToUnderlyingTokens(PAX_SWAP_POOL, _paxUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(PAX_SWAP_POOL);
+        // address[] memory _paxUnderTokens = new address[](4);
+        // _paxUnderTokens[0] = YCDAI;
+        // _paxUnderTokens[1] = YCUSDC;
+        // _paxUnderTokens[2] = YCUSDT;
+        // _paxUnderTokens[3] = PAX;
+        // setLiquidityPoolToken(PAX_SWAP_POOL, Y_PAX_CRV);
+        // setSwapPoolToUnderlyingTokens(PAX_SWAP_POOL, _paxUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(PAX_SWAP_POOL);
 
-        address[] memory _yUnderTokens = new address[](4);
-        _yUnderTokens[0] = YDAI;
-        _yUnderTokens[1] = YUSDC;
-        _yUnderTokens[2] = YUSDT;
-        _yUnderTokens[3] = YTUSD;
-        setLiquidityPoolToken(Y_SWAP_POOL, YDAI_YUSDC_YUSDT_YTUSD);
-        setSwapPoolToUnderlyingTokens(Y_SWAP_POOL, _yUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(Y_SWAP_POOL);
+        // address[] memory _yUnderTokens = new address[](4);
+        // _yUnderTokens[0] = YDAI;
+        // _yUnderTokens[1] = YUSDC;
+        // _yUnderTokens[2] = YUSDT;
+        // _yUnderTokens[3] = YTUSD;
+        // setLiquidityPoolToken(Y_SWAP_POOL, YDAI_YUSDC_YUSDT_YTUSD);
+        // setSwapPoolToUnderlyingTokens(Y_SWAP_POOL, _yUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(Y_SWAP_POOL);
 
-        address[] memory _busdUnderTokens = new address[](4);
-        _busdUnderTokens[0] = YDAI;
-        _busdUnderTokens[1] = YUSDC;
-        _busdUnderTokens[2] = YUSDT;
-        _busdUnderTokens[3] = YBUSD;
-        setLiquidityPoolToken(BUSD_SWAP_POOL, YDAI_YUSDC_YUSDT_YBUSD);
-        setSwapPoolToUnderlyingTokens(BUSD_SWAP_POOL, _compoundUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(BUSD_SWAP_POOL);
+        // address[] memory _busdUnderTokens = new address[](4);
+        // _busdUnderTokens[0] = YDAI;
+        // _busdUnderTokens[1] = YUSDC;
+        // _busdUnderTokens[2] = YUSDT;
+        // _busdUnderTokens[3] = YBUSD;
+        // setLiquidityPoolToken(BUSD_SWAP_POOL, YDAI_YUSDC_YUSDT_YBUSD);
+        // setSwapPoolToUnderlyingTokens(BUSD_SWAP_POOL, _compoundUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(BUSD_SWAP_POOL);
 
-        address[] memory _susdUnderTokens = new address[](4);
-        _susdUnderTokens[0] = DAI;
-        _susdUnderTokens[1] = USDC;
-        _susdUnderTokens[2] = USDT;
-        _susdUnderTokens[3] = SUSD;
-        setLiquidityPoolToken(SUSD_SWAP_POOL, CRV_PLAIN_3_AND_SUSD);
-        setSwapPoolToUnderlyingTokens(SUSD_SWAP_POOL, _susdUnderTokens);
-        toggleNoRemoveLiquidityOneCoin(SUSD_SWAP_POOL);
+        // address[] memory _susdUnderTokens = new address[](4);
+        // _susdUnderTokens[0] = DAI;
+        // _susdUnderTokens[1] = USDC;
+        // _susdUnderTokens[2] = USDT;
+        // _susdUnderTokens[3] = SUSD;
+        // setLiquidityPoolToken(SUSD_SWAP_POOL, CRV_PLAIN_3_AND_SUSD);
+        // setSwapPoolToUnderlyingTokens(SUSD_SWAP_POOL, _susdUnderTokens);
+        // toggleNoRemoveLiquidityOneCoin(SUSD_SWAP_POOL);
 
-        address[] memory _crvrenBTCwBTCUnderTokens = new address[](2);
-        _crvrenBTCwBTCUnderTokens[0] = REN_BTC;
-        _crvrenBTCwBTCUnderTokens[1] = WBTC;
-        setLiquidityPoolToken(REN_SWAP_POOL, CRV_REN_WBTC);
-        setSwapPoolToUnderlyingTokens(REN_SWAP_POOL, _crvrenBTCwBTCUnderTokens);
+        // address[] memory _crvrenBTCwBTCUnderTokens = new address[](2);
+        // _crvrenBTCwBTCUnderTokens[0] = REN_BTC;
+        // _crvrenBTCwBTCUnderTokens[1] = WBTC;
+        // setLiquidityPoolToken(REN_SWAP_POOL, CRV_REN_WBTC);
+        // setSwapPoolToUnderlyingTokens(REN_SWAP_POOL, _crvrenBTCwBTCUnderTokens);
 
-        address[] memory _crvrenBTCwBTCsBTCUnderTokens = new address[](3);
-        _crvrenBTCwBTCsBTCUnderTokens[0] = REN_BTC;
-        _crvrenBTCwBTCsBTCUnderTokens[1] = WBTC;
-        _crvrenBTCwBTCsBTCUnderTokens[2] = SBTC;
-        setLiquidityPoolToken(SBTC_SWAP_POOL, CRV_REN_BTC_WBTC_SBTC);
-        setSwapPoolToUnderlyingTokens(SBTC_SWAP_POOL, _crvrenBTCwBTCsBTCUnderTokens);
+        // address[] memory _crvrenBTCwBTCsBTCUnderTokens = new address[](3);
+        // _crvrenBTCwBTCsBTCUnderTokens[0] = REN_BTC;
+        // _crvrenBTCwBTCsBTCUnderTokens[1] = WBTC;
+        // _crvrenBTCwBTCsBTCUnderTokens[2] = SBTC;
+        // setLiquidityPoolToken(SBTC_SWAP_POOL, CRV_REN_BTC_WBTC_SBTC);
+        // setSwapPoolToUnderlyingTokens(SBTC_SWAP_POOL, _crvrenBTCwBTCsBTCUnderTokens);
 
-        address[] memory _crvhBTCwBTCUnderTokens = new address[](2);
-        _crvhBTCwBTCUnderTokens[0] = HBTC;
-        _crvhBTCwBTCUnderTokens[1] = WBTC;
-        setLiquidityPoolToken(HBTC_SWAP_POOL, HCRV);
-        setSwapPoolToUnderlyingTokens(HBTC_SWAP_POOL, _crvhBTCwBTCUnderTokens);
+        // address[] memory _crvhBTCwBTCUnderTokens = new address[](2);
+        // _crvhBTCwBTCUnderTokens[0] = HBTC;
+        // _crvhBTCwBTCUnderTokens[1] = WBTC;
+        // setLiquidityPoolToken(HBTC_SWAP_POOL, HCRV);
+        // setSwapPoolToUnderlyingTokens(HBTC_SWAP_POOL, _crvhBTCwBTCUnderTokens);
 
-        address[] memory _crvDAIUSDCUSDTUnderTokens = new address[](3);
-        _crvDAIUSDCUSDTUnderTokens[0] = DAI;
-        _crvDAIUSDCUSDTUnderTokens[1] = USDC;
-        _crvDAIUSDCUSDTUnderTokens[2] = USDT;
-        setLiquidityPoolToken(THREE_SWAP_POOL, THREE_CRV);
-        setSwapPoolToUnderlyingTokens(THREE_SWAP_POOL, _crvDAIUSDCUSDTUnderTokens);
+        // address[] memory _crvDAIUSDCUSDTUnderTokens = new address[](3);
+        // _crvDAIUSDCUSDTUnderTokens[0] = DAI;
+        // _crvDAIUSDCUSDTUnderTokens[1] = USDC;
+        // _crvDAIUSDCUSDTUnderTokens[2] = USDT;
+        // setLiquidityPoolToken(THREE_SWAP_POOL, THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(THREE_SWAP_POOL, _crvDAIUSDCUSDTUnderTokens);
 
-        address[] memory _gusdUnderlyingTokens = new address[](2);
-        _gusdUnderlyingTokens[0] = GUSD;
-        _gusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(GUSD_SWAP_POOL, GUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(GUSD_SWAP_POOL, _gusdUnderlyingTokens);
+        // address[] memory _gusdUnderlyingTokens = new address[](2);
+        // _gusdUnderlyingTokens[0] = GUSD;
+        // _gusdUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(GUSD_SWAP_POOL, GUSD_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(GUSD_SWAP_POOL, _gusdUnderlyingTokens);
 
-        address[] memory _husdUnderlyingTokens = new address[](2);
-        _husdUnderlyingTokens[0] = HUSD;
-        _husdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(HUSD_SWAP_POOL, HUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(HUSD_SWAP_POOL, _husdUnderlyingTokens);
+        // address[] memory _husdUnderlyingTokens = new address[](2);
+        // _husdUnderlyingTokens[0] = HUSD;
+        // _husdUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(HUSD_SWAP_POOL, HUSD_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(HUSD_SWAP_POOL, _husdUnderlyingTokens);
 
-        address[] memory _usdkUnderlyingTokens = new address[](2);
-        _usdkUnderlyingTokens[0] = USDK;
-        _usdkUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(USDK_SWAP_POOL, USDK_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(USDK_SWAP_POOL, _usdkUnderlyingTokens);
+        // address[] memory _usdkUnderlyingTokens = new address[](2);
+        // _usdkUnderlyingTokens[0] = USDK;
+        // _usdkUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(USDK_SWAP_POOL, USDK_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(USDK_SWAP_POOL, _usdkUnderlyingTokens);
 
-        address[] memory _usdnUnderlyingTokens = new address[](2);
-        _usdnUnderlyingTokens[0] = USDN;
-        _usdnUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(USDN_SWAP_POOL, USDN_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(USDN_SWAP_POOL, _usdnUnderlyingTokens);
+        // address[] memory _usdnUnderlyingTokens = new address[](2);
+        // _usdnUnderlyingTokens[0] = USDN;
+        // _usdnUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(USDN_SWAP_POOL, USDN_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(USDN_SWAP_POOL, _usdnUnderlyingTokens);
 
-        address[] memory _linkusdUnderlyingTokens = new address[](2);
-        _linkusdUnderlyingTokens[0] = LINKUSD;
-        _linkusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(LINKUSD_SWAP_POOL, LINKUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(LINKUSD_SWAP_POOL, _linkusdUnderlyingTokens);
+        // address[] memory _linkusdUnderlyingTokens = new address[](2);
+        // _linkusdUnderlyingTokens[0] = LINKUSD;
+        // _linkusdUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(LINKUSD_SWAP_POOL, LINKUSD_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(LINKUSD_SWAP_POOL, _linkusdUnderlyingTokens);
 
-        address[] memory _musdUnderlyingTokens = new address[](2);
-        _musdUnderlyingTokens[0] = MUSD;
-        _musdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(MUSD_SWAP_POOL, MUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(MUSD_SWAP_POOL, _musdUnderlyingTokens);
+        // address[] memory _musdUnderlyingTokens = new address[](2);
+        // _musdUnderlyingTokens[0] = MUSD;
+        // _musdUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(MUSD_SWAP_POOL, MUSD_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(MUSD_SWAP_POOL, _musdUnderlyingTokens);
 
-        address[] memory _rsvUnderlyingTokens = new address[](2);
-        _rsvUnderlyingTokens[0] = RSV;
-        _rsvUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(RSV_SWAP_POOL, RSV_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(RSV_SWAP_POOL, _rsvUnderlyingTokens);
+        // address[] memory _rsvUnderlyingTokens = new address[](2);
+        // _rsvUnderlyingTokens[0] = RSV;
+        // _rsvUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(RSV_SWAP_POOL, RSV_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(RSV_SWAP_POOL, _rsvUnderlyingTokens);
 
-        address[] memory _tbtcUnderlyingTokens = new address[](2);
-        _tbtcUnderlyingTokens[0] = TBTC;
-        _tbtcUnderlyingTokens[1] = CRV_REN_BTC_WBTC_SBTC;
-        setLiquidityPoolToken(TBTC_SWAP_POOL, TBTC_SBTC_CRV);
-        setSwapPoolToUnderlyingTokens(TBTC_SWAP_POOL, _tbtcUnderlyingTokens);
+        // address[] memory _tbtcUnderlyingTokens = new address[](2);
+        // _tbtcUnderlyingTokens[0] = TBTC;
+        // _tbtcUnderlyingTokens[1] = CRV_REN_BTC_WBTC_SBTC;
+        // setLiquidityPoolToken(TBTC_SWAP_POOL, TBTC_SBTC_CRV);
+        // setSwapPoolToUnderlyingTokens(TBTC_SWAP_POOL, _tbtcUnderlyingTokens);
 
-        address[] memory _dusdUnderlyingTokens = new address[](2);
-        _dusdUnderlyingTokens[0] = DUSD;
-        _dusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(DUSD_SWAP_POOL, DUSD_THREE_CRV);
-        setSwapPoolToUnderlyingTokens(DUSD_SWAP_POOL, _dusdUnderlyingTokens);
+        // address[] memory _dusdUnderlyingTokens = new address[](2);
+        // _dusdUnderlyingTokens[0] = DUSD;
+        // _dusdUnderlyingTokens[1] = THREE_CRV;
+        // setLiquidityPoolToken(DUSD_SWAP_POOL, DUSD_THREE_CRV);
+        // setSwapPoolToUnderlyingTokens(DUSD_SWAP_POOL, _dusdUnderlyingTokens);
 
         setSwapPoolToGauges(COMPOUND_SWAP_POOL, address(0x7ca5b0a2910B33e9759DC7dDB0413949071D7575));
         setSwapPoolToGauges(USDT_SWAP_POOL, address(0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53));
@@ -292,9 +293,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        uint256 N_COINS = _underlyingTokens.length;
+        uint8 N_COINS = uint8(_underlyingTokens.length);
         uint256[] memory _amounts = new uint256[](N_COINS);
-        for (uint256 i = 0; i < N_COINS; i++) {
+        for (uint8 i = 0; i < N_COINS; i++) {
             _amounts[i] = IERC20(_underlyingTokens[i]).balanceOf(_optyPool);
         }
         return getDepositSomeCodes(_optyPool, _underlyingTokens, _liquidityPool, _amounts);
@@ -330,14 +331,14 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 N_COINS = _underlyingTokens.length;
-        if (N_COINS == uint256(1)) {
+        uint8 N_COINS = uint8(_underlyingTokens.length);
+        if (N_COINS == uint8(1)) {
             _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
-        } else if (N_COINS == uint256(2)) {
+        } else if (N_COINS == uint8(2)) {
             _codes = _getWithdraw2Code(_liquidityPool, _amount);
-        } else if (N_COINS == uint256(3)) {
+        } else if (N_COINS == uint8(3)) {
             _codes = _getWithdraw3Code(_liquidityPool, _amount);
-        } else if (N_COINS == uint256(4)) {
+        } else if (N_COINS == uint8(4)) {
             _codes = _getWithdraw4Code(_liquidityPool, _amount);
         }
     }
@@ -395,9 +396,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint8 i = 0; i < uint8(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
+                tokenIndex = int128(i);
             }
         }
         if (_liquidityPoolTokenAmount > 0) {
@@ -554,9 +555,9 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint8 i = 0; i < uint8(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
+                tokenIndex = int128(i);
             }
         }
         uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_optyPool, _liquidityPool);
@@ -646,11 +647,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
     }
 
     function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
-        if (!noRemoveLiquidityOneCoin[_pool]) {
-            noRemoveLiquidityOneCoin[_pool] = true;
-        } else {
-            noRemoveLiquidityOneCoin[_pool] = false;
-        }
+        noRemoveLiquidityOneCoin[_pool] = noRemoveLiquidityOneCoin[_pool] ? false : true;
     }
 
     /**
@@ -663,12 +660,12 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
+    ) private pure returns (bytes[] memory _codes) {
         uint256[2] memory _amountsIn;
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         // calculator for lines of code
-        for (uint8 i = 0; i < 2; i++) {
+        for (uint8 i = 0; i < uint8(2); i++) {
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -715,12 +712,12 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
+    ) private pure returns (bytes[] memory _codes) {
         uint256[3] memory _amountsIn;
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         // calculator for lines of code
-        for (uint8 i = 0; i < 3; i++) {
+        for (uint8 i = 0; i < uint8(3); i++) {
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -732,7 +729,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         }
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
-        for (uint8 i = 0; i < 3; i++) {
+        for (uint8 i = 0; i < uint8(3); i++) {
             if (_amountsIn[i] > 0) {
                 _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
@@ -767,12 +764,12 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
-    ) internal pure returns (bytes[] memory _codes) {
+    ) private pure returns (bytes[] memory _codes) {
         uint256[4] memory _amountsIn;
         uint8 _codeLength = 1;
         bool _IsAmount = false;
         // calculator for lines of code
-        for (uint8 i = 0; i < 4; i++) {
+        for (uint8 i = 0; i < uint8(4); i++) {
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -784,7 +781,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         }
         _codes = new bytes[](_codeLength);
         uint8 _j = 0;
-        for (uint8 i = 0; i < 4; i++) {
+        for (uint8 i = 0; i < uint8(4); i++) {
             if (_amountsIn[i] > 0) {
                 _IsAmount = true;
                 if (_underlyingTokens[i] == HBTC) {
@@ -819,13 +816,13 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _amount
-    ) internal view returns (bytes[] memory _codes) {
+    ) private view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
             int128 i = 0;
-            for (uint8 j = 0; j < _underlyingTokens.length; j++) {
+            for (uint8 j = 0; j < uint8(_underlyingTokens.length); j++) {
                 if (_underlyingTokens[j] == _underlyingToken) {
-                    i = j;
+                    i = int128(j);
                 }
             }
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
@@ -850,7 +847,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
-    function _getWithdraw2Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
+    function _getWithdraw2Code(address _liquidityPool, uint256 _amount) private view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
@@ -867,7 +864,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
-    function _getWithdraw3Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
+    function _getWithdraw3Code(address _liquidityPool, uint256 _amount) private view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
@@ -884,7 +881,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
      * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
      * @param _amount Quantity of _liquidityPoolToken to swap for underlying tokens
      */
-    function _getWithdraw4Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
+    function _getWithdraw4Code(address _liquidityPool, uint256 _amount) private view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
@@ -895,7 +892,7 @@ contract CurveSwapCodeProvider is ICodeProvider, Modifiers {
         }
     }
 
-    function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
+    function _getUnderlyingTokens(address _liquidityPool) private view returns (address[] memory _underlyingTokens) {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
     }
 

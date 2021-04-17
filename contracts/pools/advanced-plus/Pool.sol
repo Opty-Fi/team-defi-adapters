@@ -4,7 +4,7 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import "./../../libraries/SafeERC20.sol";
-import "./../../utils/ERC20Detailed.sol";
+import "./../../utils/ERC20.sol";
 import "./../../utils/Ownable.sol";
 import "./../../utils/ReentrancyGuard.sol";
 import "./../../utils/ChiDeployer.sol";
@@ -15,7 +15,7 @@ import "../PoolStorage.sol";
 /**
  * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
  */
-contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
+contract AdvancePlusPool is ERC20, Modifiers, ReentrancyGuard, PoolStorage, Deployer {
     using SafeERC20 for IERC20;
     using Address for address;
 
@@ -32,10 +32,9 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
         address _optyMinter
     )
         public
-        ERC20Detailed(
-            string(abi.encodePacked("op ", ERC20Detailed(_underlyingToken).name(), " advance plus", " pool")),
-            string(abi.encodePacked("op", ERC20Detailed(_underlyingToken).symbol(), "Adv+Pool")),
-            ERC20Detailed(_underlyingToken).decimals()
+        ERC20(
+            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " advance plus", " pool")),
+            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "Adv+Pool"))
         )
         Modifiers(_registry)
     {
@@ -67,7 +66,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
 
     function setToken(address _underlyingToken) public onlyOperator returns (bool _success) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
-        token = _underlyingToken;
+        underlyingToken = _underlyingToken;
         _success = true;
     }
 
@@ -78,14 +77,14 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
     }
 
     function _supplyAll() internal ifNotDiscontinued ifNotPaused {
-        uint256 _tokenBalance = IERC20(token).balanceOf(address(this));
+        uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
         _batchMintAndBurn();
         first = 1;
         last = 0;
         uint8 _steps = strategyCodeProviderContract.getDepositAllStepCount(strategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), token, strategyHash, _i, _steps);
+            bytes[] memory _codes = strategyCodeProviderContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, strategyHash, _i, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -98,7 +97,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
     function rebalance() public ifNotDiscontinued ifNotPaused {
         require(totalSupply() > 0, "!totalSupply()>0");
         address[] memory _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = token;
+        _underlyingTokens[0] = underlyingToken;
         bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
 
         if (
@@ -126,7 +125,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
      */
     function _calPoolValueInToken() internal view returns (uint256) {
         if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
-            uint256 balanceInToken = strategyCodeProviderContract.getBalanceInToken(payable(address(this)), token, strategyHash);
+            uint256 balanceInToken = strategyCodeProviderContract.getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, strategyHash);
             return balanceInToken.add(balance()).sub(depositQueue);
         }
         return balance().sub(depositQueue);
@@ -136,7 +135,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
      * @dev Function to get the underlying token balance of OptyPool Contract
      */
     function balance() public view returns (uint256) {
-        return IERC20(token).balanceOf(address(this));
+        return IERC20(underlyingToken).balanceOf(address(this));
     }
 
     function _withdrawAll() internal {
@@ -144,7 +143,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
             bytes[] memory _codes =
-                strategyCodeProviderContract.getPoolWithdrawAllCodes(payable(address(this)), token, strategyHash, _iterator, _steps);
+                strategyCodeProviderContract.getPoolWithdrawAllCodes(payable(address(this)), underlyingToken, strategyHash, _iterator, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool _success, ) = pool.call(data);
@@ -168,7 +167,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
         uint8 _harvestSteps = strategyCodeProviderContract.getHarvestRewardStepsCount(_hash);
         for (uint8 _i = 0; _i < _harvestSteps; _i++) {
             bytes[] memory _codes =
-                strategyCodeProviderContract.getPoolHarvestAllRewardCodes(payable(address(this)), token, _hash, _i, _harvestSteps);
+                strategyCodeProviderContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -178,7 +177,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
     }
 
     function userDepositAll() external {
-        userDeposit(IERC20(token).balanceOf(msg.sender));
+        userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
     /**
@@ -191,7 +190,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
      */
     function userDeposit(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         last++;
         queue[last] = Operation(msg.sender, true, _amount);
         pendingDeposits[msg.sender] += _amount;
@@ -233,7 +232,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
     }
 
     function userDepositAllRebalance() external {
-        userDepositRebalance(IERC20(token).balanceOf(msg.sender));
+        userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
     /**
@@ -246,7 +245,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
      */
     function userDepositRebalance(uint256 _amount) public ifNotDiscontinued ifNotPaused nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
 
         if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
@@ -268,7 +267,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
         optyMinterContract.updateUserStateInPool(address(this), msg.sender);
         if (balance() > 0) {
             address[] memory _underlyingTokens = new address[](1);
-            _underlyingTokens[0] = token;
+            _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
@@ -336,7 +335,7 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
 
         if (!discontinued && (balance() > 0)) {
             address[] memory _underlyingTokens = new address[](1);
-            _underlyingTokens[0] = token;
+            _underlyingTokens[0] = underlyingToken;
             strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
@@ -370,10 +369,8 @@ contract AdvancePlusPool is ERC20, ERC20Detailed, Modifiers, ReentrancyGuard, Po
     ) private {
         uint256 redeemAmountInToken = (_balance.mul(_redeemAmount)).div(totalSupply());
         //  Updating the totalSupply of op tokens
-        _balances[_account] = _balances[_account].sub(_redeemAmount, "!_redeemAmount>balance");
-        _totalSupply = _totalSupply.sub(_redeemAmount);
-        emit Transfer(_account, address(0), _redeemAmount);
-        IERC20(token).safeTransfer(_account, redeemAmountInToken);
+        _burn(msg.sender, _redeemAmount);
+        IERC20(underlyingToken).safeTransfer(_account, redeemAmountInToken);
     }
 
     function _mintShares(

@@ -13,7 +13,7 @@ import "../../interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol";
 import "../../interfaces/ERC20/IERC20.sol";
 import "../../libraries/SafeMath.sol";
 import "../../utils/Modifiers.sol";
-import "../../utils/ERC20Detailed.sol";
+import "../../utils/ERC20.sol";
 import "../../Gatherer.sol";
 
 contract AaveV2CodeProvider is ICodeProvider, Modifiers {
@@ -474,7 +474,7 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         uint256 _available = _availableToBorrowETH(_optyPool, _liquidityPoolAddressProvider);
         if (_available > 0) {
             return
-                _available.mul(uint256(10)**ERC20Detailed(_outputToken).decimals()).div(
+                _available.mul(uint256(10)**ERC20(_outputToken).decimals()).div(
                     _getReservePrice(_liquidityPoolAddressProvider, _outputToken)
                 );
         } else {
@@ -493,7 +493,7 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
     ) internal view returns (uint256) {
         address _liquidityPoolToken = getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry);
         _amount = _amount.mul(_getUnderlyingPrice(_liquidityPoolAddressProviderRegistry, _underlyingToken)).div(
-            uint256(10)**ERC20Detailed(address(_liquidityPoolToken)).decimals()
+            uint256(10)**ERC20(address(_liquidityPoolToken)).decimals()
         ); // Calculate the amount we are withdrawing in ETH
         return _amount.mul(ltv).div(max).div(healthFactor);
     }
@@ -515,7 +515,7 @@ contract AaveV2CodeProvider is ICodeProvider, Modifiers {
         }
         if (_maxSafeETH_ < _totalBorrowsETH) {
             uint256 _over_ = _totalBorrowsETH.mul(_totalBorrowsETH.sub(_maxSafeETH_)).div(_totalBorrowsETH);
-            _over_ = _over_.mul(uint256(10)**ERC20Detailed(_outputToken).decimals()).div(
+            _over_ = _over_.mul(uint256(10)**ERC20(_outputToken).decimals()).div(
                 _getReservePrice(_liquidityPoolAddressProviderRegistry, _outputToken)
             );
             return _over_;
