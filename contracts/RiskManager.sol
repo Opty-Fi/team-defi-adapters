@@ -8,28 +8,31 @@ import "./controller/RegistryStorage.sol";
 import "./libraries/Addresses.sol";
 import "./utils/Modifiers.sol";
 import "./controller/StrategyProvider.sol";
+import "./RiskManagerStorage.sol";
 import "./RiskManagerProxy.sol";
 
-contract RiskManager is Modifiers, Structs {
+contract RiskManager is RiskManagerStorage, Modifiers, Structs {
     using Address for address;
 
-    StrategyProvider public strategyProvider;
-
-    string public constant RP1 = "RP1";
-    string public constant RP2 = "RP2";
-    string public constant RP3 = "RP3";
-    uint256 public T1_limit;
-    uint256 public T2_limit;
-    uint256 public T3_limit;
-
     constructor(address _registry) public Modifiers(_registry) {
-        // setStrategyProvider(_strategyProvider);
     }
     
+    /**
+     * @dev initialize the strategyProvider 
+     * 
+     */
     function initialize(StrategyProvider _strategyProvider) public onlyGovernance {
         setStrategyProvider(_strategyProvider);
     }
 
+    /**
+     * @dev Set RiskManagerProxy to act as RiskManager
+     * 
+     */
+    function become(RiskManagerProxy _riskManagerProxy) public onlyGovernance {
+        require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
+    }
+    
     /**
      * @dev Set limit values for T1, T2 and T3 ranges
      *
@@ -47,11 +50,11 @@ contract RiskManager is Modifiers, Structs {
         T3_limit = _T3_limit;
         return true;
     }
-    
-    function become(RiskManagerProxy _riskManagerProxy) public onlyGovernance {
-        require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
-    }
-    
+
+    /**
+     * @dev Sets the strategyProvider
+     * 
+     */
     function setStrategyProvider(StrategyProvider _strategyProvider) public onlyOperator {
         strategyProvider = _strategyProvider;
     }

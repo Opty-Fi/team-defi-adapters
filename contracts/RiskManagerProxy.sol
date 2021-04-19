@@ -60,7 +60,7 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     }
 
     /**
-     * @dev Delegates execution to an implementation contract.
+     * @dev Delegates execution to an riskManager implementation contract.
      * It returns to the external caller whatever the implementation returns
      * or forwards reverts.
      */
