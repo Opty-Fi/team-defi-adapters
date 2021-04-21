@@ -645,13 +645,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](2);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 2; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -705,13 +700,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](3);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 3; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -765,13 +755,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](4);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 4; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {

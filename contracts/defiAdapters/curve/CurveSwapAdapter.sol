@@ -674,13 +674,8 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](2);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 2; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -734,13 +729,8 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](3);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 3; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -794,13 +784,8 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256[] memory _amountsAux = new uint256[](4);
         uint8 _codeLength = 1;
         bool _IsAmount = false;
-        // address _swapPool = liquidityPoolToSwap[_liquidityPool];
-        // uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
-        // uint256 _poolValue = _virtualPrice.mul(IERC20(ICurveDeposit(_liquidityPool).token()).totalSupply());
-        // uint256 _poolValue = uint256(1000000000000000000000);
         // calculator for lines of code
         for (uint8 i = 0; i < 4; i++) {
-            // _amountsIn[i] = _getDepositAmountPct(_underlyingTokens[i], _liquidityPool, _poolValue, _amounts[i]);
             _amountsIn[i] = _amounts[i];
             if (_amountsIn[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -924,24 +909,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
             _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut));
         }
     }
-    
-    // function _getDepositAmountPct(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
-    //     uint256 _amount = ICurveSwap(_liquidityPool).calc_token_amount(_amounts, true);
-    //     uint256 _maxDepositPct;
-    //     if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
-    //         _maxDepositPct = maxDepositPoolPctDefault;
-    //     } else if (maxDepositPoolPct[_liquidityPool] == uint256(-1)) {
-    //         return _amounts;
-    //     } else {
-    //         _maxDepositPct = maxDepositPoolPct[_liquidityPool];
-    //     }
-    //     uint256 _maxDeposit = IERC20(swapPoolToLiquidityPoolToken[_liquidityPool]).totalSupply().mul(_maxDepositPct).div(uint256(10000));
-    //     if (_amount < _maxDeposit) {
-    //         return _amounts;
-    //     } else {
-            
-    //     }
-    // }
         
     function _getDeposit2Amount(address _liquidityPool, uint256[] memory _amounts) internal view returns (uint256[] memory) {
         uint256[2] memory _maxDepositAmounts;
