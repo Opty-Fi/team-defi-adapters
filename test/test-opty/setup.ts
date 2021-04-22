@@ -18,7 +18,6 @@ export async function setUp(owner: Signer): Promise<[ESSENTIAL_CONTRACTS, CONTRA
         contracts.registry.address,
         contracts.harvestCodeProvider.address
     );
-    await approveLiquidityPoolAndMapAdapters(contracts.registry, adapters);
     return [contracts, adapters];
 }
 
@@ -188,15 +187,18 @@ export async function setBestBasicStrategy(
 }
 
 async function approveTokens(registryContract: Contract) {
+    const tokenAddresses: string[] = [];
     for (const token in TOKENS) {
-        try {
-            await registryContract.approveToken(TOKENS[token]);
-            await registryContract.setTokensHashToTokens([TOKENS[token]]);
-        } catch (error) {
-            console.log(
-                `Got error when executing approveTokens for ${token} : ${error}`
-            );
-        }
+        tokenAddresses.push(TOKENS[token]);
+    }
+
+    try {
+        await registryContract.approveTokens(tokenAddresses);
+        await registryContract.setMultipleTokensHashToTokens(
+            tokenAddresses.map((addr) => [addr])
+        );
+    } catch (error) {
+        console.log(`Got error when executing approveTokens : ${error}`);
     }
 }
 
@@ -205,33 +207,35 @@ export async function approveLiquidityPoolAndMapAdapter(
     adapter: string,
     lqPool: string
 ): Promise<void> {
-    await registryContract.approveLiquidityPool(lqPool);
-    await registryContract.setLiquidityPoolToAdapter(lqPool, adapter);
+    await registryContract.approveLiquidityPools([lqPool]);
+    await registryContract.setLiquidityPoolsToAdapters([[lqPool, adapter]]);
 }
 async function approveLiquidityPoolAndMapAdapters(
     registryContract: Contract,
     adapters: CONTRACTS
 ) {
+    const liquidityPools: string[] = [];
+    const liquidityPoolsMapToAdapters: [string, string][] = [];
     for (const adapter in adapters) {
         if (TypedDefiPools[adapter]) {
             for (const token in TOKENS) {
                 if (TypedDefiPools[adapter][token]) {
-                    try {
-                        await registryContract.approveLiquidityPool(
-                            TypedDefiPools[adapter][token].lpToken
-                        );
-                        await registryContract.setLiquidityPoolToAdapter(
-                            TypedDefiPools[adapter][token].lpToken,
-                            adapters[adapter].address
-                        );
-                    } catch (error) {
-                        console.log(
-                            `Got error when executing approveLiquidityPoolAndMapAdapters for ${token} : ${error}`
-                        );
-                    }
+                    liquidityPools.push(TypedDefiPools[adapter][token].lpToken);
+                    liquidityPoolsMapToAdapters.push([
+                        TypedDefiPools[adapter][token].lpToken,
+                        adapters[adapter].address,
+                    ]);
                 }
             }
         }
+    }
+    try {
+        await registryContract.approveLiquidityPools(liquidityPools);
+        await registryContract.setLiquidityPoolsToAdapters(liquidityPoolsMapToAdapters);
+    } catch (error) {
+        console.log(
+            `Got error when executing approveLiquidityPoolAndMapAdapters : ${error}`
+        );
     }
 }
 

@@ -61,6 +61,16 @@ contract Structs {
         address[] tokens;
     }
     
+    struct PoolRate {
+        address pool;
+        uint8 rate;
+    }
+    
+    struct PoolAdapter {
+        address pool;
+        address adapter;
+    }
+
     struct PoolRatingsRange {
         uint8 lowerLimit;
         uint8 upperLimit;
@@ -72,7 +82,6 @@ contract Structs {
         PoolRatingsRange[] poolRatingsRange;
         bool exists;
     }
-
 }
 
 contract RegistryStorage is RegistryAdminStorage, Structs {
