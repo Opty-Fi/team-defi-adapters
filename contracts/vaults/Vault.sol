@@ -3,23 +3,24 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import "./../../utils/ReentrancyGuard.sol";
-import "./../../utils/ChiDeployer.sol";
-import "./../../RiskManager.sol";
-import "./../VaultStorage.sol";
-import "./../../interfaces/opty/IVault.sol";
-import "./../../utils/ERC20Upgradeable/VersionedInitializable.sol";
-import "./../../utils/Modifiers.sol";
-import "./../../libraries/SafeERC20.sol";
+import "../utils/ReentrancyGuard.sol";
+import "../utils/ChiDeployer.sol";
+import "../RiskManager.sol";
+import "./VaultStorage.sol";
+import "../interfaces/opty/IVault.sol";
+import "../utils/ERC20Upgradeable/VersionedInitializable.sol";
+import "../utils/Modifiers.sol";
+import "../libraries/SafeERC20.sol";
+import "../interfaces/uniswap/IUniswap.sol";
 
 /**
- * @title RP2Vault
+ * @title Vault
  *
  * @author Opty.fi, inspired by the Aave V2 AToken.sol contract
  *
- * @dev Opty.Fi's RP2 Vault contract for underlying tokens (for example DAI)
+ * @dev Opty.Fi's Vault contract for underlying tokens (for example DAI)
  */
-contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGuard, VaultStorage, Deployer {
+contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGuard, VaultStorage, Deployer {
     using SafeERC20 for IERC20;
     using Address for address;
     
@@ -31,8 +32,8 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
     )
         public
         ERC20(
-            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP2", " vault")),
-            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP2Vault"))
+            string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP3", " vault")),
+            string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP3Vault"))
         )
         Modifiers(_registry)
     {
@@ -51,13 +52,13 @@ contract RP2Vault is VersionedInitializable, IVault, ERC20, Modifiers, Reentranc
         address _optyMinter
     ) external virtual initializer {
         registryContract = Registry(registry);
-        setProfile("RP2");
+        setProfile("RP3");
         setRiskManager(_riskManager);
         setToken(_underlyingToken); //  underlying token contract address (for example DAI)
         setStrategyManager(_strategyManager);
         setOPTYMinter(_optyMinter);
-        _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP2", " vault")));
-        _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP2Vault")));
+        _setName(string(abi.encodePacked("op ", ERC20(_underlyingToken).name(), " RP3", " vault")));
+        _setSymbol(string(abi.encodePacked("op", ERC20(_underlyingToken).symbol(), "RP3Vault")));
         _setDecimals(ERC20(_underlyingToken).decimals());
     }
 

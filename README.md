@@ -16,21 +16,6 @@ $ npm install -g @remix-project/remixd
 
 ## Getting Started
 
-### Forked Mainnet
-
-- Clone defi-faucet 
-
-```bash
-$ git clone https://github.com/Opty-Fi/defi-faucet.git
-$ cd ./defi-faucet
-```
-
-- start forked mainnet
-
-```bash
-$ node ./ganache-server.js
-```
-
 ###  Earn protocol
 
 - Clone earn-protocol
@@ -57,12 +42,11 @@ Note: harvest.finance fDAI vault (HarvestAdapter) will be used in this example.
 14. Deploy StrategyCodeProvider(address _registryProxy, address _gatherer)
 15. Deploy OPTY(address _registryProxy, uint256(0)). Copy OPTY address and paste it in OPTYMinterStorage, where there is a constant called OPTYAddress
 16. Deploy OPTYMinter(address _registryProxy)
-17. Deploy HarvestAdapter(address _registryProxy, address _harvestCodeProvider)
-18. Compile VaultProxy => Deploy InitializableImmutableAdminUpgradeabilityProxy(address _admin). Note: _admin should be a different account that the one from which you deployed the previous contract. This address will only be used for upgrading the implementations in VaultProxy
-19. Deploy Vault(address _registryProxy, address DAI)
-20. Switch to _admin account and call VaultProxy.upgradeTo(address _vault)
-21. Switch back to your normal account
-22. Deploy Vault at VaultProxy address
-23. Call Vault.initialize(address _registryProxy, address _riskManager, address DAI, address _strategyCodeProvider, address _optyMinter)
+17. Compile VaultProxy => Deploy InitializableImmutableAdminUpgradeabilityProxy(address _admin). Note: _admin should be a different account that the one from which you deployed the previous contract. This address will only be used for upgrading the implementations in VaultProxy
+18. Deploy Vault(address _registryProxy, address DAI)
+19. Switch to _admin account and call VaultProxy.upgradeTo(address _vault)
+20. Switch back to your normal account
+21. Deploy Vault at VaultProxy address
+22. Call Vault.initialize(address _registryProxy, address _riskManager, address DAI, address _strategyCodeProvider, address _optyMinter)
 
 After all these steps, if you want to test it, you need to approve token, approve liquidityPool, etc. in RegistryProxy as usual.
