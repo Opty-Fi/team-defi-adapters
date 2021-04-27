@@ -24,7 +24,6 @@ describe(scenarios.title, () => {
         USDT: BigNumber.from("1000000000"),
     };
     let essentialContracts: ESSENTIAL_CONTRACTS;
-    let adapters: CONTRACTS;
     let users: { [key: string]: Signer };
 
     before(async () => {
@@ -33,7 +32,6 @@ describe(scenarios.title, () => {
             users = { owner, admin };
             [essentialContracts] = await setUp(users["owner"]);
             assert.isDefined(essentialContracts, "Essential contracts not deployed");
-            assert.isDefined(adapters, "Adapters not deployed");
         } catch (error) {
             console.log(error);
         }
@@ -46,7 +44,6 @@ describe(scenarios.title, () => {
             const adaptersName = Object.keys(TypedAdapterStrategies[vault.name]);
             for (let i = 0; i < adaptersName.length; i++) {
                 // for (let i = 0; i < 1; i++) {
-                const adapterName = adaptersName[i];
                 const strategies = TypedAdapterStrategies[vault.name][adaptersName[i]];
 
                 for (let i = 0; i < strategies.length; i++) {

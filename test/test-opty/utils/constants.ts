@@ -2,29 +2,14 @@ import { DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
     REGISTRY: "Registry",
     REGISTRY_PROXY: "RegistryProxy",
-    STRATEGY_MANAGER: "StrategyManager",
     OPTY: "OPTY",
     OPTY_MINTER: "OPTYMinter",
     RISK_MANAGER: "RiskManager",
     STRATEGY_PROVIDER: "StrategyProvider",
-    HARVEST_CODE_PROVIDER: "HarvestCodeProvider",
     VAULT_PROXY: "InitializableImmutableAdminUpgradeabilityProxy",
     RISK_MANAGER_PROXY: "RiskManagerProxy",
 };
-export const VAULT = ["RP1Vault", "RP2Vault", "RP3Vault"];
-export const ADAPTER = [
-    "AaveV1Adapter",
-    "AaveV2Adapter",
-    "CompoundAdapter",
-    "CreamAdapter",
-    "CurvePoolAdapter",
-    "CurveSwapAdapter",
-    "dYdXAdapter",
-    "DForceAdapter",
-    "FulcrumAdapter",
-    "HarvestAdapter",
-    "YVaultAdapter",
-];
+export const VAULT = ["Vault"];
 
 export const TOKENS: DATA_OBJECT = {
     DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
