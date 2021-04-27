@@ -104,7 +104,8 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         _batchMintAndBurn();
         first = 1;
         last = 0;
-        uint8 _steps = strategyManagerContract.getDepositAllStepCount(strategyHash);
+        if (strategyHash != EmptyStrategyHash) {
+            uint8 _steps = strategyManagerContract.getDepositAllStepCount(strategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             bytes[] memory _codes = strategyManagerContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, strategyHash, _i, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
@@ -114,6 +115,8 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
             }
         }
         vaultValue = _calVaultValueInUnderlyingToken();
+        }
+        
     }
 
     function rebalance() public override ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
@@ -488,14 +491,14 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
     }
 
     function discontinue() public override onlyRegistry {
-        if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (strategyHash != EmptyStrategyHash) {
             _withdrawAll();
             harvest(strategyHash);
         }
     }
 
     function setPaused(bool _paused) public override onlyRegistry {
-        if (_paused && strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (_paused && strategyHash != EmptyStrategyHash) {
             _withdrawAll();
             harvest(strategyHash);
         }

@@ -37,6 +37,7 @@ contract VaultStorage {
     mapping(address => uint256) public pendingDeposits;
     mapping(address => uint256) public pendingWithdraws;
     uint256 public maxVaultValueJump; // basis points
+    bytes32 constant EmptyStrategyHash = 0x0000000000000000000000000000000000000000000000000000000000000000;
     mapping(uint256 => BlockVaultValue[]) public blockToBlockVaultValues;
 
     event DepositQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
