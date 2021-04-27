@@ -61,7 +61,7 @@ describe(scenarios.title, () => {
                         const contracts: CONTRACTS = {};
                         before(async () => {
                             try {
-                                // const adapter = adapters[adapterName];
+                                const adapter = adapters[adapterName];
                                 const Vault = await deployVault(
                                     essentialContracts.registry.address,
                                     essentialContracts.riskManager.address,
@@ -72,6 +72,7 @@ describe(scenarios.title, () => {
                                     users["admin"],
                                     scenarios.vaults[i].name
                                 );
+
                                 vaultRiskProfile = await Vault.profile();
                                 bestStrategyHash = await setBestBasicStrategy(
                                     strategy.strategy,
@@ -95,7 +96,6 @@ describe(scenarios.title, () => {
 
                                 contracts["strategyProvider"] =
                                     essentialContracts.strategyProvider;
-                                // contracts["adapter"] = adapter;
 
                                 contracts["vault"] = Vault;
 
