@@ -24,7 +24,6 @@ $ npm install -g @remix-project/remixd
 $ git clone https://github.com/Opty-Fi/earn-protocol.git
 ```
 #### Steps to deploy all the contracts correctly
-Note: harvest.finance fDAI vault (HarvestAdapter) will be used in this example.
 1. Deploy RegistryProxy()
 2. Deploy Registry()
 3. Call RegistryProxy.setPendingImplementation(address _registry)
@@ -38,15 +37,13 @@ Note: harvest.finance fDAI vault (HarvestAdapter) will be used in this example.
 11. Deploy RiskManager at RiskManagerProxy address
     - Note: Use this new RiskManager everywhere from here onwards
 12. Call RiskManager.initialize(address __strategyProvider)
-13. Deploy HarvestCodeProvider(address _registryProxy)
-14. Deploy StrategyCodeProvider(address _registryProxy, address _gatherer)
-15. Deploy OPTY(address _registryProxy, uint256(0)). Copy OPTY address and paste it in OPTYMinterStorage, where there is a constant called OPTYAddress
-16. Deploy OPTYMinter(address _registryProxy)
-17. Compile VaultProxy => Deploy InitializableImmutableAdminUpgradeabilityProxy(address _admin). Note: _admin should be a different account that the one from which you deployed the previous contract. This address will only be used for upgrading the implementations in VaultProxy
-18. Deploy Vault(address _registryProxy, address DAI)
-19. Switch to _admin account and call VaultProxy.upgradeTo(address _vault)
-20. Switch back to your normal account
-21. Deploy Vault at VaultProxy address
-22. Call Vault.initialize(address _registryProxy, address _riskManager, address DAI, address _strategyCodeProvider, address _optyMinter)
+13. Deploy OPTY(address _registryProxy, uint256(0)). Copy OPTY address and paste it in OPTYMinterStorage, where there is a constant called OPTYAddress
+14. Deploy OPTYMinter(address _registryProxy)
+15. Compile VaultProxy => Deploy InitializableImmutableAdminUpgradeabilityProxy(address _admin). Note: _admin should be a different account that the one from which you deployed the previous contract. This address will only be used for upgrading the implementations in VaultProxy
+16. Deploy Vault(address _registryProxy, address DAI)
+17. Switch to _admin account and call VaultProxy.upgradeTo(address _vault)
+18. Switch back to your normal account
+19. Deploy Vault at VaultProxy address
+20. Call Vault.initialize(address _registryProxy, address _riskManager, address DAI, address _strategyCodeProvider, address _optyMinter)
 
 After all these steps, if you want to test it, you need to approve token, approve liquidityPool, etc. in RegistryProxy as usual.
