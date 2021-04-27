@@ -101,137 +101,137 @@ describe(scenarios.title, () => {
                             }
                         });
 
-                        // for (let i = 0; i < stories.length; i++) {
-                        //     it(stories[i].description, async () => {
-                        //         const story = stories[i];
-                        //         // if (story.maxDepositType === "amount") {
-                        //         for (let i = 0; i < story.actions.length; i++) {
-                        //             const action = story.actions[i];
-                        //             switch (action.action) {
-                        //                 case "setBestStrategy(string,bytes32,bytes32)": {
-                        //                     const {
-                        //                         riskProfile,
-                        //                         strategyHash,
-                        //                     }: ARGUMENTS = action.args;
-                        //                     if (action.expect === "success") {
-                        //                         await contracts[action.contract]
-                        //                             .connect(users[action.executer])
-                        //                             [action.action](
-                        //                                 riskProfile,
-                        //                                 tokensHash,
-                        //                                 strategyHash
-                        //                                     ? strategyHash
-                        //                                     : bestStrategyHash
-                        //                             );
-                        //                     } else {
-                        //                         await expect(
-                        //                             contracts[action.contract]
-                        //                                 .connect(users[action.executer])
-                        //                                 [action.action](
-                        //                                     riskProfile,
-                        //                                     tokensHash,
-                        //                                     strategyHash
-                        //                                         ? strategyHash
-                        //                                         : bestStrategyHash
-                        //                                 )
-                        //                         ).to.be.revertedWith(action.message);
-                        //                     }
-                        //                     break;
-                        //                 }
-                        //                 case "approve(address,uint256)": {
-                        //                     const {
-                        //                         amount,
-                        //                         strategyHash,
-                        //                     }: ARGUMENTS = action.args;
-                        //                     if (action.expect === "success") {
-                        //                         await contracts[action.contract]
-                        //                             .connect(users[action.executer])
-                        //                             [action.action](
-                        //                                 contracts["vault"].address,
-                        //                                 amount
-                        //                                     ? amount[strategy.token]
-                        //                                     : "0"
-                        //                             );
-                        //                     } else {
-                        //                         await expect(
-                        //                             contracts[action.contract]
-                        //                                 .connect(users[action.executer])
-                        //                                 [action.action](
-                        //                                     contracts["vault"].address,
-                        //                                     amount
-                        //                                         ? amount[strategy.token]
-                        //                                         : "0"
-                        //                                 )
-                        //                         ).to.be.revertedWith(action.message);
-                        //                     }
-                        //                     break;
-                        //                 }
-                        //                 case "userDepositRebalance(uint256)": {
-                        //                     const { amount }: ARGUMENTS = action.args;
+                        for (let i = 0; i < stories.length; i++) {
+                            it(stories[i].description, async () => {
+                                const story = stories[i];
+                                // if (story.maxDepositType === "amount") {
+                                for (let i = 0; i < story.actions.length; i++) {
+                                    const action = story.actions[i];
+                                    switch (action.action) {
+                                        case "setBestStrategy(string,bytes32,bytes32)": {
+                                            const {
+                                                riskProfile,
+                                                strategyHash,
+                                            }: ARGUMENTS = action.args;
+                                            if (action.expect === "success") {
+                                                await contracts[action.contract]
+                                                    .connect(users[action.executer])
+                                                    [action.action](
+                                                        riskProfile,
+                                                        tokensHash,
+                                                        strategyHash
+                                                            ? strategyHash
+                                                            : bestStrategyHash
+                                                    );
+                                            } else {
+                                                await expect(
+                                                    contracts[action.contract]
+                                                        .connect(users[action.executer])
+                                                        [action.action](
+                                                            riskProfile,
+                                                            tokensHash,
+                                                            strategyHash
+                                                                ? strategyHash
+                                                                : bestStrategyHash
+                                                        )
+                                                ).to.be.revertedWith(action.message);
+                                            }
+                                            break;
+                                        }
+                                        case "approve(address,uint256)": {
+                                            const {
+                                                amount,
+                                                strategyHash,
+                                            }: ARGUMENTS = action.args;
+                                            if (action.expect === "success") {
+                                                await contracts[action.contract]
+                                                    .connect(users[action.executer])
+                                                    [action.action](
+                                                        contracts["vault"].address,
+                                                        amount
+                                                            ? amount[strategy.token]
+                                                            : "0"
+                                                    );
+                                            } else {
+                                                await expect(
+                                                    contracts[action.contract]
+                                                        .connect(users[action.executer])
+                                                        [action.action](
+                                                            contracts["vault"].address,
+                                                            amount
+                                                                ? amount[strategy.token]
+                                                                : "0"
+                                                        )
+                                                ).to.be.revertedWith(action.message);
+                                            }
+                                            break;
+                                        }
+                                        case "userDepositRebalance(uint256)": {
+                                            const { amount }: ARGUMENTS = action.args;
 
-                        //                     if (action.expect === "success") {
-                        //                         await contracts[action.contract]
-                        //                             .connect(users[action.executer])
-                        //                             [action.action](
-                        //                                 amount
-                        //                                     ? amount[strategy.token]
-                        //                                     : "0"
-                        //                             );
-                        //                     } else {
-                        //                         await expect(
-                        //                             contracts[action.contract]
-                        //                                 .connect(users[action.executer])
-                        //                                 [action.action](
-                        //                                     amount
-                        //                                         ? amount[strategy.token]
-                        //                                         : "0"
-                        //                                 )
-                        //                         ).to.be.revertedWith(action.message);
-                        //                     }
-                        //                     break;
-                        //                 }
-                        //                 case "balance()": {
-                        //                     const balance = await contracts[
-                        //                         action.contract
-                        //                     ][action.action]();
-                        //                     expect(balance).to.equal(
-                        //                         action.expectedValue[
-                        //                             <keyof typeof action.expectedValue>(
-                        //                                 strategy.token
-                        //                             )
-                        //                         ]
-                        //                     );
-                        //                     break;
-                        //                 }
-                        //                 case "userWithdrawRebalance(uint256)": {
-                        //                     const { amount }: ARGUMENTS = action.args;
-                        //                     if (action.expect === "success") {
-                        //                         await contracts[action.contract]
-                        //                             .connect(users[action.executer])
-                        //                             [action.action](
-                        //                                 amount
-                        //                                     ? amount[strategy.token]
-                        //                                     : "0"
-                        //                             );
-                        //                     } else {
-                        //                         await expect(
-                        //                             contracts[action.contract]
-                        //                                 .connect(users[action.executer])
-                        //                                 [action.action](
-                        //                                     amount
-                        //                                         ? amount[strategy.token]
-                        //                                         : "0"
-                        //                                 )
-                        //                         ).to.be.revertedWith(action.message);
-                        //                     }
-                        //                     break;
-                        //                 }
-                        //                 default:
-                        //                     break;
-                        //             }
-                        //         }
-                        //     }).timeout(150000);
-                        // }
+                                            if (action.expect === "success") {
+                                                await contracts[action.contract]
+                                                    .connect(users[action.executer])
+                                                    [action.action](
+                                                        amount
+                                                            ? amount[strategy.token]
+                                                            : "0"
+                                                    );
+                                            } else {
+                                                await expect(
+                                                    contracts[action.contract]
+                                                        .connect(users[action.executer])
+                                                        [action.action](
+                                                            amount
+                                                                ? amount[strategy.token]
+                                                                : "0"
+                                                        )
+                                                ).to.be.revertedWith(action.message);
+                                            }
+                                            break;
+                                        }
+                                        case "balance()": {
+                                            const balance = await contracts[
+                                                action.contract
+                                            ][action.action]();
+                                            expect(balance).to.equal(
+                                                action.expectedValue[
+                                                    <keyof typeof action.expectedValue>(
+                                                        strategy.token
+                                                    )
+                                                ]
+                                            );
+                                            break;
+                                        }
+                                        case "userWithdrawRebalance(uint256)": {
+                                            const { amount }: ARGUMENTS = action.args;
+                                            if (action.expect === "success") {
+                                                await contracts[action.contract]
+                                                    .connect(users[action.executer])
+                                                    [action.action](
+                                                        amount
+                                                            ? amount[strategy.token]
+                                                            : "0"
+                                                    );
+                                            } else {
+                                                await expect(
+                                                    contracts[action.contract]
+                                                        .connect(users[action.executer])
+                                                        [action.action](
+                                                            amount
+                                                                ? amount[strategy.token]
+                                                                : "0"
+                                                        )
+                                                ).to.be.revertedWith(action.message);
+                                            }
+                                            break;
+                                        }
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }).timeout(150000);
+                        }
                     });
                 }
             }
