@@ -1,0 +1,35 @@
+name: Earn protocol Install, lint and test pipeline
+
+on:
+  pull_request:
+    branches:
+      - master
+      - dev
+  push:
+    branches:
+      - master
+
+
+jobs:
+  install-lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x.x]
+    
+    env:
+      MAINNET_NODE_URL: ${{ secrets.MAINNET_NODE_URL}}
+
+    steps:
+      - name: Checkout Use Node.js ${{ matrix.node-version}}
+        uses: actions/checkout@v2
+      
+      - name: Install
+        run: |
+          yarn
+      - name: Lint
+        run: |
+          yarn lint
+      - name: Test
+        run: |
+          yarn test:dev
