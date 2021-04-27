@@ -61,7 +61,6 @@ describe(scenarios.title, () => {
                         const contracts: CONTRACTS = {};
                         before(async () => {
                             try {
-                                const adapter = adapters[adapterName];
                                 const Vault = await deployVault(
                                     essentialContracts.registry.address,
                                     essentialContracts.riskManager.address,
