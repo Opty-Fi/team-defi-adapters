@@ -156,8 +156,10 @@ export async function setBestBasicStrategy(
         tokensHash,
         strategySteps
     );
+
     const strategyReceipt = await strategies.wait();
     const strategyHash = strategyReceipt.events[0].args[2];
+
     await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
     return strategyHash;
 }

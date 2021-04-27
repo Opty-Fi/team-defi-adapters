@@ -1,5 +1,5 @@
 {
-    "RP1Vault": {
+    "Vault": {
         "CompoundAdapter": [
             {
                 "strategyName": "DAI-deposit-COMPOUND-cDAI",
