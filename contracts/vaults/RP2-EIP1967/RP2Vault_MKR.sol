@@ -97,6 +97,11 @@ contract RP2Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
         _success = true;
     }
 
+    function setWithdrawalFee(uint256 _withdrawalFee) public override onlyGovernance returns (bool _success) {
+        withdrawalFee = _withdrawalFee;
+        _success = true;
+    }
+    
     function _supplyAll() internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
         uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
@@ -362,8 +367,10 @@ contract RP2Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
         }
 
         optyMinterContract.updateUserRewards(address(this), msg.sender);
+
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, balance().sub(depositQueue), _redeemAmount);
+
         optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
         optyMinterContract.updateOptyVaultIndex(address(this));
         optyMinterContract.updateUserStateInVault(address(this), msg.sender);
@@ -466,9 +473,15 @@ contract RP2Vault_MKR is VersionedInitializable, IVault, ERC20, Modifiers, Reent
         uint256 _redeemAmount
     ) private {
         uint256 redeemAmountInToken = (_balance.mul(_redeemAmount)).div(totalSupply());
+        address _treasury = registryContract.treasury();
+        uint256 _fee = 0;
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
-        IERC20(underlyingToken).safeTransfer(_account, redeemAmountInToken);
+        if (_treasury != address(0) && withdrawalFee > 0) {
+            _fee = ((redeemAmountInToken).mul(withdrawalFee)).div(WITHDRAWAL_MAX);
+            IERC20(underlyingToken).safeTransfer(_treasury, _fee);
+        }
+        IERC20(underlyingToken).safeTransfer(_account, redeemAmountInToken.sub(_fee));
     }
 
     function _mintShares(
