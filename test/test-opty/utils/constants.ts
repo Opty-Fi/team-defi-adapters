@@ -10,6 +10,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
     HARVEST_CODE_PROVIDER: "HarvestCodeProvider",
     VAULT_PROXY: "InitializableImmutableAdminUpgradeabilityProxy",
     RISK_MANAGER_PROXY: "RiskManagerProxy",
+    PRICE_ORACLE: "PriceOracle",
 };
 export const VAULT = ["RP1Vault", "RP2Vault", "RP3Vault"];
 export const ADAPTER = [

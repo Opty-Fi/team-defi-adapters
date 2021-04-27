@@ -252,6 +252,16 @@ export async function deployAdapters(
             let contract: Contract;
             if (["dYdXAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
                 contract = await factory.connect(owner).deploy(registryAddr);
+            } else if (["CurvePoolAdapter"].includes(adapter)) {
+                const PriceOracle = await ethers.getContractFactory(
+                    ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE
+                );
+                const priceOracle = await PriceOracle.connect(owner).deploy(
+                    registryAddr
+                );
+                contract = await factory
+                    .connect(owner)
+                    .deploy(registryAddr, harvestAddr, priceOracle.address);
             } else {
                 contract = await factory
                     .connect(owner)
