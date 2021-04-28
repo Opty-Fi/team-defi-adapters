@@ -105,7 +105,7 @@
                         },
                         {
                             "contract": "adapter",
-                            "action": "setMaxDepositAmountDefault(address,uint256)",
+                            "action": "setMaxDepositAmountDefault(uint256)",
                             "args": {
                                 "amount": {
                                     "DAI": "500000000000000000",
