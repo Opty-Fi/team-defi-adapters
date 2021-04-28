@@ -20,6 +20,8 @@ jobs:
     
     env:
       MAINNET_NODE_URL: ${{ secrets.MAINNET_NODE_URL}}
+      COINMARKETCAP_API: ${{ secrets.COINMARKETCAP_API}}
+      REPORT_GAS: ${{ secrets.REPORT_GAS}}
 
     steps:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
