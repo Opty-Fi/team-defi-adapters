@@ -86,22 +86,21 @@
                     "setActions": [
                         {
                             "contract": "adapter",
-                            "action": "setMaxDepositPoolType(uint8)",
-                            "args": {
-                                "type": 0
-                            },
-                            "executer": "owner",
-                            "expect": "success",
-                            "message": ""
-                        },
-                        {
-                            "contract": "adapter",
-                            "action": "setMaxDepositAmount(address,uint256)",
+                            "action": "setMaxDeposit2Amount(address,uint256[2])",
                             "args": {
                                 "amount": {
-                                    "DAI": "0",
-                                    "USDC": "0",
-                                    "USDT": "0"
+                                    "DAI": [
+                                        "0",
+                                        "0"
+                                    ],
+                                    "USDC": [
+                                        "0",
+                                        "0"
+                                    ],
+                                    "USDT": [
+                                        "0",
+                                        "0"
+                                    ]
                                 }
                             },
                             "executer": "owner",
@@ -110,12 +109,27 @@
                         },
                         {
                             "contract": "adapter",
-                            "action": "setMaxDepositAmountDefault(address,uint256)",
+                            "action": "setMaxDepositAmountDefault(uint256[4])",
                             "args": {
                                 "amount": {
-                                    "DAI": "500000000000000000",
-                                    "USDC": "500000",
-                                    "USDT": "2000000"
+                                    "DAI": [
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000"
+                                    ],
+                                    "USDC": [
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000"
+                                    ],
+                                    "USDT": [
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000",
+                                        "500000000000000000"
+                                    ]
                                 }
                             },
                             "executer": "owner",

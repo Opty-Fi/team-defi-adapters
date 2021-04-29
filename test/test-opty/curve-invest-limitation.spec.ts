@@ -140,6 +140,36 @@ describe(scenarios.title, () => {
                                             }
                                             break;
                                         }
+                                        case "setMaxDeposit2Amount(address,uint256[2])": {
+                                            const {
+                                                amount,
+                                            }: ARGUMENTS = setAction.args;
+                                            if (setAction.expect === "success") {
+                                                await contracts[setAction.contract]
+                                                    .connect(users[setAction.executer])
+                                                    [setAction.action](
+                                                        strategy.strategy[i].contract,
+                                                        amount
+                                                            ? amount[strategy.token]
+                                                            : "0"
+                                                    );
+                                            } else {
+                                                await expect(
+                                                    contracts[setAction.contract]
+                                                        .connect(
+                                                            users[setAction.executer]
+                                                        )
+                                                        [setAction.action](
+                                                            strategy.strategy[i]
+                                                                .contract,
+                                                            amount
+                                                                ? amount[strategy.token]
+                                                                : "0"
+                                                        )
+                                                ).to.be.revertedWith(setAction.message);
+                                            }
+                                            break;
+                                        }
                                         case "approve(address,uint256)": {
                                             const {
                                                 amount,
