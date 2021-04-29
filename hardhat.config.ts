@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-etherscan";
+import "@typechain/hardhat";
 require("dotenv").config();
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -10,9 +12,12 @@ const buidlerConfig: HardhatUserConfig = {
     solidity: {
         version: "0.6.10",
         settings: {
-            optimizer: { enabled: true, runs: 20 },
+            optimizer: { enabled: true, runs: 1 },
             evmVersion: "istanbul",
         },
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
     },
     networks: {
         hardhat: {
@@ -20,18 +25,19 @@ const buidlerConfig: HardhatUserConfig = {
                 blockNumber: 12200321,
                 url: process.env.MAINNET_NODE_URL ? process.env.MAINNET_NODE_URL : "",
             },
+            gas: 12000000,
+            allowUnlimitedContractSize: true,
+            blockGasLimit: 0x1fffffffffffff,
         },
     },
     mocha: {
-        timeout: 10000000,
+        timeout: 0,
     },
     gasReporter: {
         currency: "USD",
         gasPrice: 21,
-        enabled: true,
-        coinmarketcap: "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
-        outputFile: "output.txt",
-        noColors: true,
+        enabled: process.env.REPORT_GAS ? true : false,
+        coinmarketcap: process.env.COINMARKETCAP_API,
     },
 };
 export default buidlerConfig;
