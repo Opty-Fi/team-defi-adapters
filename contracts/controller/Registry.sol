@@ -535,6 +535,65 @@ contract Registry is ModifiersController {
         return hash;
     }
     
+    function setVaultRewardStrategy(bytes32 _vaultRewardTokenHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bytes32) {
+        require(_vaultRewardStrategy.hold > 0, "!hold>0");
+        require(_vaultRewardStrategy.convert > 0, "!convert>0");
+        
+        // generating unique vaultRewardTokenStrategy hash 
+        bytes32 _vaultRewardTokenStrategyHash = keccak256(abi.encodePacked(_vaultRewardTokenHash, _vaultRewardStrategy.hold, _vaultRewardStrategy.convert));
+        
+        //  setting vault reward strategy
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
+        
+        // mapping vaultRewardToken's hash to vaultRewardStrategy's hash
+        vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = _vaultRewardTokenStrategyHash;
+        
+        emit LogSetVaultRewardStrategy(msg.sender, _vaultRewardTokenHash, _vaultRewardTokenStrategyHash);
+        return _vaultRewardTokenStrategyHash;
+    }
+    
+    function updateVaultRewardStrategy(bytes32 _vaultRewardTokenStrategyHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bool) {
+        require(_vaultRewardStrategy.hold > 0, "!hold>0");
+        require(_vaultRewardStrategy.convert > 0, "!convert>0");
+        
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
+        
+        emit LogUpdateVaultRewardStrategy(_vaultRewardTokenStrategyHash, vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold, vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert);
+        return true;
+    }
+    
+    event LogSetVaultRewardStrategy(address indexed caller, bytes32 vaultRewardTokenHash, bytes32 vaultRewardStrategyHash);
+    event LogUpdateVaultRewardStrategy(bytes32 vaultRewardStrategyHash, uint256 indexed hold, uint256 convert);
+    
+    function removeVaultRewardStrategy(bytes32 _vaultRewardTokenHash) public onlyGovernance returns (bool) {
+        bytes32 _vaultRewardTokenStrategyHash = vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash];
+        if (_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            //  reset all values
+            vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = 0;
+            vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = 0;
+            vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        }
+        return true;
+    }
+    
+    function setVaultRewardTokenToHash(VaultRewardToken memory _vaultRewardToken) public onlyGovernance returns (bytes32) {
+        require(_vaultRewardToken.vault != address(0), "vault!=0x0");
+        require(_vaultRewardToken.rewardToken != address(0), "reward!=0x0");
+        
+        bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_vaultRewardToken.vault, _vaultRewardToken.rewardToken));
+        
+        //  set vaultRewardToken to its hash
+        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault = _vaultRewardToken.vault;
+        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken = _vaultRewardToken.rewardToken;
+        
+        emit LogVaultRewardTokenToVaultRewardTokenHash(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault, vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken, _vaultRewardTokenHash);
+        return _vaultRewardTokenHash;
+    }
+    
+    event LogVaultRewardTokenToVaultRewardTokenHash(address indexed vault, address indexed rewardToken, bytes32 indexed vaultRewardTokenHash);
+    
     /**
      * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingToken` and `_riskProfile`
      * 
@@ -549,7 +608,7 @@ contract Registry is ModifiersController {
      * - `msg.sender` (caller) should be governance
      * 
      */
-    function setUnderlyingTokenToRPToVaults(address _underlyingToken, string memory _riskProfile, address _vault) public returns (bool) {
+    function setUnderlyingTokenToRPToVaults(address _underlyingToken, string memory _riskProfile, address _vault) public onlyGovernance returns (bool) {
         return _setUnderlyingTokenToRPToVaults(_underlyingToken, _riskProfile, _vault);
     }
     
@@ -568,7 +627,7 @@ contract Registry is ModifiersController {
      * - `msg.sender` (caller) should be governance
      * 
      */
-    function setUnderlyingTokenToRPToVaults(address[] memory _underlyingTokens, string[] memory _riskProfiles, address[][] memory _vaults) public returns (bool) {
+    function setUnderlyingTokenToRPToVaults(address[] memory _underlyingTokens, string[] memory _riskProfiles, address[][] memory _vaults) public onlyGovernance returns (bool) {
         require(uint8(_riskProfiles.length) == uint8(_vaults.length), "!Profileslength");
         for (uint8 _i = 0; _i < uint8(_vaults.length); _i++) {
             require(uint8(_vaults[_i].length) == uint8(_underlyingTokens.length), "!VaultsLength");

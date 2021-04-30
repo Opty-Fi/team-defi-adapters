@@ -211,22 +211,42 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         }
     }
 
-    function harvest(bytes32 _hash) public override {
-        uint8 _claimRewardSteps = strategyManagerContract.getClaimRewardStepsCount(_hash);
+    function harvest(bytes32 _investStrategyHash) public override {
+        uint8 _claimRewardSteps = strategyManagerContract.getClaimRewardStepsCount(_investStrategyHash);
         for (uint8 _i = 0; _i < _claimRewardSteps; _i++) {
             bytes[] memory _codes =
-                strategyManagerContract.getPoolClaimAllRewardCodes(payable(address(this)), _hash, _i, _claimRewardSteps);
+                strategyManagerContract.getPoolClaimAllRewardCodes(payable(address(this)), _investStrategyHash, _i, _claimRewardSteps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
                 require(success);
             }
         }
+        //---------------------------------------------------//
         // TODO: Opty-22 will have vault reward strategy
-        uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_hash);
+        // uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_hash);
+        // for (uint8 _i = 0; _i < _harvestSteps; _i++) {
+        //     bytes[] memory _codes =
+        //         strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
+        //     for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+        //         (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+        //         (bool success, ) = pool.call(data);
+        //         require(success);
+        //     }
+        // }
+        //---------------------------------------------------//
+        
+        // address _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
+            // bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_optyVault, _rewardToken));
+            
+            // bytes32 _vaultRewardTokenStrategyHash = registryContract.vaultRewardTokenHashToVaultRewardStrategyHash(_vaultRewardTokenHash);
+        
+        // bytes32 _vaultRewardStrategyHash;   //  get vault reward hash
+        // (uint256 _hold, uint256 _convert) = registryContract.vaultRewardStrategies(_vaultRewardStrategyHash);   //  get how much to hold and convert
+        uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
         for (uint8 _i = 0; _i < _harvestSteps; _i++) {
             bytes[] memory _codes =
-                strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
+                strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _i, _harvestSteps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);

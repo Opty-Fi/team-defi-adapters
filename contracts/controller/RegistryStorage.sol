@@ -50,6 +50,16 @@ contract Structs {
         address outputToken;
         bool isBorrow;
     }
+    
+    struct VaultRewardStrategy {
+        uint256 hold;   //  should be in basis eg: 50% means 5000
+        uint256 convert;    //  should be in basis eg: 50% means 5000
+    }
+    
+    struct VaultRewardToken {
+        address vault;
+        address rewardToken;
+    }
 
     struct LiquidityPool {
         uint8 rating;
@@ -106,4 +116,9 @@ contract RegistryStorage is RegistryAdminStorage, Structs {
     mapping(address => bool) public vaultToPaused;
     string[] public riskProfilesArray;
     mapping(string => RiskProfile) public riskProfiles;
+    mapping(bytes32 => bytes32) public vaultRewardTokenHashToVaultRewardStrategyHash;
+    // bytes32[] public vaultRewardTokenHashIndexes;
+    mapping(bytes32 => VaultRewardToken) public vaultRewardTokenHashToVaultRewardToken;
+    // bytes32[] public vaultRewardStrategyHashIndexes;
+    mapping(bytes32 => VaultRewardStrategy) public vaultRewardStrategies;
 }
