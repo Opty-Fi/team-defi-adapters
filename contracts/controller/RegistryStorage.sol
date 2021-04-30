@@ -117,8 +117,6 @@ contract RegistryStorage is RegistryAdminStorage, Structs {
     string[] public riskProfilesArray;
     mapping(string => RiskProfile) public riskProfiles;
     mapping(bytes32 => bytes32) public vaultRewardTokenHashToVaultRewardStrategyHash;
-    // bytes32[] public vaultRewardTokenHashIndexes;
     mapping(bytes32 => VaultRewardToken) public vaultRewardTokenHashToVaultRewardToken;
-    // bytes32[] public vaultRewardStrategyHashIndexes;
     mapping(bytes32 => VaultRewardStrategy) public vaultRewardStrategies;
 }
