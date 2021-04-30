@@ -534,66 +534,7 @@ contract Registry is ModifiersController {
         emit LogSetStrategy(msg.sender, _tokensHash, hash);
         return hash;
     }
-    
-    function setVaultRewardStrategy(bytes32 _vaultRewardTokenHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bytes32) {
-        require(_vaultRewardStrategy.hold > 0, "!hold>0");
-        require(_vaultRewardStrategy.convert > 0, "!convert>0");
-        
-        // generating unique vaultRewardTokenStrategy hash 
-        bytes32 _vaultRewardTokenStrategyHash = keccak256(abi.encodePacked(_vaultRewardTokenHash, _vaultRewardStrategy.hold, _vaultRewardStrategy.convert));
-        
-        //  setting vault reward strategy
-        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
-        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
-        
-        // mapping vaultRewardToken's hash to vaultRewardStrategy's hash
-        vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = _vaultRewardTokenStrategyHash;
-        
-        emit LogSetVaultRewardStrategy(msg.sender, _vaultRewardTokenHash, _vaultRewardTokenStrategyHash);
-        return _vaultRewardTokenStrategyHash;
-    }
-    
-    function updateVaultRewardStrategy(bytes32 _vaultRewardTokenStrategyHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bool) {
-        require(_vaultRewardStrategy.hold > 0, "!hold>0");
-        require(_vaultRewardStrategy.convert > 0, "!convert>0");
-        
-        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
-        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
-        
-        emit LogUpdateVaultRewardStrategy(_vaultRewardTokenStrategyHash, vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold, vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert);
-        return true;
-    }
-    
-    event LogSetVaultRewardStrategy(address indexed caller, bytes32 vaultRewardTokenHash, bytes32 vaultRewardStrategyHash);
-    event LogUpdateVaultRewardStrategy(bytes32 vaultRewardStrategyHash, uint256 indexed hold, uint256 convert);
-    
-    function removeVaultRewardStrategy(bytes32 _vaultRewardTokenHash) public onlyGovernance returns (bool) {
-        bytes32 _vaultRewardTokenStrategyHash = vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash];
-        if (_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
-            //  reset all values
-            vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = 0;
-            vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = 0;
-            vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        }
-        return true;
-    }
-    
-    function setVaultRewardTokenToHash(VaultRewardToken memory _vaultRewardToken) public onlyGovernance returns (bytes32) {
-        require(_vaultRewardToken.vault != address(0), "vault!=0x0");
-        require(_vaultRewardToken.rewardToken != address(0), "reward!=0x0");
-        
-        bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_vaultRewardToken.vault, _vaultRewardToken.rewardToken));
-        
-        //  set vaultRewardToken to its hash
-        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault = _vaultRewardToken.vault;
-        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken = _vaultRewardToken.rewardToken;
-        
-        emit LogVaultRewardTokenToVaultRewardTokenHash(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault, vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken, _vaultRewardTokenHash);
-        return _vaultRewardTokenHash;
-    }
-    
-    event LogVaultRewardTokenToVaultRewardTokenHash(address indexed vault, address indexed rewardToken, bytes32 indexed vaultRewardTokenHash);
-    
+
     /**
      * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingToken` and `_riskProfile`
      * 
@@ -838,6 +779,115 @@ contract Registry is ModifiersController {
     }
     
     /**
+     * @dev Set the Vault+RewardToken addresses to Vault+RewardToken hash
+     *
+     * Returns a vaultRewardToken has value incdicating successful operation.
+     *
+     * Emits a {LogVaultRewardTokenToVaultRewardTokenHash} event.
+     *
+     * Requirements:
+     *
+     * - msg.sender can be governance.
+     * - `_vaultRewardToken` should be provided as a tuple of vault and rewardToken address
+     */
+    function setVaultRewardTokenToHash(VaultRewardToken memory _vaultRewardToken) public onlyGovernance returns (bytes32) {
+        require(_vaultRewardToken.vault != address(0), "vault!=0x0");
+        require(_vaultRewardToken.rewardToken != address(0), "reward!=0x0");
+        
+        bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_vaultRewardToken.vault, _vaultRewardToken.rewardToken));
+        
+        //  set vaultRewardToken to its hash
+        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault = _vaultRewardToken.vault;
+        vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken = _vaultRewardToken.rewardToken;
+        
+        emit LogVaultRewardTokenToVaultRewardTokenHash(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault, vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken, _vaultRewardTokenHash);
+        return _vaultRewardTokenHash;
+    }
+    
+    /**
+     * @dev assign strategy in form of `_vaultRewardStrategy` to the `_vaultRewardTokenHash`.
+     *
+     * Returns a vaultRewardStrategy hash value indicating successful operation.
+     *
+     * Emits a {LogSetVaultRewardStrategy} event.
+     *
+     * Requirements:
+     *
+     * - msg.sender can be governance.
+     * - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.
+     *      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
+     * - `convert` in {_vaultRewardStrategy} should be approved
+     *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
+     */
+    function setVaultRewardStrategy(bytes32 _vaultRewardTokenHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bytes32) {
+        require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
+        require(_vaultRewardStrategy.hold > 0, "!hold>0");
+        require(_vaultRewardStrategy.convert > 0, "!convert>0");
+        
+        // generating unique vaultRewardTokenStrategy hash 
+        bytes32 _vaultRewardTokenStrategyHash = keccak256(abi.encodePacked(_vaultRewardTokenHash, _vaultRewardStrategy.hold, _vaultRewardStrategy.convert));
+        
+        //  setting vault reward strategy
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
+        
+        // mapping vaultRewardToken's hash to vaultRewardStrategy's hash
+        vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = _vaultRewardTokenStrategyHash;
+        
+        emit LogSetVaultRewardStrategy(msg.sender, _vaultRewardTokenHash, _vaultRewardTokenStrategyHash);
+        return _vaultRewardTokenStrategyHash;
+    }
+    
+    /**
+     * @dev Update the existing VaultRewardStrategy.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {LogUpdateVaultRewardStrategy} event.
+     *
+     * Requirements:
+     *
+     * - msg.sender can be governance.
+     * - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.
+     *      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
+     * - `convert` in {_vaultRewardStrategy} should be approved
+     *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
+     */
+    function updateVaultRewardStrategy(bytes32 _vaultRewardTokenStrategyHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bool) {
+        require(_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
+        require(_vaultRewardStrategy.hold > 0, "!hold>0");
+        require(_vaultRewardStrategy.convert > 0, "!convert>0");
+        
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = _vaultRewardStrategy.hold;
+        vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = _vaultRewardStrategy.convert;
+        
+        emit LogUpdateVaultRewardStrategy(_vaultRewardTokenStrategyHash, vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold, vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert);
+        return true;
+    }
+    
+    /**
+     * @dev Remove the existing VaultRewardStrategy.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - msg.sender can be governance.
+     * - `_vaultRewardTokenHash` should be provided
+     *      - It will further give the vaultRewardStrategyHash linked to vaultRewardTokenHash
+     */
+    function removeVaultRewardStrategy(bytes32 _vaultRewardTokenHash) public onlyGovernance returns (bool) {
+        bytes32 _vaultRewardTokenStrategyHash = vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash];
+        if (_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            //  reset all values
+            vaultRewardStrategies[_vaultRewardTokenStrategyHash].hold = 0;
+            vaultRewardStrategies[_vaultRewardTokenStrategyHash].convert = 0;
+            vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        }
+        return true;
+    }
+    
+    /**
      * @dev Emitted when `token` is approved or revoked.
      *
      * Note that `token` cannot be zero address or EOA.
@@ -917,7 +967,28 @@ contract Registry is ModifiersController {
     /**
      * @dev Emitted when RiskProfile is added
      * 
-     Note that ``riskProfile can not be empty
+     * Note that `riskProfile` can not be empty
      */
     event RiskProfileAdded(uint256 indexed index, bytes32 indexed riskProfile, bool indexed exists);
+    
+    /**
+     * @dev Emitted when creating unique identifier for Vault and RewardToken
+     * 
+     * Note that `vault` and `rewardToken` can not be zero address
+     */
+    event LogVaultRewardTokenToVaultRewardTokenHash(address indexed vault, address indexed rewardToken, bytes32 indexed vaultRewardTokenHash);
+    
+    /**
+     * @dev Emitted when VaultRewardStrategy is set
+     * 
+     * Note that `vaultRewardTokenHash` and `vaultRewardStrategyHash` can not be zero
+     */
+    event LogSetVaultRewardStrategy(address indexed caller, bytes32 vaultRewardTokenHash, bytes32 vaultRewardStrategyHash);
+    
+    /**
+     * @dev Emitted when VaultRewardStrategy is updated
+     * 
+     * Note that `vaultRewardStrategyHash` can not be zero
+     */
+    event LogUpdateVaultRewardStrategy(bytes32 vaultRewardStrategyHash, uint256 indexed hold, uint256 convert);
 }
