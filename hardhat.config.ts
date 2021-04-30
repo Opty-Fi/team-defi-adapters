@@ -36,7 +36,7 @@ const buidlerConfig: HardhatUserConfig = {
     gasReporter: {
         currency: "USD",
         gasPrice: 21,
-        enabled: process.env.REPORT_GAS ? true : false,
+        enabled: process.env.REPORT_GAS != "false" ? true : false,
         coinmarketcap: process.env.COINMARKETCAP_API,
     },
 };
