@@ -2,14 +2,13 @@
 
 pragma solidity ^0.6.10;
 
-import "./interfaces/chainlink/AggregatorV3Interface.sol";
-import "./utils/Modifiers.sol";
-import "./libraries/SafeMath.sol";
+import { AggregatorV3Interface } from "./interfaces/chainlink/AggregatorV3Interface.sol";
+import { Modifiers } from "./controller/Modifiers.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract PriceOracle is Modifiers {
-    
     using SafeMath for uint256;
-    
+
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     address public constant USDT = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
@@ -32,33 +31,24 @@ contract PriceOracle is Modifiers {
         setOracle(WBTC, BTC_USD);
     }
 
-    function setOracle(address _underlyingToken, address _oracle) public onlyOperator returns(bool) {
+    function setOracle(address _underlyingToken, address _oracle) public onlyOperator returns (bool) {
         underlyingTokenToPriceFeed[_underlyingToken] = _oracle;
         return true;
     }
+
     /**
      * Returns the latest price
      */
     function getUnderlyingTokenAmountInUSD(uint256 _amount, address _underlyingToken) public view returns (uint256) {
         uint8 _decimals = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).decimals();
-        (
-            ,
-            int price,
-            ,
-            ,
-        ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
+        (, int256 price, , , ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
         uint256 amount = (uint256(price).mul(_amount)).div(uint256(10**uint256(_decimals)));
         return amount;
     }
-    
+
     function getUSDAmountInUnderlyingToken(uint256 _amount, address _underlyingToken) public view returns (uint256) {
         uint8 _decimals = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).decimals();
-        (
-            ,
-            int price,
-            ,
-            ,
-        ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
+        (, int256 price, , , ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
         uint256 amount = (_amount.mul(uint256(10**uint256(_decimals)))).div(uint256(price));
         return amount;
     }

@@ -2,14 +2,13 @@
 
 pragma solidity ^0.6.10;
 
-import "./../libraries/Addresses.sol";
-import "../controller/Registry.sol";
-
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { Registry } from "./Registry.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
-contract Modifiers {
+abstract contract Modifiers {
     Registry public registryContract;
 
     using Address for address;
@@ -20,7 +19,7 @@ contract Modifiers {
     constructor(address _registry) internal {
         registryContract = Registry(_registry);
     }
-    
+
     /**
      * @dev Function to check if the address is zero address or not
      */
@@ -82,7 +81,7 @@ contract Modifiers {
         require(!registryContract.vaultToPaused(_vault), "paused");
         _;
     }
-    
+
     modifier onlyRegistry() {
         require(msg.sender == address(registryContract), "caller is not Registry contract");
         _;

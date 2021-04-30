@@ -2,8 +2,8 @@
 
 pragma solidity ^0.6.10;
 
-import "./utils/Modifiers.sol";
-import "./RiskManagerStorage.sol";
+import { Modifiers } from "./controller/Modifiers.sol";
+import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 
 /**
  * @title RiskManagerCore
@@ -17,12 +17,12 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
     /**
-     * @notice Emitted when pendingRiskManagerImplementation is accepted, which means RiskManager implementation is updated
+     * @notice Emitted when RiskManager implementation is updated
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
-    constructor(address _registry) public Modifiers(_registry) {
-    }
+    // solhint-disable no-empty-blocks
+    constructor(address _registry) public Modifiers(_registry) {}
 
     /*** Admin Functions ***/
     function setPendingImplementation(address newPendingImplementation) public onlyOperator {
@@ -39,10 +39,13 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
      */
     function acceptImplementation() public returns (uint256) {
         // Check caller is pendingImplementation and pendingImplementation ≠ address(0)
-        require(msg.sender == pendingRiskManagerImplementation && pendingRiskManagerImplementation != address(0), "!pendingRiskManagerImplementation");
+        require(
+            msg.sender == pendingRiskManagerImplementation && pendingRiskManagerImplementation != address(0),
+            "!pendingRiskManagerImplementation"
+        );
 
         // Save current values for inclusion in log
-        address oldImplementation =  riskManagerImplementation;
+        address oldImplementation = riskManagerImplementation;
         address oldPendingImplementation = pendingRiskManagerImplementation;
 
         riskManagerImplementation = pendingRiskManagerImplementation;
@@ -56,9 +59,10 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     }
 
     receive() external payable {
-        revert();
+        revert("can't except ethers");
     }
 
+    /* solhint-disable no-complex-fallback, avoid-low-level-calls, no-inline-assembly */
     /**
      * @dev Delegates execution to an riskManager implementation contract.
      * It returns to the external caller whatever the implementation returns
@@ -81,4 +85,5 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
                 }
         }
     }
+    /* solhint-disable no-complex-fallback, avoid-low-level-calls, no-inline-assembly */
 }
