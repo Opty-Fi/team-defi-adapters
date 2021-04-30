@@ -21,12 +21,12 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
 
     function setStakingPool(address _stakingPool) public onlyOperator {
         require(_stakingPool != address(0), "Invalid address");
-        _optyStakingPool = OPTYStakingPool(_stakingPool);
+        optyStakingPool = OPTYStakingPool(_stakingPool);
     }
 
     function claimAndStake(address _holder) public {
         uint256 _amount = claimOpty(_holder, allOptyVaults);
-        _optyStakingPool.userStake(_amount);
+        optyStakingPool.userStake(_amount);
     }
 
     /**

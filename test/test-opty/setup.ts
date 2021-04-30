@@ -7,7 +7,12 @@ import { getSoliditySHA3Hash } from "./utils/helpers";
 export async function setUp(owner: Signer): Promise<[ESSENTIAL_CONTRACTS, CONTRACTS]> {
   const contracts = await deployEssentialContracts(owner);
   await approveTokens(contracts.registry);
-  const adapters = await deployAdapters(owner, contracts.registry.address, contracts.harvestCodeProvider.address);
+  const adapters = await deployAdapters(
+    owner,
+    contracts.registry.address,
+    contracts.harvestCodeProvider.address,
+    contracts.priceOracle.address,
+  );
   return [contracts, adapters];
 }
 
@@ -62,6 +67,9 @@ async function deployEssentialContracts(owner: Signer): Promise<ESSENTIAL_CONTRA
 
   const OPTYMinter = await ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER);
   const optyMinter = await OPTYMinter.connect(owner).deploy(registry.address, opty.address);
+
+  const priceOracleFactory = await ethers.getContractFactory("PriceOracle");
+  const priceOracle = await priceOracleFactory.connect(owner).deploy(registry.address);
   return {
     registry,
     strategyProvider,
@@ -70,6 +78,7 @@ async function deployEssentialContracts(owner: Signer): Promise<ESSENTIAL_CONTRA
     strategyManager,
     opty,
     optyMinter,
+    priceOracle,
   };
 }
 
@@ -169,7 +178,12 @@ export async function approveLiquidityPoolAndMapAdapter(
   await registryContract.setLiquidityPoolsToAdapters([[lqPool, adapter]]);
 }
 
-export async function deployAdapters(owner: Signer, registryAddr: string, harvestAddr: string): Promise<CONTRACTS> {
+export async function deployAdapters(
+  owner: Signer,
+  registryAddr: string,
+  harvestAddr: string,
+  priceOracleAddr: string,
+): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
 
   for (const adapter of ADAPTER) {
@@ -178,13 +192,15 @@ export async function deployAdapters(owner: Signer, registryAddr: string, harves
       let contract: Contract;
       if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
         contract = await factory.connect(owner).deploy(registryAddr);
+      } else if (["CurvePoolAdapter"].includes(adapter)) {
+        contract = await factory.connect(owner).deploy(registryAddr, harvestAddr, priceOracleAddr);
       } else {
         contract = await factory.connect(owner).deploy(registryAddr, harvestAddr);
       }
 
       data[adapter] = contract;
     } catch (error) {
-      console.log(error);
+      console.log("eeeeeeeee", error);
     }
   }
   return data;
