@@ -117,9 +117,9 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         _batchMintAndBurn();
         first = 1;
         last = 0;
-        uint8 _steps = strategyManagerContract.getDepositAllStepCount(strategyHash);
+        uint8 _steps = strategyManagerContract.getDepositAllStepCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes = strategyManagerContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, strategyHash, _i, _steps);
+            bytes[] memory _codes = strategyManagerContract.getPoolDepositAllCodes(payable(address(this)), underlyingToken, investStrategyHash, _i, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool success, ) = pool.call(data);
@@ -142,11 +142,11 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
 
         if (
-            keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(strategyHash)) &&
-            strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000
+            keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
+            investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000
         ) {
             _withdrawAll();
-            harvest(strategyHash);
+            harvest(investStrategyHash);
             if (msg.sender == registryContract.operator() && gasOwedToOperator != uint(0)){
                 address[] memory _path = new address[](2);
                 _path[0] = WETH;
@@ -157,13 +157,13 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
             }
         }
 
-        strategyHash = newStrategyHash;
+        investStrategyHash = newStrategyHash;
 
         uint256 _balance = balance();
 
         if (_balance > 0) {
             _emergencyBrake(_balance);
-            strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
         
@@ -183,8 +183,8 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
      *    credit pool like compound is added.
      */
     function _calVaultValueInUnderlyingToken() internal view returns (uint256) {
-        if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
-            uint256 balanceInUnderlyingToken = strategyManagerContract.getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, strategyHash);
+        if (investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+            uint256 balanceInUnderlyingToken = strategyManagerContract.getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, investStrategyHash);
             return balanceInUnderlyingToken.add(balance()).sub(depositQueue);
         }
         return balance().sub(depositQueue);
@@ -198,11 +198,11 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
     }
 
     function _withdrawAll() internal {
-        uint8 _steps = strategyManagerContract.getWithdrawAllStepsCount(strategyHash);
+        uint8 _steps = strategyManagerContract.getWithdrawAllStepsCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
             bytes[] memory _codes =
-                strategyManagerContract.getPoolWithdrawAllCodes(payable(address(this)), underlyingToken, strategyHash, _iterator, _steps);
+                strategyManagerContract.getPoolWithdrawAllCodes(payable(address(this)), underlyingToken, investStrategyHash, _iterator, _steps);
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
                 (bool _success, ) = pool.call(data);
@@ -222,27 +222,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
                 require(success);
             }
         }
-        //---------------------------------------------------//
-        // TODO: Opty-22 will have vault reward strategy
-        // uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_hash);
-        // for (uint8 _i = 0; _i < _harvestSteps; _i++) {
-        //     bytes[] memory _codes =
-        //         strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _hash, _i, _harvestSteps);
-        //     for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-        //         (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-        //         (bool success, ) = pool.call(data);
-        //         require(success);
-        //     }
-        // }
-        //---------------------------------------------------//
         
-        // address _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
-            // bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_optyVault, _rewardToken));
-            
-            // bytes32 _vaultRewardTokenStrategyHash = registryContract.vaultRewardTokenHashToVaultRewardStrategyHash(_vaultRewardTokenHash);
-        
-        // bytes32 _vaultRewardStrategyHash;   //  get vault reward hash
-        // (uint256 _hold, uint256 _convert) = registryContract.vaultRewardStrategies(_vaultRewardStrategyHash);   //  get how much to hold and convert
         uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
         for (uint8 _i = 0; _i < _harvestSteps; _i++) {
             bytes[] memory _codes =
@@ -331,9 +311,9 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
     function userDepositRebalance(uint256 _amount) public override ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
 
-        if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
-            harvest(strategyHash);
+            harvest(investStrategyHash);
         }
 
         uint256 _tokenBalance = balance();
@@ -356,7 +336,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
             _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
-            strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
         _success = true;
@@ -391,9 +371,9 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
 
-        if (!registryContract.vaultToDiscontinued(address(this)) && strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (!registryContract.vaultToDiscontinued(address(this)) && investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
-            harvest(strategyHash);
+            harvest(investStrategyHash);
         }
 
         optyMinterContract.updateUserRewards(address(this), msg.sender);
@@ -409,7 +389,7 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
             _emergencyBrake(balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
-            strategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
         return true;
@@ -530,16 +510,16 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
     }
 
     function discontinue() public override onlyRegistry {
-        if (strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
-            harvest(strategyHash);
+            harvest(investStrategyHash);
         }
     }
 
     function setPaused(bool _paused) public override onlyRegistry {
-        if (_paused && strategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
+        if (_paused && investStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000) {
             _withdrawAll();
-            harvest(strategyHash);
+            harvest(investStrategyHash);
         }
     }
 }
