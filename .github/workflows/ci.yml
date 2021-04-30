@@ -22,6 +22,7 @@ jobs:
       MAINNET_NODE_URL: ${{ secrets.MAINNET_NODE_URL}}
       COINMARKETCAP_API: ${{ secrets.COINMARKETCAP_API}}
       REPORT_GAS: ${{ secrets.REPORT_GAS}}
+      MY_METAMASK_MNEMONIC: ${{ secrets.MY_METAMASK_MNEMONIC}}
 
     steps:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
