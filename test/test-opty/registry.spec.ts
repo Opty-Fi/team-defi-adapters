@@ -20,9 +20,7 @@ describe(scenario.title, () => {
       registryContract = await deployRegistry(owner);
       const HarvestCodeProvider = await ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER);
       harvestCodeProvider = await HarvestCodeProvider.connect(owner).deploy(registryContract.address);
-      const priceOracleFactory = (await ethers.getContractFactory(
-        "PriceOracle",
-      ));
+      const priceOracleFactory = await ethers.getContractFactory("PriceOracle");
       const priceOracle = await priceOracleFactory.connect(owner).deploy(registryContract.address);
       adapters = await deployAdapters(
         owner,
