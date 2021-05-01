@@ -45,6 +45,9 @@ describe(scenarios.title, () => {
         const strategies = TypedAdapterStrategies[profile + vault.name][adaptersName[i]];
 
         for (let i = 0; i < strategies.length; i++) {
+          if(strategies[i].strategyName == "DAI-deposit-CURVE-cDAI+cUSDC") {
+            continue;
+          }
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);

@@ -5,7 +5,7 @@ import { deployAdapters, deployRegistry } from "./setup";
 import { CONTRACTS } from "./utils/type";
 import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA } from "./utils/constants";
 import scenario from "./scenarios/registry.json";
-import { PriceOracle, PriceOracle__factory } from "../../typechain";
+
 type ARGUMENTS = {
   [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
@@ -20,10 +20,10 @@ describe(scenario.title, () => {
       registryContract = await deployRegistry(owner);
       const HarvestCodeProvider = await ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER);
       harvestCodeProvider = await HarvestCodeProvider.connect(owner).deploy(registryContract.address);
-      const priceOracleFactory: PriceOracle__factory = (await ethers.getContractFactory(
+      const priceOracleFactory = (await ethers.getContractFactory(
         "PriceOracle",
-      )) as PriceOracle__factory;
-      const priceOracle: PriceOracle = await priceOracleFactory.connect(owner).deploy(registryContract.address);
+      ));
+      const priceOracle = await priceOracleFactory.connect(owner).deploy(registryContract.address);
       adapters = await deployAdapters(
         owner,
         registryContract.address,

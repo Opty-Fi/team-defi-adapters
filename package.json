@@ -78,7 +78,8 @@
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"",
     "typechain": "hardhat typechain",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol ",
-    "prettier:solidity": "./node_modules/.bin/prettier --write contracts/**/*.sol"
+    "prettier:solidity": "./node_modules/.bin/prettier --write contracts/**/*.sol",
+    "gas-report":"env REPORT_GAS=true yarn test"
   },
   "publishConfig": {
     "access": "public"
