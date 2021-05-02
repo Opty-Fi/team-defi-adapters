@@ -59,7 +59,7 @@
         "lint:fix": "yarn prettier ./test/**/*.ts --write && eslint ./test/**/*.ts --ext .ts --fix",
         "precompile": "yarn clean",
         "compile:waffle":"rimraf ./build && waffle .waffle.json",
-        "compile": "yarn clean and hardhat compile",
+        "compile": "yarn clean && hardhat compile",
         "test": "hardhat test test/test-opty/*.spec.ts",
         "test-clean": "yarn clean && yarn test",
         "test-fast": "TS_NODE_TRANSPILE_ONLY=1 hardhat test test/test-opty/*.spec.ts",

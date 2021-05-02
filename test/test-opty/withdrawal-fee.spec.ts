@@ -298,7 +298,7 @@ describe(scenario.title, () => {
                             }
                         }
                     }
-                }).timeout(100000);
+                }).timeout(400000);
             }
         });
     }
