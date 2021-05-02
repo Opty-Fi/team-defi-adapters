@@ -787,10 +787,10 @@ contract Registry is ModifiersController {
      *
      * Requirements:
      *
-     * - msg.sender can be governance.
+     * - msg.sender can be operator.
      * - `_vaultRewardToken` should be provided as a tuple of vault and rewardToken address
      */
-    function setVaultRewardTokenToHash(VaultRewardToken memory _vaultRewardToken) public onlyGovernance returns (bytes32) {
+    function setVaultRewardTokenToHash(VaultRewardToken memory _vaultRewardToken) public onlyOperator returns (bytes32) {
         require(_vaultRewardToken.vault != address(0), "vault!=0x0");
         require(_vaultRewardToken.rewardToken != address(0), "reward!=0x0");
         
@@ -820,6 +820,7 @@ contract Registry is ModifiersController {
      *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
      */
     function setVaultRewardStrategy(bytes32 _vaultRewardTokenHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyOperator returns (bytes32) {
+        require(vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] == 0x0000000000000000000000000000000000000000000000000000000000000000, "VaultRewardStrategyAlreadyExists");
         require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
         require(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault != address(0), "vault!=0x0");
         require(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken != address(0), "rT!=0x0");
@@ -849,13 +850,13 @@ contract Registry is ModifiersController {
      *
      * Requirements:
      *
-     * - msg.sender can be governance.
+     * - msg.sender can be operator.
      * - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.
      *      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
      * - `convert` in {_vaultRewardStrategy} should be approved
      *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
      */
-    function updateVaultRewardStrategy(bytes32 _vaultRewardTokenHash, bytes32 _vaultRewardTokenStrategyHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyGovernance returns (bool) {
+    function updateVaultRewardStrategy(bytes32 _vaultRewardTokenHash, bytes32 _vaultRewardTokenStrategyHash, VaultRewardStrategy memory _vaultRewardStrategy) public onlyOperator returns (bool) {
         require(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].vault != address(0), "vault!=0x0");
         require(vaultRewardTokenHashToVaultRewardToken[_vaultRewardTokenHash].rewardToken != address(0), "rT!=0x0");
         require(_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
@@ -877,11 +878,11 @@ contract Registry is ModifiersController {
      *
      * Requirements:
      *
-     * - msg.sender can be governance.
+     * - msg.sender can be operator.
      * - `_vaultRewardTokenHash` should be provided
      *      - It will further give the vaultRewardStrategyHash linked to vaultRewardTokenHash
      */
-    function removeVaultRewardStrategy(bytes32 _vaultRewardTokenHash, bytes32 _vaultRewardTokenStrategyHash) public onlyGovernance returns (bool) {
+    function removeVaultRewardStrategy(bytes32 _vaultRewardTokenHash, bytes32 _vaultRewardTokenStrategyHash) public onlyOperator returns (bool) {
         require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
         require(_vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "!bytes32(0)");
         require(vaultRewardTokenHashToVaultRewardStrategyHash[_vaultRewardTokenHash] == _vaultRewardTokenStrategyHash, "!StrategyHashMapped");
