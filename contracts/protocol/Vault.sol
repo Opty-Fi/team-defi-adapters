@@ -223,14 +223,41 @@ contract Vault is VersionedInitializable, IVault, ERC20, Modifiers, ReentrancyGu
             }
         }
         
-        uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
-        for (uint8 _i = 0; _i < _harvestSteps; _i++) {
-            bytes[] memory _codes =
-                strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _i, _harvestSteps);
-            for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                (bool success, ) = pool.call(data);
-                require(success);
+        (,,address _rewardToken) = strategyManagerContract.getLpAdapterRewardToken(_investStrategyHash);
+        
+        if (_rewardToken != address(0)) {
+            bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(address(this), _rewardToken));
+            bytes32 _vaultRewardTokenStrategyHash = riskManagerContract.getVaultRewardTokenStrategyHash(_vaultRewardTokenHash);
+            
+            uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
+            for (uint8 _i = 0; _i < _harvestSteps; _i++) {
+                // bytes[] memory _codes;
+                // if (_vaultRewardTokenStrategyHash == 0x0000000000000000000000000000000000000000000000000000000000000000) {
+                //     _codes =
+                //         strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _i, _harvestSteps);
+                //     //     for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+                //     //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                //     //     (bool success, ) = pool.call(data);
+                //     //     require(success);
+                //     // }
+                // } 
+                // else {
+                //     _codes =
+                //         strategyManagerContract.getPoolHarvestSomeRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _i, _harvestSteps);
+                //     //     for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+                //     //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                //     //     (bool success, ) = pool.call(data);
+                //     //     require(success);
+                //     // }
+                // }
+                bytes[] memory _codes = _vaultRewardTokenStrategyHash != 0x0000000000000000000000000000000000000000000000000000000000000000 ?
+                    strategyManagerContract.getPoolHarvestSomeRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _i, _harvestSteps) :
+                    strategyManagerContract.getPoolHarvestAllRewardCodes(payable(address(this)), underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _i, _harvestSteps);
+                for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+                    (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                    (bool success, ) = pool.call(data);
+                    require(success);
+                }
             }
         }
     }

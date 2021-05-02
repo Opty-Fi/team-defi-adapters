@@ -103,4 +103,17 @@ contract RiskManager is RiskManagerStorage, Modifiers, Structs {
         
         return _strategyHash;
     }
+    
+    // function getVaultRewardStrategy(bytes32 _vaultRewardTokenStrategyHash) public view returns (uint256 _hold, uint256 _convert) {
+    //     (_hold, _convert) = strategyProvider.vaultRewardStrategies(_vaultRewardTokenStrategyHash);
+    // }
+    
+    function getVaultRewardTokenStrategyHash(bytes32 _vaultRewardTokenHash) public view returns (bytes32) {
+        // require(_optyVault != address(0), "vault!=0x0");
+        // require(_rewardToken != address(0), "rT!=0x0");
+        require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "vRtHash!=0x0");
+        // bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked(_optyVault, _rewardToken));
+        bytes32 _hash = strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategyHash(_vaultRewardTokenHash);
+        return _hash;
+    }
 }
