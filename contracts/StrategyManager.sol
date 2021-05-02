@@ -234,24 +234,8 @@ contract StrategyManager is Modifiers, Structs {
         uint8,
         uint8
     ) internal view returns (bytes[] memory _codes) {
-            // StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
-            // address _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-            // address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
-            // address _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
-            
-            (address _liquidityPool,address _optyAdapter,) = getLpAdapterRewardToken(_investStrategyHash);
-            // if (_rewardToken != address(0)) {
-                // bytes32 _vaultRewardTokenStrategyHash = _getVaultRewardTokenStrategyHash(_optyVault, _rewardToken);
-                // if (_vaultRewardTokenStrategyHash == 0x0000000000000000000000000000000000000000000000000000000000000000) {
-                    _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
-                // } else {
-                //     //  getHarvestSomeCodes based on vaultRewardTokenStrategy if it is not zero
-                //     uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);   //  get reward token balance
-                //     (, uint256 _convert) = registryContract.vaultRewardStrategies(_vaultRewardTokenStrategyHash);
-                //     uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convert).div(10000);     //  calculation in basis
-                //     _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _redeemRewardTokens);
-                // }
-            // }
+        (address _liquidityPool,address _optyAdapter,) = getLpAdapterRewardToken(_investStrategyHash);
+        _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
     }
     
     function _getPoolHarvestSomeRewardCodes(
@@ -262,24 +246,11 @@ contract StrategyManager is Modifiers, Structs {
         uint8,
         uint8
     ) internal view returns (bytes[] memory _codes) {
-            // StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
-            // address _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-            // address _optyAdapter = registryContract.liquidityPoolToAdapter(_liquidityPool);
-            // address _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
-            
-            (address _liquidityPool,address _optyAdapter, address _rewardToken) = getLpAdapterRewardToken(_investStrategyHash);
-            // if (_rewardToken != address(0)) {
-                // bytes32 _vaultRewardTokenStrategyHash = _getVaultRewardTokenStrategyHash(_optyVault, _rewardToken);
-                // if (_vaultRewardTokenStrategyHash == 0x0000000000000000000000000000000000000000000000000000000000000000) {
-                    // _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
-                // } else {
-                    //  getHarvestSomeCodes based on vaultRewardTokenStrategy if it is not zero
-                    uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);   //  get reward token balance
-                    (, uint256 _convert) = _getVaultRewardStrategy(_vaultRewardTokenStrategyHash);
-                    uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convert).div(10000);     //  calculation in basis
-                    _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _redeemRewardTokens);
-                // }
-            // }
+        (address _liquidityPool,address _optyAdapter, address _rewardToken) = getLpAdapterRewardToken(_investStrategyHash);
+        uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);   //  get reward token balance for optyVault
+        (, uint256 _convert) = _getVaultRewardStrategy(_vaultRewardTokenStrategyHash);
+        uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convert).div(10000);     //  calculation in basis
+        _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _redeemRewardTokens);
     }
     
     function getLpAdapterRewardToken(bytes32 _investStrategyHash) public view returns (address _liquidityPool, address _optyAdapter, address _rewardToken) {
