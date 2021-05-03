@@ -12,6 +12,10 @@ import { Modifiers } from "./controller/Modifiers.sol";
 import { HarvestCodeProvider } from "./HarvestCodeProvider.sol";
 import { DataTypes } from "./libraries/types/DataTypes.sol";
 
+/**
+ * @dev Central processing unit of the earn protocol
+ */
+
 contract StrategyManager is Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;

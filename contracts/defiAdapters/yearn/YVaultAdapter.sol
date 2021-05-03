@@ -10,6 +10,10 @@ import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
 import { Modifiers } from "../../controller/Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
+/**
+ * @dev Abstraction layer to yVault's pools
+ */
+
 contract YVaultAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 

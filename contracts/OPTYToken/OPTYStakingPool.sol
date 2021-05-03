@@ -12,7 +12,7 @@ import { Modifiers } from "../controller/Modifiers.sol";
 import { OPTYMinter } from "./OPTYMinter.sol";
 
 /**
- * @dev Opty.Fi's Basic Pool contract for underlying tokens (for example DAI)
+ * @dev Opty.Fi's Staking Pool contract for underlying tokens (for example BAL-OPTY-USDC)
  */
 contract OPTYStakingPool is ERC20, Modifiers, ReentrancyGuard, StakingPoolStorage {
     using SafeERC20 for IERC20;

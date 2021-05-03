@@ -14,6 +14,10 @@ import { Modifiers } from "../../controller/Modifiers.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 import { PriceOracle } from "../../PriceOracle.sol";
 
+/**
+ * @dev Abstraction layer to Curve's deposit pools
+ */
+
 contract CurvePoolAdapter is IAdapter, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;

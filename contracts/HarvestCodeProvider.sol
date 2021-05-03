@@ -7,6 +7,10 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./controller/Modifiers.sol";
 
+/**
+ * @dev Abstraction layer to DeFi exchanges like Uniswap
+ */
+
 contract HarvestCodeProvider is Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;

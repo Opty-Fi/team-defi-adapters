@@ -9,6 +9,10 @@ import { OPTY } from "./OPTY.sol";
 import { OPTYMinterStorage } from "./OPTYMinterStorage.sol";
 import { OPTYStakingPool } from "./OPTYStakingPool.sol";
 
+/**
+ * @dev Contract distributing $OPTY to opty-fi earn protocol's users
+ */
+
 contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     constructor(address _registry, address _opty) public Modifiers(_registry) {
         setOptyAddress(_opty);

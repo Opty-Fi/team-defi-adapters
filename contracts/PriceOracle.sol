@@ -6,6 +6,10 @@ import { AggregatorV3Interface } from "./interfaces/chainlink/AggregatorV3Interf
 import { Modifiers } from "./controller/Modifiers.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
+/**
+ * @dev Bridge to connect the chainlink's price oracle contract
+ */
+
 contract PriceOracle is Modifiers {
     using SafeMath for uint256;
 

@@ -6,7 +6,7 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { RegistryStorage } from "./RegistryStorage.sol";
 
 /**
- * @dev Contract used to keep all the modifiers at one place
+ * @dev Contract used to authorize and keep all the modifiers at one place
  */
 contract ModifiersController is RegistryStorage {
     using Address for address;

@@ -4,6 +4,10 @@ pragma solidity ^0.6.10;
 
 import { OPTYStakingPool } from "./OPTYStakingPool.sol";
 
+/**
+ * @dev Contract to store the OPTYMinter's state variables
+ */
+
 contract OPTYMinterStorage {
     OPTYStakingPool public optyStakingPool;
     /// @notice The market's last index

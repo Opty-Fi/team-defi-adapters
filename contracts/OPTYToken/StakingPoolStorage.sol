@@ -5,6 +5,10 @@ pragma solidity ^0.6.10;
 import { RiskManager } from "./../RiskManager.sol";
 import { OPTYMinter } from "./../OPTYToken/OPTYMinter.sol";
 
+/**
+ * @dev Control to store state variables of Staking pool
+ */
+
 contract StakingPoolStorage {
     mapping(address => uint256) public userLastUpdate;
     uint256 public lastPoolUpdate;

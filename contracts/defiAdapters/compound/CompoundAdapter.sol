@@ -11,6 +11,10 @@ import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 
+/**
+ * @dev Abstraction layer to Compound's pools
+ */
+
 contract CompoundAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 

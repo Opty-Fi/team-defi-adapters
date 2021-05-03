@@ -24,6 +24,10 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 
+/**
+ * @dev Abstraction layer to Aave V2's pools
+ */
+
 contract AaveV2Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 

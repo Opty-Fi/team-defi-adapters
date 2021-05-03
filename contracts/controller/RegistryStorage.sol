@@ -3,6 +3,10 @@ pragma solidity ^0.6.10;
 
 import { DataTypes } from "../libraries/types/DataTypes.sol";
 
+/**
+ * @dev Contract used to store registry's admin account
+ */
+
 contract RegistryAdminStorage {
     /**
      * @notice Governance of optyfi's earn protocol

@@ -12,6 +12,10 @@ import { Modifiers } from "../../controller/Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 
+/**
+ * @dev Abstraction layer to DForce's pools
+ */
+
 contract DForceAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 

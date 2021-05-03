@@ -12,6 +12,10 @@ import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.
 import { Modifiers } from "../../controller/Modifiers.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 
+/**
+ * @dev Abstraction layer to Curve's swap pools
+ */
+
 contract CurveSwapAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 

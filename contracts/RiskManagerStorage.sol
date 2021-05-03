@@ -4,6 +4,11 @@ pragma solidity ^0.6.10;
 
 import { StrategyProvider } from "./controller/StrategyProvider.sol";
 
+/**
+ * @dev Contract to store the state variables of the
+ *      RiskManager
+ */
+
 contract RiskManagerStorage {
     /**
      * @notice Active brains of Risk Manager

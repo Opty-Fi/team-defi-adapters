@@ -12,6 +12,11 @@ import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 import { RiskManagerProxy } from "./RiskManagerProxy.sol";
 import { DataTypes } from "./libraries/types/DataTypes.sol";
 
+/**
+ * @dev An extra protection for the best strategy of the opty-fi vault's
+ *      underlying token
+ */
+
 contract RiskManager is RiskManagerStorage, Modifiers {
     using Address for address;
 

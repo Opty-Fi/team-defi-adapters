@@ -12,6 +12,10 @@ import { Modifiers } from "../../controller/Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../HarvestCodeProvider.sol";
 
+/**
+ * @dev Abstraction layer to harvest finance's pools
+ */
+
 contract HarvestAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
