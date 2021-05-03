@@ -14,6 +14,10 @@ export type CONTRACTS = {
     [name: string]: Contract;
 };
 
+export type CONTRACTS_WITH_HASH = {
+    [name: string]: { contract: Contract; hash: string };
+};
+
 export type DATA_OBJECT = {
     [name: string]: string;
 };
@@ -48,15 +52,13 @@ export type DEFI_POOLS_DATA = {
 };
 export type ADAPTER_WITH_STRATEGIES_DATA = {
     [key: string]: {
-        [key: string]: {
-            strategyName: string;
-            token: string;
-            strategy: {
-                contract: string;
-                outputTokenSymbol: string;
-                outputToken: string;
-                isBorrow: boolean;
-            }[];
+        strategyName: string;
+        token: string;
+        strategy: {
+            contract: string;
+            outputTokenSymbol: string;
+            outputToken: string;
+            isBorrow: boolean;
         }[];
-    };
+    }[];
 };
