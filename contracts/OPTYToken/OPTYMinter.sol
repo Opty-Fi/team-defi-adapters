@@ -2,29 +2,35 @@
 
 pragma solidity ^0.6.10;
 
-import "./OPTY.sol";
-import "./OPTYMinterStorage.sol";
-import "./ExponentialNoError.sol";
-import "./../interfaces/ERC20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ExponentialNoError } from "./ExponentialNoError.sol";
+import { Modifiers } from "../controller/Modifiers.sol";
+import { OPTY } from "./OPTY.sol";
+import { OPTYMinterStorage } from "./OPTYMinterStorage.sol";
+import { OPTYStakingPool } from "./OPTYStakingPool.sol";
+
+/**
+ * @dev Contract distributing $OPTY to opty-fi earn protocol's users
+ */
 
 contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     constructor(address _registry, address _opty) public Modifiers(_registry) {
         setOptyAddress(_opty);
     }
-    
+
     function setOptyAddress(address _opty) internal {
         require(_opty != address(0), "Invalid address");
-        OPTYAddress = _opty;
+        optyAddress = _opty;
     }
-    
+
     function setStakingPool(address _stakingPool) public onlyOperator {
         require(_stakingPool != address(0), "Invalid address");
-        _optyStakingPool = OPTYStakingPool(_stakingPool);
+        optyStakingPool = OPTYStakingPool(_stakingPool);
     }
 
     function claimAndStake(address _holder) public {
         uint256 _amount = claimOpty(_holder, allOptyVaults);
-        _optyStakingPool.userStake(_amount);
+        optyStakingPool.userStake(_amount);
     }
 
     /**
@@ -85,13 +91,17 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         for (uint256 i = 0; i < _optyVaults.length; i++) {
             address _optyVault = _optyVaults[i];
             if (optyVaultEnabled[_optyVault] == true) {
-                uint256 _deltaSecondsUser = sub_(optyUserStateInVault[_optyVault][_holder].timestamp, optyVaultStartTimestamp[_optyVault]);
+                uint256 _deltaSecondsUser =
+                    sub_(optyUserStateInVault[_optyVault][_holder].timestamp, optyVaultStartTimestamp[_optyVault]);
                 uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
                 uint256 _userDelta =
                     mul_(
                         IERC20(_optyVault).balanceOf(_holder),
                         sub_(
-                            mul_(_currentOptyVaultIndex, sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault])),
+                            mul_(
+                                _currentOptyVaultIndex,
+                                sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault])
+                            ),
                             mul_(optyUserStateInVault[_optyVault][_holder].index, _deltaSecondsUser)
                         )
                     );
@@ -110,7 +120,10 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         uint256 _index =
             div_(
                 add_(
-                    mul_(optyVaultState[_optyVault].index, sub_(uint256(optyVaultState[_optyVault].timestamp), optyVaultStartTimestamp[_optyVault])),
+                    mul_(
+                        optyVaultState[_optyVault].index,
+                        sub_(uint256(optyVaultState[_optyVault].timestamp), optyVaultStartTimestamp[_optyVault])
+                    ),
                     _ratio
                 ),
                 _deltaSecondsSinceStart
@@ -125,13 +138,17 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     function updateUserRewards(address _optyVault, address _user) public {
         if (IERC20(_optyVault).balanceOf(_user) > 0 && lastUserUpdate[_optyVault][_user] != getBlockTimestamp()) {
             uint256 _deltaSecondsVault = sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
-            uint256 _deltaSecondsUser = sub_(optyUserStateInVault[_optyVault][_user].timestamp, optyVaultStartTimestamp[_optyVault]);
+            uint256 _deltaSecondsUser =
+                sub_(optyUserStateInVault[_optyVault][_user].timestamp, optyVaultStartTimestamp[_optyVault]);
             uint256 _userTokens = IERC20(_optyVault).balanceOf(_user);
             uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
             uint256 _userDelta =
                 mul_(
                     _userTokens,
-                    sub_(mul_(_currentOptyVaultIndex, _deltaSecondsVault), mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser))
+                    sub_(
+                        mul_(_currentOptyVaultIndex, _deltaSecondsVault),
+                        mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser)
+                    )
                 );
             uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
             optyAccrued[_user] = _userAccrued;
@@ -228,7 +245,7 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     }
 
     function getOptyAddress() public view returns (address) {
-        return OPTYAddress;
+        return optyAddress;
     }
 
     function getBlockTimestamp() public view returns (uint256) {

@@ -2,12 +2,13 @@
 
 pragma solidity ^0.6.10;
 
-import "../utils/Modifiers.sol";
-import "./OPTYStakingRateBalancerStorage.sol";
+import { Modifiers } from "../controller/Modifiers.sol";
+import { OPTYStakingRateBalancerStorage } from "./OPTYStakingRateBalancerStorage.sol";
 
 /**
  * @title OPTYStakingRateBalancerCore
- * @dev Storage for the OPTYStakingRateBalancer is at this address, while execution is delegated to the `OPTYStakingRateBalancerImplementation`.
+ * @dev Storage for the OPTYStakingRateBalancer is at this address,
+ *      while execution is delegated to the `OPTYStakingRateBalancerImplementation`.
  * OPTYStakingRateBalancer should reference this contract as their controller.
  */
 contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifiers {
@@ -17,12 +18,15 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
     /**
-     * @notice Emitted when pendingOPTYStakingRateBalancerImplementation is accepted, which means OPTYStakingRateBalancer implementation is updated
+     * @notice Emitted when pendingOPTYStakingRateBalancerImplementation is accepted,
+     *         which means OPTYStakingRateBalancer implementation is updated
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
-    constructor(address _registry) public Modifiers(_registry) {
-    }
+    /* solhint-disable no-empty-blocks */
+    constructor(address _registry) public Modifiers(_registry) {}
+
+    /* solhint-disable no-empty-blocks */
 
     /*** Admin Functions ***/
     function setPendingImplementation(address newPendingImplementation) public onlyOperator {
@@ -39,22 +43,27 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
      */
     function acceptImplementation() public returns (uint256) {
         // Check caller is pendingImplementation and pendingImplementation ≠ address(0)
-        require(msg.sender == pendingOPTYStakingRateBalancerImplementation && pendingOPTYStakingRateBalancerImplementation != address(0), "!pendingOPTYStakingRateBalancerImplementation");
+        require(
+            msg.sender == pendingOPTYStakingRateBalancerImplementation &&
+                pendingOPTYStakingRateBalancerImplementation != address(0),
+            "!pendingOPTYStakingRateBalancerImplementation"
+        );
 
         // Save current values for inclusion in log
-        address oldImplementation =  OPTYStakingRateBalancerImplementation;
+        address oldImplementation = optyStakingRateBalancerImplementation;
         address oldPendingImplementation = pendingOPTYStakingRateBalancerImplementation;
 
-        OPTYStakingRateBalancerImplementation = pendingOPTYStakingRateBalancerImplementation;
+        optyStakingRateBalancerImplementation = pendingOPTYStakingRateBalancerImplementation;
 
         pendingOPTYStakingRateBalancerImplementation = address(0);
 
-        emit NewImplementation(oldImplementation, OPTYStakingRateBalancerImplementation);
+        emit NewImplementation(oldImplementation, optyStakingRateBalancerImplementation);
         emit NewPendingImplementation(oldPendingImplementation, pendingOPTYStakingRateBalancerImplementation);
 
         return uint256(0);
     }
 
+    /* solhint-disable */
     receive() external payable {
         revert();
     }
@@ -66,7 +75,7 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
      */
     fallback() external payable {
         // delegate all other functions to current implementation
-        (bool success, ) = OPTYStakingRateBalancerImplementation.delegatecall(msg.data);
+        (bool success, ) = optyStakingRateBalancerImplementation.delegatecall(msg.data);
 
         assembly {
             let free_mem_ptr := mload(0x40)
@@ -81,4 +90,5 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
                 }
         }
     }
+    /* solhint-disable */
 }

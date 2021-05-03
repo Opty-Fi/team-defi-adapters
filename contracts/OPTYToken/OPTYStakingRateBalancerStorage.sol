@@ -5,12 +5,12 @@ pragma experimental ABIEncoderV2;
 
 contract OPTYStakingRateBalancerStorage {
     /**
-     * @notice Active brains of Risk Manager
+     * @notice Active brains of Staking Rate Balancer
      */
-    address public OPTYStakingRateBalancerImplementation;
-    
+    address public optyStakingRateBalancerImplementation;
+
     /**
-     * @notice Pending brains of Risk Manager
+     * @notice Pending brains of Staking Rate Balancer
      */
     address public pendingOPTYStakingRateBalancerImplementation;
 
