@@ -1,22 +1,19 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import { Modifiers } from "./Modifiers.sol";
-pragma experimental ABIEncoderV2;
+import { DataTypes } from "../libraries/types/DataTypes.sol";
 
 /**
  * @dev Serves as an oracle service of opty-fi's earn protocol
  *      for best strategy
  */
 contract StrategyProvider is Modifiers {
-    struct VaultRewardStrategy {
-        uint256 hold; //  should be in basis eg: 50% means 5000
-        uint256 convert; //  should be in basis eg: 50% means 5000
-    }
     mapping(string => mapping(bytes32 => bytes32)) public rpToTokenToBestStrategy;
     mapping(string => mapping(bytes32 => bytes32)) public rpToTokenToDefaultStrategy;
-    mapping(bytes32 => VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
+    mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
@@ -57,18 +54,14 @@ contract StrategyProvider is Modifiers {
      * - `convert` in {_vaultRewardStrategy} should be approved
      *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
      */
-    function setVaultRewardStrategy(bytes32 _vaultRewardTokenHash, VaultRewardStrategy memory _vaultRewardStrategy)
-        public
-        onlyOperator
-        returns (VaultRewardStrategy memory)
-    {
+    function setVaultRewardStrategy(
+        bytes32 _vaultRewardTokenHash,
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
+    ) public onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
         require(
             _vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
             "!bytes32(0)"
         );
-        if (registryContract.getTokenHashes().length == 0) {
-            revert("!TokenHashesEmpty");
-        }
         uint256 _index = registryContract.tokensHashToTokens(_vaultRewardTokenHash);
         require(registryContract.tokensHashIndexes(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
         require(_vaultRewardStrategy.hold > 0, "hold!>0");
