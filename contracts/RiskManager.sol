@@ -114,9 +114,23 @@ contract RiskManager is RiskManagerStorage, Modifiers, Structs {
      * - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses
      *      - Can not be empty
      */
-    function getVaultRewardTokenStrategyHash(bytes32 _vaultRewardTokenHash) public view returns (bytes32) {
+    // function getVaultRewardTokenStrategyHash(bytes32 _vaultRewardTokenHash) public view returns (bytes32) {
+    //     require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "vRtHash!=0x0");
+    //     bytes32 _hash = strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategyHash(_vaultRewardTokenHash);
+    //     return _hash;
+    // }
+    
+    function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash) public view returns (uint256 _hold, uint256 _convert) {
         require(_vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "vRtHash!=0x0");
-        bytes32 _hash = strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategyHash(_vaultRewardTokenHash);
-        return _hash;
+        // (address _vault, address _rewardToken) = registryContract.vaultRewardTokenHashToVaultRewardToken(_vaultRewardTokenHash);
+        // require(_vault != address(0), "vault!=0x0");
+        // require(_rewardToken != address(0), "rT!=0x0");
+        // if (registryContract.getTokenHashes().length == 0) {
+        //     revert("!TokenHashesEmpty");
+        // }
+        // uint256 _index = registryContract.tokensHashToTokens(_vaultRewardTokenHash);
+        // require(registryContract.tokensHashIndexes(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
+        (_hold, _convert) = strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
+        // return _hash;
     }
 }

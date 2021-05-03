@@ -76,26 +76,45 @@ contract StrategyManager is Modifiers, Structs {
         _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
     }
     
+    // function getPoolHarvestAllRewardCodes(
+    //     address payable _optyVault,
+    //     address _underlyingToken,
+    //     bytes32 _investStrategyHash,
+    //     bytes32 _vaultRewardTokenStrategyHash,
+    //     uint8 _stepIndex,
+    //     uint8 _stepCount
+    // ) public view returns (bytes[] memory _codes) {
+    //     _codes = _getPoolHarvestAllRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _stepIndex, _stepCount);
+    // }
     function getPoolHarvestAllRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        bytes32 _vaultRewardTokenStrategyHash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolHarvestAllRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _stepIndex, _stepCount);
+        _codes = _getPoolHarvestAllRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _stepIndex, _stepCount);
     }
     
+    // function getPoolHarvestSomeRewardCodes(
+    //     address payable _optyVault,
+    //     address _underlyingToken,
+    //     bytes32 _investStrategyHash,
+    //     bytes32 _vaultRewardTokenStrategyHash,
+    //     uint8 _stepIndex,
+    //     uint8 _stepCount
+    // ) public view returns (bytes[] memory _codes) {
+    //     _codes = _getPoolHarvestSomeRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _stepIndex, _stepCount);
+    // }
     function getPoolHarvestSomeRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        bytes32 _vaultRewardTokenStrategyHash,
+        uint256 _convertRewardTokensPercent,
         uint8 _stepIndex,
         uint8 _stepCount
     ) public view returns (bytes[] memory _codes) {
-        _codes = _getPoolHarvestSomeRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _vaultRewardTokenStrategyHash, _stepIndex, _stepCount);
+        _codes = _getPoolHarvestSomeRewardCodes(_optyVault, _underlyingToken, _investStrategyHash, _convertRewardTokensPercent, _stepIndex, _stepCount);
     }
 
     function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
@@ -106,9 +125,12 @@ contract StrategyManager is Modifiers, Structs {
         (, _strategySteps) = registryContract.getStrategy(_hash);
     }
     
-    function _getVaultRewardStrategy(bytes32 _hash) internal view returns (uint256 _hold, uint256 _convert) {
-        (_hold, _convert) = registryContract.vaultRewardStrategies(_hash);
-    }
+    // function _getVaultRewardStrategy(bytes32 _hash) internal view returns (uint256 _hold, uint256 _convert) {
+    //     (_hold, _convert) = registryContract.vaultRewardStrategies(_hash);
+    // }
+    // function _getVaultRewardStrategy(bytes32 _hash) internal view returns (uint256 _hold, uint256 _convert) {
+    //     (_hold, _convert) = strategyPro.vaultRewardStrategies(_hash);
+    // }
 
     function _getPoolDepositAllCodes(
         address payable _optyVault,
@@ -226,11 +248,21 @@ contract StrategyManager is Modifiers, Structs {
         }
     }
     
+    // function _getPoolHarvestAllRewardCodes(
+    //     address payable _optyVault,
+    //     address _underlyingToken,
+    //     bytes32 _investStrategyHash,
+    //     bytes32,
+    //     uint8,
+    //     uint8
+    // ) internal view returns (bytes[] memory _codes) {
+    //     (address _liquidityPool,address _optyAdapter,) = getLpAdapterRewardToken(_investStrategyHash);
+    //     _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
+    // }
     function _getPoolHarvestAllRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        bytes32,
         uint8,
         uint8
     ) internal view returns (bytes[] memory _codes) {
@@ -238,18 +270,33 @@ contract StrategyManager is Modifiers, Structs {
         _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
     }
     
+    // function _getPoolHarvestSomeRewardCodes(
+    //     address payable _optyVault,
+    //     address _underlyingToken,
+    //     bytes32 _investStrategyHash,
+    //     bytes32 _vaultRewardTokenStrategyHash,
+    //     uint8,
+    //     uint8
+    // ) internal view returns (bytes[] memory _codes) {
+    //     (address _liquidityPool,address _optyAdapter, address _rewardToken) = getLpAdapterRewardToken(_investStrategyHash);
+    //     uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);   //  get reward token balance for optyVault
+    //     (, uint256 _convert) = _getVaultRewardStrategy(_vaultRewardTokenStrategyHash);
+    //     uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convert).div(10000);     //  calculation in basis
+    //     _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _redeemRewardTokens);
+    // }
+    
     function _getPoolHarvestSomeRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        bytes32 _vaultRewardTokenStrategyHash,
+        uint256 _convertRewardTokensPercent,
         uint8,
         uint8
     ) internal view returns (bytes[] memory _codes) {
         (address _liquidityPool,address _optyAdapter, address _rewardToken) = getLpAdapterRewardToken(_investStrategyHash);
         uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);   //  get reward token balance for optyVault
-        (, uint256 _convert) = _getVaultRewardStrategy(_vaultRewardTokenStrategyHash);
-        uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convert).div(10000);     //  calculation in basis
+        // (, uint256 _convert) = _getVaultRewardStrategy(_vaultRewardTokenStrategyHash);
+        uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convertRewardTokensPercent).div(10000);     //  calculation in basis
         _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _redeemRewardTokens);
     }
     
