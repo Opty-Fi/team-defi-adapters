@@ -13,7 +13,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { IOPTYStakingRateBalancer } from "../interfaces/opty/IOPTYStakingRateBalancer.sol";
 
 /**
- * @dev Opty.Fi's Staking Pool contract for underlying tokens (for example BAL-OPTY-USDC)
+ * @dev Opty.Fi's Staking Pool contract for OPTY
  */
 contract OPTYStakingPool is ERC20, Modifiers, ReentrancyGuard, StakingPoolStorage {
     using SafeERC20 for IERC20;
