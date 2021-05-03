@@ -252,7 +252,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, TBTC_GAUGE);
         setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, DUSD_GAUGE);
 
-        setMaxDepositPoolPctDefault(uint256(5000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 50%
     }
 
     function getPoolValue(address, address) public view override returns (uint256) {
