@@ -41,6 +41,7 @@
     "ethereumjs-util": "^7.0.8",
     "fs-extra": "^9.1.0",
     "hardhat": "^2.1.2",
+    "hardhat-deploy": "^0.7.5",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-watcher": "^2.1.1",
     "husky": "^5.2.0",
@@ -79,20 +80,31 @@
     "typechain": "hardhat typechain",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol ",
     "prettier:solidity": "./node_modules/.bin/prettier --write contracts/**/*.sol",
-    "gas-report": "env REPORT_GAS=true yarn test"
+    "gas-report": "env REPORT_GAS=true yarn test",
+    "hardhat:local": "hardhat --network localhost",
+    "deploy": "hardhat deploy-infra",
+    "deploy:local": "npm run hardhat:local deploy-infra"
   },
   "publishConfig": {
     "access": "public"
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@openzeppelin/contracts": "3.4.0",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link-http": "^1.5.17",
     "commander": "^7.0.0",
+    "cross-fetch": "^3.1.4",
     "dotenv": "^8.2.0",
     "ethereumjs-abi": "^0.6.8",
     "ethers": "^5.0.29",
+    "graphql": "^15.5.0",
+    "graphql-tag": "^2.11.0",
+    "hardhat-deploy-ethers": "^0.3.0-beta.7",
+    "hardhat-gas-reporter": "^1.0.4",
+    "node-fetch": "^2.6.1",
     "pg": "^8.5.1",
     "web3": "1.3.4"
   },

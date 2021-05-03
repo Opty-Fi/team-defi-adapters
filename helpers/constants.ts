@@ -9,10 +9,11 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   STRATEGY_PROVIDER: "StrategyProvider",
   HARVEST_CODE_PROVIDER: "HarvestCodeProvider",
   VAULT_PROXY: "InitializableImmutableAdminUpgradeabilityProxy",
+  VAULT: "Vault",
   RISK_MANAGER_PROXY: "RiskManagerProxy",
   PRICE_ORACLE: "PriceOracle",
 };
-export const VAULT = ["RP1Vault", "RP2Vault", "RP3Vault"];
+
 export const ADAPTER = [
   "AaveV1Adapter",
   "AaveV2Adapter",
@@ -58,3 +59,5 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
     poolRating: [0, 30],
   },
 };
+
+export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing

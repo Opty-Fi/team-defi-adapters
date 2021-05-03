@@ -1,7 +1,8 @@
 import { expect, assert } from "chai";
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import { Contract, Signer } from "ethers";
-import { deployRegistry } from "./setup";
+import { deployRegistry } from "../../helpers/contracts-deployments";
+import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import scenario from "./scenarios/registry-set-Profiles.json";
 type ARGUMENTS = {
   [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -11,8 +12,8 @@ describe(scenario.title, () => {
   let owner: Signer;
   before(async () => {
     try {
-      [owner] = await ethers.getSigners();
-      registryContract = await deployRegistry(owner);
+      [owner] = await hre.ethers.getSigners();
+      registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(registryContract, "Registry contract not deployed");
     } catch (error) {
       console.log(error);

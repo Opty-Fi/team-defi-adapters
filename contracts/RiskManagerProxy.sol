@@ -58,11 +58,11 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
         return uint256(0);
     }
 
+    /* solhint-disable */
     receive() external payable {
-        revert("can't except ethers");
+        revert();
     }
 
-    /* solhint-disable no-complex-fallback, avoid-low-level-calls, no-inline-assembly */
     /**
      * @dev Delegates execution to an riskManager implementation contract.
      * It returns to the external caller whatever the implementation returns
@@ -85,5 +85,5 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
                 }
         }
     }
-    /* solhint-disable no-complex-fallback, avoid-low-level-calls, no-inline-assembly */
+    /* solhint-disable */
 }

@@ -3,13 +3,19 @@ import { config as dotenvConfig } from "dotenv";
 import { resolve } from "path";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
+import "hardhat-deploy-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-watcher";
 import "solidity-coverage";
+import "hardhat-deploy";
+import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
 
-import "./tasks/accounts";
-import "./tasks/clean";
+require("./tasks/deployment/deploy-infra");
+require("./tasks/deployment/deploy-vault");
+require("./tasks/deployment/deploy-vaults");
+require("./tasks/accounts");
+require("./tasks/clean");
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -22,6 +28,11 @@ const chainIds = {
   rinkeby: 4,
   ropsten: 3,
 };
+
+const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
+const DEFAULT_GAS_MUL = 5;
+const HARDFORK = "istanbul";
+const MNEMONIC_PATH = "m/44'/60'/0'/0";
 
 // Ensure that we have all the environment variables we need.
 let mnemonic: string;
@@ -38,6 +49,21 @@ if (!process.env.MAINNET_NODE_URL) {
   chainstackMainnetUrl = process.env.MAINNET_NODE_URL as string;
 }
 
+const getCommonNetworkConfig = (networkName: eEthereumNetwork, networkId: number) => ({
+  url: NETWORKS_RPC_URL[networkName],
+  hardfork: HARDFORK,
+  blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
+  gasMultiplier: DEFAULT_GAS_MUL,
+  gasPrice: NETWORKS_DEFAULT_GAS[networkName],
+  chainId: networkId,
+  accounts: {
+    mnemonic,
+    path: MNEMONIC_PATH,
+    initialIndex: 0,
+    count: 20,
+  },
+});
+
 const buidlerConfig: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
@@ -51,18 +77,21 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   networks: {
+    kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
+    ropsten: getCommonNetworkConfig(eEthereumNetwork.ropsten, 3),
+    main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
+    localhost: {
+      url: NETWORKS_RPC_URL[eEthereumNetwork.hardhat],
+      chainId: chainIds.ganache,
+    },
     hardhat: {
-      accounts: {
-        mnemonic,
-      },
-      chainId: chainIds.hardhat,
       forking: {
         blockNumber: 12200321,
         url: chainstackMainnetUrl,
       },
-      gas: 12000000,
       allowUnlimitedContractSize: true,
       blockGasLimit: 0x1fffffffffffff,
+      chainId: chainIds.hardhat,
     },
   },
   paths: {

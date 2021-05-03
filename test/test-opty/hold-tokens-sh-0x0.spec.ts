@@ -1,11 +1,20 @@
 import { expect, assert } from "chai";
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
-import { setUp, deployVault, setBestBasicStrategy, approveLiquidityPoolAndMapAdapter } from "./setup";
-import { ESSENTIAL_CONTRACTS, CONTRACTS } from "./utils/type";
-import { TOKENS } from "./utils/constants";
+import { setUp } from "./setup";
+import { CONTRACTS } from "../../helpers/type";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "./data";
-import { getSoliditySHA3Hash, fundWalletToken, getBlockTimestamp, getTokenName, getTokenSymbol } from "./utils/helpers";
+import { getSoliditySHA3Hash } from "../../helpers/utils";
+import { deployVault } from "../../helpers/contracts-deployments";
+import {
+  setBestBasicStrategy,
+  approveLiquidityPoolAndMapAdapter,
+  fundWalletToken,
+  getBlockTimestamp,
+  getTokenName,
+  getTokenSymbol,
+} from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/hold-tokens-sh-0x0.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -19,13 +28,13 @@ describe(scenarios.title, () => {
     DAI: BigNumber.from("1000000000000000000000"),
     USDT: BigNumber.from("1000000000"),
   };
-  let essentialContracts: ESSENTIAL_CONTRACTS;
+  let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
   let users: { [key: string]: Signer };
 
   before(async () => {
     try {
-      const [owner, admin] = await ethers.getSigners();
+      const [owner, admin] = await hre.ethers.getSigners();
       users = { owner, admin };
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
@@ -59,10 +68,11 @@ describe(scenarios.title, () => {
             const contracts: CONTRACTS = {};
             before(async () => {
               try {
-                underlyingTokenName = await getTokenName(strategy.token);
-                underlyingTokenSymbol = await getTokenSymbol(strategy.token);
+                underlyingTokenName = await getTokenName(hre, strategy.token);
+                underlyingTokenSymbol = await getTokenSymbol(hre, strategy.token);
                 const adapter = adapters[adapterName];
                 const Vault = await deployVault(
+                  hre,
                   essentialContracts.registry.address,
                   essentialContracts.riskManager.address,
                   essentialContracts.strategyManager.address,
@@ -70,12 +80,13 @@ describe(scenarios.title, () => {
                   TOKENS[strategy.token],
                   users["owner"],
                   users["admin"],
-                  scenarios.vaults[i].name,
                   underlyingTokenName,
                   underlyingTokenSymbol,
                   profile,
+                  TESTING_DEPLOYMENT_ONCE,
                 );
                 await approveLiquidityPoolAndMapAdapter(
+                  users["owner"],
                   essentialContracts.registry,
                   adapter.address,
                   strategy.strategy[0].contract,
@@ -88,10 +99,16 @@ describe(scenarios.title, () => {
                   essentialContracts.strategyProvider,
                   vaultRiskProfile,
                 );
-                const timestamp = (await getBlockTimestamp()) * 2;
-                await fundWalletToken(TOKENS[strategy.token], users["owner"], MAX_AMOUNT[strategy.token], timestamp);
+                const timestamp = (await getBlockTimestamp(hre)) * 2;
+                await fundWalletToken(
+                  hre,
+                  TOKENS[strategy.token],
+                  users["owner"],
+                  MAX_AMOUNT[strategy.token],
+                  timestamp,
+                );
 
-                const ERC20Instance = await ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
 
                 contracts["strategyProvider"] = essentialContracts.strategyProvider;
                 contracts["adapter"] = adapter;
