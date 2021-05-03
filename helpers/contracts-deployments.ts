@@ -113,15 +113,17 @@ export async function deployAdapters(
   for (const adapter of ADAPTER) {
     try {
       let contract: Contract;
-      if (["dYdXAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
+      if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
         contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr]);
+        data[adapter] = contract;
+      } else if (["CurvePoolAdapter"].includes(adapter)) {
+        // TODO : handle deployment of CurvePoolAdapter
       } else {
         contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr, harvestAddr]);
+        data[adapter] = contract;
       }
-
-      data[adapter] = contract;
     } catch (error) {
-      console.log(error);
+      console.log(adapter, error);
     }
   }
   return data;

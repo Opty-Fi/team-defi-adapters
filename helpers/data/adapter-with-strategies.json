@@ -69,7 +69,7 @@
       ]
     }
   ],
-  "dYdXAdapter": [
+  "DyDxAdapter": [
     {
       "strategyName": "DAI-deposit-DYDX-dyDAI",
       "token": "DAI",
