@@ -252,7 +252,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, TBTC_GAUGE);
         setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, DUSD_GAUGE);
 
-        setMaxDepositPoolPctDefault(uint256(10000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
     }
 
     function getPoolValue(address, address) public view override returns (uint256) {
@@ -1079,31 +1079,31 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyOperator {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyOperator {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) public onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) public onlyOperator {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
-    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) public onlyGovernance {
+    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) public onlyOperator {
         maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) public onlyGovernance {
+    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) public onlyOperator {
         maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) public onlyGovernance {
+    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) public onlyOperator {
         maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
+    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyOperator {
         liquidityPoolToSwap[_liquidityPool] = _swapPool;
     }
 

@@ -1,6 +1,7 @@
 import { HardhatUserConfig } from "hardhat/types";
 import { config as dotenvConfig } from "dotenv";
-import { resolve } from "path";
+import { resolve,join } from "path";
+import {readdirSync} from "fs";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "hardhat-deploy-ethers";
@@ -10,12 +11,6 @@ import "hardhat-watcher";
 import "solidity-coverage";
 import "hardhat-deploy";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
-
-require("./tasks/deployment/deploy-infra");
-require("./tasks/deployment/deploy-vault");
-require("./tasks/deployment/deploy-vaults");
-require("./tasks/accounts");
-require("./tasks/clean");
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -29,6 +24,7 @@ const chainIds = {
   ropsten: 3,
 };
 
+const SKIP_LOAD = process.env.SKIP_LOAD === 'true';
 const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
 const DEFAULT_GAS_MUL = 5;
 const HARDFORK = "istanbul";
@@ -48,6 +44,21 @@ if (!process.env.MAINNET_NODE_URL) {
 } else {
   chainstackMainnetUrl = process.env.MAINNET_NODE_URL as string;
 }
+
+// Prevent to load scripts before compilation and typechain
+if (!SKIP_LOAD) {
+  ['misc','deployment'].forEach(
+    (folder) => {
+      const tasksPath = join(__dirname, 'tasks', folder);
+      readdirSync(tasksPath)
+        .filter((pth) => pth.includes('.ts'))
+        .forEach((task) => {
+          require(`${tasksPath}/${task}`);
+        });
+    }
+  );
+}
+
 
 const getCommonNetworkConfig = (networkName: eEthereumNetwork, networkId: number) => ({
   url: NETWORKS_RPC_URL[networkName],
