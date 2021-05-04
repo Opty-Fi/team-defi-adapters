@@ -57,5 +57,17 @@ library DataTypes {
         bool exists;
     }
 
+    struct VaultRewardStrategy {
+        uint256 hold; //  should be in basis eg: 50% means 5000
+        uint256 convert; //  should be in basis eg: 50% means 5000
+    }
+
     enum MaxExposure { Number, Pct }
+
+    /// @notice The market's last index
+    /// @notice The block number the index was last updated at
+    struct ODEFIState {
+        uint224 index;
+        uint32 timestamp;
+    }
 }
