@@ -41,7 +41,7 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "approveTokens(address[])":
+          case "approveToken(address[])":
           case "approveToken(address)": {
             const { tokens }: ARGUMENTS = action.args;
             if (tokens) {
@@ -54,8 +54,8 @@ describe(scenario.title, () => {
             assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "approveLiquidityPools(address[])":
-          case "approveCreditPools(address[])":
+          case "approveLiquidityPool(address[])":
+          case "approveCreditPool(address[])":
           case "approveLiquidityPool(address)":
           case "approveCreditPool(address)": {
             const { lqs }: ARGUMENTS = action.args;
@@ -69,8 +69,8 @@ describe(scenario.title, () => {
             assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "rateLiquidityPools((address,uint8)[])":
-          case "rateCreditPools((address,uint8)[])": {
+          case "rateLiquidityPool((address,uint8)[])":
+          case "rateCreditPool((address,uint8)[])": {
             const { lqRate }: ARGUMENTS = action.args;
             if (lqRate) {
               if (action.expect === "success") {
@@ -95,8 +95,8 @@ describe(scenario.title, () => {
             assert.isDefined(lqRate, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "revokeLiquidityPools(address[])":
-          case "revokeCreditPools(address[])":
+          case "revokeLiquidityPool(address[])":
+          case "revokeCreditPool(address[])":
           case "revokeLiquidityPool(address)":
           case "revokeCreditPool(address)": {
             const { lqs }: ARGUMENTS = action.args;
@@ -110,7 +110,7 @@ describe(scenario.title, () => {
             assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "setLiquidityPoolsToAdapters((address,address)[])": {
+          case "setLiquidityPoolToAdapter((address,address)[])": {
             const { lqs }: ARGUMENTS = action.args;
             if (lqs) {
               const args: [string, string][] = [];
@@ -140,7 +140,7 @@ describe(scenario.title, () => {
             assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "setMultipleTokensHashToTokens(address[][])":
+          case "setTokensHashToTokens(address[][])":
           case "setTokensHashToTokens(address[])": {
             const { tokensHash }: ARGUMENTS = action.args;
             if (tokensHash) {

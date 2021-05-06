@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
@@ -47,6 +48,26 @@ contract RegistryAdminStorage {
      * @notice Pending brains of Registry
      */
     address public pendingRegistryImplementation;
+
+    /**
+     * @notice when transfer operation of protocol occurs
+     */
+    event TransferOperator(address indexed operator, address indexed caller);
+
+    /**
+     * @notice Change strategist of protocol
+     */
+    event TransferStrategist(address indexed strategist, address indexed caller);
+
+    /**
+     * @notice Change minter of protocol
+     */
+    event TransferMinter(address indexed minter, address indexed caller);
+
+    /**
+     * @notice Change treasurer of protocol
+     */
+    event TransferTreasury(address indexed treasurer, address indexed caller);
 }
 
 contract RegistryStorage is RegistryAdminStorage {

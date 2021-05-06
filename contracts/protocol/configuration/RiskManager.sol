@@ -81,7 +81,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *
      */
     function _getBestStrategy(string memory _riskProfile, bytes32 _tokensHash) internal view returns (bytes32) {
-        (, uint8 _permittedSteps, bool _profileExists) = registryContract.riskProfiles(_riskProfile);
+        (, uint8 _permittedSteps, , , bool _profileExists) = registryContract.riskProfiles(_riskProfile);
         require(_profileExists, "!Rp_Exists");
 
         // getbeststrategy from strategyProvider

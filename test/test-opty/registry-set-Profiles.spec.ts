@@ -26,7 +26,7 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addRiskProfiles(string[],uint8[],(uint8,uint8)[])": {
+          case "addRiskProfile(string[],uint8[],(uint8,uint8)[])": {
             const { riskProfile, noOfSteps, poolRatingsRange }: ARGUMENTS = action.args;
             if (riskProfile) {
               if (action.expect === "success") {
