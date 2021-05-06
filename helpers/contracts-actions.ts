@@ -98,7 +98,7 @@ export async function setBestBasicStrategy(
 
   const strategies = await registry["setStrategy(bytes32,(address,address,bool)[])"](tokensHash, strategySteps);
   const strategyReceipt = await strategies.wait();
-  const strategyHash = strategyReceipt.events[0].args[2];
+  const strategyHash = strategyReceipt.events[0].args[1];
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   return strategyHash;
 }
