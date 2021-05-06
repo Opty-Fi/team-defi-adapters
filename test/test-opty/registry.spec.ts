@@ -46,7 +46,14 @@ describe(scenario.title, () => {
             const { tokens }: ARGUMENTS = action.args;
             if (tokens) {
               if (action.expect === "success") {
-                await registryContract[action.action](tokens);
+                if (action.action == "approveToken(address)") {
+                  const caller = await owner.getAddress();
+                  await expect(registryContract[action.action](tokens))
+                    .to.emit(registryContract, "LogToken")
+                    .withArgs(hre.ethers.utils.getAddress(tokens), true, caller);
+                } else {
+                  await registryContract[action.action](tokens);
+                }
               } else {
                 await expect(registryContract[action.action](tokens)).to.be.revertedWith(action.message);
               }
@@ -61,7 +68,19 @@ describe(scenario.title, () => {
             const { lqs }: ARGUMENTS = action.args;
             if (lqs) {
               if (action.expect === "success") {
-                await registryContract[action.action](lqs);
+                if (action.action == "approveLiquidityPool(address)") {
+                  const caller = await owner.getAddress();
+                  await expect(registryContract[action.action](lqs))
+                    .to.emit(registryContract, "LogLiquidityPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqs), true, caller);
+                } else if (action.action == "approveCreditPool(address)") {
+                  const caller = await owner.getAddress();
+                  await expect(registryContract[action.action](lqs))
+                    .to.emit(registryContract, "LogCreditPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqs), true, caller);
+                } else {
+                  await registryContract[action.action](lqs);
+                }
               } else {
                 await expect(registryContract[action.action](lqs)).to.be.revertedWith(action.message);
               }
@@ -102,6 +121,7 @@ describe(scenario.title, () => {
             const { lqs }: ARGUMENTS = action.args;
             if (lqs) {
               if (action.expect === "success") {
+                // await registryContract[action.action](lqs);
                 await registryContract[action.action](lqs);
               } else {
                 await expect(registryContract[action.action](lqs)).to.be.revertedWith(action.message);

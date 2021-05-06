@@ -671,6 +671,7 @@ contract Registry is ModifiersController {
 
     function _setTreasury(address _treasury) internal returns (bool) {
         require(_treasury != address(0), "!address(0)");
+        treasury = _treasury;
         return true;
     }
 
