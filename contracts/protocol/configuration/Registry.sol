@@ -702,8 +702,8 @@ contract Registry is ModifiersController {
 
     function _revokeLiquidityPool(address _pool) internal returns (bool) {
         require(liquidityPools[_pool].isLiquidityPool, "!liquidityPools");
-        emit LogLiquidityPool(_pool, liquidityPools[_pool].isLiquidityPool, msg.sender);
         liquidityPools[_pool].isLiquidityPool = false;
+        emit LogLiquidityPool(_pool, liquidityPools[_pool].isLiquidityPool, msg.sender);
         return true;
     }
 
