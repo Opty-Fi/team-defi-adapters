@@ -3,7 +3,6 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { executeFunc } from "../../helpers/helpers";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
@@ -15,8 +14,8 @@ import {
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
+  approveVaultRewardTokens,
 } from "../../helpers/contracts-actions";
-// import scenario from "./scenarios/withdrawal-fee.json";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
 
 type ARGUMENTS = {
@@ -29,6 +28,7 @@ type ARGUMENTS = {
   bytesName?: string;
   addressNames?: string[];
   vaultRewardStrategy?: number[];
+  vaultRewardTokenInvalidHash?: string;
 };
 
 describe(scenario.title, () => {
@@ -57,8 +57,9 @@ describe(scenario.title, () => {
       // const stories = vault.stories;
       const profile = vault.profile; //  RP1
       const adaptersName = Object.keys(TypedAdapterStrategies);
+      
       for (let i = 0; i < adaptersName.length; i++) {
-      // for (let i = 0; i < 2; i++) {
+      // for (let i = 0; i < 1; i++) {
         const adapterName = adaptersName[i];
         console.log("Adapter: ", adapterName);
         const strategies = TypedAdapterStrategies[adaptersName[i]];
@@ -68,6 +69,7 @@ describe(scenario.title, () => {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
+            const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS);
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
@@ -90,6 +92,12 @@ describe(scenario.title, () => {
                 profile,
                 TESTING_DEPLOYMENT_ONCE,
               );
+              if (rewardTokenAdapterNames.includes(adapterName)) {
+                console.log("APproving reward tokens")
+                await approveVaultRewardTokens(users["owner"], Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress, essentialContracts.registry)
+                console.log("Approved reward tokens")
+              }
+
               await approveLiquidityPoolAndMapAdapter(
                 users["owner"],
                 essentialContracts.registry,
@@ -113,71 +121,39 @@ describe(scenario.title, () => {
               contracts["riskManager"] = essentialContracts.riskManager;
               console.log("Out Strategy Provider address: ", contracts["strategyProvider"].address);
 
-              // const timestamp = (await getBlockTimestamp(hre)) * 2;
-              // await fundWalletToken(
-              //   hre,
-              //   TOKENS[TOKEN_STRATEGY.token],
-              //   users["owner"],
-              //   BigNumber.from(MAX_AMOUNT[TOKEN_STRATEGY.token]),
-              //   timestamp,
-              // );
             });
 
             // for (let i = 0; i < vault.stories.length; i++) {
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < 9; i++) {
+            // for (let i = 0; i < 1; i++) {
               const story = vault.stories[i];
               it(story.description, async () => {
                 for (let j = 0; j < story.setActions.length; j++) {
                   const action = story.setActions[j];
                   switch (action.action) {
                     case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
-                      const { vaultRewardStrategy }: ARGUMENTS = action.args;
+                      const { vaultRewardTokenInvalidHash, vaultRewardStrategy }: ARGUMENTS = action.args;
                       try {
-                        const rewardTokenAdapters = Object.keys(REWARD_TOKENS);
-                        if (rewardTokenAdapters.includes(adapterName)) {
+                        // const rewardTokenAdapters = Object.keys(REWARD_TOKENS);
+                        if (rewardTokenAdapterNames.includes(adapterName)) {
                           console.log("Reward  Token adapter name: ", adapterName);
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
                             console.log("Setting vault reward token strategy");
                             console.log("Vault Reward Strategy: ", vaultRewardStrategy);
-  
-                            //--------//
-  
+
                             vaultRewardTokenHash = getSoliditySHA3Hash(["address[]"], [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]]);
                             console.log("Vault RewardToken hash: ", vaultRewardTokenHash);
-                            await executeFunc(essentialContracts.registry, users["owner"], "approveTokens(address[])", [
-                              [Vault.address, REWARD_TOKENS[adapterName].tokenAddress],
-                            ]);
-                            console.log("Approved vault and COMP reward token");
-                            const setVRTHashTx = await executeFunc(
-                              essentialContracts.registry,
-                              users["owner"],
-                              "setTokensHashToTokens(address[])",
-                              [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]],
-                            );
-                            console.log("setVrtHash: ", setVRTHashTx);
-  
+                            
                             console.log("Setting vault reward token strategy");
-                            // await essentialContracts.strategyProvider.setVaultRewardStrategy(vaultRewardTokenHash, [
-                            //   5000,
-                            //   5000,
-                            // ]);
-                            // await essentialContracts.strategyProvider.setVaultRewardStrategy(vaultRewardTokenHash, vaultRewardStrategy);
-                            // console.log("vault reward token strategy set");
-  
-                            // const vrtSfromRm = await essentialContracts.riskManager.getVaultRewardTokenStrategy(
-                            //   vaultRewardTokenHash,
-                            // );
-                            // console.log("vrtS from RM: ", vrtSfromRm);
-  
-                            //  --------- //
+                            
                             console.log("Inside Strategy Provider address: ", contracts[action.contract].address);
                             await contracts[action.contract]
                               .connect(users[action.executer])
-                              [action.action](vaultRewardTokenHash, vaultRewardStrategy);
+                              [action.action](vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash, vaultRewardStrategy);
                             console.log("vault reward token strategy set");
 
                             const vrtSfromRm = await essentialContracts.riskManager.getVaultRewardTokenStrategy(
-                              vaultRewardTokenHash,
+                              vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
                             );
                             console.log("vrtS from RM: ", vrtSfromRm);
                           }
@@ -222,37 +198,10 @@ describe(scenario.title, () => {
                       assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                       break;
                     }
-                    case "setTreasury(address)": {
-                      const { address }: ARGUMENTS = action.args;
-                      try {
-                        if (address) {
-                          await contracts[action.contract].connect(users[action.executer])[action.action](address);
-                        }
-                      } catch (error) {
-                        if (action.expect === "success") {
-                          assert.isUndefined(error);
-                        } else {
-                          expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
-                          );
-                        }
-                      }
-
-                      assert.isDefined(address, `args is wrong in ${action.action} testcase`);
-                      break;
-                    }
                     case "approve(address,uint256)": {
                       const { addressName, amount }: ARGUMENTS = action.args;
                       try {
                         if (addressName && amount) {
-                          // let address: string;
-                          // if (action.action === "approve(address,uint256)") {
-                          //   console.log("Approving Vault contract on behalf of user for DAI");
-                          //   address = contracts[addressName].address;
-                          // } 
-                          // else {
-                          //   address = await users[addressName].getAddress();
-                          // }
                           console.log("Approving Vault contract on behalf of user for DAI");
                           await contracts[action.contract]
                             .connect(users[action.executer])
@@ -300,14 +249,25 @@ describe(scenario.title, () => {
                 for (let j = 0; j < story.getActions.length; j++) {
                   const action = story.getActions[j];
                   switch (action.action) {
-                    case "treasury()": {
-                      const address = await contracts[action.contract][action.action]();
-                      expect(address).to.equal(action.expectedValue);
-                      break;
-                    }
-                    case "withdrawalFee()": {
-                      const address = await contracts[action.contract][action.action]();
-                      expect(address).to.equal(action.expectedValue);
+                    case "getVaultRewardTokenStrategy(bytes32)":
+                    case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
+                      const { vaultRewardTokenInvalidHash }: ARGUMENTS = action.args;
+                      try{
+                        if (rewardTokenAdapterNames.includes(adapterName)) {
+                          console.log("Vault Reward Token hash in get strategy provider: ", vaultRewardTokenHash)
+                          const value = await contracts[action.contract][action.action](vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash);
+                          console.log("Ratings: ", value)
+                          expect([+value[0]._hex, +value[1]._hex]).to.have.members(action.expectedValue["vaultRewardStrategy"]);
+                        }
+                      } catch (error) {
+                        if (action.expect === "success") {
+                          assert.isUndefined(error);
+                        } else {
+                          expect(error.message).to.equal(
+                            `VM Exception while processing transaction: revert ${action.message}`,
+                          );
+                        }
+                      }
                       break;
                     }
                     case "balanceOf(address)": {
@@ -318,8 +278,7 @@ describe(scenario.title, () => {
                       } else if (addressName) {
                         console.log("Checking reward token balance");
                         // const address = users[addressName].getAddress();
-                        const rewardTokenAdapters = Object.keys(REWARD_TOKENS);
-                        if (rewardTokenAdapters.includes(adapterName)) {
+                        if (rewardTokenAdapterNames.includes(adapterName)) {
                           console.log("Reward token adapter for balance: ", adapterName)
                           const COMP_ERC20Instance = await hre.ethers.getContractAt(
                             "ERC20",
