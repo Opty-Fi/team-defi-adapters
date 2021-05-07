@@ -7,6 +7,7 @@ import { getSoliditySHA3Hash, amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import tokenAddresses from "./data/TokenAddresses.json";
+import { expect } from "chai";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -100,6 +101,8 @@ export async function setBestBasicStrategy(
   const strategyReceipt = await strategies.wait();
   const strategyHash = strategyReceipt.events[0].args[2];
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
+  const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
+  expect(strategyProviderStrategy).to.equal(strategyHash);
   return strategyHash;
 }
 
