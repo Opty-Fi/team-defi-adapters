@@ -1,4 +1,4 @@
-import { TOKENS } from "./constants";
+import { REWARD_TOKENS, TOKENS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import { TypedAdapterStrategies } from "./data";
@@ -68,6 +68,26 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
       await executeFunc(registryContract, owner, "approveTokens(address[])", [tokenAddresses]);
       await executeFunc(registryContract, owner, "setMultipleTokensHashToTokens(address[][])", [
         tokenAddresses.map(addr => [addr]),
+      ]);
+    }
+  } catch (error) {
+    console.log(`Got error when executing approveTokens : ${error}`);
+  }
+}
+
+export async function approveVaultRewardTokens(
+  owner: Signer,
+  vaultContractAddress: string,
+  rewardTokenAddress: string,
+  registryContract: Contract,
+): Promise<void> {
+  try {
+    if (vaultContractAddress.length > 0 && rewardTokenAddress.length > 0) {
+      await executeFunc(registryContract, owner, "approveTokens(address[])", [
+        [vaultContractAddress, rewardTokenAddress],
+      ]);
+      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [
+        [vaultContractAddress, rewardTokenAddress],
       ]);
     }
   } catch (error) {

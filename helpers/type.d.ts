@@ -31,9 +31,11 @@ export type RISK_PROFILE_DATA = {
   };
 };
 
-export type REWARD_TOKEN_DATA_OBJECT = { [name: string]: {
-  [name: string]: string | boolean;
-} }
+export type REWARD_TOKEN_DATA_OBJECT = {
+  [name: string]: {
+    [name: string]: string | boolean;
+  };
+};
 
 export type STRATEGY_DATA = {
   contract: string;

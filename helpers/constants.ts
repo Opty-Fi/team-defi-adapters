@@ -40,22 +40,22 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   CompoundAdapter: {
     tokenName: "COMP",
     tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
-    distributionActive: true
+    distributionActive: true,
   },
   DForceAdapter: {
     tokenName: "DF",
     tokenAddress: "0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0",
-    distributionActive: true
+    distributionActive: true,
   },
   HarvestAdapter: {
     tokenName: "FARM",
     tokenAddress: "0xa0246c9032bC3A600820415aE600c6388619A14D",
-    distributionActive: true
+    distributionActive: true,
   },
   CreamAdapter: {
     tokenName: "CREAM",
     tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
-    distributionActive: false
+    distributionActive: false,
   },
 };
 
