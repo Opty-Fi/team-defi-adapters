@@ -80,7 +80,48 @@
           ]
         },
         {
-          "description": "Vault should hold RewardTokens if VaultRewardTokenStrategy is set",
+          "description": "Operator should be able to set Vault Reward Token Strategy",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardStrategy": [5000, 5000]
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)",
+              "args": {},
+              "expectedValue": {
+                "vaultRewardStrategy": [5000, 5000]
+              }
+            }
+          ]
+        },
+        {
+          "description": "Non-Operator shouldn't be able to set Vault Reward Token Strategy",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardStrategy": [5000, 5000]
+              },
+              "executer": "user1",
+              "expect": "fail",
+              "message": "caller is not the operator"
+            }
+          ],
+          "getActions": []
+        },
+        {
+          "description": "Vault should hold RewardTokens if VaultRewardTokenStrategy is set to 50%",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -162,15 +203,131 @@
             }
           ]
         },
-
         {
-          "description": "Governance should be able to set withdrawal fee ",
+          "description": "Vault shouldn't hold RewardTokens if VaultRewardTokenStrategy is set to 100%",
           "setActions": [
             {
-              "contract": "vault",
-              "action": "setWithdrawalFee(uint256)",
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
               "args": {
-                "fee": "60"
+                "vaultRewardStrategy": [1, 10000]
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "",
+              "action": "fundWallet",
+              "args": {
+                "addressName": "user1",
+                "amount": {
+                  "DAI": "15000000000000000000",
+                  "USDC": "15000000",
+                  "USDT": "15000000"
+                }
+              },
+              "executer": "",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "erc20",
+              "action": "approve(address,uint256)",
+              "args": {
+                "addressName": "vault",
+                "amount": {
+                  "DAI": "15000000000000000000",
+                  "USDC": "15000000",
+                  "USDT": "15000000"
+                }
+              },
+              "executer": "user1",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "15000000000000000000",
+                  "USDC": "15000000",
+                  "USDT": "15000000"
+                }
+              },
+              "executer": "user1",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userWithdrawRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "15000000000000000000",
+                  "USDC": "15000000",
+                  "USDT": "15000000"
+                }
+              },
+              "executer": "user1",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "erc20",
+              "action": "balanceOf(address)",
+              "args": {
+                "addressName": "vault"
+              },
+              "expectedValue": "0"
+            }
+          ]
+        },
+        {
+          "description": "Operator shouldn't be able to set strategy for 0x0..0 VaultRewardToken hash",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardTokenInvalidHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                "vaultRewardStrategy": [5000, 5000]
+              },
+              "executer": "owner",
+              "expect": "fail",
+              "message": "!bytes32(0)"
+            }
+          ],
+          "getActions": []
+        },
+        {
+          "description": "Operator shouldn't be able to set strategy for Non-existing VaultRewardToken hash",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardTokenInvalidHash": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845",
+                "vaultRewardStrategy": [5000, 5000]
+              },
+              "executer": "owner",
+              "expect": "fail",
+              "message": "!VaultRewardTokenHashExists"
+            }
+          ],
+          "getActions": []
+        },
+        {
+          "description": "Risk Manager should get the VaultRewardTokenStrategy set by Operator in Strategy Provider",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardStrategy": [5000, 5000]
               },
               "executer": "owner",
               "expect": "success",
@@ -179,38 +336,23 @@
           ],
           "getActions": [
             {
-              "contract": "vault",
-              "action": "withdrawalFee()",
+              "contract": "riskManager",
+              "action": "getVaultRewardTokenStrategy(bytes32)",
               "args": {},
-              "expectedValue": "60"
+              "expectedValue": {
+                "vaultRewardStrategy": [5000, 5000]
+              }
             }
           ]
         },
         {
-          "description": "Non-Governance shouldn't be able to set withdrawal fee ",
+          "description": "Risk Manager shouldn't get the VaultRewardTokenStrategy for 0x0..0 VaultRewardToken hash",
           "setActions": [
             {
-              "contract": "vault",
-              "action": "setWithdrawalFee(uint256)",
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
               "args": {
-                "fee": "60"
-              },
-              "executer": "user1",
-              "expect": "fail",
-              "message": "caller is not having governance"
-            }
-          ],
-          "getActions": []
-        },
-
-        {
-          "description": "Governance should be able to set treasury",
-          "setActions": [
-            {
-              "contract": "registry",
-              "action": "setTreasury(address)",
-              "args": {
-                "address": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"
+                "vaultRewardStrategy": [5000, 5000]
               },
               "executer": "owner",
               "expect": "success",
@@ -219,44 +361,16 @@
           ],
           "getActions": [
             {
-              "contract": "registry",
-              "action": "treasury()",
-              "args": {},
-              "expectedValue": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"
+              "contract": "riskManager",
+              "action": "getVaultRewardTokenStrategy(bytes32)",
+              "args": {
+                "vaultRewardTokenInvalidHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "expectedValue": {},
+              "expect": "fail",
+              "message": "vRtHash!=0x0"
             }
           ]
-        },
-        {
-          "description": "Non-Governance shouldn't be able to set treasury",
-          "setActions": [
-            {
-              "contract": "registry",
-              "action": "setTreasury(address)",
-              "args": {
-                "address": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"
-              },
-              "executer": "user1",
-              "expect": "fail",
-              "message": "caller is not the operator"
-            }
-          ],
-          "getActions": []
-        },
-        {
-          "description": "Governance shouldn't be able to set treasury with address(0)",
-          "setActions": [
-            {
-              "contract": "registry",
-              "action": "setTreasury(address)",
-              "args": {
-                "address": "0x0000000000000000000000000000000000000000"
-              },
-              "executer": "owner",
-              "expect": "fail",
-              "message": "!address(0)"
-            }
-          ],
-          "getActions": []
         }
       ]
     }
