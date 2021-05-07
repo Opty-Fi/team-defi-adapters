@@ -1,0 +1,228 @@
+{
+  "title": "Opty Minter",
+  "description": "Test cases for Opty Minter contract",
+  "stories": [
+    {
+      "description": "Operator can add opty vault",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "optyMinter",
+          "action": "allOptyVaults(uint256)",
+          "args": {
+            "index": 0
+          },
+          "expectedValue": "vault"
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator can add opty vault",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "admin",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator can set opty vault",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVault(address,bool)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "optyMinter",
+          "action": "optyVaultEnabled(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "expectedValue": true
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator can't set opty vault",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVault(address,bool)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "admin",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator can set opty vault rate",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVaultRate(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "rate": "100"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "optyMinter",
+          "action": "optyVaultRatePerSecond(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "expectedValue": "100"
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator can't set opty vault rate",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVaultRate(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "rate": "100"
+          },
+          "executer": "admin",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Test Stuff",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVault(address,bool)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVaultRate(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "rate": "100"
+          },
+          "executer": "admin",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        },
+        {
+          "contract": "erc20",
+          "action": "approve(address,uint256)",
+          "args": {
+            "amount": "2000000000000000000"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vault",
+          "action": "userDepositRebalance(uint256)",
+          "args": {
+            "amount": "2000000000000000000"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": []
+    }
+  ]
+}
