@@ -1,6 +1,6 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
-import { Contract, Signer, BigNumber } from "ethers";
+import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
@@ -20,21 +20,24 @@ import {
 import scenario from "./scenarios/opty-minter.json";
 type ARGUMENTS = {
   contractName?: string;
+  addressName?: string;
   amount?: string;
   index?: number;
   rate?: string;
+  isEnabled?: boolean;
 };
 describe(scenario.title, () => {
   const token = "DAI";
   const tokenAddr = TOKENS["DAI"];
-  const MAX_AMOUNT = "1000000000000000000000";
+  const MAX_AMOUNT = "100000000000000000000000";
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
-  let Vault: Contract;
   let users: { [key: string]: Signer };
   const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
   const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
+  let currentTimestamp = 0;
+  let currentOpty = 0;
   before(async () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
@@ -74,7 +77,22 @@ describe(scenario.title, () => {
       opty.address,
     ]);
 
-    Vault = await deployVault(
+    const Vault = await deployVault(
+      hre,
+      essentialContracts.registry.address,
+      essentialContracts.riskManager.address,
+      essentialContracts.strategyManager.address,
+      optyMinter.address,
+      tokenAddr,
+      users["owner"],
+      users["admin"],
+      underlyingTokenName,
+      underlyingTokenSymbol,
+      "RP1",
+      TESTING_DEPLOYMENT_ONCE,
+    );
+
+    const Vault2 = await deployVault(
       hre,
       essentialContracts.registry.address,
       essentialContracts.riskManager.address,
@@ -95,7 +113,11 @@ describe(scenario.title, () => {
 
     contracts["vault"] = Vault;
 
+    contracts["vault2"] = Vault2;
+
     contracts["erc20"] = ERC20Instance;
+
+    contracts["opty"] = opty;
   });
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
@@ -122,23 +144,24 @@ describe(scenario.title, () => {
             break;
           }
           case "setOptyVault(address,bool)": {
-            const { contractName }: ARGUMENTS = action.args;
+            const { contractName, isEnabled }: ARGUMENTS = action.args;
             if (contractName) {
               if (action.expect === "success") {
                 await executeFunc(contracts[action.contract], users[action.executer], action.action, [
                   contracts[contractName].address,
-                  true,
+                  isEnabled,
                 ]);
               } else {
                 await expect(
                   executeFunc(contracts[action.contract], users[action.executer], action.action, [
                     contracts[contractName].address,
-                    true,
+                    isEnabled,
                   ]),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(isEnabled, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setOptyVaultRate(address,uint256)": {
@@ -164,44 +187,89 @@ describe(scenario.title, () => {
             break;
           }
           case "approve(address,uint256)": {
-            const { amount }: ARGUMENTS = action.args;
-            console.log(amount);
-            if (action.expect === "success") {
-              await executeFunc(contracts[action.contract], users[action.executer], action.action, [
-                contracts["vault"].address,
-                amount ? amount : "0",
-              ]);
-            } else {
-              await expect(
-                executeFunc(contracts[action.contract], users[action.executer], action.action, [
-                  contracts["vault"].address,
-                  amount ? amount : "0",
-                ]),
-              ).to.be.revertedWith(action.message);
+            const { amount, contractName }: ARGUMENTS = action.args;
+            if (amount && contractName) {
+              if (action.expect === "success") {
+                await executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                  contracts[contractName].address,
+                  amount,
+                ]);
+              } else {
+                await expect(
+                  executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                    contracts[contractName].address,
+                    amount,
+                  ]),
+                ).to.be.revertedWith(action.message);
+              }
             }
+            assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "transfer(address,uint256)": {
+            const { addressName, amount }: ARGUMENTS = action.args;
+
+            if (currentTimestamp > 0) {
+              await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 1]);
+              await hre.network.provider.send("evm_mine");
+            }
+
+            if (addressName && amount) {
+              const fromAddr = await users[action.executer].getAddress();
+              const toAddr = await users[addressName].getAddress();
+              if (action.contract === "vault") {
+                currentOpty = await contracts["optyMinter"]["claimableOpty(address)"](fromAddr);
+              }
+              if (action.expect === "success") {
+                await executeFunc(contracts[action.contract], users[action.executer], action.action, [toAddr, amount]);
+              } else {
+                await expect(
+                  executeFunc(contracts[action.contract], users[action.executer], action.action, [toAddr, amount]),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+            const blockNumber = await hre.ethers.provider.getBlockNumber();
+            const block = await hre.ethers.provider.getBlock(blockNumber);
+            currentTimestamp = block.timestamp;
             break;
           }
           case "userDepositRebalance(uint256)": {
             const { amount }: ARGUMENTS = action.args;
-            if (action.expect === "success") {
-              await executeFunc(contracts[action.contract], users[action.executer], action.action, [
-                amount ? amount : "0",
-              ]);
-              const address = await users[action.executer].getAddress();
-              const thousandDays = 100000;
-              await hre.network.provider.request({
-                method: "evm_increaseTime",
-                params: [thousandDays],
-              });
-              const balance = await contracts["optyMinter"]
-                .connect(users[action.executer])
-                ["claimableOpty(address)"](address);
-              console.log(balance);
-            } else {
-              await expect(
-                contracts[action.contract].connect(users[action.executer])[action.action](amount ? amount : "0"),
-              ).to.be.revertedWith(action.message);
+            if (amount) {
+              if (action.expect === "success") {
+                await executeFunc(contracts[action.contract], users[action.executer], action.action, [amount]);
+              } else {
+                await expect(
+                  executeFunc(contracts[action.contract], users[action.executer], action.action, [amount]),
+                ).to.be.revertedWith(action.message);
+              }
             }
+            assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+            const blockNumber = await hre.ethers.provider.getBlockNumber();
+            const block = await hre.ethers.provider.getBlock(blockNumber);
+            currentTimestamp = block.timestamp;
+            break;
+          }
+          case "mint(address,uint256)":
+          case "mintOpty(address,uint256)": {
+            const { addressName, amount }: ARGUMENTS = action.args;
+            if (addressName && amount) {
+              const userAddr = await users[addressName].getAddress();
+
+              if (action.expect === "success") {
+                await executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                  userAddr,
+                  amount,
+                ]);
+              } else {
+                await expect(
+                  executeFunc(contracts[action.contract], users[action.executer], action.action, [userAddr, amount]),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+
             break;
           }
         }
@@ -237,8 +305,27 @@ describe(scenario.title, () => {
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
           }
+          case "claimableOpty(address)": {
+            const { addressName }: ARGUMENTS = action.args;
+            if (addressName) {
+              await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 1]);
+              await hre.network.provider.send("evm_mine");
+              const addr = await users[addressName].getAddress();
+              const value = await contracts[action.contract][action.action](addr);
+              if (action.expectedValue === "") {
+                await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 10]);
+                await hre.network.provider.send("evm_mine");
+                expect(value.toString()).to.be.equal(currentOpty.toString());
+              } else {
+                expect(+value).to.be.gte(+action.expectedValue);
+              }
+            }
+            assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
         }
       }
-    }).timeout(100000);
+      currentTimestamp = 0;
+    }).timeout(10000000);
   }
 });
