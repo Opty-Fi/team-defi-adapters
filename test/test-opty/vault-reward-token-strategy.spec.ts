@@ -59,7 +59,7 @@ describe(scenario.title, () => {
       const adaptersName = Object.keys(TypedAdapterStrategies);
 
       for (let i = 0; i < adaptersName.length; i++) {
-        // for (let i = 0; i < 1; i++) {
+      // for (let i = 0; i < 1; i++) {
         const adapterName = adaptersName[i];
         console.log("Adapter: ", adapterName);
         const strategies = TypedAdapterStrategies[adaptersName[i]];
@@ -70,6 +70,7 @@ describe(scenario.title, () => {
             const TOKEN_STRATEGY = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS);
+            let investStrategyHash: any;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
@@ -110,13 +111,15 @@ describe(scenario.title, () => {
                 TOKEN_STRATEGY.strategy[0].contract,
               );
 
-              await setBestBasicStrategy(
+              investStrategyHash = await setBestBasicStrategy(
                 TOKEN_STRATEGY.strategy,
                 tokensHash,
                 essentialContracts.registry,
                 essentialContracts.strategyProvider,
                 profile,
               );
+              console.log("Invest Strategy Hash: ", investStrategyHash);
+              // process.exit(2)
 
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
               contracts["vault"] = Vault;
@@ -128,7 +131,7 @@ describe(scenario.title, () => {
             });
 
             // for (let i = 0; i < vault.stories.length; i++) {
-            for (let i = 0; i < 9; i++) {
+            for (let i = 0; i < 10; i++) {
               // for (let i = 0; i < 1; i++) {
               const story = vault.stories[i];
               it(story.description, async () => {
@@ -230,6 +233,26 @@ describe(scenario.title, () => {
                       assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                       break;
                     }
+                    case "harvest(bytes32)": {
+                      try {
+                        if (investStrategyHash) {
+                          console.log("Calling Action: ", action.action);
+                          await contracts[action.contract]
+                            .connect(users[action.executer])
+                            [action.action](investStrategyHash);
+                        }
+                      } catch (error) {
+                        if (action.expect === "success") {
+                          assert.isUndefined(error);
+                        } else {
+                          expect(error.message).to.equal(
+                            `VM Exception while processing transaction: revert ${action.message}`,
+                          );
+                        }
+                      }
+                      // assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = action.args;
@@ -264,6 +287,7 @@ describe(scenario.title, () => {
                     case "getVaultRewardTokenStrategy(bytes32)":
                     case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
                       const { vaultRewardTokenInvalidHash }: ARGUMENTS = action.args;
+                      // const expectedValue: EXPECTED_ARGS | {} = action["expectedValue"]["vaultRewardStrategy"];
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName)) {
                           console.log("Vault Reward Token hash in get strategy provider: ", vaultRewardTokenHash);
@@ -288,6 +312,7 @@ describe(scenario.title, () => {
                     }
                     case "balanceOf(address)": {
                       const { address, addressName }: ARGUMENTS = action.args;
+
                       if (address) {
                         const value = await contracts[action.contract][action.action](address);
                         expect(+value).to.gte(+action.expectedValue);
@@ -301,6 +326,7 @@ describe(scenario.title, () => {
                             <string>REWARD_TOKENS[adapterName].tokenAddress,
                           );
                           const comp_value = await COMP_ERC20Instance.balanceOf(Vault.address);
+                          console.log("Comp value: ", +comp_value);
                           // const value = await contracts[action.contract][action.action](address);
                           action.expectedValue == ">0"
                             ? REWARD_TOKENS[adapterName].distributionActive

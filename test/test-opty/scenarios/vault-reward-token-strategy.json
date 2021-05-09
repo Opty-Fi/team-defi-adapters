@@ -204,6 +204,39 @@
           ]
         },
         {
+          "description": "Vault should be able harvest RewardTokens (if any) using harvest() function",
+          "setActions": [
+            {
+              "contract": "strategyProvider",
+              "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+              "args": {
+                "vaultRewardStrategy": [5000, 5000]
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "harvest(bytes32)",
+              "args": {},
+              "executer": "user1",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "erc20",
+              "action": "balanceOf(address)",
+              "args": {
+                "addressName": "vault"
+              },
+              "expectedValue": ">0"
+            }
+          ]
+        },
+        {
           "description": "Vault shouldn't hold RewardTokens if VaultRewardTokenStrategy is set to 100%",
           "setActions": [
             {
