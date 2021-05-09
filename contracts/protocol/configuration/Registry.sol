@@ -619,47 +619,10 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Returns the liquidity pool by `_pool`.
-     */
-    function getLiquidityPool(address _pool) public view returns (DataTypes.LiquidityPool memory _liquidityPool) {
-        _liquidityPool = liquidityPools[_pool];
-    }
-
-    /**
      * @dev Returns list of token given the `_tokensHash`.
      */
     function getTokensHashToTokens(bytes32 _tokensHash) public view returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
-    }
-
-    /**
-     * @dev Returns the credit pool by `_pool`.
-     */
-    function getCreditPool(address _pool) public view returns (DataTypes.LiquidityPool memory _creditPool) {
-        _creditPool = creditPools[_pool];
-    }
-
-    /**
-     * @dev Get the risk profile details
-     *
-     */
-    function getRiskProfile(string memory _riskProfile)
-        public
-        view
-        returns (
-            uint256 _index,
-            uint8 _noOfSteps,
-            DataTypes.PoolRatingsRange memory _poolRatingsRange,
-            bool _exists
-        )
-    {
-        _index = riskProfiles[_riskProfile].index;
-        _noOfSteps = riskProfiles[_riskProfile].steps;
-        _poolRatingsRange = DataTypes.PoolRatingsRange(
-            riskProfiles[_riskProfile].lowerLimit,
-            riskProfiles[_riskProfile].upperLimit
-        );
-        _exists = riskProfiles[_riskProfile].exists;
     }
 
     /**
