@@ -127,16 +127,18 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_optyVault]);
         uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
         uint256 _index =
-            div_(
-                add_(
-                    mul_(
-                        optyVaultState[_optyVault].index,
-                        sub_(uint256(optyVaultState[_optyVault].timestamp), optyVaultStartTimestamp[_optyVault])
+            _deltaSecondsSinceStart > 0
+                ? div_(
+                    add_(
+                        mul_(
+                            optyVaultState[_optyVault].index,
+                            sub_(uint256(optyVaultState[_optyVault].timestamp), optyVaultStartTimestamp[_optyVault])
+                        ),
+                        _ratio
                     ),
-                    _ratio
-                ),
-                _deltaSecondsSinceStart
-            );
+                    _deltaSecondsSinceStart
+                )
+                : uint256(0);
         return _index;
     }
 
