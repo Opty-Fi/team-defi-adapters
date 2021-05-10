@@ -83,7 +83,7 @@ export async function approveVaultRewardTokens(
 ): Promise<void> {
   try {
     if (vaultContractAddress.length > 0 && rewardTokenAddress.length > 0) {
-      await executeFunc(registryContract, owner, "approveTokens(address[])", [
+      await executeFunc(registryContract, owner, "approveToken(address[])", [
         [vaultContractAddress, rewardTokenAddress],
       ]);
       await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [
@@ -91,7 +91,7 @@ export async function approveVaultRewardTokens(
       ]);
     }
   } catch (error) {
-    console.log(`Got error when executing approveTokens : ${error}`);
+    console.log(`Got error when executing approveTokens for vault and reward tokens : ${error}`);
   }
 }
 
