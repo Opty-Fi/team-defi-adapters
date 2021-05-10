@@ -17,6 +17,7 @@ import {
   approveVaultRewardTokens,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
+import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -45,7 +46,6 @@ describe(scenario.title, () => {
       [essentialContracts, adapters] = await setUp(owner);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-      // contracts["registry"] = essentialContracts.registry;
     } catch (error) {
       console.log(error);
     }
@@ -54,30 +54,26 @@ describe(scenario.title, () => {
   for (let i = 0; i < scenario.vaults.length; i++) {
     describe(`${scenario.vaults[i].name}`, async () => {
       let Vault: Contract;
-      const vault = scenario.vaults[i]; //  RP1Vault
-      // const stories = vault.stories;
-      const profile = vault.profile; //  RP1
+      const vault = scenario.vaults[i];
+      const profile = vault.profile;
       const adaptersName = Object.keys(TypedAdapterStrategies);
 
       for (let i = 0; i < adaptersName.length; i++) {
-        // for (let i = 0; i < 1; i++) {
         const adapterName = adaptersName[i];
-        console.log("Adapter: ", adapterName);
         const strategies = TypedAdapterStrategies[adaptersName[i]];
 
         for (let i = 0; i < strategies.length; i++) {
-          // for (let i = 0; i < 1; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
-            console.log("Reward token adapter names: ", rewardTokenAdapterNames);
             let investStrategyHash: any;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
+            let RewardToken_ERC20Instance: any;
 
             before(async () => {
               underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
@@ -98,14 +94,17 @@ describe(scenario.title, () => {
                 TESTING_DEPLOYMENT_ONCE,
               );
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                console.log("APproving reward tokens");
                 await approveVaultRewardTokens(
                   users["owner"],
                   Vault.address,
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
                   essentialContracts.registry,
                 );
-                console.log("Approved reward tokens");
+                RewardToken_ERC20Instance = await getContractInstance(
+                  hre,
+                  "ERC20",
+                  <string>REWARD_TOKENS[adapterName].tokenAddress,
+                );
               }
 
               await approveLiquidityPoolAndMapAdapter(
@@ -122,22 +121,18 @@ describe(scenario.title, () => {
                 essentialContracts.strategyProvider,
                 profile,
               );
-              console.log("Invest Strategy Hash: ", investStrategyHash);
-              // process.exit(2)
 
-              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;
-              contracts["erc20"] = Token_ERC20Instance;
+              contracts["tokenErc20"] = Token_ERC20Instance;
+              contracts["rewardTokenErc20"] = RewardToken_ERC20Instance;
               contracts["adapter"] = adapter;
               contracts["strategyProvider"] = essentialContracts.strategyProvider;
               contracts["riskManager"] = essentialContracts.riskManager;
-              console.log("Out Strategy Provider address: ", contracts["strategyProvider"].address);
             });
 
             for (let i = 0; i < vault.stories.length; i++) {
-              // for (let i = 0; i < 10; i++) {
-              // for (let i = 0; i < 1; i++) {
               const story = vault.stories[i];
               it(story.description, async () => {
                 for (let j = 0; j < story.setActions.length; j++) {
@@ -146,40 +141,22 @@ describe(scenario.title, () => {
                     case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
                       const { vaultRewardTokenInvalidHash, vaultRewardStrategy }: ARGUMENTS = action.args;
                       try {
-                        // const rewardTokenAdapters = Object.keys(REWARD_TOKENS);
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                          console.log("Reward  Token adapter name: ", adapterName);
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
-                            console.log("Setting vault reward token strategy");
-                            console.log("Vault Reward Strategy: ", vaultRewardStrategy);
-
                             vaultRewardTokenHash = getSoliditySHA3Hash(
                               ["address[]"],
                               [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]],
                             );
-                            console.log("Vault RewardToken hash: ", vaultRewardTokenHash);
-
-                            console.log("Setting vault reward token strategy");
-
-                            console.log("Inside Strategy Provider address: ", contracts[action.contract].address);
                             await contracts[action.contract]
                               .connect(users[action.executer])
                               [action.action](
                                 vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
                                 vaultRewardStrategy,
                               );
-                            console.log("vault reward token strategy set");
-
                             const value = await contracts[action.contract]
                               .connect(users[action.executer])
                               ["vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)"](vaultRewardTokenHash);
-                            console.log("Value returned: ", value);
                             expect([+value[0]._hex, +value[1]._hex]).to.have.members(vaultRewardStrategy);
-                            // const vrtSfromRm = await essentialContracts.riskManager.getVaultRewardTokenStrategy(
-                            //   vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
-                            // );
-
-                            // console.log("vrtS from RM: ", vrtSfromRm);
                           }
                         }
                       } catch (error) {
@@ -200,7 +177,6 @@ describe(scenario.title, () => {
                       try {
                         if (addressName && amount) {
                           const timestamp = (await getBlockTimestamp(hre)) * 2;
-                          console.log("Funding user1 with DAI");
                           await fundWalletToken(
                             hre,
                             TOKENS[TOKEN_STRATEGY.token],
@@ -226,7 +202,6 @@ describe(scenario.title, () => {
                       const { addressName, amount }: ARGUMENTS = action.args;
                       try {
                         if (addressName && amount) {
-                          console.log("Approving Vault contract on behalf of user for DAI");
                           await contracts[action.contract]
                             .connect(users[action.executer])
                             [action.action](contracts[addressName].address, amount[TOKEN_STRATEGY.token]);
@@ -247,7 +222,6 @@ describe(scenario.title, () => {
                     case "harvest(bytes32)": {
                       try {
                         if (investStrategyHash) {
-                          console.log("Calling Action: ", action.action);
                           await contracts[action.contract]
                             .connect(users[action.executer])
                             [action.action](investStrategyHash);
@@ -261,19 +235,16 @@ describe(scenario.title, () => {
                           );
                         }
                       }
-                      // assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                       break;
                     }
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = action.args;
-
                       if (action.action === "userWithdrawRebalance(uint256)") {
                         await delay(200);
                       }
                       try {
                         if (amount) {
-                          console.log("Calling Action: ", action.action);
                           await contracts[action.contract]
                             .connect(users[action.executer])
                             [action.action](amount[TOKEN_STRATEGY.token]);
@@ -299,14 +270,11 @@ describe(scenario.title, () => {
                     case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
                       const { vaultRewardTokenInvalidHash }: ARGUMENTS = action.args;
                       const { vaultRewardStrategy }: EXPECTED_ARGUMENTS = action.expectedValue;
-                      // const expectedValue: EXPECTED_ARGS | {} = action["expectedValue"]["vaultRewardStrategy"];
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                          console.log("Vault Reward Token hash in get strategy provider: ", vaultRewardTokenHash);
                           const value = await contracts[action.contract][action.action](
                             vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
                           );
-                          console.log("Ratings: ", value);
                           expect([+value[0]._hex, +value[1]._hex]).to.have.members(<number[]>vaultRewardStrategy);
                         }
                       } catch (error) {
@@ -324,20 +292,12 @@ describe(scenario.title, () => {
                       const { addressName }: ARGUMENTS = action.args;
                       const { balance }: EXPECTED_ARGUMENTS = action.expectedValue;
                       if (addressName) {
-                        console.log("Checking reward token balance");
                         const address =
                           addressName == "vault"
                             ? contracts[addressName].address
                             : await users[addressName].getAddress();
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                          console.log("Reward token adapter for balance: ", adapterName);
-                          const RewardToken_ERC20Instance = await hre.ethers.getContractAt(
-                            "ERC20",
-                            <string>REWARD_TOKENS[adapterName].tokenAddress,
-                          );
-                          const reward_token_balance = await RewardToken_ERC20Instance.balanceOf(address);
-                          console.log("Reward Token value: ", +reward_token_balance);
-                          // const value = await contracts[action.contract][action.action](address);
+                          const reward_token_balance = await contracts[action.contract][action.action](address);
                           <string>balance == ">0"
                             ? REWARD_TOKENS[adapterName].distributionActive
                               ? assert.isAbove(+reward_token_balance, +"0", "Vault should hold some reward tokens")
