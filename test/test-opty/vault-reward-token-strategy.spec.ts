@@ -31,6 +31,11 @@ type ARGUMENTS = {
   vaultRewardTokenInvalidHash?: string;
 };
 
+type EXPECTED_ARGUMENTS = {
+  balance?: string
+  vaultRewardStrategy?: number[];
+}
+
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   let essentialContracts: CONTRACTS;
@@ -287,6 +292,7 @@ describe(scenario.title, () => {
                     case "getVaultRewardTokenStrategy(bytes32)":
                     case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
                       const { vaultRewardTokenInvalidHash }: ARGUMENTS = action.args;
+                      const { vaultRewardStrategy }: EXPECTED_ARGUMENTS = action.expectedValue;
                       // const expectedValue: EXPECTED_ARGS | {} = action["expectedValue"]["vaultRewardStrategy"];
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName)) {
@@ -296,7 +302,7 @@ describe(scenario.title, () => {
                           );
                           console.log("Ratings: ", value);
                           expect([+value[0]._hex, +value[1]._hex]).to.have.members(
-                            action.expectedValue["vaultRewardStrategy"],
+                            <number[]>vaultRewardStrategy,
                           );
                         }
                       } catch (error) {
@@ -312,7 +318,7 @@ describe(scenario.title, () => {
                     }
                     case "balanceOf(address)": {
                       const { address, addressName }: ARGUMENTS = action.args;
-
+                      const { balance }: EXPECTED_ARGUMENTS = action.expectedValue;
                       if (address) {
                         const value = await contracts[action.contract][action.action](address);
                         expect(+value).to.gte(+action.expectedValue);
@@ -328,11 +334,11 @@ describe(scenario.title, () => {
                           const comp_value = await COMP_ERC20Instance.balanceOf(Vault.address);
                           console.log("Comp value: ", +comp_value);
                           // const value = await contracts[action.contract][action.action](address);
-                          action.expectedValue == ">0"
+                          <string>balance == ">0"
                             ? REWARD_TOKENS[adapterName].distributionActive
                               ? assert.isAbove(+comp_value, +"0", "Vault should hold some reward tokens")
                               : expect(+comp_value).to.equal(+"0")
-                            : expect(+comp_value).to.equal(+action.expectedValue);
+                            : expect(+comp_value).to.equal(+<string>balance);
                         }
                       }
                       break;

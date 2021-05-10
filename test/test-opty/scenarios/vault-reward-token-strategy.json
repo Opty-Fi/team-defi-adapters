@@ -75,7 +75,11 @@
               "args": {
                 "addressName": "vault"
               },
-              "expectedValue": "0"
+              "expectedValue": {
+                "balance": "0"
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -100,7 +104,9 @@
               "args": {},
               "expectedValue": {
                 "vaultRewardStrategy": [5000, 5000]
-              }
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -199,7 +205,11 @@
               "args": {
                 "addressName": "vault"
               },
-              "expectedValue": ">0"
+              "expectedValue": {
+                "balance": ">0"
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -232,7 +242,11 @@
               "args": {
                 "addressName": "vault"
               },
-              "expectedValue": ">0"
+              "expectedValue": {
+                "balance": ">0"
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -315,7 +329,11 @@
               "args": {
                 "addressName": "vault"
               },
-              "expectedValue": "0"
+              "expectedValue": {
+                "balance": "0"
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -374,7 +392,9 @@
               "args": {},
               "expectedValue": {
                 "vaultRewardStrategy": [5000, 5000]
-              }
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
