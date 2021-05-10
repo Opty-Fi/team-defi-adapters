@@ -43,15 +43,15 @@ export async function approveLiquidityPoolAndMapAdapters(
   }
   try {
     if (liquidityPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveLiquidityPools(address[])", [liquidityPools]);
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [liquidityPools]);
     }
     if (liquidityPoolsMapToAdapters.length > 0) {
-      await executeFunc(registryContract, owner, "setLiquidityPoolsToAdapters((address,address)[])", [
+      await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [
         liquidityPoolsMapToAdapters,
       ]);
     }
     if (creditPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveCreditPools(address[])", [creditPools]);
+      await executeFunc(registryContract, owner, "approveCreditPool(address[])", [creditPools]);
     }
   } catch (error) {
     console.log(`Got error when executing approveLiquidityPoolAndMapAdapters : ${error}`);
@@ -65,8 +65,8 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
   }
   try {
     if (tokenAddresses.length > 0) {
-      await executeFunc(registryContract, owner, "approveTokens(address[])", [tokenAddresses]);
-      await executeFunc(registryContract, owner, "setMultipleTokensHashToTokens(address[][])", [
+      await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
+      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
         tokenAddresses.map(addr => [addr]),
       ]);
     }
@@ -119,7 +119,7 @@ export async function setBestBasicStrategy(
 
   const strategies = await registry["setStrategy(bytes32,(address,address,bool)[])"](tokensHash, strategySteps);
   const strategyReceipt = await strategies.wait();
-  const strategyHash = strategyReceipt.events[0].args[2];
+  const strategyHash = strategyReceipt.events[0].args[1];
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
   expect(strategyProviderStrategy).to.equal(strategyHash);
