@@ -3,11 +3,11 @@ import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { deployContract, executeFunc } from "../../helpers/helpers";
+import { deployContract, executeFunc, moveToNextBlock } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestBasicStrategy,
@@ -36,12 +36,11 @@ describe(scenario.title, () => {
   let users: { [key: string]: Signer };
   const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
   const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
-  let currentTimestamp = 0;
   let currentOpty = 0;
   before(async () => {
     try {
-      const [owner, admin] = await hre.ethers.getSigners();
-      users = { owner, admin };
+      const [owner, admin, user1] = await hre.ethers.getSigners();
+      users = { owner, admin, user1 };
       [essentialContracts, adapters] = await setUp(users["owner"]);
       await approveLiquidityPoolAndMapAdapter(
         users["owner"],
@@ -209,16 +208,11 @@ describe(scenario.title, () => {
           }
           case "transfer(address,uint256)": {
             const { addressName, amount }: ARGUMENTS = action.args;
-
-            if (currentTimestamp > 0) {
-              await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 1]);
-              await hre.network.provider.send("evm_mine");
-            }
-
             if (addressName && amount) {
               const fromAddr = await users[action.executer].getAddress();
               const toAddr = await users[addressName].getAddress();
               if (action.contract === "vault") {
+                await moveToNextBlock(hre);
                 currentOpty = await contracts["optyMinter"]["claimableOpty(address)"](fromAddr);
               }
               if (action.expect === "success") {
@@ -230,12 +224,20 @@ describe(scenario.title, () => {
               }
             }
             assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
-            const blockNumber = await hre.ethers.provider.getBlockNumber();
-            const block = await hre.ethers.provider.getBlock(blockNumber);
-            currentTimestamp = block.timestamp;
             break;
           }
-          case "userDepositRebalance(uint256)": {
+          case "rebalance()": {
+            if (action.expect === "success") {
+              await executeFunc(contracts[action.contract], users[action.executer], action.action, []);
+            } else {
+              await expect(
+                executeFunc(contracts[action.contract], users[action.executer], action.action, []),
+              ).to.be.revertedWith(action.message);
+            }
+            break;
+          }
+          case "userDepositRebalance(uint256)":
+          case "userDeposit(uint256)": {
             const { amount }: ARGUMENTS = action.args;
             if (amount) {
               if (action.expect === "success") {
@@ -247,9 +249,6 @@ describe(scenario.title, () => {
               }
             }
             assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
-            const blockNumber = await hre.ethers.provider.getBlockNumber();
-            const block = await hre.ethers.provider.getBlock(blockNumber);
-            currentTimestamp = block.timestamp;
             break;
           }
           case "mint(address,uint256)":
@@ -308,13 +307,10 @@ describe(scenario.title, () => {
           case "claimableOpty(address)": {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
-              await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 1]);
-              await hre.network.provider.send("evm_mine");
+              await moveToNextBlock(hre);
               const addr = await users[addressName].getAddress();
               const value = await contracts[action.contract][action.action](addr);
               if (action.expectedValue === "") {
-                await hre.network.provider.send("evm_setNextBlockTimestamp", [currentTimestamp + 10]);
-                await hre.network.provider.send("evm_mine");
                 expect(value.toString()).to.be.equal(currentOpty.toString());
               } else {
                 expect(+value).to.be.gte(+action.expectedValue);
@@ -325,7 +321,6 @@ describe(scenario.title, () => {
           }
         }
       }
-      currentTimestamp = 0;
     }).timeout(10000000);
   }
 });

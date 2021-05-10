@@ -76,3 +76,10 @@ export async function getExistingContractAddress(
   const contract = await hre.deployments.get(contractName);
   return contract.address;
 }
+
+export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<void> {
+  const blockNumber = await hre.ethers.provider.getBlockNumber();
+  const block = await hre.ethers.provider.getBlock(blockNumber);
+  await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
+  await hre.network.provider.send("evm_mine");
+}
