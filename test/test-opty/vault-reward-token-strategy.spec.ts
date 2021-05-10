@@ -19,22 +19,18 @@ import {
 import scenario from "./scenarios/vault-reward-token-strategy.json";
 
 type ARGUMENTS = {
-  address?: string;
   addressName?: string;
-  fee?: string;
   amount?: { [key: string]: string };
   hold?: number;
   convert?: number;
-  bytesName?: string;
-  addressNames?: string[];
   vaultRewardStrategy?: number[];
   vaultRewardTokenInvalidHash?: string;
 };
 
 type EXPECTED_ARGUMENTS = {
-  balance?: string
+  balance?: string;
   vaultRewardStrategy?: number[];
-}
+};
 
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
@@ -44,12 +40,12 @@ describe(scenario.title, () => {
   let users: { [key: string]: Signer };
   before(async () => {
     try {
-      const [owner, admin, user1, user2] = await hre.ethers.getSigners();
-      users = { owner, admin, user1, user2 };
+      const [owner, admin, user1] = await hre.ethers.getSigners();
+      users = { owner, admin, user1 };
       [essentialContracts, adapters] = await setUp(owner);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-      contracts["registry"] = essentialContracts["registry"];
+      // contracts["registry"] = essentialContracts.registry;
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +60,7 @@ describe(scenario.title, () => {
       const adaptersName = Object.keys(TypedAdapterStrategies);
 
       for (let i = 0; i < adaptersName.length; i++) {
-      // for (let i = 0; i < 1; i++) {
+        // for (let i = 0; i < 1; i++) {
         const adapterName = adaptersName[i];
         console.log("Adapter: ", adapterName);
         const strategies = TypedAdapterStrategies[adaptersName[i]];
@@ -74,7 +70,10 @@ describe(scenario.title, () => {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
-            const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS);
+            const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
+              rewardTokenAdapterName.toLowerCase(),
+            );
+            console.log("Reward token adapter names: ", rewardTokenAdapterNames);
             let investStrategyHash: any;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
@@ -98,7 +97,7 @@ describe(scenario.title, () => {
                 profile,
                 TESTING_DEPLOYMENT_ONCE,
               );
-              if (rewardTokenAdapterNames.includes(adapterName)) {
+              if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                 console.log("APproving reward tokens");
                 await approveVaultRewardTokens(
                   users["owner"],
@@ -126,17 +125,18 @@ describe(scenario.title, () => {
               console.log("Invest Strategy Hash: ", investStrategyHash);
               // process.exit(2)
 
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
               contracts["vault"] = Vault;
-              contracts["erc20"] = ERC20Instance;
+              contracts["registry"] = essentialContracts.registry;
+              contracts["erc20"] = Token_ERC20Instance;
               contracts["adapter"] = adapter;
               contracts["strategyProvider"] = essentialContracts.strategyProvider;
               contracts["riskManager"] = essentialContracts.riskManager;
               console.log("Out Strategy Provider address: ", contracts["strategyProvider"].address);
             });
 
-            // for (let i = 0; i < vault.stories.length; i++) {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < vault.stories.length; i++) {
+              // for (let i = 0; i < 10; i++) {
               // for (let i = 0; i < 1; i++) {
               const story = vault.stories[i];
               it(story.description, async () => {
@@ -147,7 +147,7 @@ describe(scenario.title, () => {
                       const { vaultRewardTokenInvalidHash, vaultRewardStrategy }: ARGUMENTS = action.args;
                       try {
                         // const rewardTokenAdapters = Object.keys(REWARD_TOKENS);
-                        if (rewardTokenAdapterNames.includes(adapterName)) {
+                        if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           console.log("Reward  Token adapter name: ", adapterName);
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
                             console.log("Setting vault reward token strategy");
@@ -170,10 +170,16 @@ describe(scenario.title, () => {
                               );
                             console.log("vault reward token strategy set");
 
-                            const vrtSfromRm = await essentialContracts.riskManager.getVaultRewardTokenStrategy(
-                              vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
-                            );
-                            console.log("vrtS from RM: ", vrtSfromRm);
+                            const value = await contracts[action.contract]
+                              .connect(users[action.executer])
+                              ["vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)"](vaultRewardTokenHash);
+                            console.log("Value returned: ", value);
+                            expect([+value[0]._hex, +value[1]._hex]).to.have.members(vaultRewardStrategy);
+                            // const vrtSfromRm = await essentialContracts.riskManager.getVaultRewardTokenStrategy(
+                            //   vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
+                            // );
+
+                            // console.log("vrtS from RM: ", vrtSfromRm);
                           }
                         }
                       } catch (error) {
@@ -295,15 +301,13 @@ describe(scenario.title, () => {
                       const { vaultRewardStrategy }: EXPECTED_ARGUMENTS = action.expectedValue;
                       // const expectedValue: EXPECTED_ARGS | {} = action["expectedValue"]["vaultRewardStrategy"];
                       try {
-                        if (rewardTokenAdapterNames.includes(adapterName)) {
+                        if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           console.log("Vault Reward Token hash in get strategy provider: ", vaultRewardTokenHash);
                           const value = await contracts[action.contract][action.action](
                             vaultRewardTokenInvalidHash ? vaultRewardTokenInvalidHash : vaultRewardTokenHash,
                           );
                           console.log("Ratings: ", value);
-                          expect([+value[0]._hex, +value[1]._hex]).to.have.members(
-                            <number[]>vaultRewardStrategy,
-                          );
+                          expect([+value[0]._hex, +value[1]._hex]).to.have.members(<number[]>vaultRewardStrategy);
                         }
                       } catch (error) {
                         if (action.expect === "success") {
@@ -317,28 +321,28 @@ describe(scenario.title, () => {
                       break;
                     }
                     case "balanceOf(address)": {
-                      const { address, addressName }: ARGUMENTS = action.args;
+                      const { addressName }: ARGUMENTS = action.args;
                       const { balance }: EXPECTED_ARGUMENTS = action.expectedValue;
-                      if (address) {
-                        const value = await contracts[action.contract][action.action](address);
-                        expect(+value).to.gte(+action.expectedValue);
-                      } else if (addressName) {
+                      if (addressName) {
                         console.log("Checking reward token balance");
-                        // const address = users[addressName].getAddress();
-                        if (rewardTokenAdapterNames.includes(adapterName)) {
+                        const address =
+                          addressName == "vault"
+                            ? contracts[addressName].address
+                            : await users[addressName].getAddress();
+                        if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           console.log("Reward token adapter for balance: ", adapterName);
-                          const COMP_ERC20Instance = await hre.ethers.getContractAt(
+                          const RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                             "ERC20",
                             <string>REWARD_TOKENS[adapterName].tokenAddress,
                           );
-                          const comp_value = await COMP_ERC20Instance.balanceOf(Vault.address);
-                          console.log("Comp value: ", +comp_value);
+                          const reward_token_balance = await RewardToken_ERC20Instance.balanceOf(address);
+                          console.log("Reward Token value: ", +reward_token_balance);
                           // const value = await contracts[action.contract][action.action](address);
                           <string>balance == ">0"
                             ? REWARD_TOKENS[adapterName].distributionActive
-                              ? assert.isAbove(+comp_value, +"0", "Vault should hold some reward tokens")
-                              : expect(+comp_value).to.equal(+"0")
-                            : expect(+comp_value).to.equal(+<string>balance);
+                              ? assert.isAbove(+reward_token_balance, +"0", "Vault should hold some reward tokens")
+                              : expect(+reward_token_balance).to.equal(+"0")
+                            : expect(+reward_token_balance).to.equal(+(<string>balance));
                         }
                       }
                       break;
