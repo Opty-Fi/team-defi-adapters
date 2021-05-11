@@ -1,0 +1,210 @@
+{
+  "title": "Vault Reward Token Strategy",
+  "description": "Test cases for the VaultRewardTokenStrategy (if set or not set)",
+  "vaults": [
+    {
+      "name": "Vault",
+      "profile": "RP1",
+      "stories": [
+        {
+          "description": "[Positive Case] 8 Users deposit, 1 User rebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDeposit(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            },
+            {
+              "name": "rebalance",
+              "userIndexes": [9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "rebalance()",
+                  "args": {},
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "[Positive Case] 9 Users depositRebalance and then withdrawRebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            },
+            {
+              "name": "withdrawAction",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "userWithdrawRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "[Positive Case] 8 Users depositRebalance and 1 User rebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            },
+            {
+              "name": "rebalance",
+              "userIndexes": [9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "rebalance()",
+                  "args": {},
+                  "expect": "success",
+                  "message": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
