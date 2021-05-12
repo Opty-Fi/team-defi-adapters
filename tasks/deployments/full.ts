@@ -1,0 +1,1 @@
+// deploy all contracts of earn protocol

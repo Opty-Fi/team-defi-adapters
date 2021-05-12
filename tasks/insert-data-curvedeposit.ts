@@ -1,10 +1,10 @@
 import { task } from 'hardhat/config';
-const tokens = require("../helpers/tokens");
 
 
 task("insert-data-curvedepositpool", "Inserts ")
     .addParam("address", "The curvedepositpooladapter contract address")
     .setAction(async (taskArgs, localBRE) => {
+        const tokens = require("../helpers/tokens");
         const curveDepositPools = require("../helpers/curve-deposit-pools");
         const curveDepositPoolGauges = require("../helpers/curve-deposit-pool-gauges");
 
@@ -52,7 +52,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx1.wait();
         const lastToken1 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["COMPOUND_DEPOSIT_POOL"], tokens1.length - 1)
         console.log(`COMPOUND_DEPOSIT_POOL underlying token assertion result is ${lastToken1 == tokens1[tokens1.length - 1]}`);
-        
+
         // gauge
         const gauge01 = liquidityPoolToGauges[curveDepositPools["COMPOUND_DEPOSIT_POOL"]];
         const tx01 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["COMPOUND_DEPOSIT_POOL"], gauge01)
@@ -66,7 +66,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx2.wait();
         const lastToken2 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["USDT_DEPOSIT_POOL"], tokens2.length - 1)
         console.log(`USDT_DEPOSIT_POOL underlying token assertion result is ${lastToken2 == tokens2[tokens2.length - 1]}`);
-        
+
         //gauge
         const gauge02 = liquidityPoolToGauges[curveDepositPools["USDT_DEPOSIT_POOL"]];
         const tx02 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["USDT_DEPOSIT_POOL"], gauge02)
@@ -80,7 +80,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx3.wait();
         const lastToken3 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["PAX_DEPOSIT_POOL"], tokens3.length - 1)
         console.log(`PAX_DEPOSIT_POOL underlying token assertion result is ${lastToken3 == tokens3[tokens3.length - 1]}`);
-        
+
         // gauge
         const gauge03 = liquidityPoolToGauges[curveDepositPools["PAX_DEPOSIT_POOL"]];
         const tx03 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["PAX_DEPOSIT_POOL"], gauge03)
@@ -94,21 +94,21 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx4.wait();
         const lastToken4 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["Y_DEPOSIT_POOL"], tokens4.length - 1)
         console.log(`Y_DEPOSIT_POOL underlying token assertion result is ${lastToken4 == tokens4[tokens4.length - 1]}`);
-        
+
         // gauge
         const gauge04 = liquidityPoolToGauges[curveDepositPools["Y_DEPOSIT_POOL"]];
         const tx04 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["Y_DEPOSIT_POOL"], gauge04)
         await tx04.wait();
         const gaugeResult04 = await instance.liquidityPoolToGauges(curveDepositPools["Y_DEPOSIT_POOL"])
         console.log(`Y_DEPOSIT_POOL gauge assertion result is ${gaugeResult04 == gauge04}`);
-        
+
         // underlying
         const tokens5 = liquidityPoolToUnderlyingTokens[curveDepositPools["BUSD_DEPOSIT_POOL"]]
         const tx5 = await instance.setLiquidityPoolToUnderlyingTokens(curveDepositPools["BUSD_DEPOSIT_POOL"], tokens5);
         await tx5.wait();
         const lastToken5 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["BUSD_DEPOSIT_POOL"], tokens5.length - 1)
         console.log(`BUSD_DEPOSIT_POOL underlying token assertion result is ${lastToken5 == tokens5[tokens5.length - 1]}`);
-        
+
         // gauge
         const gauge05 = liquidityPoolToGauges[curveDepositPools["BUSD_DEPOSIT_POOL"]];
         const tx05 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["BUSD_DEPOSIT_POOL"], gauge05)
@@ -122,7 +122,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx6.wait();
         const lastToken6 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["SUSD_DEPOSIT_POOL"], tokens6.length - 1)
         console.log(`SUSD_DEPOSIT_POOL underlying token assertion result is ${lastToken6 == tokens6[tokens6.length - 1]}`);
-        
+
         // gauge
         const gauge06 = liquidityPoolToGauges[curveDepositPools["SUSD_DEPOSIT_POOL"]]
         const tx06 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["SUSD_DEPOSIT_POOL"], gauge06)
@@ -136,7 +136,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx7.wait();
         const lastToken7 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["GUSD_DEPOSIT_POOL"], tokens7.length - 1)
         console.log(`GUSD_DEPOSIT_POOL underlying token assertion result is ${lastToken7 == tokens7[tokens7.length - 1]}`);
-        
+
         // gauge
         const gauge07 = liquidityPoolToGauges[curveDepositPools["GUSD_DEPOSIT_POOL"]]
         const tx07 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["GUSD_DEPOSIT_POOL"], gauge07)
@@ -150,7 +150,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx8.wait();
         const lastToken8 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["HUSD_DEPOSIT_POOL"], tokens8.length - 1)
         console.log(`HUSD_DEPOSIT_POOL underlying token assertion result is ${lastToken8 == tokens8[tokens8.length - 1]}`);
-        
+
         // gauge
         const gauge08 = liquidityPoolToGauges[curveDepositPools["HUSD_DEPOSIT_POOL"]];
         const tx08 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["HUSD_DEPOSIT_POOL"], gauge08)
@@ -164,7 +164,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx9.wait();
         const lastToken9 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["USDK_DEPOSIT_POOL"], tokens9.length - 1)
         console.log(`USDK_DEPOSIT_POOL underlying token assertion result is ${lastToken9 == tokens9[tokens9.length - 1]}`);
-        
+
         // gauge
         const gauge09 = liquidityPoolToGauges[curveDepositPools["USDK_DEPOSIT_POOL"]]
         const tx09 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["USDK_DEPOSIT_POOL"], gauge09)
@@ -178,7 +178,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx10.wait();
         const lastToken10 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["USDN_DEPOSIT_POOL"], tokens10.length - 1)
         console.log(`USDN_DEPOSIT_POOL underlying token assertion result is ${lastToken10 == tokens10[tokens10.length - 1]}`);
-        
+
         // gauge
         const gauge010 = liquidityPoolToGauges[curveDepositPools["USDN_DEPOSIT_POOL"]]
         const tx010 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["USDN_DEPOSIT_POOL"], gauge010)
@@ -199,7 +199,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx12.wait();
         const lastToken12 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["MUSD_DEPOSIT_POOL"], tokens12.length - 1)
         console.log(`COMPOUND_DEPOSIT_POOL underlying token assertion result is ${lastToken12 == tokens12[tokens12.length - 1]}`);
-        
+
         // gauge
         const gauge012 = liquidityPoolToGauges[curveDepositPools["MUSD_DEPOSIT_POOL"]]
         const tx012 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["MUSD_DEPOSIT_POOL"], gauge012)
@@ -213,7 +213,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx13.wait();
         const lastToken13 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["RSV_DEPOSIT_POOL"], tokens13.length - 1)
         console.log(`RSV_DEPOSIT_POOL underlying token assertion result is ${lastToken13 == tokens13[tokens13.length - 1]}`);
-        
+
         // gauge
         const gauge013 = liquidityPoolToGauges[curveDepositPools["RSV_DEPOSIT_POOL"]]
         const tx013 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["RSV_DEPOSIT_POOL"], gauge013)
@@ -227,7 +227,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx14.wait();
         const lastToken14 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["TBTC_DEPOSIT_POOL"], tokens14.length - 1)
         console.log(`TBTC_DEPOSIT_POOL underlying token assertion result is ${lastToken14 == tokens14[tokens14.length - 1]}`);
-        
+
         // gauge
         const gauge014 = liquidityPoolToGauges[curveDepositPools["TBTC_DEPOSIT_POOL"]]
         const tx014 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["TBTC_DEPOSIT_POOL"], gauge014)
@@ -241,7 +241,7 @@ task("insert-data-curvedepositpool", "Inserts ")
         await tx15.wait();
         const lastToken15 = await instance.liquidityPoolToUnderlyingTokens(curveDepositPools["DUSD_DEPOSIT_POOL"], tokens15.length - 1)
         console.log(`DUSD_DEPOSIT_POOL underlying token assertion result is ${lastToken15 == tokens15[tokens15.length - 1]}`);
-        
+
         // gauge
         const gauge015 = liquidityPoolToGauges[curveDepositPools["DUSD_DEPOSIT_POOL"]]
         const tx015 = await instance.setLiquiidtyPoolToGauges(curveDepositPools["DUSD_DEPOSIT_POOL"], gauge015)
