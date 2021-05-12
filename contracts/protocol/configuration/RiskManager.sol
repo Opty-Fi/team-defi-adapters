@@ -4,13 +4,15 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 import { Registry } from "./Registry.sol";
-import { RegistryStorage } from "./RegistryStorage.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Modifiers } from "./Modifiers.sol";
-import { StrategyProvider } from "./StrategyProvider.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 import { RiskManagerProxy } from "./RiskManagerProxy.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import {
+    IVaultStepInvestStrategyDefinitionRegistry
+} from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 
 /**
  * @dev An extra protection for the best strategy of the opty-fi vault's
@@ -23,25 +25,13 @@ contract RiskManager is RiskManagerStorage, Modifiers {
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
-    /**
-     * @dev initialize the strategyProvider
-     */
-    function initialize(StrategyProvider _strategyProvider) public onlyGovernance {
-        setStrategyProvider(_strategyProvider);
-    }
+    /* solhint-disable no-empty-blocks */
 
     /**
      * @dev Set RiskManagerProxy to act as RiskManager
      */
     function become(RiskManagerProxy _riskManagerProxy) public onlyGovernance {
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
-    }
-
-    /**
-     * @dev Sets the strategyProvider
-     */
-    function setStrategyProvider(StrategyProvider _strategyProvider) public onlyOperator {
-        strategyProvider = _strategyProvider;
     }
 
     /**
@@ -85,19 +75,24 @@ contract RiskManager is RiskManagerStorage, Modifiers {
             registryContract.riskProfiles(_riskProfile);
         require(_profileExists, "!Rp_Exists");
 
+        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.strategyProvider());
+        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
+            IVaultStepInvestStrategyDefinitionRegistry(registryContract.vaultStepInvestStrategyDefinitionRegistry());
+
         // getbeststrategy from strategyProvider
-        bytes32 _strategyHash = strategyProvider.rpToTokenToBestStrategy(_riskProfile, _tokensHash);
+        bytes32 _strategyHash = _strategyProvider.rpToTokenToBestStrategy(_riskProfile, _tokensHash);
 
         // fallback to default strategy if best strategy is not available
         if (_strategyHash == ZERO_BYTES32) {
-            _strategyHash = strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            _strategyHash = _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
             if (_strategyHash == ZERO_BYTES32) {
                 return ZERO_BYTES32;
             }
         }
         require(_strategyHash != ZERO_BYTES32, "!bestStrategyHash");
 
-        (, DataTypes.StrategyStep[] memory _strategySteps) = registryContract.getStrategy(_strategyHash);
+        (, DataTypes.StrategyStep[] memory _strategySteps) =
+            _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
 
         (uint8 _rating, bool _isLiquidityPool) = registryContract.liquidityPools(_strategySteps[0].pool);
         // validate strategy profile
@@ -106,7 +101,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
             !_isLiquidityPool ||
             !(_rating >= _lowerLimit && _rating <= _upperLimit)
         ) {
-            return strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
         }
 
         return _strategyHash;
@@ -125,9 +120,10 @@ contract RiskManager is RiskManagerStorage, Modifiers {
     function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
         public
         view
-        returns (uint256 _hold, uint256 _convert)
+        returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
     {
         require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
-        (_hold, _convert) = strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
+        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.strategyProvider());
+        _vaultRewardStrategy = _strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
     }
 }

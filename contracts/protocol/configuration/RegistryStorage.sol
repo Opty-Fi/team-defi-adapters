@@ -75,17 +75,16 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(bytes32 => DataTypes.Token) public tokensHashToTokens;
     mapping(address => DataTypes.LiquidityPool) public liquidityPools;
     mapping(address => DataTypes.LiquidityPool) public creditPools;
-    mapping(bytes32 => DataTypes.Strategy) public strategies;
-    mapping(bytes32 => bytes32[]) public tokenToStrategies;
-    mapping(address => mapping(address => bytes32)) public liquidityPoolToTokenHashes;
     mapping(address => address) public liquidityPoolToAdapter;
     mapping(address => mapping(string => address)) public underlyingTokenToRPToVaults;
     mapping(address => bool) public vaultToDiscontinued;
     mapping(address => bool) public vaultToPaused;
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
-    bytes32[] public strategyHashIndexes;
     bytes32[] public tokensHashIndexes;
     string[] public riskProfilesArray;
+    address public strategyProvider;
+    address public vaultStepInvestStrategyDefinitionRegistry;
+
     /**
      * @dev Emitted when `token` is approved or revoked.
      *
@@ -126,7 +125,7 @@ contract RegistryStorage is RegistryAdminStorage {
      *
      * Note that `token` cannot be zero address or EOA.
      */
-    event LogSetStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller);
+    // event LogSetStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller); // ---
 
     /**
      * @dev Emitted when `hash` strategy is scored.
