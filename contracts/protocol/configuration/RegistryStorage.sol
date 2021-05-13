@@ -121,13 +121,6 @@ contract RegistryStorage is RegistryAdminStorage {
     event LogRateCreditPool(address indexed pool, uint8 indexed rate, address indexed caller);
 
     /**
-     * @dev Emitted when `hash` strategy is set.
-     *
-     * Note that `token` cannot be zero address or EOA.
-     */
-    // event LogSetStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller); // ---
-
-    /**
      * @dev Emitted when `hash` strategy is scored.
      *
      * Note that `hash` startegy should exist in {strategyHashIndexes}.
