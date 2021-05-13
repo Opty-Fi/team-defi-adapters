@@ -182,7 +182,7 @@ contract Vault is
 
         investStrategyHash = newStrategyHash;
 
-        if (_balance() > 0 && _balance() > depositQueue) {
+        if (_balance() > 0) {
             _emergencyBrake(_balance());
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
@@ -640,7 +640,9 @@ contract Vault is
         uint256 _balanceInUnderlyingToken,
         uint256 _depositAmount
     ) private {
-        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balanceInUnderlyingToken.sub(depositQueue)));
+        if (_balanceInUnderlyingToken > depositQueue) {
+            _mint(_account, (_depositAmount.mul(totalSupply())).div(_balanceInUnderlyingToken.sub(depositQueue)));
+        }
     }
 
     function getPricePerFullShare() public view override returns (uint256) {
