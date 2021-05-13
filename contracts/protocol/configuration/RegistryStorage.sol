@@ -76,7 +76,7 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(address => DataTypes.LiquidityPool) public liquidityPools;
     mapping(address => DataTypes.LiquidityPool) public creditPools;
     mapping(address => address) public liquidityPoolToAdapter;
-    mapping(address => mapping(string => address)) public underlyingTokenToRPToVaults;
+    mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
     mapping(address => bool) public vaultToDiscontinued;
     mapping(address => bool) public vaultToPaused;
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
@@ -163,12 +163,12 @@ contract RegistryStorage is RegistryAdminStorage {
     event LogPauseVault(address indexed vault, bool indexed paused, address indexed caller);
 
     /**
-     * @dev Emitted when `setUnderlyingTokenToRPToVaults` function is called.
+     * @dev Emitted when `setUnderlyingAssetHashToRPToVaults` function is called.
      *
-     * Note that `underlyingToken` cannot be zero address or EOA.
+     * Note that `underlyingAssetHash` cannot be zero.
      */
-    event LogUnderlyingTokenRPVault(
-        address indexed underlyingToken,
+    event LogUnderlyingAssetHashToRPToVaults(
+        bytes32 indexed underlyingAssetHash,
         string indexed riskProfile,
         address indexed vault,
         address caller
