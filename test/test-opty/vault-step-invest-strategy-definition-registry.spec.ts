@@ -42,17 +42,17 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "setStrategy(bytes32,(address,address,bool)[])": {
             if (action.expect === "success") {
-                const strategyStepHash: string[] = [];
-                action.args.strategySteps.forEach((attribute, index) => {
-                    strategyStepHash[index] = getSoliditySHA3Hash(
-                        ["address", "address", "bool"],
-                        [attribute[0], attribute[1], attribute[2]]
-                    );
-                });
-                const expectedStrategyHash = getSoliditySHA3Hash(
-                    ["bytes32", "bytes32[]"],
-                    [action.args.tokensHash, strategyStepHash]
+              const strategyStepHash: string[] = [];
+              action.args.strategySteps.forEach((attribute, index) => {
+                strategyStepHash[index] = getSoliditySHA3Hash(
+                  ["address", "address", "bool"],
+                  [attribute[0], attribute[1], attribute[2]],
                 );
+              });
+              const expectedStrategyHash = getSoliditySHA3Hash(
+                ["bytes32", "bytes32[]"],
+                [action.args.tokensHash, strategyStepHash],
+              );
               await expect(
                 vaultStepInvestStrategyDefinitionRegistryContract[action.action](
                   action.args.tokensHash,
@@ -62,7 +62,6 @@ describe(scenario.title, () => {
                 .to.emit(vaultStepInvestStrategyDefinitionRegistryContract, "LogSetVaultInvestStrategy")
                 .withArgs(action.args.tokensHash, expectedStrategyHash, caller);
             } else {
-
               await expect(
                 vaultStepInvestStrategyDefinitionRegistryContract[action.action](
                   action.args.tokensHash,
@@ -81,7 +80,7 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "getStrategy(bytes32)": {
-            const {_index,_strategySteps} = await vaultStepInvestStrategyDefinitionRegistryContract[action.action](
+            const { _index, _strategySteps } = await vaultStepInvestStrategyDefinitionRegistryContract[action.action](
               action.args.strategyHash,
             );
             expect(_index).to.be.equal(action.expectedValue.index);
