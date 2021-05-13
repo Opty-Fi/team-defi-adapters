@@ -758,22 +758,6 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Check duplicate `_hash` Startegy from the {strategyHashIndexes} mapping.
-     *
-     * Returns a boolean value indicating whether duplicate `_hash` exists or not.
-     *
-     * Requirements:
-     *
-     * - {strategyHashIndexes} length should be more than zero.
-     */
-    // function _isNewStrategy(bytes32 _hash) internal view returns (bool) {
-    //     if (strategyHashIndexes.length == 0) {
-    //         return true;
-    //     }
-    //     return (strategyHashIndexes[strategies[_hash].index] != _hash);
-    // }
-
-    /**
      * @dev Check duplicate `_hash` tokensHash from the {tokensHashIndexes} mapping.
      *
      * Returns a boolean value indicating whether duplicate `_hash` exists or not.
