@@ -116,6 +116,9 @@ export async function setBestBasicStrategy(
     );
     strategySteps.push(tempArr);
   }
+  console.log("Strategy", strategy);
+  console.log("tokensHash", tokensHash);
+  console.log("strategySteps", strategySteps);
 
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
