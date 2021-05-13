@@ -1,3 +1,4 @@
+/* solhint-disable max-states-count */
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
@@ -84,6 +85,11 @@ contract RegistryStorage is RegistryAdminStorage {
     string[] public riskProfilesArray;
     address public strategyProvider;
     address public vaultStepInvestStrategyDefinitionRegistry;
+    address public riskManager;
+    address public harvestCodeProvider;
+    address public strategyManager;
+    address public priceOracle;
+    address public opty;
 
     /**
      * @dev Emitted when `token` is approved or revoked.

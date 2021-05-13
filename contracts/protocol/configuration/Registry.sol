@@ -49,6 +49,7 @@ contract Registry is ModifiersController {
         returns (bool)
     {
         require(_vaultStepInvestStrategyDefinitionRegistry != address(0), "!address(0)");
+        require(_vaultStepInvestStrategyDefinitionRegistry.isContract(), "!isContract");
         vaultStepInvestStrategyDefinitionRegistry = _vaultStepInvestStrategyDefinitionRegistry;
         return true;
     }
@@ -60,9 +61,78 @@ contract Registry is ModifiersController {
 
     function setStrategyProvider(address _strategyProvider) external onlyGovernance returns (bool) {
         require(_strategyProvider != address(0), "!address(0)");
+        require(_strategyProvider.isContract(), "!isContract");
         strategyProvider = _strategyProvider;
         return true;
     }
+
+    /**
+     * @dev set the RiskManager's contract address.
+     * Can only be called by the current governance.
+     */
+    function setRiskManager(address _riskManager) external onlyGovernance returns (bool) {
+        require(_riskManager != address(0), "!address(0)");
+        require(_riskManager.isContract(), "!isContract");
+        riskManager = _riskManager;
+        return true;
+    }
+
+    /**
+     * @dev set the HarvestCodeProvider contract address.
+     * Can only be called by the current governance.
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) external onlyGovernance returns (bool) {
+        require(_harvestCodeProvider != address(0), "!address(0)");
+        require(_harvestCodeProvider.isContract(), "!isContract");
+        harvestCodeProvider = _harvestCodeProvider;
+        return true;
+    }
+
+    /**
+     * @dev set the StrategyManager contract address.
+     * Can only be called by the current governance.
+     */
+    function setStrategyManager(address _strategyManager) external onlyGovernance returns (bool) {
+        require(_strategyManager != address(0), "!address(0)");
+        require(_strategyManager.isContract(), "!isContract");
+        strategyManager = _strategyManager;
+        return true;
+    }
+
+    /**
+     * @dev set the $OPTY token's contract address.
+     * Can only be called by the current governance.
+     */
+    function setOPTY(address _opty) external onlyGovernance returns (bool) {
+        require(_opty != address(0), "!address(0)");
+        require(_opty.isContract(), "!isContract");
+        opty = _opty;
+        return true;
+    }
+
+    /**
+     * @dev set the $OPTY minter's contract address.
+     * Can only be called by the current governance.
+     */
+    function setOPTYMinter(address _optyMinter) external onlyGovernance returns (bool) {
+        require(_optyMinter != address(0), "!address(0)");
+        require(_optyMinter.isContract(), "!isContract");
+        optyMinter = _optyMinter;
+        return true;
+    }
+
+    /**
+     * @dev set the PriceOracle contract address.
+     * Can only be called by the current governance.
+     */
+    function setPriceOracle(address _priceOracle) external onlyGovernance returns (bool) {
+        require(_priceOracle != address(0), "!address(0)");
+        require(_priceOracle.isContract(), "!isContract");
+        priceOracle = _priceOracle;
+        return true;
+    }
+
+    ///@TODO Add staking pool contract addresses
 
     /**
      * @dev Sets multiple `_token` from the {tokens} mapping.
@@ -657,10 +727,7 @@ contract Registry is ModifiersController {
         string memory _riskProfile,
         address _vault
     ) internal returns (bool) {
-        require(
-            _underlyingAssetHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
-            "!underlyingAssetHash"
-        );
+        require(!_isNewTokensHash(_underlyingAssetHash), "!_isNewTokensHash");
         require(bytes(_riskProfile).length > 0, "RP_empty.");
         require(_vault != address(0), "!address(0)");
         require(address(_vault).isContract(), "!isContract");
@@ -760,6 +827,10 @@ contract Registry is ModifiersController {
         require(riskProfiles[_riskProfile].exists, "!Rp_Exists");
         riskProfiles[_riskProfile].exists = false;
         emit LogRiskProfile(_index, riskProfiles[_riskProfile].exists, riskProfiles[_riskProfile].steps, msg.sender);
+        return true;
+    }
+
+    function _setVaultToRewardTokens() internal returns (bool) {
         return true;
     }
 
