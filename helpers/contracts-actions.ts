@@ -87,10 +87,11 @@ export async function approveVaultRewardTokens(
 ): Promise<void> {
   try {
     if (vaultContractAddress.length > 0 && rewardTokenAddress.length > 0) {
-      await approveToken(owner, registryContract, [vaultContractAddress, rewardTokenAddress]);
+      await executeFunc(registryContract, owner, "approveToken(address[])", [
+        [vaultContractAddress, rewardTokenAddress],
+      ]);
       await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [
-        vaultContractAddress,
-        rewardTokenAddress,
+        [vaultContractAddress, rewardTokenAddress],
       ]);
     }
   } catch (error) {
