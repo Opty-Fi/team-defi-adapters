@@ -58,18 +58,22 @@ export async function approveLiquidityPoolAndMapAdapters(
   }
 }
 
+export async function approveToken(owner: Signer, registryContract: Contract, tokenAddresses: string[]): Promise<void> {
+  if (tokenAddresses.length > 0) {
+    await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
+  }
+}
+
 export async function approveTokens(owner: Signer, registryContract: Contract): Promise<void> {
   const tokenAddresses: string[] = [];
   for (const token in TOKENS) {
     tokenAddresses.push(TOKENS[token]);
   }
   try {
-    if (tokenAddresses.length > 0) {
-      await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
-      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
-        tokenAddresses.map(addr => [addr]),
-      ]);
-    }
+    await approveToken(owner, registryContract, tokenAddresses);
+    await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
+      tokenAddresses.map(addr => [addr]),
+    ]);
   } catch (error) {
     console.log(`Got error when executing approveTokens : ${error}`);
   }
@@ -83,11 +87,10 @@ export async function approveVaultRewardTokens(
 ): Promise<void> {
   try {
     if (vaultContractAddress.length > 0 && rewardTokenAddress.length > 0) {
-      await executeFunc(registryContract, owner, "approveToken(address[])", [
-        [vaultContractAddress, rewardTokenAddress],
-      ]);
+      await approveToken(owner, registryContract, [vaultContractAddress, rewardTokenAddress]);
       await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [
-        [vaultContractAddress, rewardTokenAddress],
+        vaultContractAddress,
+        rewardTokenAddress,
       ]);
     }
   } catch (error) {
