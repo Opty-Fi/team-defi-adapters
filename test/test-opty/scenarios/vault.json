@@ -1,6 +1,6 @@
 {
-  "title": "Vault Reward Token Strategy",
-  "description": "Test cases for the VaultRewardTokenStrategy (if set or not set)",
+  "title": "Vault",
+  "description": "Test cases for Vault Contract",
   "vaults": [
     {
       "name": "Vault",
@@ -361,11 +361,7 @@
                   "contract": "vault",
                   "action": "userDepositAll()",
                   "args": {
-                    "amount": {
-                      "DAI": "all",
-                      "USDC": "all",
-                      "USDT": "all"
-                    }
+                    "amount": {}
                   },
                   "expect": "success",
                   "message": ""
@@ -383,7 +379,62 @@
           ]
         },
         {
-          "description": "[Positive Case] User should withdraw all tokens with userWithdrawAllRebalance",
+          "description": "User should deposit all tokens with userDepositAllRebalance",
+          "activities": [
+            {
+              "name": "depositRebalanceAllActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositAllRebalance()",
+                  "args": {
+                    "amount": {}
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "User should withdraw all tokens with userWithdrawAllRebalance",
           "activities": [
             {
               "name": "depositRebalanceActions",
@@ -450,6 +501,12 @@
                   "action": "balanceOf(address)",
                   "args": {},
                   "expectedValue": 0
+                },
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": ">0"
                 }
               ]
             }
@@ -481,9 +538,9 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
                     }
                   },
                   "expect": "success",
@@ -494,9 +551,9 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
                     }
                   },
                   "expect": "success",
@@ -521,9 +578,9 @@
                   "action": "userWithdrawRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
                     }
                   },
                   "expect": "success",
@@ -584,9 +641,9 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
                     }
                   },
                   "expect": "success",
@@ -597,9 +654,9 @@
                   "action": "userDepositRebalanceWithCHI(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
                     }
                   },
                   "expect": "success",
@@ -624,11 +681,231 @@
                   "action": "userWithdrawRebalanceWithCHI(uint256)",
                   "args": {
                     "amount": {
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "vault",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": 0
+                },
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": ">0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "User should deposit all tokens with userDepositAll with CHI",
+          "activities": [
+            {
+              "name": "depositAllActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "chi",
+                  "action": "mint(uint256)",
+                  "args": {
+                    "amount": {
+                      "CHI": "10"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
                       "DAI": "15000000000000000000",
                       "USDC": "15000000",
                       "USDT": "15000000"
                     }
                   },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositAllWithCHI()",
+                  "args": {},
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "User should deposit all tokens with userDepositAllRebalance with CHI",
+          "activities": [
+            {
+              "name": "depositRebalanceAllActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "chi",
+                  "action": "mint(uint256)",
+                  "args": {
+                    "amount": {
+                      "CHI": "10"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "all",
+                      "USDC": "all",
+                      "USDT": "all"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositAllRebalanceWithCHI()",
+                  "args": {
+                    "amount": {}
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {},
+                  "expectedValue": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "User should withdraw all tokens with userWithdrawAllRebalance with CHI",
+          "activities": [
+            {
+              "name": "depositRebalanceActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "chi",
+                  "action": "mint(uint256)",
+                  "args": {
+                    "amount": {
+                      "CHI": "10"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "withdrawAllRebalanceAction",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "userWithdrawAllRebalanceWithCHI()",
+                  "args": {},
                   "expect": "success",
                   "message": ""
                 }
