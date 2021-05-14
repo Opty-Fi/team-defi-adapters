@@ -79,7 +79,7 @@ contract Vault is
         registryContract = Registry(registry);
         setProfile(_riskProfile);
         setRiskManager(_riskManager);
-        setToken(_underlyingToken); //  underlying token contract address (for example DAI)
+        setToken(_underlyingToken);
         setStrategyManager(_strategyManager);
         setOPTYMinter(_optyMinter);
         _setName(string(abi.encodePacked("op ", _name, " ", _riskProfile, " vault")));
@@ -110,6 +110,7 @@ contract Vault is
 
     function setToken(address _underlyingToken) public override onlyOperator returns (bool _success) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
+        require(registryContract.tokens(_underlyingToken), "!tokens");
         underlyingToken = _underlyingToken;
         _success = true;
     }
