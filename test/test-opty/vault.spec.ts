@@ -14,14 +14,14 @@ import {
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  approveVaultRewardTokens,
+  approveToken,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault.json";
-import { getContractInstance, deployContract } from "../../helpers/helpers";
+import { getContractInstance, deployContract, executeFunc } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   contractName?: string;
-  amount?: { [key: string]: string };
+  amount?: { [key: string]: string | undefined };
   hold?: number;
   convert?: number;
   vaultRewardStrategy?: number[];
@@ -56,10 +56,8 @@ describe(scenario.title, () => {
       const vault = scenario.vaults[i];
       const profile = vault.profile;
       const adaptersName = Object.keys(TypedAdapterStrategies);
-
       const adapterName = adaptersName[0];
       const strategies = TypedAdapterStrategies[adaptersName[0]];
-
       for (let i = 0; i < strategies.length; i++) {
         describe(`${strategies[i].strategyName}`, async () => {
           const TOKEN_STRATEGY = strategies[i];
@@ -84,14 +82,22 @@ describe(scenario.title, () => {
             await setBestBasicStrategy(
               TOKEN_STRATEGY.strategy,
               tokensHash,
-              essentialContracts.registry,
+              essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
               essentialContracts.strategyProvider,
               profile,
             );
 
+            await approveToken(users[0], essentialContracts.registry, [
+              REWARD_TOKENS[adapterName].tokenAddress.toString(),
+            ]);
+
             const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
             contracts["erc20"] = Token_ERC20Instance;
+
+            const CHIInstance = await getContractInstance(hre, "IChi", TOKENS["CHI"]);
+
+            contracts["chi"] = CHIInstance;
           });
           beforeEach(async () => {
             const opty = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY, false, users[0], [
@@ -120,12 +126,10 @@ describe(scenario.title, () => {
             );
 
             if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-              await approveVaultRewardTokens(
-                users[0],
-                Vault.address,
-                <string>REWARD_TOKENS[adapterName].tokenAddress,
-                essentialContracts.registry,
-              );
+              await approveToken(users[0], essentialContracts.registry, [Vault.address]);
+              await executeFunc(essentialContracts.registry, users[0], "setTokensHashToTokens(address[])", [
+                [Vault.address, REWARD_TOKENS[adapterName].tokenAddress.toString()],
+              ]);
             }
             contracts["vault"] = Vault;
           });
@@ -169,6 +173,11 @@ describe(scenario.title, () => {
                         const { contractName, amount }: ARGUMENTS = action.args;
                         try {
                           if (contractName && amount) {
+                            if (amount[TOKEN_STRATEGY.token] === "all") {
+                              const userAddr = await users[userIndex].getAddress();
+                              const value = await contracts[action.contract].balanceOf(userAddr);
+                              amount[TOKEN_STRATEGY.token] = value.toString();
+                            }
                             await contracts[action.contract]
                               .connect(users[userIndex])
                               [action.action](contracts[contractName].address, amount[TOKEN_STRATEGY.token]);
@@ -186,15 +195,51 @@ describe(scenario.title, () => {
                         assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                         break;
                       }
+                      case "mint(uint256)": {
+                        const { amount }: ARGUMENTS = action.args;
+                        try {
+                          if (amount) {
+                            await contracts[action.contract]
+                              .connect(users[userIndex])
+                              [action.action](amount[action.contract.toUpperCase()]);
+                          }
+                        } catch (error) {
+                          if (action.expect === "success") {
+                            assert.isUndefined(error);
+                          } else {
+                            expect(error.message).to.equal(
+                              `VM Exception while processing transaction: revert ${action.message}`,
+                            );
+                          }
+                        }
+                        assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                        break;
+                      }
                       case "userDepositRebalance(uint256)":
+                      case "userDepositRebalanceWithCHI(uint256)":
+                      case "userWithdrawRebalanceWithCHI(uint256)":
                       case "userWithdrawRebalance(uint256)":
                       case "userDeposit(uint256)": {
                         const { amount }: ARGUMENTS = action.args;
-                        if (action.action === "userWithdrawRebalance(uint256)") {
+                        if (action.action.includes("userWithdrawRebalance")) {
                           await delay(200);
                         }
                         try {
                           if (amount) {
+                            if (amount[TOKEN_STRATEGY.token] === "all") {
+                              if (action.action.includes("userWithdrawRebalance")) {
+                                const userAddr = await users[userIndex].getAddress();
+                                const value = await contracts[action.contract].balanceOf(userAddr);
+                                amount[TOKEN_STRATEGY.token] = value.toString();
+                              } else {
+                                const userAddr = await users[userIndex].getAddress();
+                                const value = await contracts["erc20"].allowance(
+                                  userAddr,
+                                  contracts[action.contract].address,
+                                );
+                                amount[TOKEN_STRATEGY.token] = value.toString();
+                              }
+                            }
                             await contracts[action.contract]
                               .connect(users[userIndex])
                               [action.action](amount[TOKEN_STRATEGY.token]);
@@ -211,7 +256,11 @@ describe(scenario.title, () => {
                         assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                         break;
                       }
+                      case "userDepositAll()":
+                      case "userDepositAllWithCHI()":
+                      case "userWithdrawAllRebalance()":
                       case "rebalance()": {
+                        console.log("hello");
                         try {
                           await contracts[action.contract].connect(users[userIndex])[action.action]();
                         } catch (error) {
@@ -222,6 +271,23 @@ describe(scenario.title, () => {
                               `VM Exception while processing transaction: revert ${action.message}`,
                             );
                           }
+                        }
+                        break;
+                      }
+                    }
+                  }
+                  for (let i = 0; i < activity.getActions.length; i++) {
+                    const action = activity.getActions[i];
+                    switch (action.action) {
+                      case "balanceOf(address)": {
+                        const address = await users[userIndex].getAddress();
+                        const value = await contracts[action.contract]
+                          .connect(users[userIndex])
+                          [action.action](address);
+                        if (action.expectedValue.toString().includes(">")) {
+                          expect(+value).to.be.gt(+action.expectedValue.toString().split(">")[1]);
+                        } else {
+                          expect(+value).to.be.equal(action.expectedValue);
                         }
                         break;
                       }
