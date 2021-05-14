@@ -21,6 +21,34 @@ export async function deployRegistry(
   return registry;
 }
 
+export async function deployHarvestCodeProvider(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  registryAddr: string,
+  isDeployedOnce: boolean,
+): Promise<Contract> {
+  const harvestCodeProvider = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
+    isDeployedOnce,
+    owner,
+    [registryAddr],
+  );
+  return harvestCodeProvider;
+}
+
+export async function deployPriceOracle(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  registryAddr: string,
+  isDeployedOnce: boolean,
+): Promise<Contract> {
+  const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
+    registryAddr,
+  ]);
+  return priceOracle;
+}
+
 export async function deployEssentialContracts(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -51,13 +79,7 @@ export async function deployEssentialContracts(
     [registry.address],
   );
 
-  const harvestCodeProvider = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
-    isDeployedOnce,
-    owner,
-    [registry.address],
-  );
+  const harvestCodeProvider = await deployHarvestCodeProvider(hre, owner, registry.address, isDeployedOnce);
 
   let riskManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER, isDeployedOnce, owner, [
     registry.address,
@@ -90,6 +112,8 @@ export async function deployEssentialContracts(
     opty.address,
   ]);
 
+  const priceOracle = await deployPriceOracle(hre, owner, registry.address, isDeployedOnce);
+
   const essentialContracts: CONTRACTS = {
     registry,
     strategyProvider,
@@ -98,6 +122,7 @@ export async function deployEssentialContracts(
     opty,
     riskManager,
     harvestCodeProvider,
+    priceOracle,
   };
   return essentialContracts;
 }
@@ -107,6 +132,7 @@ export async function deployAdapters(
   owner: Signer,
   registryAddr: string,
   harvestAddr: string,
+  priceOracleAddr: string,
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
@@ -117,7 +143,12 @@ export async function deployAdapters(
         contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr]);
         data[adapter] = contract;
       } else if (["CurvePoolAdapter"].includes(adapter)) {
-        // TODO : handle deployment of CurvePoolAdapter
+        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [
+          registryAddr,
+          harvestAddr,
+          priceOracleAddr,
+        ]);
+        data[adapter] = contract;
       } else {
         contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr, harvestAddr]);
         data[adapter] = contract;
