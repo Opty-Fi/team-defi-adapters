@@ -21,6 +21,12 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Set RegistryProxy to act as Registry
+     *
+     * @param _registryProxy RegistryProxy Contract address to act as Registry
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be onlyGovernance and same as RegistryProxy
      */
     function become(RegistryProxy _registryProxy) public {
         require(msg.sender == _registryProxy.governance(), "!governance");
@@ -28,10 +34,17 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Transfers treasury to a new account (`_strategist`).
-     * Can only be called by the current governance.
+     * @dev Transfers treasury to a new account (`_treasury`)
+     *
+     * @param _treasury Treasury account address to hold treasury
+     *
+     * @return Status of set treasury operation
+     *
+     * Requirements:
+     *
+     * - `msg.sender` Can only be governance
+     * - `_treasury` can not be address(0)
      */
-
     function setTreasury(address _treasury) external onlyGovernance returns (bool) {
         require(_treasury != address(0), "!address(0)");
         treasury = _treasury;
@@ -40,9 +53,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev set the VaultStepInvestStrategyDefinitionRegistry contract address.
-     * Can only be called by the current governance.
+     *
+     * @param `_vaultStepInvestStrategyDefinitionRegistry` VaultStepInvestStrategyDefinitionRegistry contract address
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` Can only be governance.
+     * - `_vaultStepInvestStrategyDefinitionRegistry` can not be address(0)
      */
-
     function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
         external
         onlyGovernance
@@ -55,9 +75,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev set the StrategyProvider contract address.
-     * Can only be called by the current governance.
+     *
+     * @param _strategyProvider Address of StrategyProvider Contract
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` Can only be governance.
+     * - `_strategyProvider` can not be address(0)
      */
-
     function setStrategyProvider(address _strategyProvider) external onlyGovernance returns (bool) {
         require(_strategyProvider != address(0), "!address(0)");
         strategyProvider = _strategyProvider;
@@ -65,11 +92,19 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Sets multiple `_token` from the {tokens} mapping.
+     * @dev Sets multiple `_tokens` from the {tokens} mapping.
+     *      Emits a {LogToken} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _tokens List of tokens to approve
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_token` cannot be the zero address or an EOA.
+     * - `_token` should not be approved
      */
-
     function approveToken(address[] memory _tokens) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_tokens.length); _i++) {
             _approveToken(_tokens[_i]);
@@ -79,15 +114,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets `_token` from the {tokens} mapping.
+     *      Emits a {LogToken} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _token token to approve
      *
-     * Emits a {LogToken} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
      * - `_token` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
+     * - `msg.sender` should be governance.
      * - `_token` should not be approved
      */
     function approveToken(address _token) external onlyGovernance returns (bool) {
@@ -96,11 +132,19 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Revokes multiple `_token` from the {tokens} mapping.
+     * @dev Revokes multiple `_tokens` from the {tokens} mapping.
+     *      Emits a {LogToken} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _tokens List of tokens to revoke
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_token` cannot be the zero address or an EOA.
+     * - `_token` should not be approved
      */
-
     function revokeToken(address[] memory _tokens) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_tokens.length); _i++) {
             _revokeToken(_tokens[_i]);
@@ -110,15 +154,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Revokes `_token` from the {tokens} mapping.
+     *      Emits a {LogToken} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _token token to revoke
      *
-     * Emits a {LogToken} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
+     * - `msg.sender` should be governance.
      * - `_token` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
      * - `_token` should be approved
      */
     function revokeToken(address _token) external onlyGovernance returns (bool) {
@@ -126,8 +171,18 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Sets multiple `_pool` from the {liquidityPools} mapping.
+     * @dev Sets multiple `_pools` from the {liquidityPools} mapping.
+     *      Emit event {LogLiquidityPool}
      *
+     * @param _pools list of pools (act as liquidity/credit pools) to approve
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_pools` cannot be the zero address or an EOA.
+     * - `_pools` should not be approved
      */
     function approveLiquidityPool(address[] memory _pools) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -138,16 +193,19 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets `_pool` from the {liquidityPools} mapping.
+     *      Emit event {LogLiquidityPool}
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool pools (act as liquidity/credit pools) to approve
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Emits a {LogLiquidityPool} event.
      *
      * Requirements:
      *
-     * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
-     * - `_pool` should not be approved
+     * - `msg.sender` should be governance.
+     * - `_pools` cannot be the zero address or an EOA.
+     * - `_pools` should not be approved
      */
     function approveLiquidityPool(address _pool) external onlyGovernance returns (bool) {
         _approveLiquidityPool(_pool);
@@ -155,8 +213,18 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Revokes multiple `_pool` from the {liquidityPools} mapping.
+     * @dev Revokes multiple `_pools` from the {liquidityPools} mapping.
+     *      Emit event {LogLiquidityPool}
      *
+     * @param _pools list of pools (act as liquidity/credit pools) to revoke
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_pools` cannot be the zero address or an EOA.
+     * - `_pools` should not be approved
      */
     function revokeLiquidityPool(address[] memory _pools) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -167,15 +235,18 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Revokes `_pool` from the {liquidityPools} mapping.
+     *      Emit event {LogLiquidityPool}
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool pools (act as liquidity/credit pools) to revoke
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Emits a {LogLiquidityPool} event.
      *
      * Requirements:
      *
+     * - `msg.sender` should be governance.
      * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
      * - `_pool` should not be approved
      */
     function revokeLiquidityPool(address _pool) external onlyGovernance returns (bool) {
@@ -185,7 +256,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Provide [`_pool`,`_rate`] from the {liquidityPools} mapping.
+     *      Emit event {LogRateLiquidityPool}
      *
+     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for liquidityPool
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be operator.
+     * - `_pool` cannot be the zero address or an EOA.
+     * - `_pool` should be approved
      */
     function rateLiquidityPool(DataTypes.PoolRate[] memory _poolRates) external onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < _poolRates.length; _i++) {
@@ -196,15 +277,19 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Provide `_rate` to `_pool` from the {liquidityPools} mapping.
+     *      Emit event {LogRateLiquidityPool}
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool liquidityPool to map with its rating
+     * @param _rate rate for the liquidityPool provided
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Emits a {LogRateLiquidityPool} event.
      *
      * Requirements:
      *
+     * - `msg.sender` should be operator.
      * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be operator.
      * - `_pool` should be approved
      */
     function rateLiquidityPool(address _pool, uint8 _rate) external onlyOperator returns (bool) {
@@ -213,8 +298,18 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Sets multiple `_pool` from the {creditPools} mapping.
+     * @dev Sets multiple `_pools` from the {creditPools} mapping.
+     *      Emits a {LogCreditPool} event.
      *
+     * @param _pools List of pools for approval to be considered as creditPool
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_pool` cannot be the zero address or an EOA.
+     * - `_pool` should not be approved
      */
     function approveCreditPool(address[] memory _pools) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -225,15 +320,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets `_pool` from the {creditPools} mapping.
+     *      Emits a {LogCreditPool} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool pool for approval to be considered as creditPool
      *
-     * Emits a {LogCreditPool} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
+     * - `msg.sender` should be governance.
      * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
      * - `_pool` should not be approved
      */
     function approveCreditPool(address _pool) external onlyGovernance returns (bool) {
@@ -243,7 +339,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Revokes multiple `_pool` from the {revokeCreditPools} mapping.
+     *      Emit event {LogCreditPool}
      *
+     * @param _pools List of pools for revoking from being used as creditPool
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_pool` cannot be the zero address or an EOA.
+     * - `_pool` should not be approved
      */
     function revokeCreditPool(address[] memory _pools) external onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -254,15 +360,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Revokes `_pool` from the {creditPools} mapping.
+     *      Emits a {LogCreditPool} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool pool for revoking from being used as creditPool
      *
-     * Emits a {LogCreditPool} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
+     * - `msg.sender` should be governance.
      * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be governance.
      * - `_pool` should not be approved
      */
     function revokeCreditPool(address _pool) external onlyGovernance returns (bool) {
@@ -272,7 +379,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Provide [`_pool`,`_rate`] from the {creditPools} mapping.
+     *      Emits a {LogRateCreditPool} event.
      *
+     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for creditPool
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be operator.
+     * - `_pool` cannot be the zero address or an EOA.
+     * - `_pool` should be approved
      */
     function rateCreditPool(DataTypes.PoolRate[] memory _poolRates) external onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < _poolRates.length; _i++) {
@@ -283,15 +400,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Provide `_rate` to `_pool` from the {creditPools} mapping.
+     *      Emits a {LogRateCreditPool} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool creditPool to map with its rating
+     * @param _rate rate for the creaditPool provided
      *
-     * Emits a {LogRateCreditPool} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
+     * - `msg.sender` should be operator.
      * - `_pool` cannot be the zero address or an EOA.
-     * - msg.sender should be operator.
      * - `_pool` should be approved
      */
     function rateCreditPool(address _pool, uint8 _rate) external onlyOperator returns (bool) {
@@ -301,7 +420,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Maps liquidity `_pool` to the protocol adapter `_adapter` using {liquidityPoolToAdapter}.
+     *      Emits a {LogLiquidityPoolToDepositToken} event.
      *
+     * @param _poolAdapters List of `[_pool, _adapter]` pairs to set
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be governance.
+     * - `_pool`should be approved.
+     * - `_adapter` should be contract
      */
     function setLiquidityPoolToAdapter(DataTypes.PoolAdapter[] memory _poolAdapters)
         external
@@ -316,15 +445,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.
+     *      Emits a {LogLiquidityPoolToDepositToken} event.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * @param _pool liquidityPool to map with its adapter
+     * @param _adapter adapter for the liquidityPool provided
      *
-     * Emits a {LogLiquidityPoolToDepositToken} event.
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
+     * - `msg.sender` should be governance.
      * - `_pool`should be approved.
-     * - msg.sender should be governance.
      * - `_adapter` should be contract
      */
     function setLiquidityPoolToAdapter(address _pool, address _adapter) external onlyOperator returns (bool) {
@@ -334,7 +465,16 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets multiple `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
+     *      Emits a {LogSetTokensHashToTokens} event.
      *
+     * @param _setOfTokens List of mulitple token addresses to map with their (paired tokens) hashes
+     *
+     * @return A boolean value indicating whether the operation succeeded.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be operator.
+     * - `_tokens` should be approved
      */
     function setTokensHashToTokens(address[][] memory _setOfTokens) external onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < uint8(_setOfTokens.length); _i++) {
@@ -345,12 +485,15 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Sets `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
+     *      Emits a {LogSetTokensHashToTokens} event.
      *
-     * Emits a {LogSetTokensHashToTokens} event.
+     * @param _tokens List of token addresses to map with their hashes
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - msg.sender should be operator.
+     * - `msg.sender` should be operator.
      * - `_tokens` should be approved
      */
     function setTokensHashToTokens(address[] memory _tokens) external onlyOperator returns (bool) {
@@ -359,54 +502,58 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingToken` and `_riskProfile`
+     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingAsset` and `_riskProfile`
+     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
      *
-     * Returns a boolean value indicating whether the operation succeeded
+     * @param _vault Vault contract address
+     * @param _riskProfile Risk profile mapped to the vault contract
+     * @param _underlyingAssets List of token addresses to map with the riskProfile and Vault contract
      *
-     * Emits a {LogUnderlyingAssetHashToRPToVaults} event
+     * @return A boolean value indicating whether the operation succeeded
      *
      * Requirements:
      *
-     * - `_underlyingTokens` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
      * - `msg.sender` (caller) should be operator
-     *
+     * - `_underlyingAssets` cannot be empty
+     * - `_vault` cannot be the zero address or EOA
      */
     function setUnderlyingAssetHashToRPToVaults(
-        address[] memory _underlyingTokens,
+        address[] memory _underlyingAssets,
         string memory _riskProfile,
         address _vault
     ) external onlyOperator returns (bool) {
-        _setUnderlyingAssetHashToRPToVaults(keccak256(abi.encodePacked(_underlyingTokens)), _riskProfile, _vault);
+        _setUnderlyingAssetHashToRPToVaults(keccak256(abi.encodePacked(_underlyingAssets)), _riskProfile, _vault);
         return true;
     }
 
     /**
-     * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`
+     * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingAssets`
      *      and `_riskProfiles`in one transaction
+     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
      *
-     * Returns a boolean value indicating whether the operation succeeded
+     * @param _vaults List of Vault contract address
+     * @param _riskProfiles List of Risk profile mapped to the vault contract
+     * @param _underlyingAssets List of paired token addresses to map with the riskProfile and Vault contract
      *
-     * Emits a {LogUnderlyingAssetHashToRPToVaults} event
+     * @return A boolean value indicating whether the operation succeeded
      *
      * Requirements:
      *
-     * - `_underlyingTokens` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
      * - `msg.sender` (caller) should be operator
-     *
+     * - `_underlyingAssets` cannot be empty
+     * - `_vault` cannot be the zero address or EOA
      */
     function setUnderlyingAssetHashToRPToVaults(
-        address[][] memory _underlyingTokens,
+        address[][] memory _underlyingAssets,
         string[] memory _riskProfiles,
         address[][] memory _vaults
     ) public onlyOperator returns (bool) {
         require(uint8(_riskProfiles.length) == uint8(_vaults.length), "!Profileslength");
         for (uint8 _i = 0; _i < uint8(_vaults.length); _i++) {
-            require(uint8(_vaults[_i].length) == uint8(_underlyingTokens.length), "!VaultsLength");
+            require(uint8(_vaults[_i].length) == uint8(_underlyingAssets.length), "!VaultsLength");
             for (uint8 _j = 0; _j < _vaults[_i].length; _j++) {
                 _setUnderlyingAssetHashToRPToVaults(
-                    keccak256(abi.encodePacked(_underlyingTokens[_j])),
+                    keccak256(abi.encodePacked(_underlyingAssets[_j])),
                     _riskProfiles[_i],
                     _vaults[_i][_j]
                 );
@@ -416,16 +563,18 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Set Disconinue for the _vault contract
+     * @dev Discontinue the Vault contract from use permanently
+     *      Emits a {LogDiscontinueVault} event
      *
-     * Returns a boolean value indicating whether operation is succeeded
-     *
-     * Emits a {LogDiscontinueVault} event
+     * @param _vault Vault address to discontinue
+     * @return A boolean value indicating whether operation is succeeded
      *
      * Requirements:
      *
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
+     *
+     * Note: Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage.
      */
     function discontinue(address _vault) external onlyGovernance returns (bool) {
         _discontinue(_vault);
@@ -433,11 +582,13 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Set Pause functionality for the _vault contract
+     * @dev Pause tha Vault contract for use temporarily during any emergency
+     *      Emits a {LogPauseVault} event
      *
-     * Returns a boolean value indicating whether pause is set to true or false
+     * @param _vault Vault contract address to pause
+     * @param _paused A boolean value `true` to pause vault contract and `false` for un-pause vault contract
      *
-     * Emits a {LogPauseVault} event
+     * @return A boolean value indicating whether pause is set to true or false
      *
      * Requirements:
      *
@@ -451,14 +602,19 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Add the risk profile in Registry contract Storage
+     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
      *
-     * Returns _riskProfile added
+     * @param _riskProfile Risk Profile to add in Registry Storage
+     * @param _noOfSteps No. of permitted corresponding to risk profile provided
+     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - `_riskProfile` can not be empty
-     *          - should not already exists
      * - `msg.sender` can only be operator
+     * - `_riskProfile` can not be empty
+     * - `_riskProfile` should not already exists
      */
     function addRiskProfile(
         string memory _riskProfile,
@@ -471,15 +627,20 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Add list of the risk profiles in Registry contract Storage in 1 txn.
+     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
      *
-     * Returns bool value for multiple _riskProfiles added operation succeeded
+     * @param _riskProfiles List of Risk Profiles to add in Registry Storage
+     * @param _noOfSteps List of No. of permitted corresponding to list of risk profile provided
+     * @param _poolRatingRanges List of pool rating range ([lowerLimit, upperLimit]) supported by
+     *        given list of risk profiles
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - `_riskProfile` can not be empty array
-     *          - should not already exists
      * - `msg.sender` can only be operator
-     *
+     * - `_riskProfile` can not be empty
+     * - `_riskProfile` should not already exists
      */
     function addRiskProfile(
         string[] memory _riskProfiles,
@@ -498,13 +659,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Update the no. of steps for existing risk profile
+     *      Emit event {LogRiskProfile}
      *
-     * Returns bool value for update _riskProfile operation succeeded
+     * @param _riskProfile Risk Profile to update with steps
+     * @param _noOfSteps No. of steps for a given risk profile
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - `_riskProfile` should exists
      * - `msg.sender` can only be operator
+     * - `_riskProfile` should exists
      */
     function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) external onlyOperator returns (bool) {
         _updateRiskProfileSteps(_riskProfile, _noOfSteps);
@@ -513,13 +678,18 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Update the pool ratings for existing risk profile
+     *      Emit event {LogRPPoolRatings}
      *
-     * Returns bool value for update _riskProfile operation succeeded
+     * @param _riskProfile Risk profile to update with pool rating range
+     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit])
+     *        to update for given risk profile
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - `_riskProfile` should exists
      * - `msg.sender` can only be operator
+     * - `_riskProfile` should exists
      */
     function updateRPPoolRatings(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
         external
@@ -532,14 +702,17 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Remove the existing risk profile in Registry contract Storage
+     *      Emit event {LogRiskProfile}
      *
-     * Returns _riskProfile added
+     * @param _index Index of risk profile to be removed
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      *
      * Requirements:
      *
-     * - `_riskProfile` can not be empty
-     *          - should not already exists
      * - `msg.sender` can only be operator
+     * - `_riskProfile` can not be empty
+     * - `_riskProfile` should not already exists
      */
     function removeRiskProfile(uint256 _index) external onlyOperator returns (bool) {
         _removeRiskProfile(_index);
@@ -547,14 +720,18 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Returns the list of tokensHash
+     * @dev Get the list of tokensHash
+     *
+     * @return Returns the list of tokensHash.
      */
     function getTokenHashes() public view returns (bytes32[] memory) {
         return tokensHashIndexes;
     }
 
     /**
-     * @dev Returns list of token given the `_tokensHash`.
+     * @dev Get list of token given the `_tokensHash`.
+     *
+     * @return Returns the list of tokens corresponding to `_tokensHash`.
      */
     function getTokensHashToTokens(bytes32 _tokensHash) public view returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
@@ -562,6 +739,8 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Get the list of all the riskProfiles
+     *
+     * @return Returns the list of all riskProfiles stored in Registry Storage
      */
     function getRiskProfiles() public view returns (string[] memory) {
         return riskProfilesArray;
@@ -583,7 +762,7 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    function _approveLiquidityPool(address _pool) internal onlyGovernance returns (bool) {
+    function _approveLiquidityPool(address _pool) internal returns (bool) {
         require(_pool != address(0), "!address(0)");
         require(address(_pool).isContract(), "!isContract");
         require(!liquidityPools[_pool].isLiquidityPool, "!liquidityPools");
@@ -669,17 +848,6 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    /**
-     * @dev Add the risk profile in Registry contract Storage
-     *
-     * Returns _riskProfile added
-     *
-     * Requirements:
-     *
-     * - `_riskProfile` can not be empty
-     *          - should not already exists
-     *
-     */
     function _addRiskProfile(
         string memory _riskProfile,
         uint8 _noOfSteps,
@@ -766,7 +934,9 @@ contract Registry is ModifiersController {
     /**
      * @dev Check duplicate `_hash` tokensHash from the {tokensHashIndexes} mapping.
      *
-     * Returns a boolean value indicating whether duplicate `_hash` exists or not.
+     * @param _hash Hash of the token address/addresses
+     *
+     * @return A boolean value indicating whether duplicate `_hash` exists or not.
      *
      * Requirements:
      *
