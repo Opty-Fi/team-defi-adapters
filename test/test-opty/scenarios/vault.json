@@ -211,6 +211,252 @@
           ]
         },
         {
+          "description": "8 Users deposit, 1 User rebalance and 1 User depositRebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDeposit(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "rebalance",
+              "userIndexes": [9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "rebalance()",
+                  "args": {},
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "depositRebalanceActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "8 Users deposit, 1 User rebalance and 1 User depositRebalance and withdrawRebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDeposit(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "rebalance",
+              "userIndexes": [9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "rebalance()",
+                  "args": {},
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "depositRebalanceActions",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000000",
+                      "USDC": "15000000",
+                      "USDT": "15000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "withdrawRebalanceAction",
+              "userIndexes": [0],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "userWithdrawRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "14000000000000000000",
+                      "USDC": "14000000",
+                      "USDT": "14000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
           "description": "4 Users depositRebalance and 4 Users deposit and 1 User rebalance.",
           "activities": [
             {
