@@ -107,17 +107,13 @@ export async function setBestBasicStrategy(
   riskProfile: string,
 ): Promise<void> {
   const strategySteps: [string, string, boolean][] = [];
-  const strategyStepsHash: string[] = [];
+
   for (let index = 0; index < strategy.length; index++) {
     const tempArr: [string, string, boolean] = [
       strategy[index].contract,
       strategy[index].outputToken,
       strategy[index].isBorrow,
     ];
-    strategyStepsHash[index] = getSoliditySHA3Hash(
-      ["address", "address", "bool"],
-      [strategy[index].contract, strategy[index].outputToken, strategy[index].isBorrow],
-    );
     strategySteps.push(tempArr);
   }
 
@@ -125,6 +121,7 @@ export async function setBestBasicStrategy(
     tokensHash,
     strategySteps,
   );
+
   const strategyReceipt = await strategies.wait();
   const strategyHash = strategyReceipt.events[0].args[1];
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
