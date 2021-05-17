@@ -3,7 +3,7 @@ import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import { TypedAdapterStrategies } from "./data";
 import { executeFunc } from "./helpers";
-import { getSoliditySHA3Hash, amountInHex } from "./utils";
+import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import tokenAddresses from "./data/TokenAddresses.json";
