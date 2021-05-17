@@ -248,6 +248,15 @@ export async function deployVault(
     underlyingTokenSymbol,
     riskProfile,
   ]);
+
+  const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.REGISTRY, registry, owner);
+
+  await executeFunc(registryContract, owner, "setUnderlyingAssetHashToRPToVaults(address[],string,address)", [
+    [underlyingToken],
+    riskProfile,
+    vault.address,
+  ]);
+
   return vault;
 }
 
