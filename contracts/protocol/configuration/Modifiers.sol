@@ -6,29 +6,41 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Registry } from "./Registry.sol";
 
 /**
+ * @title Modifiers
+ *
+ * @author Opty.fi
+ *
  * @dev Contract used to keep all the modifiers at one place
  */
 abstract contract Modifiers {
+    /**
+     * @dev Registry contract address
+     */
     Registry public registryContract;
 
     using Address for address;
 
     /**
      * @dev Sets the owner, governance and strategist while deploying the contract
+     *
+     * @param _registry Registry contract address
      */
     constructor(address _registry) internal {
         registryContract = Registry(_registry);
     }
 
     /**
-     * @dev Function to check if the address is zero address or not
+     * @dev Sets the regsitry contract address
+     *
+     * @param _registry address of registry contract
+     *
+     * Requirements:
+     *
+     * - `msg.sender` should be operator
+     * - `registry` can not be zero address
      */
-    function isZeroAddress(address _address) internal pure returns (bool) {
-        require(_address != address(0), "Modifiers: caller is zero address");
-        return true;
-    }
-
-    function setRegistry(address _registry) public onlyOperator {
+    function setRegistry(address _registry) external onlyOperator onlyValidAddress {
+        require(_registry != address(0), "RegistryAddress==0");
         registryContract = Registry(_registry);
     }
 
@@ -72,16 +84,25 @@ abstract contract Modifiers {
         _;
     }
 
+    /**
+     * @dev Modifier to check if vault contract is discontinued from usage or not
+     */
     modifier ifNotDiscontinued(address _vault) {
         require(!registryContract.vaultToDiscontinued(_vault), "discontinued");
         _;
     }
 
+    /**
+     * @dev Modifier to check if vault contract is paused from usage or not
+     */
     modifier ifNotPaused(address _vault) {
         require(!registryContract.vaultToPaused(_vault), "paused");
         _;
     }
 
+    /**
+     * @dev Modifier to check caller is registry or not
+     */
     modifier onlyRegistry() {
         require(msg.sender == address(registryContract), "caller is not Registry contract");
         _;
