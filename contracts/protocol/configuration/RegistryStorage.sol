@@ -5,9 +5,12 @@ pragma experimental ABIEncoderV2;
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 /**
+ * @title RegistryAdminStorage
+ *
+ * @author Opty.fi
+ *
  * @dev Contract used to store registry's admin account
  */
-
 contract RegistryAdminStorage {
     /**
      * @notice Governance of optyfi's earn protocol
@@ -70,19 +73,78 @@ contract RegistryAdminStorage {
     event TransferTreasury(address indexed treasurer, address indexed caller);
 }
 
+/**
+ * @title RegistryStorage
+ *
+ * @author Opty.fi
+ *
+ * @dev Contract used to store registry's contract state variables and events
+ */
 contract RegistryStorage is RegistryAdminStorage {
+    /**
+     * @notice token address status which are approved or not
+     */
     mapping(address => bool) public tokens;
+
+    /**
+     * @notice token data mapped to token/tokens address/addresses hash
+     */
     mapping(bytes32 => DataTypes.Token) public tokensHashToTokens;
+
+    /**
+     * @notice liquidityPool address mapped to its struct having `pool`, `outputToken`, `isBorrow`
+     */
     mapping(address => DataTypes.LiquidityPool) public liquidityPools;
+
+    /**
+     * @notice creaditPool address mapped to its struct having `pool`, `outputToken`, `isBorrow`
+     */
     mapping(address => DataTypes.LiquidityPool) public creditPools;
+
+    /**
+     * @notice liquidityPool address mapped to its adapter
+     */
     mapping(address => address) public liquidityPoolToAdapter;
+
+    /**
+     * @notice underlying asset (token address's hash) mapped to riskProfile and vault contract
+     *         address for keeping track of all the vault contracts
+     */
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
+
+    /**
+     * @notice vault contract address mapped to boolean whether discontinued or not
+     */
     mapping(address => bool) public vaultToDiscontinued;
+
+    /**
+     * @notice vault contract address mapped to boolean whether paused or not
+     */
     mapping(address => bool) public vaultToPaused;
+
+    /**
+     * @notice riskProfile mapped to its struct `RiskProfile`
+     */
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
+
+    /**
+     * @notice List of all the tokenHashes
+     */
     bytes32[] public tokensHashIndexes;
+
+    /**
+     * @notice List of all the riskProfiles
+     */
     string[] public riskProfilesArray;
+
+    /**
+     * @notice strategyProvider contract address
+     */
     address public strategyProvider;
+
+    /**
+     * @notice vaultStepInvestStrategyDefinitionRegistry contract address
+     */
     address public vaultStepInvestStrategyDefinitionRegistry;
 
     /**

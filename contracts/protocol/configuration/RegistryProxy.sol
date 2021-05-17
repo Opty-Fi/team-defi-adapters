@@ -6,7 +6,10 @@ import { RegistryStorage } from "./RegistryStorage.sol";
 import { ModifiersController } from "./ModifiersController.sol";
 
 /**
- * @title RegistryCore
+ * @title RegistryProxy
+ *
+ * @author Opty.fi
+ *
  * @dev Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`.
  * Registry should reference this contract as their controller.
  */
@@ -32,6 +35,10 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
      */
     event NewGovernance(address oldGovernance, address newGovernance);
 
+    /**
+     * @dev Constructor to initialize `msg.sender` as governance, strategist, operator and
+     *      minter while deployment
+     */
     constructor() public {
         governance = msg.sender;
         setStrategist(msg.sender);
@@ -40,6 +47,12 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /*** Admin Functions ***/
+    /**
+     * @dev Set the registry contract as pending implementation initally
+     *
+     * @param newPendingImplementation registry contract address to act as pending
+     *        implementation initally
+     */
     function setPendingImplementation(address newPendingImplementation) public onlyOperator {
         address oldPendingImplementation = pendingRegistryImplementation;
 
