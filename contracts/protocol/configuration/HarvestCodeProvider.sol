@@ -8,26 +8,46 @@ import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20
 import { Modifiers } from "./Modifiers.sol";
 
 /**
+ * @title HarvestCodeProvider
+ *
+ * @author Opty.fi
+ *
  * @dev Abstraction layer to DeFi exchanges like Uniswap
  */
-
 contract HarvestCodeProvider is Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    /**
+     * @notice Uniswap V2 router contract address
+     */
     IUniswapV2Router02 public uniswapV2Router02 = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
     /* solhint-disable no-empty-blocks */
-
+    /**
+     * @dev Get the codes for harvesting the tokens using uniswap router
+     *
+     * @param _optyVault Address of Vault Contract
+     * @param _rewardToken Reward token address
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _rewardTokenAmount reward token amount to harvest
+     *
+     * @return _codes Array of harvest codes which can be executed to complete the execution of
+     *         harvesting of reward token
+     *
+     * Requirements:
+     *
+     * - `_rewardTokenAmount` should be greater than 0.
+     */
     function getHarvestCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _rewardToken,
         address _underlyingToken,
         uint256 _rewardTokenAmount
-    ) public view returns (bytes[] memory _codes) {
+    ) external view returns (bytes[] memory _codes) {
         address _weth = uniswapV2Router02.WETH();
         if (_rewardTokenAmount > 0) {
             address[] memory _path;
@@ -61,7 +81,7 @@ contract HarvestCodeProvider is Modifiers {
                         _rewardTokenAmount,
                         uint256(0),
                         _path,
-                        _optyPool,
+                        _optyVault,
                         uint256(-1)
                     )
                 );
@@ -69,11 +89,20 @@ contract HarvestCodeProvider is Modifiers {
         }
     }
 
+    /**
+     * @dev Get the optimal amount for the token
+     *
+     * @param _borrowToken Address of token which has to be borrowed
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _borrowTokenAmount amount of token to borrow
+     *
+     * @return borrow token's optimal amount
+     */
     function getOptimalTokenAmount(
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) public view returns (uint256) {
+    ) external view returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         if (_borrowTokenAmount > 0) {
             address[] memory _path;
@@ -100,11 +129,20 @@ contract HarvestCodeProvider is Modifiers {
         return uint256(0);
     }
 
+    /**
+     * @dev Get the underlying token amount equivalent to reward token amount
+     *
+     * @param _rewardToken Reward token address
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _amount reward token balance amount
+     *
+     * @return equivalent reward token balance in Underlying token value
+     */
     function rewardBalanceInUnderlyingTokens(
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) public view returns (uint256) {
+    ) external view returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         uint256[] memory amounts = new uint256[](3);
         address[] memory path = new address[](3);
