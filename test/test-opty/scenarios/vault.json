@@ -513,7 +513,7 @@
           ]
         },
         {
-          "description": "User should be albe to depositRebalance and WithdrawRebalance",
+          "description": "User should be able to depositRebalance and WithdrawRebalance",
           "activities": [
             {
               "name": "depositRebalanceActions",
@@ -605,7 +605,7 @@
           ]
         },
         {
-          "description": "User should be albe to depositRebalance and WithdrawRebalance with CHI token",
+          "description": "User should be able to depositRebalance and WithdrawRebalance with CHI token",
           "activities": [
             {
               "name": "depositRebalanceAction",

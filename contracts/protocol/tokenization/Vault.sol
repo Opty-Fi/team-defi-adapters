@@ -164,7 +164,10 @@ contract Vault is
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = underlyingToken;
         bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
-        if (investStrategyHash != ZERO_BYTES32) {
+        if (
+            keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
+            investStrategyHash != ZERO_BYTES32
+        ) {
             _withdrawAll();
             _harvest(investStrategyHash);
             if (msg.sender == registryContract.operator() && gasOwedToOperator != uint256(0)) {
@@ -383,6 +386,7 @@ contract Vault is
                 pendingWithdraws[msg.sender] -= queue[i].value;
                 withdrawQueue -= queue[i].value;
             }
+            optyMinterContract.updateUserStateInVault(address(this), queue[i].account);
         }
         optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
         optyMinterContract.updateOptyVaultIndex(address(this));
