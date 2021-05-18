@@ -68,8 +68,8 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *
      * @param _vaultRewardTokenHash Hash of vault contract and reward token address
      *
-     * @return Returns the hash of the VaultRewardToken strategy corresponding to the
-     *         `_vaultRewardTokenHash` provided
+     * @return _vaultRewardStrategy Returns the the VaultRewardToken strategy corresponding
+     *         to the `_vaultRewardTokenHash` provided
      *
      * Requirements:
      *
