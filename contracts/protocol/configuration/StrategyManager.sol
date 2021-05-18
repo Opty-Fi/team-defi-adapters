@@ -16,16 +16,25 @@ import {
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 
 /**
+ * @title StrategyManager
+ *
+ * @author Opty.fi
+ *
  * @dev Central processing unit of the earn protocol
  */
-
 contract StrategyManager is Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
+    /**
+     * @notice HarvestCodeProvider contract address
+     */
     HarvestCodeProvider public harvestCodeProviderContract;
 
+    /**
+     * @notice Zero bytes32 type Constant
+     */
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
