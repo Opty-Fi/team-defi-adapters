@@ -9,6 +9,7 @@ import "@typechain/hardhat";
 import "hardhat-watcher";
 import "solidity-coverage";
 import "hardhat-deploy";
+import "hardhat-docgen";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
 
 require("./tasks/deployment/deploy-infra");
@@ -139,6 +140,11 @@ const buidlerConfig: HardhatUserConfig = {
       tasks: ["test"],
       files: ["./contracts", "./test/test-opty/invest-limitation.spec.ts"],
     },
+  },
+  docgen: {
+    path: "./specification_docs",
+    clear: true,
+    runOnCompile: true,
   },
   typechain: {
     outDir: "typechain",

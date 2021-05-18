@@ -42,6 +42,7 @@
     "fs-extra": "^9.1.0",
     "hardhat": "^2.1.2",
     "hardhat-deploy": "^0.7.5",
+    "hardhat-docgen": "^1.1.1",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-watcher": "^2.1.1",
     "husky": "^5.2.0",
