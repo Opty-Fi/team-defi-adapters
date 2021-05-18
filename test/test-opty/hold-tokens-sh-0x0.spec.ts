@@ -57,10 +57,13 @@ describe(scenarios.title, () => {
         const strategies = TypedAdapterStrategies[adaptersName[i]];
 
         for (let i = 0; i < strategies.length; i++) {
+          if (i > 0) {
+            break;
+          }
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
             const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);
-            let bestStrategyHash: void;
+            let bestStrategyHash: string;
             let vaultRiskProfile: string;
             const contracts: CONTRACTS = {};
             before(async () => {

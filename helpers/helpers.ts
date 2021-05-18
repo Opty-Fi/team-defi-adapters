@@ -74,15 +74,39 @@ export async function getExistingContractAddress(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
 ): Promise<string> {
-  const contract = await hre.deployments.get(contractName);
-  return contract.address;
+  let address;
+  try {
+    const deployedContract = await hre.deployments.get(contractName);
+    address = deployedContract.address;
+  } catch (error) {
+    address = "";
+  }
+  return address;
+}
+
+export async function getContract(
+  hre: HardhatRuntimeEnvironment,
+  contractName: string,
+  address: string,
+  contractProxy?: string,
+): Promise<Contract | undefined> {
+  let contract: Contract | undefined;
+  if (address === "") {
+    address = await getExistingContractAddress(hre, contractProxy ? contractProxy : contractName);
+  }
+  if (address !== "") {
+    contract = await getContractInstance(hre, contractName, address);
+  } else {
+    contract = undefined;
+  }
+  return contract;
 }
 
 export async function getContractInstance(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
   tokenAddress: string,
-): Promise<any> {
+): Promise<Contract> {
   const contract = await hre.ethers.getContractAt(contractName, tokenAddress);
   return contract;
 }
