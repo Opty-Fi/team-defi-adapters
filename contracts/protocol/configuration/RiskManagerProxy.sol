@@ -6,9 +6,12 @@ import { Modifiers } from "./Modifiers.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 
 /**
- * @title RiskManagerCore
- * @dev Storage for the RiskManager is at this address, while execution is delegated to the `riskManagerImplementation`.
- * RiskManager should reference this contract as their controller.
+ * @title RiskManagerProxy
+ *
+ * @author Opty.fi
+ *
+ * @dev Storage for the RiskManager is at this address, while execution is delegated to the
+ *      `riskManagerImplementation`. RiskManager should reference this contract as their controller.
  */
 contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     /**
@@ -21,10 +24,19 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
-    // solhint-disable no-empty-blocks
+    /* solhint-disable */
+    /**
+     * @dev Constructor to set the registry contract address
+     */
     constructor(address _registry) public Modifiers(_registry) {}
 
     /*** Admin Functions ***/
+    /**
+     * @dev Set the riskManager contract as pending implementation initally
+     *
+     * @param newPendingImplementation riskManager contract address to act as pending
+     *        implementation initally
+     */
     function setPendingImplementation(address newPendingImplementation) public onlyOperator {
         address oldPendingImplementation = pendingRiskManagerImplementation;
 
