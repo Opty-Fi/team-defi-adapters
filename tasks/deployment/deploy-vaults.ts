@@ -1,5 +1,6 @@
 import { task, types } from "hardhat/config";
 import { RISK_PROFILES, TOKENS } from "../../helpers/constants";
+import { isAddress } from "../../helpers/helpers";
 
 task("deploy-vaults", "Deploy Core Vaults")
   .addParam("registry", "the address of registry", "", types.string)
@@ -12,16 +13,32 @@ task("deploy-vaults", "Deploy Core Vaults")
       throw new Error("registry cannot be empty");
     }
 
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
+    }
+
     if (riskmanager === "") {
       throw new Error("riskmanager cannot be empty");
+    }
+
+    if (!isAddress(riskmanager)) {
+      throw new Error("riskmanager address is invalid");
     }
 
     if (strategymanager === "") {
       throw new Error("strategymanager cannot be empty");
     }
 
+    if (!isAddress(strategymanager)) {
+      throw new Error("strategymanager address is invalid");
+    }
+
     if (optyminter === "") {
       throw new Error("optyminter cannot be empty");
+    }
+
+    if (!isAddress(optyminter)) {
+      throw new Error("optyminter address is invalid");
     }
 
     for (const token in TOKENS) {

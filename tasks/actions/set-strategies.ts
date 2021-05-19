@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance } from "../../helpers/helpers";
+import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TOKENS } from "../../helpers/constants";
 import { TypedStrategies } from "../../helpers/data";
 
@@ -10,6 +10,10 @@ task("set-strategies", "Set Strategies")
   .setAction(async ({ strategyregistry }, hre) => {
     if (strategyregistry === "") {
       throw new Error("strategyregistry cannot be empty");
+    }
+
+    if (!isAddress(strategyregistry)) {
+      throw new Error("strategyregistry address is invalid");
     }
 
     const strategyRegistryContract = await getContractInstance(

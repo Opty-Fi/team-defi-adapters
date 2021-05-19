@@ -1,6 +1,7 @@
 import { task, types } from "hardhat/config";
 import { deployRiskManager } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
+import { isAddress } from "../../helpers/helpers";
 
 task("deploy-risk-manager", "Deploy Risk Manager")
   .addParam("registry", "the address of registry", "", types.string)
@@ -11,6 +12,10 @@ task("deploy-risk-manager", "Deploy Risk Manager")
 
     if (registry === "") {
       throw new Error("registry cannot be empty");
+    }
+
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
     }
 
     const riskManagerContract = await deployRiskManager(hre, owner, deployedonce, registry);

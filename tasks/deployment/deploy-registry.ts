@@ -5,17 +5,17 @@ import { deployContract, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("deploy-registry", "Deploy Registry")
-  .addParam("deployedOnce", "allow checking whether contracts were deployed previously", true, types.boolean)
+  .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
-  .setAction(async ({ deployedOnce, insertindb }, hre) => {
+  .setAction(async ({ deployedonce, insertindb }, hre) => {
     const [owner] = await hre.ethers.getSigners();
 
-    const registry = await deployRegistry(hre, owner, deployedOnce);
+    const registry = await deployRegistry(hre, owner, deployedonce);
 
     const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
       hre,
       ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-      deployedOnce,
+      deployedonce,
       owner,
       [registry.address],
     );

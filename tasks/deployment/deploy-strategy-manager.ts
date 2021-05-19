@@ -2,6 +2,7 @@ import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { deployContract } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { isAddress } from "../../helpers/helpers";
 
 task("deploy-strategy-manager", "Deploy Strategy Manager")
   .addParam("registry", "the address of registry", "", types.string)
@@ -15,8 +16,16 @@ task("deploy-strategy-manager", "Deploy Strategy Manager")
       throw new Error("registry cannot be empty");
     }
 
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
+    }
+
     if (harvestcodeprovider === "") {
       throw new Error("harvestcodeprovider cannot be empty");
+    }
+
+    if (!isAddress(harvestcodeprovider)) {
+      throw new Error("harvestcodeprovider address is invalid");
     }
 
     const strategyManagerContract = await deployContract(

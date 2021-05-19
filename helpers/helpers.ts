@@ -1,4 +1,4 @@
-import { Contract, Signer, ContractFactory } from "ethers";
+import { Contract, Signer, ContractFactory, utils } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
@@ -121,4 +121,8 @@ export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: st
     );
   }
   return getSoliditySHA3Hash(["bytes32", "bytes32[]"], [tokensHash, strategyStepsHash]);
+}
+
+export function isAddress(address: string): boolean {
+  return utils.isAddress(address);
 }

@@ -1,5 +1,6 @@
 import { task, types } from "hardhat/config";
 import { ADAPTER } from "../../helpers/constants";
+import { isAddress } from "../../helpers/helpers";
 
 task("deploy-adapters", "Deploy Adapter contracts")
   .addParam("registry", "the address of registry", "", types.string)
@@ -12,12 +13,24 @@ task("deploy-adapters", "Deploy Adapter contracts")
       throw new Error("registry cannot be empty");
     }
 
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
+    }
+
     if (harvestcodeprovider === "") {
       throw new Error("harvestcodeprovider cannot be empty");
     }
 
+    if (!isAddress(harvestcodeprovider)) {
+      throw new Error("harvestcodeprovider address is invalid");
+    }
+
     if (priceoracle === "") {
       throw new Error("priceoracle cannot be empty");
+    }
+
+    if (!isAddress(priceoracle)) {
+      throw new Error("priceoracle address is invalid");
     }
 
     for (const adapter of ADAPTER) {

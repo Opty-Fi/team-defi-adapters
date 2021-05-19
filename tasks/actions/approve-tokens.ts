@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance } from "../../helpers/helpers";
+import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { approveTokens } from "../../helpers/contracts-actions";
 
@@ -10,6 +10,10 @@ task("approve-tokens", "Approve Tokens")
 
     if (registry === "") {
       throw new Error("registry cannot be empty");
+    }
+
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
     }
 
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);

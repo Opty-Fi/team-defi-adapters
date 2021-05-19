@@ -2,6 +2,8 @@ import { task, types } from "hardhat/config";
 import { Contract } from "ethers";
 import { deployAdapter } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
+import { isAddress } from "../../helpers/helpers";
+import { ADAPTER } from "../../helpers/constants";
 
 task("deploy-adapter", "Deploy Adapter contract")
   .addParam("registry", "the address of registry", "", types.string)
@@ -17,16 +19,32 @@ task("deploy-adapter", "Deploy Adapter contract")
       throw new Error("name cannot be empty");
     }
 
+    if (!ADAPTER.includes(name)) {
+      throw new Error("adapter does not exist");
+    }
+
     if (registry === "") {
       throw new Error("registry cannot be empty");
+    }
+
+    if (!isAddress(registry)) {
+      throw new Error("registry address is invalid");
     }
 
     if (harvestcodeprovider === "") {
       throw new Error("harvestcodeprovider cannot be empty");
     }
 
+    if (!isAddress(harvestcodeprovider)) {
+      throw new Error("harvestcodeprovider address is invalid");
+    }
+
     if (priceoracle === "") {
       throw new Error("priceoracle cannot be empty");
+    }
+
+    if (!isAddress(priceoracle)) {
+      throw new Error("priceoracle address is invalid");
     }
 
     const adaptersContract: Contract = await deployAdapter(
