@@ -195,3 +195,12 @@ export async function getTokenInforWithAddress(
   const name: string = await ERC20Instance.name();
   return { name, symbol };
 }
+
+export async function unpauseVault(
+  owner: Signer,
+  registryContract: Contract,
+  vaultAddr: string,
+  unpaused: boolean,
+): Promise<void> {
+  await executeFunc(registryContract, owner, "unpauseVault(address,bool)", [vaultAddr, unpaused]);
+}
