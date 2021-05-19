@@ -90,7 +90,6 @@ describe(scenario.title, () => {
       });
 
       for (let i = 0; i < vaults.stories.length; i++) {
-        // for (let i = 0; i < 8; i++) {
         const story = vaults.stories[i];
         it(story.description, async () => {
           for (let j = 0; j < story.actions.length; j++) {
@@ -102,8 +101,6 @@ describe(scenario.title, () => {
               case "userWithdrawAllRebalance()": {
                 const args = action.args;
                 if (action.expect === "success") {
-                  console.log("contract name: ", action.contract.toLowerCase());
-                  console.log("Action: ", action.action);
                   await ERC20Instance.connect(owner).approve(
                     contracts[action.contract.toLowerCase()].address,
                     BigNumber.from(MAX_AMOUNT * 2),
