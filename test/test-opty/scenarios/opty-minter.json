@@ -170,7 +170,7 @@
       "getActions": []
     },
     {
-      "description": "User should have opty token equal its rate after running userDepositReBalance 1 second",
+      "description": "User should have opty token equal its rate after running userDepositReBalance",
       "setActions": [
         {
           "contract": "optyMinter",
@@ -306,7 +306,7 @@
       ]
     },
     {
-      "description": "User shouldn't earn opty after transfering all vault token",
+      "description": "User shouldn't earn any more opty after transfering all vault token",
       "setActions": [
         {
           "contract": "optyMinter",
@@ -669,6 +669,171 @@
           "expectedValue": "50"
         }
       ]
+    },
+    {
+      "description": "User should able to claim opty token equal its rate after running userDepositReBalance",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "setMinter(address)",
+          "args": {
+            "contractName": "optyMinter"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVault(address,bool)",
+          "args": {
+            "contractName": "vault",
+            "isEnabled": true
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVaultRate(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "rate": "100"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "erc20",
+          "action": "approve(address,uint256)",
+          "args": {
+            "amount": "2000000000000000000",
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vault",
+          "action": "userDepositRebalance(uint256)",
+          "args": {
+            "amount": "2000000000000000000"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "claimOpty(address)",
+          "args": {
+            "addressName": "owner"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "optyMinter",
+          "action": "claimableOpty(address)",
+          "args": {
+            "addressName": "owner"
+          },
+          "expectedValue": "0"
+        },
+        {
+          "contract": "opty",
+          "action": "balanceOf(address)",
+          "args": {
+            "addressName": "owner"
+          },
+          "expectedValue": "100"
+        }
+      ]
+    },
+    {
+      "description": "User shouldn't able to claim opty token if optyMinter address is not set as Minter in Registry",
+      "setActions": [
+        {
+          "contract": "optyMinter",
+          "action": "addOptyVault(address)",
+          "args": {
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVault(address,bool)",
+          "args": {
+            "contractName": "vault",
+            "isEnabled": true
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "setOptyVaultRate(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "rate": "100"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "erc20",
+          "action": "approve(address,uint256)",
+          "args": {
+            "amount": "2000000000000000000",
+            "contractName": "vault"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vault",
+          "action": "userDepositRebalance(uint256)",
+          "args": {
+            "amount": "2000000000000000000"
+          },
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "optyMinter",
+          "action": "claimOpty(address)",
+          "args": {
+            "addressName": "owner"
+          },
+          "executer": "owner",
+          "expect": "fail",
+          "message": "caller is not the minter"
+        }
+      ],
+      "getActions": []
     }
   ]
 }
