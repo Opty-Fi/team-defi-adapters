@@ -2,9 +2,10 @@ pipeline {
     agent any
   
     stages {
-        stage('Build') {
+        stage('lint') {
             steps {
-                echo "Building..."
+                sh 'yarn install'
+                sh 'yarn lint'
             }
         }
         stage('Test') {
