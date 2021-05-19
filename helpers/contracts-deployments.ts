@@ -227,6 +227,30 @@ export async function deployEssentialContracts(
   return essentialContracts;
 }
 
+export async function deployAdapter(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  adapterName: string,
+  registryAddr: string,
+  harvestAddr: string,
+  priceOracleAddr: string,
+  isDeployedOnce: boolean,
+): Promise<Contract> {
+  let contract: Contract;
+  if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapterName)) {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
+  } else if (adapterName === "CurvePoolAdapter") {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
+      registryAddr,
+      harvestAddr,
+      priceOracleAddr,
+    ]);
+  } else {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr, harvestAddr]);
+  }
+  return contract;
+}
+
 export async function deployAdapters(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -238,21 +262,15 @@ export async function deployAdapters(
   const data: CONTRACTS = {};
   for (const adapter of ADAPTER) {
     try {
-      let contract: Contract;
-      if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr]);
-        data[adapter] = contract;
-      } else if (["CurvePoolAdapter"].includes(adapter)) {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [
-          registryAddr,
-          harvestAddr,
-          priceOracleAddr,
-        ]);
-        data[adapter] = contract;
-      } else {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr, harvestAddr]);
-        data[adapter] = contract;
-      }
+      data[adapter] = await deployAdapter(
+        hre,
+        owner,
+        adapter,
+        registryAddr,
+        harvestAddr,
+        priceOracleAddr,
+        isDeployedOnce,
+      );
     } catch (error) {
       console.log(adapter, error);
     }

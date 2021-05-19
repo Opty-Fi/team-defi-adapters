@@ -4,12 +4,12 @@ import { deployEssentialContracts } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
 
 task("deploy-infra", "Deploy infrastructure contracts")
-  .addParam("deployedOnce", "allow checking whether contracts were deployed previously", true, types.boolean)
+  .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
-  .setAction(async ({ deployedOnce, insertindb }, hre) => {
+  .setAction(async ({ deployedonce, insertindb }, hre) => {
     console.log(`\tDeploying Infrastructure contracts ...`);
     const [owner] = await hre.ethers.getSigners();
-    const essentialContracts: CONTRACTS = await deployEssentialContracts(hre, owner, deployedOnce);
+    const essentialContracts: CONTRACTS = await deployEssentialContracts(hre, owner, deployedonce);
     const essentialContractNames = Object.keys(essentialContracts);
     for (let i = 0; i < essentialContractNames.length; i++) {
       console.log(
