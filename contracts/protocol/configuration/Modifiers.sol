@@ -78,7 +78,7 @@ abstract contract Modifiers {
     }
 
     modifier ifNotPaused(address _vault) {
-        require(!registryContract.vaultToPaused(_vault), "paused");
+        require(registryContract.vaultToUnpaused(_vault), "paused");
         _;
     }
 

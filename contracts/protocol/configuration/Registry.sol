@@ -444,8 +444,8 @@ contract Registry is ModifiersController {
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function setPause(address _vault, bool _paused) external onlyGovernance returns (bool) {
-        _setPause(_vault, _paused);
+    function unpauseVault(address _vault, bool _unpaused) external onlyGovernance returns (bool) {
+        _unpauseVault(_vault, _unpaused);
         return true;
     }
 
@@ -719,11 +719,11 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    function _setPause(address _vault, bool _paused) internal returns (bool) {
+    function _unpauseVault(address _vault, bool _unpaused) internal returns (bool) {
         require(_vault != address(0), "!address(0)");
-        vaultToPaused[_vault] = _paused;
-        IVault(_vault).setPaused(vaultToPaused[_vault]);
-        emit LogPauseVault(_vault, vaultToPaused[_vault], msg.sender);
+        vaultToUnpaused[_vault] = _unpaused;
+        IVault(_vault).setPaused(vaultToUnpaused[_vault]);
+        emit LogPauseVault(_vault, vaultToUnpaused[_vault], msg.sender);
         return true;
     }
 

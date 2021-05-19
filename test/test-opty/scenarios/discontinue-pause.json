@@ -1,14 +1,79 @@
 {
   "title": "Discontinue and Pause: Positive (pass) and Negative (reverts)",
-  "description": "Test cases for the setDiscontinue() and setPause() functions",
+  "description": "Test cases for the setDiscontinue() and unpauseVault() functions",
   "vaults": [
     {
       "name": "Vault",
       "profile": "RP1",
       "stories": [
         {
-          "description": "[Vault is neither paused nor discontinued] Should pass when user deposits and withdraws from the vault contract",
+          "description": "[Vault is paused By Default] Should fail when user deposits in the vault contract",
           "actions": [
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": 1
+              },
+              "expect": "fail",
+              "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "[Vault is paused By Default] Should fail when user deposits all balance in the vault contract",
+          "actions": [
+            {
+              "contract": "Vault",
+              "action": "uuserDepositAllRebalance()",
+              "args": {
+                "amount": ""
+              },
+              "expect": "fail",
+              "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "[Vault is paused By Default] Should fail when user withdraws from the vault contract",
+          "actions": [
+            {
+              "contract": "Vault",
+              "action": "userWithdrawRebalance(uint256)",
+              "args": {
+                "amount": 1
+              },
+              "expect": "fail",
+              "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "[Vault is paused By Default] Should fail when user withdraws all balance from the vault contract",
+          "actions": [
+            {
+              "contract": "Vault",
+              "action": "userWithdrawAllRebalance()",
+              "args": {
+                "amount": ""
+              },
+              "expect": "fail",
+              "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "[Vault is unpaused] Should pass when user deposits and withdraws from the vault contract",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseVault(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
             {
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
@@ -20,7 +85,7 @@
             },
             {
               "contract": "Vault",
-              "action": "userWithdrawRebalanceAll()",
+              "action": "userWithdrawAllRebalance()",
               "args": {
                 "amount": ""
               },
@@ -30,13 +95,13 @@
           ]
         },
         {
-          "description": "[Vault is paused] Should throw an error when vault is paused and user deposits in the vault contract",
+          "description": "[Vault is reset to pause] Should throw an error when vault is paused and user deposits in the vault contract",
           "actions": [
             {
               "contract": "Registry",
-              "action": "setPause(address,bool)",
+              "action": "unpauseVault(address,bool)",
               "args": {
-                "pause": true
+                "unpause": false
               },
               "expect": "success",
               "message": ""
@@ -53,13 +118,13 @@
           ]
         },
         {
-          "description": "[Vault is reset to non-paused] Should pass when user deposits and withdraws from the vault contract",
+          "description": "User should be able to deposit when vault is unpaused and shouldn't able to withdraw if vault is paused",
           "actions": [
             {
               "contract": "Registry",
-              "action": "setPause(address,bool)",
+              "action": "unpauseVault(address,bool)",
               "args": {
-                "pause": false
+                "unpause": true
               },
               "expect": "success",
               "message": ""
@@ -74,13 +139,63 @@
               "message": ""
             },
             {
-              "contract": "Vault",
-              "action": "userWithdrawRebalanceAll()",
+              "contract": "Registry",
+              "action": "unpauseVault(address,bool)",
               "args": {
-                "amount": ""
+                "unpause": false
               },
               "expect": "success",
               "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userWithdrawRebalance(uint256)",
+              "args": {
+                "amount": 1
+              },
+              "expect": "fail",
+              "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "User should be able to deposit when vault is unpaused and shouldn't able to withdraw all balance if vault is paused",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseVault(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": 1
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "unpauseVault(address,bool)",
+              "args": {
+                "unpause": false
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userWithdrawAllRebalance()",
+              "args": {
+                "amount": ""
+              },
+              "expect": "fail",
+              "message": "paused"
             }
           ]
         },
@@ -91,7 +206,7 @@
               "contract": "Registry",
               "action": "discontinue(address)",
               "args": {
-                "pause": ""
+                "unpause": ""
               },
               "expect": "success",
               "message": ""

@@ -78,7 +78,7 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(address => address) public liquidityPoolToAdapter;
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
     mapping(address => bool) public vaultToDiscontinued;
-    mapping(address => bool) public vaultToPaused;
+    mapping(address => bool) public vaultToUnpaused;
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
     bytes32[] public tokensHashIndexes;
     string[] public riskProfilesArray;
