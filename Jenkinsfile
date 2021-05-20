@@ -10,14 +10,21 @@ pipeline {
               }
             }
         }
-        stage('Test') {
+        stage('Compile') {
             steps {
-                echo 'Testing..'
+                nodejs("Node-12.22.1"){
+                sh 'yarn install'
+                sh 'yarn compile'
+              }
             }
         }
-        stage('Deploy') {
+        stage('Test') {
             steps {
-                echo 'Deploying....'
+                nodejs("Node-12.22.1"){
+                sh 'yarn install'
+                sh 'export --max-old-space-size=8192'
+                sh 'yarn test'
+              }
             }
         }
     }
