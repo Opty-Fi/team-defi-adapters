@@ -23,6 +23,7 @@ pipeline {
             steps {
                 nodejs("Node-12.22.1"){
                 sh 'yarn install'
+                sh 'export --max-old-space-size=8192'
                 sh 'yarn test'
               }
             }
