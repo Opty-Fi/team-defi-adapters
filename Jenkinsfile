@@ -22,7 +22,7 @@ pipeline {
             steps {
                 nodejs("Node-12.22.1"){
                 sh 'yarn install --frozen-lockfile'
-                sh 'export --max-old-space-size=8192'
+                sh 'export NODE_OPTIONS="--max-old-space-size=8192"'
                 sh 'yarn test-fast'
               }
             }
