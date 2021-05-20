@@ -1,11 +1,6 @@
 pipeline {
     agent any
   
-  environment {
-    MAINNET_NODE_URL: ${env.MAINNET_NODE_URL}
-    MY_METAMASK_MNEMONIC: ${env.MY_METAMASK_MNEMONIC} 
-  }
-  
     stages {
         stage('lint') {
             steps {
