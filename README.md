@@ -44,6 +44,7 @@ $ git clone https://github.com/Opty-Fi/earn-protocol.git
 - Run `yarn run` to view all available tasks.
 
 ### Setup and Deployments
+
 For setting up all essential actions (deploying contracts, executing functions).
 
 ```
@@ -77,27 +78,28 @@ Prerequisite : Deployed all infrastructure contracts.
 ```
 
 Run `yarn hardhat` to check all available tasks. Following the below command :
+
 ```
 yarn hardhat `name` --network `network` --flagName `flagValue`
 ```
 
 For deploying a specific contract.
 
-| Name | Prerequisite Contracts | Flags      | Optional Flags | Description|
-|------|--------------| ----------|-----|----|
-|deploy-adapter     | Registry, HarvestCodeProvider, Priceoracle             |          registry, harvestcodeprovider,  priceoracle, name | deployedonce, insertindb | deploy specific adapter contract|
-|deploy-adapters | Registry, HarvestCodeProvider, Priceoracle |          registry, harvestcodeprovider,  priceoracle | deployedonce, insertindb | deploy all available adapter contracts|
-|deploy-harvest-code-provider | Registry |          registry | deployedonce, insertindb | deploy HarvestCodeProvider contract|
-|deploy-opty | Registry |          registry | deployedonce, insertindb | deploy OPTY and OPTYMinter contracts|
-|deploy-registry | N/A |          N/A | deployedonce, insertindb | deploy Registry and VaultStepInvestStrategyDefinitionRegistry contracts|
-|deploy-risk-manager | Registry |          registry | deployedonce, insertindb | deploy RiskManager contract|
-|deploy-strategy-manager | Registry, HarvestCodeProvider |          registry, harvestcodeprovider | deployedonce, insertindb | deploy StrategyManager contract|
-|deploy-strategy-provider | Registry |          registry | deployedonce, insertindb | deploy StrategyProvider contract|
-|deploy-vault | Registry, RiskManager, StrategyManager, OPTYMinter |          token, riskprofile, registry, riskmanager, strategymanager, optyminter | insertindb | deploy specific vault contract|
+| Name                         | Prerequisite Contracts                             | Flags                                                                  | Optional Flags           | Description                                                             |
+| ---------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------------- |
+| deploy-adapter               | Registry, HarvestCodeProvider, Priceoracle         | registry, harvestcodeprovider, priceoracle, name                       | deployedonce, insertindb | deploy specific adapter contract                                        |
+| deploy-adapters              | Registry, HarvestCodeProvider, Priceoracle         | registry, harvestcodeprovider, priceoracle                             | deployedonce, insertindb | deploy all available adapter contracts                                  |
+| deploy-harvest-code-provider | Registry                                           | registry                                                               | deployedonce, insertindb | deploy HarvestCodeProvider contract                                     |
+| deploy-opty                  | Registry                                           | registry                                                               | deployedonce, insertindb | deploy OPTY and OPTYMinter contracts                                    |
+| deploy-registry              | N/A                                                | N/A                                                                    | deployedonce, insertindb | deploy Registry and VaultStepInvestStrategyDefinitionRegistry contracts |
+| deploy-risk-manager          | Registry                                           | registry                                                               | deployedonce, insertindb | deploy RiskManager contract                                             |
+| deploy-strategy-manager      | Registry, HarvestCodeProvider                      | registry, harvestcodeprovider                                          | deployedonce, insertindb | deploy StrategyManager contract                                         |
+| deploy-strategy-provider     | Registry                                           | registry                                                               | deployedonce, insertindb | deploy StrategyProvider contract                                        |
+| deploy-vault                 | Registry, RiskManager, StrategyManager, OPTYMinter | token, riskprofile, registry, riskmanager, strategymanager, optyminter | insertindb               | deploy specific vault contract                                          |
 
 For executing contract functions.
 
-| Name | Prerequisite Contracts | Flags      | Optional Flags | Description|
-|------|--------------| ----------|-----|----|
-|set-strategies    | VaultStepInvestStrategyDefinitionRegistry             |          strategyregistry | N/A | set all current available strategies|
-|approve-tokens | Registry |          registry | N/A | approve all available tokens|
+| Name           | Prerequisite Contracts                    | Flags            | Optional Flags | Description                          |
+| -------------- | ----------------------------------------- | ---------------- | -------------- | ------------------------------------ |
+| set-strategies | VaultStepInvestStrategyDefinitionRegistry | strategyregistry | N/A            | set all current available strategies |
+| approve-tokens | Registry                                  | registry         | N/A            | approve all available tokens         |
