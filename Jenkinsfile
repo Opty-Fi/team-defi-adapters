@@ -5,7 +5,7 @@ pipeline {
         stage('lint') {
             steps {
               nodejs("Node-12.22.1"){
-                sh 'yarn install'
+                sh 'yarn install --frozen-lockfile'
                 sh 'yarn lint'
               }
             }
@@ -13,7 +13,7 @@ pipeline {
         stage('Compile') {
             steps {
                 nodejs("Node-12.22.1"){
-                sh 'yarn install'
+                sh 'yarn install --frozen-lockfile'
                 sh 'yarn compile'
               }
             }
@@ -21,9 +21,9 @@ pipeline {
         stage('Test') {
             steps {
                 nodejs("Node-12.22.1"){
-                sh 'yarn install'
+                sh 'yarn install --frozen-lockfile'
                 sh 'export --max-old-space-size=8192'
-                sh 'yarn test'
+                sh 'yarn test-fast'
               }
             }
         }
