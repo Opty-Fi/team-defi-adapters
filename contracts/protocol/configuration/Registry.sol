@@ -427,8 +427,8 @@ contract Registry is ModifiersController {
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function discontinue(address _vault) external onlyGovernance returns (bool) {
-        _discontinue(_vault);
+    function discontinue(address _tokenizationContract) external onlyGovernance returns (bool) {
+        _discontinue(_tokenizationContract);
         return true;
     }
 
@@ -437,15 +437,19 @@ contract Registry is ModifiersController {
      *
      * Returns a boolean value indicating whether pause is set to true or false
      *
-     * Emits a {LogPauseVault} event
+     * Emits a {LogUnpauseVault} event
      *
      * Requirements:
      *
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function unpauseVault(address _vault, bool _unpaused) external onlyGovernance returns (bool) {
-        _unpauseVault(_vault, _unpaused);
+    function unpauseTokenizationContract(address _tokenizationContract, bool _unpaused)
+        external
+        onlyGovernance
+        returns (bool)
+    {
+        _unpauseTokenizationContract(_tokenizationContract, _unpaused);
         return true;
     }
 
@@ -711,19 +715,23 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    function _discontinue(address _vault) internal returns (bool) {
-        require(_vault != address(0), "!address(0)");
-        vaultToDiscontinued[_vault] = true;
-        IVault(_vault).discontinue();
-        emit LogDiscontinueVault(_vault, vaultToDiscontinued[_vault], msg.sender);
+    function _discontinue(address _tokenizationContract) internal returns (bool) {
+        require(_tokenizationContract != address(0), "!address(0)");
+        tokenizationContracts[_tokenizationContract].discontinued = true;
+        IVault(_tokenizationContract).discontinue();
+        emit LogDiscontinueVault(
+            _tokenizationContract,
+            tokenizationContracts[_tokenizationContract].discontinued,
+            msg.sender
+        );
         return true;
     }
 
-    function _unpauseVault(address _vault, bool _unpaused) internal returns (bool) {
-        require(_vault != address(0), "!address(0)");
-        vaultToUnpaused[_vault] = _unpaused;
-        IVault(_vault).setPaused(vaultToUnpaused[_vault]);
-        emit LogPauseVault(_vault, vaultToUnpaused[_vault], msg.sender);
+    function _unpauseTokenizationContract(address _tokenizationContract, bool _unpaused) internal returns (bool) {
+        require(_tokenizationContract != address(0), "!address(0)");
+        tokenizationContracts[_tokenizationContract].unpaused = _unpaused;
+        IVault(_tokenizationContract).setUnpaused(tokenizationContracts[_tokenizationContract].unpaused);
+        emit LogUnpauseVault(_tokenizationContract, tokenizationContracts[_tokenizationContract].unpaused, msg.sender);
         return true;
     }
 

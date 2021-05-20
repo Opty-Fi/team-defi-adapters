@@ -71,4 +71,9 @@ library DataTypes {
         uint224 index;
         uint32 timestamp;
     }
+
+    struct TokenizationContract {
+        bool discontinued;
+        bool unpaused;
+    }
 }
