@@ -28,13 +28,4 @@ pipeline {
             }
         }
     }
-    post {
-        success {
-          googlechatnotification url: '${GOOGLE_CHAT_WEBHOOK}', message: '${JOB_NAME} is ${BUILD_STATUS} by ${CHANGE_AUTHOR} [ SUCCESS ]'
-        }
-        failure {
-            googlechatnotification url: '${GOOGLE_CHAT_WEBHOOK}', message: '${JOB_NAME} is ${BUILD_STATUS} by ${CHANGE_AUTHOR} [ FAIL ] '
-        }
-
-    }
 }
