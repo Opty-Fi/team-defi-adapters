@@ -13,7 +13,7 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "fail",
               "message": "paused"
@@ -25,7 +25,7 @@
           "actions": [
             {
               "contract": "Vault",
-              "action": "uuserDepositAllRebalance()",
+              "action": "userDepositAllRebalance()",
               "args": {
                 "amount": ""
               },
@@ -41,7 +41,7 @@
               "contract": "Vault",
               "action": "userWithdrawRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "fail",
               "message": "paused"
@@ -67,7 +67,7 @@
           "actions": [
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": true
               },
@@ -78,7 +78,7 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "success",
               "message": ""
@@ -99,7 +99,7 @@
           "actions": [
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": false
               },
@@ -110,7 +110,7 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "fail",
               "message": "paused"
@@ -122,7 +122,7 @@
           "actions": [
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": true
               },
@@ -133,14 +133,14 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "success",
               "message": ""
             },
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": false
               },
@@ -151,7 +151,7 @@
               "contract": "Vault",
               "action": "userWithdrawRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "fail",
               "message": "paused"
@@ -163,7 +163,7 @@
           "actions": [
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": true
               },
@@ -174,14 +174,14 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "success",
               "message": ""
             },
             {
               "contract": "Registry",
-              "action": "unpauseVault(address,bool)",
+              "action": "unpauseTokenizationContract(address,bool)",
               "args": {
                 "unpause": false
               },
@@ -196,6 +196,274 @@
               },
               "expect": "fail",
               "message": "paused"
+            }
+          ]
+        },
+        {
+          "description": "Vault unpaused, 1 userDepositRebalance, then vault shouldn't hold tokens and then vault paused and vault should hold tokens",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": "0"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": false
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": ">=2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "Vault unpaused, 2 userDepositRebalance, then vault shouldn't hold tokens and then vault paused and vault should hold tokens",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": "0"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": false
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": ">=4000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "Step1: Vault unpaused, Step2: 1 userDepositRebalance, then Step3: vault shouldn't hold tokens and then Step4: vault paused and Step5: vault should hold tokens. Now Repeat Step1,2,3",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": "0"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": false
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": ">=2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": "0"
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Vault is discontinued] Vault Should hold tokens after vault is discontinued",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "unpauseTokenizationContract(address,bool)",
+              "args": {
+                "unpause": true
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": "2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": "0"
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Registry",
+              "action": "discontinue(address)",
+              "args": {
+                "unpause": ""
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {
+                "expectedValue": ">=2000000000000000000"
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Vault is discontinued] User should be able to withdraw from the vault contract even if the vault is discontinued",
+          "actions": [
+            {
+              "contract": "Registry",
+              "action": "discontinue(address)",
+              "args": {
+                "unpause": ""
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "Vault",
+              "action": "userWithdrawAllRebalance()",
+              "args": {
+                "amount": ""
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "erc20",
+              "action": "balanceOf(address)",
+              "args": {
+                "expectedValue": ">0"
+              },
+              "expect": "success",
+              "message": ""
             }
           ]
         },
@@ -215,7 +483,7 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": 1
+                "amount": "2000000000000000000"
               },
               "expect": "fail",
               "message": "discontinued"

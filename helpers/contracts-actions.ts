@@ -202,5 +202,5 @@ export async function unpauseVault(
   vaultAddr: string,
   unpaused: boolean,
 ): Promise<void> {
-  await executeFunc(registryContract, owner, "unpauseVault(address,bool)", [vaultAddr, unpaused]);
+  await executeFunc(registryContract, owner, "unpauseTokenizationContract(address,bool)", [vaultAddr, unpaused]);
 }

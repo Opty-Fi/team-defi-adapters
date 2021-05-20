@@ -16,10 +16,11 @@ import {
   getTokenSymbol,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/discontinue-pause.json";
+
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
-  const MAX_AMOUNT = 100000000;
+  const MAX_AMOUNT = "100000000000000000000";
   let essentialContracts: CONTRACTS;
   let contracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -82,8 +83,10 @@ describe(scenario.title, () => {
           );
 
           const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
+          console.log("Funding wallet");
+          await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT), timestamp);
           ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+          contracts["erc20"] = ERC20Instance;
         } catch (error) {
           console.error(error);
         }
@@ -95,19 +98,58 @@ describe(scenario.title, () => {
           for (let j = 0; j < story.actions.length; j++) {
             const action = story.actions[j];
             switch (action.action) {
+              case "balance()": {
+                const args = action.args;
+                // const { expectedValue } = <ARGUMENTS>action?.args[<keyof typeof action.args>"expectedValue"];
+                if (action.expect === "success") {
+                  // if (args.hasOwnProperty("expectedValue")) {
+                  const expectedValue = <string>args[<keyof typeof args>"expectedValue"];
+                  console.log("Expected value1: ", expectedValue);
+                  const balance = await contracts[action.contract.toLowerCase()][action.action]();
+                  console.log("Balance: ", +balance);
+                  expectedValue === "0" ? "" : console.log("Expected value2: ", expectedValue.substring(2));
+                  expectedValue === "0"
+                    ? expect(+balance).to.equal(+expectedValue)
+                    : expect(+balance).to.be.gte(+expectedValue.substring(2));
+
+                  // args[<keyof typeof args>"expectedValue"] === "0" ? expect(await contracts[action.contract.toLowerCase()][action.action](contracts["vault"].address),).to.equal(args[<keyof typeof args>"expectedValue"])
+                  // }
+                } else {
+                  console.log("Balance else condition");
+                }
+                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                break;
+              }
+              case "balanceOf(address)": {
+                const args = action.args;
+                if (action.expect === "success") {
+                  const expectedValue = <string>args[<keyof typeof args>"expectedValue"];
+                  const addr = await owner.getAddress();
+                  const balance = await contracts[action.contract.toLowerCase()][action.action](addr);
+                  console.log("Balance1: ", +balance);
+                  expectedValue === "0"
+                    ? expect(+balance).to.equal(+expectedValue)
+                    : expect(+balance).to.be.gte(+expectedValue.split(">")[1]);
+                  // expect(+balance).to.be.gt(+action.expectedValue.toString().split(">")[1]);
+                }
+                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                break;
+              }
               case "userDepositRebalance(uint256)":
               case "userDepositAllRebalance()":
               case "userWithdrawRebalance(uint256)":
               case "userWithdrawAllRebalance()": {
                 const args = action.args;
                 if (action.expect === "success") {
+                  console.log("Approving vault");
                   await ERC20Instance.connect(owner).approve(
                     contracts[action.contract.toLowerCase()].address,
-                    BigNumber.from(MAX_AMOUNT * 2),
+                    BigNumber.from(MAX_AMOUNT),
                   );
+                  console.log("perforimg ", action.action);
                   action.action === "userDepositRebalance(uint256)" ||
                   action.action === "userWithdrawRebalance(uint256)"
-                    ? await contracts[action.contract.toLowerCase()][action.action](args?.amount)
+                    ? await contracts[action.contract.toLowerCase()][action.action](BigNumber.from(args?.amount))
                     : await contracts[action.contract.toLowerCase()][action.action]();
                 } else {
                   action.action === "userDepositRebalance(uint256)" ||
@@ -124,10 +166,10 @@ describe(scenario.title, () => {
                 break;
               }
               case "discontinue(address)":
-              case "unpauseVault(address,bool)": {
+              case "unpauseTokenizationContract(address,bool)": {
                 const args = action.args;
                 if (action.expect === "success") {
-                  action.action === "unpauseVault(address,bool)"
+                  action.action === "unpauseTokenizationContract(address,bool)"
                     ? await contracts[action.contract.toLowerCase()][action.action](vault.address, args?.unpause)
                     : await contracts[action.contract.toLowerCase()][action.action](vault.address);
                 }
