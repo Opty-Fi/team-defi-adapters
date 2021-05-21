@@ -176,7 +176,7 @@ describe(scenario.title, () => {
             break;
           }
           case "setLiquidityPoolToAdapter((address,address)[])": {
-            const { lqs }: ARGUMENTS = action.args;
+            const { lqs, userIndex }: ARGUMENTS = action.args;
             if (lqs) {
               const args: [string, string][] = [];
               for (let i = 0; i < lqs.length; i++) {
@@ -185,23 +185,33 @@ describe(scenario.title, () => {
               if (action.expect === "success") {
                 await registryContract[action.action](args);
               } else {
-                await expect(registryContract[action.action](args)).to.be.revertedWith(action.message);
+                (await userIndex)
+                  ? await expect(registryContract.connect(users[userIndex])[action.action](args)).to.be.revertedWith(
+                      action.message,
+                    )
+                  : await expect(registryContract[action.action](args)).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setLiquidityPoolToAdapter(address,address)": {
-            const { lqs }: ARGUMENTS = action.args;
+            const { lqs, userIndex }: ARGUMENTS = action.args;
             if (lqs) {
               if (action.expect === "success") {
                 await expect(registryContract[action.action](lqs.liquidityPool, adapters[lqs.adapterName].address))
                   .to.emit(registryContract, "LogLiquidityPoolToDepositToken")
                   .withArgs(hre.ethers.utils.getAddress(lqs.liquidityPool), adapters[lqs.adapterName].address, caller);
               } else {
-                await expect(
-                  registryContract[action.action](lqs.liquidityPool, adapters[lqs.adapterName].address),
-                ).to.be.revertedWith(action.message);
+                (await userIndex)
+                  ? await expect(
+                      registryContract
+                        .connect(users[userIndex])
+                        [action.action](lqs.liquidityPool, adapters[lqs.adapterName].address),
+                    ).to.be.revertedWith(action.message)
+                  : await expect(
+                      registryContract[action.action](lqs.liquidityPool, adapters[lqs.adapterName].address),
+                    ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
