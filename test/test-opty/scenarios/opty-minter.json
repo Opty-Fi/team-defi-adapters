@@ -28,7 +28,7 @@
       ]
     },
     {
-      "description": "Non-Operator can add opty vault",
+      "description": "Non-Operator can't add opty vault",
       "setActions": [
         {
           "contract": "optyMinter",
