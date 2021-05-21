@@ -98,3 +98,10 @@ export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: st
   }
   return getSoliditySHA3Hash(["bytes32", "bytes32[]"], [tokensHash, strategyStepsHash]);
 }
+
+export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<void> {
+  const blockNumber = await hre.ethers.provider.getBlockNumber();
+  const block = await hre.ethers.provider.getBlock(blockNumber);
+  await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
+  await hre.network.provider.send("evm_mine");
+}
