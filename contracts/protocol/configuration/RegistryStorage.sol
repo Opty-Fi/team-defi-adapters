@@ -24,10 +24,15 @@ contract RegistryAdminStorage {
      */
     address public strategist;
 
-    /**
-     * @notice Treasury for this contract
-     */
-    address public treasury;
+    // /**
+    //  * @notice Treasury for this contract
+    //  */
+    // address public treasury;
+
+    // /**
+    //  * @notice ODEFI's Treasury for this contract
+    //  */
+    // address public odefi;
 
     /**
      * @notice Minter for OPTY token

@@ -14,6 +14,8 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IVault } from "../../interfaces/opty/IVault.sol";
+import "hardhat/console.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
@@ -257,6 +259,60 @@ contract StrategyManager is Modifiers {
                 _subStepCounter--;
             }
         }
+    }
+
+    // function getFeeTransferAllCodes(
+    //     address _vault,
+    //     address[] memory _treasuryAccounts,
+    function getFeeTransferAllCodes(
+        DataTypes.TreasuryAccount[] memory _treasuryAccounts,
+        address _account,
+        address _underlyingToken,
+        uint256 _redeemAmountInToken,
+        uint256 withdrawalFee,
+        uint256 withdrawalFeeMax
+    ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
+        // address _treasury = registryContract.treasury();
+        uint256 _fee = 0;
+        if (_treasuryAccounts.length > 0) {
+            _fee = ((_redeemAmountInToken).mul(withdrawalFee)).div(withdrawalFeeMax);
+            // uint256 _totalFee = ((_redeemAmountInToken).mul(withdrawalFee)).div(withdrawalFeeMax);
+            console.log("Fee: ", _fee);
+            uint8 _treasuryAccountsLength = uint8(_treasuryAccounts.length);
+            console.log("Treasury accounts length: ", _treasuryAccountsLength);
+            _treasuryCodes = new bytes[](_treasuryAccountsLength);
+            for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+                if (_treasuryAccounts[_i].treasuryAccount != address(0) && withdrawalFee > 0) {
+                    // uint256 _share = IVault(_vault).getTreasuryAccountShare(
+                    // _treasuryAccounts[_i].treasuryAccount,_i);
+                    uint256 _share = _treasuryAccounts[_i].share;
+                    console.log("Share: ", _share);
+                    uint256 _treasuryAccountFee = ((_fee).mul(_share)).div(withdrawalFee);
+                    console.log("Treasury withdrawal fee: ", _treasuryAccountFee);
+                    // uint256 _odefiFee = ((_fee).mul(odefiFee)).div(withdrawalFeeMax);
+
+                    // _treasuryCodes = new bytes[](_treasuryAccountsLength);
+                    _treasuryCodes[_i] = abi.encode(
+                        _underlyingToken,
+                        abi.encodeWithSignature(
+                            "transfer(address,uint256)",
+                            _treasuryAccounts[_i].treasuryAccount,
+                            uint256(_treasuryAccountFee)
+                        )
+                    );
+                    console.logBytes(_treasuryCodes[_i]);
+                    // _fee = _fee.add(_treasuryAccountFee);
+                    console.log("fee to minus: ", _fee);
+                }
+            }
+            // _fee = 0;
+        }
+        // _accountCodes = new bytes[](1);
+        console.log("fee to minus for account code: ", _fee);
+        _accountCode = abi.encode(
+            _underlyingToken,
+            abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
+        );
     }
 
     function _getPoolHarvestAllRewardCodes(

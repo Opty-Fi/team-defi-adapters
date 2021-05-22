@@ -76,4 +76,9 @@ library DataTypes {
         bool discontinued;
         bool unpaused;
     }
+
+    struct TreasuryAccount {
+        address treasuryAccount;
+        uint256 share;
+    }
 }

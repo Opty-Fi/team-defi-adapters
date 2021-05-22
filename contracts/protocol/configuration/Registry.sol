@@ -27,16 +27,22 @@ contract Registry is ModifiersController {
         require(_registryProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
-    /**
-     * @dev Transfers treasury to a new account (`_strategist`).
-     * Can only be called by the current governance.
-     */
+    // /**
+    //  * @dev Transfers treasury to a new account (`_strategist`).
+    //  * Can only be called by the current governance.
+    //  */
 
-    function setTreasury(address _treasury) external onlyGovernance returns (bool) {
-        require(_treasury != address(0), "!address(0)");
-        treasury = _treasury;
-        return true;
-    }
+    // function setTreasury(address _treasury) external onlyGovernance returns (bool) {
+    //     require(_treasury != address(0), "!address(0)");
+    //     treasury = _treasury;
+    //     return true;
+    // }
+
+    // function setOdefi(address _odefi) external onlyGovernance returns (bool) {
+    //     require(_odefi != address(0), "!address(0)");
+    //     odefi = _odefi;
+    //     return true;
+    // }
 
     /**
      * @dev set the VaultStepInvestStrategyDefinitionRegistry contract address.
