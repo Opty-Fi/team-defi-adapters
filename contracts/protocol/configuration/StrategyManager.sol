@@ -274,7 +274,7 @@ contract StrategyManager is Modifiers {
     ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         // address _treasury = registryContract.treasury();
         uint256 _fee = 0;
-        if (_treasuryAccounts.length > 0) {
+        if (_treasuryAccounts.length > 0 && withdrawalFee > 0) {
             _fee = ((_redeemAmountInToken).mul(withdrawalFee)).div(withdrawalFeeMax);
             // uint256 _totalFee = ((_redeemAmountInToken).mul(withdrawalFee)).div(withdrawalFeeMax);
             console.log("Fee: ", _fee);
@@ -282,7 +282,7 @@ contract StrategyManager is Modifiers {
             console.log("Treasury accounts length: ", _treasuryAccountsLength);
             _treasuryCodes = new bytes[](_treasuryAccountsLength);
             for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-                if (_treasuryAccounts[_i].treasuryAccount != address(0) && withdrawalFee > 0) {
+                if (_treasuryAccounts[_i].treasuryAccount != address(0)) {
                     // uint256 _share = IVault(_vault).getTreasuryAccountShare(
                     // _treasuryAccounts[_i].treasuryAccount,_i);
                     uint256 _share = _treasuryAccounts[_i].share;
