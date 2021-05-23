@@ -159,7 +159,9 @@ contract Vault is
                 );
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                console.log("Pool in supplyAll: ", pool);
                 (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
+                console.log("Success SupplyAll: ", success);
                 require(success, "!_supplyAll");
             }
         }
@@ -201,6 +203,7 @@ contract Vault is
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            console.log("Rebalance SupplyAll");
             _supplyAll();
         }
 
@@ -457,6 +460,7 @@ contract Vault is
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            console.log("Deposit SupplyAll");
             _supplyAll();
         }
         _success = true;
@@ -544,6 +548,7 @@ contract Vault is
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            console.log("Withdraw Supply All");
             _supplyAll();
         }
         return true;
@@ -649,15 +654,11 @@ contract Vault is
         returns (bool)
     {
         require(_treasuryAccounts.length > 0, "len!>0");
-
-        if (treasuryAccountsWithShares.length > 0) {
-            console.log("Length  before delete: ", treasuryAccountsWithShares.length);
-            delete treasuryAccountsWithShares;
-            console.log("Lenght after delete: ", treasuryAccountsWithShares.length);
-        }
         // console.log("Shares: ", _shares);
         uint256 _sharesSum = 0;
         for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
+            // require(_treasuryAccounts[_i].share <= withdrawalFee)
             console.log("Share: ", _treasuryAccounts[_i].share);
             _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
             // _sharesSum = _sharesSum + _treasuryAccounts[_i].share;
@@ -665,9 +666,15 @@ contract Vault is
         }
         console.log("Shares sum: ", _sharesSum);
         console.log("Withdrawal fee: ", withdrawalFee);
-        require(_sharesSum == withdrawalFee, "!WITHDRAWAL_MAX");
+        require(_sharesSum == withdrawalFee, "FeeShares!=WithdrawalFee");
+
+        if (treasuryAccountsWithShares.length > 0) {
+            console.log("Length  before delete: ", treasuryAccountsWithShares.length);
+            delete treasuryAccountsWithShares;
+            console.log("Lenght after delete: ", treasuryAccountsWithShares.length);
+        }
         for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
+            // require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
             // treasuryAccounts.push(_treasuryAccounts[_i].treasuryAccount);
             treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
             // treasuryToWithdrawalShare[_treasuryAccounts[_i].treasuryAccount] = _treasuryAccounts[_i].share;
