@@ -106,191 +106,194 @@ describe(scenario.title, () => {
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
-        // for (let i = 0; i < 4; i++) {
+        // for (let i = 0; i < 1; i++) {
         //   if (i == 3 || i == 1 || i == 2) {
         //     continue;
         //   }
         const story = vault.stories[i];
         it(story.description, async () => {
-          for (let j = 0; j < story.setActions.length; j++) {
-            const action = story.setActions[j];
-            switch (action.action) {
-              case "fundWallet": {
-                const { addressName, amount } = <any>action.args;
-                try {
-                  if (addressName && amount) {
-                    const timestamp = (await getBlockTimestamp(hre)) * 2;
-                    await fundWalletToken(hre, TOKENS[token], users[addressName], BigNumber.from(amount), timestamp);
-                  }
-                } catch (error) {
-                  if (action.expect === "success") {
-                    assert.isUndefined(error);
-                  } else {
-                    expect(error.message).to.equal(
-                      `VM Exception while processing transaction: revert ${action.message}`,
-                    );
-                  }
-                }
-                assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-                assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
-                break;
-              }
-              case "setTreasuryAccountsShare((address,uint256)[])": {
-                const { treasuryAccountsWithShares } = <any>action.args;
-                try {
-                  if (treasuryAccountsWithShares) {
-                    await contracts[action.contract]
-                      .connect(users[action.executer])
-                      [action.action](treasuryAccountsWithShares);
-                  }
-                } catch (error) {
-                  if (action.expect === "success") {
-                    assert.isUndefined(error);
-                  } else {
-                    expect(error.message).to.equal(
-                      `VM Exception while processing transaction: revert ${action.message}`,
-                    );
-                  }
-                }
-
-                assert.isDefined(treasuryAccountsWithShares, `args is wrong in ${action.action} testcase`);
-                // assert.isDefined(feeShares, `args is wrong in ${action.action} testcase`);
-                break;
-              }
-              // case "setTreasury(address)": {
-              //   const { address }: ARGUMENTS = action.args;
-              //   try {
-              //     if (address) {
-              //       await contracts[action.contract].connect(users[action.executer])[action.action](address);
-              //     }
-              //   } catch (error) {
-              //     if (action.expect === "success") {
-              //       assert.isUndefined(error);
-              //     } else {
-              //       expect(error.message).to.equal(
-              //         `VM Exception while processing transaction: revert ${action.message}`,
-              //       );
-              //     }
-              //   }
-
-              //   assert.isDefined(address, `args is wrong in ${action.action} testcase`);
-              //   break;
-              // }
-              case "setWithdrawalFee(uint256)": {
-                const { fee } = <any>action.args;
-                try {
-                  if (fee) {
-                    await contracts[action.contract].connect(users[action.executer])[action.action](fee);
-                  }
-                } catch (error) {
-                  if (action.expect === "success") {
-                    assert.isUndefined(error);
-                  } else {
-                    expect(error.message).to.equal(
-                      `VM Exception while processing transaction: revert ${action.message}`,
-                    );
-                  }
-                }
-                assert.isDefined(fee, `args is wrong in ${action.action} testcase`);
-                break;
-              }
-              case "approve(address,uint256)":
-              case "transfer(address,uint256)": {
-                const { addressName, amount } = <any>action.args;
-                try {
-                  if (addressName && amount) {
-                    let address: string;
-                    if (action.action === "approve(address,uint256)") {
-                      address = contracts[addressName].address;
-                    } else {
-                      address = await users[addressName].getAddress();
+          for (let j = 0; j < story.activities.length; j++) {
+            const activities = story.activities[j];
+            for (let k = 0; k < activities.setActions.length; k++) {
+              const action = activities.setActions[k];
+              switch (action.action) {
+                case "fundWallet": {
+                  const { addressName, amount } = <any>action.args;
+                  try {
+                    if (addressName && amount) {
+                      const timestamp = (await getBlockTimestamp(hre)) * 2;
+                      await fundWalletToken(hre, TOKENS[token], users[addressName], BigNumber.from(amount), timestamp);
                     }
-                    await contracts[action.contract].connect(users[action.executer])[action.action](address, amount);
+                  } catch (error) {
+                    if (action.expect === "success") {
+                      assert.isUndefined(error);
+                    } else {
+                      expect(error.message).to.equal(
+                        `VM Exception while processing transaction: revert ${action.message}`,
+                      );
+                    }
                   }
-                } catch (error) {
-                  if (action.expect === "success") {
-                    assert.isUndefined(error);
-                  } else {
-                    expect(error.message).to.equal(
-                      `VM Exception while processing transaction: revert ${action.message}`,
-                    );
-                  }
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+                  assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                  break;
                 }
-                assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-                assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
-                break;
-              }
-              case "userDepositRebalance(uint256)":
-              case "userWithdrawRebalance(uint256)": {
-                const { amount } = <any>action.args;
+                case "setTreasuryAccountsShare((address,uint256)[])": {
+                  const { treasuryAccountsWithShares } = <any>action.args;
+                  try {
+                    if (treasuryAccountsWithShares) {
+                      await contracts[action.contract]
+                        .connect(users[action.executer])
+                        [action.action](treasuryAccountsWithShares);
+                    }
+                  } catch (error) {
+                    if (action.expect === "success") {
+                      assert.isUndefined(error);
+                    } else {
+                      expect(error.message).to.equal(
+                        `VM Exception while processing transaction: revert ${action.message}`,
+                      );
+                    }
+                  }
 
-                if (action.action === "userWithdrawRebalance(uint256)") {
-                  await delay(200);
+                  assert.isDefined(treasuryAccountsWithShares, `args is wrong in ${action.action} testcase`);
+                  // assert.isDefined(feeShares, `args is wrong in ${action.action} testcase`);
+                  break;
                 }
-                try {
-                  if (amount) {
-                    await contracts[action.contract].connect(users[action.executer])[action.action](amount);
+                // case "setTreasury(address)": {
+                //   const { address }: ARGUMENTS = action.args;
+                //   try {
+                //     if (address) {
+                //       await contracts[action.contract].connect(users[action.executer])[action.action](address);
+                //     }
+                //   } catch (error) {
+                //     if (action.expect === "success") {
+                //       assert.isUndefined(error);
+                //     } else {
+                //       expect(error.message).to.equal(
+                //         `VM Exception while processing transaction: revert ${action.message}`,
+                //       );
+                //     }
+                //   }
+
+                //   assert.isDefined(address, `args is wrong in ${action.action} testcase`);
+                //   break;
+                // }
+                case "setWithdrawalFee(uint256)": {
+                  const { fee } = <any>action.args;
+                  try {
+                    if (fee) {
+                      await contracts[action.contract].connect(users[action.executer])[action.action](fee);
+                    }
+                  } catch (error) {
+                    if (action.expect === "success") {
+                      assert.isUndefined(error);
+                    } else {
+                      expect(error.message).to.equal(
+                        `VM Exception while processing transaction: revert ${action.message}`,
+                      );
+                    }
                   }
-                } catch (error) {
-                  if (action.expect === "success") {
-                    assert.isUndefined(error);
-                  } else {
-                    expect(error.message).to.equal(
-                      `VM Exception while processing transaction: revert ${action.message}`,
-                    );
-                  }
+                  assert.isDefined(fee, `args is wrong in ${action.action} testcase`);
+                  break;
                 }
-                assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
-                break;
+                case "approve(address,uint256)":
+                case "transfer(address,uint256)": {
+                  const { addressName, amount } = <any>action.args;
+                  try {
+                    if (addressName && amount) {
+                      let address: string;
+                      if (action.action === "approve(address,uint256)") {
+                        address = contracts[addressName].address;
+                      } else {
+                        address = await users[addressName].getAddress();
+                      }
+                      await contracts[action.contract].connect(users[action.executer])[action.action](address, amount);
+                    }
+                  } catch (error) {
+                    if (action.expect === "success") {
+                      assert.isUndefined(error);
+                    } else {
+                      expect(error.message).to.equal(
+                        `VM Exception while processing transaction: revert ${action.message}`,
+                      );
+                    }
+                  }
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+                  assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                  break;
+                }
+                case "userDepositRebalance(uint256)":
+                case "userWithdrawRebalance(uint256)": {
+                  const { amount } = <any>action.args;
+
+                  if (action.action === "userWithdrawRebalance(uint256)") {
+                    await delay(200);
+                  }
+                  try {
+                    if (amount) {
+                      await contracts[action.contract].connect(users[action.executer])[action.action](amount);
+                    }
+                  } catch (error) {
+                    if (action.expect === "success") {
+                      assert.isUndefined(error);
+                    } else {
+                      expect(error.message).to.equal(
+                        `VM Exception while processing transaction: revert ${action.message}`,
+                      );
+                    }
+                  }
+                  assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                  break;
+                }
               }
             }
-          }
-          for (let j = 0; j < story.getActions.length; j++) {
-            const action = story.getActions[j];
-            switch (action.action) {
-              case "getTreasuryAccounts()": {
-                // const { length }: ARGUMENTS = action.args;
-                const treasuryAccounts = await contracts[action.contract][action.action]();
-                console.log("TreasuryAccounts: ", treasuryAccounts[0].treasuryAccount);
-                console.log("Treasury Accounts length: ", treasuryAccounts.length);
-                const expectedValues = Array.isArray(action.expectedValue) ? action.expectedValue : [];
-                console.log("Expected values: ", expectedValues[0]);
-                console.log("Expected values length: ", expectedValues.length);
+            for (let k = 0; k < activities.getActions.length; k++) {
+              const action = activities.getActions[k];
+              switch (action.action) {
+                case "getTreasuryAccounts()": {
+                  // const { length }: ARGUMENTS = action.args;
+                  const treasuryAccounts = await contracts[action.contract][action.action]();
+                  console.log("TreasuryAccounts: ", treasuryAccounts[0].treasuryAccount);
+                  console.log("Treasury Accounts length: ", treasuryAccounts.length);
+                  const expectedValues = Array.isArray(action.expectedValue) ? action.expectedValue : [];
+                  console.log("Expected values: ", expectedValues[0]);
+                  console.log("Expected values length: ", expectedValues.length);
 
-                expect(+treasuryAccounts.length).to.equal(+expectedValues.length);
-                for (let i = 0; i < treasuryAccounts.length; i++) {
-                  // const treasuryAccount = treasuryAccounts[i];
-                  // const expectedValue = expectedValues[i];
-                  // console.log("Checking treasury account values");
-                  expect([treasuryAccounts[i].treasuryAccount, +treasuryAccounts[i].share]).to.have.members(
-                    expectedValues[i],
-                  );
-                  // expect()
+                  expect(+treasuryAccounts.length).to.equal(+expectedValues.length);
+                  for (let i = 0; i < treasuryAccounts.length; i++) {
+                    // const treasuryAccount = treasuryAccounts[i];
+                    // const expectedValue = expectedValues[i];
+                    // console.log("Checking treasury account values");
+                    expect([treasuryAccounts[i].treasuryAccount, +treasuryAccounts[i].share]).to.have.members(
+                      expectedValues[i],
+                    );
+                    // expect()
+                  }
+                  // expect(address).to.equal(action.expectedValue);
+                  break;
                 }
-                // expect(address).to.equal(action.expectedValue);
-                break;
-              }
-              // case "treasury()": {
-              //   const address = await contracts[action.contract][action.action]();
-              //   expect(address).to.equal(action.expectedValue);
-              //   break;
-              // }
-              case "withdrawalFee()": {
-                const address = await contracts[action.contract][action.action]();
-                expect(address).to.equal(action.expectedValue);
-                break;
-              }
-              case "balanceOf(address)": {
-                const { address, addressName } = <any>action.args;
-                if (address) {
-                  const value = await contracts[action.contract][action.action](address);
-                  expect(+value).to.gte(+action.expectedValue);
-                } else if (addressName) {
-                  const address = users[addressName].getAddress();
-                  const value = await contracts[action.contract][action.action](address);
-                  expect(+value).to.gte(+action.expectedValue);
+                // case "treasury()": {
+                //   const address = await contracts[action.contract][action.action]();
+                //   expect(address).to.equal(action.expectedValue);
+                //   break;
+                // }
+                case "withdrawalFee()": {
+                  const address = await contracts[action.contract][action.action]();
+                  expect(address).to.equal(action.expectedValue);
+                  break;
                 }
-                break;
+                case "balanceOf(address)": {
+                  const { address, addressName } = <any>action.args;
+                  if (address) {
+                    const value = await contracts[action.contract][action.action](address);
+                    expect(+value).to.gte(+action.expectedValue);
+                  } else if (addressName) {
+                    const address = users[addressName].getAddress();
+                    const value = await contracts[action.contract][action.action](address);
+                    expect(+value).to.gte(+action.expectedValue);
+                  }
+                  break;
+                }
               }
             }
           }
