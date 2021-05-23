@@ -18,12 +18,14 @@ import {
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/withdrawal-fee.json";
 
-type ARGUMENTS = {
-  address?: string;
-  addressName?: string;
-  fee?: string;
-  amount?: string;
-};
+// type ARGUMENTS = {
+//   address?: string;
+//   addressName?: string;
+//   fee?: string;
+//   amount?: { [key: string]: string };
+//   treasuryAccountsWithShares?: [string, number][];
+//   length?: number;
+// };
 
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
@@ -53,6 +55,7 @@ describe(scenario.title, () => {
       let underlyingTokenSymbol: string;
       const vault = scenario.vaults[i];
       const profile = vault.profile;
+
       const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
       const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
       let ERC20Instance: Contract;
@@ -103,13 +106,17 @@ describe(scenario.title, () => {
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
+        // for (let i = 0; i < 4; i++) {
+        //   if (i == 3 || i == 1 || i == 2) {
+        //     continue;
+        //   }
         const story = vault.stories[i];
         it(story.description, async () => {
           for (let j = 0; j < story.setActions.length; j++) {
             const action = story.setActions[j];
             switch (action.action) {
               case "fundWallet": {
-                const { addressName, amount }: ARGUMENTS = action.args;
+                const { addressName, amount } = <any>action.args;
                 try {
                   if (addressName && amount) {
                     const timestamp = (await getBlockTimestamp(hre)) * 2;
@@ -128,11 +135,13 @@ describe(scenario.title, () => {
                 assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                 break;
               }
-              case "setTreasury(address)": {
-                const { address }: ARGUMENTS = action.args;
+              case "setTreasuryAccountsShare((address,uint256)[])": {
+                const { treasuryAccountsWithShares } = <any>action.args;
                 try {
-                  if (address) {
-                    await contracts[action.contract].connect(users[action.executer])[action.action](address);
+                  if (treasuryAccountsWithShares) {
+                    await contracts[action.contract]
+                      .connect(users[action.executer])
+                      [action.action](treasuryAccountsWithShares);
                   }
                 } catch (error) {
                   if (action.expect === "success") {
@@ -144,11 +153,31 @@ describe(scenario.title, () => {
                   }
                 }
 
-                assert.isDefined(address, `args is wrong in ${action.action} testcase`);
+                assert.isDefined(treasuryAccountsWithShares, `args is wrong in ${action.action} testcase`);
+                // assert.isDefined(feeShares, `args is wrong in ${action.action} testcase`);
                 break;
               }
+              // case "setTreasury(address)": {
+              //   const { address }: ARGUMENTS = action.args;
+              //   try {
+              //     if (address) {
+              //       await contracts[action.contract].connect(users[action.executer])[action.action](address);
+              //     }
+              //   } catch (error) {
+              //     if (action.expect === "success") {
+              //       assert.isUndefined(error);
+              //     } else {
+              //       expect(error.message).to.equal(
+              //         `VM Exception while processing transaction: revert ${action.message}`,
+              //       );
+              //     }
+              //   }
+
+              //   assert.isDefined(address, `args is wrong in ${action.action} testcase`);
+              //   break;
+              // }
               case "setWithdrawalFee(uint256)": {
-                const { fee }: ARGUMENTS = action.args;
+                const { fee } = <any>action.args;
                 try {
                   if (fee) {
                     await contracts[action.contract].connect(users[action.executer])[action.action](fee);
@@ -167,7 +196,7 @@ describe(scenario.title, () => {
               }
               case "approve(address,uint256)":
               case "transfer(address,uint256)": {
-                const { addressName, amount }: ARGUMENTS = action.args;
+                const { addressName, amount } = <any>action.args;
                 try {
                   if (addressName && amount) {
                     let address: string;
@@ -193,7 +222,7 @@ describe(scenario.title, () => {
               }
               case "userDepositRebalance(uint256)":
               case "userWithdrawRebalance(uint256)": {
-                const { amount }: ARGUMENTS = action.args;
+                const { amount } = <any>action.args;
 
                 if (action.action === "userWithdrawRebalance(uint256)") {
                   await delay(200);
@@ -219,18 +248,40 @@ describe(scenario.title, () => {
           for (let j = 0; j < story.getActions.length; j++) {
             const action = story.getActions[j];
             switch (action.action) {
-              case "treasury()": {
-                const address = await contracts[action.contract][action.action]();
-                expect(address).to.equal(action.expectedValue);
+              case "getTreasuryAccounts()": {
+                // const { length }: ARGUMENTS = action.args;
+                const treasuryAccounts = await contracts[action.contract][action.action]();
+                console.log("TreasuryAccounts: ", treasuryAccounts[0].treasuryAccount);
+                console.log("Treasury Accounts length: ", treasuryAccounts.length);
+                const expectedValues = Array.isArray(action.expectedValue) ? action.expectedValue : [];
+                console.log("Expected values: ", expectedValues[0]);
+                console.log("Expected values length: ", expectedValues.length);
+
+                expect(+treasuryAccounts.length).to.equal(+expectedValues.length);
+                for (let i = 0; i < treasuryAccounts.length; i++) {
+                  // const treasuryAccount = treasuryAccounts[i];
+                  // const expectedValue = expectedValues[i];
+                  // console.log("Checking treasury account values");
+                  expect([treasuryAccounts[i].treasuryAccount, +treasuryAccounts[i].share]).to.have.members(
+                    expectedValues[i],
+                  );
+                  // expect()
+                }
+                // expect(address).to.equal(action.expectedValue);
                 break;
               }
+              // case "treasury()": {
+              //   const address = await contracts[action.contract][action.action]();
+              //   expect(address).to.equal(action.expectedValue);
+              //   break;
+              // }
               case "withdrawalFee()": {
                 const address = await contracts[action.contract][action.action]();
                 expect(address).to.equal(action.expectedValue);
                 break;
               }
               case "balanceOf(address)": {
-                const { address, addressName }: ARGUMENTS = action.args;
+                const { address, addressName } = <any>action.args;
                 if (address) {
                   const value = await contracts[action.contract][action.action](address);
                   expect(+value).to.gte(+action.expectedValue);
