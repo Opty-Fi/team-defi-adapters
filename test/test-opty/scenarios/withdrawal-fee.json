@@ -950,6 +950,26 @@
         },
 
         {
+          "description": "Governance shouldn't be able to set empty treasury accounts array",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "vault",
+                  "action": "setTreasuryAccountsShare((address,uint256)[])",
+                  "args": {
+                    "treasuryAccountsWithShares": []
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "length!>0"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
           "description": "Governance should be able to set 1 treasury account",
           "activities": [
             {

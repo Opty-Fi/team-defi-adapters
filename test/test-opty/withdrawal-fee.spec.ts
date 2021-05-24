@@ -18,15 +18,6 @@ import {
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/withdrawal-fee.json";
 
-// type ARGUMENTS = {
-//   address?: string;
-//   addressName?: string;
-//   fee?: string;
-//   amount?: { [key: string]: string };
-//   treasuryAccountsWithShares?: [string, number][];
-//   length?: number;
-// };
-
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
@@ -106,10 +97,6 @@ describe(scenario.title, () => {
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
-        // for (let i = 0; i < 1; i++) {
-        //   if (i == 3 || i == 1 || i == 2) {
-        //     continue;
-        //   }
         const story = vault.stories[i];
         it(story.description, async () => {
           for (let j = 0; j < story.activities.length; j++) {
@@ -156,28 +143,8 @@ describe(scenario.title, () => {
                   }
 
                   assert.isDefined(treasuryAccountsWithShares, `args is wrong in ${action.action} testcase`);
-                  // assert.isDefined(feeShares, `args is wrong in ${action.action} testcase`);
                   break;
                 }
-                // case "setTreasury(address)": {
-                //   const { address }: ARGUMENTS = action.args;
-                //   try {
-                //     if (address) {
-                //       await contracts[action.contract].connect(users[action.executer])[action.action](address);
-                //     }
-                //   } catch (error) {
-                //     if (action.expect === "success") {
-                //       assert.isUndefined(error);
-                //     } else {
-                //       expect(error.message).to.equal(
-                //         `VM Exception while processing transaction: revert ${action.message}`,
-                //       );
-                //     }
-                //   }
-
-                //   assert.isDefined(address, `args is wrong in ${action.action} testcase`);
-                //   break;
-                // }
                 case "setWithdrawalFee(uint256)": {
                   const { fee } = <any>action.args;
                   try {
@@ -251,32 +218,16 @@ describe(scenario.title, () => {
               const action = activities.getActions[k];
               switch (action.action) {
                 case "getTreasuryAccounts()": {
-                  // const { length }: ARGUMENTS = action.args;
                   const treasuryAccounts = await contracts[action.contract][action.action]();
-                  console.log("TreasuryAccounts: ", treasuryAccounts[0].treasuryAccount);
-                  console.log("Treasury Accounts length: ", treasuryAccounts.length);
                   const expectedValues = Array.isArray(action.expectedValue) ? action.expectedValue : [];
-                  console.log("Expected values: ", expectedValues[0]);
-                  console.log("Expected values length: ", expectedValues.length);
-
                   expect(+treasuryAccounts.length).to.equal(+expectedValues.length);
                   for (let i = 0; i < treasuryAccounts.length; i++) {
-                    // const treasuryAccount = treasuryAccounts[i];
-                    // const expectedValue = expectedValues[i];
-                    // console.log("Checking treasury account values");
                     expect([treasuryAccounts[i].treasuryAccount, +treasuryAccounts[i].share]).to.have.members(
                       expectedValues[i],
                     );
-                    // expect()
                   }
-                  // expect(address).to.equal(action.expectedValue);
                   break;
                 }
-                // case "treasury()": {
-                //   const address = await contracts[action.contract][action.action]();
-                //   expect(address).to.equal(action.expectedValue);
-                //   break;
-                // }
                 case "withdrawalFee()": {
                   const address = await contracts[action.contract][action.action]();
                   expect(address).to.equal(action.expectedValue);
