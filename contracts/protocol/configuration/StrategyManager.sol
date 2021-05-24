@@ -14,7 +14,6 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
-import { IVault } from "../../interfaces/opty/IVault.sol";
 
 /**
  * @dev Central processing unit of the earn protocol

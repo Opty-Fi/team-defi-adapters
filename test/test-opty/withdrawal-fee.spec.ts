@@ -46,7 +46,6 @@ describe(scenario.title, () => {
       let underlyingTokenSymbol: string;
       const vault = scenario.vaults[i];
       const profile = vault.profile;
-
       const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
       const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
       let ERC20Instance: Contract;

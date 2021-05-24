@@ -79,6 +79,6 @@ library DataTypes {
 
     struct TreasuryAccount {
         address treasuryAccount;
-        uint256 share;
+        uint256 share; //  should be in basis eg: 5% means 500
     }
 }

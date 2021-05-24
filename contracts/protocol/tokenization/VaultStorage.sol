@@ -18,8 +18,6 @@ contract VaultStorage {
     OPTYMinter public optyMinterContract;
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
     uint256 public withdrawalFee;
-    // uint256 public treasuryFee;
-    // uint256 public odefiFee;
     uint256 public constant WITHDRAWAL_MAX = 10000;
     bytes32 public investStrategyHash;
     uint256 public vaultValue;
@@ -29,14 +27,5 @@ contract VaultStorage {
     uint256 public maxVaultValueJump; // basis points
     address public underlyingToken; //  store the underlying token contract address (for example DAI)
     string public profile;
-    // address[] public treasuryAccounts;
     DataTypes.TreasuryAccount[] public treasuryAccountsWithShares;
-    // mapping(address => uint256) treasuryToWithdrawalShare;
-    //  Keeping in Vault contract because each contract can have different treasury addressed w.r.t them
-    // mapping(_treasury => uint256 _share)
-    // address[] treasuryAddresses  = []
-
-    // set(treasury[], share[])
-
-    // setTreasureAddresses(Tresaury[])
 }
