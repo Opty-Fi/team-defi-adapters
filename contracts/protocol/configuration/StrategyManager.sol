@@ -131,7 +131,7 @@ contract StrategyManager is Modifiers {
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee,
         uint256 _withdrawalFeeMax
-    ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
+    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         uint256 _fee = 0;
         if (_treasuryAccounts.length > 0 && _withdrawalFee > 0) {
             _fee = ((_redeemAmountInToken).mul(_withdrawalFee)).div(_withdrawalFeeMax);
