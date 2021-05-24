@@ -18,7 +18,6 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingPool } from "./OPTYStakingPool.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Vault
@@ -132,17 +131,6 @@ contract Vault is
         _success = true;
     }
 
-    // function setTreasuryOdefiWithdrawFeeRatio(uint256 _treasuryFee, uint256 _odefiFee)
-    //     public
-    //     onlyGovernance
-    //     returns (bool _success)
-    // {
-    //     require(_treasuryFee.add(_odefiFee) == withdrawalFee, "Sum(TreasuryFee,OdefiFee)!=WithdrawalFee");
-    //     treasuryFee = _treasuryFee;
-    //     odefiFee = _odefiFee;
-    //     _success = true;
-    // }
-
     function _supplyAll() internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
         uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
@@ -159,9 +147,7 @@ contract Vault is
                 );
             for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
                 (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                console.log("Pool in supplyAll: ", pool);
                 (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                console.log("Success SupplyAll: ", success);
                 require(success, "!_supplyAll");
             }
         }
@@ -203,7 +189,6 @@ contract Vault is
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
-            console.log("Rebalance SupplyAll");
             _supplyAll();
         }
 
@@ -460,7 +445,6 @@ contract Vault is
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
-            console.log("Deposit SupplyAll");
             _supplyAll();
         }
         _success = true;
@@ -548,7 +532,6 @@ contract Vault is
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
-            console.log("Withdraw Supply All");
             _supplyAll();
         }
         return true;
@@ -642,81 +625,13 @@ contract Vault is
         return (_diff.div(_currentVaultValue)).mul(10000) < maxVaultValueJump;
     }
 
-    /**
-     * @dev Transfers treasury to a new account (`_strategist`).
-     * Can only be called by the current governance.
-     */
-
-    // function setTreasuryAccountsShare(address[] memory _treasuryAccounts, uint256[] memory _shares)
-    function setTreasuryAccountsShare(DataTypes.TreasuryAccount[] memory _treasuryAccounts)
-        external
-        onlyGovernance
-        returns (bool)
-    {
-        require(_treasuryAccounts.length > 0, "len!>0");
-        // console.log("Shares: ", _shares);
-        uint256 _sharesSum = 0;
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
-            // require(_treasuryAccounts[_i].share <= withdrawalFee)
-            console.log("Share: ", _treasuryAccounts[_i].share);
-            _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
-            // _sharesSum = _sharesSum + _treasuryAccounts[_i].share;
-            // _sharesSum.add(_shares[_i]);
-        }
-        console.log("Shares sum: ", _sharesSum);
-        console.log("Withdrawal fee: ", withdrawalFee);
-        require(_sharesSum == withdrawalFee, "FeeShares!=WithdrawalFee");
-
-        if (treasuryAccountsWithShares.length > 0) {
-            console.log("Length  before delete: ", treasuryAccountsWithShares.length);
-            delete treasuryAccountsWithShares;
-            console.log("Lenght after delete: ", treasuryAccountsWithShares.length);
-        }
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            // require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
-            // treasuryAccounts.push(_treasuryAccounts[_i].treasuryAccount);
-            treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
-            // treasuryToWithdrawalShare[_treasuryAccounts[_i].treasuryAccount] = _treasuryAccounts[_i].share;
-        }
-        // for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-        //     treasuryToWithdrawalShare[_treasuryAccounts[_i]] = _shares[_i];
-        // }
-        // treasury = _treasury;
-        return true;
-    }
-
-    // function setTreasuryAccountsShare(address[] _treasuryAccounts, uint256[] _shares) returns(bool) {
-    //     for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-    //         treasuryToWithdrawalShare[_treasuryAccounts[_i]] = _shares[_i];
-    //     }
-    // }
-
-    // function getTreasuryAccounts() public view returns (address[] memory) {
-    function getTreasuryAccounts() public view returns (DataTypes.TreasuryAccount[] memory) {
-        return treasuryAccountsWithShares;
-        // return treasuryAccounts;
-    }
-
-    // function getTreasuryAccountShare(address _treasury, uint256 _index)
-    // public view override returns (uint256 _share) {
-    //     // return treasuryToWithdrawalShare[_treasury];
-    //     DataTypes.TreasuryAccount memory _treasuryAccount = treasuryAccountsWithShares[_index];
-    //     return _treasuryAccount.share;
-    // }
-
     function _redeemAndBurn(
         address _account,
         uint256 _balanceInUnderlyingToken,
         uint256 _redeemAmount
     ) private {
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
-        DataTypes.TreasuryAccount[] memory _treasuryAccounts = getTreasuryAccounts();
-        // address[] memory _treasuryAccounts = getTreasuryAccounts();
-        //---//
-        // address _treasury = registryContract.treasury();
-        // uint256 _fee = 0;
-        //--//
+        DataTypes.TreasuryAccount[] memory _treasuryAccounts = _getTreasuryAccounts();
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
         (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
@@ -728,77 +643,51 @@ contract Vault is
                 withdrawalFee,
                 WITHDRAWAL_MAX
             );
-        console.log("Treasury codes length: ", _treasuryCodes.length);
         if (_treasuryCodes.length > 0) {
             for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
-                console.log("Testing for loop");
-                console.logBytes(_treasuryCodes[uint8(_j)]);
                 (address _underlyingToken, bytes memory data) = abi.decode(_treasuryCodes[_j], (address, bytes));
-                console.log("Underlying token: ", _underlyingToken);
-                console.logBytes(data);
                 (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-                console.log("Treasury Codes Success: ", _success);
-                require(_success, "!RedeemAndBurn");
+                require(_success, "!TreasuryAccountFeeShare");
             }
         }
-        console.logBytes(_accountCode);
         (address _underlyingToken, bytes memory data) = abi.decode(_accountCode, (address, bytes));
-        console.log("Underlying token: ", _underlyingToken);
-        console.logBytes(data);
         (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-        console.log("Account Codes Success: ", _success);
-        // for (uint8 _j = 0; _j < uint8(_accountCodes.length); _j++) {
-        //     console.logBytes(_accountCodes[_j]);
-        //     (address _underlyingToken, bytes memory data) = abi.decode(_accountCodes[_j],(address, bytes));
-        //     console.log("Underlying token: ", _underlyingToken);
-        //     console.logBytes(data);
-        //     (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-        //     console.log("Account Codes Success: ", _success);
-        //     // require(_success, "!RedeemAndBurn");
-        // }
-        //-----//
-        // if (_treasuryAccounts.length > 0) {
-        //     for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-        //         if (_treasuryAccounts[_i] != address(0) && withdrawalFee > 0) {
-        //             _fee = ((redeemAmountInToken).mul(withdrawalFee)).div(WITHDRAWAL_MAX);
-        //            // uint256 _treasuryFee = ((_fee).mul(treasuryFee)).div(WITHDRAWAL_MAX);
-        //            // uint256 _odefiFee = ((_fee).mul(odefiFee)).div(WITHDRAWAL_MAX);
-        //             IERC20(underlyingToken).safeTransfer(_treasuryAccounts[_i], _fee);
-        //             // bytes[] memory _codes = strategyManagerContract.getFeeTransferAllCodes(
-        //             //address(this), underlyingToken, _treasury, _fee);
-        //             // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-        //             //     console.logBytes(_codes[_j]);
-        //             //     (address _underlyingToken, bytes memory data) = abi.decode(_codes[_j],(address, bytes));
-        //             //     console.log("Underlying token: ", _underlyingToken);
-        //             //     console.logBytes(data);
-        //             //     (bool _success, ) = _underlyingToken.call(data);
-        //solhint-disable-line avoid-low-level-calls
-        //             //     console.log("Success: ", _success);
-        //             //     require(_success, "!RedeemAndBurn");
-        //             // }
-        //         }
-        //     }
-        // }
-        // IERC20(underlyingToken).safeTransfer(_account, redeemAmountInToken.sub(_fee));
-        //-----//
-        // if (_treasury != address(0) && withdrawalFee > 0) {
-        //     _fee = ((redeemAmountInToken).mul(withdrawalFee)).div(WITHDRAWAL_MAX);
-        //     // uint256 _treasuryFee = ((_fee).mul(treasuryFee)).div(WITHDRAWAL_MAX);
-        //     // uint256 _odefiFee = ((_fee).mul(odefiFee)).div(WITHDRAWAL_MAX);
-        //     IERC20(underlyingToken).safeTransfer(_treasury, _fee);
-        //     // bytes[] memory _codes = strategyManagerContract.getFeeTransferAllCodes(
-        //     // address(this), underlyingToken, _treasury, _fee);
-        //     // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-        //     //     console.logBytes(_codes[_j]);
-        //     //     (address _underlyingToken, bytes memory data) = abi.decode(_codes[_j],(address, bytes));
-        //     //     console.log("Underlying token: ", _underlyingToken);
-        //     //     console.logBytes(data);
-        //     //     (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-        //     //     console.log("Success: ", _success);
-        //     //     require(_success, "!RedeemAndBurn");
-        //     // }
-        // }
-        // IERC20(underlyingToken).safeTransfer(_account, redeemAmountInToken.sub(_fee));
+        require(_success, "!CallerRedeemAmount");
+    }
+
+    /**
+     * @dev Transfers treasury to a new account along with fee share (`[_treasuryAccount, _feeShare]`).
+     * Can only be called by the current governance.
+     */
+    function setTreasuryAccountsShare(DataTypes.TreasuryAccount[] memory _treasuryAccounts)
+        external
+        onlyGovernance
+        returns (bool)
+    {
+        require(_treasuryAccounts.length > 0, "length!>0");
+        uint256 _sharesSum = 0;
+        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
+            _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
+        }
+        require(_sharesSum == withdrawalFee, "FeeShares!=WithdrawalFee");
+
+        // delete the existing the treasury accounts if any to reset them
+        if (treasuryAccountsWithShares.length > 0) {
+            delete treasuryAccountsWithShares;
+        }
+        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+            treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
+        }
+        return true;
+    }
+
+    function getTreasuryAccounts() external view returns (DataTypes.TreasuryAccount[] memory) {
+        return _getTreasuryAccounts();
+    }
+
+    function _getTreasuryAccounts() internal view returns (DataTypes.TreasuryAccount[] memory) {
+        return treasuryAccountsWithShares;
     }
 
     function _mintShares(

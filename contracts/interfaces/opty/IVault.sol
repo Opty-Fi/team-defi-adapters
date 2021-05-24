@@ -35,8 +35,6 @@ interface IVault {
 
     function setUnpaused(bool _unpaused) external;
 
-    // function getTreasuryAccountShare(address _treasury) external view returns (uint256 _share);
-
     // no CHI functions
 
     function userDepositAll() external;
