@@ -1,11 +1,12 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
+import { Signer } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
 import { generateStrategyHash, deployContract, executeFunc } from "../../helpers/helpers";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
-import scenario from "./scenarios/risk-manager.json";
+import scenario from "./scenarios/apr-oracle.json";
 
 type ARGUMENTS = {
   riskProfile?: string;
@@ -20,9 +21,11 @@ type ARGUMENTS = {
 
 describe(scenario.title, () => {
   let contracts: CONTRACTS = {};
+  let users: { [key: string]: Signer };
   beforeEach(async () => {
     try {
-      const [owner] = await hre.ethers.getSigners();
+      const [owner, user1] = await hre.ethers.getSigners();
+      users = { owner, user1 };
       const registry = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
       const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
         hre,
@@ -191,13 +194,12 @@ describe(scenario.title, () => {
           case "setDefaultStrategyState(uint8)": {
             const { defaultStrategyState }: ARGUMENTS = action.args;
             if (action.expect === "success") {
-              await contracts[action.contract][action.action](defaultStrategyState);
+              await contracts[action.contract].connect(users[action.executor])[action.action](defaultStrategyState);
             } else {
-              await expect(contracts[action.contract][action.action](defaultStrategyState)).to.be.revertedWith(
-                action.message,
-              );
+              await expect(
+                contracts[action.contract].connect(users[action.executor])[action.action](defaultStrategyState),
+              ).to.be.revertedWith(action.message);
             }
-            assert.isDefined(defaultStrategyState, `args is wrong in ${action.action} testcase`);
             break;
           }
         }

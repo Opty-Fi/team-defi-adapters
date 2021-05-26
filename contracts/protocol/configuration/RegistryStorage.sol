@@ -78,6 +78,7 @@ contract RegistryStorage is RegistryAdminStorage {
     address public strategyProvider;
     address public vaultStepInvestStrategyDefinitionRegistry;
     mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
+    address public aprOracle;
 
     /**
      * @dev Emitted when `token` is approved or revoked.
