@@ -124,27 +124,27 @@ contract StrategyManager is Modifiers {
     }
 
     function getFeeTransferAllCodes(
-        DataTypes.TreasuryAccount[] memory _treasuryAccounts,
+        DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
         address _underlyingToken,
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee
     ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         uint256 _fee = 0;
-        if (_treasuryAccounts.length > 0 && _withdrawalFee > 0) {
+        if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
             _fee = ((_redeemAmountInToken).mul(_withdrawalFee)).div(10000);
-            uint8 _treasuryAccountsLength = uint8(_treasuryAccounts.length);
-            _treasuryCodes = new bytes[](_treasuryAccountsLength);
+            uint8 _treasurySharesLength = uint8(_treasuryShares.length);
+            _treasuryCodes = new bytes[](_treasurySharesLength);
 
-            for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-                if (_treasuryAccounts[_i].treasuryAccount != address(0)) {
-                    uint256 _share = _treasuryAccounts[_i].share;
+            for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
+                if (_treasuryShares[_i].treasury != address(0)) {
+                    uint256 _share = _treasuryShares[_i].share;
                     uint256 _treasuryAccountFee = ((_fee).mul(_share)).div(_withdrawalFee);
                     _treasuryCodes[_i] = abi.encode(
                         _underlyingToken,
                         abi.encodeWithSignature(
                             "transfer(address,uint256)",
-                            _treasuryAccounts[_i].treasuryAccount,
+                            _treasuryShares[_i].treasury,
                             uint256(_treasuryAccountFee)
                         )
                     );

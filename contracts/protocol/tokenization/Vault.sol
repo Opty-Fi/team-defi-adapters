@@ -631,7 +631,7 @@ contract Vault is
         (, , uint256 _withdrawalFee) = registryContract.vaultToVaultConfiguration(address(this));
         (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
             strategyManagerContract.getFeeTransferAllCodes(
-                registryContract.getTreasuryAccounts(address(this)),
+                registryContract.getTreasuryShares(address(this)),
                 _account,
                 underlyingToken,
                 redeemAmountInToken,

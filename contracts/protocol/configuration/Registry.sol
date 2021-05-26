@@ -401,7 +401,7 @@ contract Registry is ModifiersController {
      * Requirements:
      *  - `msg.sender` Can only be current governance.
      */
-    function setTreasuryAccountsShare(address _vault, DataTypes.TreasuryAccount[] memory _treasuryShares)
+    function setTreasuryShares(address _vault, DataTypes.TreasuryShare[] memory _treasuryShares)
         external
         onlyGovernance
         returns (bool)
@@ -411,7 +411,7 @@ contract Registry is ModifiersController {
         require(_treasuryShares.length > 0, "length!>0");
         uint256 _sharesSum = 0;
         for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
-            require(_treasuryShares[_i].treasuryAccount != address(0), "!address(0)");
+            require(_treasuryShares[_i].treasury != address(0), "!address(0)");
             _sharesSum = _sharesSum.add(_treasuryShares[_i].share);
         }
         require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawlFee, "FeeShares!=WithdrawalFee");
@@ -433,7 +433,7 @@ contract Registry is ModifiersController {
      *
      * @return Returns Treasuries along with their fee shares
      */
-    function getTreasuryAccounts(address _vault) external view returns (DataTypes.TreasuryAccount[] memory) {
+    function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory) {
         return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
