@@ -475,8 +475,13 @@ contract Registry is ModifiersController {
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function discontinue(address _vaultContract) external onlyGovernance returns (bool) {
-        _discontinue(_vaultContract);
+    function discontinue(address _vault) external onlyGovernance returns (bool) {
+        // _discontinue(_vault);
+        // return true;
+        require(_vault != address(0), "!address(0)");
+        vaultToVaultConfiguration[_vault].discontinued = true;
+        IVault(_vault).discontinue();
+        emit LogDiscontinueVault(_vault, vaultToVaultConfiguration[_vault].discontinued, msg.sender);
         return true;
     }
 
@@ -492,8 +497,13 @@ contract Registry is ModifiersController {
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function unpauseVaultContract(address _vaultContract, bool _unpaused) external onlyGovernance returns (bool) {
-        _unpauseVaultContract(_vaultContract, _unpaused);
+    function unpauseVaultContract(address _vault, bool _unpaused) external onlyGovernance returns (bool) {
+        // _unpauseVaultContract(_vault, _unpaused);
+        // return true;
+        require(_vault != address(0), "!address(0)");
+        vaultToVaultConfiguration[_vault].unpaused = _unpaused;
+        IVault(_vault).setUnpaused(vaultToVaultConfiguration[_vault].unpaused);
+        emit LogUnpauseVault(_vault, vaultToVaultConfiguration[_vault].unpaused, msg.sender);
         return true;
     }
 
@@ -759,21 +769,21 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    function _discontinue(address _vaultContract) internal returns (bool) {
-        require(_vaultContract != address(0), "!address(0)");
-        vaultToVaultActivityState[_vaultContract].discontinued = true;
-        IVault(_vaultContract).discontinue();
-        emit LogDiscontinueVault(_vaultContract, vaultToVaultActivityState[_vaultContract].discontinued, msg.sender);
-        return true;
-    }
+    // function _discontinue(address _vault) internal returns (bool) {
+    //     require(_vault != address(0), "!address(0)");
+    //     vaultToVaultConfiguration[_vault].discontinued = true;
+    //     IVault(_vault).discontinue();
+    //     emit LogDiscontinueVault(_vault, vaultToVaultConfiguration[_vault].discontinued, msg.sender);
+    //     return true;
+    // }
 
-    function _unpauseVaultContract(address _vaultContract, bool _unpaused) internal returns (bool) {
-        require(_vaultContract != address(0), "!address(0)");
-        vaultToVaultActivityState[_vaultContract].unpaused = _unpaused;
-        IVault(_vaultContract).setUnpaused(vaultToVaultActivityState[_vaultContract].unpaused);
-        emit LogUnpauseVault(_vaultContract, vaultToVaultActivityState[_vaultContract].unpaused, msg.sender);
-        return true;
-    }
+    // function _unpauseVaultContract(address _vault, bool _unpaused) internal returns (bool) {
+    //     require(_vault != address(0), "!address(0)");
+    //     vaultToVaultConfiguration[_vault].unpaused = _unpaused;
+    //     IVault(_vault).setUnpaused(vaultToVaultConfiguration[_vault].unpaused);
+    //     emit LogUnpauseVault(_vault, vaultToVaultConfiguration[_vault].unpaused, msg.sender);
+    //     return true;
+    // }
 
     function _updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) internal returns (bool) {
         require(riskProfiles[_riskProfile].exists, "!Rp_Exists");

@@ -72,10 +72,10 @@ library DataTypes {
         uint32 timestamp;
     }
 
-    struct VaultActivityState {
-        bool discontinued;
-        bool unpaused;
-    }
+    // struct VaultActivityState {
+    //     bool discontinued;
+    //     bool unpaused;
+    // }
 
     struct TreasuryAccount {
         address treasuryAccount;

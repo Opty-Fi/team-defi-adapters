@@ -513,7 +513,7 @@ contract Vault is
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
 
-        (bool _discontinued, ) = registryContract.vaultToVaultActivityState(address(this));
+        (bool _discontinued, , ) = registryContract.vaultToVaultConfiguration(address(this));
         if (!_discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll();
             _harvest(investStrategyHash);
