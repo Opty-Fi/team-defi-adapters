@@ -4,6 +4,7 @@ import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
 import { getTokenName, getTokenSymbol } from "./contracts-actions";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { deployContract, executeFunc, deployContractWithHash } from "./helpers";
+
 export async function deployRegistry(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -21,32 +22,28 @@ export async function deployRegistry(
   return registry;
 }
 
-export async function deployHarvestCodeProvider(
+export async function deployRiskManager(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
-  registryAddr: string,
   isDeployedOnce: boolean,
+  registry: string,
 ): Promise<Contract> {
-  const harvestCodeProvider = await deployContract(
+  let riskManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER, isDeployedOnce, owner, [registry]);
+
+  const riskManagerProxy = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
+    ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER_PROXY,
     isDeployedOnce,
     owner,
-    [registryAddr],
+    [registry],
   );
-  return harvestCodeProvider;
-}
 
-export async function deployPriceOracle(
-  hre: HardhatRuntimeEnvironment,
-  owner: Signer,
-  registryAddr: string,
-  isDeployedOnce: boolean,
-): Promise<Contract> {
-  const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
-    registryAddr,
-  ]);
-  return priceOracle;
+  await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [riskManager.address]);
+  await executeFunc(riskManager, owner, "become(address)", [riskManagerProxy.address]);
+
+  riskManager = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER, riskManagerProxy.address, owner);
+
+  return riskManager;
 }
 
 export async function deployEssentialContracts(
@@ -93,24 +90,15 @@ export async function deployEssentialContracts(
 
   await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
 
-  const harvestCodeProvider = await deployHarvestCodeProvider(hre, owner, registry.address, isDeployedOnce);
-
-  let riskManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER, isDeployedOnce, owner, [
-    registry.address,
-  ]);
-
-  const riskManagerProxy = await deployContract(
+  const harvestCodeProvider = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER_PROXY,
+    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
     isDeployedOnce,
     owner,
     [registry.address],
   );
 
-  await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [riskManager.address]);
-  await executeFunc(riskManager, owner, "become(address)", [riskManagerProxy.address]);
-
-  riskManager = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.RISK_MANAGER, riskManagerProxy.address, owner);
+  const riskManager = await deployRiskManager(hre, owner, isDeployedOnce, registry.address);
 
   const strategyManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.STRATEGY_MANAGER, isDeployedOnce, owner, [
     registry.address,
@@ -154,68 +142,70 @@ export async function deployEssentialContracts(
     owner,
   );
 
-  const optyStakingPool1D = await deployContract(
+  const optyStakingVault1D = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_POOL,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
     [registry.address, opty.address, optyMinter.address, 86400, optyStakingRateBalancer.address, "1D"],
   );
 
-  const optyStakingPool30D = await deployContract(
+  const optyStakingVault30D = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_POOL,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
     [registry.address, opty.address, optyMinter.address, 2592000, optyStakingRateBalancer.address, "30D"],
   );
 
-  const optyStakingPool60D = await deployContract(
+  const optyStakingVault60D = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_POOL,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
     [registry.address, opty.address, optyMinter.address, 5184000, optyStakingRateBalancer.address, "60D"],
   );
 
-  const optyStakingPool180D = await deployContract(
+  const optyStakingVault180D = await deployContract(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_POOL,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
     [registry.address, opty.address, optyMinter.address, 15552000, optyStakingRateBalancer.address, "180D"],
   );
 
   await executeFunc(registry, owner, "setMinter(address)", [optyMinter.address]);
-  await executeFunc(optyMinter, owner, "setStakingPool(address,bool)", [optyStakingPool1D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingPool(address,bool)", [optyStakingPool30D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingPool(address,bool)", [optyStakingPool60D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingPool(address,bool)", [optyStakingPool180D.address, true]);
+  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
+  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
+  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
+  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
   await executeFunc(optyStakingRateBalancer, owner, "initialize(address,address,address,address)", [
-    optyStakingPool1D.address,
-    optyStakingPool30D.address,
-    optyStakingPool60D.address,
-    optyStakingPool180D.address,
+    optyStakingVault1D.address,
+    optyStakingVault30D.address,
+    optyStakingVault60D.address,
+    optyStakingVault180D.address,
   ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingPoolMultipliers(address,uint256)", [
-    optyStakingPool1D.address,
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
+    optyStakingVault1D.address,
     10000,
   ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingPoolMultipliers(address,uint256)", [
-    optyStakingPool30D.address,
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
+    optyStakingVault30D.address,
     12000,
   ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingPoolMultipliers(address,uint256)", [
-    optyStakingPool60D.address,
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
+    optyStakingVault60D.address,
     15000,
   ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingPoolMultipliers(address,uint256)", [
-    optyStakingPool180D.address,
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
+    optyStakingVault180D.address,
     20000,
   ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingPoolOPTYAllocation(uint256)", [10000000000]);
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultOPTYAllocation(uint256)", [10000000000]);
 
-  const priceOracle = await deployPriceOracle(hre, owner, registry.address, isDeployedOnce);
+  const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
+    registry.address,
+  ]);
 
   const essentialContracts: CONTRACTS = {
     registry,
@@ -227,13 +217,38 @@ export async function deployEssentialContracts(
     riskManager,
     harvestCodeProvider,
     optyStakingRateBalancer,
-    optyStakingPool1D,
-    optyStakingPool30D,
-    optyStakingPool60D,
-    optyStakingPool180D,
+    optyStakingVault1D,
+    optyStakingVault30D,
+    optyStakingVault60D,
+    optyStakingVault180D,
     priceOracle,
   };
+
   return essentialContracts;
+}
+
+export async function deployAdapter(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  adapterName: string,
+  registryAddr: string,
+  harvestAddr: string,
+  priceOracleAddr: string,
+  isDeployedOnce: boolean,
+): Promise<Contract> {
+  let contract: Contract;
+  if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapterName)) {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
+  } else if (adapterName === "CurvePoolAdapter") {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
+      registryAddr,
+      harvestAddr,
+      priceOracleAddr,
+    ]);
+  } else {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr, harvestAddr]);
+  }
+  return contract;
 }
 
 export async function deployAdapters(
@@ -247,21 +262,15 @@ export async function deployAdapters(
   const data: CONTRACTS = {};
   for (const adapter of ADAPTER) {
     try {
-      let contract: Contract;
-      if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapter)) {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr]);
-        data[adapter] = contract;
-      } else if (["CurvePoolAdapter"].includes(adapter)) {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [
-          registryAddr,
-          harvestAddr,
-          priceOracleAddr,
-        ]);
-        data[adapter] = contract;
-      } else {
-        contract = await deployContract(hre, adapter, isDeployedOnce, owner, [registryAddr, harvestAddr]);
-        data[adapter] = contract;
-      }
+      data[adapter] = await deployAdapter(
+        hre,
+        owner,
+        adapter,
+        registryAddr,
+        harvestAddr,
+        priceOracleAddr,
+        isDeployedOnce,
+      );
     } catch (error) {
       console.log(adapter, error);
     }
@@ -281,6 +290,9 @@ export async function deployVaults(
 ): Promise<CONTRACTS> {
   const vaults: CONTRACTS = {};
   for (const token in TOKENS) {
+    if (token === "CHI") {
+      continue;
+    }
     const name = await getTokenName(hre, token);
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {

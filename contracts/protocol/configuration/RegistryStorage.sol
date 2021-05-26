@@ -113,14 +113,9 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
 
     /**
-     * @notice vault contract address mapped to boolean whether discontinued or not
+     * @notice vault contract address mapped to VaultActivityState
      */
-    mapping(address => bool) public vaultToDiscontinued;
-
-    /**
-     * @notice vault contract address mapped to boolean whether paused or not
-     */
-    mapping(address => bool) public vaultToPaused;
+    mapping(address => DataTypes.VaultActivityState) public vaultToVaultActivityState;
 
     /**
      * @notice riskProfile mapped to its struct `RiskProfile`
@@ -215,7 +210,7 @@ contract RegistryStorage is RegistryAdminStorage {
      *
      * Note that `vault` can not be a zero address
      */
-    event LogPauseVault(address indexed vault, bool indexed paused, address indexed caller);
+    event LogUnpauseVault(address indexed vault, bool indexed unpaused, address indexed caller);
 
     /**
      * @dev Emitted when `setUnderlyingAssetHashToRPToVaults` function is called.

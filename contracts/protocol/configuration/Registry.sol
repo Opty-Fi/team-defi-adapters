@@ -434,7 +434,7 @@ contract Registry is ModifiersController {
      */
     function setLiquidityPoolToAdapter(DataTypes.PoolAdapter[] memory _poolAdapters)
         external
-        onlyOperator
+        onlyGovernance
         returns (bool)
     {
         for (uint8 _i = 0; _i < _poolAdapters.length; _i++) {
@@ -458,7 +458,7 @@ contract Registry is ModifiersController {
      * - `_pool`should be approved.
      * - `_adapter` should be contract
      */
-    function setLiquidityPoolToAdapter(address _pool, address _adapter) external onlyOperator returns (bool) {
+    function setLiquidityPoolToAdapter(address _pool, address _adapter) external onlyGovernance returns (bool) {
         _setLiquidityPoolToAdapter(_pool, _adapter);
         return true;
     }
@@ -583,20 +583,18 @@ contract Registry is ModifiersController {
 
     /**
      * @dev Pause tha Vault contract for use temporarily during any emergency
-     *      Emits a {LogPauseVault} event
+     *      Emits a {LogUnpauseVault} event
      *
      * @param _vault Vault contract address to pause
-     * @param _paused A boolean value `true` to pause vault contract and `false` for un-pause vault contract
-     *
-     * @return A boolean value indicating whether pause is set to true or false
+     * @param _unpaused A boolean value `true` to pause vault contract and `false` for un-pause vault contract
      *
      * Requirements:
      *
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function setPause(address _vault, bool _paused) external onlyGovernance returns (bool) {
-        _setPause(_vault, _paused);
+    function unpauseVaultContract(address _vault, bool _unpaused) external onlyGovernance returns (bool) {
+        _unpauseVaultContract(_vault, _unpaused);
         return true;
     }
 
@@ -881,17 +879,17 @@ contract Registry is ModifiersController {
 
     function _discontinue(address _vault) internal returns (bool) {
         require(_vault != address(0), "!address(0)");
-        vaultToDiscontinued[_vault] = true;
+        vaultToVaultActivityState[_vault].discontinued = true;
         IVault(_vault).discontinue();
-        emit LogDiscontinueVault(_vault, vaultToDiscontinued[_vault], msg.sender);
+        emit LogDiscontinueVault(_vault, vaultToVaultActivityState[_vault].discontinued, msg.sender);
         return true;
     }
 
-    function _setPause(address _vault, bool _paused) internal returns (bool) {
+    function _unpauseVaultContract(address _vault, bool _unpaused) internal returns (bool) {
         require(_vault != address(0), "!address(0)");
-        vaultToPaused[_vault] = _paused;
-        IVault(_vault).setPaused(vaultToPaused[_vault]);
-        emit LogPauseVault(_vault, vaultToPaused[_vault], msg.sender);
+        vaultToVaultActivityState[_vault].unpaused = _unpaused;
+        IVault(_vault).setUnpaused(vaultToVaultActivityState[_vault].unpaused);
+        emit LogUnpauseVault(_vault, vaultToVaultActivityState[_vault].unpaused, msg.sender);
         return true;
     }
 

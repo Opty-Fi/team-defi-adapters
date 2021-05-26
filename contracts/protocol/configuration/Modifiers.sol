@@ -87,16 +87,18 @@ abstract contract Modifiers {
     /**
      * @dev Modifier to check if vault contract is discontinued from usage or not
      */
-    modifier ifNotDiscontinued(address _vault) {
-        require(!registryContract.vaultToDiscontinued(_vault), "discontinued");
+    modifier ifNotDiscontinued(address _vaultContract) {
+        (bool _discontinued, ) = registryContract.vaultToVaultActivityState(_vaultContract);
+        require(!_discontinued, "discontinued");
         _;
     }
 
     /**
-     * @dev Modifier to check if vault contract is paused from usage or not
+     * @dev Modifier to check if vault contract is unpaused or paused
      */
-    modifier ifNotPaused(address _vault) {
-        require(!registryContract.vaultToPaused(_vault), "paused");
+    modifier ifNotPaused(address _vaultContract) {
+        (, bool _unpaused) = registryContract.vaultToVaultActivityState(_vaultContract);
+        require(_unpaused, "paused");
         _;
     }
 
