@@ -13,6 +13,7 @@ import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
+import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
 
 /**
  * @dev An extra protection for the best strategy of the opty-fi vault's
@@ -84,8 +85,22 @@ contract RiskManager is RiskManagerStorage, Modifiers {
         // fallback to default strategy if best strategy is not available
         if (_strategyHash == ZERO_BYTES32) {
             _strategyHash = _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
-            if (_strategyHash == ZERO_BYTES32) {
+            if (
+                _strategyHash == ZERO_BYTES32 &&
+                _strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.Zero
+            ) {
                 return ZERO_BYTES32;
+            } else if (
+                _strategyHash == ZERO_BYTES32 &&
+                _strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave
+            ) {
+                _strategyHash = IAPROracle(registryContract.aprOracle()).getBestAPR(_tokensHash);
+                (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
+                if (_strategyIndex == uint256(0)) {
+                    return ZERO_BYTES32;
+                } else {
+                    return _strategyHash;
+                }
             }
         }
         require(_strategyHash != ZERO_BYTES32, "!bestStrategyHash");
@@ -101,7 +116,21 @@ contract RiskManager is RiskManagerStorage, Modifiers {
             !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
                 _liquidityPool.rating <= _riskProfileStruct.upperLimit)
         ) {
-            return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            if (_strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash) != ZERO_BYTES32) {
+                return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            } else {
+                if (_strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave) {
+                    _strategyHash = IAPROracle(registryContract.aprOracle()).getBestAPR(_tokensHash);
+                    (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
+                    if (_strategyIndex != uint256(0)) {
+                        return _strategyHash;
+                    } else {
+                        return ZERO_BYTES32;
+                    }
+                } else {
+                    return ZERO_BYTES32;
+                }
+            }
         }
 
         return _strategyHash;

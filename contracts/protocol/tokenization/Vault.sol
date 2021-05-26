@@ -582,7 +582,7 @@ contract Vault is
                 isMaxVaultValueJumpAllowed(
                     _abs(
                         blockToBlockVaultValues[block.number][_blockTransactions].blockMinVaultValue,
-                        blockToBlockVaultValues[block.number][_blockTransactions - 1].blockMaxVaultValue
+                        blockToBlockVaultValues[block.number][_blockTransactions].blockMaxVaultValue
                     ),
                     _vaultValue
                 ),
@@ -607,7 +607,7 @@ contract Vault is
     }
 
     function isMaxVaultValueJumpAllowed(uint256 _diff, uint256 _currentVaultValue) public view override returns (bool) {
-        return (_diff.div(_currentVaultValue)).mul(10000) < maxVaultValueJump;
+        return (_diff.mul(10000)).div(_currentVaultValue) < maxVaultValueJump;
     }
 
     function _redeemAndBurn(
