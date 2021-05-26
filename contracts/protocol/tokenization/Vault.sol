@@ -18,6 +18,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Vault
@@ -637,14 +638,24 @@ contract Vault is
                 _withdrawalFee
             );
         if (_treasuryCodes.length > 0) {
+            console.log("Length in vault if: ", _treasuryCodes.length);
             for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
+                // console.logBytes(_treasuryCodes);
+                console.logBytes(_treasuryCodes[_j]);
+                console.log("Step2");
                 (address _underlyingToken, bytes memory data) = abi.decode(_treasuryCodes[_j], (address, bytes));
+                console.log("token: ", _underlyingToken);
+                console.logBytes(data);
                 (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
+                console.log("Success in if: ", _success);
                 require(_success, "!TreasuryRedeemAmt");
             }
         }
         (address _underlyingToken, bytes memory data) = abi.decode(_accountCode, (address, bytes));
+        console.log("token outside if: ", _underlyingToken);
+        console.logBytes(data);
         (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
+        console.log("Success outside if: ", _success);
         require(_success, "!CallerRedeemAmt");
     }
 
