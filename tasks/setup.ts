@@ -54,6 +54,10 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
     await approveTokens(owner, essentialContracts["registry"]);
     await approveLiquidityPoolAndMapAdapters(owner, essentialContracts["registry"], adaptersContracts);
 
+    await hre.run("set-strategies", {
+      strategyregistry: essentialContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
+    });
+
     console.log(`\tDeploying Core Vault contracts ...`);
     await hre.run("deploy-vaults", {
       registry: essentialContracts["registry"].address,
