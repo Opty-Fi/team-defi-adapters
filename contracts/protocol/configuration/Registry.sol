@@ -3,13 +3,11 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { Address, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { ModifiersController } from "./ModifiersController.sol";
 import { RegistryProxy } from "./RegistryProxy.sol";
 import { IVault } from "../../interfaces/opty/IVault.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
-import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Registry
@@ -373,59 +371,69 @@ contract Registry is ModifiersController {
         return true;
     }
 
+    /**
+     * @dev Set the withdrawal fee for the vault contract.
+     *
+     * @param _vault Vault contract address
+     * @param _withdrawalFee Withdrawal fee to be set for vault contract
+     *
+     * @return _success Returns a boolean value indicating whether the operation succeeded
+     *
+     * Requirements:
+     *  - `msg.sender` Can only be current governance.
+     */
     function setWithdrawalFee(address _vault, uint256 _withdrawalFee) public onlyGovernance returns (bool _success) {
+        require(_vault != address(0), "!address(0)");
+        require(_vault.isContract(), "!isContract");
+        require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
         vaultToVaultConfiguration[_vault].withdrawlFee = _withdrawalFee;
-        console.log("Fee set: ", vaultToVaultConfiguration[_vault].withdrawlFee);
-        // withdrawalFee = _withdrawalFee;
         _success = true;
     }
 
     /**
-     * @dev Transfers treasury to a new account along with fee share (`[_treasuryAccount, _feeShare]`).
-     * Can only be called by the current governance.
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     * @param _treasuryShares Array of treasuries and their fee shares
+     *
+     * @return Returns a boolean value indicating whether the operation succeeded
+     *
+     * Requirements:
+     *  - `msg.sender` Can only be current governance.
      */
-    function setTreasuryAccountsShare(address _vault, DataTypes.TreasuryAccount[] memory _treasuryAccounts)
+    function setTreasuryAccountsShare(address _vault, DataTypes.TreasuryAccount[] memory _treasuryShares)
         external
         onlyGovernance
         returns (bool)
     {
-        require(_treasuryAccounts.length > 0, "length!>0");
+        require(_vault != address(0), "!address(0)");
+        require(_vault.isContract(), "!isContract");
+        require(_treasuryShares.length > 0, "length!>0");
         uint256 _sharesSum = 0;
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
-            _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
+        for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
+            require(_treasuryShares[_i].treasuryAccount != address(0), "!address(0)");
+            _sharesSum = _sharesSum.add(_treasuryShares[_i].share);
         }
-        console.log("Shares sum: ", _sharesSum);
         require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawlFee, "FeeShares!=WithdrawalFee");
 
         //  delete the existing the treasury accounts if any to reset them
-        // DataTypes.TreasuryAccount[] memory _treasuryShares = _getTreasuryAccounts();
         if (vaultToVaultConfiguration[_vault].treasuryShares.length > 0) {
-            console.log("Length before delete: ", vaultToVaultConfiguration[_vault].treasuryShares.length);
             delete vaultToVaultConfiguration[_vault].treasuryShares;
-            console.log("Length after delete: ", vaultToVaultConfiguration[_vault].treasuryShares.length);
-            // delete treasuryAccountsWithShares;
         }
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryAccounts[_i]);
-            // treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
+        for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
+            vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryShares[_i]);
         }
         return true;
-        // delete the existing the treasury accounts if any to reset them
-        // if (treasuryAccountsWithShares.length > 0) {
-        //     delete treasuryAccountsWithShares;
-        // }
-        // for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-        //     treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
-        // }
-        // return true;
     }
 
+    /**
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     *
+     * @return Returns Treasuries along with their fee shares
+     */
     function getTreasuryAccounts(address _vault) external view returns (DataTypes.TreasuryAccount[] memory) {
-        return _getTreasuryAccounts(_vault);
-    }
-
-    function _getTreasuryAccounts(address _vault) internal view returns (DataTypes.TreasuryAccount[] memory) {
         return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
@@ -476,8 +484,6 @@ contract Registry is ModifiersController {
      * - `msg.sender` (caller) should be governance
      */
     function discontinue(address _vault) external onlyGovernance returns (bool) {
-        // _discontinue(_vault);
-        // return true;
         require(_vault != address(0), "!address(0)");
         vaultToVaultConfiguration[_vault].discontinued = true;
         IVault(_vault).discontinue();
@@ -498,8 +504,6 @@ contract Registry is ModifiersController {
      * - `msg.sender` (caller) should be governance
      */
     function unpauseVaultContract(address _vault, bool _unpaused) external onlyGovernance returns (bool) {
-        // _unpauseVaultContract(_vault, _unpaused);
-        // return true;
         require(_vault != address(0), "!address(0)");
         vaultToVaultConfiguration[_vault].unpaused = _unpaused;
         IVault(_vault).setUnpaused(vaultToVaultConfiguration[_vault].unpaused);
