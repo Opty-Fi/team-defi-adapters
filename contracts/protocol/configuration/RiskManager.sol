@@ -71,9 +71,8 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *
      */
     function _getBestStrategy(string memory _riskProfile, bytes32 _tokensHash) internal view returns (bytes32) {
-        (, uint8 _permittedSteps, uint8 _lowerLimit, uint8 _upperLimit, bool _profileExists) =
-            registryContract.riskProfiles(_riskProfile);
-        require(_profileExists, "!Rp_Exists");
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        require(_riskProfileStruct.exists, "!Rp_Exists");
 
         IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.strategyProvider());
         IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
@@ -94,12 +93,13 @@ contract RiskManager is RiskManagerStorage, Modifiers {
         (, DataTypes.StrategyStep[] memory _strategySteps) =
             _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
 
-        (uint8 _rating, bool _isLiquidityPool) = registryContract.liquidityPools(_strategySteps[0].pool);
+        DataTypes.LiquidityPool memory _liquidityPool = registryContract.liquidityPools(_strategySteps[0].pool);
         // validate strategy profile
         if (
-            uint8(_strategySteps.length) > _permittedSteps ||
-            !_isLiquidityPool ||
-            !(_rating >= _lowerLimit && _rating <= _upperLimit)
+            uint8(_strategySteps.length) > _riskProfileStruct.steps ||
+            !_liquidityPool.isLiquidityPool ||
+            !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
+                _liquidityPool.rating <= _riskProfileStruct.upperLimit)
         ) {
             return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
         }

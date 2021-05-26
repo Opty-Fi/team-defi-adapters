@@ -27,10 +27,10 @@ contract StrategyProvider is Modifiers {
         bytes32 _tokenHash,
         bytes32 _strategyHash
     ) public onlyOperator {
-        (, , , , bool _profileExists) = registryContract.riskProfiles(_riskProfile);
-        require(_profileExists, "!Rp_Exists");
-        uint256 _index = registryContract.tokensHashToTokens(_tokenHash);
-        require(registryContract.tokensHashIndexes(_index) == _tokenHash, "!TokenHashExists");
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        require(_riskProfileStruct.exists, "!Rp_Exists");
+        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_tokenHash);
+        require(registryContract.tokensHashIndexes(_token.index) == _tokenHash, "!TokenHashExists");
         rpToTokenToBestStrategy[_riskProfile][_tokenHash] = _strategyHash;
     }
 
@@ -39,10 +39,10 @@ contract StrategyProvider is Modifiers {
         bytes32 _tokenHash,
         bytes32 _strategyHash
     ) public onlyOperator {
-        (, , , , bool _profileExists) = registryContract.riskProfiles(_riskProfile);
-        require(_profileExists, "!Rp_Exists");
-        uint256 _index = registryContract.tokensHashToTokens(_tokenHash);
-        require(registryContract.tokensHashIndexes(_index) == _tokenHash, "!TokenHashExists");
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        require(_riskProfileStruct.exists, "!Rp_Exists");
+        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_tokenHash);
+        require(registryContract.tokensHashIndexes(_token.index) == _tokenHash, "!TokenHashExists");
         rpToTokenToDefaultStrategy[_riskProfile][_tokenHash] = _strategyHash;
     }
 
@@ -69,8 +69,11 @@ contract StrategyProvider is Modifiers {
             _vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
             "!bytes32(0)"
         );
-        uint256 _index = registryContract.tokensHashToTokens(_vaultRewardTokenHash);
-        require(registryContract.tokensHashIndexes(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
+        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_vaultRewardTokenHash);
+        require(
+            registryContract.tokensHashIndexes(_token.index) == _vaultRewardTokenHash,
+            "!VaultRewardTokenHashExists"
+        );
         require(
             (_vaultRewardStrategy.hold.add(_vaultRewardStrategy.convert) == uint256(10000)) ||
                 (_vaultRewardStrategy.hold.add(_vaultRewardStrategy.convert) == uint256(0)),

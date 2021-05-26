@@ -13,11 +13,11 @@ import { IncentivisedERC20 } from "./IncentivisedERC20.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { VaultStorage } from "./VaultStorage.sol";
-import { Registry } from "../configuration/Registry.sol";
-import { OPTYMinter } from "./OPTYMinter.sol";
-import { OPTYStakingVault } from "./OPTYStakingVault.sol";
-import { RiskManager } from "../configuration/RiskManager.sol";
-import { StrategyManager } from "../configuration/StrategyManager.sol";
+import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
+import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
+import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
+import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
+import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
 
 /**
  * @title Vault
@@ -65,23 +65,17 @@ contract Vault is
     }
 
     function initialize(
-        address registry,
-        address _riskManager,
+        address _registry,
         address _underlyingToken,
-        address _strategyManager,
-        address _optyMinter,
         string memory _name,
         string memory _symbol,
         string memory _riskProfile
     ) external virtual initializer {
         require(bytes(_name).length > 0, "Name_Empty!");
         require(bytes(_symbol).length > 0, "Symbol_Empty!");
-        registryContract = Registry(registry);
+        registryContract = IRegistry(_registry);
         setProfile(_riskProfile);
-        setRiskManager(_riskManager);
-        setToken(_underlyingToken);
-        setStrategyManager(_strategyManager);
-        setOPTYMinter(_optyMinter);
+        setToken(_underlyingToken); //  underlying token contract address (for example DAI)
         _setName(string(abi.encodePacked("op ", _name, " ", _riskProfile, " vault")));
         _setSymbol(string(abi.encodePacked("op", _symbol, _riskProfile, "Vault")));
         _setDecimals(IncentivisedERC20(_underlyingToken).decimals());
@@ -89,22 +83,9 @@ contract Vault is
 
     function setProfile(string memory _profile) public override onlyOperator returns (bool _success) {
         require(bytes(_profile).length > 0, "Profile_Empty!");
-        (, , , , bool _profileExists) = registryContract.riskProfiles(_profile);
-        require(_profileExists, "!Rp_Exists");
+        DataTypes.RiskProfile memory _riskProfile = registryContract.riskProfiles(_profile);
+        require(_riskProfile.exists, "!Rp_Exists");
         profile = _profile;
-        _success = true;
-    }
-
-    function setOPTYMinter(address _optyMinter) public override onlyOperator returns (bool _success) {
-        require(_optyMinter != address(0), "!_optyMinter");
-        require(_optyMinter.isContract(), "!_optyMinter.isContract");
-        optyMinterContract = OPTYMinter(_optyMinter);
-        _success = true;
-    }
-
-    function setRiskManager(address _riskManager) public override onlyOperator returns (bool _success) {
-        require(_riskManager.isContract(), "!_riskManager.isContract");
-        riskManagerContract = RiskManager(_riskManager);
         _success = true;
     }
 
@@ -112,12 +93,6 @@ contract Vault is
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
         require(registryContract.tokens(_underlyingToken), "!tokens");
         underlyingToken = _underlyingToken;
-        _success = true;
-    }
-
-    function setStrategyManager(address _strategyManager) public override onlyOperator returns (bool _success) {
-        require(_strategyManager.isContract(), "!__strategyManager.isContract");
-        strategyManagerContract = StrategyManager(_strategyManager);
         _success = true;
     }
 
@@ -135,10 +110,11 @@ contract Vault is
         uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
         _batchMintAndBurn();
-        uint8 _steps = strategyManagerContract.getDepositAllStepCount(investStrategyHash);
+        IStrategyManager _strategyManagerContract = IStrategyManager(registryContract.strategyManager());
+        uint8 _steps = _strategyManagerContract.getDepositAllStepCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             bytes[] memory _codes =
-                strategyManagerContract.getPoolDepositAllCodes(
+                _strategyManagerContract.getPoolDepositAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
@@ -163,7 +139,8 @@ contract Vault is
 
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = underlyingToken;
-        bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+        IRiskManager _riskManagerContract = IRiskManager(registryContract.riskManager());
+        bytes32 newStrategyHash = _riskManagerContract.getBestStrategy(profile, _underlyingTokens);
         if (
             keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
             investStrategyHash != ZERO_BYTES32
@@ -185,10 +162,9 @@ contract Vault is
         }
 
         investStrategyHash = newStrategyHash;
-
         if (_balance() > 0) {
             _emergencyBrake(_balance());
-            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            investStrategyHash = _riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
 
@@ -209,9 +185,10 @@ contract Vault is
      *    credit pool like compound is added.
      */
     function _calVaultValueInUnderlyingToken() internal view returns (uint256) {
+        IStrategyManager _strategyManagerContract = IStrategyManager(registryContract.strategyManager());
         if (investStrategyHash != ZERO_BYTES32) {
             uint256 balanceInUnderlyingToken =
-                strategyManagerContract.getBalanceInUnderlyingToken(
+                _strategyManagerContract.getBalanceInUnderlyingToken(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash
@@ -236,11 +213,12 @@ contract Vault is
     }
 
     function _withdrawAll() internal {
-        uint8 _steps = strategyManagerContract.getWithdrawAllStepsCount(investStrategyHash);
+        IStrategyManager _strategyManagerContract = IStrategyManager(registryContract.strategyManager());
+        uint8 _steps = _strategyManagerContract.getWithdrawAllStepsCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
             bytes[] memory _codes =
-                strategyManagerContract.getPoolWithdrawAllCodes(
+                _strategyManagerContract.getPoolWithdrawAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
@@ -260,10 +238,12 @@ contract Vault is
     }
 
     function _harvest(bytes32 _investStrategyHash) internal {
-        uint8 _claimRewardSteps = strategyManagerContract.getClaimRewardStepsCount(_investStrategyHash);
+        IStrategyManager _strategyManagerContract = IStrategyManager(registryContract.strategyManager());
+        IRiskManager _riskManagerContract = IRiskManager(registryContract.riskManager());
+        uint8 _claimRewardSteps = _strategyManagerContract.getClaimRewardStepsCount(_investStrategyHash);
         for (uint8 _i = 0; _i < _claimRewardSteps; _i++) {
             bytes[] memory _codes =
-                strategyManagerContract.getPoolClaimAllRewardCodes(
+                _strategyManagerContract.getPoolClaimAllRewardCodes(
                     payable(address(this)),
                     _investStrategyHash,
                     _i,
@@ -276,24 +256,24 @@ contract Vault is
             }
         }
 
-        (, , address _rewardToken) = strategyManagerContract.getLpAdapterRewardToken(_investStrategyHash);
+        (, , address _rewardToken) = _strategyManagerContract.getLpAdapterRewardToken(_investStrategyHash);
         if (_rewardToken != address(0)) {
             bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked([address(this), _rewardToken]));
             DataTypes.VaultRewardStrategy memory _vaultRewardStrategy =
-                riskManagerContract.getVaultRewardTokenStrategy(_vaultRewardTokenHash);
+                _riskManagerContract.getVaultRewardTokenStrategy(_vaultRewardTokenHash);
 
-            uint8 _harvestSteps = strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
+            uint8 _harvestSteps = _strategyManagerContract.getHarvestRewardStepsCount(_investStrategyHash);
             for (uint8 _i = 0; _i < _harvestSteps; _i++) {
                 bytes[] memory _codes =
                     (_vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0))
-                        ? strategyManagerContract.getPoolHarvestAllRewardCodes(
+                        ? _strategyManagerContract.getPoolHarvestAllRewardCodes(
                             payable(address(this)),
                             underlyingToken,
                             _investStrategyHash,
                             _i,
                             _harvestSteps
                         )
-                        : strategyManagerContract.getPoolHarvestSomeRewardCodes(
+                        : _strategyManagerContract.getPoolHarvestSomeRewardCodes(
                             payable(address(this)),
                             underlyingToken,
                             _investStrategyHash,
@@ -354,9 +334,9 @@ contract Vault is
         returns (bool _success)
     {
         _userDeposit(_amount);
-        uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
-        _optyStakingVault.userStake(_optyAmount);
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
+        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
+        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
         _success = true;
     }
 
@@ -376,6 +356,7 @@ contract Vault is
     }
 
     function _batchMintAndBurn() internal returns (bool _success) {
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
         for (uint256 i = 0; i < queue.length; i++) {
             if (queue[i].isDeposit) {
                 _mintShares(queue[i].account, _balance(), queue[i].value);
@@ -386,10 +367,10 @@ contract Vault is
                 pendingWithdraws[msg.sender] -= queue[i].value;
                 withdrawQueue -= queue[i].value;
             }
-            optyMinterContract.updateUserStateInVault(address(this), queue[i].account);
+            _optyMinterContract.updateUserStateInVault(address(this), queue[i].account);
         }
-        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        optyMinterContract.updateOptyVaultIndex(address(this));
+        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        _optyMinterContract.updateOptyVaultIndex(address(this));
         delete queue;
         _success = true;
     }
@@ -434,17 +415,18 @@ contract Vault is
         }
 
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
-
-        optyMinterContract.updateUserRewards(address(this), msg.sender);
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
+        _optyMinterContract.updateUserRewards(address(this), msg.sender);
         _mint(msg.sender, shares);
-        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        optyMinterContract.updateOptyVaultIndex(address(this));
-        optyMinterContract.updateUserStateInVault(address(this), msg.sender);
+        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        _optyMinterContract.updateOptyVaultIndex(address(this));
+        _optyMinterContract.updateUserStateInVault(address(this), msg.sender);
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
-            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            IRiskManager _riskManagerContract = IRiskManager(registryContract.riskManager());
+            investStrategyHash = _riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
         _success = true;
@@ -462,9 +444,9 @@ contract Vault is
         returns (bool _success)
     {
         _userDepositRebalance(_amount);
-        uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
-        _optyStakingVault.userStake(_optyAmount);
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
+        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
+        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
         _success = true;
     }
 
@@ -479,10 +461,10 @@ contract Vault is
         nonReentrant
         returns (bool _success)
     {
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender));
-        uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
-        _optyStakingVault.userStake(_optyAmount);
+        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
+        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
         _success = true;
     }
 
@@ -512,26 +494,28 @@ contract Vault is
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
 
-        (bool _discontinued, ) = registryContract.vaultToVaultActivityState(address(this));
-        if (!_discontinued && investStrategyHash != ZERO_BYTES32) {
+        DataTypes.VaultActivityState memory _vaultActivityState =
+            registryContract.vaultToVaultActivityState(address(this));
+        if (!_vaultActivityState.discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll();
             _harvest(investStrategyHash);
         }
-
-        optyMinterContract.updateUserRewards(address(this), msg.sender);
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
+        _optyMinterContract.updateUserRewards(address(this), msg.sender);
 
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, _balance().sub(depositQueue), _redeemAmount);
 
-        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        optyMinterContract.updateOptyVaultIndex(address(this));
-        optyMinterContract.updateUserStateInVault(address(this), msg.sender);
+        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        _optyMinterContract.updateOptyVaultIndex(address(this));
+        _optyMinterContract.updateUserStateInVault(address(this), msg.sender);
 
-        if (!_discontinued && (_balance() > 0)) {
+        if (!_vaultActivityState.discontinued && (_balance() > 0)) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
-            investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
+            IRiskManager _riskManagerContract = IRiskManager(registryContract.riskManager());
+            investStrategyHash = _riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
         return true;
@@ -678,9 +662,10 @@ contract Vault is
         address,
         uint256
     ) internal override {
-        optyMinterContract.updateUserRewards(address(this), from);
-        optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        optyMinterContract.updateOptyVaultIndex(address(this));
-        optyMinterContract.updateUserStateInVault(address(this), from);
+        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.optyMinter());
+        _optyMinterContract.updateUserRewards(address(this), from);
+        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        _optyMinterContract.updateOptyVaultIndex(address(this));
+        _optyMinterContract.updateUserStateInVault(address(this), from);
     }
 }

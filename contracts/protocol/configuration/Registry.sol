@@ -831,10 +831,6 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    function _setVaultToRewardTokens() internal returns (bool) {
-        return true;
-    }
-
     /**
      * @dev Check duplicate `_hash` tokensHash from the {tokensHashIndexes} mapping.
      *

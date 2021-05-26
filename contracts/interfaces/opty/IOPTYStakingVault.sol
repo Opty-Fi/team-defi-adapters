@@ -8,4 +8,6 @@ pragma experimental ABIEncoderV2;
  */
 interface IOPTYStakingVault {
     function setOptyRatePerSecond(uint256 _rate) external returns (bool _success);
+
+    function userStake(uint256 _amount) external returns (bool);
 }
