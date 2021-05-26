@@ -17,8 +17,8 @@ contract VaultStorage {
     RiskManager public riskManagerContract;
     OPTYMinter public optyMinterContract;
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
-    uint256 public withdrawalFee;
-    uint256 public constant WITHDRAWAL_MAX = 10000;
+    // uint256 public withdrawalFee;
+    // uint256 public constant WITHDRAWAL_MAX = 10000;
     bytes32 public investStrategyHash;
     uint256 public vaultValue;
     uint256 public gasOwedToOperator;
@@ -27,5 +27,5 @@ contract VaultStorage {
     uint256 public maxVaultValueJump; // basis points
     address public underlyingToken; //  store the underlying token contract address (for example DAI)
     string public profile;
-    DataTypes.TreasuryAccount[] public treasuryAccountsWithShares;
+    // DataTypes.TreasuryAccount[] public treasuryAccountsWithShares;
 }

@@ -128,12 +128,11 @@ contract StrategyManager is Modifiers {
         address _account,
         address _underlyingToken,
         uint256 _redeemAmountInToken,
-        uint256 _withdrawalFee,
-        uint256 _withdrawalFeeMax
+        uint256 _withdrawalFee
     ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         uint256 _fee = 0;
         if (_treasuryAccounts.length > 0 && _withdrawalFee > 0) {
-            _fee = ((_redeemAmountInToken).mul(_withdrawalFee)).div(_withdrawalFeeMax);
+            _fee = ((_redeemAmountInToken).mul(_withdrawalFee)).div(10000);
             uint8 _treasuryAccountsLength = uint8(_treasuryAccounts.length);
             _treasuryCodes = new bytes[](_treasuryAccountsLength);
 

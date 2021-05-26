@@ -18,6 +18,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Vault
@@ -126,10 +127,10 @@ contract Vault is
         _success = true;
     }
 
-    function setWithdrawalFee(uint256 _withdrawalFee) public override onlyGovernance returns (bool _success) {
-        withdrawalFee = _withdrawalFee;
-        _success = true;
-    }
+    // function setWithdrawalFee(uint256 _withdrawalFee) public override onlyGovernance returns (bool _success) {
+    //     withdrawalFee = _withdrawalFee;
+    //     _success = true;
+    // }
 
     function _supplyAll() internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
         uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
@@ -631,17 +632,17 @@ contract Vault is
         uint256 _redeemAmount
     ) private {
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
-        DataTypes.TreasuryAccount[] memory _treasuryAccounts = _getTreasuryAccounts();
+        DataTypes.TreasuryAccount[] memory _treasuryAccounts = registryContract.getTreasuryAccounts(address(this));
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
+        (, , uint256 _withdrawalFee) = registryContract.vaultToVaultConfiguration(address(this));
         (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
             strategyManagerContract.getFeeTransferAllCodes(
                 _treasuryAccounts,
                 _account,
                 underlyingToken,
                 redeemAmountInToken,
-                withdrawalFee,
-                WITHDRAWAL_MAX
+                _withdrawalFee
             );
         if (_treasuryCodes.length > 0) {
             for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
@@ -659,36 +660,36 @@ contract Vault is
      * @dev Transfers treasury to a new account along with fee share (`[_treasuryAccount, _feeShare]`).
      * Can only be called by the current governance.
      */
-    function setTreasuryAccountsShare(DataTypes.TreasuryAccount[] memory _treasuryAccounts)
-        external
-        onlyGovernance
-        returns (bool)
-    {
-        require(_treasuryAccounts.length > 0, "length!>0");
-        uint256 _sharesSum = 0;
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
-            _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
-        }
-        require(_sharesSum == withdrawalFee, "FeeShares!=WithdrawalFee");
+    // function setTreasuryAccountsShare(DataTypes.TreasuryAccount[] memory _treasuryAccounts)
+    //     external
+    //     onlyGovernance
+    //     returns (bool)
+    // {
+    //     require(_treasuryAccounts.length > 0, "length!>0");
+    //     uint256 _sharesSum = 0;
+    //     for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+    //         require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
+    //         _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
+    //     }
+    //     require(_sharesSum == withdrawalFee, "FeeShares!=WithdrawalFee");
 
-        // delete the existing the treasury accounts if any to reset them
-        if (treasuryAccountsWithShares.length > 0) {
-            delete treasuryAccountsWithShares;
-        }
-        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
-            treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
-        }
-        return true;
-    }
+    //     // delete the existing the treasury accounts if any to reset them
+    //     if (treasuryAccountsWithShares.length > 0) {
+    //         delete treasuryAccountsWithShares;
+    //     }
+    //     for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+    //         treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
+    //     }
+    //     return true;
+    // }
 
-    function getTreasuryAccounts() external view returns (DataTypes.TreasuryAccount[] memory) {
-        return _getTreasuryAccounts();
-    }
+    // function getTreasuryAccounts() external view returns (DataTypes.TreasuryAccount[] memory) {
+    //     return _getTreasuryAccounts();
+    // }
 
-    function _getTreasuryAccounts() internal view returns (DataTypes.TreasuryAccount[] memory) {
-        return treasuryAccountsWithShares;
-    }
+    // function _getTreasuryAccounts() internal view returns (DataTypes.TreasuryAccount[] memory) {
+    //     return treasuryAccountsWithShares;
+    // }
 
     function _mintShares(
         address _account,

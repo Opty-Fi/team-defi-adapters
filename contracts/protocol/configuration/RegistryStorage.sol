@@ -78,6 +78,9 @@ contract RegistryStorage is RegistryAdminStorage {
     string[] public riskProfilesArray;
     address public strategyProvider;
     address public vaultStepInvestStrategyDefinitionRegistry;
+    mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
+    // uint256 public withdrawalFee;
+    // uint256 public constant WITHDRAWAL_MAX = 10000;
 
     /**
      * @dev Emitted when `token` is approved or revoked.

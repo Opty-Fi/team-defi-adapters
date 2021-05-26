@@ -8,6 +8,8 @@ import { ModifiersController } from "./ModifiersController.sol";
 import { RegistryProxy } from "./RegistryProxy.sol";
 import { IVault } from "../../interfaces/opty/IVault.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Registry
@@ -18,6 +20,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
  */
 contract Registry is ModifiersController {
     using Address for address;
+    using SafeMath for uint256;
 
     /**
      * @dev Set RegistryProxy to act as Registry
@@ -368,6 +371,62 @@ contract Registry is ModifiersController {
     ) external onlyOperator returns (bool) {
         _setUnderlyingAssetHashToRPToVaults(keccak256(abi.encodePacked(_underlyingTokens)), _riskProfile, _vault);
         return true;
+    }
+
+    function setWithdrawalFee(address _vault, uint256 _withdrawalFee) public onlyGovernance returns (bool _success) {
+        vaultToVaultConfiguration[_vault].withdrawlFee = _withdrawalFee;
+        console.log("Fee set: ", vaultToVaultConfiguration[_vault].withdrawlFee);
+        // withdrawalFee = _withdrawalFee;
+        _success = true;
+    }
+
+    /**
+     * @dev Transfers treasury to a new account along with fee share (`[_treasuryAccount, _feeShare]`).
+     * Can only be called by the current governance.
+     */
+    function setTreasuryAccountsShare(address _vault, DataTypes.TreasuryAccount[] memory _treasuryAccounts)
+        external
+        onlyGovernance
+        returns (bool)
+    {
+        require(_treasuryAccounts.length > 0, "length!>0");
+        uint256 _sharesSum = 0;
+        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+            require(_treasuryAccounts[_i].treasuryAccount != address(0), "!address(0)");
+            _sharesSum = _sharesSum.add(_treasuryAccounts[_i].share);
+        }
+        console.log("Shares sum: ", _sharesSum);
+        require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawlFee, "FeeShares!=WithdrawalFee");
+
+        //  delete the existing the treasury accounts if any to reset them
+        // DataTypes.TreasuryAccount[] memory _treasuryShares = _getTreasuryAccounts();
+        if (vaultToVaultConfiguration[_vault].treasuryShares.length > 0) {
+            console.log("Length before delete: ", vaultToVaultConfiguration[_vault].treasuryShares.length);
+            delete vaultToVaultConfiguration[_vault].treasuryShares;
+            console.log("Length after delete: ", vaultToVaultConfiguration[_vault].treasuryShares.length);
+            // delete treasuryAccountsWithShares;
+        }
+        for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+            vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryAccounts[_i]);
+            // treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
+        }
+        return true;
+        // delete the existing the treasury accounts if any to reset them
+        // if (treasuryAccountsWithShares.length > 0) {
+        //     delete treasuryAccountsWithShares;
+        // }
+        // for (uint8 _i = 0; _i < uint8(_treasuryAccounts.length); _i++) {
+        //     treasuryAccountsWithShares.push(_treasuryAccounts[_i]);
+        // }
+        // return true;
+    }
+
+    function getTreasuryAccounts(address _vault) external view returns (DataTypes.TreasuryAccount[] memory) {
+        return _getTreasuryAccounts(_vault);
+    }
+
+    function _getTreasuryAccounts(address _vault) internal view returns (DataTypes.TreasuryAccount[] memory) {
+        return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
     /**
