@@ -153,6 +153,8 @@ contract RiskManager is RiskManagerStorage, Modifiers {
     {
         require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
         IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.getStrategyProvider());
-        _vaultRewardStrategy = _strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
+        _vaultRewardStrategy = _strategyProvider.getVaultRewardTokenHashToVaultRewardTokenStrategy(
+            _vaultRewardTokenHash
+        );
     }
 }
