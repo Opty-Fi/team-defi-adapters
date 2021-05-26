@@ -90,6 +90,12 @@ export async function deployEssentialContracts(
 
   await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
 
+  const aprOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.APR_ORACLE, isDeployedOnce, owner, [
+    registry.address,
+  ]);
+
+  await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
+
   const harvestCodeProvider = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
