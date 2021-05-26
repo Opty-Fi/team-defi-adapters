@@ -9,8 +9,6 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
  * @dev Interface of the opty.fi's protocol reegistry
  */
 interface IRegistry {
-    function become(address _registryProxy) external;
-
     /**
      * @dev Transfers treasury to a new account (`_strategist`).
      * Can only be called by the current governance.
@@ -340,14 +338,14 @@ interface IRegistry {
      *
      * Returns a boolean value indicating whether pause is set to true or false
      *
-     * Emits a {LogPauseVault} event
+     * Emits a {LogUnpauseVault} event
      *
      * Requirements:
      *
      * - `_vault` cannot be a zero address
      * - `msg.sender` (caller) should be governance
      */
-    function setPause(address _vault, bool _paused) external returns (bool);
+    function unpauseVaultContract(address _vault, bool _paused) external returns (bool);
 
     /**
      * @dev Add the risk profile in Registry contract Storage
@@ -431,42 +429,42 @@ interface IRegistry {
     /**
      * @dev Returns list of token given the `_tokensHash`.
      */
-    function getTokensHashToTokens(bytes32 _tokensHash) external view returns (address[] memory);
+    function getTokensHashToTokenList(bytes32 _tokensHash) external view returns (address[] memory);
 
     /**
      * @dev Get the list of all the riskProfiles
      */
-    function getRiskProfiles() external view returns (string[] memory);
+    function getRiskProfileList() external view returns (string[] memory);
 
-    function strategyManager() external view returns (address);
+    function getStrategyManager() external view returns (address);
 
-    function strategyProvider() external view returns (address);
+    function getStrategyProvider() external view returns (address);
 
-    function treasury() external view returns (address);
+    function getTreasury() external view returns (address);
 
-    function vaultStepInvestStrategyDefinitionRegistry() external view returns (address);
+    function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
 
-    function riskManager() external view returns (address);
+    function getRiskManager() external view returns (address);
 
-    function optyMinter() external view returns (address);
+    function getOptyMinter() external view returns (address);
 
-    function governance() external view returns (address);
+    function getGovernance() external view returns (address);
 
-    function operator() external view returns (address);
+    function getOperator() external view returns (address);
 
-    function strategist() external view returns (address);
+    function getStrategist() external view returns (address);
 
-    function vaultToVaultActivityState(address) external view returns (DataTypes.VaultActivityState memory);
+    function getVaultToVaultActivityState(address) external view returns (DataTypes.VaultActivityState memory);
 
-    function riskProfiles(string memory) external view returns (DataTypes.RiskProfile memory);
+    function getRiskProfile(string memory) external view returns (DataTypes.RiskProfile memory);
 
-    function tokensHashToTokens(bytes32) external view returns (DataTypes.Token memory);
+    function getTokensHashIndexByHash(bytes32 _tokensHash) external view returns (uint256 _index);
 
-    function tokensHashIndexes(uint256) external view returns (bytes32);
+    function getTokensHashByIndex(uint256) external view returns (bytes32);
 
-    function liquidityPools(address) external view returns (DataTypes.LiquidityPool memory);
+    function getLiquidityPool(address) external view returns (DataTypes.LiquidityPool memory);
 
-    function liquidityPoolToAdapter(address) external view returns (address);
+    function getLiquidityPoolToAdapter(address) external view returns (address);
 
-    function tokens(address) external view returns (bool);
+    function isApprovedToken(address) external view returns (bool);
 }

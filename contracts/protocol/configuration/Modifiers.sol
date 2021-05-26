@@ -45,7 +45,7 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
-        require(msg.sender == registryContract.governance(), "caller is not having governance");
+        require(msg.sender == registryContract.getGovernance(), "caller is not having governance");
         _;
     }
 
@@ -53,7 +53,7 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
-        require(msg.sender == registryContract.operator(), "caller is not the operator");
+        require(msg.sender == registryContract.getOperator(), "caller is not the operator");
         _;
     }
 
@@ -61,7 +61,7 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is strategist or not
      */
     modifier onlyStrategist() {
-        require(msg.sender == registryContract.strategist(), "caller is not the strategist");
+        require(msg.sender == registryContract.getStrategist(), "caller is not the strategist");
         _;
     }
 
@@ -69,20 +69,20 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
-        require(msg.sender == registryContract.optyMinter(), "caller is not the minter");
+        require(msg.sender == registryContract.getOptyMinter(), "caller is not the minter");
         _;
     }
 
     modifier ifNotDiscontinued(address _vaultContract) {
         DataTypes.VaultActivityState memory _vaultActivityState =
-            registryContract.vaultToVaultActivityState(_vaultContract);
+            registryContract.getVaultToVaultActivityState(_vaultContract);
         require(!_vaultActivityState.discontinued, "discontinued");
         _;
     }
 
     modifier ifNotPaused(address _vaultContract) {
         DataTypes.VaultActivityState memory _vaultActivityState =
-            registryContract.vaultToVaultActivityState(_vaultContract);
+            registryContract.getVaultToVaultActivityState(_vaultContract);
         require(_vaultActivityState.unpaused, "paused");
         _;
     }

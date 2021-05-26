@@ -17,6 +17,7 @@ contract StrategyProvider is Modifiers {
     mapping(string => mapping(bytes32 => bytes32)) public rpToTokenToBestStrategy;
     mapping(string => mapping(bytes32 => bytes32)) public rpToTokenToDefaultStrategy;
     mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
+    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
@@ -27,10 +28,10 @@ contract StrategyProvider is Modifiers {
         bytes32 _tokenHash,
         bytes32 _strategyHash
     ) public onlyOperator {
-        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
-        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_tokenHash);
-        require(registryContract.tokensHashIndexes(_token.index) == _tokenHash, "!TokenHashExists");
+        uint256 _index = registryContract.getTokensHashIndexByHash(_tokenHash);
+        require(registryContract.getTokensHashByIndex(_index) == _tokenHash, "!TokenHashExists");
         rpToTokenToBestStrategy[_riskProfile][_tokenHash] = _strategyHash;
     }
 
@@ -39,10 +40,10 @@ contract StrategyProvider is Modifiers {
         bytes32 _tokenHash,
         bytes32 _strategyHash
     ) public onlyOperator {
-        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
-        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_tokenHash);
-        require(registryContract.tokensHashIndexes(_token.index) == _tokenHash, "!TokenHashExists");
+        uint256 _index = registryContract.getTokensHashIndexByHash(_tokenHash);
+        require(registryContract.getTokensHashByIndex(_index) == _tokenHash, "!TokenHashExists");
         rpToTokenToDefaultStrategy[_riskProfile][_tokenHash] = _strategyHash;
     }
 
@@ -65,15 +66,9 @@ contract StrategyProvider is Modifiers {
         bytes32 _vaultRewardTokenHash,
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) public onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
-        require(
-            _vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
-            "!bytes32(0)"
-        );
-        DataTypes.Token memory _token = registryContract.tokensHashToTokens(_vaultRewardTokenHash);
-        require(
-            registryContract.tokensHashIndexes(_token.index) == _vaultRewardTokenHash,
-            "!VaultRewardTokenHashExists"
-        );
+        require(_vaultRewardTokenHash != ZERO_BYTES32, "!bytes32(0)");
+        uint256 _index = registryContract.getTokensHashIndexByHash(_vaultRewardTokenHash);
+        require(registryContract.getTokensHashByIndex(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
         require(
             (_vaultRewardStrategy.hold.add(_vaultRewardStrategy.convert) == uint256(10000)) ||
                 (_vaultRewardStrategy.hold.add(_vaultRewardStrategy.convert) == uint256(0)),

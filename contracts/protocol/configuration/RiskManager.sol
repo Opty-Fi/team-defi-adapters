@@ -71,12 +71,12 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *
      */
     function _getBestStrategy(string memory _riskProfile, bytes32 _tokensHash) internal view returns (bytes32) {
-        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.riskProfiles(_riskProfile);
+        DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
 
-        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.strategyProvider());
+        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.getStrategyProvider());
         IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
-            IVaultStepInvestStrategyDefinitionRegistry(registryContract.vaultStepInvestStrategyDefinitionRegistry());
+            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
 
         // getbeststrategy from strategyProvider
         bytes32 _strategyHash = _strategyProvider.rpToTokenToBestStrategy(_riskProfile, _tokensHash);
@@ -93,7 +93,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
         (, DataTypes.StrategyStep[] memory _strategySteps) =
             _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
 
-        DataTypes.LiquidityPool memory _liquidityPool = registryContract.liquidityPools(_strategySteps[0].pool);
+        DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[0].pool);
         // validate strategy profile
         if (
             uint8(_strategySteps.length) > _riskProfileStruct.steps ||
@@ -123,7 +123,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
     {
         require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
-        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.strategyProvider());
+        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.getStrategyProvider());
         _vaultRewardStrategy = _strategyProvider.vaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
     }
 }
