@@ -15,6 +15,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -23,8 +24,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                   },
                   "executer": "owner",
@@ -105,6 +107,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "300"
                   },
                   "executer": "owner",
@@ -113,8 +116,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300]]
                   },
                   "executer": "owner",
@@ -125,6 +129,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -133,8 +138,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                   },
                   "executer": "owner",
@@ -215,6 +221,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -223,8 +230,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                   },
                   "executer": "owner",
@@ -299,6 +307,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "0"
                   },
                   "executer": "owner",
@@ -307,8 +316,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 0]]
                   },
                   "executer": "owner",
@@ -389,6 +399,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -397,8 +408,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -490,6 +502,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "800"
                   },
                   "executer": "owner",
@@ -498,8 +511,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 300]
@@ -513,8 +527,10 @@
               "getActions": [
                 {
                   "contract": "registry",
-                  "action": "getTreasuryAccounts(address)",
-                  "args": {},
+                  "action": "getTreasuryShares(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": [
                     ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500],
                     ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 300]
@@ -528,6 +544,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -536,8 +553,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -551,8 +569,10 @@
               "getActions": [
                 {
                   "contract": "registry",
-                  "action": "getTreasuryAccounts(address)",
-                  "args": {},
+                  "action": "getTreasuryShares(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": [
                     ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                     ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -644,6 +664,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -652,8 +673,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -667,8 +689,10 @@
               "getActions": [
                 {
                   "contract": "registry",
-                  "action": "getTreasuryAccounts(address)",
-                  "args": {},
+                  "action": "getTreasuryShares(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": [
                     ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                     ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -680,8 +704,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -778,6 +803,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "60"
                   },
                   "executer": "owner",
@@ -789,10 +815,75 @@
                 {
                   "contract": "registry",
                   "action": "vaultToVaultConfiguration(address)",
-                  "args": {},
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": "60"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "description": "Governance shouldn't be able to set withdrawal fee out of basis range (0-10000)",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "fee": "10001"
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "!BasisRange"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Governance shouldn't be able to set withdrawal fee for vault contract with 0x0 address",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "zero",
+                    "fee": "1000"
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "!address(0)"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Governance shouldn't be able to set withdrawal fee for vault contract with EOA address",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "EOA",
+                    "fee": "1000"
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "!isContract"
+                }
+              ],
+              "getActions": []
             }
           ]
         },
@@ -805,6 +896,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "60"
                   },
                   "executer": "user1",
@@ -825,6 +917,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -956,8 +1049,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": []
                   },
                   "executer": "owner",
@@ -978,6 +1072,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -986,8 +1081,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                   },
                   "executer": "owner",
@@ -998,8 +1094,10 @@
               "getActions": [
                 {
                   "contract": "registry",
-                  "action": "getTreasuryAccounts(address)",
-                  "args": {},
+                  "action": "getTreasuryShares(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                 }
               ]
@@ -1013,8 +1111,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
                   },
                   "executer": "user1",
@@ -1036,6 +1135,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "500"
                   },
                   "executer": "owner",
@@ -1044,8 +1144,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -1059,8 +1160,10 @@
               "getActions": [
                 {
                   "contract": "registry",
-                  "action": "getTreasuryAccounts(address)",
-                  "args": {},
+                  "action": "getTreasuryShares(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
                   "expectedValue": [
                     ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                     ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -1077,8 +1180,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 200]
@@ -1101,8 +1205,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [["0x0000000000000000000000000000000000000000", 500]]
                   },
                   "executer": "owner",
@@ -1121,8 +1226,9 @@
               "setActions": [
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 300],
                       ["0x0000000000000000000000000000000000000000", 200]
@@ -1146,6 +1252,7 @@
                   "contract": "registry",
                   "action": "setWithdrawalFee(address,uint256)",
                   "args": {
+                    "addressName": "vault",
                     "fee": "800"
                   },
                   "executer": "owner",
@@ -1154,8 +1261,9 @@
                 },
                 {
                   "contract": "registry",
-                  "action": "setTreasuryAccountsShare(address,(address,uint256)[])",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
                   "args": {
+                    "addressName": "vault",
                     "treasuryAccountsWithShares": [
                       ["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500],
                       ["0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B", 500]
@@ -1164,6 +1272,48 @@
                   "executer": "owner",
                   "expect": "fail",
                   "message": "FeeShares!=WithdrawalFee"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Governance shouldn't be able to set treasury share for vault contract with 0x0 address",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
+                  "args": {
+                    "addressName": "zero",
+                    "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "!address(0)"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Governance shouldn't be able to set treasury share for vault contract with EOA address",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
+                  "args": {
+                    "addressName": "EOA",
+                    "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "!isContract"
                 }
               ],
               "getActions": []

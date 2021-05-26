@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -25,6 +25,7 @@ describe(scenario.title, () => {
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
+  const EOA = "0xBc3dBFf7ec4f650e736b261C3E20335070D2b81B";
   let users: { [key: string]: Signer };
   before(async () => {
     try {
@@ -95,7 +96,6 @@ describe(scenario.title, () => {
         }
       });
 
-      // for (let i = 0; i < 4; i++) {
       for (let i = 0; i < vault.stories.length; i++) {
         const story = vault.stories[i];
         it(story.description, async () => {
@@ -124,13 +124,20 @@ describe(scenario.title, () => {
                   assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                   break;
                 }
-                case "setTreasuryAccountsShare(address,(address,uint256)[])": {
-                  const { treasuryAccountsWithShares } = <any>action.args;
+                case "setTreasuryShares(address,(address,uint256)[])": {
+                  const { addressName, treasuryAccountsWithShares } = <any>action.args;
                   try {
                     if (treasuryAccountsWithShares) {
                       await contracts[action.contract]
                         .connect(users[action.executer])
-                        [action.action](contracts["vault"].address, treasuryAccountsWithShares);
+                        [action.action](
+                          addressName.toString().toLowerCase() == "zero"
+                            ? ZERO_ADDRESS
+                            : addressName.toString().toLowerCase() == "eoa"
+                            ? EOA
+                            : contracts[addressName.toString().toLowerCase()].address,
+                          treasuryAccountsWithShares,
+                        );
                     }
                   } catch (error) {
                     if (action.expect === "success") {
@@ -141,17 +148,24 @@ describe(scenario.title, () => {
                       );
                     }
                   }
-
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                   assert.isDefined(treasuryAccountsWithShares, `args is wrong in ${action.action} testcase`);
                   break;
                 }
                 case "setWithdrawalFee(address,uint256)": {
-                  const { fee } = <any>action.args;
+                  const { addressName, fee } = <any>action.args;
                   try {
                     if (fee) {
                       await contracts[action.contract]
                         .connect(users[action.executer])
-                        [action.action](contracts["vault"].address, fee);
+                        [action.action](
+                          addressName.toString().toLowerCase() == "zero"
+                            ? ZERO_ADDRESS
+                            : addressName.toString().toLowerCase() == "eoa"
+                            ? EOA
+                            : contracts[addressName.toString().toLowerCase()].address,
+                          fee,
+                        );
                     }
                   } catch (error) {
                     if (action.expect === "success") {
@@ -162,6 +176,7 @@ describe(scenario.title, () => {
                       );
                     }
                   }
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                   assert.isDefined(fee, `args is wrong in ${action.action} testcase`);
                   break;
                 }
@@ -219,26 +234,26 @@ describe(scenario.title, () => {
             for (let k = 0; k < activities.getActions.length; k++) {
               const action = activities.getActions[k];
               switch (action.action) {
-                case "getTreasuryAccounts(address)": {
-                  const treasuryAccounts = await contracts[action.contract][action.action](contracts["vault"].address);
+                case "getTreasuryShares(address)": {
+                  const { addressName } = <any>action.args;
+                  const treasuryShares = await contracts[action.contract][action.action](
+                    contracts[addressName.toString().toLowerCase()].address,
+                  );
                   const expectedValues = Array.isArray(action.expectedValue) ? action.expectedValue : [];
-                  expect(+treasuryAccounts.length).to.equal(+expectedValues.length);
-                  for (let i = 0; i < treasuryAccounts.length; i++) {
-                    expect([treasuryAccounts[i].treasuryAccount, +treasuryAccounts[i].share]).to.have.members(
-                      expectedValues[i],
-                    );
+                  expect(+treasuryShares.length).to.equal(+expectedValues.length);
+                  for (let i = 0; i < treasuryShares.length; i++) {
+                    expect([treasuryShares[i].treasury, +treasuryShares[i].share]).to.have.members(expectedValues[i]);
                   }
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                   break;
                 }
                 case "vaultToVaultConfiguration(address)": {
-                  // const address = await contracts[action.contract][action.action]();
-                  // expect(address).to.equal(action.expectedValue);
-
-                  const value = await contracts[action.contract][action.action](contracts["vault"].address);
-                  console.log("value: ", value.withdrawlFee);
+                  const { addressName } = <any>action.args;
+                  const value = await contracts[action.contract][action.action](
+                    contracts[addressName.toString().toLowerCase()].address,
+                  );
                   expect(+value.withdrawlFee).to.equal(+action.expectedValue);
-                  // const expectedValue = Array.isArray(action.expectedValue) ? action.expectedValue : [];
-                  // expect([value[0], value[1]]).to.have.members(expectedValue);
+                  assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                   break;
                 }
                 case "balanceOf(address)": {
