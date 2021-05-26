@@ -773,22 +773,6 @@ contract Registry is ModifiersController {
         return true;
     }
 
-    // function _discontinue(address _vault) internal returns (bool) {
-    //     require(_vault != address(0), "!address(0)");
-    //     vaultToVaultConfiguration[_vault].discontinued = true;
-    //     IVault(_vault).discontinue();
-    //     emit LogDiscontinueVault(_vault, vaultToVaultConfiguration[_vault].discontinued, msg.sender);
-    //     return true;
-    // }
-
-    // function _unpauseVaultContract(address _vault, bool _unpaused) internal returns (bool) {
-    //     require(_vault != address(0), "!address(0)");
-    //     vaultToVaultConfiguration[_vault].unpaused = _unpaused;
-    //     IVault(_vault).setUnpaused(vaultToVaultConfiguration[_vault].unpaused);
-    //     emit LogUnpauseVault(_vault, vaultToVaultConfiguration[_vault].unpaused, msg.sender);
-    //     return true;
-    // }
-
     function _updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) internal returns (bool) {
         require(riskProfiles[_riskProfile].exists, "!Rp_Exists");
         riskProfiles[_riskProfile].steps = _noOfSteps;
