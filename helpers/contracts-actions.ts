@@ -3,7 +3,7 @@ import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import { TypedAdapterStrategies } from "./data";
 import { executeFunc } from "./helpers";
-import { getSoliditySHA3Hash, amountInHex } from "./utils";
+import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import tokenAddresses from "./data/TokenAddresses.json";
@@ -58,18 +58,22 @@ export async function approveLiquidityPoolAndMapAdapters(
   }
 }
 
+export async function approveToken(owner: Signer, registryContract: Contract, tokenAddresses: string[]): Promise<void> {
+  if (tokenAddresses.length > 0) {
+    await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
+  }
+}
+
 export async function approveTokens(owner: Signer, registryContract: Contract): Promise<void> {
   const tokenAddresses: string[] = [];
   for (const token in TOKENS) {
     tokenAddresses.push(TOKENS[token]);
   }
   try {
-    if (tokenAddresses.length > 0) {
-      await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
-      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
-        tokenAddresses.map(addr => [addr]),
-      ]);
-    }
+    await approveToken(owner, registryContract, tokenAddresses);
+    await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
+      tokenAddresses.map(addr => [addr]),
+    ]);
   } catch (error) {
     console.log(`Got error when executing approveTokens : ${error}`);
   }
@@ -95,25 +99,19 @@ export async function approveVaultRewardTokens(
   }
 }
 
-export async function setBestBasicStrategy(
+export async function setStrategy(
   strategy: STRATEGY_DATA[],
   tokensHash: string,
   vaultStepInvestStrategyDefinitionRegistry: Contract,
-  strategyProvider: Contract,
-  riskProfile: string,
-): Promise<void> {
+): Promise<string> {
   const strategySteps: [string, string, boolean][] = [];
-  const strategyStepsHash: string[] = [];
+
   for (let index = 0; index < strategy.length; index++) {
     const tempArr: [string, string, boolean] = [
       strategy[index].contract,
       strategy[index].outputToken,
       strategy[index].isBorrow,
     ];
-    strategyStepsHash[index] = getSoliditySHA3Hash(
-      ["address", "address", "bool"],
-      [strategy[index].contract, strategy[index].outputToken, strategy[index].isBorrow],
-    );
     strategySteps.push(tempArr);
   }
 
@@ -122,7 +120,17 @@ export async function setBestBasicStrategy(
     strategySteps,
   );
   const strategyReceipt = await strategies.wait();
-  const strategyHash = strategyReceipt.events[0].args[1];
+  return strategyReceipt.events[0].args[1];
+}
+
+export async function setBestBasicStrategy(
+  strategy: STRATEGY_DATA[],
+  tokensHash: string,
+  vaultStepInvestStrategyDefinitionRegistry: Contract,
+  strategyProvider: Contract,
+  riskProfile: string,
+): Promise<string> {
+  const strategyHash = await setStrategy(strategy, tokensHash, vaultStepInvestStrategyDefinitionRegistry);
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
   expect(strategyProviderStrategy).to.equal(strategyHash);
@@ -193,4 +201,13 @@ export async function getTokenInforWithAddress(
   const symbol = await ERC20Instance.symbol();
   const name: string = await ERC20Instance.name();
   return { name, symbol };
+}
+
+export async function unpauseVault(
+  owner: Signer,
+  registryContract: Contract,
+  vaultAddr: string,
+  unpaused: boolean,
+): Promise<void> {
+  await executeFunc(registryContract, owner, "unpauseVaultContract(address,bool)", [vaultAddr, unpaused]);
 }

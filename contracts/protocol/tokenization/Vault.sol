@@ -15,7 +15,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { VaultStorage } from "./VaultStorage.sol";
 import { Registry } from "../configuration/Registry.sol";
 import { OPTYMinter } from "./OPTYMinter.sol";
-import { OPTYStakingPool } from "./OPTYStakingPool.sol";
+import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
 
@@ -79,7 +79,7 @@ contract Vault is
         registryContract = Registry(registry);
         setProfile(_riskProfile);
         setRiskManager(_riskManager);
-        setToken(_underlyingToken); //  underlying token contract address (for example DAI)
+        setToken(_underlyingToken);
         setStrategyManager(_strategyManager);
         setOPTYMinter(_optyMinter);
         _setName(string(abi.encodePacked("op ", _name, " ", _riskProfile, " vault")));
@@ -110,6 +110,7 @@ contract Vault is
 
     function setToken(address _underlyingToken) public override onlyOperator returns (bool _success) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
+        require(registryContract.tokens(_underlyingToken), "!tokens");
         underlyingToken = _underlyingToken;
         _success = true;
     }
@@ -134,8 +135,6 @@ contract Vault is
         uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
         require(_tokenBalance > 0, "!amount>0");
         _batchMintAndBurn();
-        first = 1;
-        last = 0;
         uint8 _steps = strategyManagerContract.getDepositAllStepCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             bytes[] memory _codes =
@@ -162,11 +161,9 @@ contract Vault is
             _gasInitial = gasleft();
         }
 
-        require(totalSupply() > 0, "!totalSupply()>0");
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = underlyingToken;
         bytes32 newStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
-
         if (
             keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
             investStrategyHash != ZERO_BYTES32
@@ -189,10 +186,8 @@ contract Vault is
 
         investStrategyHash = newStrategyHash;
 
-        uint256 _balance = _balance();
-
-        if (_balance > 0) {
-            _emergencyBrake(_balance);
+        if (_balance() > 0) {
+            _emergencyBrake(_balance());
             investStrategyHash = riskManagerContract.getBestStrategy(profile, _underlyingTokens);
             _supplyAll();
         }
@@ -340,19 +335,18 @@ contract Vault is
     {
         require(_amount > 0, "!(_amount>0)");
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
-        last++;
-        queue[last] = DataTypes.Operation(msg.sender, true, _amount);
+        queue.push(DataTypes.Operation(msg.sender, true, _amount));
         pendingDeposits[msg.sender] += _amount;
         depositQueue += _amount;
-        emit DepositQueue(msg.sender, last, _amount);
+        emit DepositQueue(msg.sender, queue.length, _amount);
         _success = true;
     }
 
-    function userDepositAndStake(uint256 _amount, address _stakingPool) external override returns (bool) {
-        _userDepositAndStake(_amount, _stakingPool);
+    function userDepositAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
+        _userDepositAndStake(_amount, _stakingVault);
     }
 
-    function _userDepositAndStake(uint256 _amount, address _stakingPool)
+    function _userDepositAndStake(uint256 _amount, address _stakingVault)
         internal
         ifNotDiscontinued(address(this))
         ifNotPaused(address(this))
@@ -361,49 +355,42 @@ contract Vault is
     {
         _userDeposit(_amount);
         uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingPool _optyStakingPool = OPTYStakingPool(_stakingPool);
-        _optyStakingPool.userStake(_optyAmount);
+        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
+        _optyStakingVault.userStake(_optyAmount);
         _success = true;
     }
 
-    function userDepositAllAndStake(address _stakingPool) external override returns (bool) {
-        _userDepositAllAndStake(_stakingPool);
+    function userDepositAllAndStake(address _stakingVault) external override returns (bool) {
+        _userDepositAllAndStake(_stakingVault);
     }
 
-    function _userDepositAllAndStake(address _stakingPool)
+    function _userDepositAllAndStake(address _stakingVault)
         internal
         ifNotDiscontinued(address(this))
         ifNotPaused(address(this))
         nonReentrant
         returns (bool _success)
     {
-        _userDepositAndStake(IERC20(underlyingToken).balanceOf(msg.sender), _stakingPool);
+        _userDepositAndStake(IERC20(underlyingToken).balanceOf(msg.sender), _stakingVault);
         _success = true;
     }
 
     function _batchMintAndBurn() internal returns (bool _success) {
-        uint256 iterator = first;
-        while (last >= iterator) {
-            optyMinterContract.updateUserRewards(address(this), queue[iterator].account);
-            if (queue[iterator].isDeposit) {
-                _mintShares(queue[iterator].account, _balance(), queue[iterator].value);
-                pendingDeposits[msg.sender] -= queue[iterator].value;
-                depositQueue -= queue[iterator].value;
+        for (uint256 i = 0; i < queue.length; i++) {
+            if (queue[i].isDeposit) {
+                _mintShares(queue[i].account, _balance(), queue[i].value);
+                pendingDeposits[msg.sender] -= queue[i].value;
+                depositQueue -= queue[i].value;
             } else {
-                _redeemAndBurn(queue[iterator].account, _balance(), queue[iterator].value);
-                pendingWithdraws[msg.sender] -= queue[iterator].value;
-                withdrawQueue -= queue[iterator].value;
+                _redeemAndBurn(queue[i].account, _balance(), queue[i].value);
+                pendingWithdraws[msg.sender] -= queue[i].value;
+                withdrawQueue -= queue[i].value;
             }
-            iterator++;
+            optyMinterContract.updateUserStateInVault(address(this), queue[i].account);
         }
         optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
         optyMinterContract.updateOptyVaultIndex(address(this));
-        while (last >= first) {
-            optyMinterContract.updateUserStateInVault(address(this), queue[first].account);
-            delete queue[first];
-            first++;
-        }
-
+        delete queue;
         _success = true;
     }
 
@@ -463,11 +450,11 @@ contract Vault is
         _success = true;
     }
 
-    function userDepositRebalanceAndStake(uint256 _amount, address _stakingPool) external override returns (bool) {
-        _userDepositRebalanceAndStake(_amount, _stakingPool);
+    function userDepositRebalanceAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
+        _userDepositRebalanceAndStake(_amount, _stakingVault);
     }
 
-    function _userDepositRebalanceAndStake(uint256 _amount, address _stakingPool)
+    function _userDepositRebalanceAndStake(uint256 _amount, address _stakingVault)
         internal
         ifNotDiscontinued(address(this))
         ifNotPaused(address(this))
@@ -476,16 +463,16 @@ contract Vault is
     {
         _userDepositRebalance(_amount);
         uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingPool _optyStakingPool = OPTYStakingPool(_stakingPool);
-        _optyStakingPool.userStake(_optyAmount);
+        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
+        _optyStakingVault.userStake(_optyAmount);
         _success = true;
     }
 
-    function userDepositAllRebalanceAndStake(address _stakingPool) external override returns (bool) {
-        _userDepositAllRebalanceAndStake(_stakingPool);
+    function userDepositAllRebalanceAndStake(address _stakingVault) external override returns (bool) {
+        _userDepositAllRebalanceAndStake(_stakingVault);
     }
 
-    function _userDepositAllRebalanceAndStake(address _stakingPool)
+    function _userDepositAllRebalanceAndStake(address _stakingVault)
         internal
         ifNotDiscontinued(address(this))
         ifNotPaused(address(this))
@@ -494,8 +481,8 @@ contract Vault is
     {
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender));
         uint256 _optyAmount = optyMinterContract.claimOpty(msg.sender);
-        OPTYStakingPool _optyStakingPool = OPTYStakingPool(_stakingPool);
-        _optyStakingPool.userStake(_optyAmount);
+        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
+        _optyStakingVault.userStake(_optyAmount);
         _success = true;
     }
 
@@ -525,7 +512,8 @@ contract Vault is
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
 
-        if (!registryContract.vaultToDiscontinued(address(this)) && investStrategyHash != ZERO_BYTES32) {
+        (bool _discontinued, ) = registryContract.vaultToVaultActivityState(address(this));
+        if (!_discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll();
             _harvest(investStrategyHash);
         }
@@ -539,7 +527,7 @@ contract Vault is
         optyMinterContract.updateOptyVaultIndex(address(this));
         optyMinterContract.updateUserStateInVault(address(this), msg.sender);
 
-        if (!registryContract.vaultToDiscontinued(address(this)) && (_balance() > 0)) {
+        if (!_discontinued && (_balance() > 0)) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
@@ -553,16 +541,16 @@ contract Vault is
         _userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
-    function userDepositAllAndStakeWithCHI(address _stakingPool) external override discountCHI {
-        _userDepositAllAndStake(_stakingPool);
+    function userDepositAllAndStakeWithCHI(address _stakingVault) external override discountCHI {
+        _userDepositAllAndStake(_stakingVault);
     }
 
     function userDepositWithCHI(uint256 _amount) external override discountCHI {
         _userDeposit(_amount);
     }
 
-    function userDepositAndStakeWithCHI(uint256 _amount, address _stakingPool) external override discountCHI {
-        _userDepositAndStake(_amount, _stakingPool);
+    function userDepositAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
+        _userDepositAndStake(_amount, _stakingVault);
     }
 
     function userDepositAllRebalanceWithCHI() external override discountCHI {
@@ -573,12 +561,12 @@ contract Vault is
         _userDepositRebalance(_amount);
     }
 
-    function userDepositRebalanceAndStakeWithCHI(uint256 _amount, address _stakingPool) external override discountCHI {
-        _userDepositRebalanceAndStake(_amount, _stakingPool);
+    function userDepositRebalanceAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
+        _userDepositRebalanceAndStake(_amount, _stakingVault);
     }
 
-    function userDepositAllRebalanceAndStakeWithCHI(address _stakingPool) external override discountCHI {
-        _userDepositAllRebalanceAndStake(_stakingPool);
+    function userDepositAllRebalanceAndStakeWithCHI(address _stakingVault) external override discountCHI {
+        _userDepositAllRebalanceAndStake(_stakingVault);
     }
 
     function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) external override discountCHI {
@@ -659,7 +647,9 @@ contract Vault is
         uint256 _balanceInUnderlyingToken,
         uint256 _depositAmount
     ) private {
-        _mint(_account, (_depositAmount.mul(totalSupply())).div(_balanceInUnderlyingToken.sub(depositQueue)));
+        if (_balanceInUnderlyingToken > depositQueue) {
+            _mint(_account, (_depositAmount.mul(totalSupply())).div(_balanceInUnderlyingToken.sub(depositQueue)));
+        }
     }
 
     function getPricePerFullShare() public view override returns (uint256) {
@@ -676,8 +666,8 @@ contract Vault is
         }
     }
 
-    function setPaused(bool _paused) public override onlyRegistry {
-        if (_paused && investStrategyHash != ZERO_BYTES32) {
+    function setUnpaused(bool _unpaused) public override onlyRegistry {
+        if (!_unpaused && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll();
             _harvest(investStrategyHash);
         }

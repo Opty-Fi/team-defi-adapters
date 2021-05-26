@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/types";
 import { config as dotenvConfig } from "dotenv";
 import { resolve } from "path";
+import path from "path";
+import fs from "fs";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "hardhat-deploy-ethers";
@@ -11,11 +13,22 @@ import "solidity-coverage";
 import "hardhat-deploy";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
 
-require("./tasks/deployment/deploy-infra");
-require("./tasks/deployment/deploy-vault");
-require("./tasks/deployment/deploy-vaults");
-require("./tasks/accounts");
-require("./tasks/clean");
+const SKIP_LOAD = process.env.SKIP_LOAD === "true";
+const DEFAULT_BLOCK_GAS_LIMIT = 0x1fffffffffffff;
+const DEFAULT_GAS_MUL = 5;
+const HARDFORK = "istanbul";
+const MNEMONIC_PATH = "m/44'/60'/0'/0";
+
+if (!SKIP_LOAD) {
+  ["", "deployment", "actions"].forEach(folder => {
+    const tasksPath = path.join(__dirname, "tasks", folder);
+    fs.readdirSync(tasksPath)
+      .filter(pth => pth.includes(".ts"))
+      .forEach(task => {
+        require(`${tasksPath}/${task}`);
+      });
+  });
+}
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -28,11 +41,6 @@ const chainIds = {
   rinkeby: 4,
   ropsten: 3,
 };
-
-const DEFAULT_BLOCK_GAS_LIMIT = 0x1fffffffffffff;
-const DEFAULT_GAS_MUL = 5;
-const HARDFORK = "istanbul";
-const MNEMONIC_PATH = "m/44'/60'/0'/0";
 
 // Ensure that we have all the environment variables we need.
 let mnemonic: string;
@@ -69,7 +77,7 @@ const buidlerConfig: HardhatUserConfig = {
   solidity: {
     version: "0.6.10",
     settings: {
-      optimizer: { enabled: true, runs: 1 },
+      optimizer: { enabled: true, runs: 200 },
       evmVersion: "istanbul",
     },
   },
@@ -82,6 +90,7 @@ const buidlerConfig: HardhatUserConfig = {
       url: NETWORKS_RPC_URL[eEthereumNetwork.hardhat],
       chainId: chainIds.ganache,
     },
+    kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, chainIds.kovan),
     hardhat: {
       forking: {
         blockNumber: 12200321,

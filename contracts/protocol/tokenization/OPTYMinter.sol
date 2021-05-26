@@ -7,7 +7,7 @@ import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoErr
 import { Modifiers } from "../configuration/Modifiers.sol";
 import { OPTY } from "./OPTY.sol";
 import { OPTYMinterStorage } from "./OPTYMinterStorage.sol";
-import { OPTYStakingPool } from "./OPTYStakingPool.sol";
+import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 
 /**
  * @dev Contract distributing $OPTY to opty-fi earn protocol's users
@@ -19,20 +19,20 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @dev Modifier to check caller is staking pool or not
+     * @dev Modifier to check caller is staking vault or not
      */
-    modifier onlyStakingPool() {
-        require(stakingPools[msg.sender] == true, "caller is not a staking pool");
+    modifier onlyStakingVault() {
+        require(stakingVaults[msg.sender] == true, "caller is not a staking vault");
         _;
     }
 
     /**
-     * @dev Maps staking pool to a boolean variable that indicates wether the staking pool is enabled`or not
+     * @dev Maps staking vault to a boolean variable that indicates wether the staking vault is enabled`or not
      *
      */
-    function setStakingPool(address _stakingPool, bool _enable) public onlyOperator returns (bool) {
-        require(_stakingPool != address(0), "Invalid address");
-        stakingPools[_stakingPool] = _enable;
+    function setStakingVault(address _stakingVault, bool _enable) public onlyOperator returns (bool) {
+        require(_stakingVault != address(0), "Invalid address");
+        stakingVaults[_stakingVault] = _enable;
         return true;
     }
 
@@ -41,10 +41,10 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         optyAddress = _opty;
     }
 
-    function claimAndStake(address _stakingPool) public {
+    function claimAndStake(address _stakingVault) public {
         uint256 _amount = claimOpty(msg.sender);
-        OPTYStakingPool _optyStakingPool = OPTYStakingPool(_stakingPool);
-        _optyStakingPool.userStake(_amount);
+        OPTYStakingVault _optyStakingVault = OPTYStakingVault(_stakingVault);
+        _optyStakingVault.userStake(_amount);
     }
 
     /**
@@ -159,39 +159,43 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
      * @param _user The address to calculate contributor rewards for
      */
     function updateUserRewards(address _optyVault, address _user) public {
-        if (IERC20(_optyVault).balanceOf(_user) > 0 && lastUserUpdate[_optyVault][_user] != getBlockTimestamp()) {
-            uint256 _deltaSecondsVault = sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
-            uint256 _deltaSecondsUser;
-            if (
-                lastUserUpdate[_optyVault][_user] != uint256(0) &&
-                lastUserUpdate[_optyVault][_user] > optyVaultStartTimestamp[_optyVault]
-            ) {
-                _deltaSecondsUser = sub_(lastUserUpdate[_optyVault][_user], optyVaultStartTimestamp[_optyVault]);
-            } else {
-                _deltaSecondsUser = sub_(
-                    optyUserStateInVault[_optyVault][_user].timestamp,
-                    optyVaultStartTimestamp[_optyVault]
-                );
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            if (IERC20(_optyVault).balanceOf(_user) > 0 && lastUserUpdate[_optyVault][_user] != getBlockTimestamp()) {
+                uint256 _deltaSecondsVault = sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
+                uint256 _deltaSecondsUser;
+                if (
+                    lastUserUpdate[_optyVault][_user] != uint256(0) &&
+                    lastUserUpdate[_optyVault][_user] > optyVaultStartTimestamp[_optyVault]
+                ) {
+                    _deltaSecondsUser = sub_(lastUserUpdate[_optyVault][_user], optyVaultStartTimestamp[_optyVault]);
+                } else {
+                    _deltaSecondsUser = sub_(
+                        optyUserStateInVault[_optyVault][_user].timestamp,
+                        optyVaultStartTimestamp[_optyVault]
+                    );
+                }
+                uint256 _userTokens = IERC20(_optyVault).balanceOf(_user);
+                uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
+                uint256 _userDelta =
+                    mul_(
+                        _userTokens,
+                        sub_(
+                            mul_(_currentOptyVaultIndex, _deltaSecondsVault),
+                            mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser)
+                        )
+                    );
+                uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
+                optyAccrued[_user] = _userAccrued;
             }
-            uint256 _userTokens = IERC20(_optyVault).balanceOf(_user);
-            uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
-            uint256 _userDelta =
-                mul_(
-                    _userTokens,
-                    sub_(
-                        mul_(_currentOptyVaultIndex, _deltaSecondsVault),
-                        mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser)
-                    )
-                );
-            uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
-            optyAccrued[_user] = _userAccrued;
+            lastUserUpdate[_optyVault][_user] = getBlockTimestamp();
         }
-        lastUserUpdate[_optyVault][_user] = getBlockTimestamp();
     }
 
     function updateUserStateInVault(address _optyVault, address _user) public {
-        optyUserStateInVault[_optyVault][_user].index = optyVaultState[_optyVault].index;
-        optyUserStateInVault[_optyVault][_user].timestamp = optyVaultState[_optyVault].timestamp;
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            optyUserStateInVault[_optyVault][_user].index = optyVaultState[_optyVault].index;
+            optyUserStateInVault[_optyVault][_user].timestamp = optyVaultState[_optyVault].timestamp;
+        }
     }
 
     /**
@@ -199,9 +203,11 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
      * @return The amount of OPTY which was NOT transferred to the user
      */
     function updateOptyVaultRatePerSecondAndVaultToken(address _optyVault) public returns (bool) {
-        optyVaultRatePerSecondAndVaultToken[_optyVault] = IERC20(_optyVault).totalSupply() > 0
-            ? div_(mul_(optyVaultRatePerSecond[_optyVault], 1e18), IERC20(_optyVault).totalSupply())
-            : uint256(0);
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            optyVaultRatePerSecondAndVaultToken[_optyVault] = IERC20(_optyVault).totalSupply() > 0
+                ? div_(mul_(optyVaultRatePerSecond[_optyVault], 1e18), IERC20(_optyVault).totalSupply())
+                : uint256(0);
+        }
         return true;
     }
 
@@ -210,39 +216,44 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
      * @param _optyVault The market whose index to update
      */
     function updateOptyVaultIndex(address _optyVault) public returns (uint224) {
-        if (optyVaultState[_optyVault].index == uint224(0)) {
-            optyVaultStartTimestamp[_optyVault] = getBlockTimestamp();
-            optyVaultState[_optyVault].timestamp = uint32(optyVaultStartTimestamp[_optyVault]);
-            optyVaultState[_optyVault].index = uint224(optyVaultRatePerSecondAndVaultToken[_optyVault]);
-            return optyVaultState[_optyVault].index;
-        } else {
-            uint256 _deltaSeconds = sub_(getBlockTimestamp(), uint256(optyVaultState[_optyVault].timestamp));
-            if (_deltaSeconds > 0) {
-                uint256 _deltaSecondsSinceStart = sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
-                uint256 _supplyTokens = IERC20(_optyVault).totalSupply();
-                uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_optyVault]);
-                uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
-                uint256 _index =
-                    div_(
-                        add_(
-                            mul_(
-                                optyVaultState[_optyVault].index,
-                                sub_(uint256(optyVaultState[_optyVault].timestamp), optyVaultStartTimestamp[_optyVault])
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            if (optyVaultState[_optyVault].index == uint224(0)) {
+                optyVaultStartTimestamp[_optyVault] = getBlockTimestamp();
+                optyVaultState[_optyVault].timestamp = uint32(optyVaultStartTimestamp[_optyVault]);
+                optyVaultState[_optyVault].index = uint224(optyVaultRatePerSecondAndVaultToken[_optyVault]);
+                return optyVaultState[_optyVault].index;
+            } else {
+                uint256 _deltaSeconds = sub_(getBlockTimestamp(), uint256(optyVaultState[_optyVault].timestamp));
+                if (_deltaSeconds > 0) {
+                    uint256 _deltaSecondsSinceStart = sub_(getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
+                    uint256 _supplyTokens = IERC20(_optyVault).totalSupply();
+                    uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_optyVault]);
+                    uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
+                    uint256 _index =
+                        div_(
+                            add_(
+                                mul_(
+                                    optyVaultState[_optyVault].index,
+                                    sub_(
+                                        uint256(optyVaultState[_optyVault].timestamp),
+                                        optyVaultStartTimestamp[_optyVault]
+                                    )
+                                ),
+                                _ratio
                             ),
-                            _ratio
-                        ),
-                        _deltaSecondsSinceStart
-                    );
-                optyVaultState[_optyVault] = OptyState({
-                    index: safe224(_index, "new index exceeds 224 bits"),
-                    timestamp: safe32(getBlockTimestamp(), "block number exceeds 32 bits")
-                });
+                            _deltaSecondsSinceStart
+                        );
+                    optyVaultState[_optyVault] = OptyState({
+                        index: safe224(_index, "new index exceeds 224 bits"),
+                        timestamp: safe32(getBlockTimestamp(), "block number exceeds 32 bits")
+                    });
+                }
+                return optyVaultState[_optyVault].index;
             }
-            return optyVaultState[_optyVault].index;
         }
     }
 
-    function mintOpty(address _user, uint256 _amount) external onlyStakingPool returns (uint256) {
+    function mintOpty(address _user, uint256 _amount) external onlyStakingVault returns (uint256) {
         _mintOpty(_user, _amount);
     }
 
