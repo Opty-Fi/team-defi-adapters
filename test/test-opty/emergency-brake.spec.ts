@@ -16,9 +16,8 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import scenario from "./scenarios/emergency-brake-negative.json";
+import scenario from "./scenarios/emergency-brake.json";
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
   const MAX_AMOUNT = 100000000;
   let essentialContracts: CONTRACTS;
@@ -49,23 +48,6 @@ describe(scenario.title, () => {
       let emergencyBrake: Contract;
       before(async () => {
         try {
-          underlyingTokenName = await getTokenName(hre, token);
-          underlyingTokenSymbol = await getTokenSymbol(hre, token);
-          Vault = await deployVault(
-            hre,
-            essentialContracts.registry.address,
-            essentialContracts.riskManager.address,
-            essentialContracts.strategyManager.address,
-            essentialContracts.optyMinter.address,
-            TOKENS[token],
-            owner,
-            admin,
-            underlyingTokenName,
-            underlyingTokenSymbol,
-            profile,
-            TESTING_DEPLOYMENT_ONCE,
-          );
-          await unpauseVault(owner, essentialContracts.registry, Vault.address, true);
           await approveLiquidityPoolAndMapAdapter(
             owner,
             essentialContracts.registry,
@@ -73,21 +55,16 @@ describe(scenario.title, () => {
             TOKEN_STRATEGY.strategy[0].contract,
           );
 
-          const riskProfile = await Vault.profile();
           await setBestBasicStrategy(
             TOKEN_STRATEGY.strategy,
             tokensHash,
             essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
             essentialContracts.strategyProvider,
-            riskProfile,
+            profile,
           );
 
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
-
-          const EmergencyBrakeFactory = await hre.ethers.getContractFactory(TESTING_CONTRACTS.TESTING_EMERGENCY_BRAKE);
-
-          emergencyBrake = await EmergencyBrakeFactory.deploy(Vault.address, TOKENS[token]);
 
           ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
         } catch (error) {
@@ -95,8 +72,28 @@ describe(scenario.title, () => {
         }
       });
       beforeEach(async () => {
-        await ERC20Instance.connect(owner).transfer(emergencyBrake.address, MAX_AMOUNT * 2);
+        underlyingTokenName = await getTokenName(hre, token);
+        underlyingTokenSymbol = await getTokenSymbol(hre, token);
+        Vault = await deployVault(
+          hre,
+          essentialContracts.registry.address,
+          essentialContracts.riskManager.address,
+          essentialContracts.strategyManager.address,
+          essentialContracts.optyMinter.address,
+          TOKENS[token],
+          owner,
+          admin,
+          underlyingTokenName,
+          underlyingTokenSymbol,
+          profile,
+          TESTING_DEPLOYMENT_ONCE,
+        );
+        await unpauseVault(owner, essentialContracts.registry, Vault.address, true);
         await Vault.connect(owner).setMaxVaultValueJump(vault.maxJump);
+        const EmergencyBrakeFactory = await hre.ethers.getContractFactory(TESTING_CONTRACTS.TESTING_EMERGENCY_BRAKE);
+        emergencyBrake = await EmergencyBrakeFactory.deploy(Vault.address, TOKENS[token]);
+
+        await ERC20Instance.connect(owner).transfer(emergencyBrake.address, MAX_AMOUNT * 2);
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
