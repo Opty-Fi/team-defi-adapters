@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
@@ -209,7 +211,7 @@ contract APROracle is Modifiers {
     }
 
     function getBestAPR(bytes32 _tokensHash) public view returns (bytes32) {
-        address[] memory tokens = registryContract.getTokensHashToTokens(_tokensHash);
+        address[] memory tokens = registryContract.getTokensHashToTokenList(_tokensHash);
         uint256 aaveV2APR;
         address aTokenV2;
         (aTokenV2, aaveV2APR) = getAaveV2APR(tokens[0]);

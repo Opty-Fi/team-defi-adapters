@@ -708,6 +708,10 @@ contract Registry is IRegistry, ModifiersController {
         return strategist;
     }
 
+    function getAprOracle() public view override returns (address) {
+        return aprOracle;
+    }
+
     function getRiskProfile(string memory _riskProfileName)
         public
         view

@@ -94,7 +94,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
                 _strategyHash == ZERO_BYTES32 &&
                 _strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave
             ) {
-                _strategyHash = IAPROracle(registryContract.aprOracle()).getBestAPR(_tokensHash);
+                _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
                 (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
                 if (_strategyIndex == uint256(0)) {
                     return ZERO_BYTES32;
@@ -120,7 +120,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
                 return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
             } else {
                 if (_strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave) {
-                    _strategyHash = IAPROracle(registryContract.aprOracle()).getBestAPR(_tokensHash);
+                    _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
                     (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
                     if (_strategyIndex != uint256(0)) {
                         return _strategyHash;
