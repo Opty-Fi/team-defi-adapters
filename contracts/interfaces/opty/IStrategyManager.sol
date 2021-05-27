@@ -65,8 +65,6 @@ interface IStrategyManager {
         uint8 _stepCount
     ) external view returns (bytes[] memory _codes);
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) external;
-
     function getLpAdapterRewardToken(bytes32 _investStrategyHash)
         external
         view

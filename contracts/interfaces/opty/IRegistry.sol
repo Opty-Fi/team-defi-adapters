@@ -454,6 +454,8 @@ interface IRegistry {
 
     function getStrategist() external view returns (address);
 
+    function getHarvestCodeProvider() external view returns (address);
+
     function getAprOracle() external view returns (address);
 
     function getVaultToVaultActivityState(address) external view returns (DataTypes.VaultActivityState memory);

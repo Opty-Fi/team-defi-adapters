@@ -3,9 +3,6 @@
 
 pragma solidity ^0.6.10;
 
-import { RiskManager } from "../configuration/RiskManager.sol";
-import { StrategyManager } from "../configuration/StrategyManager.sol";
-import { OPTYMinter } from "./OPTYMinter.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 contract VaultStorage {

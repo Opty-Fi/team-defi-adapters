@@ -737,6 +737,10 @@ contract Registry is IRegistry, ModifiersController {
         return operator;
     }
 
+    function getHarvestCodeProvider() public view override returns (address) {
+        return harvestCodeProvider;
+    }
+
     function getLiquidityPool(address _pool)
         public
         view

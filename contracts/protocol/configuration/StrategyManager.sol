@@ -6,45 +6,43 @@ pragma experimental ABIEncoderV2;
 import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
 import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { Registry } from "./Registry.sol";
-import { RegistryStorage } from "./RegistryStorage.sol";
 import { Modifiers } from "./Modifiers.sol";
-import { HarvestCodeProvider } from "./HarvestCodeProvider.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
+import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
  */
 
-contract StrategyManager is Modifiers {
+contract StrategyManager is IStrategyManager, Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
-    HarvestCodeProvider public harvestCodeProviderContract;
-
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
-    }
+    /* solhint-disable no-empty-blocks */
+    constructor(address _registry) public Modifiers(_registry) {}
 
-    function getWithdrawAllStepsCount(bytes32 _hash) public view returns (uint8) {
+    /* solhint-disable no-empty-blocks */
+
+    function getWithdrawAllStepsCount(bytes32 _hash) public view override returns (uint8) {
         return _getWithdrawAllStepsCount(_hash);
     }
 
-    function getDepositAllStepCount(bytes32 _hash) public view returns (uint8) {
+    function getDepositAllStepCount(bytes32 _hash) public view override returns (uint8) {
         return _getDepositAllStepCount(_hash);
     }
 
-    function getClaimRewardStepsCount(bytes32 _hash) public view returns (uint8) {
+    function getClaimRewardStepsCount(bytes32 _hash) public view override returns (uint8) {
         return _getClaimRewardStepsCount(_hash);
     }
 
-    function getHarvestRewardStepsCount(bytes32 _hash) public view returns (uint8) {
+    function getHarvestRewardStepsCount(bytes32 _hash) public view override returns (uint8) {
         return _getHarvestRewardStepsCount(_hash);
     }
 
@@ -52,7 +50,7 @@ contract StrategyManager is Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _hash
-    ) public view returns (uint256 _balance) {
+    ) public view override returns (uint256 _balance) {
         return _getBalanceInUnderlyingToken(_optyVault, _underlyingToken, _hash);
     }
 
@@ -62,7 +60,7 @@ contract StrategyManager is Modifiers {
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) public view returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolDepositAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
@@ -72,7 +70,7 @@ contract StrategyManager is Modifiers {
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) public view returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolWithdrawAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
@@ -81,7 +79,7 @@ contract StrategyManager is Modifiers {
         bytes32 _hash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) public view returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
     }
 
@@ -91,7 +89,7 @@ contract StrategyManager is Modifiers {
         bytes32 _investStrategyHash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) public view returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolHarvestAllRewardCodes(
             _optyVault,
             _underlyingToken,
@@ -108,7 +106,7 @@ contract StrategyManager is Modifiers {
         uint256 _convertRewardTokensPercent,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) public view returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolHarvestSomeRewardCodes(
             _optyVault,
             _underlyingToken,
@@ -117,10 +115,6 @@ contract StrategyManager is Modifiers {
             _stepIndex,
             _stepCount
         );
-    }
-
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
@@ -225,7 +219,9 @@ contract StrategyManager is Modifiers {
                 if (_stepIndex == _subStepCounter - 1) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
                     uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_optyVault);
-                    _codes = harvestCodeProviderContract.getHarvestCodes(
+                    IHarvestCodeProvider _harvestCodeProviderContract =
+                        IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
+                    _codes = _harvestCodeProviderContract.getHarvestCodes(
                         _optyVault,
                         _outputToken,
                         _underlyingToken,
@@ -295,6 +291,7 @@ contract StrategyManager is Modifiers {
     function getLpAdapterRewardToken(bytes32 _investStrategyHash)
         public
         view
+        override
         returns (
             address _liquidityPool,
             address _optyAdapter,

@@ -3,7 +3,6 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import { Registry } from "./Registry.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Modifiers } from "./Modifiers.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
@@ -14,13 +13,14 @@ import {
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
+import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 
 /**
  * @dev An extra protection for the best strategy of the opty-fi vault's
  *      underlying token
  */
 
-contract RiskManager is RiskManagerStorage, Modifiers {
+contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     using Address for address;
 
     /* solhint-disable no-empty-blocks */
@@ -48,7 +48,12 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *      - Can not have length 0
      *
      */
-    function getBestStrategy(string memory _profile, address[] memory _underlyingTokens) public view returns (bytes32) {
+    function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
+        public
+        view
+        override
+        returns (bytes32)
+    {
         require(bytes(_profile).length > 0, "RP_Empty!");
 
         for (uint8 i = 0; i < _underlyingTokens.length; i++) {
@@ -149,6 +154,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
     function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
         public
         view
+        override
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
     {
         require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");

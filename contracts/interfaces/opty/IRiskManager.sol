@@ -13,11 +13,6 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 interface IRiskManager {
     /**
-     * @dev Set RiskManagerProxy to act as RiskManager
-     */
-    function become(address _riskManagerProxy) external;
-
-    /**
      * @dev Get the best strategy for respective RiskProfiles
      *
      * Returns the hash of the best strategy corresponding to the riskProfile provided

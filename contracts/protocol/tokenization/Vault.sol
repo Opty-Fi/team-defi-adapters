@@ -8,7 +8,7 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Deployer } from "../../dependencies/chi/ChiDeployer.sol";
 import { VersionedInitializable } from "../../dependencies/openzeppelin/VersionedInitializable.sol";
-import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { SafeERC20, IERC20, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IncentivisedERC20 } from "./IncentivisedERC20.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";

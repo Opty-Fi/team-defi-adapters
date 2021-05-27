@@ -5,11 +5,12 @@ pragma solidity ^0.6.10;
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
+import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
-abstract contract Modifiers {
+abstract contract Modifiers is IModifiers {
     IRegistry public registryContract;
 
     using Address for address;
@@ -21,15 +22,7 @@ abstract contract Modifiers {
         registryContract = IRegistry(_registry);
     }
 
-    /**
-     * @dev Function to check if the address is zero address or not
-     */
-    function isZeroAddress(address _address) internal pure returns (bool) {
-        require(_address != address(0), "Modifiers: caller is zero address");
-        return true;
-    }
-
-    function setRegistry(address _registry) public onlyOperator {
+    function setRegistry(address _registry) public override onlyOperator {
         registryContract = IRegistry(_registry);
     }
 
