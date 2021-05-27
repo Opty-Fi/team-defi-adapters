@@ -26,11 +26,6 @@ contract RegistryAdminStorage {
     address public strategist;
 
     /**
-     * @notice Treasury for this contract
-     */
-    address public treasury;
-
-    /**
      * @notice Minter for OPTY token
      */
     address public minter;
@@ -78,8 +73,8 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(address => DataTypes.LiquidityPool) public creditPools;
     mapping(address => address) public liquidityPoolToAdapter;
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
-    mapping(address => DataTypes.VaultActivityState) public vaultToVaultActivityState;
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
+    mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
     bytes32[] public tokensHashIndexes;
     string[] public riskProfilesArray;
     address public strategyProvider;
