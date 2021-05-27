@@ -14,7 +14,6 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
-import "hardhat/console.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
@@ -130,27 +129,16 @@ contract StrategyManager is Modifiers {
         address _underlyingToken,
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee
-    ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
-        console.log("_redeemAmountInToken at start: ", _redeemAmountInToken);
-
+    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         uint256 _fee = 0;
-        console.log("length: ", _treasuryShares.length);
-        console.log("Withdrawal fee: ", _withdrawalFee);
         if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
-            // _fee = ((_redeemAmountInToken).mul(_withdrawalFee)).div(10000);
             uint8 _treasurySharesLength = uint8(_treasuryShares.length);
             _treasuryCodes = new bytes[](_treasurySharesLength);
 
             for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
-                console.log("Treasury address: ", _treasuryShares[_i].treasury);
                 if (_treasuryShares[_i].treasury != address(0)) {
                     uint256 _share = _treasuryShares[_i].share;
-                    console.log("Share: ", _share);
-
-                    console.log("Length in else: ", _treasuryCodes.length);
                     uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
-                    console.log("_treasury account fee: ", _treasuryAccountFee);
-
                     _treasuryCodes[_i] = abi.encode(
                         _underlyingToken,
                         abi.encodeWithSignature(
@@ -160,14 +148,9 @@ contract StrategyManager is Modifiers {
                         )
                     );
                     _fee = _fee.add(_treasuryAccountFee);
-                    console.log("Fee to minus: ", _fee);
                 }
             }
-            console.log("Length outside for: ", _treasuryCodes.length);
         }
-        console.log("Length outside if: ", _treasuryCodes.length);
-        console.log("_redeemAmountInToken inside: ", _redeemAmountInToken);
-        console.log("_fee final: ", _fee);
         require(_account != address(0), "Account==0x0");
         _accountCode = abi.encode(
             _underlyingToken,

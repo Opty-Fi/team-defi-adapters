@@ -2,7 +2,6 @@
 
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
-import "hardhat/console.sol";
 
 /**
  * @title AVault
@@ -26,7 +25,6 @@ abstract contract AVault {
     function executeCode(bytes memory _code, string memory _errorMsg) public {
         (address _contract, bytes memory _data) = abi.decode(_code, (address, bytes));
         (bool _success, ) = _contract.call(_data); //solhint-disable-line avoid-low-level-calls
-        console.log("Success: ", _success);
         require(_success, _errorMsg);
     }
 
@@ -41,9 +39,6 @@ abstract contract AVault {
     function executeCodes(bytes[] memory _codes, string memory _errorMsg) public {
         for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
             executeCode(_codes[_j], _errorMsg);
-            // (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-            // (success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-            // require(success, _errMsg);
         }
     }
 }

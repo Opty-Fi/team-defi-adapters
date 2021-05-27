@@ -143,11 +143,6 @@ contract Vault is
                     _steps
                 );
             executeCodes(_codes, "!_supplyAll");
-            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-            //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-            //     require(success, "!_supplyAll");
-            // }
         }
         vaultValue = _calVaultValueInUnderlyingToken();
     }
@@ -246,11 +241,6 @@ contract Vault is
                     _steps
                 );
             executeCodes(_codes, "!_withdrawAll");
-            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-            //     (bool _success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-            //     require(_success, "!_withdrawAll");
-            // }
         }
     }
 
@@ -269,11 +259,6 @@ contract Vault is
                     _claimRewardSteps
                 );
             executeCodes(_codes, "!claim");
-            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-            //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-            //     require(success, "!claim");
-            // }
         }
 
         (, , address _rewardToken) = strategyManagerContract.getLpAdapterRewardToken(_investStrategyHash);
@@ -302,11 +287,6 @@ contract Vault is
                             _harvestSteps
                         );
                 executeCodes(_codes, "!harvest");
-                // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                //     require(success, "!harvest");
-                // }
             }
         }
     }
@@ -644,16 +624,8 @@ contract Vault is
             );
         if (_treasuryCodes.length > 0) {
             executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");
-            // for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
-            //     (address _underlyingToken, bytes memory data) = abi.decode(_treasuryCodes[_j], (address, bytes));
-            //     (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-            //     require(_success, "!TreasuryRedeemAmt");
-            // }
         }
         executeCode(_accountCode, "!CallerRedeemAmt");
-        // (address _underlyingToken, bytes memory data) = abi.decode(_accountCode, (address, bytes));
-        // (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-        // require(_success, "!CallerRedeemAmt");
     }
 
     function _mintShares(
