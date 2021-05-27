@@ -29,7 +29,7 @@ contract StrategyProvider is Modifiers {
         string memory _riskProfile,
         bytes32 _tokenHash,
         bytes32 _strategyHash
-    ) public onlyOperator {
+    ) external onlyOperator {
         (, , , , bool _profileExists) = registryContract.riskProfiles(_riskProfile);
         require(_profileExists, "!Rp_Exists");
         uint256 _index = registryContract.tokensHashToTokens(_tokenHash);
@@ -41,7 +41,7 @@ contract StrategyProvider is Modifiers {
         string memory _riskProfile,
         bytes32 _tokenHash,
         bytes32 _strategyHash
-    ) public onlyOperator {
+    ) external onlyOperator {
         (, , , , bool _profileExists) = registryContract.riskProfiles(_riskProfile);
         require(_profileExists, "!Rp_Exists");
         uint256 _index = registryContract.tokensHashToTokens(_tokenHash);
@@ -67,7 +67,7 @@ contract StrategyProvider is Modifiers {
     function setVaultRewardStrategy(
         bytes32 _vaultRewardTokenHash,
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
-    ) public onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
+    ) external onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
         require(
             _vaultRewardTokenHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
             "!bytes32(0)"
@@ -85,11 +85,11 @@ contract StrategyProvider is Modifiers {
         return vaultRewardTokenHashToVaultRewardTokenStrategy[_vaultRewardTokenHash];
     }
 
-    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState) public onlyGovernance {
-        defaultStrategyState = _defaultStrategyState;
-    }
-
     function getDefaultStrategyState() external view returns (DataTypes.DefaultStrategyState) {
         return defaultStrategyState;
+    }
+
+    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState) public onlyGovernance {
+        defaultStrategyState = _defaultStrategyState;
     }
 }
