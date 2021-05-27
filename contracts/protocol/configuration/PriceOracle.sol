@@ -43,14 +43,14 @@ contract PriceOracle is Modifiers {
     /**
      * Returns the latest price
      */
-    function getUnderlyingTokenAmountInUSD(uint256 _amount, address _underlyingToken) public view returns (uint256) {
+    function getUnderlyingTokenAmountInUSD(uint256 _amount, address _underlyingToken) external view returns (uint256) {
         uint8 _decimals = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).decimals();
         (, int256 price, , , ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
         uint256 amount = (uint256(price).mul(_amount)).div(uint256(10**uint256(_decimals)));
         return amount;
     }
 
-    function getUSDAmountInUnderlyingToken(uint256 _amount, address _underlyingToken) public view returns (uint256) {
+    function getUSDAmountInUnderlyingToken(uint256 _amount, address _underlyingToken) external view returns (uint256) {
         uint8 _decimals = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).decimals();
         (, int256 price, , , ) = AggregatorV3Interface(underlyingTokenToPriceFeed[_underlyingToken]).latestRoundData();
         uint256 amount = (_amount.mul(uint256(10**uint256(_decimals)))).div(uint256(price));
