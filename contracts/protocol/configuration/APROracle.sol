@@ -1,3 +1,5 @@
+// SPDX-License-Identifier:MIT
+
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
@@ -184,45 +186,41 @@ contract APROracle is Modifiers {
         blocksPerYear = 242584;
     }
 
-    function setNewAaveV1(address _newAaveV1) public onlyOperator {
+    function setNewAaveV1(address _newAaveV1) external onlyOperator {
         aaveV1 = _newAaveV1;
     }
 
-    function setNewBlocksPerYear(uint256 _newBlocksPerYear) public onlyOperator {
+    function setNewBlocksPerYear(uint256 _newBlocksPerYear) external onlyOperator {
         blocksPerYear = _newBlocksPerYear;
     }
 
-    function getCompoundAPR(address token) public view returns (uint256) {
-        return Compound(token).supplyRatePerBlock().mul(blocksPerYear);
+    function getCompoundAPR(address token) external view returns (uint256) {
+        return _getCompoundAPR(token);
     }
 
-    function getAaveV1APR(address token) public view returns (address, uint256) {
-        LendingPoolCore core = LendingPoolCore(LendingPoolAddressesProviderV1(aaveV1).getLendingPoolCore());
-        address aToken = core.getReserveATokenAddress(token);
-        return (aToken, core.getReserveCurrentLiquidityRate(token).div(1e9));
+    function getAaveV1APR(address token) external view returns (address, uint256) {
+        return _getAaveV1APR(token);
     }
 
-    function getAaveV2APR(address token) public view returns (address, uint256) {
-        LendingPool lendingPool = LendingPool(LendingPoolAddressesProviderV2(aaveV2AddressProvider).getLendingPool());
-        (, , , uint128 liquidityRate, , , , address aToken, , , , ) = lendingPool.getReserveData(token);
-        return (aToken, uint256(liquidityRate).div(1e9));
+    function getAaveV2APR(address token) external view returns (address, uint256) {
+        return _getAaveV2APR(token);
     }
 
-    function getBestAPR(bytes32 _tokensHash) public view returns (bytes32) {
+    function getBestAPR(bytes32 _tokensHash) external view returns (bytes32) {
         address[] memory tokens = registryContract.getTokensHashToTokens(_tokensHash);
         uint256 aaveV2APR;
         address aTokenV2;
-        (aTokenV2, aaveV2APR) = getAaveV2APR(tokens[0]);
+        (aTokenV2, aaveV2APR) = _getAaveV2APR(tokens[0]);
         uint256 aaveV1APR;
         address aToken;
-        (aToken, aaveV1APR) = getAaveV1APR(tokens[0]);
+        (aToken, aaveV1APR) = _getAaveV1APR(tokens[0]);
         uint256 compoundAPR;
         address cToken;
         bytes32 stepsHash;
         bytes32 bestStrategyHash;
         try Compound(compound).getTokenConfigByUnderlying(tokens[0]) returns (Compound.TokenConfig memory tokenConfig) {
             cToken = tokenConfig.cToken;
-            compoundAPR = getCompoundAPR(cToken);
+            compoundAPR = _getCompoundAPR(cToken);
         } catch {
             cToken = address(0);
             compoundAPR = uint256(0);
@@ -249,16 +247,32 @@ contract APROracle is Modifiers {
     }
 
     // incase of half-way error
-    function inCaseTokenGetsStuck(IERC20 _tokenAddress) public onlyOperator {
+    function inCaseTokenGetsStuck(IERC20 _tokenAddress) external onlyOperator {
         uint256 qty = _tokenAddress.balanceOf(address(this));
         _tokenAddress.transfer(msg.sender, qty);
     }
 
     // incase of half-way error
-    function inCaseETHGetsStuck() public onlyOperator {
+    function inCaseETHGetsStuck() external onlyOperator {
         /* solhint-disable avoid-low-level-calls */
         (bool result, ) = msg.sender.call{ value: address(this).balance }("");
         /* solhint-disable avoid-low-level-calls */
         require(result, "transfer of ETH failed");
+    }
+
+    function _getCompoundAPR(address token) internal view returns (uint256) {
+        return Compound(token).supplyRatePerBlock().mul(blocksPerYear);
+    }
+
+    function _getAaveV1APR(address token) internal view returns (address, uint256) {
+        LendingPoolCore core = LendingPoolCore(LendingPoolAddressesProviderV1(aaveV1).getLendingPoolCore());
+        address aToken = core.getReserveATokenAddress(token);
+        return (aToken, core.getReserveCurrentLiquidityRate(token).div(1e9));
+    }
+
+    function _getAaveV2APR(address token) internal view returns (address, uint256) {
+        LendingPool lendingPool = LendingPool(LendingPoolAddressesProviderV2(aaveV2AddressProvider).getLendingPool());
+        (, , , uint128 liquidityRate, , , , address aToken, , , , ) = lendingPool.getReserveData(token);
+        return (aToken, uint256(liquidityRate).div(1e9));
     }
 }
