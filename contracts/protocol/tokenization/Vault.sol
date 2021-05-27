@@ -18,7 +18,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
-import "hardhat/console.sol";
+import { AVault } from "../../abstracts/AVault.sol";
 
 /**
  * @title Vault
@@ -31,6 +31,7 @@ contract Vault is
     VersionedInitializable,
     IVault,
     IncentivisedERC20,
+    AVault,
     Modifiers,
     ReentrancyGuard,
     VaultStorage,
@@ -141,11 +142,12 @@ contract Vault is
                     _i,
                     _steps
                 );
-            for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                require(success, "!_supplyAll");
-            }
+            executeCodes(_codes, "!_supplyAll");
+            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+            //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
+            //     require(success, "!_supplyAll");
+            // }
         }
         vaultValue = _calVaultValueInUnderlyingToken();
     }
@@ -243,11 +245,12 @@ contract Vault is
                     _iterator,
                     _steps
                 );
-            for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                (bool _success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                require(_success, "!_withdrawAll");
-            }
+            executeCodes(_codes, "!_withdrawAll");
+            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+            //     (bool _success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
+            //     require(_success, "!_withdrawAll");
+            // }
         }
     }
 
@@ -265,11 +268,12 @@ contract Vault is
                     _i,
                     _claimRewardSteps
                 );
-            for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                require(success, "!claim");
-            }
+            executeCodes(_codes, "!claim");
+            // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+            //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+            //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
+            //     require(success, "!claim");
+            // }
         }
 
         (, , address _rewardToken) = strategyManagerContract.getLpAdapterRewardToken(_investStrategyHash);
@@ -297,11 +301,12 @@ contract Vault is
                             _i,
                             _harvestSteps
                         );
-                for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-                    (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
-                    (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
-                    require(success, "!harvest");
-                }
+                executeCodes(_codes, "!harvest");
+                // for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+                //     (address pool, bytes memory data) = abi.decode(_codes[_j], (address, bytes));
+                //     (bool success, ) = pool.call(data); //solhint-disable-line avoid-low-level-calls
+                //     require(success, "!harvest");
+                // }
             }
         }
     }
@@ -638,25 +643,17 @@ contract Vault is
                 _withdrawalFee
             );
         if (_treasuryCodes.length > 0) {
-            console.log("Length in vault if: ", _treasuryCodes.length);
-            for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
-                // console.logBytes(_treasuryCodes);
-                console.logBytes(_treasuryCodes[_j]);
-                console.log("Step2");
-                (address _underlyingToken, bytes memory data) = abi.decode(_treasuryCodes[_j], (address, bytes));
-                console.log("token: ", _underlyingToken);
-                console.logBytes(data);
-                (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-                console.log("Success in if: ", _success);
-                require(_success, "!TreasuryRedeemAmt");
-            }
+            executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");
+            // for (uint8 _j = 0; _j < uint8(_treasuryCodes.length); _j++) {
+            //     (address _underlyingToken, bytes memory data) = abi.decode(_treasuryCodes[_j], (address, bytes));
+            //     (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
+            //     require(_success, "!TreasuryRedeemAmt");
+            // }
         }
-        (address _underlyingToken, bytes memory data) = abi.decode(_accountCode, (address, bytes));
-        console.log("token outside if: ", _underlyingToken);
-        console.logBytes(data);
-        (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
-        console.log("Success outside if: ", _success);
-        require(_success, "!CallerRedeemAmt");
+        executeCode(_accountCode, "!CallerRedeemAmt");
+        // (address _underlyingToken, bytes memory data) = abi.decode(_accountCode, (address, bytes));
+        // (bool _success, ) = _underlyingToken.call(data); //solhint-disable-line avoid-low-level-calls
+        // require(_success, "!CallerRedeemAmt");
     }
 
     function _mintShares(
