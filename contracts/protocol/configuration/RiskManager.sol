@@ -31,7 +31,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
     /**
      * @dev Set RiskManagerProxy to act as RiskManager
      */
-    function become(RiskManagerProxy _riskManagerProxy) public onlyGovernance {
+    function become(RiskManagerProxy _riskManagerProxy) external onlyGovernance {
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
@@ -48,7 +48,11 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *      - Can not have length 0
      *
      */
-    function getBestStrategy(string memory _profile, address[] memory _underlyingTokens) public view returns (bytes32) {
+    function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
+        external
+        view
+        returns (bytes32)
+    {
         require(bytes(_profile).length > 0, "RP_Empty!");
 
         for (uint8 i = 0; i < _underlyingTokens.length; i++) {
@@ -147,7 +151,7 @@ contract RiskManager is RiskManagerStorage, Modifiers {
      *      - Can not be empty
      */
     function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
-        public
+        external
         view
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
     {
