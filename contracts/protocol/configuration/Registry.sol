@@ -23,7 +23,7 @@ contract Registry is ModifiersController {
     /**
      * @dev Set RegistryProxy to act as Registry
      */
-    function become(RegistryProxy _registryProxy) public {
+    function become(RegistryProxy _registryProxy) external {
         require(msg.sender == _registryProxy.governance(), "!governance");
         require(_registryProxy.acceptImplementation() == 0, "!unauthorized");
     }
@@ -393,7 +393,7 @@ contract Registry is ModifiersController {
      * Requirements:
      *  - `msg.sender` Can only be current governance.
      */
-    function setWithdrawalFee(address _vault, uint256 _withdrawalFee) public onlyGovernance returns (bool _success) {
+    function setWithdrawalFee(address _vault, uint256 _withdrawalFee) external onlyGovernance returns (bool _success) {
         require(_vault != address(0), "!address(0)");
         require(_vault.isContract(), "!isContract");
         require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
@@ -467,7 +467,7 @@ contract Registry is ModifiersController {
         address[][] memory _underlyingTokens,
         string[] memory _riskProfiles,
         address[][] memory _vaults
-    ) public onlyOperator returns (bool) {
+    ) external onlyOperator returns (bool) {
         require(uint8(_riskProfiles.length) == uint8(_vaults.length), "!Profileslength");
         for (uint8 _i = 0; _i < uint8(_vaults.length); _i++) {
             require(uint8(_vaults[_i].length) == uint8(_underlyingTokens.length), "!VaultsLength");
@@ -622,21 +622,21 @@ contract Registry is ModifiersController {
     /**
      * @dev Returns the list of tokensHash
      */
-    function getTokenHashes() public view returns (bytes32[] memory) {
+    function getTokenHashes() external view returns (bytes32[] memory) {
         return tokensHashIndexes;
     }
 
     /**
      * @dev Returns list of token given the `_tokensHash`.
      */
-    function getTokensHashToTokens(bytes32 _tokensHash) public view returns (address[] memory) {
+    function getTokensHashToTokens(bytes32 _tokensHash) external view returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
     }
 
     /**
      * @dev Get the list of all the riskProfiles
      */
-    function getRiskProfiles() public view returns (string[] memory) {
+    function getRiskProfiles() external view returns (string[] memory) {
         return riskProfilesArray;
     }
 
