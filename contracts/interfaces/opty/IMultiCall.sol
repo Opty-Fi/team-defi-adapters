@@ -4,7 +4,11 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 /**
- * @dev Interface of the Opty.fi Vaults.
+ * @title IMultiCall
+ *
+ * @author Opty.fi
+ *
+ * @dev Interface for functions to batch together multi calls
  */
 interface IMultiCall {
     function executeCode(bytes calldata _code, string calldata _errorMsg) external;

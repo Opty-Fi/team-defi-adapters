@@ -3,7 +3,6 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
-import "hardhat/console.sol";
 
 /**
  * @title MultiCall Contract
@@ -38,8 +37,6 @@ abstract contract MultiCall is IMultiCall {
      */
     function executeCodes(bytes[] memory _codes, string memory _errorMsg) public override {
         for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
-            console.log("Inside Avault codes");
-            console.logBytes(_codes[_j]);
             executeCode(_codes[_j], _errorMsg);
         }
     }

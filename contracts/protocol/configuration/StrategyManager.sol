@@ -14,7 +14,6 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
-import "hardhat/console.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
@@ -130,8 +129,7 @@ contract StrategyManager is Modifiers {
         address _underlyingToken,
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee
-    ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
-        console.log("_redeemAmountInToken before: ", _redeemAmountInToken);
+    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         if (_redeemAmountInToken > 0) {
             uint256 _fee = 0;
             if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
