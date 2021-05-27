@@ -19,6 +19,7 @@ import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
 import { AVault } from "../../abstracts/AVault.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Vault
@@ -610,6 +611,9 @@ contract Vault is
         uint256 _balanceInUnderlyingToken,
         uint256 _redeemAmount
     ) private {
+        console.log("_redeemAmount before cal: ", _redeemAmount);
+        console.log("_balanceInUnderlyingToken before cal: ", _balanceInUnderlyingToken);
+        console.log("totalSupply(): ", totalSupply());
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
@@ -622,10 +626,19 @@ contract Vault is
                 redeemAmountInToken,
                 _withdrawalFee
             );
+        console.log("Account codes");
+        console.logBytes(_accountCode);
+        console.log("treasury codes length: ", _treasuryCodes.length);
         if (_treasuryCodes.length > 0) {
             executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");
         }
-        executeCode(_accountCode, "!CallerRedeemAmt");
+        console.log("Step-1");
+        console.log("Account code length: ", _accountCode.length);
+        if (_accountCode.length > 0) {
+            console.log("Account code inside if");
+            console.logBytes(_accountCode);
+            executeCode(_accountCode, "!CallerRedeemAmt");
+        }
     }
 
     function _mintShares(

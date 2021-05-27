@@ -14,6 +14,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import "hardhat/console.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
@@ -129,33 +130,35 @@ contract StrategyManager is Modifiers {
         address _underlyingToken,
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee
-    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
-        uint256 _fee = 0;
-        if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
-            uint8 _treasurySharesLength = uint8(_treasuryShares.length);
-            _treasuryCodes = new bytes[](_treasurySharesLength);
-
-            for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
-                if (_treasuryShares[_i].treasury != address(0)) {
-                    uint256 _share = _treasuryShares[_i].share;
-                    uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
-                    _treasuryCodes[_i] = abi.encode(
-                        _underlyingToken,
-                        abi.encodeWithSignature(
-                            "transfer(address,uint256)",
-                            _treasuryShares[_i].treasury,
-                            uint256(_treasuryAccountFee)
-                        )
-                    );
-                    _fee = _fee.add(_treasuryAccountFee);
+    ) external view returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
+        console.log("_redeemAmountInToken before: ", _redeemAmountInToken);
+        if (_redeemAmountInToken > 0) {
+            uint256 _fee = 0;
+            if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
+                uint8 _treasurySharesLength = uint8(_treasuryShares.length);
+                _treasuryCodes = new bytes[](_treasurySharesLength);
+                for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
+                    if (_treasuryShares[_i].treasury != address(0)) {
+                        uint256 _share = _treasuryShares[_i].share;
+                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
+                        _treasuryCodes[_i] = abi.encode(
+                            _underlyingToken,
+                            abi.encodeWithSignature(
+                                "transfer(address,uint256)",
+                                _treasuryShares[_i].treasury,
+                                uint256(_treasuryAccountFee)
+                            )
+                        );
+                        _fee = _fee.add(_treasuryAccountFee);
+                    }
                 }
             }
+            require(_account != address(0), "Account==0x0");
+            _accountCode = abi.encode(
+                _underlyingToken,
+                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
+            );
         }
-        require(_account != address(0), "Account==0x0");
-        _accountCode = abi.encode(
-            _underlyingToken,
-            abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
-        );
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
