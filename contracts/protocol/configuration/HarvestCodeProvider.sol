@@ -27,7 +27,7 @@ contract HarvestCodeProvider is Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _rewardTokenAmount
-    ) public view returns (bytes[] memory _codes) {
+    ) external view returns (bytes[] memory _codes) {
         address _weth = uniswapV2Router02.WETH();
         if (_rewardTokenAmount > 0) {
             address[] memory _path;
@@ -73,7 +73,7 @@ contract HarvestCodeProvider is Modifiers {
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) public view returns (uint256) {
+    ) external view returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         if (_borrowTokenAmount > 0) {
             address[] memory _path;
@@ -104,7 +104,7 @@ contract HarvestCodeProvider is Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) public view returns (uint256) {
+    ) external view returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         uint256[] memory amounts = new uint256[](3);
         address[] memory path = new address[](3);
