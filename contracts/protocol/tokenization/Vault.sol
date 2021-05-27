@@ -18,7 +18,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
-import { MultiCall } from "../../abstracts/MultiCall.sol";
+import { MultiCall } from "../../utils/MultiCall.sol";
 
 /**
  * @title Vault
