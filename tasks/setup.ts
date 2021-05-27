@@ -64,6 +64,7 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       riskmanager: essentialContracts["riskManager"].address,
       strategymanager: essentialContracts["strategyManager"].address,
       optyminter: essentialContracts["optyMinter"].address,
+      unpause: true,
       insertindb: insertindb,
     });
   });
