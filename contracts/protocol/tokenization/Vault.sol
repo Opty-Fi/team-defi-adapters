@@ -18,7 +18,7 @@ import { OPTYMinter } from "./OPTYMinter.sol";
 import { OPTYStakingVault } from "./OPTYStakingVault.sol";
 import { RiskManager } from "../configuration/RiskManager.sol";
 import { StrategyManager } from "../configuration/StrategyManager.sol";
-import { AVault } from "../../abstracts/AVault.sol";
+import { MultiCall } from "../../abstracts/MultiCall.sol";
 import "hardhat/console.sol";
 
 /**
@@ -32,7 +32,7 @@ contract Vault is
     VersionedInitializable,
     IVault,
     IncentivisedERC20,
-    AVault,
+    MultiCall,
     Modifiers,
     ReentrancyGuard,
     VaultStorage,

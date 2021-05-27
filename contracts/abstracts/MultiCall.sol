@@ -2,18 +2,18 @@
 
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
+import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
+import "hardhat/console.sol";
 
 /**
- * @title AVault
+ * @title MultiCall Contract
  *
  * @author Opty.fi
  *
- * @dev Abstract contract for Opty.Fi Vaults
- *
- * This contract is used for having the functions which are common
- * in the vault contracts
+ * @dev Provides functions used commonly for decoding codes and execute
+ *      the code calls for Opty.Fi contracts
  */
-abstract contract AVault {
+abstract contract MultiCall is IMultiCall {
     /**
      * @notice Function for executing any functionlaity and check if it is working or not
      *
@@ -22,7 +22,7 @@ abstract contract AVault {
      * @param _code Encoded data in bytes which acts as code to execute
      * @param _errorMsg Error message to throw when code execution call fails
      */
-    function executeCode(bytes memory _code, string memory _errorMsg) public {
+    function executeCode(bytes memory _code, string memory _errorMsg) public override {
         (address _contract, bytes memory _data) = abi.decode(_code, (address, bytes));
         (bool _success, ) = _contract.call(_data); //solhint-disable-line avoid-low-level-calls
         require(_success, _errorMsg);
@@ -36,8 +36,10 @@ abstract contract AVault {
      * @param _codes Array of encoded data in bytes which acts as code to execute
      * @param _errorMsg Error message to throw when code execution call fails
      */
-    function executeCodes(bytes[] memory _codes, string memory _errorMsg) public {
+    function executeCodes(bytes[] memory _codes, string memory _errorMsg) public override {
         for (uint8 _j = 0; _j < uint8(_codes.length); _j++) {
+            console.log("Inside Avault codes");
+            console.logBytes(_codes[_j]);
             executeCode(_codes[_j], _errorMsg);
         }
     }
