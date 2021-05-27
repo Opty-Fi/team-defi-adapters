@@ -69,6 +69,12 @@ interface IRegistry {
     function setPriceOracle(address _priceOracle) external returns (bool);
 
     /**
+     * @dev set the OPTYStakingRateBalancer contract address.
+     * Can only be called by the current governance.
+     */
+    function setOPTYStakingRateBalancer(address _optyStakingRateBalancer) external returns (bool);
+
+    /**
      * @dev Sets multiple `_token` from the {tokens} mapping.
      *
      * Returns a boolean value indicating whether the operation succeeded.
@@ -457,6 +463,8 @@ interface IRegistry {
     function getHarvestCodeProvider() external view returns (address);
 
     function getAprOracle() external view returns (address);
+
+    function getOPTYStakingRateBalancer() external view returns (address);
 
     function getVaultToVaultActivityState(address) external view returns (DataTypes.VaultActivityState memory);
 

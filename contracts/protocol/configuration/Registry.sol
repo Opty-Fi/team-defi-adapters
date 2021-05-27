@@ -145,6 +145,22 @@ contract Registry is IRegistry, ModifiersController {
         return true;
     }
 
+    /**
+     * @dev set the OPTYStakingRateBalancer contract address.
+     * Can only be called by the current governance.
+     */
+    function setOPTYStakingRateBalancer(address _optyStakingRateBalancer)
+        external
+        override
+        onlyGovernance
+        returns (bool)
+    {
+        require(_optyStakingRateBalancer != address(0), "!address(0)");
+        require(_optyStakingRateBalancer.isContract(), "!isContract");
+        optyStakingRateBalancer = _optyStakingRateBalancer;
+        return true;
+    }
+
     ///@TODO Add staking pool contract addresses
 
     /**
@@ -739,6 +755,10 @@ contract Registry is IRegistry, ModifiersController {
 
     function getHarvestCodeProvider() public view override returns (address) {
         return harvestCodeProvider;
+    }
+
+    function getOPTYStakingRateBalancer() public view override returns (address) {
+        return optyStakingRateBalancer;
     }
 
     function getLiquidityPool(address _pool)

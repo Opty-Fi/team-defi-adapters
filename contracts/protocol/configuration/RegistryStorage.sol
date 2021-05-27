@@ -91,6 +91,7 @@ contract RegistryStorage is RegistryAdminStorage {
     address public opty;
     address public optyMinter;
     address public aprOracle;
+    address public optyStakingRateBalancer;
 
     /**
      * @dev Emitted when `token` is approved or revoked.

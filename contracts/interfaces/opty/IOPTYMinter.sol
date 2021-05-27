@@ -8,11 +8,13 @@ pragma solidity ^0.6.10;
  */
 
 interface IOPTYMinter {
+    function setOperatorUnlockClaimOPTYTimestamp(uint256 _operatorUnlockClaimOPTYTimestamp) external returns (bool);
+
     /**
-     * @dev Maps staking pool to a boolean variable that indicates wether the staking pool is enabled`or not
+     * @dev Maps staking vault to a boolean variable that indicates wether the staking pool is enabled`or not
      *
      */
-    function setStakingPool(address _stakingPool, bool _enable) external returns (bool);
+    function setStakingVault(address _stakingPool, bool _enable) external returns (bool);
 
     function claimAndStake(address _stakingPool) external;
 
@@ -84,6 +86,4 @@ interface IOPTYMinter {
     function setOptyVault(address _optyVault, bool _enable) external returns (bool);
 
     function getOptyAddress() external view returns (address);
-
-    function getBlockTimestamp() external view returns (uint256);
 }
