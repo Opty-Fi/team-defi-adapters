@@ -14,7 +14,7 @@ contract OPTY is ERC20, Modifiers {
         _mint(msg.sender, initialSupply);
     }
 
-    function mint(address to, uint256 amount) public onlyMinter {
+    function mint(address to, uint256 amount) external onlyMinter {
         _mint(to, amount);
     }
 }

@@ -42,7 +42,7 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
     }
 
     function setOperatorUnlockClaimOPTYTimestamp(uint256 _operatorUnlockClaimOPTYTimestamp)
-        public
+        external
         onlyOperator
         returns (bool)
     {
@@ -58,15 +58,10 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
      * @dev Maps staking vault to a boolean variable that indicates wether the staking vault is enabled`or not
      *
      */
-    function setStakingVault(address _stakingVault, bool _enable) public onlyOperator returns (bool) {
+    function setStakingVault(address _stakingVault, bool _enable) external onlyOperator returns (bool) {
         require(_stakingVault != address(0), "Invalid address");
         stakingVaults[_stakingVault] = _enable;
         return true;
-    }
-
-    function _setOptyAddress(address _opty) internal {
-        require(_opty != address(0), "Invalid address");
-        optyAddress = _opty;
     }
 
     function claimAndStake(address _stakingPool) external isOperatorTimeLockPeriodEnded {
@@ -110,36 +105,136 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         _claimOpty(_holders, _optyVaults);
     }
 
+    function updateUserStateInVault(address _optyVault, address _user) external {
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            optyUserStateInVault[_optyVault][_user].index = optyVaultState[_optyVault].index;
+            optyUserStateInVault[_optyVault][_user].timestamp = optyVaultState[_optyVault].timestamp;
+        }
+    }
+
     /**
-     * @notice Claim all opty accrued by the holders
-     * @param _holders The addresses to claim OPTY for
-     * @param _optyVaults The list of vaults to claim OPTY in
+     * @notice Set the OPTY rate for a specific pool
+     * @return The amount of OPTY which was NOT transferred to the user
      */
-    function _claimOpty(address[] memory _holders, address[] memory _optyVaults)
-        internal
-        isOperatorTimeLockPeriodEnded
-        returns (uint256)
-    {
-        uint256 _total;
-        for (uint256 i = 0; i < _optyVaults.length; i++) {
-            address _optyVault = _optyVaults[i];
-            require(optyVaultEnabled[_optyVault], "optyVault must be enabled");
-            for (uint256 j = 0; j < _holders.length; j++) {
-                updateUserRewards(address(_optyVault), _holders[j]);
-                uint256 _amount = div_(optyAccrued[_holders[j]], 1e18);
-                optyAccrued[_holders[j]] = uint256(0);
-                _mintOpty(_holders[j], _amount);
-                _total = add_(_total, _amount);
+    function updateOptyVaultRatePerSecondAndVaultToken(address _optyVault) external returns (bool) {
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            optyVaultRatePerSecondAndVaultToken[_optyVault] = IERC20(_optyVault).totalSupply() > 0
+                ? div_(mul_(optyVaultRatePerSecond[_optyVault], 1e18), IERC20(_optyVault).totalSupply())
+                : uint256(0);
+        }
+        return true;
+    }
+
+    /**
+     * @notice Accrue OPTY to the market by updating the supply index
+     * @param _optyVault The market whose index to update
+     */
+    function updateOptyVaultIndex(address _optyVault) external returns (uint224) {
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            if (optyVaultState[_optyVault].index == uint224(0)) {
+                optyVaultStartTimestamp[_optyVault] = _getBlockTimestamp();
+                optyVaultState[_optyVault].timestamp = uint32(optyVaultStartTimestamp[_optyVault]);
+                optyVaultState[_optyVault].index = uint224(optyVaultRatePerSecondAndVaultToken[_optyVault]);
+                return optyVaultState[_optyVault].index;
+            } else {
+                uint256 _deltaSeconds = sub_(_getBlockTimestamp(), uint256(optyVaultState[_optyVault].timestamp));
+                if (_deltaSeconds > 0) {
+                    uint256 _deltaSecondsSinceStart = sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
+                    uint256 _supplyTokens = IERC20(_optyVault).totalSupply();
+                    uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_optyVault]);
+                    uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
+                    uint256 _index =
+                        div_(
+                            add_(
+                                mul_(
+                                    optyVaultState[_optyVault].index,
+                                    sub_(
+                                        uint256(optyVaultState[_optyVault].timestamp),
+                                        optyVaultStartTimestamp[_optyVault]
+                                    )
+                                ),
+                                _ratio
+                            ),
+                            _deltaSecondsSinceStart
+                        );
+                    optyVaultState[_optyVault] = OptyState({
+                        index: safe224(_index, "new index exceeds 224 bits"),
+                        timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
+                    });
+                }
+                return optyVaultState[_optyVault].index;
             }
         }
+    }
+
+    function mintOpty(address _user, uint256 _amount) external onlyStakingVault returns (uint256) {
+        _mintOpty(_user, _amount);
+    }
+
+    /**
+     * @notice Set the OPTY rate for a specific pool
+     * @return The amount of OPTY which was NOT transferred to the user
+     */
+    function setOptyVaultRate(address _optyVault, uint256 _rate) external onlyOperator returns (bool) {
+        optyVaultRatePerSecond[_optyVault] = _rate;
+        return true;
+    }
+
+    function addOptyVault(address _optyVault) external onlyOperator returns (bool) {
+        for (uint256 i = 0; i < allOptyVaults.length; i++) {
+            require(allOptyVaults[i] != _optyVault, "optyVault already added");
+        }
+        allOptyVaults.push(_optyVault);
+    }
+
+    function setOptyVault(address _optyVault, bool _enable) external onlyOperator returns (bool) {
+        optyVaultEnabled[_optyVault] = _enable;
+        return true;
     }
 
     /**
      * @notice Claim all the opty accrued by holder in all markets
      * @param _holder The address to claim OPTY for
      */
-    function claimableOpty(address _holder) public view returns (uint256) {
+    function claimableOpty(address _holder) external view returns (uint256) {
         return claimableOpty(_holder, allOptyVaults);
+    }
+
+    /**
+     * @notice Calculate additional accrued OPTY for a contributor since last accrual
+     * @param _user The address to calculate contributor rewards for
+     */
+    function updateUserRewards(address _optyVault, address _user) public {
+        if (optyVaultRatePerSecond[_optyVault] > 0) {
+            if (IERC20(_optyVault).balanceOf(_user) > 0 && lastUserUpdate[_optyVault][_user] != _getBlockTimestamp()) {
+                uint256 _deltaSecondsVault = sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
+                uint256 _deltaSecondsUser;
+                if (
+                    lastUserUpdate[_optyVault][_user] != uint256(0) &&
+                    lastUserUpdate[_optyVault][_user] > optyVaultStartTimestamp[_optyVault]
+                ) {
+                    _deltaSecondsUser = sub_(lastUserUpdate[_optyVault][_user], optyVaultStartTimestamp[_optyVault]);
+                } else {
+                    _deltaSecondsUser = sub_(
+                        optyUserStateInVault[_optyVault][_user].timestamp,
+                        optyVaultStartTimestamp[_optyVault]
+                    );
+                }
+                uint256 _userTokens = IERC20(_optyVault).balanceOf(_user);
+                uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
+                uint256 _userDelta =
+                    mul_(
+                        _userTokens,
+                        sub_(
+                            mul_(_currentOptyVaultIndex, _deltaSecondsVault),
+                            mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser)
+                        )
+                    );
+                uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
+                optyAccrued[_user] = _userAccrued;
+            }
+            lastUserUpdate[_optyVault][_user] = _getBlockTimestamp();
+        }
     }
 
     /**
@@ -202,107 +297,8 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         return _index;
     }
 
-    /**
-     * @notice Calculate additional accrued OPTY for a contributor since last accrual
-     * @param _user The address to calculate contributor rewards for
-     */
-    function updateUserRewards(address _optyVault, address _user) public {
-        if (optyVaultRatePerSecond[_optyVault] > 0) {
-            if (IERC20(_optyVault).balanceOf(_user) > 0 && lastUserUpdate[_optyVault][_user] != _getBlockTimestamp()) {
-                uint256 _deltaSecondsVault = sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
-                uint256 _deltaSecondsUser;
-                if (
-                    lastUserUpdate[_optyVault][_user] != uint256(0) &&
-                    lastUserUpdate[_optyVault][_user] > optyVaultStartTimestamp[_optyVault]
-                ) {
-                    _deltaSecondsUser = sub_(lastUserUpdate[_optyVault][_user], optyVaultStartTimestamp[_optyVault]);
-                } else {
-                    _deltaSecondsUser = sub_(
-                        optyUserStateInVault[_optyVault][_user].timestamp,
-                        optyVaultStartTimestamp[_optyVault]
-                    );
-                }
-                uint256 _userTokens = IERC20(_optyVault).balanceOf(_user);
-                uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_optyVault);
-                uint256 _userDelta =
-                    mul_(
-                        _userTokens,
-                        sub_(
-                            mul_(_currentOptyVaultIndex, _deltaSecondsVault),
-                            mul_(optyUserStateInVault[_optyVault][_user].index, _deltaSecondsUser)
-                        )
-                    );
-                uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
-                optyAccrued[_user] = _userAccrued;
-            }
-            lastUserUpdate[_optyVault][_user] = _getBlockTimestamp();
-        }
-    }
-
-    function updateUserStateInVault(address _optyVault, address _user) public {
-        if (optyVaultRatePerSecond[_optyVault] > 0) {
-            optyUserStateInVault[_optyVault][_user].index = optyVaultState[_optyVault].index;
-            optyUserStateInVault[_optyVault][_user].timestamp = optyVaultState[_optyVault].timestamp;
-        }
-    }
-
-    /**
-     * @notice Set the OPTY rate for a specific pool
-     * @return The amount of OPTY which was NOT transferred to the user
-     */
-    function updateOptyVaultRatePerSecondAndVaultToken(address _optyVault) public returns (bool) {
-        if (optyVaultRatePerSecond[_optyVault] > 0) {
-            optyVaultRatePerSecondAndVaultToken[_optyVault] = IERC20(_optyVault).totalSupply() > 0
-                ? div_(mul_(optyVaultRatePerSecond[_optyVault], 1e18), IERC20(_optyVault).totalSupply())
-                : uint256(0);
-        }
-        return true;
-    }
-
-    /**
-     * @notice Accrue OPTY to the market by updating the supply index
-     * @param _optyVault The market whose index to update
-     */
-    function updateOptyVaultIndex(address _optyVault) public returns (uint224) {
-        if (optyVaultRatePerSecond[_optyVault] > 0) {
-            if (optyVaultState[_optyVault].index == uint224(0)) {
-                optyVaultStartTimestamp[_optyVault] = _getBlockTimestamp();
-                optyVaultState[_optyVault].timestamp = uint32(optyVaultStartTimestamp[_optyVault]);
-                optyVaultState[_optyVault].index = uint224(optyVaultRatePerSecondAndVaultToken[_optyVault]);
-                return optyVaultState[_optyVault].index;
-            } else {
-                uint256 _deltaSeconds = sub_(_getBlockTimestamp(), uint256(optyVaultState[_optyVault].timestamp));
-                if (_deltaSeconds > 0) {
-                    uint256 _deltaSecondsSinceStart = sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
-                    uint256 _supplyTokens = IERC20(_optyVault).totalSupply();
-                    uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_optyVault]);
-                    uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
-                    uint256 _index =
-                        div_(
-                            add_(
-                                mul_(
-                                    optyVaultState[_optyVault].index,
-                                    sub_(
-                                        uint256(optyVaultState[_optyVault].timestamp),
-                                        optyVaultStartTimestamp[_optyVault]
-                                    )
-                                ),
-                                _ratio
-                            ),
-                            _deltaSecondsSinceStart
-                        );
-                    optyVaultState[_optyVault] = OptyState({
-                        index: safe224(_index, "new index exceeds 224 bits"),
-                        timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
-                    });
-                }
-                return optyVaultState[_optyVault].index;
-            }
-        }
-    }
-
-    function mintOpty(address _user, uint256 _amount) external onlyStakingVault returns (uint256) {
-        _mintOpty(_user, _amount);
+    function getOptyAddress() public view returns (address) {
+        return optyAddress;
     }
 
     /**
@@ -319,32 +315,36 @@ contract OPTYMinter is OPTYMinterStorage, ExponentialNoError, Modifiers {
         return _amount;
     }
 
-    /**
-     * @notice Set the OPTY rate for a specific pool
-     * @return The amount of OPTY which was NOT transferred to the user
-     */
-    function setOptyVaultRate(address _optyVault, uint256 _rate) public onlyOperator returns (bool) {
-        optyVaultRatePerSecond[_optyVault] = _rate;
-        return true;
-    }
-
-    function addOptyVault(address _optyVault) public onlyOperator returns (bool) {
-        for (uint256 i = 0; i < allOptyVaults.length; i++) {
-            require(allOptyVaults[i] != _optyVault, "optyVault already added");
-        }
-        allOptyVaults.push(_optyVault);
-    }
-
-    function setOptyVault(address _optyVault, bool _enable) public onlyOperator returns (bool) {
-        optyVaultEnabled[_optyVault] = _enable;
-        return true;
-    }
-
-    function getOptyAddress() public view returns (address) {
-        return optyAddress;
+    function _setOptyAddress(address _opty) internal {
+        require(_opty != address(0), "Invalid address");
+        optyAddress = _opty;
     }
 
     function _getBlockTimestamp() internal view returns (uint256) {
         return block.timestamp;
+    }
+
+    /**
+     * @notice Claim all opty accrued by the holders
+     * @param _holders The addresses to claim OPTY for
+     * @param _optyVaults The list of vaults to claim OPTY in
+     */
+    function _claimOpty(address[] memory _holders, address[] memory _optyVaults)
+        internal
+        isOperatorTimeLockPeriodEnded
+        returns (uint256)
+    {
+        uint256 _total;
+        for (uint256 i = 0; i < _optyVaults.length; i++) {
+            address _optyVault = _optyVaults[i];
+            require(optyVaultEnabled[_optyVault], "optyVault must be enabled");
+            for (uint256 j = 0; j < _holders.length; j++) {
+                updateUserRewards(address(_optyVault), _holders[j]);
+                uint256 _amount = div_(optyAccrued[_holders[j]], 1e18);
+                optyAccrued[_holders[j]] = uint256(0);
+                _mintOpty(_holders[j], _amount);
+                _total = add_(_total, _amount);
+            }
+        }
     }
 }
