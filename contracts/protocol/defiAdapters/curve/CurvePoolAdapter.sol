@@ -255,7 +255,27 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setMaxDepositPoolPctDefault(uint256(5000)); // 50%
     }
 
-    function getPoolValue(address, address) public view override returns (uint256) {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+    }
+
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
+        maxDepositAmountDefault = _maxDepositAmountDefault;
+    }
+
+    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) external onlyGovernance {
+        maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) external onlyGovernance {
+        maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) external onlyGovernance {
+        maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    function getPoolValue(address, address) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -287,7 +307,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         uint256 nCoins = _underlyingTokens.length;
         uint256[] memory _amounts = new uint256[](nCoins);
@@ -302,7 +322,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -311,39 +331,15 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
-     *
-     * @param _liquidityPool Address of the token that represents users' holdings in the pool
-     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
-     */
-    function getWithdrawSomeCodes(
-        address payable,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256 _amount
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 nCoins = _underlyingTokens.length;
-        if (nCoins == uint256(1)) {
-            _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
-        } else if (nCoins == uint256(2)) {
-            _codes = _getWithdraw2Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(3)) {
-            _codes = _getWithdraw3Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(4)) {
-            _codes = _getWithdraw4Code(_liquidityPool, _amount);
-        }
     }
 
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _amount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amount);
     }
@@ -353,7 +349,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     function getUnderlyingTokens(address _liquidityPool, address)
-        public
+        external
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -415,7 +411,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -425,7 +421,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -439,7 +435,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("not-implemented");
     }
 
@@ -448,7 +444,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) external view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -460,7 +456,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -486,7 +482,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
-        public
+        external
         view
         override
         returns (bytes[] memory _codes)
@@ -519,12 +515,12 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
-    function canStake(address _liquidityPool) public view override returns (bool) {
+    function canStake(address _liquidityPool) external view override returns (bool) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
             return true;
         }
@@ -557,7 +553,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _stakeAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
@@ -576,7 +572,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
-        public
+        external
         view
         override
         returns (bytes[] memory _codes)
@@ -633,7 +629,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) external view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -645,7 +641,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -671,7 +667,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -686,6 +682,30 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
 
     function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
         liquidityPoolToGauges[_pool] = _gauge;
+    }
+
+    /**
+     * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
+     *
+     * @param _liquidityPool Address of the token that represents users' holdings in the pool
+     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
+     */
+    function getWithdrawSomeCodes(
+        address payable,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256 _amount
+    ) public view override returns (bytes[] memory _codes) {
+        uint256 nCoins = _underlyingTokens.length;
+        if (nCoins == uint256(1)) {
+            _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
+        } else if (nCoins == uint256(2)) {
+            _codes = _getWithdraw2Code(_liquidityPool, _amount);
+        } else if (nCoins == uint256(3)) {
+            _codes = _getWithdraw3Code(_liquidityPool, _amount);
+        } else if (nCoins == uint256(4)) {
+            _codes = _getWithdraw4Code(_liquidityPool, _amount);
+        }
     }
 
     /**
@@ -1081,26 +1101,6 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
 
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
-    }
-
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyGovernance {
-        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) public onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
-    }
-
-    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) public onlyGovernance {
-        maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
-    }
-
-    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) public onlyGovernance {
-        maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
-    }
-
-    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) public onlyGovernance {
-        maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
     function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {

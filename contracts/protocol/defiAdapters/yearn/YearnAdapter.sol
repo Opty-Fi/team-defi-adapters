@@ -29,6 +29,18 @@ contract YearnAdapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
 
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+    }
+
+    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
+        maxDepositAmountDefault = _maxDepositAmountDefault;
+    }
+
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    }
+
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IYearn(_liquidityPool).calcPoolValueInToken();
     }
@@ -58,7 +70,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
@@ -69,7 +81,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -78,27 +90,15 @@ contract YearnAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    function getWithdrawSomeCodes(
-        address payable,
-        address[] memory,
-        address _liquidityPool,
-        uint256 _shares
-    ) public view override returns (bytes[] memory _codes) {
-        if (_shares > 0) {
-            _codes = new bytes[](1);
-            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
-        }
     }
 
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -108,7 +108,7 @@ contract YearnAdapter is IAdapter, Modifiers {
     }
 
     function getUnderlyingTokens(address _liquidityPool, address)
-        public
+        external
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -158,7 +158,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -168,7 +168,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -176,7 +176,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address,
         address _liquidityPool,
         uint256 _depositAmount
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         return
             _depositAmount.mul(10**IYearn(_liquidityPool).decimals()).div(
                 IYearn(_liquidityPool).getPricePerFullShare()
@@ -188,7 +188,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) external view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -200,20 +200,20 @@ contract YearnAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 
-    function getRewardToken(address) public view override returns (address) {
+    function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
+    function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -222,7 +222,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -230,15 +230,15 @@ contract YearnAdapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function canStake(address) public view override returns (bool) {
+    function canStake(address) external view override returns (bool) {
         return false;
     }
 
-    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
+    function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -246,15 +246,15 @@ contract YearnAdapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
+    function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -262,11 +262,11 @@ contract YearnAdapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -275,7 +275,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -284,7 +284,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         revert("!empty");
     }
 
@@ -293,7 +293,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         uint256
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -301,7 +301,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -313,16 +313,16 @@ contract YearnAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyGovernance {
-        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) public onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
-    }
-
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) public onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function getWithdrawSomeCodes(
+        address payable,
+        address[] memory,
+        address _liquidityPool,
+        uint256 _shares
+    ) public view override returns (bytes[] memory _codes) {
+        if (_shares > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
+        }
     }
 
     function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {

@@ -49,6 +49,18 @@ contract DForceAdapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
 
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+    }
+
+    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
+        maxDepositAmountDefault = _maxDepositAmountDefault;
+    }
+
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    }
+
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IDForceDeposit(_liquidityPool).getLiquidity();
     }
@@ -81,7 +93,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
@@ -92,7 +104,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -101,30 +113,15 @@ contract DForceAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) public view override returns (bytes[] memory) {
+    ) external view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    function getWithdrawSomeCodes(
-        address payable _optyVault,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256 _redeemAmount
-    ) public view override returns (bytes[] memory _codes) {
-        if (_redeemAmount > 0) {
-            _codes = new bytes[](1);
-            _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-                abi.encodeWithSignature("redeem(address,uint256)", _optyVault, _redeemAmount)
-            );
-        }
     }
 
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -134,7 +131,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     function getUnderlyingTokens(address _liquidityPool, address)
-        public
+        external
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -163,7 +160,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address,
         address _liquidityPool,
         uint256 _liquidityPoolTokenAmount
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         if (_liquidityPoolTokenAmount > 0) {
             _liquidityPoolTokenAmount = _liquidityPoolTokenAmount
                 .mul(IDForceDeposit(_liquidityPool).getExchangeRate())
@@ -179,7 +176,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -189,7 +186,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         revert("!empty");
     }
 
@@ -197,7 +194,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address,
         address _liquidityPool,
         uint256 _depositAmount
-    ) public view override returns (uint256) {
+    ) external view override returns (uint256) {
         return
             _depositAmount.mul(10**(IDForceDeposit(_liquidityPool).decimals())).div(
                 IDForceDeposit(_liquidityPool).getExchangeRate()
@@ -209,7 +206,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) external view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -221,7 +218,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -240,7 +237,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
-        public
+        external
         view
         override
         returns (bytes[] memory _codes)
@@ -269,12 +266,12 @@ contract DForceAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
-    function canStake(address) public view override returns (bool) {
+    function canStake(address) external view override returns (bool) {
         return true;
     }
 
@@ -304,7 +301,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _stakeAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
@@ -323,7 +320,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
-        public
+        external
         view
         override
         returns (bytes[] memory _codes)
@@ -372,7 +369,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) external view override returns (uint256 _amount) {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
         uint256 _liquidityPoolTokenBalance = IERC20(_stakingVault).balanceOf(_optyVault);
         uint256 _balanceInTokenStake = getAllAmountInTokenStake(_optyVault, address(0), _liquidityPool);
@@ -385,7 +382,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         uint256 _balanceInTokenStake = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInTokenStake >= _redeemAmount;
     }
@@ -407,7 +404,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -436,16 +433,19 @@ contract DForceAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) public onlyGovernance {
-        maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) public onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
-    }
-
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) public onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function getWithdrawSomeCodes(
+        address payable _optyVault,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) public view override returns (bytes[] memory _codes) {
+        if (_redeemAmount > 0) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                abi.encodeWithSignature("redeem(address,uint256)", _optyVault, _redeemAmount)
+            );
+        }
     }
 
     function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
