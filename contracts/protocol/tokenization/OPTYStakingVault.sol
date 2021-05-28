@@ -50,6 +50,52 @@ contract OPTYStakingVault is ERC20, Modifiers, ReentrancyGuard, OPTYStakingVault
         _;
     }
 
+    function setOptyRatePerSecond(uint256 _rate) external onlyStakingRateBalancer returns (bool _success) {
+        optyRatePerSecond = _rate;
+        _success = true;
+    }
+
+    function userStakeAll() external returns (bool) {
+        _userStake(IERC20(token).balanceOf(msg.sender));
+    }
+
+    function userStake(uint256 _amount) external returns (bool) {
+        _userStake(_amount);
+    }
+
+    function userUnstakeAll() external returns (bool) {
+        _userUnstake(balanceOf(msg.sender));
+    }
+
+    function userUnstake(uint256 _redeemAmount) external returns (bool) {
+        _userUnstake(_redeemAmount);
+    }
+
+    /* solhint-disable no-empty-blocks */
+    function discontinue() external onlyRegistry {}
+
+    function setUnpaused(bool _unpaused) external onlyRegistry {}
+
+    /* solhint-disable no-empty-blocks */
+
+    function getPricePerFullShare() external view returns (uint256) {
+        if (totalSupply() != 0) {
+            return balance().div(totalSupply());
+        }
+        return uint256(0);
+    }
+
+    function balanceInOpty(address _user) external view returns (uint256) {
+        if (balanceOf(_user) != uint256(0)) {
+            uint256 _balanceInOpty =
+                balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
+                    totalSupply()
+                );
+            return _balanceInOpty;
+        }
+        return uint256(0);
+    }
+
     function setTimelockPeriod(uint256 _timelock) public onlyOperator returns (bool _success) {
         require(_timelock >= uint256(86400), "Timelock should be at least 1 day.");
         timelockPeriod = _timelock;
@@ -69,14 +115,22 @@ contract OPTYStakingVault is ERC20, Modifiers, ReentrancyGuard, OPTYStakingVault
         _success = true;
     }
 
-    function setOptyRatePerSecond(uint256 _rate) public onlyStakingRateBalancer returns (bool _success) {
-        optyRatePerSecond = _rate;
-        _success = true;
-    }
-
     function setOPTYStakingRateBalancer(address _optyStakingRateBalancer) public onlyOperator returns (bool _success) {
         require(_optyStakingRateBalancer.isContract(), "!_optyStakingRateBalancer.isContract");
         optyStakingRateBalancer = _optyStakingRateBalancer;
+        _success = true;
+    }
+
+    function updatePool() public ifNotPaused(address(this)) returns (bool _success) {
+        if (lastPoolUpdate == uint256(0)) {
+            lastPoolUpdate = getBlockTimestamp();
+        } else {
+            uint256 _deltaBlocks = getBlockTimestamp().sub(lastPoolUpdate);
+            uint256 optyAccrued = _deltaBlocks.mul(optyRatePerSecond);
+            lastPoolUpdate = getBlockTimestamp();
+            optyMinterContract.mintOpty(address(this), optyAccrued);
+        }
+        require(IOPTYStakingRateBalancer(optyStakingRateBalancer).updateOptyRates(), "stakingVault:updatePool");
         _success = true;
     }
 
@@ -87,12 +141,8 @@ contract OPTYStakingVault is ERC20, Modifiers, ReentrancyGuard, OPTYStakingVault
         return IERC20(token).balanceOf(address(this));
     }
 
-    function userStakeAll() external returns (bool) {
-        _userStake(IERC20(token).balanceOf(msg.sender));
-    }
-
-    function userStake(uint256 _amount) external returns (bool) {
-        _userStake(_amount);
+    function getBlockTimestamp() public view returns (uint256) {
+        return block.timestamp;
     }
 
     /**
@@ -129,14 +179,6 @@ contract OPTYStakingVault is ERC20, Modifiers, ReentrancyGuard, OPTYStakingVault
         _success = true;
     }
 
-    function userUnstakeAll() external returns (bool) {
-        _userUnstake(balanceOf(msg.sender));
-    }
-
-    function userUnstake(uint256 _redeemAmount) external returns (bool) {
-        _userUnstake(_redeemAmount);
-    }
-
     /**
      * @dev Function to queu withdraw of the lp tokens from the liquidity pool (for example opDAI)
      *
@@ -170,45 +212,4 @@ contract OPTYStakingVault is ERC20, Modifiers, ReentrancyGuard, OPTYStakingVault
         userLastUpdate[msg.sender] = getBlockTimestamp();
         _success = true;
     }
-
-    function updatePool() public ifNotPaused(address(this)) returns (bool _success) {
-        if (lastPoolUpdate == uint256(0)) {
-            lastPoolUpdate = getBlockTimestamp();
-        } else {
-            uint256 _deltaBlocks = getBlockTimestamp().sub(lastPoolUpdate);
-            uint256 optyAccrued = _deltaBlocks.mul(optyRatePerSecond);
-            lastPoolUpdate = getBlockTimestamp();
-            optyMinterContract.mintOpty(address(this), optyAccrued);
-        }
-        require(IOPTYStakingRateBalancer(optyStakingRateBalancer).updateOptyRates(), "stakingVault:updatePool");
-        _success = true;
-    }
-
-    function getPricePerFullShare() public view returns (uint256) {
-        if (totalSupply() != 0) {
-            return balance().div(totalSupply());
-        }
-        return uint256(0);
-    }
-
-    function balanceInOpty(address _user) public view returns (uint256) {
-        if (balanceOf(_user) != uint256(0)) {
-            uint256 _balanceInOpty =
-                balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
-                    totalSupply()
-                );
-            return _balanceInOpty;
-        }
-        return uint256(0);
-    }
-
-    function getBlockTimestamp() public view returns (uint256) {
-        return block.timestamp;
-    }
-
-    /* solhint-disable no-empty-blocks */
-    function discontinue() public onlyRegistry {}
-
-    function setUnpaused(bool _unpaused) public onlyRegistry {}
-    /* solhint-disable no-empty-blocks */
 }
