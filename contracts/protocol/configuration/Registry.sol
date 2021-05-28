@@ -918,7 +918,10 @@ contract Registry is IRegistry, ModifiersController {
         string memory _riskProfile,
         address _vault
     ) internal returns (bool) {
-        require(!_isNewTokensHash(_underlyingAssetHash), "!_isNewTokensHash");
+        require(
+            _underlyingAssetHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
+            "!underlyingAssetHash"
+        );
         require(bytes(_riskProfile).length > 0, "RP_empty.");
         require(_vault != address(0), "!address(0)");
         require(address(_vault).isContract(), "!isContract");
