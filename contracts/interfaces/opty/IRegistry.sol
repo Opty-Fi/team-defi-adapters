@@ -10,11 +10,19 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
  */
 interface IRegistry {
     /**
-     * @dev Transfers treasury to a new account (`_strategist`).
-     * Can only be called by the current governance.
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     * @param _treasuryShares Array of treasuries and their fee shares
+     *
+     * @return Returns a boolean value indicating whether the operation succeeded
+     *
+     * Requirements:
+     *  - `msg.sender` Can only be current governance.
      */
-
-    function setTreasury(address _treasury) external returns (bool);
+    function setTreasuryShares(address _vault, DataTypes.TreasuryShare[] memory _treasuryShares)
+        external
+        returns (bool);
 
     /**
      * @dev set the VaultStepInvestStrategyDefinitionRegistry contract address.
@@ -446,8 +454,6 @@ interface IRegistry {
 
     function getStrategyProvider() external view returns (address);
 
-    function getTreasury() external view returns (address);
-
     function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
 
     function getRiskManager() external view returns (address);
@@ -466,7 +472,10 @@ interface IRegistry {
 
     function getOPTYStakingRateBalancer() external view returns (address);
 
-    function getVaultToVaultActivityState(address) external view returns (DataTypes.VaultActivityState memory);
+    function getVaultConfiguration(address _vault)
+        external
+        view
+        returns (DataTypes.VaultConfiguration memory _vaultConfiguration);
 
     function getRiskProfile(string memory) external view returns (DataTypes.RiskProfile memory);
 
@@ -477,6 +486,15 @@ interface IRegistry {
     function getLiquidityPool(address) external view returns (DataTypes.LiquidityPool memory);
 
     function getLiquidityPoolToAdapter(address) external view returns (address);
+
+    /**
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     *
+     * @return Returns Treasuries along with their fee shares
+     */
+    function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory);
 
     function isApprovedToken(address) external view returns (bool);
 }

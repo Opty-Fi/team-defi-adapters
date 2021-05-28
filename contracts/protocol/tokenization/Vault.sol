@@ -476,9 +476,8 @@ contract Vault is
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
 
-        DataTypes.VaultActivityState memory _vaultActivityState =
-            registryContract.getVaultToVaultActivityState(address(this));
-        if (!_vaultActivityState.discontinued && investStrategyHash != ZERO_BYTES32) {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
+        if (!_vaultConfiguration.discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll();
             _harvest(investStrategyHash);
         }
@@ -492,7 +491,7 @@ contract Vault is
         _optyMinterContract.updateOptyVaultIndex(address(this));
         _optyMinterContract.updateUserStateInVault(address(this), msg.sender);
 
-        if (!_vaultActivityState.discontinued && (_balance() > 0)) {
+        if (!_vaultConfiguration.discontinued && (_balance() > 0)) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
             _underlyingTokens[0] = underlyingToken;
@@ -599,14 +598,15 @@ contract Vault is
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
-        (, , uint256 _withdrawalFee) = registryContract.vaultToVaultConfiguration(address(this));
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
+        IStrategyManager _strategyManagerContract = IStrategyManager(registryContract.getStrategyManager());
         (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
-            strategyManagerContract.getFeeTransferAllCodes(
+            _strategyManagerContract.getFeeTransferAllCodes(
                 registryContract.getTreasuryShares(address(this)),
                 _account,
                 underlyingToken,
                 redeemAmountInToken,
-                _withdrawalFee
+                _vaultConfiguration.withdrawalFee
             );
         if (_treasuryCodes.length > 0) {
             executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");

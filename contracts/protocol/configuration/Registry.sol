@@ -491,7 +491,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_vault != address(0), "!address(0)");
         require(_vault.isContract(), "!isContract");
         require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
-        vaultToVaultConfiguration[_vault].withdrawlFee = _withdrawalFee;
+        vaultToVaultConfiguration[_vault].withdrawalFee = _withdrawalFee;
         _success = true;
     }
 
@@ -508,6 +508,7 @@ contract Registry is IRegistry, ModifiersController {
      */
     function setTreasuryShares(address _vault, DataTypes.TreasuryShare[] memory _treasuryShares)
         external
+        override
         onlyGovernance
         returns (bool)
     {
@@ -519,7 +520,7 @@ contract Registry is IRegistry, ModifiersController {
             require(_treasuryShares[_i].treasury != address(0), "!address(0)");
             _sharesSum = _sharesSum.add(_treasuryShares[_i].share);
         }
-        require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawlFee, "FeeShares!=WithdrawalFee");
+        require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawalFee, "FeeShares!=WithdrawalFee");
 
         //  delete the existing the treasury accounts if any to reset them
         if (vaultToVaultConfiguration[_vault].treasuryShares.length > 0) {
@@ -529,17 +530,6 @@ contract Registry is IRegistry, ModifiersController {
             vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryShares[_i]);
         }
         return true;
-    }
-
-    /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
-     * @param _vault Vault contract address
-     *
-     * @return Returns Treasuries along with their fee shares
-     */
-    function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory) {
-        return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
     /**
@@ -740,21 +730,17 @@ contract Registry is IRegistry, ModifiersController {
         return riskProfilesArray;
     }
 
-    function getVaultToVaultActivityState(address _vault)
+    function getVaultConfiguration(address _vault)
         public
         view
         override
-        returns (DataTypes.VaultActivityState memory _vaultActivityState)
+        returns (DataTypes.VaultConfiguration memory _vaultConfiguration)
     {
-        _vaultActivityState = vaultToVaultActivityState[_vault];
+        _vaultConfiguration = vaultToVaultConfiguration[_vault];
     }
 
     function getVaultStepInvestStrategyDefinitionRegistry() public view override returns (address) {
         return vaultStepInvestStrategyDefinitionRegistry;
-    }
-
-    function getTreasury() public view override returns (address) {
-        return treasury;
     }
 
     function getTokensHashIndexByHash(bytes32 _tokensHash) public view override returns (uint256 _index) {
@@ -829,6 +815,17 @@ contract Registry is IRegistry, ModifiersController {
 
     function getLiquidityPoolToAdapter(address _pool) public view override returns (address _adapter) {
         _adapter = liquidityPoolToAdapter[_pool];
+    }
+
+    /**
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     *
+     * @return Returns Treasuries along with their fee shares
+     */
+    function getTreasuryShares(address _vault) external view override returns (DataTypes.TreasuryShare[] memory) {
+        return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
     function _approveToken(address _token) internal returns (bool) {

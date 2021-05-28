@@ -67,14 +67,14 @@ abstract contract Modifiers is IModifiers {
     }
 
     modifier ifNotDiscontinued(address _vault) {
-        (bool _discontinued, , ) = registryContract.vaultToVaultConfiguration(_vault);
-        require(!_discontinued, "discontinued");
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(!_vaultConfiguration.discontinued, "discontinued");
         _;
     }
 
     modifier ifNotPaused(address _vault) {
-        (, bool _unpaused, ) = registryContract.vaultToVaultConfiguration(_vault);
-        require(_unpaused, "paused");
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused, "paused");
         _;
     }
 

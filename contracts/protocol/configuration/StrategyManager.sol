@@ -123,7 +123,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address _underlyingToken,
         uint256 _redeemAmountInToken,
         uint256 _withdrawalFee
-    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
+    ) external pure override returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
         if (_redeemAmountInToken > 0) {
             uint256 _fee = 0;
             if (_treasuryShares.length > 0 && _withdrawalFee > 0) {

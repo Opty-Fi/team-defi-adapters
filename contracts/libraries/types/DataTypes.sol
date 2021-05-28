@@ -82,7 +82,7 @@ library DataTypes {
     struct VaultConfiguration {
         bool discontinued;
         bool unpaused;
-        uint256 withdrawlFee;
+        uint256 withdrawalFee;
         TreasuryShare[] treasuryShares;
     }
 }
