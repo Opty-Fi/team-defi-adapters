@@ -114,17 +114,6 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the $OPTY minter's contract address.
-     * Can only be called by the current governance.
-     */
-    function setOPTYMinter(address _optyMinter) external override onlyGovernance returns (bool) {
-        require(_optyMinter != address(0), "!address(0)");
-        require(_optyMinter.isContract(), "!isContract");
-        optyMinter = _optyMinter;
-        return true;
-    }
-
-    /**
      * @dev set the PriceOracle contract address.
      * Can only be called by the current governance.
      */
@@ -785,7 +774,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     function getOptyMinter() public view override returns (address) {
-        return optyMinter;
+        return minter;
     }
 
     function getGovernance() public view override returns (address) {

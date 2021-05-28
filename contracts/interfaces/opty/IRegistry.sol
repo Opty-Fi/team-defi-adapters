@@ -65,12 +65,6 @@ interface IRegistry {
     function setOPTY(address _opty) external returns (bool);
 
     /**
-     * @dev set the $OPTY minter's contract address.
-     * Can only be called by the current governance.
-     */
-    function setOPTYMinter(address _optyMinter) external returns (bool);
-
-    /**
      * @dev set the PriceOracle contract address.
      * Can only be called by the current governance.
      */

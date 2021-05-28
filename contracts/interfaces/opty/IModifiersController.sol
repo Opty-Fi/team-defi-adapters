@@ -25,5 +25,5 @@ interface IModifiersController {
      * Can only be called by the current governance.
      */
 
-    function setMinter(address _minter) external;
+    function setOPTYMinter(address _minter) external;
 }

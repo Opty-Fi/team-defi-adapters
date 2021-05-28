@@ -127,8 +127,6 @@ export async function deployEssentialContracts(
     1700000000,
   ]);
 
-  await executeFunc(registry, owner, "setOPTYMinter(address)", [optyMinter.address]);
-
   let optyStakingRateBalancer = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER,
@@ -190,7 +188,7 @@ export async function deployEssentialContracts(
     [registry.address, opty.address, 15552000, "180D"],
   );
 
-  await executeFunc(registry, owner, "setMinter(address)", [optyMinter.address]);
+  await executeFunc(registry, owner, "setOPTYMinter(address)", [optyMinter.address]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);

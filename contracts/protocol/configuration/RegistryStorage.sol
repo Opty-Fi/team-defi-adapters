@@ -58,12 +58,7 @@ contract RegistryAdminStorage {
     /**
      * @notice Change minter of protocol
      */
-    event TransferMinter(address indexed minter, address indexed caller);
-
-    /**
-     * @notice Change treasurer of protocol
-     */
-    event TransferTreasury(address indexed treasurer, address indexed caller);
+    event TransferOPTYMinter(address indexed minter, address indexed caller);
 }
 
 contract RegistryStorage is RegistryAdminStorage {
@@ -84,7 +79,6 @@ contract RegistryStorage is RegistryAdminStorage {
     address public strategyManager;
     address public priceOracle;
     address public opty;
-    address public optyMinter;
     address public aprOracle;
     address public optyStakingRateBalancer;
 

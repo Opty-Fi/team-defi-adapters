@@ -9,7 +9,7 @@ import { IModifiersController } from "../../interfaces/opty/IModifiersController
 /**
  * @dev Contract used to authorize and keep all the modifiers at one place
  */
-contract ModifiersController is IModifiersController, RegistryStorage {
+abstract contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
 
     /**
@@ -39,10 +39,10 @@ contract ModifiersController is IModifiersController, RegistryStorage {
      * Can only be called by the current governance.
      */
 
-    function setMinter(address _minter) public override onlyGovernance {
+    function setOPTYMinter(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");
         minter = _minter;
-        emit TransferMinter(minter, msg.sender);
+        emit TransferOPTYMinter(minter, msg.sender);
     }
 
     /**
