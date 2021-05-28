@@ -34,6 +34,13 @@ interface IRegistry {
         returns (bool);
 
     /**
+     * @dev set the APROracle contract address.
+     * Can only be called by the current governance.
+     */
+
+    function setAPROracle(address _aprOracle) external returns (bool);
+
+    /**
      * @dev set the StrategyProvider contract address.
      * Can only be called by the current governance.
      */
@@ -305,6 +312,19 @@ interface IRegistry {
         string memory _riskProfile,
         address _vault
     ) external returns (bool);
+
+    /**
+     * @dev Set the withdrawal fee for the vault contract.
+     *
+     * @param _vault Vault contract address
+     * @param _withdrawalFee Withdrawal fee to be set for vault contract
+     *
+     * @return _success Returns a boolean value indicating whether the operation succeeded
+     *
+     * Requirements:
+     *  - `msg.sender` Can only be current governance.
+     */
+    function setWithdrawalFee(address _vault, uint256 _withdrawalFee) external returns (bool _success);
 
     /**
      * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`

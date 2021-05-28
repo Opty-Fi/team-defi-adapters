@@ -51,7 +51,7 @@ contract Registry is IRegistry, ModifiersController {
      * Can only be called by the current governance.
      */
 
-    function setAPROracle(address _aprOracle) external onlyGovernance returns (bool) {
+    function setAPROracle(address _aprOracle) external override onlyGovernance returns (bool) {
         require(_aprOracle != address(0), "!address(0)");
         aprOracle = _aprOracle;
         return true;
@@ -476,7 +476,12 @@ contract Registry is IRegistry, ModifiersController {
      * Requirements:
      *  - `msg.sender` Can only be current governance.
      */
-    function setWithdrawalFee(address _vault, uint256 _withdrawalFee) public onlyGovernance returns (bool _success) {
+    function setWithdrawalFee(address _vault, uint256 _withdrawalFee)
+        external
+        override
+        onlyGovernance
+        returns (bool _success)
+    {
         require(_vault != address(0), "!address(0)");
         require(_vault.isContract(), "!isContract");
         require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
