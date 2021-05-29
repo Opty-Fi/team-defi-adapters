@@ -19,4 +19,7 @@ contract VaultStorage {
     uint256 public maxVaultValueJump; // basis points
     address public underlyingToken; //  store the underlying token contract address (for example DAI)
     string public profile;
+
+    event DepositQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
+    event WithdrawQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
 }
