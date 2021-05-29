@@ -17,8 +17,6 @@ interface ICompound {
         uint256 allocated;
     }
 
-    function getCompBalanceMetadata(address comp, address account) external view returns (CompBalanceMetadata memory);
-
     function getCompBalanceMetadataExt(
         address comp,
         address comptroller,
@@ -29,9 +27,13 @@ interface ICompound {
 
     function redeem(uint256 redeemTokens) external returns (uint256);
 
-    function exchangeRateStored() external view returns (uint256);
-
     function exchangeRateCurrent() external returns (uint256);
+
+    function claimComp(address holder) external;
+
+    function getCompBalanceMetadata(address comp, address account) external view returns (CompBalanceMetadata memory);
+
+    function exchangeRateStored() external view returns (uint256);
 
     function totalBorrows() external view returns (uint256);
 
@@ -40,8 +42,6 @@ interface ICompound {
     function getCash() external view returns (uint256);
 
     function totalSupply() external view returns (uint256);
-
-    function claimComp(address holder) external;
 
     function underlying() external view returns (address);
 
