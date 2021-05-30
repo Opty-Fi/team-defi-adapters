@@ -438,17 +438,6 @@ contract Registry is ModifiersController {
     }
 
     /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
-     * @param _vault Vault contract address
-     *
-     * @return Returns Treasuries along with their fee shares
-     */
-    function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory) {
-        return vaultToVaultConfiguration[_vault].treasuryShares;
-    }
-
-    /**
      * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`
      *      and `_riskProfiles`in one transaction
      *
@@ -631,6 +620,17 @@ contract Registry is ModifiersController {
      */
     function getTokensHashToTokens(bytes32 _tokensHash) external view returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
+    }
+
+    /**
+     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
+     *
+     * @param _vault Vault contract address
+     *
+     * @return Returns Treasuries along with their fee shares
+     */
+    function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory) {
+        return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
     /**
