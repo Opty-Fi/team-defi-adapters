@@ -84,14 +84,6 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         return vaultRewardTokenHashToVaultRewardTokenStrategy[_vaultRewardTokenHash];
     }
 
-    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
-        public
-        override
-        onlyGovernance
-    {
-        defaultStrategyState = _defaultStrategyState;
-    }
-
     function getDefaultStrategyState() external view override returns (DataTypes.DefaultStrategyState) {
         return defaultStrategyState;
     }
@@ -103,5 +95,13 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         returns (DataTypes.VaultRewardStrategy memory)
     {
         return vaultRewardTokenHashToVaultRewardTokenStrategy[_tokensHash];
+    }
+
+    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
+        public
+        override
+        onlyGovernance
+    {
+        defaultStrategyState = _defaultStrategyState;
     }
 }

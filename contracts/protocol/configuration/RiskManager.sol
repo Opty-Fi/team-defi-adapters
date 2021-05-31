@@ -67,6 +67,27 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     }
 
     /**
+     * @dev Get the VaultRewardToken strategy for respective VaultRewardToken hash
+     *
+     * Returns the hash of the VaultRewardToken strategy corresponding to the `_vaultRewardTokenHash` provided
+     *
+     * Requirements:
+     *
+     * - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses
+     *      - Can not be empty
+     */
+    function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
+        external
+        view
+        override
+        returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
+    {
+        require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
+        _vaultRewardStrategy = IStrategyProvider(registryContract.getStrategyProvider())
+            .getVaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
+    }
+
+    /**
      * @dev Get the best strategy corresponding to _riskProfile and _tokenHash
      *
      * Returns the hash of the best strategy corresponding to _riskProfile provided
@@ -171,26 +192,5 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         }
 
         return _strategyHash;
-    }
-
-    /**
-     * @dev Get the VaultRewardToken strategy for respective VaultRewardToken hash
-     *
-     * Returns the hash of the VaultRewardToken strategy corresponding to the `_vaultRewardTokenHash` provided
-     *
-     * Requirements:
-     *
-     * - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses
-     *      - Can not be empty
-     */
-    function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
-        external
-        view
-        override
-        returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
-    {
-        require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
-        _vaultRewardStrategy = IStrategyProvider(registryContract.getStrategyProvider())
-            .getVaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
     }
 }

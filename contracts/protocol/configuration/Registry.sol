@@ -725,7 +725,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     function getVaultConfiguration(address _vault)
-        public
+        external
         view
         override
         returns (DataTypes.VaultConfiguration memory _vaultConfiguration)
@@ -733,40 +733,40 @@ contract Registry is IRegistry, ModifiersController {
         _vaultConfiguration = vaultToVaultConfiguration[_vault];
     }
 
-    function getVaultStepInvestStrategyDefinitionRegistry() public view override returns (address) {
+    function getVaultStepInvestStrategyDefinitionRegistry() external view override returns (address) {
         return vaultStepInvestStrategyDefinitionRegistry;
     }
 
-    function getTokensHashIndexByHash(bytes32 _tokensHash) public view override returns (uint256 _index) {
+    function getTokensHashIndexByHash(bytes32 _tokensHash) external view override returns (uint256 _index) {
         _index = tokensHashToTokens[_tokensHash].index;
     }
 
-    function getTokensHashByIndex(uint256 _index) public view override returns (bytes32 _tokensHash) {
+    function getTokensHashByIndex(uint256 _index) external view override returns (bytes32 _tokensHash) {
         _tokensHash = tokensHashIndexes[_index];
     }
 
-    function isApprovedToken(address _token) public view override returns (bool _isTokenApproved) {
+    function isApprovedToken(address _token) external view override returns (bool _isTokenApproved) {
         _isTokenApproved = tokens[_token];
     }
 
-    function getStrategyProvider() public view override returns (address) {
+    function getStrategyProvider() external view override returns (address) {
         return strategyProvider;
     }
 
-    function getStrategyManager() public view override returns (address) {
+    function getStrategyManager() external view override returns (address) {
         return strategyManager;
     }
 
-    function getStrategist() public view override returns (address) {
+    function getStrategist() external view override returns (address) {
         return strategist;
     }
 
-    function getAprOracle() public view override returns (address) {
+    function getAprOracle() external view override returns (address) {
         return aprOracle;
     }
 
     function getRiskProfile(string memory _riskProfileName)
-        public
+        external
         view
         override
         returns (DataTypes.RiskProfile memory _riskProfile)
@@ -774,32 +774,32 @@ contract Registry is IRegistry, ModifiersController {
         _riskProfile = riskProfiles[_riskProfileName];
     }
 
-    function getRiskManager() public view override returns (address) {
+    function getRiskManager() external view override returns (address) {
         return riskManager;
     }
 
-    function getOptyMinter() public view override returns (address) {
+    function getOptyMinter() external view override returns (address) {
         return minter;
     }
 
-    function getGovernance() public view override returns (address) {
+    function getGovernance() external view override returns (address) {
         return governance;
     }
 
-    function getOperator() public view override returns (address) {
+    function getOperator() external view override returns (address) {
         return operator;
     }
 
-    function getHarvestCodeProvider() public view override returns (address) {
+    function getHarvestCodeProvider() external view override returns (address) {
         return harvestCodeProvider;
     }
 
-    function getOPTYStakingRateBalancer() public view override returns (address) {
+    function getOPTYStakingRateBalancer() external view override returns (address) {
         return optyStakingRateBalancer;
     }
 
     function getLiquidityPool(address _pool)
-        public
+        external
         view
         override
         returns (DataTypes.LiquidityPool memory _liquidityPool)
@@ -808,7 +808,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     function getStrategyConfiguration()
-        public
+        external
         view
         override
         returns (DataTypes.StrategyConfiguration memory _strategyConfiguration)
@@ -819,7 +819,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     function getVaultStrategyConfiguration()
-        public
+        external
         view
         override
         returns (DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
@@ -830,7 +830,7 @@ contract Registry is IRegistry, ModifiersController {
         _vaultStrategyConfiguration.operator = operator;
     }
 
-    function getLiquidityPoolToAdapter(address _pool) public view override returns (address _adapter) {
+    function getLiquidityPoolToAdapter(address _pool) external view override returns (address _adapter) {
         _adapter = liquidityPoolToAdapter[_pool];
     }
 

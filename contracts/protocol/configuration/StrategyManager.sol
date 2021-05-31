@@ -153,9 +153,21 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
-    // function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-    //     harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    // }
+    function getLpAdapterRewardToken(bytes32 _investStrategyHash)
+        public
+        view
+        override
+        returns (
+            address _liquidityPool,
+            address _optyAdapter,
+            address _rewardToken
+        )
+    {
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
+        _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
+        _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+        _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
+    }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
         IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
@@ -326,22 +338,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
             _liquidityPool,
             _redeemRewardTokens
         );
-    }
-
-    function getLpAdapterRewardToken(bytes32 _investStrategyHash)
-        public
-        view
-        override
-        returns (
-            address _liquidityPool,
-            address _optyAdapter,
-            address _rewardToken
-        )
-    {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
-        _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-        _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-        _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
     }
 
     function _getPoolClaimAllRewardCodes(
