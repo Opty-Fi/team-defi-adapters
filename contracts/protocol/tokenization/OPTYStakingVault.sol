@@ -70,6 +70,13 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _userUnstake(_redeemAmount);
     }
 
+    /* solhint-disable no-empty-blocks */
+    function discontinue() external onlyRegistry {}
+
+    function setUnpaused(bool _unpaused) external onlyRegistry {}
+
+    /* solhint-disable no-empty-blocks */
+
     function getPricePerFullShare() external view override returns (uint256) {
         if (totalSupply() != 0) {
             return balance().div(totalSupply());
@@ -116,13 +123,6 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         );
         _success = true;
     }
-
-    /* solhint-disable no-empty-blocks */
-    function discontinue() public onlyRegistry {}
-
-    function setUnpaused(bool _unpaused) public onlyRegistry {}
-
-    /* solhint-disable no-empty-blocks */
 
     /**
      * @dev Function to get the underlying token balance of OptyPool Contract
