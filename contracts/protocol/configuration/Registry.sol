@@ -807,6 +807,29 @@ contract Registry is IRegistry, ModifiersController {
         _liquidityPool = liquidityPools[_pool];
     }
 
+    function getStrategyConfiguration()
+        public
+        view
+        override
+        returns (DataTypes.StrategyConfiguration memory _strategyConfiguration)
+    {
+        _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry = vaultStepInvestStrategyDefinitionRegistry;
+        _strategyConfiguration.strategyProvider = strategyProvider;
+        _strategyConfiguration.aprOracle = aprOracle;
+    }
+
+    function getVaultStrategyConfiguration()
+        public
+        view
+        override
+        returns (DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
+    {
+        _vaultStrategyConfiguration.strategyManager = strategyManager;
+        _vaultStrategyConfiguration.riskManager = riskManager;
+        _vaultStrategyConfiguration.optyMinter = minter;
+        _vaultStrategyConfiguration.operator = operator;
+    }
+
     function getLiquidityPoolToAdapter(address _pool) public view override returns (address _adapter) {
         _adapter = liquidityPoolToAdapter[_pool];
     }

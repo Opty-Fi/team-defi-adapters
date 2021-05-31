@@ -499,6 +499,16 @@ interface IRegistry {
 
     function getLiquidityPool(address) external view returns (DataTypes.LiquidityPool memory);
 
+    function getStrategyConfiguration()
+        external
+        view
+        returns (DataTypes.StrategyConfiguration memory _strategyConfiguration);
+
+    function getVaultStrategyConfiguration()
+        external
+        view
+        returns (DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration);
+
     function getLiquidityPoolToAdapter(address) external view returns (address);
 
     /**

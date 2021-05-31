@@ -61,8 +61,8 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
             require(_underlyingTokens[i].isContract(), "!_underlyingTokens");
         }
         bytes32 tokensHash = keccak256(abi.encodePacked(_underlyingTokens));
-
-        bytes32 _strategyHash = _getBestStrategy(_profile, tokensHash);
+        DataTypes.StrategyConfiguration memory _strategyConfiguration = registryContract.getStrategyConfiguration();
+        bytes32 _strategyHash = _getBestStrategy(_profile, tokensHash, _strategyConfiguration);
         return _strategyHash;
     }
 
@@ -76,31 +76,45 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
      * - `_profile` should exists in Registry contract
      *
      */
-    function _getBestStrategy(string memory _riskProfile, bytes32 _tokensHash) internal view returns (bytes32) {
+    function _getBestStrategy(
+        string memory _riskProfile,
+        bytes32 _tokensHash,
+        DataTypes.StrategyConfiguration memory _strategyConfiguration
+    ) internal view returns (bytes32) {
         DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
 
-        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.getStrategyProvider());
-        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
-            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
-
         // getbeststrategy from strategyProvider
-        bytes32 _strategyHash = _strategyProvider.rpToTokenToBestStrategy(_riskProfile, _tokensHash);
+        bytes32 _strategyHash =
+            IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToBestStrategy(
+                _riskProfile,
+                _tokensHash
+            );
 
         // fallback to default strategy if best strategy is not available
         if (_strategyHash == ZERO_BYTES32) {
-            _strategyHash = _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            _strategyHash = IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
+                _riskProfile,
+                _tokensHash
+            );
             if (
                 _strategyHash == ZERO_BYTES32 &&
-                _strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.Zero
+                IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
+                DataTypes.DefaultStrategyState.Zero
             ) {
                 return ZERO_BYTES32;
             } else if (
                 _strategyHash == ZERO_BYTES32 &&
-                _strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave
+                IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
+                DataTypes.DefaultStrategyState.CompoundOrAave
             ) {
-                _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
-                (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
+                _strategyHash = IAPROracle(_strategyConfiguration.aprOracle).getBestAPR(_tokensHash);
+                (uint256 _strategyIndex, ) =
+                    IVaultStepInvestStrategyDefinitionRegistry(
+                        _strategyConfiguration
+                            .vaultStepInvestStrategyDefinitionRegistry
+                    )
+                        .getStrategy(_strategyHash);
                 if (_strategyIndex == uint256(0)) {
                     return ZERO_BYTES32;
                 } else {
@@ -111,7 +125,8 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         require(_strategyHash != ZERO_BYTES32, "!bestStrategyHash");
 
         (, DataTypes.StrategyStep[] memory _strategySteps) =
-            _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
+            IVaultStepInvestStrategyDefinitionRegistry(_strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry)
+                .getStrategy(_strategyHash);
 
         DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[0].pool);
         // validate strategy profile
@@ -121,12 +136,29 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
             !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
                 _liquidityPool.rating <= _riskProfileStruct.upperLimit)
         ) {
-            if (_strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash) != ZERO_BYTES32) {
-                return _strategyProvider.rpToTokenToDefaultStrategy(_riskProfile, _tokensHash);
+            if (
+                IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
+                    _riskProfile,
+                    _tokensHash
+                ) != ZERO_BYTES32
+            ) {
+                return
+                    IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
+                        _riskProfile,
+                        _tokensHash
+                    );
             } else {
-                if (_strategyProvider.getDefaultStrategyState() == DataTypes.DefaultStrategyState.CompoundOrAave) {
+                if (
+                    IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
+                    DataTypes.DefaultStrategyState.CompoundOrAave
+                ) {
                     _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
-                    (uint256 _strategyIndex, ) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_strategyHash);
+                    (uint256 _strategyIndex, ) =
+                        IVaultStepInvestStrategyDefinitionRegistry(
+                            _strategyConfiguration
+                                .vaultStepInvestStrategyDefinitionRegistry
+                        )
+                            .getStrategy(_strategyHash);
                     if (_strategyIndex != uint256(0)) {
                         return _strategyHash;
                     } else {
@@ -158,9 +190,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
     {
         require(_vaultRewardTokenHash != ZERO_BYTES32, "vRtHash!=0x0");
-        IStrategyProvider _strategyProvider = IStrategyProvider(registryContract.getStrategyProvider());
-        _vaultRewardStrategy = _strategyProvider.getVaultRewardTokenHashToVaultRewardTokenStrategy(
-            _vaultRewardTokenHash
-        );
+        _vaultRewardStrategy = IStrategyProvider(registryContract.getStrategyProvider())
+            .getVaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
     }
 }
