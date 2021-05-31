@@ -15,7 +15,7 @@ import {
     IAaveV1,
     UserReserveData,
     ReserveConfigurationData,
-    ReserveData,
+    ReserveDataV1,
     UserAccountData
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
@@ -180,6 +180,17 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         uint256 _redeemAmount =
             getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProvider);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
+    }
+
+    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
+        public
+        view
+        override
+        returns (address)
+    {
+        address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+        ReserveDataV1 memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
+        return _reserveData.aTokenAddress;
     }
 
     function getUnderlyingTokens(address, address _liquidityPoolToken)
@@ -419,16 +430,16 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
-    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
-        public
-        view
-        override
-        returns (address)
-    {
-        address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        ReserveData memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
-        return _reserveData.aTokenAddress;
-    }
+    // function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
+    //     public
+    //     view
+    //     override
+    //     returns (address)
+    // {
+    //     address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+    //     ReserveData memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
+    //     return _reserveData.aTokenAddress;
+    // }
 
     function getAllAmountInToken(
         address payable _optyVault,

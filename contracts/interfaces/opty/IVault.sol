@@ -8,13 +8,7 @@ pragma solidity ^0.6.10;
 interface IVault {
     function setProfile(string memory _profile) external returns (bool _success);
 
-    function setOPTYMinter(address _optyMinter) external returns (bool _success);
-
-    function setRiskManager(address _riskManager) external returns (bool _success);
-
     function setToken(address _underlyingToken) external returns (bool _success);
-
-    function setStrategyManager(address _strategyCodeProvider) external returns (bool _success);
 
     function setMaxVaultValueJump(uint256 _maxVaultValueJump) external returns (bool _success);
 

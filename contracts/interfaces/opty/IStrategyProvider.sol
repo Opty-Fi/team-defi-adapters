@@ -41,11 +41,13 @@ interface IStrategyProvider {
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) external returns (DataTypes.VaultRewardStrategy memory);
 
+    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState) external;
+
     function rpToTokenToBestStrategy(string memory _riskProfile, bytes32 _tokenHash) external view returns (bytes32);
 
     function rpToTokenToDefaultStrategy(string memory _riskProfile, bytes32 _tokenHash) external view returns (bytes32);
 
-    function vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokenHash)
+    function getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokensHash)
         external
         view
         returns (DataTypes.VaultRewardStrategy memory);
