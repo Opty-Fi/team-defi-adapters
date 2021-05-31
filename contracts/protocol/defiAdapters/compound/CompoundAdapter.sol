@@ -49,10 +49,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return ICompound(_liquidityPool).getCash();
-    }
-
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -90,10 +86,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
-    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
-        return _liquidityPool;
-    }
-
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -102,52 +94,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
     {
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = ICompound(_liquidityPool).underlying();
-    }
-
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        // Mantisa 1e18 to decimals
-        uint256 b =
-            getSomeAmountInToken(
-                _underlyingToken,
-                _liquidityPool,
-                getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool)
-            );
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
-        if (_unclaimedReward > 0) {
-            b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                    rewardToken,
-                    _underlyingToken,
-                    _unclaimedReward
-                )
-            );
-        }
-        return b;
-    }
-
-    function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
-        address,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        return IERC20(_liquidityPool).balanceOf(_optyVault);
-    }
-
-    function getSomeAmountInToken(
-        address,
-        address _liquidityPool,
-        uint256 _liquidityPoolTokenAmount
-    ) public view override returns (uint256) {
-        if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount
-                .mul(ICompound(_liquidityPool).exchangeRateStored())
-                .div(1e18);
-        }
-        return _liquidityPoolTokenAmount;
     }
 
     function getSomeAmountInTokenBorrow(
@@ -204,14 +150,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
-    }
-
-    function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
-        return ICompound(comptroller).compAccrued(_optyVault);
-    }
-
     function getClaimRewardTokenCode(address payable _optyVault, address)
         external
         view
@@ -220,21 +158,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
     {
         _codes = new bytes[](1);
         _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _optyVault));
-    }
-
-    function getHarvestSomeCodes(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
-        return
-            harvestCodeProviderContract.getHarvestCodes(
-                _optyVault,
-                getRewardToken(_liquidityPool),
-                _underlyingToken,
-                _rewardTokenAmount
-            );
     }
 
     function getHarvestAllCodes(
@@ -371,6 +294,83 @@ contract CompoundAdapter is IAdapter, Modifiers {
                 abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
             );
         }
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return ICompound(_liquidityPool).getCash();
+    }
+
+    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
+        return _liquidityPool;
+    }
+
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        // Mantisa 1e18 to decimals
+        uint256 b =
+            getSomeAmountInToken(
+                _underlyingToken,
+                _liquidityPool,
+                getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool)
+            );
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
+        if (_unclaimedReward > 0) {
+            b = b.add(
+                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                    rewardToken,
+                    _underlyingToken,
+                    _unclaimedReward
+                )
+            );
+        }
+        return b;
+    }
+
+    function getLiquidityPoolTokenBalance(
+        address payable _optyVault,
+        address,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        return IERC20(_liquidityPool).balanceOf(_optyVault);
+    }
+
+    function getSomeAmountInToken(
+        address,
+        address _liquidityPool,
+        uint256 _liquidityPoolTokenAmount
+    ) public view override returns (uint256) {
+        if (_liquidityPoolTokenAmount > 0) {
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount
+                .mul(ICompound(_liquidityPool).exchangeRateStored())
+                .div(1e18);
+        }
+        return _liquidityPoolTokenAmount;
+    }
+
+    function getRewardToken(address) public view override returns (address) {
+        return rewardToken;
+    }
+
+    function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
+        return ICompound(comptroller).compAccrued(_optyVault);
+    }
+
+    function getHarvestSomeCodes(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _rewardTokenAmount
+    ) public view override returns (bytes[] memory _codes) {
+        return
+            harvestCodeProviderContract.getHarvestCodes(
+                _optyVault,
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _rewardTokenAmount
+            );
     }
 
     function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {

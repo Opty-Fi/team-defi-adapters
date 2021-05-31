@@ -41,31 +41,6 @@ contract YearnAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IYearn(_liquidityPool).calcPoolValueInToken();
-    }
-
-    function getDepositSomeCodes(
-        address payable,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) public view override returns (bytes[] memory _codes) {
-        if (_amounts[0] > 0) {
-            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
-            );
-            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _depositAmount));
-        }
-    }
-
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -103,10 +78,6 @@ contract YearnAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
-    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
-        return _liquidityPool;
-    }
-
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -115,40 +86,6 @@ contract YearnAdapter is IAdapter, Modifiers {
     {
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = IYearn(_liquidityPool).token();
-    }
-
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        return
-            getSomeAmountInToken(
-                _underlyingToken,
-                _liquidityPool,
-                getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool)
-            );
-    }
-
-    function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
-    }
-
-    function getSomeAmountInToken(
-        address,
-        address _liquidityPool,
-        uint256 _liquidityPoolTokenAmount
-    ) public view override returns (uint256) {
-        if (_liquidityPoolTokenAmount > 0) {
-            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount
-                .mul(IYearn(_liquidityPool).getPricePerFullShare())
-                .div(10**IYearn(_liquidityPool).decimals());
-        }
-        return _liquidityPoolTokenAmount;
     }
 
     function getSomeAmountInTokenBorrow(
@@ -313,6 +250,27 @@ contract YearnAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    function getDepositSomeCodes(
+        address payable,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256[] memory _amounts
+    ) public view override returns (bytes[] memory _codes) {
+        if (_amounts[0] > 0) {
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(
+                _underlyingTokens[0],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _underlyingTokens[0],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
+            );
+            _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("deposit(uint256)", _depositAmount));
+        }
+    }
+
     function getWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -323,6 +281,48 @@ contract YearnAdapter is IAdapter, Modifiers {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(_liquidityPool, abi.encodeWithSignature("withdraw(uint256)", _shares));
         }
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return IYearn(_liquidityPool).calcPoolValueInToken();
+    }
+
+    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
+        return _liquidityPool;
+    }
+
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        return
+            getSomeAmountInToken(
+                _underlyingToken,
+                _liquidityPool,
+                getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool)
+            );
+    }
+
+    function getLiquidityPoolTokenBalance(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
+    }
+
+    function getSomeAmountInToken(
+        address,
+        address _liquidityPool,
+        uint256 _liquidityPoolTokenAmount
+    ) public view override returns (uint256) {
+        if (_liquidityPoolTokenAmount > 0) {
+            _liquidityPoolTokenAmount = _liquidityPoolTokenAmount
+                .mul(IYearn(_liquidityPool).getPricePerFullShare())
+                .div(10**IYearn(_liquidityPool).decimals());
+        }
+        return _liquidityPoolTokenAmount;
     }
 
     function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {

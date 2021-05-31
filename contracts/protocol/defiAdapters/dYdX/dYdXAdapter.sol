@@ -68,63 +68,6 @@ contract DyDxAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
-        return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
-    }
-
-    function getDepositSomeCodes(
-        address payable _optyVault,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 _underlyingTokenIndex;
-        bool _isAmount = false;
-        for (uint256 i = 0; i < _amounts.length; i++) {
-            if (_amounts[i] > 0) {
-                _isAmount = true;
-                _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];
-            }
-        }
-        if (_isAmount) {
-            uint256 _depositAmount =
-                _getDepositAmount(
-                    _liquidityPool,
-                    _underlyingTokens[_underlyingTokenIndex],
-                    _amounts[_underlyingTokenIndex]
-                );
-            AccountInfo[] memory _accountInfos = new AccountInfo[](1);
-            _accountInfos[0] = AccountInfo(_optyVault, uint256(0));
-            AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
-            ActionArgs memory _actionArg;
-            _actionArg.actionType = ActionType.Deposit;
-            _actionArg.accountId = 0;
-            _actionArg.amount = _amt;
-            _actionArg.primaryMarketId = _underlyingTokenIndex;
-            _actionArg.otherAddress = _optyVault;
-            ActionArgs[] memory _actionArgs = new ActionArgs[](1);
-            _actionArgs[0] = _actionArg;
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature(
-                    // solhint-disable-next-line max-line-length
-                    "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
-                    _accountInfos,
-                    _actionArgs
-                )
-            );
-        }
-    }
-
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -178,17 +121,6 @@ contract DyDxAdapter is IAdapter, Modifiers {
         returns (address[] memory _underlyingTokens)
     {
         _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
-    }
-
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
-        AccountInfo memory _accountInfo = AccountInfo(_optyVault, uint256(0));
-        (, uint256 value) = IdYdX(_liquidityPool).getAccountWei(_accountInfo, _underlyingTokenIndex);
-        return value;
     }
 
     function getLiquidityPoolTokenBalance(
@@ -371,6 +303,59 @@ contract DyDxAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    function getDepositSomeCodes(
+        address payable _optyVault,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256[] memory _amounts
+    ) public view override returns (bytes[] memory _codes) {
+        uint256 _underlyingTokenIndex;
+        bool _isAmount = false;
+        for (uint256 i = 0; i < _amounts.length; i++) {
+            if (_amounts[i] > 0) {
+                _isAmount = true;
+                _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];
+            }
+        }
+        if (_isAmount) {
+            uint256 _depositAmount =
+                _getDepositAmount(
+                    _liquidityPool,
+                    _underlyingTokens[_underlyingTokenIndex],
+                    _amounts[_underlyingTokenIndex]
+                );
+            AccountInfo[] memory _accountInfos = new AccountInfo[](1);
+            _accountInfos[0] = AccountInfo(_optyVault, uint256(0));
+            AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
+            ActionArgs memory _actionArg;
+            _actionArg.actionType = ActionType.Deposit;
+            _actionArg.accountId = 0;
+            _actionArg.amount = _amt;
+            _actionArg.primaryMarketId = _underlyingTokenIndex;
+            _actionArg.otherAddress = _optyVault;
+            ActionArgs[] memory _actionArgs = new ActionArgs[](1);
+            _actionArgs[0] = _actionArg;
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(
+                _underlyingTokens[_underlyingTokenIndex],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _underlyingTokens[_underlyingTokenIndex],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
+            );
+            _codes[2] = abi.encode(
+                _liquidityPool,
+                abi.encodeWithSignature(
+                    // solhint-disable-next-line max-line-length
+                    "operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
+                    _accountInfos,
+                    _actionArgs
+                )
+            );
+        }
+    }
+
     function getWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -401,6 +386,21 @@ contract DyDxAdapter is IAdapter, Modifiers {
                 )
             );
         }
+    }
+
+    function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
+        return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
+    }
+
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
+        AccountInfo memory _accountInfo = AccountInfo(_optyVault, uint256(0));
+        (, uint256 value) = IdYdX(_liquidityPool).getAccountWei(_accountInfo, _underlyingTokenIndex);
+        return value;
     }
 
     function _getDepositAmount(

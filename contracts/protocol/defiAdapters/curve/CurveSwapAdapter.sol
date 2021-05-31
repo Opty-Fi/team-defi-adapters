@@ -287,34 +287,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function getPoolValue(address, address) public view override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
-    * @dev Calls the appropriate deploy function depending on N_COINS
-    * 
-    // * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
-    * @param _amounts Quantity of _underlyingToken to deposit
-    */
-    function getDepositSomeCodes(
-        address payable,
-        address[] memory,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) public view override returns (bytes[] memory _codes) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        uint256 nCoins = _underlyingTokens.length;
-        require(_amounts.length == nCoins, "!_amounts.length");
-        if (nCoins == uint256(2)) {
-            _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (nCoins == uint256(3)) {
-            _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (nCoins == uint256(4)) {
-            _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
-        }
-    }
-
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory,
@@ -356,10 +328,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amount);
     }
 
-    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
-        return swapPoolToLiquidityPoolToken[_liquidityPool];
-    }
-
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -367,53 +335,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         returns (address[] memory _underlyingTokens)
     {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
-    }
-
-    /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken
-     */
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
-        return getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenAmount);
-    }
-
-    function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
-    }
-
-    /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken
-     */
-    function getSomeAmountInToken(
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _liquidityPoolTokenAmount
-    ) public view override returns (uint256) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
-        if (_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
-        }
-        return 0;
     }
 
     function getSomeAmountInTokenBorrow(
@@ -473,6 +394,224 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    function getClaimRewardTokenCode(address payable, address _liquidityPool)
+        external
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        if (swapPoolToGauges[_liquidityPool] != address(0)) {
+            _codes = new bytes[](1);
+            _codes[0] = abi.encode(
+                getMinter(swapPoolToGauges[_liquidityPool]),
+                abi.encodeWithSignature("mint(address)", swapPoolToGauges[_liquidityPool])
+            );
+        }
+    }
+
+    function getHarvestAllCodes(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) external view override returns (bytes[] memory _codes) {
+        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
+        return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
+    }
+
+    function canStake(address _liquidityPool) external view override returns (bool) {
+        if (swapPoolToGauges[_liquidityPool] != address(0)) {
+            return true;
+        }
+        return false;
+    }
+
+    function getStakeAllCodes(
+        address payable _optyVault,
+        address[] memory _underlyingTokens,
+        address _liquidityPool
+    ) external view override returns (bytes[] memory _codes) {
+        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
+        return getStakeSomeCodes(_liquidityPool, _stakeAmount);
+    }
+
+    function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
+        external
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
+    }
+
+    function calculateRedeemableLPTokenAmountStake(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external view override returns (uint256 _amount) {
+        uint256 _stakedLiquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
+        // can have unintentional rounding errors
+        _amount = (_stakedLiquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStaked).add(1);
+    }
+
+    function isRedeemableAmountSufficientStake(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external view override returns (bool) {
+        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
+        return _balanceInTokenStaked >= _redeemAmount;
+    }
+
+    function getUnstakeAndWithdrawAllCodes(
+        address payable _optyVault,
+        address[] memory _underlyingTokens,
+        address _liquidityPool
+    ) external view override returns (bytes[] memory _codes) {
+        uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
+    }
+
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+
+    function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
+        swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
+    }
+
+    function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
+        swapPoolToUnderlyingTokens[_lendingPool] = _tokens;
+    }
+
+    function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
+        swapPoolToGauges[_pool] = _gauge;
+    }
+
+    function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
+        if (!noRemoveLiquidityOneCoin[_pool]) {
+            noRemoveLiquidityOneCoin[_pool] = true;
+        } else {
+            noRemoveLiquidityOneCoin[_pool] = false;
+        }
+    }
+
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
+     * @dev Calls the appropriate deploy function depending on N_COINS
+     *
+     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
+     * @param _amounts Quantity of _underlyingToken to deposit
+     *
+     * @return _codes Returns the codes for deposit tokens in the liquidityPool provided
+     */
+    function getDepositSomeCodes(
+        address payable,
+        address[] memory,
+        address _liquidityPool,
+        uint256[] memory _amounts
+    ) public view override returns (bytes[] memory _codes) {
+        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        uint256 nCoins = _underlyingTokens.length;
+        require(_amounts.length == nCoins, "!_amounts.length");
+        if (nCoins == uint256(2)) {
+            _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
+        } else if (nCoins == uint256(3)) {
+            _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
+        } else if (nCoins == uint256(4)) {
+            _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
+        }
+    }
+
+    /**
+     * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
+     *
+     * @param _liquidityPool Address of the token that represents users' holdings in the pool
+     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
+     */
+    function getWithdrawSomeCodes(
+        address payable,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256 _amount
+    ) public view override returns (bytes[] memory _codes) {
+        uint256 nCoins = _underlyingTokens.length;
+        if (nCoins == uint256(1)) {
+            _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
+        } else if (nCoins == uint256(2)) {
+            _codes = _getWithdraw2Code(_liquidityPool, _amount);
+        } else if (nCoins == uint256(3)) {
+            _codes = _getWithdraw3Code(_liquidityPool, _amount);
+        } else if (nCoins == uint256(4)) {
+            _codes = _getWithdraw4Code(_liquidityPool, _amount);
+        }
+    }
+
+    function getPoolValue(address, address) public view override returns (uint256) {
+        revert("!empty");
+    }
+
+    function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
+        return swapPoolToLiquidityPoolToken[_liquidityPool];
+    }
+
+    /**
+     * @dev Calls the appropriate deploy function depending on N_COINS
+     *
+     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
+     *      the user's balance in _liquidityPoolToken
+     */
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
+        return getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenAmount);
+    }
+
+    function getLiquidityPoolTokenBalance(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
+    }
+
+    /**
+     * @dev Calls the appropriate deploy function depending on N_COINS
+     *
+     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
+     *      the user's balance in _liquidityPoolToken
+     */
+    function getSomeAmountInToken(
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _liquidityPoolTokenAmount
+    ) public view override returns (uint256) {
+        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        int128 tokenIndex = 0;
+        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+            if (_underlyingTokens[i] == _underlyingToken) {
+                tokenIndex = i;
+            }
+        }
+        if (_liquidityPoolTokenAmount > 0) {
+            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+        }
+        return 0;
+    }
+
     function getRewardToken(address _liquidityPool) public view override returns (address) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             return rewardToken;
@@ -494,21 +633,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return uint256(0);
     }
 
-    function getClaimRewardTokenCode(address payable, address _liquidityPool)
-        external
-        view
-        override
-        returns (bytes[] memory _codes)
-    {
-        if (swapPoolToGauges[_liquidityPool] != address(0)) {
-            _codes = new bytes[](1);
-            _codes[0] = abi.encode(
-                getMinter(swapPoolToGauges[_liquidityPool]),
-                abi.encodeWithSignature("mint(address)", swapPoolToGauges[_liquidityPool])
-            );
-        }
-    }
-
     function getHarvestSomeCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -522,22 +646,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
                 _underlyingToken,
                 _rewardTokenAmount
             );
-    }
-
-    function getHarvestAllCodes(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
-        return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
-    }
-
-    function canStake(address _liquidityPool) external view override returns (bool) {
-        if (swapPoolToGauges[_liquidityPool] != address(0)) {
-            return true;
-        }
-        return false;
     }
 
     function getStakeSomeCodes(address _liquidityPool, uint256 _stakeAmount)
@@ -560,15 +668,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _codes[2] = abi.encode(_gauge, abi.encodeWithSignature("deposit(uint256)", _stakeAmount));
     }
 
-    function getStakeAllCodes(
-        address payable _optyVault,
-        address[] memory _underlyingTokens,
-        address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
-        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
-        return getStakeSomeCodes(_liquidityPool, _stakeAmount);
-    }
-
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _unstakeAmount)
         public
         view
@@ -578,16 +677,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _gauge = swapPoolToGauges[_liquidityPool];
         _codes = new bytes[](1);
         _codes[0] = abi.encode(_gauge, abi.encodeWithSignature("withdraw(uint256)", _unstakeAmount));
-    }
-
-    function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
-        external
-        view
-        override
-        returns (bytes[] memory _codes)
-    {
-        uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
-        return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
     /**
@@ -632,28 +721,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return ICurveGauge(swapPoolToGauges[_liquidityPool]).balanceOf(_optyVault);
     }
 
-    function calculateRedeemableLPTokenAmountStake(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
-        uint256 _stakedLiquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
-        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
-        // can have unintentional rounding errors
-        _amount = (_stakedLiquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStaked).add(1);
-    }
-
-    function isRedeemableAmountSufficientStake(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
-    ) external view override returns (bool) {
-        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
-        return _balanceInTokenStaked >= _redeemAmount;
-    }
-
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -671,65 +738,8 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         }
     }
 
-    function getUnstakeAndWithdrawAllCodes(
-        address payable _optyVault,
-        address[] memory _underlyingTokens,
-        address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
-        return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
-    }
-
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
-    }
-
-    function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
-        swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
-    }
-
-    function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
-        swapPoolToUnderlyingTokens[_lendingPool] = _tokens;
-    }
-
-    function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
-        swapPoolToGauges[_pool] = _gauge;
-    }
-
-    function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
-        if (!noRemoveLiquidityOneCoin[_pool]) {
-            noRemoveLiquidityOneCoin[_pool] = true;
-        } else {
-            noRemoveLiquidityOneCoin[_pool] = false;
-        }
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
-     *
-     * @param _liquidityPool Address of the token that represents users' holdings in the pool
-     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
-     */
-    function getWithdrawSomeCodes(
-        address payable,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256 _amount
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 nCoins = _underlyingTokens.length;
-        if (nCoins == uint256(1)) {
-            _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
-        } else if (nCoins == uint256(2)) {
-            _codes = _getWithdraw2Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(3)) {
-            _codes = _getWithdraw3Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(4)) {
-            _codes = _getWithdraw4Code(_liquidityPool, _amount);
-        }
     }
 
     /**
@@ -1095,13 +1105,5 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
 
     function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
-    }
-
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 }

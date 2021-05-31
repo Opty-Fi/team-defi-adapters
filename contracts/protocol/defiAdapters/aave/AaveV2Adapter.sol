@@ -224,17 +224,6 @@ contract AaveV2Adapter is IAdapter, Modifiers {
             getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
     }
 
-    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
-        public
-        view
-        override
-        returns (address)
-    {
-        address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
-        ReserveData memory _reserveData = IAaveV2(_lendingPool).getReserveData(_underlyingToken);
-        return _reserveData.aTokenAddress;
-    }
-
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         external
         view
@@ -245,58 +234,12 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IAaveV2Token(_liquidityPoolToken).UNDERLYING_ASSET_ADDRESS();
     }
 
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPoolAddressProviderRegistry
-    ) public view override returns (uint256) {
-        return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
-    }
-
-    function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPoolAddressProviderRegistry
-    ) public view override returns (uint256) {
-        return
-            IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(
-                _optyVault
-            );
-    }
-
     function getSomeAmountInToken(
         address,
         address,
         uint256 _liquidityPoolTokenAmount
     ) external view override returns (uint256) {
         return _liquidityPoolTokenAmount;
-    }
-
-    function getSomeAmountInTokenBorrow(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPoolAddressProviderRegistry,
-        uint256 _liquidityPoolTokenBalance,
-        address _borrowToken,
-        uint256 _borrowAmount
-    ) public view override returns (uint256) {
-        address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
-        uint256 _aTokenAmount =
-            _maxWithdrawal(_optyVault, _lendingPool, _liquidityPoolTokenBalance, _borrowToken, _borrowAmount);
-        uint256 _outputTokenRepayable =
-            _over(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry, _borrowToken, _aTokenAmount);
-        if (_outputTokenRepayable > _borrowAmount) {
-            return _aTokenAmount;
-        } else {
-            return
-                _aTokenAmount.add(
-                    harvestCodeProviderContract.getOptimalTokenAmount(
-                        _borrowToken,
-                        _underlyingToken,
-                        _borrowAmount.sub(_outputTokenRepayable)
-                    )
-                );
-        }
     }
 
     function getAllAmountInTokenBorrow(
@@ -457,6 +400,63 @@ contract AaveV2Adapter is IAdapter, Modifiers {
 
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
+        public
+        view
+        override
+        returns (address)
+    {
+        address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
+        ReserveData memory _reserveData = IAaveV2(_lendingPool).getReserveData(_underlyingToken);
+        return _reserveData.aTokenAddress;
+    }
+
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPoolAddressProviderRegistry
+    ) public view override returns (uint256) {
+        return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
+    }
+
+    function getLiquidityPoolTokenBalance(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPoolAddressProviderRegistry
+    ) public view override returns (uint256) {
+        return
+            IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(
+                _optyVault
+            );
+    }
+
+    function getSomeAmountInTokenBorrow(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPoolAddressProviderRegistry,
+        uint256 _liquidityPoolTokenBalance,
+        address _borrowToken,
+        uint256 _borrowAmount
+    ) public view override returns (uint256) {
+        address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
+        uint256 _aTokenAmount =
+            _maxWithdrawal(_optyVault, _lendingPool, _liquidityPoolTokenBalance, _borrowToken, _borrowAmount);
+        uint256 _outputTokenRepayable =
+            _over(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry, _borrowToken, _aTokenAmount);
+        if (_outputTokenRepayable > _borrowAmount) {
+            return _aTokenAmount;
+        } else {
+            return
+                _aTokenAmount.add(
+                    harvestCodeProviderContract.getOptimalTokenAmount(
+                        _borrowToken,
+                        _underlyingToken,
+                        _borrowAmount.sub(_outputTokenRepayable)
+                    )
+                );
+        }
     }
 
     function getPoolValue(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)

@@ -41,34 +41,6 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
-    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IFulcrum(_liquidityPool).marketLiquidity();
-    }
-
-    function getDepositSomeCodes(
-        address payable _optyVault,
-        address[] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) public view override returns (bytes[] memory _codes) {
-        if (_amounts[0] > 0) {
-            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("mint(address,uint256)", _optyVault, _depositAmount)
-            );
-        }
-    }
-
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -118,26 +90,6 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     {
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = IFulcrum(_liquidityPool).loanTokenAddress();
-    }
-
-    function getAllAmountInToken(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
-        if (_liquidityPoolTokenBalance > 0) {
-            _liquidityPoolTokenBalance = IFulcrum(_liquidityPool).assetBalanceOf(_optyVault);
-        }
-        return _liquidityPoolTokenBalance;
-    }
-
-    function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
-        address,
-        address _liquidityPool
-    ) public view override returns (uint256) {
-        return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
     function getSomeAmountInToken(
@@ -312,6 +264,30 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    function getDepositSomeCodes(
+        address payable _optyVault,
+        address[] memory _underlyingTokens,
+        address _liquidityPool,
+        uint256[] memory _amounts
+    ) public view override returns (bytes[] memory _codes) {
+        if (_amounts[0] > 0) {
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(
+                _underlyingTokens[0],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _underlyingTokens[0],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
+            );
+            _codes[2] = abi.encode(
+                _liquidityPool,
+                abi.encodeWithSignature("mint(address,uint256)", _optyVault, _depositAmount)
+            );
+        }
+    }
+
     function getWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory,
@@ -325,6 +301,30 @@ contract FulcrumAdapter is IAdapter, Modifiers {
                 abi.encodeWithSignature("burn(address,uint256)", _optyVault, _burnAmount)
             );
         }
+    }
+
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        return IFulcrum(_liquidityPool).marketLiquidity();
+    }
+
+    function getAllAmountInToken(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
+        if (_liquidityPoolTokenBalance > 0) {
+            _liquidityPoolTokenBalance = IFulcrum(_liquidityPool).assetBalanceOf(_optyVault);
+        }
+        return _liquidityPoolTokenBalance;
+    }
+
+    function getLiquidityPoolTokenBalance(
+        address payable _optyVault,
+        address,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
     function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
