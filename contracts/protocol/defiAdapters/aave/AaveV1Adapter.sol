@@ -182,17 +182,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
     }
 
-    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
-        public
-        view
-        override
-        returns (address)
-    {
-        address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        ReserveDataV1 memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
-        return _reserveData.aTokenAddress;
-    }
-
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         external
         view
@@ -430,16 +419,16 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
-    // function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
-    //     public
-    //     view
-    //     override
-    //     returns (address)
-    // {
-    //     address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-    //     ReserveData memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
-    //     return _reserveData.aTokenAddress;
-    // }
+    function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
+        public
+        view
+        override
+        returns (address)
+    {
+        address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+        ReserveDataV1 memory _reserveData = IAaveV1(_lendingPool).getReserveData(_underlyingToken);
+        return _reserveData.aTokenAddress;
+    }
 
     function getAllAmountInToken(
         address payable _optyVault,
