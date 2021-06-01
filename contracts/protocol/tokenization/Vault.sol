@@ -111,15 +111,16 @@ contract Vault is
         uint8 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes =
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolDepositAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
                     _i,
                     _steps
-                );
-            executeCodes(_codes, "!_supplyAll");
+                ),
+                "!_supplyAll"
+            );
         }
         vaultValue = _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration);
     }
@@ -220,15 +221,16 @@ contract Vault is
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(investStrategyHash);
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
-            bytes[] memory _codes =
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolWithdrawAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
                     _iterator,
                     _steps
-                );
-            executeCodes(_codes, "!_withdrawAll");
+                ),
+                "!_withdrawAll"
+            );
         }
     }
 
@@ -245,14 +247,15 @@ contract Vault is
         uint8 _claimRewardSteps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getClaimRewardStepsCount(_investStrategyHash);
         for (uint8 _i = 0; _i < _claimRewardSteps; _i++) {
-            bytes[] memory _codes =
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolClaimAllRewardCodes(
                     payable(address(this)),
                     _investStrategyHash,
                     _i,
                     _claimRewardSteps
-                );
-            executeCodes(_codes, "!claim");
+                ),
+                "!claim"
+            );
         }
 
         (, , address _rewardToken) =
@@ -269,24 +272,17 @@ contract Vault is
                     _investStrategyHash
                 );
             for (uint8 _i = 0; _i < _harvestSteps; _i++) {
-                bytes[] memory _codes =
-                    (_vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0))
-                        ? IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestAllRewardCodes(
-                            payable(address(this)),
-                            underlyingToken,
-                            _investStrategyHash,
-                            _i,
-                            _harvestSteps
-                        )
-                        : IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestSomeRewardCodes(
-                            payable(address(this)),
-                            underlyingToken,
-                            _investStrategyHash,
-                            _vaultRewardStrategy.convert,
-                            _i,
-                            _harvestSteps
-                        );
-                executeCodes(_codes, "!harvest");
+                executeCodes(
+                    IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestRewardCodes(
+                        payable(address(this)),
+                        underlyingToken,
+                        _investStrategyHash,
+                        _vaultRewardStrategy,
+                        _i,
+                        _harvestSteps
+                    ),
+                    "!harvest"
+                );
             }
         }
     }
@@ -324,7 +320,7 @@ contract Vault is
     }
 
     function userDepositAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
-        _userDepositAndStake(_amount, _stakingVault);
+        // _userDepositAndStake(_amount, _stakingVault);
     }
 
     function _userDepositAndStake(uint256 _amount, address _stakingVault)
@@ -335,9 +331,10 @@ contract Vault is
         returns (bool _success)
     {
         _userDeposit(_amount);
-        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
+        executeCodes(
+            IStrategyManager(registryContract.getClaimAndStakeUserRewardCodes(msg.sender, _stakingVault, _optyAmount)),
+            "!_userDepositAndStake"
+        );
         _success = true;
     }
 
@@ -371,9 +368,17 @@ contract Vault is
                 withdrawQueue -= queue[i].value;
             }
             IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), queue[i].account);
+            IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateUserStateInVault(
+                address(this),
+                queue[i].account
+            );
         }
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultRatePerSecondAndVaultToken(
+            address(this)
+        );
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultIndex(address(this));
         delete queue;
         _success = true;
     }
@@ -420,10 +425,16 @@ contract Vault is
 
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateUserRewards(address(this), msg.sender);
         _mint(msg.sender, shares);
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultRatePerSecondAndVaultToken(
+            address(this)
+        );
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultIndex(address(this));
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), msg.sender);
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateUserStateInVault(address(this), msg.sender);
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
@@ -504,13 +515,18 @@ contract Vault is
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
         }
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
-
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateUserRewards(address(this), msg.sender);
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, _balance().sub(depositQueue), _redeemAmount, _vaultStrategyConfiguration);
 
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultRatePerSecondAndVaultToken(
+            address(this)
+        );
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateOptyVaultIndex(address(this));
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), msg.sender);
+        IVaultBooster(_vaultStrategyConfiguration.vaultBooster).updateUserStateInVault(address(this), msg.sender);
 
         if (!_vaultConfiguration.discontinued && (_balance() > 0)) {
             _emergencyBrake(_balance());
@@ -634,21 +650,15 @@ contract Vault is
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
-        (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getFeeTransferAllCodes(
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getSplitPaymentCode(
                 registryContract.getTreasuryShares(address(this)),
                 _account,
                 underlyingToken,
-                redeemAmountInToken,
-                _vaultConfiguration.withdrawalFee
-            );
-        if (_treasuryCodes.length > 0) {
-            executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");
-        }
-        if (_accountCode.length > 0) {
-            executeCode(_accountCode, "!CallerRedeemAmt");
-        }
+                redeemAmountInToken
+            ),
+            "!TreasuryRedeemAmt"
+        );
     }
 
     function _mintShares(
@@ -693,10 +703,9 @@ contract Vault is
         address,
         uint256
     ) internal override {
-        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-        _optyMinterContract.updateUserRewards(address(this), from);
-        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        _optyMinterContract.updateOptyVaultIndex(address(this));
-        _optyMinterContract.updateUserStateInVault(address(this), from);
+        executeCodes(
+            IStrategyManager(registryContract.getStrategyManager()).getUserRewardCodes(address(this), from),
+            "!_beforeTokenTransfer"
+        );
     }
 }

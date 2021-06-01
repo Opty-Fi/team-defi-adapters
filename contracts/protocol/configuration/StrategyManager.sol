@@ -83,6 +83,24 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
     }
 
+    function getPoolHarvestRewardCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash,
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy,
+        uint8 _step,
+        uint8 _harvestSteps
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getPoolHarvestRewardCodes(
+            _vault,
+            _underlyingToken,
+            _investStrategyHash,
+            _vaultRewardStrategy,
+            _step,
+            _harvestSteps
+        );
+    }
+
     function getPoolHarvestAllRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -117,43 +135,28 @@ contract StrategyManager is IStrategyManager, Modifiers {
         );
     }
 
-    function getFeeTransferAllCodes(
+    function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
         address _underlyingToken,
-        uint256 _redeemAmountInToken,
-        uint256 _withdrawalFee
-    ) external pure override returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
-        if (_redeemAmountInToken > 0) {
-            uint256 _fee = 0;
-            if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
-                uint8 _treasurySharesLength = uint8(_treasuryShares.length);
-                _treasuryCodes = new bytes[](_treasurySharesLength);
-                for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
-                    if (_treasuryShares[_i].treasury != address(0)) {
-                        uint256 _share = _treasuryShares[_i].share;
-                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
-                        _treasuryCodes[_i] = abi.encode(
-                            _underlyingToken,
-                            abi.encodeWithSignature(
-                                "transfer(address,uint256)",
-                                _treasuryShares[_i].treasury,
-                                uint256(_treasuryAccountFee)
-                            )
-                        );
-                        _fee = _fee.add(_treasuryAccountFee);
-                    }
-                }
-            }
-            require(_account != address(0), "Account==0x0");
-            _accountCode = abi.encode(
-                _underlyingToken,
-                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
-            );
-        }
+        uint256 _redeemAmountInToken
+    ) public pure override returns (bytes[] memory _treasuryCodes) {
+        _treasuryCodes = _getSplitPaymentCode(_treasuryShares, _account, _underlyingToken, _redeemAmountInToken);
     }
 
-    function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
+    function getUserRewardCodes(address _vault, address _from) public pure override returns (bytes memory _codes) {
+        _codes = _getUserRewardCodes(_vault, _from);
+    }
+
+    function getClaimAndStakeUserRewardCodes(
+        address _account,
+        address _stakingVault,
+        uint256 _optyAmount
+    ) public pure override returns (bytes[] memory _codes) {
+        _codes = getClaimAndStakeUserRewardCodes(_account, _stakingVault, _optyAmount);
+    }
+
+    function getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
         IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
             IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
         (, _strategySteps) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_hash);
@@ -289,6 +292,26 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 _subStepCounter--;
             }
         }
+    }
+
+    function _getPoolHarvestRewardCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash,
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy,
+        uint8 _step,
+        uint8 _harvestSteps
+    ) internal view returns (bytes[] memory _codes) {
+        _codes = (_vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0))
+            ? _getPoolHarvestAllRewardCodes(_vault, _underlyingToken, _investStrategyHash, _step, _harvestSteps)
+            : _getPoolHarvestSomeRewardCodes(
+                payable(address(this)),
+                underlyingToken,
+                _investStrategyHash,
+                _vaultRewardStrategy.convert,
+                _step,
+                _harvestSteps
+            );
     }
 
     function _getPoolHarvestAllRewardCodes(
@@ -457,5 +480,68 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
         }
         return _steps;
+    }
+
+    function _getSplitPaymentCode(
+        DataTypes.TreasuryShare[] memory _treasuryShares,
+        address _account,
+        address _underlyingToken,
+        uint256 _redeemAmountInToken
+    ) internal pure returns (bytes[] memory _treasuryCodes) {
+        uint256 _fee = 0;
+        if (_redeemAmountInToken > 0) {
+            uint8 _i;
+            uint256 _treasurySharesLength = _treasuryShares.length;
+            _treasuryCodes = new bytes[](_treasurySharesLength.add(1));
+            if (_treasurySharesLength > 0) {
+                for (_i = 0; _i < uint8(_treasurySharesLength); _i++) {
+                    if (_treasuryShares[_i].treasury != address(0)) {
+                        uint256 _share = _treasuryShares[_i].share;
+                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
+                        _treasuryCodes[_i] = abi.encode(
+                            _underlyingToken,
+                            abi.encodeWithSignature(
+                                "transfer(address,uint256)",
+                                _treasuryShares[_i].treasury,
+                                uint256(_treasuryAccountFee)
+                            )
+                        );
+                        _fee = _fee.add(_treasuryAccountFee);
+                    }
+                }
+            }
+            _treasuryCodes[_i] = abi.encode(
+                _underlyingToken,
+                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
+            );
+        }
+    }
+
+    function _getUserRewardCodes(address _vault, address _from) internal pure returns (bytes[] memory _codes) {
+        _codes = new bytes[4];
+        address _optyMinter = registryContract.getOptyMinter();
+        _codes[0] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateUserRewards(address,address)", _vault, _from)
+        );
+        _codes[1] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateOptyVaultRatePerSecondAndVaultToken(address)", _vault)
+        );
+        _codes[2] = abi.encode(_optyMinter, abi.encodeWithSignature("updateOptyVaultIndex(address)", _vault));
+        _codes[3] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateUserStateInVault(address,address)", _vault, _from)
+        );
+    }
+
+    function _getClaimAndStakeUserRewardCodes(
+        address _account,
+        address _stakingVault,
+        uint256 _optyAmount
+    ) internal pure returns (bytes[] memory _codes) {
+        _codes = new bytes[2];
+        _codes[0] = abi.encode(_optyMinter, abi.encodeWithSignature("claimOpty(address)", _account));
+        _codes[1] = abi.encode(_stakingVault, abi.encodeWithSignature("userStake(uint256)", _optyAmount));
     }
 }
