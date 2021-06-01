@@ -111,6 +111,7 @@ contract Vault is
                         _path
                     );
                 uint256 _gasToTransfer = _amounts[1];
+                gasOwedToOperator = uint256(0);
                 IERC20(underlyingToken).safeTransfer(_vaultStrategyConfiguration.operator, _gasToTransfer);
             }
         }
@@ -480,16 +481,19 @@ contract Vault is
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
         }
 
-        uint256 _tokenBalance = _balance();
+        uint256 _tokenBalanceBefore = _balance();
+        IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
+        uint256 _tokenBalanceAfter = _balance();
+        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
+
         uint256 shares = 0;
 
-        if (_tokenBalance == 0 || totalSupply() == 0) {
-            shares = _amount;
+        if (_tokenBalanceBefore == 0 || totalSupply() == 0) {
+            shares = _tokenBalanceDiff;
         } else {
-            shares = (_amount.mul(totalSupply())).div((_tokenBalance));
+            shares = (_tokenBalanceDiff.mul(totalSupply())).div((_tokenBalanceBefore));
         }
 
-        IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
         _mint(msg.sender, shares);
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
