@@ -16,6 +16,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   OPTY_STAKING_VAULT: "OPTYStakingVault",
   OPTY_STAKING_RATE_BALANCER: "OPTYStakingRateBalancer",
   OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
+  APR_ORACLE: "APROracle",
 };
 
 export const ADAPTER = [
@@ -65,7 +66,8 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
 };
 
 export const TESTING_CONTRACTS: DATA_OBJECT = {
-  TESTING_EMERGENCY_BRAKE: "EmergencyBrake",
+  TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
+  TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -89,3 +91,5 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
 };
 
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";

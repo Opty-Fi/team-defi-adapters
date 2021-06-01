@@ -65,6 +65,8 @@ library DataTypes {
 
     enum MaxExposure { Number, Pct }
 
+    enum DefaultStrategyState { Zero, CompoundOrAave }
+
     /// @notice The market's last index
     /// @notice The block number the index was last updated at
     struct ODEFIState {
@@ -72,8 +74,28 @@ library DataTypes {
         uint32 timestamp;
     }
 
-    struct VaultActivityState {
+    struct TreasuryShare {
+        address treasury;
+        uint256 share; //  should be in basis eg: 5% means 500
+    }
+
+    struct VaultConfiguration {
         bool discontinued;
         bool unpaused;
+        uint256 withdrawalFee; //  should be in basis eg: 15% means 1500
+        TreasuryShare[] treasuryShares;
+    }
+
+    struct StrategyConfiguration {
+        address vaultStepInvestStrategyDefinitionRegistry;
+        address strategyProvider;
+        address aprOracle;
+    }
+
+    struct VaultStrategyConfiguration {
+        address strategyManager;
+        address riskManager;
+        address optyMinter;
+        address operator;
     }
 }

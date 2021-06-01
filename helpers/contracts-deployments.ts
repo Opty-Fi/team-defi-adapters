@@ -90,6 +90,12 @@ export async function deployEssentialContracts(
 
   await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
 
+  const aprOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.APR_ORACLE, isDeployedOnce, owner, [
+    registry.address,
+  ]);
+
+  await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
+
   const harvestCodeProvider = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
@@ -98,12 +104,17 @@ export async function deployEssentialContracts(
     [registry.address],
   );
 
+  await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
+
   const riskManager = await deployRiskManager(hre, owner, isDeployedOnce, registry.address);
+
+  await executeFunc(registry, owner, "setRiskManager(address)", [riskManager.address]);
 
   const strategyManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.STRATEGY_MANAGER, isDeployedOnce, owner, [
     registry.address,
-    harvestCodeProvider.address,
   ]);
+
+  await executeFunc(registry, owner, "setStrategyManager(address)", [strategyManager.address]);
 
   const opty = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY, isDeployedOnce, owner, [
     registry.address,
@@ -113,6 +124,7 @@ export async function deployEssentialContracts(
   const optyMinter = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER, isDeployedOnce, owner, [
     registry.address,
     opty.address,
+    1700000000,
   ]);
 
   let optyStakingRateBalancer = await deployContract(
@@ -142,12 +154,14 @@ export async function deployEssentialContracts(
     owner,
   );
 
+  await executeFunc(registry, owner, "setOPTYStakingRateBalancer(address)", [optyStakingRateBalancer.address]);
+
   const optyStakingVault1D = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
-    [registry.address, opty.address, optyMinter.address, 86400, optyStakingRateBalancer.address, "1D"],
+    [registry.address, opty.address, 86400, "1D"],
   );
 
   const optyStakingVault30D = await deployContract(
@@ -155,7 +169,7 @@ export async function deployEssentialContracts(
     ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
-    [registry.address, opty.address, optyMinter.address, 2592000, optyStakingRateBalancer.address, "30D"],
+    [registry.address, opty.address, 2592000, "30D"],
   );
 
   const optyStakingVault60D = await deployContract(
@@ -163,7 +177,7 @@ export async function deployEssentialContracts(
     ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
-    [registry.address, opty.address, optyMinter.address, 5184000, optyStakingRateBalancer.address, "60D"],
+    [registry.address, opty.address, 5184000, "60D"],
   );
 
   const optyStakingVault180D = await deployContract(
@@ -171,10 +185,10 @@ export async function deployEssentialContracts(
     ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
     owner,
-    [registry.address, opty.address, optyMinter.address, 15552000, optyStakingRateBalancer.address, "180D"],
+    [registry.address, opty.address, 15552000, "180D"],
   );
 
-  await executeFunc(registry, owner, "setMinter(address)", [optyMinter.address]);
+  await executeFunc(registry, owner, "setOPTYMinter(address)", [optyMinter.address]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
   await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
@@ -206,6 +220,8 @@ export async function deployEssentialContracts(
   const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
     registry.address,
   ]);
+
+  await executeFunc(registry, owner, "setPriceOracle(address)", [priceOracle.address]);
 
   const essentialContracts: CONTRACTS = {
     registry,
@@ -346,12 +362,9 @@ export async function deployVault(
 
   vault = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.VAULT, vaultProxy.address, owner);
 
-  await executeFunc(vault, owner, "initialize(address,address,address,address,address,string,string,string)", [
+  await executeFunc(vault, owner, "initialize(address,address,string,string,string)", [
     registry,
-    riskManager,
     underlyingToken,
-    strategyManager,
-    optyMinter,
     underlyingTokenName,
     underlyingTokenSymbol,
     riskProfile,

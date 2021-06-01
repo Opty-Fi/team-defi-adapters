@@ -2,8 +2,6 @@
 
 pragma solidity ^0.6.10;
 
-import { OPTYStakingVault } from "./OPTYStakingVault.sol";
-
 /**
  * @dev Contract to store the OPTYMinter's state variables
  */
@@ -44,4 +42,6 @@ contract OPTYMinterStorage {
     mapping(address => mapping(address => OptyState)) public optyUserStateInVault;
 
     mapping(address => mapping(address => uint256)) public lastUserUpdate;
+
+    uint256 public operatorUnlockClaimOPTYTimestamp;
 }

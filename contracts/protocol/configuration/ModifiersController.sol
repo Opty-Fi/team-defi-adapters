@@ -4,6 +4,7 @@ pragma solidity ^0.6.10;
 
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { RegistryStorage } from "./RegistryStorage.sol";
+import { IModifiersController } from "../../interfaces/opty/IModifiersController.sol";
 
 /**
  * @title ModifiersController
@@ -12,7 +13,7 @@ import { RegistryStorage } from "./RegistryStorage.sol";
  *
  * @dev Contract used to authorize and keep all the modifiers at one place
  */
-contract ModifiersController is RegistryStorage {
+abstract contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
 
     /**
@@ -24,7 +25,7 @@ contract ModifiersController is RegistryStorage {
      *
      * - `msg.sender` Can only be governance.
      */
-    function setOperator(address _operator) public onlyGovernance {
+    function setOperator(address _operator) public override onlyGovernance {
         require(_operator != address(0), "!address(0)");
         operator = _operator;
         emit TransferOperator(operator, msg.sender);
@@ -39,7 +40,7 @@ contract ModifiersController is RegistryStorage {
      *
      * - `msg.sender` Can only be governance.
      */
-    function setStrategist(address _strategist) public onlyGovernance {
+    function setStrategist(address _strategist) public override onlyGovernance {
         require(_strategist != address(0), "!address(0)");
         strategist = _strategist;
         emit TransferStrategist(strategist, msg.sender);
@@ -54,10 +55,10 @@ contract ModifiersController is RegistryStorage {
      *
      * - `msg.sender` Can only be governance.
      */
-    function setMinter(address _minter) public onlyGovernance {
+    function setOPTYMinter(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");
         minter = _minter;
-        emit TransferMinter(minter, msg.sender);
+        emit TransferOPTYMinter(minter, msg.sender);
     }
 
     /**

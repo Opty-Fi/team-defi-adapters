@@ -1,3 +1,4 @@
+/* solhint-disable max-states-count */
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
@@ -26,11 +27,6 @@ contract RegistryAdminStorage {
      * @notice Strategist for this contract
      */
     address public strategist;
-
-    /**
-     * @notice Treasury for this contract
-     */
-    address public treasury;
 
     /**
      * @notice Minter for OPTY token
@@ -65,12 +61,7 @@ contract RegistryAdminStorage {
     /**
      * @notice Change minter of protocol
      */
-    event TransferMinter(address indexed minter, address indexed caller);
-
-    /**
-     * @notice Change treasurer of protocol
-     */
-    event TransferTreasury(address indexed treasurer, address indexed caller);
+    event TransferOPTYMinter(address indexed minter, address indexed caller);
 }
 
 /**
@@ -111,17 +102,14 @@ contract RegistryStorage is RegistryAdminStorage {
      *         address for keeping track of all the vault contracts
      */
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
-
-    /**
-     * @notice vault contract address mapped to VaultActivityState
-     */
-    mapping(address => DataTypes.VaultActivityState) public vaultToVaultActivityState;
-
     /**
      * @notice riskProfile mapped to its struct `RiskProfile`
      */
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
-
+    /**
+     * @notice vault contract address mapped to VaultConfiguration
+     */
+    mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
     /**
      * @notice List of all the tokenHashes
      */
@@ -141,6 +129,13 @@ contract RegistryStorage is RegistryAdminStorage {
      * @notice vaultStepInvestStrategyDefinitionRegistry contract address
      */
     address public vaultStepInvestStrategyDefinitionRegistry;
+    address public riskManager;
+    address public harvestCodeProvider;
+    address public strategyManager;
+    address public priceOracle;
+    address public opty;
+    address public aprOracle;
+    address public optyStakingRateBalancer;
 
     /**
      * @dev Emitted when `token` is approved or revoked.

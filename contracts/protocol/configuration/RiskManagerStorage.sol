@@ -2,8 +2,6 @@
 
 pragma solidity ^0.6.10;
 
-import { StrategyProvider } from "./StrategyProvider.sol";
-
 /**
  * @title RiskManagerStorage
  *
@@ -21,10 +19,6 @@ contract RiskManagerStorage {
      * @notice Pending brains of Risk Manager
      */
     address public pendingRiskManagerImplementation;
-    /**
-     * @notice StrategyProvider contract address
-     */
-    StrategyProvider public strategyProvider;
     /**
      * @notice Zero bytes32 type Constant
      */
