@@ -49,6 +49,52 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _;
     }
 
+    function setOptyRatePerSecond(uint256 _rate) external override onlyStakingRateBalancer returns (bool _success) {
+        optyRatePerSecond = _rate;
+        _success = true;
+    }
+
+    function userStakeAll() external override returns (bool) {
+        _userStake(IERC20(token).balanceOf(msg.sender));
+    }
+
+    function userStake(uint256 _amount) external override returns (bool) {
+        _userStake(_amount);
+    }
+
+    function userUnstakeAll() external override returns (bool) {
+        _userUnstake(balanceOf(msg.sender));
+    }
+
+    function userUnstake(uint256 _redeemAmount) external override returns (bool) {
+        _userUnstake(_redeemAmount);
+    }
+
+    /* solhint-disable no-empty-blocks */
+    function discontinue() external onlyRegistry {}
+
+    function setUnpaused(bool _unpaused) external onlyRegistry {}
+
+    /* solhint-disable no-empty-blocks */
+
+    function getPricePerFullShare() external view override returns (uint256) {
+        if (totalSupply() != 0) {
+            return balance().div(totalSupply());
+        }
+        return uint256(0);
+    }
+
+    function balanceInOpty(address _user) external view override returns (uint256) {
+        if (balanceOf(_user) != uint256(0)) {
+            uint256 _balanceInOpty =
+                balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
+                    totalSupply()
+                );
+            return _balanceInOpty;
+        }
+        return uint256(0);
+    }
+
     function setTimelockPeriod(uint256 _timelock) public override onlyOperator returns (bool _success) {
         require(_timelock >= uint256(86400), "Timelock should be at least 1 day.");
         timelockPeriod = _timelock;
@@ -61,9 +107,9 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _success = true;
     }
 
-    function setOptyRatePerSecond(uint256 _rate) public override onlyStakingRateBalancer returns (bool _success) {
-        optyRatePerSecond = _rate;
-        _success = true;
+    function updatePool() public override returns (bool _success) {
+        _isUnpaused(address(this));
+        return _updatePool();
     }
 
     /**
@@ -73,12 +119,8 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         return IERC20(token).balanceOf(address(this));
     }
 
-    function userStakeAll() external override returns (bool) {
-        _userStake(IERC20(token).balanceOf(msg.sender));
-    }
-
-    function userStake(uint256 _amount) external override returns (bool) {
-        _userStake(_amount);
+    function getBlockTimestamp() public view override returns (uint256) {
+        return block.timestamp;
     }
 
     /**
@@ -96,33 +138,27 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         returns (bool _success)
     {
         require(_amount > 0, "!(_amount>0)");
-        uint256 _tokenBalance = balance();
+        uint256 _tokenBalanceBefore = balance();
         IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        uint256 _tokenBalanceAfter = balance();
+        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
         uint256 shares;
-        if (_tokenBalance == 0 || totalSupply() == 0) {
-            shares = _amount;
+        if (_tokenBalanceBefore == 0 || totalSupply() == 0) {
+            shares = _tokenBalanceDiff;
         } else {
-            shares = (_amount.mul(totalSupply())).div((_tokenBalance));
+            shares = (_tokenBalanceDiff.mul(totalSupply())).div((_tokenBalanceBefore));
         }
         _mint(msg.sender, shares);
         require(
             IOPTYStakingRateBalancer(registryContract.getOPTYStakingRateBalancer()).updateStakedOPTY(
                 msg.sender,
-                _amount
+                _tokenBalanceDiff
             ),
             "stakingVault:userStake"
         );
         updatePool();
         userLastUpdate[msg.sender] = getBlockTimestamp();
         _success = true;
-    }
-
-    function userUnstakeAll() external override returns (bool) {
-        _userUnstake(balanceOf(msg.sender));
-    }
-
-    function userUnstake(uint256 _redeemAmount) external override returns (bool) {
-        _userUnstake(_redeemAmount);
     }
 
     /**
@@ -157,40 +193,6 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         userLastUpdate[msg.sender] = getBlockTimestamp();
         _success = true;
     }
-
-    function updatePool() public override returns (bool _success) {
-        _isUnpaused(address(this));
-        return _updatePool();
-    }
-
-    function getPricePerFullShare() public view override returns (uint256) {
-        if (totalSupply() != 0) {
-            return balance().div(totalSupply());
-        }
-        return uint256(0);
-    }
-
-    function balanceInOpty(address _user) public view override returns (uint256) {
-        if (balanceOf(_user) != uint256(0)) {
-            uint256 _balanceInOpty =
-                balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
-                    totalSupply()
-                );
-            return _balanceInOpty;
-        }
-        return uint256(0);
-    }
-
-    function getBlockTimestamp() public view override returns (uint256) {
-        return block.timestamp;
-    }
-
-    /* solhint-disable no-empty-blocks */
-    function discontinue() public onlyRegistry {}
-
-    function setUnpaused(bool _unpaused) public onlyRegistry {}
-
-    /* solhint-disable no-empty-blocks */
 
     function _updatePool() internal returns (bool _success) {
         if (lastPoolUpdate == uint256(0)) {
