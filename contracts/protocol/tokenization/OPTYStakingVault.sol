@@ -151,19 +151,21 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         returns (bool _success)
     {
         require(_amount > 0, "!(_amount>0)");
-        uint256 _tokenBalance = balance();
+        uint256 _tokenBalanceBefore = balance();
         IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        uint256 _tokenBalanceAfter = balance();
+        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
         uint256 shares;
-        if (_tokenBalance == 0 || totalSupply() == 0) {
-            shares = _amount;
+        if (_tokenBalanceBefore == 0 || totalSupply() == 0) {
+            shares = _tokenBalanceDiff;
         } else {
-            shares = (_amount.mul(totalSupply())).div((_tokenBalance));
+            shares = (_tokenBalanceDiff.mul(totalSupply())).div((_tokenBalanceBefore));
         }
         _mint(msg.sender, shares);
         require(
             IOPTYStakingRateBalancer(registryContract.getOPTYStakingRateBalancer()).updateStakedOPTY(
                 msg.sender,
-                _amount
+                _tokenBalanceDiff
             ),
             "stakingVault:userStake"
         );
