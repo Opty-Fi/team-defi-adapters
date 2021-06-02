@@ -1,11 +1,137 @@
 {
-  "title": "Invest Limitation",
-  "description": "Test cases for the _getDepositAmount function.",
+  "title": "Adapters",
+  "description": "Test cases for all adapters.",
   "vaults": [
     {
       "name": "Vault",
       "profile": "RP1",
       "stories": [
+        {
+          "description": "User should be able to deposit into a correct liquidity pool based on the current best strategy",
+          "maxDepositType": "amount",
+          "setActions": [
+            {
+              "contract": "erc20",
+              "action": "approve(address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {},
+              "expectedValue": {
+                "DAI": "0",
+                "USDC": "0",
+                "USDT": "0"
+              }
+            },
+            {
+              "contract": "adapter",
+              "action": "getPoolValue(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": ">",
+                "USDC": ">",
+                "USDT": ">"
+              }
+            }
+          ]
+        },
+        {
+          "description": "User should be able to withdraw from a correct liquidity pool based on the current best strategy",
+          "maxDepositType": "amount",
+          "setActions": [
+            {
+              "contract": "erc20",
+              "action": "approve(address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userWithdrawRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {},
+              "expectedValue": {
+                "DAI": "0",
+                "USDC": "0",
+                "USDT": "0"
+              }
+            },
+            {
+              "contract": "adapter",
+              "action": "getPoolValue(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": "<",
+                "USDC": "<",
+                "USDT": "<"
+              }
+            }
+          ]
+        },
         {
           "description": "User shouldn't be able to deposit more than max deposit amount",
           "maxDepositType": "amount",
@@ -73,6 +199,16 @@
                 "USDC": "1500000",
                 "USDT": "1500000"
               }
+            },
+            {
+              "contract": "adapter",
+              "action": "getPoolValue(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": ">",
+                "USDC": ">",
+                "USDT": ">"
+              }
             }
           ]
         },
@@ -106,7 +242,7 @@
             },
             {
               "contract": "adapter",
-              "action": "setMaxDepositAmountDefault(address,uint256)",
+              "action": "setMaxDepositAmountDefault(uint256)",
               "args": {
                 "amount": {
                   "DAI": "500000000000000000",
@@ -157,6 +293,16 @@
                 "USDC": "1500000",
                 "USDT": "1500000"
               }
+            },
+            {
+              "contract": "adapter",
+              "action": "getPoolValue(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": ">",
+                "USDC": ">",
+                "USDT": ">"
+              }
             }
           ]
         },
@@ -177,6 +323,20 @@
             {
               "contract": "adapter",
               "action": "setMaxDepositAmount(address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "0",
+                  "USDC": "0",
+                  "USDT": "0"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositAmountDefault(uint256)",
               "args": {
                 "amount": {
                   "DAI": "0",
@@ -222,7 +382,21 @@
               "contract": "vault",
               "action": "balance()",
               "args": {},
-              "expectedValue": { "DAI": "0", "USDC": "0", "USDT": "0" }
+              "expectedValue": {
+                "DAI": "0",
+                "USDC": "0",
+                "USDT": "0"
+              }
+            },
+            {
+              "contract": "adapter",
+              "action": "getPoolValue(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": ">",
+                "USDC": ">",
+                "USDT": ">"
+              }
             }
           ]
         },

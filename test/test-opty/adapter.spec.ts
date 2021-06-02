@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -16,13 +16,16 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import scenarios from "./scenarios/invest-limitation.json";
+import scenarios from "./scenarios/adapter.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   type?: number;
+  userName?: string;
+};
+type EXPECTED_ARGUMENTS = {
+  [key: string]: string;
 };
 describe(scenarios.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("20000000000000000000"),
     USDC: BigNumber.from("20000000"),
@@ -57,43 +60,27 @@ describe(scenarios.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);
+            const token = TOKENS[strategy.token];
+            const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
             const contracts: CONTRACTS = {};
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
+            let currentPoolValue: BigNumber;
             before(async () => {
               try {
-                underlyingTokenName = await getTokenName(hre, strategy.token);
-                underlyingTokenSymbol = await getTokenSymbol(hre, strategy.token);
                 const adapter = adapters[adapterName];
-                const Vault = await deployVault(
-                  hre,
-                  essentialContracts.registry.address,
-                  essentialContracts.riskManager.address,
-                  essentialContracts.strategyManager.address,
-                  essentialContracts.optyMinter.address,
-                  TOKENS[strategy.token],
-                  users["owner"],
-                  users["admin"],
-                  underlyingTokenName,
-                  underlyingTokenSymbol,
-                  profile,
-                  TESTING_DEPLOYMENT_ONCE,
-                );
-                await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
                 await approveLiquidityPoolAndMapAdapter(
                   users["owner"],
                   essentialContracts.registry,
                   adapter.address,
-                  strategy.strategy[0].contract,
+                  strategy.strategy[i].contract,
                 );
-                const riskProfile = await Vault.profile();
                 await setBestBasicStrategy(
                   strategy.strategy,
                   tokensHash,
                   essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                   essentialContracts.strategyProvider,
-                  riskProfile,
+                  profile,
                 );
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 await fundWalletToken(
@@ -108,14 +95,37 @@ describe(scenarios.title, () => {
 
                 contracts["adapter"] = adapter;
 
-                contracts["vault"] = Vault;
-
                 contracts["erc20"] = ERC20Instance;
               } catch (error) {
                 console.error(error);
               }
             });
 
+            beforeEach(async () => {
+              try {
+                currentPoolValue = BigNumber.from("0");
+                underlyingTokenName = await getTokenName(hre, strategy.token);
+                underlyingTokenSymbol = await getTokenSymbol(hre, strategy.token);
+                const Vault = await deployVault(
+                  hre,
+                  essentialContracts.registry.address,
+                  essentialContracts.riskManager.address,
+                  essentialContracts.strategyManager.address,
+                  essentialContracts.optyMinter.address,
+                  token,
+                  users["owner"],
+                  users["admin"],
+                  underlyingTokenName,
+                  underlyingTokenSymbol,
+                  profile,
+                  TESTING_DEPLOYMENT_ONCE,
+                );
+                await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
+                contracts["vault"] = Vault;
+              } catch (error) {
+                console.error(error);
+              }
+            });
             for (let i = 0; i < stories.length; i++) {
               it(stories[i].description, async () => {
                 const story = stories[i];
@@ -141,12 +151,27 @@ describe(scenarios.title, () => {
                         if (setAction.expect === "success") {
                           await contracts[setAction.contract]
                             .connect(users[setAction.executer])
-                            [setAction.action](contracts["adapter"].address, amount ? amount[strategy.token] : "0");
+                            [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0");
                         } else {
                           await expect(
                             contracts[setAction.contract]
                               .connect(users[setAction.executer])
-                              [setAction.action](contracts["adapter"].address, amount ? amount[strategy.token] : "0"),
+                              [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0"),
+                          ).to.be.revertedWith(setAction.message);
+                        }
+                        break;
+                      }
+                      case "setMaxDepositAmountDefault(uint256)": {
+                        const { amount }: ARGUMENTS = setAction.args;
+                        if (setAction.expect === "success") {
+                          await contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](amount ? amount[strategy.token] : "0");
+                        } else {
+                          await expect(
+                            contracts[setAction.contract]
+                              .connect(users[setAction.executer])
+                              [setAction.action](amount ? amount[strategy.token] : "0"),
                           ).to.be.revertedWith(setAction.message);
                         }
                         break;
@@ -166,8 +191,20 @@ describe(scenarios.title, () => {
                         }
                         break;
                       }
-                      case "userDepositRebalance(uint256)": {
+                      case "userDepositRebalance(uint256)":
+                      case "userWithdrawRebalance(uint256)": {
                         const { amount }: ARGUMENTS = setAction.args;
+                        if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                          currentPoolValue = await contracts["adapter"].getPoolValue(
+                            strategy.strategy[0].contract,
+                            token,
+                          );
+                        } else {
+                          currentPoolValue = await contracts["adapter"].getPoolValue(
+                            strategy.strategy[0].contract,
+                            ADDRESS_ZERO,
+                          );
+                        }
                         if (setAction.expect === "success") {
                           await contracts[setAction.contract]
                             .connect(users[setAction.executer])
@@ -188,15 +225,42 @@ describe(scenarios.title, () => {
                   for (let i = 0; i < story.getActions.length; i++) {
                     const getAction = story.getActions[i];
                     switch (getAction.action) {
-                      case "balance": {
+                      case "balanceOf(address)": {
+                        const { userName }: ARGUMENTS = getAction.args;
+                        if (userName) {
+                          const address = await users[userName].getAddress();
+                          const balance = await contracts[getAction.contract][getAction.action](address);
+                          const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                          expect(balance).to.equal(expectedValue[strategy.token]);
+                        }
+                        break;
+                      }
+                      case "balance()": {
                         const balance = await contracts[getAction.contract][getAction.action]();
-                        expect(balance).to.equal(getAction.expectedValue);
+                        const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                        expect(balance).to.equal(expectedValue[strategy.token]);
+                        break;
+                      }
+                      case "getPoolValue(address,address)": {
+                        const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                        let value: BigNumber;
+                        if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                          value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
+                        } else {
+                          value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
+                        }
+                        if (expectedValue[strategy.token] === "<") {
+                          expect(value.sub(currentPoolValue)).to.lt(0);
+                        } else {
+                          expect(value.sub(currentPoolValue)).to.gt(0);
+                        }
+                        break;
                       }
                     }
                   }
                 } else if (story.maxDepositType === "pct") {
-                  let investedValue = BigNumber.from("0");
                   let maxValue = BigNumber.from("0");
+                  let investedValue = BigNumber.from("0");
                   for (let i = 0; i < story.setActions.length; i++) {
                     const setAction = story.setActions[i];
                     switch (setAction.action) {
@@ -224,6 +288,7 @@ describe(scenarios.title, () => {
                           .mul(BigNumber.from(amount ? amount[strategy.token] : "0"))
                           .div(BigNumber.from("10000"));
                         investedValue = maxValue.mul(BigNumber.from("2"));
+
                         if (setAction.expect === "success") {
                           await contracts[setAction.contract]
                             .connect(users[setAction.executer])
@@ -278,9 +343,9 @@ describe(scenarios.title, () => {
                   for (let i = 0; i < story.getActions.length; i++) {
                     const getAction = story.getActions[i];
                     switch (getAction.action) {
-                      case "balance": {
+                      case "balance()": {
                         const balance = await contracts[getAction.contract][getAction.action]();
-                        expect(balance).to.equal(investedValue.sub(maxValue));
+                        expect(balance).to.equal(maxValue);
                       }
                     }
                   }
