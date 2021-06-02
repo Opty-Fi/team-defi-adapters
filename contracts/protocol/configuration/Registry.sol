@@ -757,10 +757,6 @@ contract Registry is IRegistry, ModifiersController {
         return strategyManager;
     }
 
-    function getStrategist() public view override returns (address) {
-        return strategist;
-    }
-
     function getAprOracle() public view override returns (address) {
         return aprOracle;
     }

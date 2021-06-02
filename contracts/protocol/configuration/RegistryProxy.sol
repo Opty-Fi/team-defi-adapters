@@ -34,7 +34,6 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
 
     constructor() public {
         governance = msg.sender;
-        setStrategist(msg.sender);
         setOperator(msg.sender);
         setOPTYMinter(msg.sender);
     }

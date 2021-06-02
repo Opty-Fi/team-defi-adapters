@@ -16,7 +16,6 @@ import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
-import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 
@@ -100,13 +99,7 @@ contract Vault is
         _success = true;
     }
 
-    function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-    {
-        uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
-        require(_tokenBalance > 0, "!amount>0");
+    function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMintAndBurn(_vaultStrategyConfiguration);
         uint8 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
@@ -125,7 +118,7 @@ contract Vault is
         vaultValue = _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration);
     }
 
-    function rebalance() external override ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
+    function rebalance() external override ifNotPausedAndDiscontinued(address(this)) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
 
@@ -277,8 +270,7 @@ contract Vault is
      */
     function _userDeposit(uint256 _amount)
         internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
+        ifNotPausedAndDiscontinued(address(this))
         nonReentrant
         returns (bool _success)
     {
@@ -288,39 +280,6 @@ contract Vault is
         pendingDeposits[msg.sender] += _amount;
         depositQueue += _amount;
         emit DepositQueue(msg.sender, queue.length, _amount);
-        _success = true;
-    }
-
-    function userDepositAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
-        _userDepositAndStake(_amount, _stakingVault);
-    }
-
-    function _userDepositAndStake(uint256 _amount, address _stakingVault)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-        nonReentrant
-        returns (bool _success)
-    {
-        _userDeposit(_amount);
-        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
-    function userDepositAllAndStake(address _stakingVault) external override returns (bool) {
-        _userDepositAllAndStake(_stakingVault);
-    }
-
-    function _userDepositAllAndStake(address _stakingVault)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-        nonReentrant
-        returns (bool _success)
-    {
-        _userDepositAndStake(IERC20(underlyingToken).balanceOf(msg.sender), _stakingVault);
         _success = true;
     }
 
@@ -369,7 +328,7 @@ contract Vault is
     function _userDepositRebalance(
         uint256 _amount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
+    ) internal ifNotPausedAndDiscontinued(address(this)) nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
 
         if (investStrategyHash != ZERO_BYTES32) {
@@ -405,39 +364,6 @@ contract Vault is
         _success = true;
     }
 
-    function userDepositRebalanceAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositRebalanceAndStake(_amount, _stakingVault, _vaultStrategyConfiguration);
-    }
-
-    function _userDepositRebalanceAndStake(
-        uint256 _amount,
-        address _stakingVault,
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
-        _userDepositRebalance(_amount, _vaultStrategyConfiguration);
-        uint256 _optyAmount = IOPTYMinter(_vaultStrategyConfiguration.optyMinter).claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
-    function userDepositAllRebalanceAndStake(address _stakingVault) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositAllRebalanceAndStake(_stakingVault, _vaultStrategyConfiguration);
-    }
-
-    function _userDepositAllRebalanceAndStake(
-        address _stakingVault,
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
-        _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
-        uint256 _optyAmount = IOPTYMinter(_vaultStrategyConfiguration.optyMinter).claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
     function userWithdrawAllRebalance() external override {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -461,12 +387,12 @@ contract Vault is
     function _userWithdrawRebalance(
         uint256 _redeemAmount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotPaused(address(this)) nonReentrant returns (bool) {
+    ) internal nonReentrant returns (bool) {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
+        require(_vaultConfiguration.unpaused, "unpause");
         require(_redeemAmount > 0, "!_redeemAmount>0");
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
-
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
         if (!_vaultConfiguration.discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
@@ -496,16 +422,8 @@ contract Vault is
         _userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
-    function userDepositAllAndStakeWithCHI(address _stakingVault) external override discountCHI {
-        _userDepositAllAndStake(_stakingVault);
-    }
-
     function userDepositWithCHI(uint256 _amount) external override discountCHI {
         _userDeposit(_amount);
-    }
-
-    function userDepositAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
-        _userDepositAndStake(_amount, _stakingVault);
     }
 
     function userDepositAllRebalanceWithCHI() external override discountCHI {
@@ -518,18 +436,6 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
-    }
-
-    function userDepositRebalanceAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositRebalanceAndStake(_amount, _stakingVault, _vaultStrategyConfiguration);
-    }
-
-    function userDepositAllRebalanceAndStakeWithCHI(address _stakingVault) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositAllRebalanceAndStake(_stakingVault, _vaultStrategyConfiguration);
     }
 
     function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) external override discountCHI {

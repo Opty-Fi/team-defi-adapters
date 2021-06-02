@@ -134,7 +134,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
      *
      * Requirements:
      *
-     * - msg.sender can be governance or strategist.
+     * - msg.sender is operator.
      * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
      * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
      */

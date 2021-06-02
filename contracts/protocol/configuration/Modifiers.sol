@@ -16,7 +16,7 @@ abstract contract Modifiers is IModifiers {
     using Address for address;
 
     /**
-     * @dev Sets the owner, governance and strategist while deploying the contract
+     * @dev Sets the owner, governance while deploying the contract
      */
     constructor(address _registry) internal {
         registryContract = IRegistry(_registry);
@@ -51,35 +51,30 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check caller is strategist or not
-     */
-    modifier onlyStrategist() {
-        require(msg.sender == registryContract.getStrategist(), "caller is not the strategist");
-        _;
-    }
-
-    /**
      * @dev Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
-        require(msg.sender == registryContract.getOptyMinter(), "caller is not the minter");
+        require(msg.sender == registryContract.getOptyMinter(), "!minter");
         _;
     }
 
-    modifier ifNotDiscontinued(address _vault) {
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
-        require(!_vaultConfiguration.discontinued, "discontinued");
-        _;
-    }
-
-    modifier ifNotPaused(address _vault) {
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
-        require(_vaultConfiguration.unpaused, "paused");
+    modifier ifNotPausedAndDiscontinued(address _vault) {
+        _ifNotPausedAndDiscontinued(_vault);
         _;
     }
 
     modifier onlyRegistry() {
-        require(msg.sender == address(registryContract), "caller is not Registry contract");
+        require(msg.sender == address(registryContract), "!Registry Contract");
         _;
+    }
+
+    function _ifNotPausedAndDiscontinued(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused and discontinue");
+    }
+
+    function _isUnpaused(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused, "paused");
     }
 }

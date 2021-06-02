@@ -478,8 +478,6 @@ interface IRegistry {
 
     function getOperator() external view returns (address);
 
-    function getStrategist() external view returns (address);
-
     function getHarvestCodeProvider() external view returns (address);
 
     function getAprOracle() external view returns (address);

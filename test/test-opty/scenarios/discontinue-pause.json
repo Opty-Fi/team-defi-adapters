@@ -44,7 +44,7 @@
                 "amount": "2000000000000000000"
               },
               "expect": "fail",
-              "message": "paused"
+              "message": "revert unpause"
             }
           ]
         },
@@ -58,7 +58,7 @@
                 "amount": ""
               },
               "expect": "fail",
-              "message": "paused"
+              "message": "revert unpause"
             }
           ]
         },
@@ -154,7 +154,7 @@
                 "amount": "2000000000000000000"
               },
               "expect": "fail",
-              "message": "paused"
+              "message": "revert unpause"
             }
           ]
         },
@@ -195,7 +195,7 @@
                 "amount": ""
               },
               "expect": "fail",
-              "message": "paused"
+              "message": "revert unpause"
             }
           ]
         },
@@ -486,7 +486,7 @@
                 "amount": "2000000000000000000"
               },
               "expect": "fail",
-              "message": "discontinued"
+              "message": "paused and discontinue"
             }
           ]
         }
