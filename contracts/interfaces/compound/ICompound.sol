@@ -4,6 +4,23 @@ pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
 interface ICompound {
+    enum PriceSource {
+        FIXED_ETH, /// implies the fixedPrice is a constant multiple of the ETH price (which varies)
+        FIXED_USD, /// implies the fixedPrice is a constant multiple of the USD price (which is 1)
+        REPORTER /// implies the price is set by the reporter
+    }
+
+    struct TokenConfig {
+        address cToken;
+        address underlying;
+        bytes32 symbolHash;
+        uint256 baseUnit;
+        PriceSource priceSource;
+        uint256 fixedPrice;
+        address uniswapMarket;
+        bool isUniswapReversed;
+    }
+
     struct CompBalanceMetadata {
         uint256 balance;
         uint256 votes;
@@ -17,8 +34,6 @@ interface ICompound {
         uint256 allocated;
     }
 
-    function getCompBalanceMetadata(address comp, address account) external view returns (CompBalanceMetadata memory);
-
     function getCompBalanceMetadataExt(
         address comp,
         address comptroller,
@@ -29,9 +44,13 @@ interface ICompound {
 
     function redeem(uint256 redeemTokens) external returns (uint256);
 
-    function exchangeRateStored() external view returns (uint256);
-
     function exchangeRateCurrent() external returns (uint256);
+
+    function claimComp(address holder) external;
+
+    function getCompBalanceMetadata(address comp, address account) external view returns (CompBalanceMetadata memory);
+
+    function exchangeRateStored() external view returns (uint256);
 
     function totalBorrows() external view returns (uint256);
 
@@ -41,11 +60,13 @@ interface ICompound {
 
     function totalSupply() external view returns (uint256);
 
-    function claimComp(address holder) external;
-
     function underlying() external view returns (address);
 
     function decimals() external view returns (uint8);
 
     function compAccrued(address holder) external view returns (uint256);
+
+    function getTokenConfigByUnderlying(address) external view returns (TokenConfig memory);
+
+    function supplyRatePerBlock() external view returns (uint256);
 }

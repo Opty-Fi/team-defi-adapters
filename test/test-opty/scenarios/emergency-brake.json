@@ -1,0 +1,151 @@
+{
+  "title": "EmergencyBrake",
+  "description": "Test cases for the EmergencyBrake function.",
+  "vaults": [
+    {
+      "name": "Vault",
+      "profile": "RP1",
+      "maxJump": 100,
+      "stories": [
+        {
+          "description": "[Double deposit in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 100000,
+                "min_amount": 99999
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Double deposit in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 100000,
+                "min_amount": 10000
+              },
+              "expect": "fail",
+              "message": "!maxVaultValueJump"
+            }
+          ]
+        },
+        {
+          "description": "[Double withDraw in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runDepositRebalance(uint256)",
+              "args": {
+                "amount": 20000
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 10000
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Double withDraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runDepositRebalance(uint256)",
+              "args": {
+                "amount": 20000
+              },
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 1000
+              },
+              "expect": "fail",
+              "message": "!maxVaultValueJump"
+            }
+          ]
+        },
+        {
+          "description": "[Double rebalance in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 9999
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Double rebalance in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 1000
+              },
+              "expect": "fail",
+              "message": "!maxVaultValueJump"
+            }
+          ]
+        },
+        {
+          "description": "[Deposit and withdraw in one block] Should pass when the pool value doesn't deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 10000
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Deposit and withdraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 1
+              },
+              "expect": "fail",
+              "message": "!maxVaultValueJump"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

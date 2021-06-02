@@ -1,0 +1,1317 @@
+{
+  "title": "Registry",
+  "description": "Test cases for Registry contract",
+  "stories": [
+    {
+      "description": "Operator should be able to approve a token",
+      "setActions": [
+        {
+          "action": "approveToken(address)",
+          "args": {
+            "tokens": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "tokens(address)",
+          "args": {
+            "address": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to approve a list of tokens",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": [
+              "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "tokens(address)",
+          "args": {
+            "address": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "tokens(address)",
+          "args": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          },
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "tokens(address)",
+          "args": {
+            "address": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+          },
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to approve a token multiple times",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": [
+              "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": [
+              "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            ]
+          },
+          "expect": "fail",
+          "message": "!tokens"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator shouldn't be able to approve non-contract address",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": ["0x70eA4eCd78aBe80e6879c345aeD4838AB79a9c17"]
+          },
+          "expect": "fail",
+          "message": "!isContract"
+        },
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x70eA4eCd78aBe80e6879c345aeD4838AB79a9c17"]
+          },
+          "expect": "fail",
+          "message": "!isContract"
+        },
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x70eA4eCd78aBe80e6879c345aeD4838AB79a9c17"]
+          },
+          "expect": "fail",
+          "message": "!isContract"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to approve a liquidity pool",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to approve a list of liquidity pools",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to approve a liquidity pool multiple times",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "fail",
+          "message": "!liquidityPools"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to rate a liquidity pool",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "rateLiquidityPool(address,uint8)",
+          "args": {
+            "lqRate": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [2, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to rate a list of liquidity pools",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "rateLiquidityPool((address,uint8)[])",
+          "args": {
+            "lqRate": [
+              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2],
+              ["0x24a42fD28C976A61Df5D00D0599C34c4f90748c8", 3]
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [2, true],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [3, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to rate non-approved liquidity pools",
+      "setActions": [
+        {
+          "action": "rateLiquidityPool((address,uint8)[])",
+          "args": {
+            "lqRate": [["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2]]
+          },
+          "expect": "fail",
+          "message": "!liquidityPools"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to revoke a liquidity pool",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to revoke a list of liquidity pools",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "liquidityPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to approve a credit pool",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to approve a list of credit pools",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [0, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to approve a credit pool multiple times",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "fail",
+          "message": "!creditPools"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to rate a credit pool",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "rateCreditPool(address,uint8)",
+          "args": {
+            "lqRate": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [2, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to rate a list of credit pools",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "rateCreditPool((address,uint8)[])",
+          "args": {
+            "lqRate": [
+              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2],
+              ["0x24a42fD28C976A61Df5D00D0599C34c4f90748c8", 3]
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [2, true],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [3, true],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to rate non-approved liquidity pools",
+      "setActions": [
+        {
+          "action": "rateCreditPool((address,uint8)[])",
+          "args": {
+            "lqRate": [["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 2]]
+          },
+          "expect": "fail",
+          "message": "!liquidityPools"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to revoke a credit pool",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to revoke a list of credit pools",
+      "setActions": [
+        {
+          "action": "approveCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "creditPools(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedValue": [0, false],
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Governance should be able to set liquidity pool to adapter",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setLiquidityPoolToAdapter(address,address)",
+          "args": {
+            "lqs": {
+              "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+              "adapterName": "CompoundAdapter"
+            }
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPoolToAdapter(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedMultiValues": {},
+          "expectedValue": "CompoundAdapter"
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set liquidity pool to adapter",
+      "setActions": [
+        {
+          "action": "setLiquidityPoolToAdapter(address,address)",
+          "args": {
+            "userIndex": "1",
+            "lqs": {
+              "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+              "adapterName": "CompoundAdapter"
+            }
+          },
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Governance should be able to set mutiple liquidity pools to adapters",
+      "setActions": [
+        {
+          "action": "approveLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setLiquidityPoolToAdapter((address,address)[])",
+          "args": {
+            "lqs": [
+              {
+                "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "adapterName": "CompoundAdapter"
+              },
+              {
+                "liquidityPool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                "adapterName": "AaveV1Adapter"
+              }
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "liquidityPoolToAdapter(address)",
+          "args": {
+            "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expectedMultiValues": {},
+          "expectedValue": "CompoundAdapter"
+        },
+        {
+          "action": "liquidityPoolToAdapter(address)",
+          "args": {
+            "address": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"
+          },
+          "expectedMultiValues": {},
+          "expectedValue": "AaveV1Adapter"
+        }
+      ]
+    },
+    {
+      "description": "Governance shouldn't be able to set mutiple non-approved liquidity pools to adapters",
+      "setActions": [
+        {
+          "action": "setLiquidityPoolToAdapter((address,address)[])",
+          "args": {
+            "lqs": [
+              {
+                "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "adapterName": "CompoundAdapter"
+              },
+              {
+                "liquidityPool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                "adapterName": "AaveV1Adapter"
+              }
+            ]
+          },
+          "expect": "fail",
+          "message": "!liquidityPools"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set multiple liquidity pools to adapters",
+      "setActions": [
+        {
+          "action": "setLiquidityPoolToAdapter((address,address)[])",
+          "args": {
+            "userIndex": "1",
+            "lqs": [
+              {
+                "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "adapterName": "CompoundAdapter"
+              },
+              {
+                "liquidityPool": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                "adapterName": "AaveV1Adapter"
+              }
+            ]
+          },
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set token hash to token",
+      "setActions": [
+        {
+          "action": "approveToken(address)",
+          "args": {
+            "tokens": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setTokensHashToTokens(address[])",
+          "args": {
+            "tokensHash": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "tokensHashIndexes(uint256)",
+          "args": {
+            "index": "0"
+          },
+          "expectedValue": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to set token hash to multiple tokens",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setTokensHashToTokens(address[][])",
+          "args": {
+            "tokensHash": [
+              ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
+              ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x6b175474e89094c44da98b954eedeac495271d0f"]
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "tokensHashIndexes(uint256)",
+          "args": {
+            "index": "0"
+          },
+          "expectedValue": "0x8bb515c59c8ed89250b9316105ba225d5aebd720e87e69f2ba78fad8fab9ea7d",
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "tokensHashIndexes(uint256)",
+          "args": {
+            "index": "1"
+          },
+          "expectedValue": "0x358484c2a974d5a47260a9016e4e8bb7e9d5f88f41b8fdc74351bba825e62b4c",
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to set token hash to multiple tokens (including non-approve token)",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setTokensHashToTokens(address[][])",
+          "args": {
+            "tokensHash": [
+              [
+                "0x6b175474e89094c44da98b954eedeac495271d0f",
+                "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                "0xdac17f958d2ee523a2206206994597c13d831ec7"
+              ],
+              ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x6b175474e89094c44da98b954eedeac495271d0f"]
+            ]
+          },
+          "expect": "fail",
+          "message": "!tokens"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set token hash to tokens",
+      "setActions": [
+        {
+          "action": "approveToken(address[])",
+          "args": {
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setTokensHashToTokens(address[][])",
+          "args": {
+            "tokensHash": [
+              ["0x6b175474e89094c44da98b954eedeac495271d0f"],
+              ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "tokensHashIndexes(uint256)",
+          "args": {
+            "index": "0"
+          },
+          "expectedValue": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "tokensHashIndexes(uint256)",
+          "args": {
+            "index": "1"
+          },
+          "expectedValue": "0x987a96a91381a62e90a58f1c68177b52aa669f3bd7798e321819de5f870d4ddd",
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to set token hash to non-approved tokens",
+      "setActions": [
+        {
+          "action": "setTokensHashToTokens(address[][])",
+          "args": {
+            "tokensHash": [
+              ["0x6b175474e89094c44da98b954eedeac495271d0f"],
+              ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+            ]
+          },
+          "expect": "fail",
+          "message": "!tokens"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to add a Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 1,
+            "lowerLimit": 0,
+            "upperLimit": 10,
+            "exists": true
+          },
+          "expectedValue": ""
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to add the existing Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "fail",
+          "message": "RP_already_exists"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator shouldn't be able to add the empty Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "fail",
+          "message": "RP_Empty!"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to update no. of steps for Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "updateRiskProfileSteps(string,uint8)",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 2
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 2,
+            "lowerLimit": 0,
+            "upperLimit": 10,
+            "exists": true
+          },
+          "expectedValue": ""
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to update no. of steps for non-existing Risk Profile",
+      "setActions": [
+        {
+          "action": "updateRiskProfileSteps(string,uint8)",
+          "args": {
+            "riskProfile": "Non-Existing-RP",
+            "noOfSteps": 2
+          },
+          "expect": "fail",
+          "message": "!Rp_Exists"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to update pool ratings for Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "poolRatingRange": [0, 20]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 1,
+            "lowerLimit": 0,
+            "upperLimit": 20,
+            "exists": true
+          },
+          "expectedValue": ""
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to update pool ratings for non-existing Risk Profile",
+      "setActions": [
+        {
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
+          "args": {
+            "riskProfile": "Non-Existing-RP",
+            "poolRatingRange": [0, 20]
+          },
+          "expect": "fail",
+          "message": "!Rp_Exists"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to remove the Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "removeRiskProfile(uint256)",
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 0,
+            "lowerLimit": null,
+            "upperLimit": null,
+            "exists": false
+          },
+          "expectedValue": ""
+        }
+      ]
+    },
+    {
+      "description": "Operator shouldn't be able to remove the Risk Profile from invalid index",
+      "setActions": [
+        {
+          "action": "removeRiskProfile(uint256)",
+          "args": {
+            "index": 100
+          },
+          "expect": "fail",
+          "message": "Invalid_Rp_index"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set a single Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "args": {
+            "riskProfile": ["RP1", "RP2", "RP3"],
+            "noOfSteps": [1, 2, 3],
+            "poolRatingsRange": [
+              [0, 20],
+              [0, 40],
+              [0, 60]
+            ]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP1"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 1,
+            "lowerLimit": 0,
+            "upperLimit": 20,
+            "exists": true
+          },
+          "expectedValue": ""
+        },
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP2"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 2,
+            "lowerLimit": 0,
+            "upperLimit": 40,
+            "exists": true
+          },
+          "expectedValue": ""
+        },
+        {
+          "action": "riskProfiles(string)",
+
+          "args": {
+            "riskProfile": "RP3"
+          },
+          "expectedMultiValues": {
+            "noOfSteps": 3,
+            "lowerLimit": 0,
+            "upperLimit": 60,
+            "exists": true
+          },
+          "expectedValue": ""
+        }
+      ]
+    },
+    {
+      "description": "Old-Operator shouldn't be able to execute function allowing only operator",
+      "setActions": [
+        {
+          "action": "setOperator(address)",
+          "args": {
+            "userIndex": "0"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "args": {
+            "riskProfile": ["RP1", "RP2", "RP3"],
+            "noOfSteps": [1, 2, 3],
+            "poolRatingsRange": [
+              [0, 20],
+              [0, 40],
+              [0, 60]
+            ]
+          },
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to map tokens and riskProfile to Vault address",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setUnderlyingAssetHashToRPToVaults(address[],string,address)",
+          "args": {
+            "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+            "riskProfile": "RP1",
+            "vault": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
+          "args": {
+            "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+            "riskProfile": "RP1"
+          },
+          "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Operator should be able to map tokens and riskProfile to Vault address",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setUnderlyingAssetHashToRPToVaults(address[][],string[],address[][])",
+          "args": {
+            "multiTokens": [
+              ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+              ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+            ],
+            "riskProfiles": ["RP1"],
+            "vaults": [["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x797AAB1ce7c01eB727ab980762bA88e7133d2157"]]
+          },
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
+          "args": {
+            "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+            "riskProfile": "RP1"
+          },
+          "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
+          "args": {
+            "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
+            "riskProfile": "RP1"
+          },
+          "expectedValue": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
+          "expectedMultiValues": {}
+        }
+      ]
+    }
+  ]
+}
