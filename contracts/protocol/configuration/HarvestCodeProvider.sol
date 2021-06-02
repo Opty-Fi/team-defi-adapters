@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
@@ -28,20 +28,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     constructor(address _registry) public Modifiers(_registry) {}
 
     /* solhint-disable no-empty-blocks */
+
     /**
-     * @dev Get the codes for harvesting the tokens using uniswap router
-     *
-     * @param _optyVault Address of Vault Contract
-     * @param _rewardToken Reward token address
-     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
-     * @param _rewardTokenAmount reward token amount to harvest
-     *
-     * @return _codes Array of harvest codes which can be executed to complete the execution of
-     *         harvesting of reward token
-     *
-     * Requirements:
-     *
-     * - `_rewardTokenAmount` should be greater than 0.
+     * @inheritdoc IHarvestCodeProvider
      */
     function getHarvestCodes(
         address payable _optyVault,

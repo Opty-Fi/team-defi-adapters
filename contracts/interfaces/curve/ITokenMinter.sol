@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 interface ITokenMinter {
     function mint(address _gauge) external;
