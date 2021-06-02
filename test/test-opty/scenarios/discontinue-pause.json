@@ -676,7 +676,7 @@
           ]
         },
         {
-          "description": "[OptyStakingVault is discontinued] Should shouldn't be able to stake opty tokens",
+          "description": "[OptyStakingVault is discontinued] User shouldn't be able to stake opty tokens",
           "actions": [
             {
               "contract": "Registry",
