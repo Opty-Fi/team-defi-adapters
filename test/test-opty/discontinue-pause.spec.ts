@@ -100,8 +100,23 @@ describe(scenario.title, () => {
             const action: any = story.actions[j];
             switch (action.action) {
               case "userDepositRebalance(uint256)":
+              case "userWithdrawRebalance(uint256)": {
+                const args = action.args;
+                if (action.expect === "success") {
+                  await ERC20Instance.connect(owner).approve(
+                    contracts[action.contract.toLowerCase()].address,
+                    BigNumber.from(MAX_AMOUNT),
+                  );
+                  await contracts[action.contract.toLowerCase()][action.action](BigNumber.from(args?.amount));
+                } else {
+                  await expect(
+                    contracts[action.contract.toLowerCase()][action.action](args?.amount),
+                  ).to.be.revertedWith(action.message);
+                }
+                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                break;
+              }
               case "userDepositAllRebalance()":
-              case "userWithdrawRebalance(uint256)":
               case "userWithdrawAllRebalance()": {
                 const args = action.args;
                 if (action.expect === "success") {
@@ -109,36 +124,30 @@ describe(scenario.title, () => {
                     contracts[action.contract.toLowerCase()].address,
                     BigNumber.from(MAX_AMOUNT),
                   );
-                  action.action === "userDepositRebalance(uint256)" ||
-                  action.action === "userWithdrawRebalance(uint256)"
-                    ? await contracts[action.contract.toLowerCase()][action.action](BigNumber.from(args?.amount))
-                    : await contracts[action.contract.toLowerCase()][action.action]();
+                  await contracts[action.contract.toLowerCase()][action.action]();
                 } else {
-                  action.action === "userDepositRebalance(uint256)" ||
-                  action.action === "userWithdrawRebalance(uint256)"
-                    ? await expect(
-                        contracts[action.contract.toLowerCase()][action.action](args?.amount),
-                      ).to.be.revertedWith(action.message)
-                    : await expect(contracts[action.contract.toLowerCase()][action.action]()).to.be.revertedWith(
-                        action.message,
-                      );
+                  await expect(contracts[action.contract.toLowerCase()][action.action]()).to.be.revertedWith(
+                    action.message,
+                  );
                 }
-
                 assert.isDefined(args, `args is wrong in ${action.action} testcase`);
                 break;
               }
-              case "discontinue(address)":
+              case "discontinue(address)": {
+                const args = action.args;
+                if (action.expect === "success") {
+                  await contracts[action.contract.toLowerCase()][action.action](contracts[args?.addressName].address);
+                }
+                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                break;
+              }
               case "unpauseVaultContract(address,bool)": {
                 const args = action.args;
                 if (action.expect === "success") {
-                  action.action === "unpauseVaultContract(address,bool)"
-                    ? await contracts[action.contract.toLowerCase()][action.action](
-                        contracts[args?.addressName].address,
-                        args?.unpause,
-                      )
-                    : await contracts[action.contract.toLowerCase()][action.action](
-                        contracts[args?.addressName].address,
-                      );
+                  await contracts[action.contract.toLowerCase()][action.action](
+                    contracts[args?.addressName].address,
+                    args?.unpause,
+                  );
                 }
                 assert.isDefined(args, `args is wrong in ${action.action} testcase`);
                 break;
