@@ -103,6 +103,12 @@ jobs:
           path: '**/node_modules'
           key: npm-v2-${{ hashFiles('**/yarn.lock') }}
           restore-keys: npm-v2-
+      - name: Install
+        run: |
+          yarn install --frozen-lockfile
+      - name: Test
+        run: |
+          yarn test-fast
       - name: Add public IP to AWS security group
         uses: sohelamin/aws-security-group-add-ip-action@master
         with:
@@ -110,16 +116,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'us-east-1'
           aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
-          port: '22'
-          to-port: '8545'
+          port: '8545'
+          to-port: ''
           protocol: 'tcp'
           description: 'GitHub Action'
-      - name: Install
-        run: |
-          yarn install --frozen-lockfile
-      - name: Test
-        run: |
-          yarn test
       - name: Deploy
         run: |
           yarn setup:staging
