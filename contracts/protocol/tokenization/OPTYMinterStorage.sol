@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Contract to store the OPTYMinter's state variables
+ * @title OPTY Minter state that can change
+ * @author opty.fi
+ * @dev The storage contract for the $OPTY minter's state variables.
  */
 
 contract OPTYMinterStorage {

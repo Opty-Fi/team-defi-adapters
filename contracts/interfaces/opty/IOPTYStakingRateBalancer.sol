@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Interface of the Opty.fi staking rate balancer.
+ * @title Interface for $OPTY staking rate balancer
+ * @author opty.fi
+ * @notice Contains permissioned staking rate balancer methods
  */
 interface IOPTYStakingRateBalancer {
     function setStakingVaultMultipliers(address _stakingVault, uint256 _multiplier) external returns (bool);

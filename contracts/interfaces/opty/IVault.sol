@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Interface of the Opty.fi Vaults.
+ * @title Interface for opty.fi's interest bearing vault
+ * @author opty.fi
+ * @notice Contains mix of permissioned and permissionless vault methods
  */
 interface IVault {
     function setProfile(string memory _profile) external returns (bool _success);

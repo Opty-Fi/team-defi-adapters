@@ -3,6 +3,12 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
+/**
+ * @title OPTY staking rate balancer state that can change
+ * @author opty.fi
+ * @dev The storage contract for staking rate balancer
+ */
+
 contract OPTYStakingRateBalancerStorage {
     /**
      * @notice Active brains of Staking Rate Balancer

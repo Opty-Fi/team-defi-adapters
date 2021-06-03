@@ -3,13 +3,25 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
-import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+// helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { OPTYStakingRateBalancerStorage } from "./OPTYStakingRateBalancerStorage.sol";
 import { OPTYStakingRateBalancerProxy } from "./OPTYStakingRateBalancerProxy.sol";
-import { OPTYStakingRateBalancerProxy } from "./OPTYStakingRateBalancerProxy.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
+
+// libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+// interfaces
+import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IOPTYStakingRateBalancer } from "../../interfaces/opty/IOPTYStakingRateBalancer.sol";
+
+/**
+ * @title OPTY staking rate balancer
+ * @author opty.fi
+ * @dev Implementation of the $OPTY staking rate balancer
+ */
 
 contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBalancerStorage, Modifiers {
     using SafeERC20 for IERC20;

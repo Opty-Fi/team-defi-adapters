@@ -3,29 +3,35 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-import { IVault } from "../../interfaces/opty/IVault.sol";
+// helper contracts
+import { MultiCall } from "../../utils/MultiCall.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Deployer } from "../../dependencies/chi/ChiDeployer.sol";
 import { VersionedInitializable } from "../../dependencies/openzeppelin/VersionedInitializable.sol";
-import { SafeERC20, IERC20, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IncentivisedERC20 } from "./IncentivisedERC20.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { VaultStorage } from "./VaultStorage.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+
+// libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+// interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IVault } from "../../interfaces/opty/IVault.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
-import { MultiCall } from "../../utils/MultiCall.sol";
 
 /**
- * @title Vault
- *
- * @author Opty.fi, inspired by the Aave V2 AToken.sol contract
- *
- * @dev Opty.Fi's Vault contract for underlying tokens (for example DAI) and risk profiles (for example RP1)
+ * @title Vault contract inspired by AAVE V2's AToken.sol
+ * @author opty.fi
+ * @notice Implementation of the risk specific interest bearing vault
  */
+
 contract Vault is
     VersionedInitializable,
     IVault,

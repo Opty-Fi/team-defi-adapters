@@ -2,16 +2,22 @@
 
 pragma solidity ^0.6.10;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// helper contracts
 import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
 import { OPTYMinterStorage } from "./OPTYMinterStorage.sol";
+
+// interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
 import { IOPTY } from "../../interfaces/opty/IOPTY.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
 
 /**
- * @dev Contract distributing $OPTY to opty-fi earn protocol's users
+ * @title OPTYMinter inspired from compound.finance
+ * @author opty.fi
+ * @notice This contract distributes $OPTY to opty.fi's earn protocol users
+ * @dev This contract keeps accounts of, claim and stake $OPTY tokens.
  */
 
 contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modifiers {

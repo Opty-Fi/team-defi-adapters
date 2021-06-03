@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev optyfi's governance token interface
+ * @title Interface for the OPTY token
+ * @author opty.fi
+ * @notice Contains minting functionality required for OPTY token
  */
 interface IOPTY {
     function mint(address to, uint256 amount) external;

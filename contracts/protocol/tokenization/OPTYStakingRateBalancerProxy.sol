@@ -2,15 +2,20 @@
 
 pragma solidity ^0.6.10;
 
+// helper contracts
 import { Modifiers } from "../configuration/Modifiers.sol";
 import { OPTYStakingRateBalancerStorage } from "./OPTYStakingRateBalancerStorage.sol";
 
 /**
  * @title OPTYStakingRateBalancerCore
+ * @author opty.fi
  * @dev Storage for the OPTYStakingRateBalancer is at this address,
  * while execution is delegated to the `optyStakingRateBalancerImplementation`.
  * OPTYStakingRateBalancer should reference this contract as their controller.
+ * It defines a fallback function that delegates all calls to the address
+ * returned by the abstract _implementation() internal function.
  */
+
 contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifiers {
     /**
      * @notice Emitted when pendingOPTYStakingRateBalancerImplementation is changed

@@ -3,7 +3,14 @@
 
 pragma solidity ^0.6.10;
 
+// library
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+/**
+ * @title Vault state that can change
+ * @author opty.fi
+ * @dev The storage contract for opty.fi's interest bearing vault token
+ */
 
 contract VaultStorage {
     DataTypes.Operation[] public queue;

@@ -3,8 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Interface for OPTYMinter - distribute $OPTY
- *      to opty-fi earn protocol's users
+ * @title The interface for OPTY minter
+ * @author opty.fi
+ * @notice The OPTY minter mints the governance token earned by loyal opty.fi users
  */
 
 interface IOPTYMinter {

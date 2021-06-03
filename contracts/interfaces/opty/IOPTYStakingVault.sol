@@ -3,8 +3,11 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Interface of the Opty.fi staking vault.
+ * @title Interface for the $OPTY staking vault
+ * @author opty.fi
+ * @notice Containes mix of permissioned and permissionless staking vault methods
  */
+
 interface IOPTYStakingVault {
     function setTimelockPeriod(uint256 _timelock) external returns (bool _success);
 

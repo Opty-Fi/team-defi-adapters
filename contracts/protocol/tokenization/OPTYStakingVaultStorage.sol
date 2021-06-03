@@ -3,7 +3,9 @@
 pragma solidity ^0.6.10;
 
 /**
- * @dev Control to store state variables of Staking Vault
+ * @title Staking vault state that can change
+ * @author opty.fi
+ * @dev The storage contract for $OPTY token's staking vault
  */
 
 contract OPTYStakingVaultStorage {
