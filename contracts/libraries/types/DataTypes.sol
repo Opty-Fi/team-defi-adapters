@@ -82,7 +82,20 @@ library DataTypes {
     struct VaultConfiguration {
         bool discontinued;
         bool unpaused;
-        uint256 withdrawlFee;
+        uint256 withdrawalFee; //  should be in basis eg: 15% means 1500
         TreasuryShare[] treasuryShares;
+    }
+
+    struct StrategyConfiguration {
+        address vaultStepInvestStrategyDefinitionRegistry;
+        address strategyProvider;
+        address aprOracle;
+    }
+
+    struct VaultStrategyConfiguration {
+        address strategyManager;
+        address riskManager;
+        address optyMinter;
+        address operator;
     }
 }

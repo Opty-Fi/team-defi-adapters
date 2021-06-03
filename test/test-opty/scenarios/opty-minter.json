@@ -525,7 +525,7 @@
           },
           "executer": "admin",
           "expect": "fail",
-          "message": "caller is not the minter"
+          "message": "!minter"
         },
         {
           "contract": "optyMinter",
@@ -675,7 +675,7 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "setMinter(address)",
+          "action": "setOPTYMinter(address)",
           "args": {
             "contractName": "optyMinter"
           },
@@ -830,7 +830,7 @@
           },
           "executer": "owner",
           "expect": "fail",
-          "message": "caller is not the minter"
+          "message": "!minter"
         }
       ],
       "getActions": []

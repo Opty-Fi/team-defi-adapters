@@ -3,33 +3,27 @@
 pragma solidity ^0.6.10;
 
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { Registry } from "./Registry.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
+import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
 
 /**
  * @dev Contract used to keep all the modifiers at one place
  */
-abstract contract Modifiers {
-    Registry public registryContract;
+abstract contract Modifiers is IModifiers {
+    IRegistry public registryContract;
 
     using Address for address;
 
     /**
-     * @dev Sets the owner, governance and strategist while deploying the contract
+     * @dev Sets the owner, governance while deploying the contract
      */
     constructor(address _registry) internal {
-        registryContract = Registry(_registry);
+        registryContract = IRegistry(_registry);
     }
 
-    /**
-     * @dev Function to check if the address is zero address or not
-     */
-    function isZeroAddress(address _address) internal pure returns (bool) {
-        require(_address != address(0), "Modifiers: caller is zero address");
-        return true;
-    }
-
-    function setRegistry(address _registry) public onlyOperator {
-        registryContract = Registry(_registry);
+    function setRegistry(address _registry) public override onlyOperator {
+        registryContract = IRegistry(_registry);
     }
 
     /**
@@ -44,7 +38,7 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
-        require(msg.sender == registryContract.governance(), "caller is not having governance");
+        require(msg.sender == registryContract.getGovernance(), "caller is not having governance");
         _;
     }
 
@@ -52,15 +46,7 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
-        require(msg.sender == registryContract.operator(), "caller is not the operator");
-        _;
-    }
-
-    /**
-     * @dev Modifier to check caller is strategist or not
-     */
-    modifier onlyStrategist() {
-        require(msg.sender == registryContract.strategist(), "caller is not the strategist");
+        require(msg.sender == registryContract.getOperator(), "caller is not the operator");
         _;
     }
 
@@ -68,24 +54,27 @@ abstract contract Modifiers {
      * @dev Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
-        require(msg.sender == registryContract.minter(), "caller is not the minter");
+        require(msg.sender == registryContract.getOptyMinter(), "!minter");
         _;
     }
 
-    modifier ifNotDiscontinued(address _vault) {
-        (bool _discontinued, , ) = registryContract.vaultToVaultConfiguration(_vault);
-        require(!_discontinued, "discontinued");
-        _;
-    }
-
-    modifier ifNotPaused(address _vault) {
-        (, bool _unpaused, ) = registryContract.vaultToVaultConfiguration(_vault);
-        require(_unpaused, "paused");
+    modifier ifNotPausedAndDiscontinued(address _vault) {
+        _ifNotPausedAndDiscontinued(_vault);
         _;
     }
 
     modifier onlyRegistry() {
-        require(msg.sender == address(registryContract), "caller is not Registry contract");
+        require(msg.sender == address(registryContract), "!Registry Contract");
         _;
+    }
+
+    function _ifNotPausedAndDiscontinued(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused or discontinued");
+    }
+
+    function _isUnpaused(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused, "paused");
     }
 }
