@@ -29,12 +29,34 @@ interface IHarvestCodeProvider {
         uint256 _rewardTokenAmount
     ) external view returns (bytes[] memory _codes);
 
+    /**
+     * @dev Get the optimal amount for the token
+     *
+     * @param _borrowToken Address of token which has to be borrowed
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _borrowTokenAmount amount of token to borrow
+     *
+     * @return borrow token's optimal amount
+     *
+     * Requirements:
+     *
+     * - `_borrowTokenAmount` should be greater than 0
+     */
     function getOptimalTokenAmount(
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
     ) external view returns (uint256);
 
+    /**
+     * @dev Get the underlying token amount equivalent to reward token amount
+     *
+     * @param _rewardToken Reward token address
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _amount reward token balance amount
+     *
+     * @return equivalent reward token balance in Underlying token value
+     */
     function rewardBalanceInUnderlyingTokens(
         address _rewardToken,
         address _underlyingToken,

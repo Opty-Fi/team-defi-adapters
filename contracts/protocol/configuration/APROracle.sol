@@ -20,14 +20,25 @@ contract APROracle is IAPROracle, Modifiers {
     using SafeMath for uint256;
     using Address for address;
 
+    /** @notice Decimals considered upto 10**18 */
     uint256 public constant DECIMAL = 10**18;
+
+    /** @notice Zero value constant for bytes32 */
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
+    /** @notice Store AaveV1 Lending Pool address */
     address public aaveV1;
+
+    /** @notice Store AaveV2 Address provider */
     address public aaveV2AddressProvider;
+
+    /** @notice Store Compound address */
     address public compound;
 
+    /** @notice Address of dYdX modifier */
     uint256 public dydxModifier;
+
+    /** @notice Stores the estimation of no. of blocks gets mined per year */
     uint256 public blocksPerYear;
 
     constructor(address _registry) public Modifiers(_registry) {
@@ -38,26 +49,49 @@ contract APROracle is IAPROracle, Modifiers {
         blocksPerYear = 242584;
     }
 
+    /**
+     * @notice Sets the Aave protocol lending pool
+     * @dev Set the address of new Aave Lending pool
+     * @param _newAaveV1 Address of new Aave Lending pool
+     */
     function setNewAaveV1(address _newAaveV1) external onlyOperator {
         aaveV1 = _newAaveV1;
     }
 
+    /**
+     * @notice Sets the No. of blocks estimated per year
+     * @dev Set the no. of block calculated by formula = noOfSecondsInAYear/blockMintNoOfSeconds
+     *      As an eg: _newBlocksPerYear = 3153600/13 = 242584
+     * @param _newBlocksPerYear New No. of blocks value estimated per year
+     */
     function setNewBlocksPerYear(uint256 _newBlocksPerYear) external onlyOperator {
         blocksPerYear = _newBlocksPerYear;
     }
 
+    /**
+     * @inheritdoc IAPROracle
+     */
     function getCompoundAPR(address token) external view override returns (uint256) {
         return _getCompoundAPR(token);
     }
 
+    /**
+     * @inheritdoc IAPROracle
+     */
     function getAaveV1APR(address token) external view override returns (address, uint256) {
         return _getAaveV1APR(token);
     }
 
+    /**
+     * @inheritdoc IAPROracle
+     */
     function getAaveV2APR(address token) external view override returns (address, uint256) {
         return _getAaveV2APR(token);
     }
 
+    /**
+     * @inheritdoc IAPROracle
+     */
     function getBestAPR(bytes32 _tokensHash) external view override returns (bytes32) {
         return _getBestAPR(_tokensHash);
     }

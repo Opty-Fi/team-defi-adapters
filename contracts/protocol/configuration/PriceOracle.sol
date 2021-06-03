@@ -50,16 +50,7 @@ contract PriceOracle is IPriceOracle, Modifiers {
     }
 
     /**
-     * @dev Sets the price feed oracle for the underlying token
-     *
-     * @param _underlyingToken address of underlying token
-     * @param _oracle address of price feed oracle for underlying token provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be operator.
+     * @inheritdoc IPriceOracle
      */
     function setOracle(address _underlyingToken, address _oracle) public override onlyOperator returns (bool) {
         underlyingTokenToPriceFeed[_underlyingToken] = _oracle;
@@ -67,12 +58,7 @@ contract PriceOracle is IPriceOracle, Modifiers {
     }
 
     /**
-     * @dev Get the latest price in USD for token
-     *
-     * @param _amount amount of underlying Token
-     * @param _underlyingToken address of underlying token
-     *
-     * @return Returns the latest price
+     * @inheritdoc IPriceOracle
      */
     function getUnderlyingTokenAmountInUSD(uint256 _amount, address _underlyingToken)
         external
@@ -87,12 +73,7 @@ contract PriceOracle is IPriceOracle, Modifiers {
     }
 
     /**
-     * @dev Get the underlying token amount in USD
-     *
-     * @param _amount amount in USD for underlying token
-     * @param _underlyingToken address of underlying token
-     *
-     * @return Returns the latest price
+     * @inheritdoc IPriceOracle
      */
     function getUSDAmountInUnderlyingToken(uint256 _amount, address _underlyingToken)
         external

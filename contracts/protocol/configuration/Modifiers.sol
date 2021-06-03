@@ -16,7 +16,7 @@ import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
  */
 abstract contract Modifiers is IModifiers {
     /**
-     * @dev Registry contract instance address
+     * @notice Registry contract instance address
      */
     IRegistry public registryContract;
 
@@ -32,14 +32,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Sets the regsitry contract address
-     *
-     * @param _registry address of registry contract
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator
-     * - `registry` can not be zero address
+     * @inheritdoc IModifiers
      */
     function setRegistry(address _registry) external override onlyOperator {
         registryContract = IRegistry(_registry);
@@ -87,6 +80,7 @@ abstract contract Modifiers is IModifiers {
 
     /**
      * @dev Modifier to check if vault contract is discontinued from usage or not
+     * @param _vault Address of vault/stakingVault contract to disconitnue
      */
     modifier ifNotDiscontinued(address _vault) {
         DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
@@ -96,6 +90,7 @@ abstract contract Modifiers is IModifiers {
 
     /**
      * @dev Modifier to check if vault contract is unpaused or paused
+     * @param _vault Address of vault/stakingVault contract to pause/unpause
      */
     modifier ifNotPaused(address _vault) {
         DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);

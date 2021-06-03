@@ -80,13 +80,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     }
 
     /**
-     * @dev Get the optimal amount for the token
-     *
-     * @param _borrowToken Address of token which has to be borrowed
-     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
-     * @param _borrowTokenAmount amount of token to borrow
-     *
-     * @return borrow token's optimal amount
+     * @inheritdoc IHarvestCodeProvider
      */
     function getOptimalTokenAmount(
         address _borrowToken,
@@ -120,13 +114,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     }
 
     /**
-     * @dev Get the underlying token amount equivalent to reward token amount
-     *
-     * @param _rewardToken Reward token address
-     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
-     * @param _amount reward token balance amount
-     *
-     * @return equivalent reward token balance in Underlying token value
+     * @inheritdoc IHarvestCodeProvider
      */
     function rewardBalanceInUnderlyingTokens(
         address _rewardToken,

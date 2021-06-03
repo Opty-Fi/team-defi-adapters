@@ -7,23 +7,32 @@ pragma solidity ^0.6.12;
  */
 interface IModifiersController {
     /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
+     * @dev Transfers operator to a new account (`_operator`).
+     *
+     * @param _operator address of Operator's account
+     *
+     * Requirements:
+     * - `msg.sender` Can only be governance.
      */
-
     function setOperator(address _operator) external;
 
     /**
      * @dev Transfers strategist to a new account (`_strategist`).
-     * Can only be called by the current governance.
+     *
+     * @param _strategist address of strategist's account
+     *
+     * Requirements:
+     * - `msg.sender` Can only be governance.
      */
-
     function setStrategist(address _strategist) external;
 
     /**
      * @dev Transfers minter to a new account (`_minter`).
-     * Can only be called by the current governance.
+     *
+     * @param _minter address of minter's account
+     *
+     * Requirements:
+     * - `msg.sender` Can only be governance.
      */
-
     function setOPTYMinter(address _minter) external;
 }

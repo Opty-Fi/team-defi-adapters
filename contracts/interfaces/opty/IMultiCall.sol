@@ -11,7 +11,23 @@ pragma experimental ABIEncoderV2;
  * @dev Interface for functions to batch together multi calls
  */
 interface IMultiCall {
+    /**
+     * @notice Function for executing any functionlaity and check if it is working or not
+     *
+     * @dev Function to execute the code and revert with error message if code provided is incorrect
+     *
+     * @param _code Encoded data in bytes which acts as code to execute
+     * @param _errorMsg Error message to throw when code execution call fails
+     */
     function executeCode(bytes calldata _code, string calldata _errorMsg) external;
 
+    /**
+     * @notice Function for executing bunch of functionlaities and check if they are working or not
+     *
+     * @dev Function to execute the codes array and revert with error message if code provided is incorrect
+     *
+     * @param _codes Array of encoded data in bytes which acts as code to execute
+     * @param _errorMsg Error message to throw when code execution call fails
+     */
     function executeCodes(bytes[] calldata _codes, string calldata _errorMsg) external;
 }

@@ -17,13 +17,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
 
     /**
-     * @dev Transfers operator to a new account (`_operator`).
-     *
-     * @param _operator address of Operator's account
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be governance.
+     * @inheritdoc IModifiersController
      */
     function setOperator(address _operator) public override onlyGovernance {
         require(_operator != address(0), "!address(0)");
@@ -32,13 +26,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Transfers strategist to a new account (`_strategist`).
-     *
-     * @param _strategist address of strategist's account
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be governance.
+     * @inheritdoc IModifiersController
      */
     function setStrategist(address _strategist) public override onlyGovernance {
         require(_strategist != address(0), "!address(0)");
@@ -47,13 +35,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Transfers minter to a new account (`_minter`).
-     *
-     * @param _minter address of minter's account
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be governance.
+     * @inheritdoc IModifiersController
      */
     function setOPTYMinter(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");

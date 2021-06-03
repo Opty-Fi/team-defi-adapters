@@ -36,16 +36,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the VaultStepInvestStrategyDefinitionRegistry contract address.
-     *
-     * @param `_vaultStepInvestStrategyDefinitionRegistry` VaultStepInvestStrategyDefinitionRegistry contract address
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be governance.
-     * - `_vaultStepInvestStrategyDefinitionRegistry` can not be address(0)
+     * @inheritdoc IRegistry
      */
     function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
         external
@@ -60,10 +51,8 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the APROracle contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
-
     function setAPROracle(address _aprOracle) external override onlyGovernance returns (bool) {
         require(_aprOracle != address(0), "!address(0)");
         aprOracle = _aprOracle;
@@ -71,16 +60,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the StrategyProvider contract address.
-     *
-     * @param _strategyProvider Address of StrategyProvider Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` Can only be governance.
-     * - `_strategyProvider` can not be address(0)
+     * @inheritdoc IRegistry
      */
     function setStrategyProvider(address _strategyProvider) external override onlyGovernance returns (bool) {
         require(_strategyProvider != address(0), "!address(0)");
@@ -90,8 +70,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the RiskManager's contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setRiskManager(address _riskManager) external override onlyGovernance returns (bool) {
         require(_riskManager != address(0), "!address(0)");
@@ -101,8 +80,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the HarvestCodeProvider contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setHarvestCodeProvider(address _harvestCodeProvider) external override onlyGovernance returns (bool) {
         require(_harvestCodeProvider != address(0), "!address(0)");
@@ -112,8 +90,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the StrategyManager contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setStrategyManager(address _strategyManager) external override onlyGovernance returns (bool) {
         require(_strategyManager != address(0), "!address(0)");
@@ -123,8 +100,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the $OPTY token's contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setOPTY(address _opty) external override onlyGovernance returns (bool) {
         require(_opty != address(0), "!address(0)");
@@ -134,8 +110,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the PriceOracle contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setPriceOracle(address _priceOracle) external override onlyGovernance returns (bool) {
         require(_priceOracle != address(0), "!address(0)");
@@ -145,8 +120,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the OPTYStakingRateBalancer contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setOPTYStakingRateBalancer(address _optyStakingRateBalancer)
         external
@@ -163,18 +137,7 @@ contract Registry is IRegistry, ModifiersController {
     ///@TODO Add staking pool contract addresses
 
     /**
-     * @dev Sets multiple `_tokens` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
-     * @param _tokens List of tokens to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_token` cannot be the zero address or an EOA.
-     * - `_token` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveToken(address[] memory _tokens) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_tokens.length); _i++) {
@@ -184,18 +147,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets `_token` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
-     * @param _token token to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `_token` cannot be the zero address or an EOA.
-     * - `msg.sender` should be governance.
-     * - `_token` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveToken(address _token) external override onlyGovernance returns (bool) {
         _approveToken(_token);
@@ -203,18 +155,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes multiple `_tokens` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
-     * @param _tokens List of tokens to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_token` cannot be the zero address or an EOA.
-     * - `_token` should not be approved
+     * @inheritdoc IRegistry
      */
     function revokeToken(address[] memory _tokens) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_tokens.length); _i++) {
@@ -224,36 +165,14 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes `_token` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
-     * @param _token token to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_token` cannot be the zero address or an EOA.
-     * - `_token` should be approved
+     * @inheritdoc IRegistry
      */
     function revokeToken(address _token) external override onlyGovernance returns (bool) {
         _revokeToken(_token);
     }
 
     /**
-     * @dev Sets multiple `_pools` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pools list of pools (act as liquidity/credit pools) to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveLiquidityPool(address[] memory _pools) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -263,20 +182,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pool pools (act as liquidity/credit pools) to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogLiquidityPool} event.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveLiquidityPool(address _pool) external override onlyGovernance returns (bool) {
         _approveLiquidityPool(_pool);
@@ -284,18 +190,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes multiple `_pools` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pools list of pools (act as liquidity/credit pools) to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @inheritdoc IRegistry
      */
     function revokeLiquidityPool(address[] memory _pools) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -305,20 +200,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pool pools (act as liquidity/credit pools) to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogLiquidityPool} event.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @inheritdoc IRegistry
      */
     function revokeLiquidityPool(address _pool) external override onlyGovernance returns (bool) {
         _revokeLiquidityPool(_pool);
@@ -326,18 +208,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Provide [`_pool`,`_rate`] from the {liquidityPools} mapping.
-     *      Emit event {LogRateLiquidityPool}
-     *
-     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for liquidityPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @inheritdoc IRegistry
      */
     function rateLiquidityPool(DataTypes.PoolRate[] memory _poolRates) external override onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < _poolRates.length; _i++) {
@@ -347,21 +218,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Provide `_rate` to `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogRateLiquidityPool}
-     *
-     * @param _pool liquidityPool to map with its rating
-     * @param _rate rate for the liquidityPool provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {LogRateLiquidityPool} event.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @inheritdoc IRegistry
      */
     function rateLiquidityPool(address _pool, uint8 _rate) external override onlyOperator returns (bool) {
         _rateLiquidityPool(_pool, _rate);
@@ -369,18 +226,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets multiple `_pools` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
-     * @param _pools List of pools for approval to be considered as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveCreditPool(address[] memory _pools) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -390,18 +236,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets `_pool` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
-     * @param _pool pool for approval to be considered as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @inheritdoc IRegistry
      */
     function approveCreditPool(address _pool) external override onlyGovernance returns (bool) {
         _approveCreditPool(_pool);
@@ -409,18 +244,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes multiple `_pool` from the {revokeCreditPools} mapping.
-     *      Emit event {LogCreditPool}
-     *
-     * @param _pools List of pools for revoking from being used as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @inheritdoc IRegistry
      */
     function revokeCreditPool(address[] memory _pools) external override onlyGovernance returns (bool) {
         for (uint8 _i = 0; _i < uint8(_pools.length); _i++) {
@@ -430,18 +254,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Revokes `_pool` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
-     * @param _pool pool for revoking from being used as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @inheritdoc IRegistry
      */
     function revokeCreditPool(address _pool) external override onlyGovernance returns (bool) {
         _revokeCreditPool(_pool);
@@ -449,18 +262,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Provide [`_pool`,`_rate`] from the {creditPools} mapping.
-     *      Emits a {LogRateCreditPool} event.
-     *
-     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @inheritdoc IRegistry
      */
     function rateCreditPool(DataTypes.PoolRate[] memory _poolRates) external override onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < _poolRates.length; _i++) {
@@ -470,19 +272,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Provide `_rate` to `_pool` from the {creditPools} mapping.
-     *      Emits a {LogRateCreditPool} event.
-     *
-     * @param _pool creditPool to map with its rating
-     * @param _rate rate for the creaditPool provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @inheritdoc IRegistry
      */
     function rateCreditPool(address _pool, uint8 _rate) external override onlyOperator returns (bool) {
         _rateCreditPool(_pool, _rate);
@@ -490,18 +280,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Maps liquidity `_pool` to the protocol adapter `_adapter` using {liquidityPoolToAdapter}.
-     *      Emits a {LogLiquidityPoolToDepositToken} event.
-     *
-     * @param _poolAdapters List of `[_pool, _adapter]` pairs to set
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool`should be approved.
-     * - `_adapter` should be contract
+     * @inheritdoc IRegistry
      */
     function setLiquidityPoolToAdapter(DataTypes.PoolAdapter[] memory _poolAdapters)
         external
@@ -516,19 +295,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.
-     *      Emits a {LogLiquidityPoolToDepositToken} event.
-     *
-     * @param _pool liquidityPool to map with its adapter
-     * @param _adapter adapter for the liquidityPool provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool`should be approved.
-     * - `_adapter` should be contract
+     * @inheritdoc IRegistry
      */
     function setLiquidityPoolToAdapter(address _pool, address _adapter)
         external
@@ -541,17 +308,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets multiple `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
-     *      Emits a {LogSetTokensHashToTokens} event.
-     *
-     * @param _setOfTokens List of mulitple token addresses to map with their (paired tokens) hashes
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_tokens` should be approved
+     * @inheritdoc IRegistry
      */
     function setTokensHashToTokens(address[][] memory _setOfTokens) external override onlyOperator returns (bool) {
         for (uint8 _i = 0; _i < uint8(_setOfTokens.length); _i++) {
@@ -561,17 +318,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
-     *      Emits a {LogSetTokensHashToTokens} event.
-     *
-     * @param _tokens List of token addresses to map with their hashes
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be operator.
-     * - `_tokens` should be approved
+     * @inheritdoc IRegistry
      */
     function setTokensHashToTokens(address[] memory _tokens) external override onlyOperator returns (bool) {
         _setTokensHashToTokens(_tokens);
@@ -579,20 +326,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingAsset` and `_riskProfile`
-     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
-     *
-     * @param _vault Vault contract address
-     * @param _riskProfile Risk profile mapped to the vault contract
-     * @param _underlyingAssets List of token addresses to map with the riskProfile and Vault contract
-     *
-     * @return A boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *
-     * - `msg.sender` (caller) should be operator
-     * - `_underlyingAssets` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
+     * @inheritdoc IRegistry
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[] memory _underlyingAssets,
@@ -604,15 +338,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Set the withdrawal fee for the vault contract.
-     *
-     * @param _vault Vault contract address
-     * @param _withdrawalFee Withdrawal fee to be set for vault contract
-     *
-     * @return _success Returns a boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *  - `msg.sender` Can only be current governance.
+     * @inheritdoc IRegistry
      */
     function setWithdrawalFee(address _vault, uint256 _withdrawalFee)
         external
@@ -628,15 +354,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
-     * @param _vault Vault contract address
-     * @param _treasuryShares Array of treasuries and their fee shares
-     *
-     * @return Returns a boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *  - `msg.sender` Can only be current governance.
+     * @inheritdoc IRegistry
      */
     function setTreasuryShares(address _vault, DataTypes.TreasuryShare[] memory _treasuryShares)
         external
@@ -665,21 +383,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`
-     *      and `_riskProfiles`in one transaction
-     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
-     *
-     * @param _vaults List of Vault contract address
-     * @param _riskProfiles List of Risk profile mapped to the vault contract
-     * @param _underlyingAssets List of paired token addresses to map with the riskProfile and Vault contract
-     *
-     * @return A boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *
-     * - `msg.sender` (caller) should be operator
-     * - `_underlyingAssets` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
+     * @inheritdoc IRegistry
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[][] memory _underlyingAssets,
@@ -701,18 +405,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Discontinue the Vault contract from use permanently
-     *      Emits a {LogDiscontinueVault} event
-     *
-     * @param _vault Vault address to discontinue
-     * @return A boolean value indicating whether operation is succeeded
-     *
-     * Requirements:
-     *
-     * - `_vault` cannot be a zero address
-     * - `msg.sender` (caller) should be governance
-     *
-     * Note: Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage.
+     * @inheritdoc IRegistry
      */
     function discontinue(address _vault) external override onlyGovernance returns (bool) {
         require(_vault != address(0), "!address(0)");
@@ -723,16 +416,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Pause tha Vault contract for use temporarily during any emergency
-     *      Emits a {LogUnpauseVault} event
-     *
-     * @param _vault Vault contract address to pause
-     * @param _unpaused A boolean value `true` to pause vault contract and `false` for un-pause vault contract
-     *
-     * Requirements:
-     *
-     * - `_vault` cannot be a zero address
-     * - `msg.sender` (caller) should be governance
+     * @inheritdoc IRegistry
      */
     function unpauseVaultContract(address _vault, bool _unpaused) external override onlyGovernance returns (bool) {
         require(_vault != address(0), "!address(0)");
@@ -743,20 +427,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Add the risk profile in Registry contract Storage
-     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
-     *
-     * @param _riskProfile Risk Profile to add in Registry Storage
-     * @param _noOfSteps No. of permitted corresponding to risk profile provided
-     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @inheritdoc IRegistry
      */
     function addRiskProfile(
         string memory _riskProfile,
@@ -768,21 +439,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Add list of the risk profiles in Registry contract Storage in 1 txn.
-     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
-     *
-     * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _noOfSteps List of No. of permitted corresponding to list of risk profile provided
-     * @param _poolRatingRanges List of pool rating range ([lowerLimit, upperLimit]) supported by
-     *        given list of risk profiles
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @inheritdoc IRegistry
      */
     function addRiskProfile(
         string[] memory _riskProfiles,
@@ -800,18 +457,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Update the no. of steps for existing risk profile
-     *      Emit event {LogRiskProfile}
-     *
-     * @param _riskProfile Risk Profile to update with steps
-     * @param _noOfSteps No. of steps for a given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` should exists
+     * @inheritdoc IRegistry
      */
     function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps)
         external
@@ -824,19 +470,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Update the pool ratings for existing risk profile
-     *      Emit event {LogRPPoolRatings}
-     *
-     * @param _riskProfile Risk profile to update with pool rating range
-     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit])
-     *        to update for given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` should exists
+     * @inheritdoc IRegistry
      */
     function updateRPPoolRatings(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
         external
@@ -849,18 +483,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Remove the existing risk profile in Registry contract Storage
-     *      Emit event {LogRiskProfile}
-     *
-     * @param _index Index of risk profile to be removed
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @inheritdoc IRegistry
      */
     function removeRiskProfile(uint256 _index) external override onlyOperator returns (bool) {
         _removeRiskProfile(_index);
@@ -868,32 +491,29 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Get the list of tokensHash
-     *
-     * @return Returns the list of tokensHash.
+     * @inheritdoc IRegistry
      */
     function getTokenHashes() external view override returns (bytes32[] memory) {
         return tokensHashIndexes;
     }
 
     /**
-     * @dev Get list of token given the `_tokensHash`.
-     *
-     * @return Returns the list of tokens corresponding to `_tokensHash`.
+     * @inheritdoc IRegistry
      */
     function getTokensHashToTokenList(bytes32 _tokensHash) external view override returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
     }
 
     /**
-     * @dev Get the list of all the riskProfiles
-     *
-     * @return Returns the list of all riskProfiles stored in Registry Storage
+     * @inheritdoc IRegistry
      */
     function getRiskProfileList() external view override returns (string[] memory) {
         return riskProfilesArray;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getVaultConfiguration(address _vault)
         external
         view
@@ -903,38 +523,65 @@ contract Registry is IRegistry, ModifiersController {
         _vaultConfiguration = vaultToVaultConfiguration[_vault];
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getVaultStepInvestStrategyDefinitionRegistry() external view override returns (address) {
         return vaultStepInvestStrategyDefinitionRegistry;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getTokensHashIndexByHash(bytes32 _tokensHash) external view override returns (uint256 _index) {
         _index = tokensHashToTokens[_tokensHash].index;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getTokensHashByIndex(uint256 _index) external view override returns (bytes32 _tokensHash) {
         _tokensHash = tokensHashIndexes[_index];
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function isApprovedToken(address _token) external view override returns (bool _isTokenApproved) {
         _isTokenApproved = tokens[_token];
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getStrategyProvider() external view override returns (address) {
         return strategyProvider;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getStrategyManager() external view override returns (address) {
         return strategyManager;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getStrategist() external view override returns (address) {
         return strategist;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getAprOracle() external view override returns (address) {
         return aprOracle;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getRiskProfile(string memory _riskProfileName)
         external
         view
@@ -944,30 +591,51 @@ contract Registry is IRegistry, ModifiersController {
         _riskProfile = riskProfiles[_riskProfileName];
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getRiskManager() external view override returns (address) {
         return riskManager;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getOptyMinter() external view override returns (address) {
         return minter;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getGovernance() external view override returns (address) {
         return governance;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getOperator() external view override returns (address) {
         return operator;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getHarvestCodeProvider() external view override returns (address) {
         return harvestCodeProvider;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getOPTYStakingRateBalancer() external view override returns (address) {
         return optyStakingRateBalancer;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getLiquidityPool(address _pool)
         external
         view
@@ -977,6 +645,9 @@ contract Registry is IRegistry, ModifiersController {
         _liquidityPool = liquidityPools[_pool];
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getStrategyConfiguration()
         external
         view
@@ -988,6 +659,9 @@ contract Registry is IRegistry, ModifiersController {
         _strategyConfiguration.aprOracle = aprOracle;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getVaultStrategyConfiguration()
         external
         view
@@ -1000,16 +674,15 @@ contract Registry is IRegistry, ModifiersController {
         _vaultStrategyConfiguration.operator = operator;
     }
 
+    /**
+     * @inheritdoc IRegistry
+     */
     function getLiquidityPoolToAdapter(address _pool) external view override returns (address _adapter) {
         _adapter = liquidityPoolToAdapter[_pool];
     }
 
     /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
-     * @param _vault Vault contract address
-     *
-     * @return Returns Treasuries along with their fee shares
+     * @inheritdoc IRegistry
      */
     function getTreasuryShares(address _vault) external view override returns (DataTypes.TreasuryShare[] memory) {
         return vaultToVaultConfiguration[_vault].treasuryShares;
