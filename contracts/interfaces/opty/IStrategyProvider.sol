@@ -64,16 +64,48 @@ interface IStrategyProvider {
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) external returns (DataTypes.VaultRewardStrategy memory);
 
+    /**
+     * @dev Set the Default strategy state to zero or compound or aave
+     *
+     * @param _defaultStrategyState Default strategy state (zero or compound or aave) to be set
+     */
     function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState) external;
 
+    /**
+     * @dev Get the Best strategy corresponding to _riskProfile and _tokenHash provided
+     *
+     * @param _riskProfile Risk profile (Eg: RP1, RP2, etc)
+     * @param _tokenHash Hash of the underlying token address/addresses
+     *
+     * @return Returns the best strategy hash corresponding to _riskProfile and _tokenHash provided
+     */
     function rpToTokenToBestStrategy(string memory _riskProfile, bytes32 _tokenHash) external view returns (bytes32);
 
+    /**
+     * @dev Get the Best Default strategy corresponding to _riskProfile and _tokenHash provided
+     *
+     * @param _riskProfile Risk profile (Eg: RP1, RP2, etc)
+     * @param _tokenHash Hash of the underlying token address/addresses
+     *
+     * @return Returns the best default strategy hash corresponding to _riskProfile and _tokenHash provided
+     */
     function rpToTokenToDefaultStrategy(string memory _riskProfile, bytes32 _tokenHash) external view returns (bytes32);
 
+    /**
+     * @dev Get the Vault reward token's strategy corresponding to the `_tokensHash` provided
+     *
+     * @param _tokensHash Hash of Vault contract and reward token address
+     * @return Returns the Vault reward token's strategy corresponding to the `_tokensHash` provided
+     */
     function getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokensHash)
         external
         view
         returns (DataTypes.VaultRewardStrategy memory);
 
+    /**
+     * @dev Get the Default strategy state already set
+     *
+     * @return Returns the Default strategy state (zero or compound or aave) already set
+     */
     function getDefaultStrategyState() external view returns (DataTypes.DefaultStrategyState);
 }
