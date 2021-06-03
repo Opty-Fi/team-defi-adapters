@@ -690,13 +690,6 @@ interface IRegistry {
     function getOperator() external view returns (address);
 
     /**
-     * @dev Get the Strategist address
-     *
-     * @return Returns the Strategist address
-     */
-    function getStrategist() external view returns (address);
-
-    /**
      * @dev Get the HarvestCodeProvider contract address
      *
      * @return Returns the HarvestCodeProvider contract address

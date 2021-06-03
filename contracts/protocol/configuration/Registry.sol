@@ -568,14 +568,7 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getStrategist() external view override returns (address) {
-        return strategist;
-    }
-
-    /**
-     * @inheritdoc IRegistry
-     */
-    function getAprOracle() external view override returns (address) {
+    function getAprOracle() public view override returns (address) {
         return aprOracle;
     }
 

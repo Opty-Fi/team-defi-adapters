@@ -17,16 +17,6 @@ interface IModifiersController {
     function setOperator(address _operator) external;
 
     /**
-     * @dev Transfers strategist to a new account (`_strategist`).
-     *
-     * @param _strategist address of strategist's account
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     */
-    function setStrategist(address _strategist) external;
-
-    /**
      * @dev Transfers minter to a new account (`_minter`).
      *
      * @param _minter address of minter's account

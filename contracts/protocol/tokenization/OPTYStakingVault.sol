@@ -107,21 +107,9 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _success = true;
     }
 
-    function updatePool() public override ifNotPaused(address(this)) returns (bool _success) {
-        if (lastPoolUpdate == uint256(0)) {
-            lastPoolUpdate = getBlockTimestamp();
-        } else {
-            uint256 _deltaBlocks = getBlockTimestamp().sub(lastPoolUpdate);
-            uint256 optyAccrued = _deltaBlocks.mul(optyRatePerSecond);
-            lastPoolUpdate = getBlockTimestamp();
-            IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-            _optyMinterContract.mintOpty(address(this), optyAccrued);
-        }
-        require(
-            IOPTYStakingRateBalancer(registryContract.getOPTYStakingRateBalancer()).updateOptyRates(),
-            "stakingVault:updatePool"
-        );
-        _success = true;
+    function updatePool() public override returns (bool _success) {
+        _isUnpaused(address(this));
+        return _updatePool();
     }
 
     /**
@@ -145,8 +133,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
      */
     function _userStake(uint256 _amount)
         internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
+        ifNotPausedAndDiscontinued(address(this))
         nonReentrant
         returns (bool _success)
     {
@@ -182,12 +169,8 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
      *  -   _redeemAmount: amount to withdraw from the  liquidity pool. Its uints are:
      *      in  weth uints i.e. 1e18
      */
-    function _userUnstake(uint256 _redeemAmount)
-        internal
-        ifNotPaused(address(this))
-        nonReentrant
-        returns (bool _success)
-    {
+    function _userUnstake(uint256 _redeemAmount) internal nonReentrant returns (bool _success) {
+        _isUnpaused(address(this));
         require(
             getBlockTimestamp().sub(userLastUpdate[msg.sender]) > timelockPeriod,
             "you can't unstake until timelockPeriod has ended"
@@ -200,7 +183,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
             ),
             "stakingVault:userUnstake"
         );
-        updatePool();
+        require(_updatePool(), "_updatePool");
         uint256 redeemAmountInToken = (balance().mul(_redeemAmount)).div(totalSupply());
         _burn(msg.sender, _redeemAmount);
         if (totalSupply() == 0) {
@@ -208,6 +191,23 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         }
         IERC20(token).safeTransfer(msg.sender, redeemAmountInToken);
         userLastUpdate[msg.sender] = getBlockTimestamp();
+        _success = true;
+    }
+
+    function _updatePool() internal returns (bool _success) {
+        if (lastPoolUpdate == uint256(0)) {
+            lastPoolUpdate = getBlockTimestamp();
+        } else {
+            uint256 _deltaBlocks = getBlockTimestamp().sub(lastPoolUpdate);
+            uint256 optyAccrued = _deltaBlocks.mul(optyRatePerSecond);
+            lastPoolUpdate = getBlockTimestamp();
+            IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
+            _optyMinterContract.mintOpty(address(this), optyAccrued);
+        }
+        require(
+            IOPTYStakingRateBalancer(registryContract.getOPTYStakingRateBalancer()).updateOptyRates(),
+            "stakingVault:updatePool"
+        );
         _success = true;
     }
 }

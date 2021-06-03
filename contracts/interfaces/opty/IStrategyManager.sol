@@ -15,59 +15,59 @@ interface IStrategyManager {
      * @dev Get the withdrawal codes steps count corresponding
      *      to the stretagy hash provided
      *
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return Returns the withdrawal codes steps count corresponding
      *         to the stretagy hash provided
      */
-    function getWithdrawAllStepsCount(bytes32 _hash) external view returns (uint8);
+    function getWithdrawAllStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
 
     /**
      * @dev Get the deposit codes steps count corresponding
      *      to the stretagy hash provided
      *
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return Returns the deposit codes steps count corresponding
      *         to the stretagy hash provided
      */
-    function getDepositAllStepCount(bytes32 _hash) external view returns (uint8);
+    function getDepositAllStepCount(bytes32 _investStrategyHash) external view returns (uint8);
 
     /**
      * @dev Get the claim reward token codes steps count corresponding
      *      to the stretagy hash provided
      *
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return Returns the claim reward token codes steps count corresponding
      *         to the stretagy hash provided
      */
-    function getClaimRewardStepsCount(bytes32 _hash) external view returns (uint8);
+    function getClaimRewardStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
 
     /**
      * @dev Get the harvest reward token codes steps count corresponding
      *      to the stretagy hash provided
      *
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return Returns the harvest reward token codes steps count corresponding
      *         to the stretagy hash provided
      */
-    function getHarvestRewardStepsCount(bytes32 _hash) external view returns (uint8);
+    function getHarvestRewardStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
 
     /**
      * @dev Get the balance of vault in underlyingToken provided
      *
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return _balance Returns the balance of vault in underlyingToken provided
      */
     function getBalanceInUnderlyingToken(
         address payable _optyVault,
         address _underlyingToken,
-        bytes32 _hash
+        bytes32 _investStrategyHash
     ) external view returns (uint256 _balance);
 
     /**
@@ -76,7 +76,7 @@ interface IStrategyManager {
      *
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @param _stepIndex The index corresponding to the strategy step
      * @param _stepCount Total steps count in the strategy
      *
@@ -86,7 +86,7 @@ interface IStrategyManager {
     function getPoolDepositAllCodes(
         address payable _optyVault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyHash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) external view returns (bytes[] memory _codes);
@@ -97,7 +97,7 @@ interface IStrategyManager {
      *
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
-     * @param _hash Hash of the strategy being used in vault contract
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @param _stepIndex The index corresponding to the strategy step
      * @param _stepCount Total steps count in the strategy
      *
@@ -107,7 +107,7 @@ interface IStrategyManager {
     function getPoolWithdrawAllCodes(
         address payable _optyVault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyHash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) external view returns (bytes[] memory _codes);
@@ -117,19 +117,15 @@ interface IStrategyManager {
      *      strategy hash provided
      *
      * @param _optyVault Vault contract address
-     * @param _hash Hash of the strategy being used in vault contract
-     * @param _stepIndex The index corresponding to the strategy step
-     * @param _stepCount Total steps count in the strategy
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
      *
      * @return _codes Returns all codes for claiming reward tokens from pool available
      *         in the strategy hash provided
      */
-    function getPoolClaimAllRewardCodes(
-        address payable _optyVault,
-        bytes32 _hash,
-        uint8 _stepIndex,
-        uint8 _stepCount
-    ) external view returns (bytes[] memory _codes);
+    function getPoolClaimAllRewardCodes(address payable _optyVault, bytes32 _investStrategyHash)
+        external
+        view
+        returns (bytes[] memory _codes);
 
     /**
      * @dev Get all codes for harvesting reward tokens from pool available in the
@@ -138,8 +134,6 @@ interface IStrategyManager {
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
      * @param _investStrategyHash Hash of the strategy being used in vault contract
-     * @param _stepIndex The index corresponding to the strategy step
-     * @param _stepCount Total steps count in the strategy
      *
      * @return _codes Returns all codes for harvesting reward tokens from pool available
      *         in the strategy hash provided
@@ -147,9 +141,7 @@ interface IStrategyManager {
     function getPoolHarvestAllRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
-        bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        bytes32 _investStrategyHash
     ) external view returns (bytes[] memory _codes);
 
     /**
@@ -159,9 +151,7 @@ interface IStrategyManager {
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
      * @param _investStrategyHash Hash of the strategy being used in vault contract
-     * @param _convertRewardTokensPercent Percentage in basis point for converting reward tokens
-     * @param _stepIndex The index corresponding to the strategy step
-     * @param _stepCount Total steps count in the strategy
+     * @param _vaultRewardStrategy Vault Reward strategy to get convert Percent (in basis)
      *
      * @return _codes Returns some codes for harvesting reward tokens from pool available
      *         in the strategy hash provided
@@ -170,29 +160,8 @@ interface IStrategyManager {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint256 _convertRewardTokensPercent,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) external view returns (bytes[] memory _codes);
-
-    /**
-     * @dev Get liquidityPool, adapter and reward token corresponding to the
-     *      _investStrategyHash provided
-     *
-     * @param _investStrategyHash Hash of the strategy being used in vault contract
-     *
-     * @return _liquidityPool Liquidity pool (like cDai, etc.) address
-     * @return _optyAdapter Adapter contract address mapped to liquidity pool
-     * @return _rewardToken Reward token address
-     */
-    function getLpAdapterRewardToken(bytes32 _investStrategyHash)
-        external
-        view
-        returns (
-            address _liquidityPool,
-            address _optyAdapter,
-            address _rewardToken
-        );
 
     /**
      * @dev Get the codes for the withdraw fee split shares between the
@@ -204,13 +173,15 @@ interface IStrategyManager {
      * @param _account User's (msg.sender) address who is initiating withdraw
      * @param _underlyingToken Underlying toke address
      * @param _redeemAmountInToken Amount to be redeemed in token
-     * @param _withdrawalFee Total withdrawal Fee (in basis percent) to be charged
      */
-    function getFeeTransferAllCodes(
+    function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
         address _underlyingToken,
-        uint256 _redeemAmountInToken,
-        uint256 _withdrawalFee
-    ) external pure returns (bytes[] memory _treasuryCodes, bytes memory _accountCode);
+        uint256 _redeemAmountInToken
+    ) external pure returns (bytes[] memory _treasuryCodes);
+
+    function getUserRewardCodes(address _vault, address _from) external view returns (bytes[] memory _codes);
+
+    function getRewardToken(bytes32 _investStrategyHash) external view returns (address _rewardToken);
 }

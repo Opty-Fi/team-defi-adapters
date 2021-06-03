@@ -28,15 +28,6 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     /**
      * @inheritdoc IModifiersController
      */
-    function setStrategist(address _strategist) public override onlyGovernance {
-        require(_strategist != address(0), "!address(0)");
-        strategist = _strategist;
-        emit TransferStrategist(strategist, msg.sender);
-    }
-
-    /**
-     * @inheritdoc IModifiersController
-     */
     function setOPTYMinter(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");
         minter = _minter;
@@ -56,14 +47,6 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
      */
     modifier onlyOperator() {
         require(msg.sender == operator, "caller is not the operator");
-        _;
-    }
-
-    /**
-     * @dev Modifier to check caller is strategist or not
-     */
-    modifier onlyStrategist() {
-        require(msg.sender == strategist, "caller is not the strategist");
         _;
     }
 

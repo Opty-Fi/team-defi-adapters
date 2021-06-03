@@ -63,38 +63,15 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check caller is strategist or not
-     */
-    modifier onlyStrategist() {
-        require(msg.sender == registryContract.getStrategist(), "caller is not the strategist");
-        _;
-    }
-
-    /**
      * @dev Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
-        require(msg.sender == registryContract.getOptyMinter(), "caller is not the minter");
+        require(msg.sender == registryContract.getOptyMinter(), "!minter");
         _;
     }
 
-    /**
-     * @dev Modifier to check if vault contract is discontinued from usage or not
-     * @param _vault Address of vault/stakingVault contract to disconitnue
-     */
-    modifier ifNotDiscontinued(address _vault) {
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
-        require(!_vaultConfiguration.discontinued, "discontinued");
-        _;
-    }
-
-    /**
-     * @dev Modifier to check if vault contract is unpaused or paused
-     * @param _vault Address of vault/stakingVault contract to pause/unpause
-     */
-    modifier ifNotPaused(address _vault) {
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
-        require(_vaultConfiguration.unpaused, "paused");
+    modifier ifNotPausedAndDiscontinued(address _vault) {
+        _ifNotPausedAndDiscontinued(_vault);
         _;
     }
 
@@ -102,7 +79,25 @@ abstract contract Modifiers is IModifiers {
      * @dev Modifier to check caller is registry or not
      */
     modifier onlyRegistry() {
-        require(msg.sender == address(registryContract), "caller is not Registry contract");
+        require(msg.sender == address(registryContract), "!Registry Contract");
         _;
+    }
+
+    /**
+     * @dev Modifier to check if vault contract is discontinued from usage or not
+     * @param _vault Address of vault/stakingVault contract to disconitnue
+     */
+    function _ifNotPausedAndDiscontinued(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused or discontinued");
+    }
+
+    /**
+     * @dev Modifier to check if vault contract is paused from usage or not
+     * @param _vault Address of vault/stakingVault contract to pause/unpause
+     */
+    function _isUnpaused(address _vault) internal view {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
+        require(_vaultConfiguration.unpaused, "paused");
     }
 }

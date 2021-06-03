@@ -24,11 +24,6 @@ contract RegistryAdminStorage {
     address public operator;
 
     /**
-     * @notice Strategist for this contract
-     */
-    address public strategist;
-
-    /**
      * @notice Minter for OPTY token
      */
     address public minter;
@@ -52,11 +47,6 @@ contract RegistryAdminStorage {
      * @notice when transfer operation of protocol occurs
      */
     event TransferOperator(address indexed operator, address indexed caller);
-
-    /**
-     * @notice Change strategist of protocol
-     */
-    event TransferStrategist(address indexed strategist, address indexed caller);
 
     /**
      * @notice Change minter of protocol

@@ -130,4 +130,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         amounts = uniswapV2Router02.getAmountsOut(_amount, path);
         return amounts[2];
     }
+
+    function getWETHInToken(address _underlyingToken, uint256 _amount) public view override returns (uint256) {
+        address _weth = uniswapV2Router02.WETH();
+        if (_underlyingToken == _weth) {
+            return _amount;
+        }
+        address[] memory _path = new address[](2);
+        _path[0] = _weth;
+        _path[1] = _underlyingToken;
+        uint256[] memory _amounts = uniswapV2Router02.getAmountsOut(_amount, _path);
+        return _amounts[1];
+    }
 }
