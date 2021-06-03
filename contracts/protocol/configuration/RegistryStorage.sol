@@ -129,12 +129,40 @@ contract RegistryStorage is RegistryAdminStorage {
      * @notice vaultStepInvestStrategyDefinitionRegistry contract address
      */
     address public vaultStepInvestStrategyDefinitionRegistry;
+
+    /**
+     * @notice riskManager contract address
+     */
     address public riskManager;
+
+    /**
+     * @notice harvestCodeProvider contract address
+     */
     address public harvestCodeProvider;
+
+    /**
+     * @notice strategyManager contract address
+     */
     address public strategyManager;
+
+    /**
+     * @notice priceOracle contract address
+     */
     address public priceOracle;
+
+    /**
+     * @notice opty contract address
+     */
     address public opty;
+
+    /**
+     * @notice aprOracle contract address
+     */
     address public aprOracle;
+
+    /**
+     * @notice optyStakingRateBalancer contract address
+     */
     address public optyStakingRateBalancer;
 
     /**

@@ -21,7 +21,6 @@ import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider
  *
  * @dev Central processing unit of the earn protocol
  */
-
 contract StrategyManager is IStrategyManager, Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
@@ -37,22 +36,37 @@ contract StrategyManager is IStrategyManager, Modifiers {
 
     /* solhint-disable no-empty-blocks */
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getWithdrawAllStepsCount(bytes32 _hash) external view override returns (uint8) {
         return _getWithdrawAllStepsCount(_hash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getDepositAllStepCount(bytes32 _hash) external view override returns (uint8) {
         return _getDepositAllStepCount(_hash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getClaimRewardStepsCount(bytes32 _hash) external view override returns (uint8) {
         return _getClaimRewardStepsCount(_hash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getHarvestRewardStepsCount(bytes32 _hash) external view override returns (uint8) {
         return _getHarvestRewardStepsCount(_hash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getBalanceInUnderlyingToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -61,6 +75,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return _getBalanceInUnderlyingToken(_optyVault, _underlyingToken, _hash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolDepositAllCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -71,6 +88,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolDepositAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolWithdrawAllCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -81,6 +101,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolWithdrawAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolClaimAllRewardCodes(
         address payable _optyVault,
         bytes32 _hash,
@@ -90,6 +113,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolHarvestAllRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -106,6 +132,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         );
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolHarvestSomeRewardCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -124,6 +153,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         );
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getFeeTransferAllCodes(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
@@ -160,6 +192,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getLpAdapterRewardToken(bytes32 _investStrategyHash)
         public
         view

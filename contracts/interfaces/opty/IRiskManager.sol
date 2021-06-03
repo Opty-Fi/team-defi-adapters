@@ -15,15 +15,16 @@ interface IRiskManager {
     /**
      * @dev Get the best strategy for respective RiskProfiles
      *
-     * Returns the hash of the best strategy corresponding to the riskProfile provided
+     * @param _profile risk profile corresponding to which get the best strategy
+     * @param _underlyingTokens array of underlying token addresses
+     *
+     * @return Returns the hash of the best strategy corresponding to the riskProfile provided
      *
      * Requirements:
-     *
      * - `_profile` can be among these values ["RP1"/"RP2"/"RP3"] or as decided by governance
      *      - Can not be empty
      * - `_underlyingTokens` is an array of underlying tokens like dai, usdc and so forth
      *      - Can not have length 0
-     *
      */
     function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
         external
@@ -33,10 +34,11 @@ interface IRiskManager {
     /**
      * @dev Get the VaultRewardToken strategy for respective VaultRewardToken hash
      *
-     * Returns the hash of the VaultRewardToken strategy corresponding to the `_vaultRewardTokenHash` provided
+     * @param _vaultRewardTokenHash Hash of vault contract address and reward token address
+     * @return _vaultRewardStrategy Returns the hash of the VaultRewardToken strategy corresponding
+     *         to the `_vaultRewardTokenHash` provided
      *
      * Requirements:
-     *
      * - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses
      *      - Can not be empty
      */
