@@ -213,7 +213,7 @@ contract Vault is
     /**
      * @dev Function to get the underlying token balance of OptyVault Contract
      */
-    function balance() external view override returns (uint256) {
+    function balance() public view override returns (uint256) {
         return _balance();
     }
 
@@ -448,6 +448,17 @@ contract Vault is
         return true;
     }
 
+    function _beforeTokenTransfer(
+        address from,
+        address,
+        uint256
+    ) internal override {
+        executeCodes(
+            IStrategyManager(registryContract.getStrategyManager()).getUserRewardCodes(address(this), from),
+            "!_beforeTokenTransfer"
+        );
+    }
+
     /**
      * @dev Function to calculate vault value in underlying token (for example DAI)
      *
@@ -556,16 +567,5 @@ contract Vault is
         if (_balanceInUnderlyingToken > depositQueue) {
             _mint(_account, (_depositAmount.mul(totalSupply())).div(_balanceInUnderlyingToken.sub(depositQueue)));
         }
-    }
-
-    function _beforeTokenTransfer(
-        address from,
-        address,
-        uint256
-    ) internal override {
-        executeCodes(
-            IStrategyManager(registryContract.getStrategyManager()).getUserRewardCodes(address(this), from),
-            "!_beforeTokenTransfer"
-        );
     }
 }
