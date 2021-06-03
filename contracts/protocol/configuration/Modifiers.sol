@@ -70,7 +70,7 @@ abstract contract Modifiers is IModifiers {
 
     function _ifNotPausedAndDiscontinued(address _vault) internal view {
         DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
-        require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused and discontinue");
+        require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused or discontinued");
     }
 
     function _isUnpaused(address _vault) internal view {

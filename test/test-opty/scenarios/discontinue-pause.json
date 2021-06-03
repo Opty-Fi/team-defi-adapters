@@ -486,7 +486,7 @@
                 "amount": "2000000000000000000"
               },
               "expect": "fail",
-              "message": "paused and discontinue"
+              "message": "paused or discontinued"
             }
           ]
         }
