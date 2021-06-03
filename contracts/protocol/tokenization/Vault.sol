@@ -192,7 +192,7 @@ contract Vault is
         _userWithdrawRebalance(balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
-    function discontinue() public override onlyRegistry {
+    function discontinue() external override onlyRegistry {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         if (investStrategyHash != ZERO_BYTES32) {
