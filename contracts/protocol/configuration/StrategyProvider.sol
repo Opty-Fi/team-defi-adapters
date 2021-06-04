@@ -3,9 +3,14 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { Modifiers } from "./Modifiers.sol";
+//  libraries
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
-import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { Modifiers } from "./Modifiers.sol";
+
+//  interfaces
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 
 /**

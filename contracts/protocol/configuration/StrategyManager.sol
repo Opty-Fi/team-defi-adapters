@@ -3,16 +3,23 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
-import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { Modifiers } from "./Modifiers.sol";
+//  libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { Modifiers } from "./Modifiers.sol";
+
+// interfaces
+import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title StrategyManager Contract

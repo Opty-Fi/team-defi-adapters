@@ -24142,6 +24142,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Adding new ODEFI vault address",
             },
             "allOdefiVaults(uint256)": {
               inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -24149,7 +24152,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "List of all ODEFI vaults",
+              notice: "List of all ODEFI vaults ",
             },
             "balance()": {
               inputs: [],
@@ -24157,6 +24160,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the no. of ODEFI tokens in the Vault booster contract" },
+              notice: "Get the no. of ODEFI tokens balance in the Vault booster contract",
             },
             "claimODEFI(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -24164,7 +24169,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _holder: "The address to claim ODEFI for" },
+              params: { _holder: "User's address to claim ODEFI" },
+              returns: { _0: "Total No. of ODEFI tokens accrued by holder in all markets" },
               notice: "Claim all the ODEFI accrued by holder in all markets",
             },
             "claimODEFI(address[],address[])": {
@@ -24177,10 +24183,11 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _holders: "The addresses to claim ODEFI for",
-                _odefiVaults: "The list of vaults to claim ODEFI in",
+                _holders: "list of User addresses to claim ODEFI",
+                _odefiVaults: "The list of ODEFI vaults to claim ODEFI",
               },
-              notice: "Claim all odefi accrued by the holders",
+              returns: { _0: "Total No. of ODEFI tokens accrued by holders in specified odefiVaults" },
+              notice: "Claim all odefi accrued by the holders in specified odefiVaults",
             },
             "claimODEFI(address,address[])": {
               inputs: [
@@ -24192,9 +24199,10 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _holder: "The address to claim ODEFI for",
-                _odefiVaults: "The list of vaults to claim ODEFI in",
+                _holder: "User's address to claim ODEFI",
+                _odefiVaults: "The list of ODEFI vaults to claim ODEFI",
               },
+              returns: { _0: "Total No. of ODEFI tokens accrued by holder in specified odefiVaults" },
               notice: "Claim all the ODEFI accrued by holder in the specified markets",
             },
             "claimableODEFI(address,address[])": {
@@ -24207,10 +24215,11 @@
               stateMutability: "view",
               type: "function",
               params: {
-                _holder: "The address to claim ODEFI for",
+                _holder: "User's address to check claimable ODEFI tokens",
                 _odefiVaults: "The list of vaults to claim ODEFI in",
               },
-              notice: "Claim all the odefi accrued by holder in the specified markets",
+              returns: { _0: "Returns the no. of claimable ODEFI tokens" },
+              notice: "Get the total amount of claimable ODEFI tokens in the specified markets",
             },
             "claimableODEFI(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -24218,8 +24227,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              params: { _holder: "The address to claim ODEFI for" },
-              notice: "Claim all the odefi accrued by holder in all markets",
+              params: { _holder: "User's address to check claimable ODEFI tokens" },
+              returns: { _0: "Returns the no. of claimable ODEFI tokens" },
+              notice: "Get the total amount of claimable ODEFI tokens in all markets",
             },
             "currentOdefiVaultIndex(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -24227,6 +24237,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              params: { _odefiVault: "The list of vaults to claim ODEFI in" },
+              returns: { _0: "Returns the index of ODEFI vault" },
+              notice: "Get the index of the specified ODEFI vault",
             },
             "getBlockTimestamp()": {
               inputs: [],
@@ -24234,6 +24247,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the current block timestamp" },
+              notice: "Get the current block timestamp",
             },
             "getOdefiAddress()": {
               inputs: [],
@@ -24241,6 +24256,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the address of ODEFI token" },
+              notice: "Get the ODEFI token address",
             },
             "lastUserUpdate(address,address)": {
               inputs: [
@@ -24251,7 +24268,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp",
+              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp ",
             },
             "odefiAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24259,7 +24276,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI accrued but not yet transferred to each user",
+              notice: "The ODEFI accrued but not yet transferred to each user ",
             },
             "odefiAddress()": {
               inputs: [],
@@ -24267,7 +24284,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "ODEFI token address",
+              notice: "ODEFI token address ",
             },
             "odefiTotalRate()": {
               inputs: [],
@@ -24275,7 +24292,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The rate at which the flywheel distributes ODEFI, per block",
+              notice: "The rate at which the flywheel distributes ODEFI, per block ",
             },
             "odefiUserStateInVault(address,address)": {
               inputs: [
@@ -24289,7 +24306,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI index for each market for each user as of the last time they accrued ODEFI",
+              notice: "The ODEFI index for each market for each user as of the last time they accrued ODEFI ",
             },
             "odefiVaultEnabled(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24297,7 +24314,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "view",
               type: "function",
-              notice: "If the ODEFI vault is enabled or not",
+              notice: "If the ODEFI vault is enabled or not ",
             },
             "odefiVaultRatePerSecond(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24305,7 +24322,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The portion of odefiRate that each market currently receives",
+              notice: "The portion of odefiRate that each market currently receives ",
             },
             "odefiVaultRatePerSecondAndVaultToken(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24313,7 +24330,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The portion of odefiRate that each market currently receives divided by the amount of LP tokens",
+              notice:
+                "The portion of odefiRate that each market currently receives divided by the amount of LP tokens ",
             },
             "odefiVaultStartTimestamp(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24321,7 +24339,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping of ODEFI vault address to first interaction timestamp",
+              notice: "Mapping of ODEFI vault address to first interaction timestamp ",
             },
             "odefiVaultState(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24332,7 +24350,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI market supply state for each pool",
+              notice: "The ODEFI market supply state for each pool ",
             },
             "registryContract()": {
               inputs: [],
@@ -24348,6 +24366,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              details: "Divides the ODEFI tokens balance by ODEFI rate per second in a specific vault",
+              returns: { _0: "Returns the no. of seconds until ODEFI distribution has ended in a specific vault" },
+              notice: "Get the no. of seconds until the ODEFI distribution has ended",
             },
             "rewarders(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24355,7 +24376,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping ODEFI vault address to ODEFI community address",
+              notice: "Mapping ODEFI vault address to ODEFI community address ",
             },
             "setOdefiVault(address,bool)": {
               inputs: [
@@ -24366,6 +24387,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _enable: "ODEFI vault is enabled or not", _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Enabling the ODEFI vault",
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -24385,7 +24409,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "The amount of ODEFI which was NOT transferred to the user" },
+              details: "Sets the rate in reward tokens per second",
+              params: { _odefiVault: "ODEFI Vault's address", _rate: "Rate to be set for ODEFI token" },
+              returns: { _0: "Returns a boolean whether opertaion succeeded or not" },
               notice: "Set the ODEFI rate for a specific pool",
             },
             "setRewarder(address,address)": {
@@ -24397,6 +24423,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _odefiVault: "ODEFI Vault's address", _rewarder: "ODEFI community address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Set the rewarder account address as ODEFI community",
             },
             "updateOdefiVaultIndex(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -24404,8 +24433,10 @@
               outputs: [{ internalType: "uint224", name: "", type: "uint224" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _odefiVault: "The market whose index to update" },
-              notice: "Accrue ODEFI to the market by updating the supply index",
+              details: "Stores the last ODEFI vault rate as well as timestamp",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns the ODEFI vault index" },
+              notice: "Updates the vault's state",
             },
             "updateOdefiVaultRatePerSecondAndVaultToken(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -24413,7 +24444,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "The amount of ODEFI which was NOT transferred to the user" },
+              details: "Set the ODEFI rate in ODEFI per second per vault token for a specific pool",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether the operation succeeded or not" },
               notice: "Set the ODEFI rate for a specific pool",
             },
             "updateUserRewards(address,address)": {
@@ -24425,7 +24458,11 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _user: "The address to calculate contributor rewards for" },
+              details: "Update user rewards acc. to user state and ODEFI vault index in the ODEFI vault",
+              params: {
+                _odefiVault: "ODEFI Vault's address to update ODEFI reward token",
+                _user: "User address to calculate contributor rewards",
+              },
               notice: "Calculate additional accrued ODEFI for a contributor since last accrual",
             },
             "updateUserStateInVault(address,address)": {
@@ -24437,12 +24474,21 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
+              details: "Updates the last ODEFI vault index and timestamp",
+              params: {
+                _odefiVault: "ODEFI Vault's address",
+                _user: "User address to update his last ODEFI index and timestamp",
+              },
+              notice: "Update the user's state in ODEFI vault contract",
             },
           },
         },
         "contracts/protocol/partnership/VaultBoosterStorage.sol:VaultBoosterStorage": {
           source: "contracts/protocol/partnership/VaultBoosterStorage.sol",
           name: "VaultBoosterStorage",
+          title: "VaultBoosterStorage Contract",
+          author: "Opty.fi",
+          notice: "Contract stores VaultBooster's state variables data",
           methods: {
             "allOdefiVaults(uint256)": {
               inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -24450,7 +24496,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "List of all ODEFI vaults",
+              notice: "List of all ODEFI vaults ",
             },
             "lastUserUpdate(address,address)": {
               inputs: [
@@ -24461,7 +24507,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp",
+              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp ",
             },
             "odefiAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24469,7 +24515,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI accrued but not yet transferred to each user",
+              notice: "The ODEFI accrued but not yet transferred to each user ",
             },
             "odefiAddress()": {
               inputs: [],
@@ -24477,7 +24523,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "ODEFI token address",
+              notice: "ODEFI token address ",
             },
             "odefiTotalRate()": {
               inputs: [],
@@ -24485,7 +24531,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The rate at which the flywheel distributes ODEFI, per block",
+              notice: "The rate at which the flywheel distributes ODEFI, per block ",
             },
             "odefiUserStateInVault(address,address)": {
               inputs: [
@@ -24499,7 +24545,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI index for each market for each user as of the last time they accrued ODEFI",
+              notice: "The ODEFI index for each market for each user as of the last time they accrued ODEFI ",
             },
             "odefiVaultEnabled(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24507,7 +24553,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "view",
               type: "function",
-              notice: "If the ODEFI vault is enabled or not",
+              notice: "If the ODEFI vault is enabled or not ",
             },
             "odefiVaultRatePerSecond(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24515,7 +24561,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The portion of odefiRate that each market currently receives",
+              notice: "The portion of odefiRate that each market currently receives ",
             },
             "odefiVaultRatePerSecondAndVaultToken(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24523,7 +24569,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "The portion of odefiRate that each market currently receives divided by the amount of LP tokens",
+              notice:
+                "The portion of odefiRate that each market currently receives divided by the amount of LP tokens ",
             },
             "odefiVaultStartTimestamp(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24531,7 +24578,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping of ODEFI vault address to first interaction timestamp",
+              notice: "Mapping of ODEFI vault address to first interaction timestamp ",
             },
             "odefiVaultState(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24542,7 +24589,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "The ODEFI market supply state for each pool",
+              notice: "The ODEFI market supply state for each pool ",
             },
             "rewarders(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24550,7 +24597,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping ODEFI vault address to ODEFI community address",
+              notice: "Mapping ODEFI vault address to ODEFI community address ",
             },
           },
         },
@@ -27020,7 +27067,7 @@
           title: "MultiCall Contract",
           author: "Opty.fi",
           details:
-            "Provides functions used commonly for decoding codes and execute      the code calls for Opty.Fi contracts",
+            "Provides functions used commonly for decoding codes and execute the code calls for Opty.fi contracts",
           methods: {
             "executeCode(bytes,string)": {
               inputs: [

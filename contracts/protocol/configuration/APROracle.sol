@@ -3,13 +3,13 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-//  helper contracts
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { Modifiers } from "./Modifiers.sol";
-
 //  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { Modifiers } from "./Modifiers.sol";
 
 //  interfaces
 import { IAaveV1LendingPoolAddressesProvider } from "../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";

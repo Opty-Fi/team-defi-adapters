@@ -3,11 +3,17 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { Address, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
 import { ModifiersController } from "./ModifiersController.sol";
 import { RegistryProxy } from "./RegistryProxy.sol";
+
+//  interfaces
 import { IVault } from "../../interfaces/opty/IVault.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 
 /**

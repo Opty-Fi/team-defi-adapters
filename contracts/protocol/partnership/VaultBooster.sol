@@ -2,11 +2,17 @@
 
 pragma solidity ^0.6.12;
 
+//  libraries
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
 import { VaultBoosterStorage } from "./VaultBoosterStorage.sol";
 import { Modifiers } from "../configuration/Modifiers.sol";
-import { SafeERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IVaultBooster } from "../../interfaces/opty/IVaultBooster.sol";
 
 /**

@@ -2,8 +2,13 @@
 
 pragma solidity ^0.6.12;
 
+//  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+
+//  helper contracts
 import { RegistryStorage } from "./RegistryStorage.sol";
+
+//  interfaces
 import { IModifiersController } from "../../interfaces/opty/IModifiersController.sol";
 
 /**

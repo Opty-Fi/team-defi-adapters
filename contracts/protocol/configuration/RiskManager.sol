@@ -3,11 +3,16 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+//  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
 import { Modifiers } from "./Modifiers.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 import { RiskManagerProxy } from "./RiskManagerProxy.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  interfaces
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
