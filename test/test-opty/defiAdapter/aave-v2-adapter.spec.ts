@@ -67,14 +67,11 @@ describe("AaveV2Adapter", () => {
             lpProviderAddress[0],
             owner,
           );
-          console.log(lpProvider.address);
           lpAddress = await lpProvider.getLendingPool();
           lpContract = await hre.ethers.getContractAt("IAaveV2", lpAddress, owner);
           const reserveData = await lpContract.getReserveData(token);
           lpToken = reserveData.aTokenAddress;
           const tokenContract = await hre.ethers.getContractAt("IERC20", token, owner);
-
-          console.log(lpToken);
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
           await fundWalletToken(hre, SNTToken, owner, MAX_AMOUNT, timestamp);
@@ -191,7 +188,6 @@ describe("AaveV2Adapter", () => {
                 const value = inter.decodeFunctionData("borrow", abiCode);
                 expect(value.length).to.be.equal(5);
                 expect(value[0]).to.be.equal(SNTToken);
-                console.log(value[1].toString());
                 expect(value[2]).to.be.equal(1);
                 expect(value[3]).to.be.equal(0);
                 expect(value[4]).to.be.equal(ownerAddress);
