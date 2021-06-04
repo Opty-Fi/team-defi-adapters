@@ -12,8 +12,8 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CompoundAdapter", () => {
-  const ADAPTER_NAME = "CompoundAdapter";
+describe("DForceAdapter", () => {
+  const ADAPTER_NAME = "DForceAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   let essentialContracts: CONTRACTS;
@@ -89,12 +89,13 @@ describe("CompoundAdapter", () => {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
-                    const inter = new utils.Interface(["function mint(uint256)"]);
+                    const inter = new utils.Interface(["function mint(address,uint256)"]);
                     const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                     expect(address).to.equal(strategy.strategy[0].contract);
                     const value = inter.decodeFunctionData("mint", abiCode);
+                    expect(value[0]).to.equal(ownerAddress);
                     if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                      expect(value[0]).to.equal(depositAmount);
+                      expect(value[1]).to.equal(depositAmount);
                     }
                   }
                 }
@@ -120,12 +121,13 @@ describe("CompoundAdapter", () => {
                 }
 
                 for (let i = 0; i < codes.length; i++) {
-                  const inter = new utils.Interface(["function redeem(uint256)"]);
+                  const inter = new utils.Interface(["function redeem(address,uint256)"]);
                   const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                   expect(address).to.be.equal(lpToken);
                   const value = inter.decodeFunctionData("redeem", abiCode);
+                  expect(value[0]).to.be.equal(ownerAddress);
                   if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
-                    expect(value[0]).to.be.equal(withdrawAmount);
+                    expect(value[1]).to.be.equal(withdrawAmount);
                   }
                 }
 

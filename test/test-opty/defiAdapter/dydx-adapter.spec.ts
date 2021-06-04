@@ -12,8 +12,8 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CompoundAdapter", () => {
-  const ADAPTER_NAME = "CompoundAdapter";
+describe("DyDxAdapter", () => {
+  const ADAPTER_NAME = "DyDxAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   let essentialContracts: CONTRACTS;
@@ -46,12 +46,10 @@ describe("CompoundAdapter", () => {
     describe(`${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
-      let lpToken: string;
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
-          lpToken = await adapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
         } catch (error) {
           console.error(error);
         }
@@ -70,9 +68,12 @@ describe("CompoundAdapter", () => {
                 if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, [
-                      amount[strategy.token],
-                    ]);
+                    codes = await adapter[action.action](
+                      ownerAddress,
+                      [ADDRESS_ZERO, ADDRESS_ZERO, ADDRESS_ZERO, token],
+                      strategy.strategy[0].contract,
+                      [0, 0, 0, amount[strategy.token]],
+                    );
                     depositAmount = amount[strategy.token];
                   }
                 } else {
@@ -89,12 +90,17 @@ describe("CompoundAdapter", () => {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
-                    const inter = new utils.Interface(["function mint(uint256)"]);
+                    const inter = new utils.Interface([
+                      "function operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
+                    ]);
                     const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                     expect(address).to.equal(strategy.strategy[0].contract);
-                    const value = inter.decodeFunctionData("mint", abiCode);
+                    const value = inter.decodeFunctionData("operate", abiCode);
+                    expect(value[0][0][0]).to.be.equal(ownerAddress);
+                    expect(value[1][0][0]).to.be.equal(0);
+                    expect(value[1][0][5]).to.be.equal(ownerAddress);
                     if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                      expect(value[0]).to.equal(depositAmount);
+                      expect(value[1][0][2][3]).to.be.equal(depositAmount);
                     }
                   }
                 }
@@ -120,12 +126,17 @@ describe("CompoundAdapter", () => {
                 }
 
                 for (let i = 0; i < codes.length; i++) {
-                  const inter = new utils.Interface(["function redeem(uint256)"]);
+                  const inter = new utils.Interface([
+                    "function operate((address,uint256)[],(uint8,uint256,(bool,uint8,uint8,uint256),uint256,uint256,address,uint256,bytes)[])",
+                  ]);
                   const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
-                  expect(address).to.be.equal(lpToken);
-                  const value = inter.decodeFunctionData("redeem", abiCode);
+                  expect(address).to.be.equal(strategy.strategy[0].contract);
+                  const value = inter.decodeFunctionData("operate", abiCode);
+                  expect(value[0][0][0]).to.be.equal(ownerAddress);
+                  expect(value[1][0][0]).to.be.equal(1);
+                  expect(value[1][0][5]).to.be.equal(ownerAddress);
                   if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
-                    expect(value[0]).to.be.equal(withdrawAmount);
+                    expect(value[1][0][2][3]).to.be.equal(withdrawAmount);
                   }
                 }
 

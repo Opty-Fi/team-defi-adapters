@@ -12,10 +12,10 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CompoundAdapter", () => {
-  const ADAPTER_NAME = "CompoundAdapter";
+describe("CreamAdapter", () => {
+  const ADAPTER_NAME = "CreamAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
-  const MAX_AMOUNT = BigNumber.from("20000000000000000000");
+  const MAX_AMOUNT = BigNumber.from("20000000");
   let essentialContracts: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
@@ -128,7 +128,6 @@ describe("CompoundAdapter", () => {
                     expect(value[0]).to.be.equal(withdrawAmount);
                   }
                 }
-
                 break;
               }
             }
