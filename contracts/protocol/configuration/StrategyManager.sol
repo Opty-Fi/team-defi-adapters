@@ -100,16 +100,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolHarvestSomeRewardCodes(_vault, _underlyingToken, _investStrategyHash, _vaultRewardStrategy);
     }
 
-    function getStrategySteps(bytes32 _investStrategyhash)
-        internal
-        view
-        returns (DataTypes.StrategyStep[] memory _strategySteps)
-    {
-        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
-            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
-        (, _strategySteps) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_investStrategyhash);
-    }
-
     function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
@@ -119,8 +109,26 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _treasuryCodes = _getSplitPaymentCode(_treasuryShares, _account, _underlyingToken, _redeemAmountInToken);
     }
 
-    function getUserRewardCodes(address _vault, address _from) public view override returns (bytes[] memory _codes) {
-        _codes = _getUserRewardCodes(_vault, _from);
+    function getUpdateUserRewardsCodes(address _vault, address _from)
+        public
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        _codes = _getUpdateUserRewardsCodes(_vault, _from);
+    }
+
+    function getUpdateUserStateInVaultCodes(address _vault, address _from)
+        public
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        _codes = _getUpdateUserStateInVaultCodes(_vault, _from);
+    }
+
+    function getUpdateOptyVaultRateAndIndexCodes(address _vault) public view override returns (bytes[] memory _codes) {
+        _codes = _getUpdateOptyVaultRateAndIndexCodes(_vault);
     }
 
     function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
@@ -440,20 +448,50 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
-    function _getUserRewardCodes(address _vault, address _from) internal view returns (bytes[] memory _codes) {
-        _codes = new bytes[](4);
+    function _getUpdateUserRewardsCodes(address _vault, address _from) internal view returns (bytes[] memory _codes) {
+        _codes = new bytes[](2);
         address _optyMinter = registryContract.getOptyMinter();
+        address _odefiVaultBooster = registryContract.getODEFIVaultBooster();
         _codes[0] = abi.encode(
             _optyMinter,
             abi.encodeWithSignature("updateUserRewards(address,address)", _vault, _from)
         );
         _codes[1] = abi.encode(
+            _odefiVaultBooster,
+            abi.encodeWithSignature("updateUserRewards(address,address)", _vault, _from)
+        );
+    }
+
+    function _getUpdateOptyVaultRateAndIndexCodes(address _vault) internal view returns (bytes[] memory _codes) {
+        _codes = new bytes[](4);
+        address _optyMinter = registryContract.getOptyMinter();
+        address _odefiVaultBooster = registryContract.getODEFIVaultBooster();
+        _codes[0] = abi.encode(
             _optyMinter,
             abi.encodeWithSignature("updateOptyVaultRatePerSecondAndVaultToken(address)", _vault)
         );
-        _codes[2] = abi.encode(_optyMinter, abi.encodeWithSignature("updateOptyVaultIndex(address)", _vault));
-        _codes[3] = abi.encode(
+        _codes[1] = abi.encode(_optyMinter, abi.encodeWithSignature("updateOptyVaultIndex(address)", _vault));
+        _codes[2] = abi.encode(
+            _odefiVaultBooster,
+            abi.encodeWithSignature("updateOdefiVaultRatePerSecondAndVaultToken(address)", _vault)
+        );
+        _codes[3] = abi.encode(_odefiVaultBooster, abi.encodeWithSignature("updateOdefiVaultIndex(address)", _vault));
+    }
+
+    function _getUpdateUserStateInVaultCodes(address _vault, address _from)
+        internal
+        view
+        returns (bytes[] memory _codes)
+    {
+        _codes = new bytes[](2);
+        address _optyMinter = registryContract.getOptyMinter();
+        address _odefiVaultBooster = registryContract.getODEFIVaultBooster();
+        _codes[0] = abi.encode(
             _optyMinter,
+            abi.encodeWithSignature("updateUserStateInVault(address,address)", _vault, _from)
+        );
+        _codes[1] = abi.encode(
+            _odefiVaultBooster,
             abi.encodeWithSignature("updateUserStateInVault(address,address)", _vault, _from)
         );
     }

@@ -71,6 +71,7 @@ contract RegistryStorage is RegistryAdminStorage {
     address public opty;
     address public aprOracle;
     address public optyStakingRateBalancer;
+    address public odefiVaultBooster;
 
     /**
      * @dev Emitted when `token` is approved or revoked.

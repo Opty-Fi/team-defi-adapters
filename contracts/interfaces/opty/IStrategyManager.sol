@@ -66,7 +66,14 @@ interface IStrategyManager {
         uint256 _redeemAmountInToken
     ) external pure returns (bytes[] memory _treasuryCodes);
 
-    function getUserRewardCodes(address _vault, address _from) external view returns (bytes[] memory _codes);
+    function getUpdateUserRewardsCodes(address _vault, address _from) external view returns (bytes[] memory _codes);
+
+    function getUpdateUserStateInVaultCodes(address _vault, address _from)
+        external
+        view
+        returns (bytes[] memory _codes);
+
+    function getUpdateOptyVaultRateAndIndexCodes(address _vault) external view returns (bytes[] memory _codes);
 
     function getRewardToken(bytes32 _investStrategyHash) external view returns (address _rewardToken);
 }

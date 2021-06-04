@@ -84,6 +84,12 @@ interface IRegistry {
     function setOPTYStakingRateBalancer(address _optyStakingRateBalancer) external returns (bool);
 
     /**
+     * @dev set the ODEFIVaultBooster contract address.
+     * Can only be called by the current governance.
+     */
+    function setODEFIVaultBooster(address _odefiVaultBooster) external returns (bool);
+
+    /**
      * @dev Sets multiple `_token` from the {tokens} mapping.
      *
      * Returns a boolean value indicating whether the operation succeeded.
@@ -473,6 +479,8 @@ interface IRegistry {
     function getRiskManager() external view returns (address);
 
     function getOptyMinter() external view returns (address);
+
+    function getODEFIVaultBooster() external view returns (address);
 
     function getGovernance() external view returns (address);
 

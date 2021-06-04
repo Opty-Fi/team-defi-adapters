@@ -9,6 +9,7 @@ import { OPTYMinterStorage } from "./OPTYMinterStorage.sol";
 import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
 import { IOPTY } from "../../interfaces/opty/IOPTY.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 /**
  * @dev Contract distributing $OPTY to opty-fi earn protocol's users
@@ -161,7 +162,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
                             ),
                             _deltaSecondsSinceStart
                         );
-                    optyVaultState[_optyVault] = OptyState({
+                    optyVaultState[_optyVault] = DataTypes.RewardsState({
                         index: safe224(_index, "new index exceeds 224 bits"),
                         timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
                     });

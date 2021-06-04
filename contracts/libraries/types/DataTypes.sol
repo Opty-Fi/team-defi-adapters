@@ -67,9 +67,7 @@ library DataTypes {
 
     enum DefaultStrategyState { Zero, CompoundOrAave }
 
-    /// @notice The market's last index
-    /// @notice The block number the index was last updated at
-    struct ODEFIState {
+    struct RewardsState {
         uint224 index;
         uint32 timestamp;
     }
@@ -96,6 +94,7 @@ library DataTypes {
         address strategyManager;
         address riskManager;
         address optyMinter;
+        address odefiVaultBooster;
         address operator;
     }
 }

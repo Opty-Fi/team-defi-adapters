@@ -140,6 +140,17 @@ contract Registry is IRegistry, ModifiersController {
         return true;
     }
 
+    /**
+     * @dev set the ODEFIVaultBooster contract address.
+     * Can only be called by the current governance.
+     */
+    function setODEFIVaultBooster(address _odefiVaultBooster) external override onlyGovernance returns (bool) {
+        require(_odefiVaultBooster != address(0), "!address(0)");
+        require(_odefiVaultBooster.isContract(), "!isContract");
+        odefiVaultBooster = _odefiVaultBooster;
+        return true;
+    }
+
     ///@TODO Add staking pool contract addresses
 
     /**
@@ -778,6 +789,10 @@ contract Registry is IRegistry, ModifiersController {
         return minter;
     }
 
+    function getODEFIVaultBooster() external view override returns (address) {
+        return odefiVaultBooster;
+    }
+
     function getGovernance() external view override returns (address) {
         return governance;
     }
@@ -823,6 +838,7 @@ contract Registry is IRegistry, ModifiersController {
         _vaultStrategyConfiguration.strategyManager = strategyManager;
         _vaultStrategyConfiguration.riskManager = riskManager;
         _vaultStrategyConfiguration.optyMinter = minter;
+        _vaultStrategyConfiguration.odefiVaultBooster = odefiVaultBooster;
         _vaultStrategyConfiguration.operator = operator;
     }
 
