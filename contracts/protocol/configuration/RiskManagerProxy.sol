@@ -28,6 +28,35 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
+    /* solhint-disable */
+    receive() external payable {
+        revert();
+    }
+
+    /**
+     * @notice Delegates execution to an riskManager implementation contract
+     * @dev Returns to external caller whatever implementation returns or forwards reverts
+     */
+    fallback() external payable {
+        // delegate all other functions to current implementation
+        (bool success, ) = riskManagerImplementation.delegatecall(msg.data);
+
+        assembly {
+            let free_mem_ptr := mload(0x40)
+            returndatacopy(free_mem_ptr, 0, returndatasize())
+
+            switch success
+                case 0 {
+                    revert(free_mem_ptr, returndatasize())
+                }
+                default {
+                    return(free_mem_ptr, returndatasize())
+                }
+        }
+    }
+
+    /* solhint-disable */
+
     /*** Admin Functions ***/
     /**
      * @dev Set the riskManager contract as pending implementation initally
@@ -65,33 +94,4 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
 
         return uint256(0);
     }
-
-    /* solhint-disable */
-    receive() external payable {
-        revert();
-    }
-
-    /**
-     * @dev Delegates execution to an riskManager implementation contract.
-     * It returns to the external caller whatever the implementation returns
-     * or forwards reverts.
-     */
-    fallback() external payable {
-        // delegate all other functions to current implementation
-        (bool success, ) = riskManagerImplementation.delegatecall(msg.data);
-
-        assembly {
-            let free_mem_ptr := mload(0x40)
-            returndatacopy(free_mem_ptr, 0, returndatasize())
-
-            switch success
-                case 0 {
-                    revert(free_mem_ptr, returndatasize())
-                }
-                default {
-                    return(free_mem_ptr, returndatasize())
-                }
-        }
-    }
-    /* solhint-disable */
 }
