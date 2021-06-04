@@ -177,7 +177,7 @@
         V = function (e) {
           return e;
         };
-      function L(e, t) {
+      function E(e, t) {
         if (e === t) return !0;
         var n = d(e),
           a = d(t);
@@ -189,7 +189,7 @@
             return (
               e.length === t.length &&
               e.every(function (e, n) {
-                return L(e, t[n]);
+                return E(e, t[n]);
               })
             );
           if (e instanceof Date && t instanceof Date) return e.getTime() === t.getTime();
@@ -199,15 +199,15 @@
           return (
             r.length === o.length &&
             r.every(function (n) {
-              return L(e[n], t[n]);
+              return E(e[n], t[n]);
             })
           );
         } catch (e) {
           return !1;
         }
       }
-      function E(e, t) {
-        for (var n = 0; n < e.length; n++) if (L(e[n], t)) return n;
+      function L(e, t) {
+        for (var n = 0; n < e.length; n++) if (E(e[n], t)) return n;
         return -1;
       }
       function q(e) {
@@ -260,11 +260,11 @@
       }
       var W = new RegExp("[^" + F.source + ".$_\\d]");
       var N,
-        z = "__proto__" in {},
-        G = "undefined" != typeof window,
-        j = "undefined" != typeof WXEnvironment && !!WXEnvironment.platform,
-        K = j && WXEnvironment.platform.toLowerCase(),
-        J = G && window.navigator.userAgent.toLowerCase(),
+        G = "__proto__" in {},
+        j = "undefined" != typeof window,
+        z = "undefined" != typeof WXEnvironment && !!WXEnvironment.platform,
+        K = z && WXEnvironment.platform.toLowerCase(),
+        J = j && window.navigator.userAgent.toLowerCase(),
         X = J && /msie|trident/.test(J),
         Z = J && J.indexOf("msie 9.0") > 0,
         Q = J && J.indexOf("edge/") > 0,
@@ -272,7 +272,7 @@
         te = (J && /chrome\/\d+/.test(J), J && /phantomjs/.test(J), J && J.match(/firefox\/(\d+)/)),
         ne = {}.watch,
         ae = !1;
-      if (G)
+      if (j)
         try {
           var se = {};
           Object.defineProperty(se, "passive", {
@@ -283,9 +283,9 @@
             window.addEventListener("test-passive", null, se);
         } catch (e) {}
       var ie = function () {
-          return void 0 === N && (N = !G && !j && void 0 !== e && e.process && "server" === e.process.env.VUE_ENV), N;
+          return void 0 === N && (N = !j && !z && void 0 !== e && e.process && "server" === e.process.env.VUE_ENV), N;
         },
-        re = G && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+        re = j && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
       function oe(e) {
         return "function" == typeof e && /native code/.test(e.toString());
       }
@@ -430,7 +430,7 @@
           (this.vmCount = 0),
           Y(e, "__ob__", this),
           Array.isArray(e)
-            ? (z
+            ? (G
                 ? (function (e, t) {
                     e.__proto__ = t;
                   })(e, ke)
@@ -525,7 +525,7 @@
             : t
           : e;
       }
-      function Le(e, t) {
+      function Ee(e, t) {
         var n = t ? (e ? e.concat(t) : Array.isArray(t) ? t : [t]) : e;
         return n
           ? (function (e) {
@@ -534,7 +534,7 @@
             })(n)
           : n;
       }
-      function Ee(e, t, n, a) {
+      function Le(e, t, n, a) {
         var s = Object.create(e || null);
         return t ? D(s, t) : s;
       }
@@ -542,10 +542,10 @@
         return n ? Ve(e, t, n) : t && "function" != typeof t ? e : Ve(e, t);
       }),
         H.forEach(function (e) {
-          xe[e] = Le;
+          xe[e] = Ee;
         }),
         U.forEach(function (e) {
-          xe[e + "s"] = Ee;
+          xe[e + "s"] = Le;
         }),
         (xe.watch = function (e, t, n, a) {
           if ((e === ne && (e = void 0), t === ne && (t = void 0), !t)) return Object.create(e || null);
@@ -675,10 +675,10 @@
                   try {
                     if (!1 === s[i].call(a, e, t, n)) return;
                   } catch (e) {
-                    ze(e, a, "errorCaptured hook");
+                    Ge(e, a, "errorCaptured hook");
                   }
             }
-          ze(e, t, n);
+          Ge(e, t, n);
         } finally {
           Te();
         }
@@ -699,20 +699,20 @@
         }
         return i;
       }
-      function ze(e, t, n) {
+      function Ge(e, t, n) {
         if (B.errorHandler)
           try {
             return B.errorHandler.call(null, e, t, n);
           } catch (t) {
-            t !== e && Ge(t, null, "config.errorHandler");
+            t !== e && je(t, null, "config.errorHandler");
           }
-        Ge(e, t, n);
+        je(e, t, n);
       }
-      function Ge(e, t, n) {
-        if ((!G && !j) || "undefined" == typeof console) throw e;
+      function je(e, t, n) {
+        if ((!j && !z) || "undefined" == typeof console) throw e;
         console.error(e);
       }
-      var je,
+      var ze,
         Ke = !1,
         Je = [],
         Xe = !1;
@@ -724,7 +724,7 @@
       }
       if ("undefined" != typeof Promise && oe(Promise)) {
         var Qe = Promise.resolve();
-        (je = function () {
+        (ze = function () {
           Qe.then(Ze), ee && setTimeout(x);
         }),
           (Ke = !0);
@@ -733,7 +733,7 @@
         "undefined" == typeof MutationObserver ||
         (!oe(MutationObserver) && "[object MutationObserverConstructor]" !== MutationObserver.toString())
       )
-        je =
+        ze =
           void 0 !== n && oe(n)
             ? function () {
                 n(Ze);
@@ -746,7 +746,7 @@
           tt = new MutationObserver(Ze),
           nt = document.createTextNode(String(et));
         tt.observe(nt, { characterData: !0 }),
-          (je = function () {
+          (ze = function () {
             (et = (et + 1) % 2), (nt.data = String(et));
           }),
           (Ke = !0);
@@ -763,7 +763,7 @@
               }
             else n && n(t);
           }),
-          Xe || ((Xe = !0), je()),
+          Xe || ((Xe = !0), ze()),
           !e && "undefined" != typeof Promise)
         )
           return new Promise(function (e) {
@@ -1058,8 +1058,8 @@
           (e._s = c),
           (e._l = vt),
           (e._t = ht),
-          (e._q = L),
-          (e._i = E),
+          (e._q = E),
+          (e._i = L),
           (e._m = Mt),
           (e._f = _t),
           (e._k = wt),
@@ -1104,11 +1104,11 @@
                 return Ft(o, e, t, n, a, l);
               });
       }
-      function Lt(e, t, n, a, s) {
+      function Et(e, t, n, a, s) {
         var i = he(e);
         return (i.fnContext = n), (i.fnOptions = a), t.slot && ((i.data || (i.data = {})).slot = t.slot), i;
       }
-      function Et(e, t) {
+      function Lt(e, t) {
         for (var n in t) e[P(n)] = t[n];
       }
       It(Vt.prototype);
@@ -1274,13 +1274,13 @@
                   d = {},
                   p = o.props;
                 if (i(p)) for (var u in p) d[u] = Be(u, p, t || a);
-                else i(n.attrs) && Et(d, n.attrs), i(n.props) && Et(d, n.props);
+                else i(n.attrs) && Lt(d, n.attrs), i(n.props) && Lt(d, n.props);
                 var l = new Vt(n, d, r, s, e),
                   y = o.render.call(null, l._c, l);
-                if (y instanceof fe) return Lt(y, n, l.parent, o, l);
+                if (y instanceof fe) return Et(y, n, l.parent, o, l);
                 if (Array.isArray(y)) {
                   for (var m = lt(y) || [], c = new Array(m.length), T = 0; T < m.length; T++)
-                    c[T] = Lt(m[T], n, l.parent, o, l);
+                    c[T] = Et(m[T], n, l.parent, o, l);
                   return c;
                 }
               })(e, y, t, n, o);
@@ -1377,17 +1377,17 @@
       function Nt(e) {
         return e.isComment && e.asyncFactory;
       }
-      function zt(e) {
+      function Gt(e) {
         if (Array.isArray(e))
           for (var t = 0; t < e.length; t++) {
             var n = e[t];
             if (i(n) && (i(n.componentOptions) || Nt(n))) return n;
           }
       }
-      function Gt(e, t) {
+      function jt(e, t) {
         $t.$on(e, t);
       }
-      function jt(e, t) {
+      function zt(e, t) {
         $t.$off(e, t);
       }
       function Kt(e, t) {
@@ -1398,7 +1398,7 @@
         };
       }
       function Jt(e, t, n) {
-        ($t = e), dt(t, n || {}, Gt, jt, Kt, e), ($t = void 0);
+        ($t = e), dt(t, n || {}, jt, zt, Kt, e), ($t = void 0);
       }
       var Xt = null;
       function Zt(e) {
@@ -1439,7 +1439,7 @@
         dn = 0;
       var pn = 0,
         un = Date.now;
-      if (G && !X) {
+      if (j && !X) {
         var ln = window.performance;
         ln &&
           "function" == typeof ln.now &&
@@ -2021,7 +2021,7 @@
             },
             render: function () {
               var e = this.$slots.default,
-                t = zt(e),
+                t = Gt(e),
                 n = t && t.componentOptions;
               if (n) {
                 var a = Sn(n),
@@ -2102,7 +2102,7 @@
         (Mn.version = "2.6.12");
       var In = f("style,class"),
         Vn = f("input,textarea,option,select,progress"),
-        Ln = function (e, t, n) {
+        En = function (e, t, n) {
           return (
             ("value" === n && Vn(e) && "button" !== t) ||
             ("selected" === n && "option" === e) ||
@@ -2110,7 +2110,7 @@
             ("muted" === n && "video" === e)
           );
         },
-        En = f("contenteditable,draggable,spellcheck"),
+        Ln = f("contenteditable,draggable,spellcheck"),
         qn = f("events,caret,typing,plaintext-only"),
         Un = f(
           "allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,default,defaultchecked,defaultmuted,defaultselected,defer,disabled,enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,required,reversed,scoped,seamless,selected,sortable,translate,truespeed,typemustmatch,visible",
@@ -2130,7 +2130,7 @@
           (a = a.componentInstance._vnode) && a.data && (t = Wn(a.data, t));
         for (; i((n = n.parent)); ) n && n.data && (t = Wn(t, n.data));
         return (function (e, t) {
-          if (i(e) || i(t)) return Nn(e, zn(t));
+          if (i(e) || i(t)) return Nn(e, Gn(t));
           return "";
         })(t.staticClass, t.class);
       }
@@ -2140,11 +2140,11 @@
       function Nn(e, t) {
         return e ? (t ? e + " " + t : e) : t || "";
       }
-      function zn(e) {
+      function Gn(e) {
         return Array.isArray(e)
           ? (function (e) {
               for (var t, n = "", a = 0, s = e.length; a < s; a++)
-                i((t = zn(e[a]))) && "" !== t && (n && (n += " "), (n += t));
+                i((t = Gn(e[a]))) && "" !== t && (n && (n += " "), (n += t));
               return n;
             })(e)
           : d(e)
@@ -2157,8 +2157,8 @@
           ? e
           : "";
       }
-      var Gn = { svg: "http://www.w3.org/2000/svg", math: "http://www.w3.org/1998/Math/MathML" },
-        jn = f(
+      var jn = { svg: "http://www.w3.org/2000/svg", math: "http://www.w3.org/1998/Math/MathML" },
+        zn = f(
           "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,element,shadow,template,blockquote,iframe,tfoot",
         ),
         Kn = f(
@@ -2166,7 +2166,7 @@
           !0,
         ),
         Jn = function (e) {
-          return jn(e) || Kn(e);
+          return zn(e) || Kn(e);
         };
       function Xn(e) {
         return Kn(e) ? "svg" : "math" === e ? "math" : void 0;
@@ -2190,7 +2190,7 @@
             );
           },
           createElementNS: function (e, t) {
-            return document.createElementNS(Gn[e], t);
+            return document.createElementNS(jn[e], t);
           },
           createTextNode: function (e) {
             return document.createTextNode(e);
@@ -2350,7 +2350,7 @@
             p = t.data.attrs || {};
           for (a in (i(p.__ob__) && (p = t.data.attrs = D({}, p)), p)) (r = p[a]), d[a] !== r && fa(o, a, r);
           for (a in ((X || Q) && p.value !== d.value && fa(o, "value", p.value), d))
-            s(p[a]) && (Bn(a) ? o.removeAttributeNS(Hn, Fn(a)) : En(a) || o.removeAttribute(a));
+            s(p[a]) && (Bn(a) ? o.removeAttributeNS(Hn, Fn(a)) : Ln(a) || o.removeAttribute(a));
         }
       }
       function fa(e, t, n) {
@@ -2360,7 +2360,7 @@
           ? $n(n)
             ? e.removeAttribute(t)
             : ((n = "allowfullscreen" === t && "EMBED" === e.tagName ? "true" : t), e.setAttribute(t, n))
-          : En(t)
+          : Ln(t)
           ? e.setAttribute(
               t,
               (function (e, t) {
@@ -2393,7 +2393,7 @@
         if (!(s(a.staticClass) && s(a.class) && (s(r) || (s(r.staticClass) && s(r.class))))) {
           var o = Yn(t),
             d = n._transitionClasses;
-          i(d) && (o = Nn(o, zn(d))), o !== n._prevClass && (n.setAttribute("class", o), (n._prevClass = o));
+          i(d) && (o = Nn(o, Gn(d))), o !== n._prevClass && (n.setAttribute("class", o), (n._prevClass = o));
         }
       }
       var ha,
@@ -2497,13 +2497,13 @@
       function Va(e, t, n, a) {
         (e.attrsMap[t] = n), e.attrsList.push(Fa({ name: t, value: n }, a));
       }
-      function La(e, t, n, a, s, i, r, o) {
+      function Ea(e, t, n, a, s, i, r, o) {
         (e.directives || (e.directives = [])).push(
           Fa({ name: t, rawName: n, value: a, arg: s, isDynamicArg: i, modifiers: r }, o),
         ),
           (e.plain = !1);
       }
-      function Ea(e, t, n) {
+      function La(e, t, n) {
         return n ? "_p(" + t + ',"' + e + '")' : e + t;
       }
       function qa(e, t, n, s, i, r, o, d) {
@@ -2513,9 +2513,9 @@
             ? (t = "(" + t + ")==='click'?'contextmenu':(" + t + ")")
             : "click" === t && ((t = "contextmenu"), delete s.right)
           : s.middle && (d ? (t = "(" + t + ")==='click'?'mouseup':(" + t + ")") : "click" === t && (t = "mouseup")),
-          s.capture && (delete s.capture, (t = Ea("!", t, d))),
-          s.once && (delete s.once, (t = Ea("~", t, d))),
-          s.passive && (delete s.passive, (t = Ea("&", t, d))),
+          s.capture && (delete s.capture, (t = La("!", t, d))),
+          s.once && (delete s.once, (t = La("~", t, d))),
+          s.passive && (delete s.passive, (t = La("&", t, d))),
           s.native
             ? (delete s.native, (p = e.nativeEvents || (e.nativeEvents = {})))
             : (p = e.events || (e.events = {}));
@@ -2566,7 +2566,7 @@
               ? { exp: e.slice(0, wa), key: '"' + e.slice(wa + 1) + '"' }
               : { exp: e, key: null };
           (_a = e), (wa = Pa = Ma = 0);
-          for (; !Na(); ) za((ka = Wa())) ? ja(ka) : 91 === ka && Ga(ka);
+          for (; !Na(); ) Ga((ka = Wa())) ? za(ka) : 91 === ka && ja(ka);
           return { exp: e.slice(0, Pa), key: e.slice(Pa + 1, Ma) };
         })(e);
         return null === n.key ? e + "=" + t : "$set(" + n.exp + ", " + n.key + ", " + t + ")";
@@ -2577,19 +2577,19 @@
       function Na() {
         return wa >= ha;
       }
-      function za(e) {
+      function Ga(e) {
         return 34 === e || 39 === e;
       }
-      function Ga(e) {
+      function ja(e) {
         var t = 1;
         for (Pa = wa; !Na(); )
-          if (za((e = Wa()))) ja(e);
+          if (Ga((e = Wa()))) za(e);
           else if ((91 === e && t++, 93 === e && t--, 0 === t)) {
             Ma = wa;
             break;
           }
       }
-      function ja(e) {
+      function za(e) {
         for (var t = e; !Na() && (e = Wa()) !== t; );
       }
       var Ka;
@@ -2804,7 +2804,7 @@
             leaveActiveClass: e + "-leave-active",
           };
         }),
-        ks = G && !Z,
+        ks = j && !Z,
         ws = "transition",
         Ps = "transitionend",
         Ms = "animation",
@@ -2816,7 +2816,7 @@
         void 0 === window.onanimationend &&
           void 0 !== window.onwebkitanimationend &&
           ((Ms = "WebkitAnimation"), (As = "webkitAnimationEnd")));
-      var Ss = G
+      var Ss = j
         ? window.requestAnimationFrame
           ? window.requestAnimationFrame.bind(window)
           : setTimeout
@@ -2884,14 +2884,14 @@
         return Math.max.apply(
           null,
           t.map(function (t, n) {
-            return Ls(t) + Ls(e[n]);
+            return Es(t) + Es(e[n]);
           }),
         );
       }
-      function Ls(e) {
+      function Es(e) {
         return 1e3 * Number(e.slice(0, -1).replace(",", "."));
       }
-      function Es(e, t) {
+      function Ls(e, t) {
         var n = e.elm;
         i(n._leaveCb) && ((n._leaveCb.cancelled = !0), n._leaveCb());
         var a = hs(e.data.transition);
@@ -2929,12 +2929,12 @@
               x = S && "function" == typeof _ ? _ : b,
               I = (S && k) || g,
               V = (S && w) || v,
-              L = T(d(P) ? P.enter : P);
+              E = T(d(P) ? P.enter : P);
             0;
-            var E = !1 !== r && !Z,
+            var L = !1 !== r && !Z,
               U = Hs(x),
               H = (n._enterCb = q(function () {
-                E && (Ds(n, D), Ds(n, C)), H.cancelled ? (E && Ds(n, R), V && V(n)) : I && I(n), (n._enterCb = null);
+                L && (Ds(n, D), Ds(n, C)), H.cancelled ? (L && Ds(n, R), V && V(n)) : I && I(n), (n._enterCb = null);
               }));
             e.data.show ||
               pt(e, "insert", function () {
@@ -2943,14 +2943,14 @@
                 a && a.tag === e.tag && a.elm._leaveCb && a.elm._leaveCb(), x && x(n, H);
               }),
               O && O(n),
-              E &&
+              L &&
                 (Cs(n, R),
                 Cs(n, C),
                 Rs(function () {
-                  Ds(n, R), H.cancelled || (Cs(n, D), U || (Us(L) ? setTimeout(H, L) : Os(n, o, H)));
+                  Ds(n, R), H.cancelled || (Cs(n, D), U || (Us(E) ? setTimeout(H, E) : Os(n, o, H)));
                 })),
               e.data.show && (t && t(), x && x(n, H)),
-              E || U || H();
+              L || U || H();
           }
         }
       }
@@ -3006,7 +3006,7 @@
         return i(t) ? Hs(Array.isArray(t) ? t[0] : t) : (e._length || e.length) > 1;
       }
       function Bs(e, t) {
-        !0 !== t.data.show && Es(t);
+        !0 !== t.data.show && Ls(t);
       }
       var Fs = (function (e) {
         var t,
@@ -3299,7 +3299,7 @@
           ns,
           is,
           fs,
-          G
+          j
             ? {
                 create: Bs,
                 activate: Bs,
@@ -3323,23 +3323,23 @@
                     $s.componentUpdated(e, t, n);
                   })
                 : Ys(e, t, n.context),
-              (e._vOptions = [].map.call(e.options, zs)))
+              (e._vOptions = [].map.call(e.options, Gs)))
             : ("textarea" === n.tag || Qn(e.type)) &&
               ((e._vModifiers = t.modifiers),
               t.modifiers.lazy ||
-                (e.addEventListener("compositionstart", Gs),
-                e.addEventListener("compositionend", js),
-                e.addEventListener("change", js),
+                (e.addEventListener("compositionstart", js),
+                e.addEventListener("compositionend", zs),
+                e.addEventListener("change", zs),
                 Z && (e.vmodel = !0)));
         },
         componentUpdated: function (e, t, n) {
           if ("select" === n.tag) {
             Ys(e, t, n.context);
             var a = e._vOptions,
-              s = (e._vOptions = [].map.call(e.options, zs));
+              s = (e._vOptions = [].map.call(e.options, Gs));
             if (
               s.some(function (e, t) {
-                return !L(e, a[t]);
+                return !E(e, a[t]);
               })
             )
               (e.multiple
@@ -3362,23 +3362,23 @@
           s = e.multiple;
         if (!s || Array.isArray(a)) {
           for (var i, r, o = 0, d = e.options.length; o < d; o++)
-            if (((r = e.options[o]), s)) (i = E(a, zs(r)) > -1), r.selected !== i && (r.selected = i);
-            else if (L(zs(r), a)) return void (e.selectedIndex !== o && (e.selectedIndex = o));
+            if (((r = e.options[o]), s)) (i = L(a, Gs(r)) > -1), r.selected !== i && (r.selected = i);
+            else if (E(Gs(r), a)) return void (e.selectedIndex !== o && (e.selectedIndex = o));
           s || (e.selectedIndex = -1);
         }
       }
       function Ns(e, t) {
         return t.every(function (t) {
-          return !L(t, e);
+          return !E(t, e);
         });
       }
-      function zs(e) {
+      function Gs(e) {
         return "_value" in e ? e._value : e.value;
       }
-      function Gs(e) {
+      function js(e) {
         e.target.composing = !0;
       }
-      function js(e) {
+      function zs(e) {
         e.target.composing && ((e.target.composing = !1), Ks(e.target, "input"));
       }
       function Ks(e, t) {
@@ -3397,7 +3397,7 @@
                 i = (e.__vOriginalDisplay = "none" === e.style.display ? "" : e.style.display);
               a && s
                 ? ((n.data.show = !0),
-                  Es(n, function () {
+                  Ls(n, function () {
                     e.style.display = i;
                   }))
                 : (e.style.display = a ? i : "none");
@@ -3408,7 +3408,7 @@
                 ((n = Js(n)).data && n.data.transition
                   ? ((n.data.show = !0),
                     a
-                      ? Es(n, function () {
+                      ? Ls(n, function () {
                           e.style.display = e.__vOriginalDisplay;
                         })
                       : qs(n, function () {
@@ -3440,7 +3440,7 @@
         };
       function Qs(e) {
         var t = e && e.componentOptions;
-        return t && t.Ctor.options.abstract ? Qs(zt(t.children)) : e;
+        return t && t.Ctor.options.abstract ? Qs(Gt(t.children)) : e;
       }
       function ei(e) {
         var t = {},
@@ -3632,12 +3632,12 @@
           },
         },
       };
-      (Mn.config.mustUseProp = Ln),
+      (Mn.config.mustUseProp = En),
         (Mn.config.isReservedTag = Jn),
         (Mn.config.isReservedAttr = In),
         (Mn.config.getTagNamespace = Xn),
         (Mn.config.isUnknownElement = function (e) {
-          if (!G) return !0;
+          if (!j) return !0;
           if (Jn(e)) return !1;
           if (((e = e.toLowerCase()), null != Zn[e])) return Zn[e];
           var t = document.createElement(e);
@@ -3647,7 +3647,7 @@
         }),
         D(Mn.options.directives, Xs),
         D(Mn.options.components, pi),
-        (Mn.prototype.__patch__ = G ? Fs : x),
+        (Mn.prototype.__patch__ = j ? Fs : x),
         (Mn.prototype.$mount = function (e, t) {
           return (function (e, t, n) {
             var a;
@@ -3673,9 +3673,9 @@
               null == e.$vnode && ((e._isMounted = !0), tn(e, "mounted")),
               e
             );
-          })(this, (e = e && G ? ea(e) : void 0), t);
+          })(this, (e = e && j ? ea(e) : void 0), t);
         }),
-        G &&
+        j &&
           setTimeout(function () {
             B.devtools && re && re.emit("init", Mn);
           }, 0);
@@ -3746,9 +3746,9 @@
         xi = { "&lt;": "<", "&gt;": ">", "&quot;": '"', "&amp;": "&", "&#10;": "\n", "&#9;": "\t", "&#39;": "'" },
         Ii = /&(?:lt|gt|quot|amp|#39);/g,
         Vi = /&(?:lt|gt|quot|amp|#39|#10|#9);/g,
-        Li = f("pre,textarea", !0),
-        Ei = function (e, t) {
-          return e && Li(e) && "\n" === t[0];
+        Ei = f("pre,textarea", !0),
+        Li = function (e, t) {
+          return e && Ei(e) && "\n" === t[0];
         };
       function qi(e, t) {
         var n = t ? Vi : Ii;
@@ -3764,9 +3764,9 @@
         Yi,
         Wi,
         Ni,
-        zi = /^@|^v-on:/,
-        Gi = /^v-|^@|^:|^#/,
-        ji = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/,
+        Gi = /^@|^v-on:/,
+        ji = /^v-|^@|^:|^#/,
+        zi = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/,
         Ki = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/,
         Ji = /^\(|\)$/g,
         Xi = /^\[.*\]$/,
@@ -3847,7 +3847,7 @@
                       Di(u) ||
                         "noscript" === u ||
                         (n = n.replace(/<!\--([\s\S]*?)-->/g, "$1").replace(/<!\[CDATA\[([\s\S]*?)]]>/g, "$1")),
-                      Ei(u, n) && (n = n.slice(1)),
+                      Li(u, n) && (n = n.slice(1)),
                       t.chars && t.chars(n),
                       ""
                     );
@@ -3883,7 +3883,7 @@
                   }
                   var v = P();
                   if (v) {
-                    M(v), Ei(v.tagName, e) && w(1);
+                    M(v), Li(v.tagName, e) && w(1);
                     continue;
                   }
                 }
@@ -4155,8 +4155,8 @@
               d,
               p = e.attrsList;
             for (t = 0, n = p.length; t < n; t++) {
-              if (((a = s = p[t].name), (i = p[t].value), Gi.test(a)))
-                if (((e.hasBindings = !0), (r = lr(a.replace(Gi, ""))) && (a = a.replace(er, "")), Qi.test(a)))
+              if (((a = s = p[t].name), (i = p[t].value), ji.test(a)))
+                if (((e.hasBindings = !0), (r = lr(a.replace(ji, ""))) && (a = a.replace(er, "")), Qi.test(a)))
                   (a = a.replace(Qi, "")),
                     (i = Ra(i)),
                     (d = Xi.test(a)) && (a = a.slice(1, -1)),
@@ -4172,14 +4172,14 @@
                     (r && r.prop) || (!e.component && Wi(e.tag, e.attrsMap.type, a))
                       ? xa(e, a, i, p[t], d)
                       : Ia(e, a, i, p[t], d);
-                else if (zi.test(a))
-                  (a = a.replace(zi, "")), (d = Xi.test(a)) && (a = a.slice(1, -1)), qa(e, a, i, r, !1, 0, p[t], d);
+                else if (Gi.test(a))
+                  (a = a.replace(Gi, "")), (d = Xi.test(a)) && (a = a.slice(1, -1)), qa(e, a, i, r, !1, 0, p[t], d);
                 else {
-                  var u = (a = a.replace(Gi, "")).match(Zi),
+                  var u = (a = a.replace(ji, "")).match(Zi),
                     l = u && u[1];
                   (d = !1),
                     l && ((a = a.slice(0, -(l.length + 1))), Xi.test(l) && ((l = l.slice(1, -1)), (d = !0))),
-                    La(e, a, s, i, l, d, r, p[t]);
+                    Ea(e, a, s, i, l, d, r, p[t]);
                 }
               else
                 Ia(e, a, JSON.stringify(i), p[t]),
@@ -4193,7 +4193,7 @@
         var t;
         if ((t = Ha(e, "v-for"))) {
           var n = (function (e) {
-            var t = e.match(ji);
+            var t = e.match(zi);
             if (!t) return;
             var n = {};
             n.for = t[2].trim();
@@ -4384,7 +4384,7 @@
             return "pre" === e;
           },
           isUnaryTag: bi,
-          mustUseProp: Ln,
+          mustUseProp: En,
           canBeLeftOpenTag: gi,
           isReservedTag: Jn,
           getTagNamespace: Xn,
@@ -4598,12 +4598,12 @@
       function Vr(e, t) {
         var n = new Ir(t);
         return {
-          render: "with(this){return " + (e ? Lr(e, n) : '_c("div")') + "}",
+          render: "with(this){return " + (e ? Er(e, n) : '_c("div")') + "}",
           staticRenderFns: n.staticRenderFns,
         };
       }
-      function Lr(e, t) {
-        if ((e.parent && (e.pre = e.pre || e.parent.pre), e.staticRoot && !e.staticProcessed)) return Er(e, t);
+      function Er(e, t) {
+        if ((e.parent && (e.pre = e.pre || e.parent.pre), e.staticRoot && !e.staticProcessed)) return Lr(e, t);
         if (e.once && !e.onceProcessed) return qr(e, t);
         if (e.for && !e.forProcessed) return Hr(e, t);
         if (e.if && !e.ifProcessed) return Ur(e, t);
@@ -4615,7 +4615,7 @@
                 s = "_t(" + n + (a ? "," + a : ""),
                 i =
                   e.attrs || e.dynamicAttrs
-                    ? zr(
+                    ? Gr(
                         (e.attrs || []).concat(e.dynamicAttrs || []).map(function (e) {
                           return { name: P(e.name), value: e.value, dynamic: e.dynamic };
                         }),
@@ -4644,12 +4644,12 @@
         }
         return Yr(e, t) || "void 0";
       }
-      function Er(e, t) {
+      function Lr(e, t) {
         e.staticProcessed = !0;
         var n = t.pre;
         return (
           e.pre && (t.pre = e.pre),
-          t.staticRenderFns.push("with(this){return " + Lr(e, t) + "}"),
+          t.staticRenderFns.push("with(this){return " + Er(e, t) + "}"),
           (t.pre = n),
           "_m(" + (t.staticRenderFns.length - 1) + (e.staticInFor ? ",true" : "") + ")"
         );
@@ -4664,9 +4664,9 @@
             }
             a = a.parent;
           }
-          return n ? "_o(" + Lr(e, t) + "," + t.onceId++ + "," + n + ")" : Lr(e, t);
+          return n ? "_o(" + Er(e, t) + "," + t.onceId++ + "," + n + ")" : Er(e, t);
         }
-        return Er(e, t);
+        return Lr(e, t);
       }
       function Ur(e, t, n, a) {
         return (
@@ -4676,7 +4676,7 @@
             var i = t.shift();
             return i.exp ? "(" + i.exp + ")?" + r(i.block) + ":" + e(t, n, a, s) : "" + r(i.block);
             function r(e) {
-              return a ? a(e, n) : e.once ? qr(e, n) : Lr(e, n);
+              return a ? a(e, n) : e.once ? qr(e, n) : Er(e, n);
             }
           })(e.ifConditions.slice(), t, n, a)
         );
@@ -4688,7 +4688,7 @@
           o = e.iterator2 ? "," + e.iterator2 : "";
         return (
           (e.forProcessed = !0),
-          (a || "_l") + "((" + s + "),function(" + i + r + o + "){return " + (n || Lr)(e, t) + "})"
+          (a || "_l") + "((" + s + "),function(" + i + r + o + "){return " + (n || Er)(e, t) + "})"
         );
       }
       function Br(e, t) {
@@ -4729,8 +4729,8 @@
           e.component && (n += 'tag:"' + e.tag + '",');
         for (var s = 0; s < t.dataGenFns.length; s++) n += t.dataGenFns[s](e);
         if (
-          (e.attrs && (n += "attrs:" + zr(e.attrs) + ","),
-          e.props && (n += "domProps:" + zr(e.props) + ","),
+          (e.attrs && (n += "attrs:" + Gr(e.attrs) + ","),
+          e.props && (n += "domProps:" + Gr(e.props) + ","),
           e.events && (n += Cr(e.events, !1) + ","),
           e.nativeEvents && (n += Cr(e.nativeEvents, !0) + ","),
           e.slotTarget && !e.slotScope && (n += "slot:" + e.slotTarget + ","),
@@ -4807,7 +4807,7 @@
         }
         return (
           (n = n.replace(/,$/, "") + "}"),
-          e.dynamicAttrs && (n = "_b(" + n + ',"' + e.tag + '",' + zr(e.dynamicAttrs) + ")"),
+          e.dynamicAttrs && (n = "_b(" + n + ',"' + e.tag + '",' + Gr(e.dynamicAttrs) + ")"),
           e.wrapData && (n = e.wrapData(n)),
           e.wrapListeners && (n = e.wrapListeners(n)),
           n
@@ -4829,7 +4829,7 @@
               ? e.if && n
                 ? "(" + e.if + ")?" + (Yr(e, t) || "undefined") + ":undefined"
                 : Yr(e, t) || "undefined"
-              : Lr(e, t)) +
+              : Er(e, t)) +
             "}",
           i = a ? "" : ",proxy:true";
         return "{key:" + (e.slotTarget || '"default"') + ",fn:" + s + i + "}";
@@ -4840,7 +4840,7 @@
           var r = i[0];
           if (1 === i.length && r.for && "template" !== r.tag && "slot" !== r.tag) {
             var o = n ? (t.maybeComponent(r) ? ",1" : ",0") : "";
-            return "" + (a || Lr)(r, t) + o;
+            return "" + (a || Er)(r, t) + o;
           }
           var d = n
               ? (function (e, t) {
@@ -4886,24 +4886,24 @@
       }
       function Nr(e, t) {
         return 1 === e.type
-          ? Lr(e, t)
+          ? Er(e, t)
           : 3 === e.type && e.isComment
           ? (function (e) {
               return "_e(" + JSON.stringify(e.text) + ")";
             })(e)
           : (function (e) {
-              return "_v(" + (2 === e.type ? e.expression : Gr(JSON.stringify(e.text))) + ")";
+              return "_v(" + (2 === e.type ? e.expression : jr(JSON.stringify(e.text))) + ")";
             })(e);
       }
-      function zr(e) {
+      function Gr(e) {
         for (var t = "", n = "", a = 0; a < e.length; a++) {
           var s = e[a],
-            i = Gr(s.value);
+            i = jr(s.value);
           s.dynamic ? (n += s.name + "," + i + ",") : (t += '"' + s.name + '":' + i + ",");
         }
         return (t = "{" + t.slice(0, -1) + "}"), n ? "_d(" + t + ",[" + n.slice(0, -1) + "])" : t;
       }
-      function Gr(e) {
+      function jr(e) {
         return e.replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
       }
       new RegExp(
@@ -4914,7 +4914,7 @@
           "\\b",
       ),
         new RegExp("\\b" + "delete,typeof,void".split(",").join("\\s*\\([^\\)]*\\)|\\b") + "\\s*\\([^\\)]*\\)");
-      function jr(e, t) {
+      function zr(e, t) {
         try {
           return new Function(e);
         } catch (n) {
@@ -4932,9 +4932,9 @@
           var o = {},
             d = [];
           return (
-            (o.render = jr(r.render, d)),
+            (o.render = zr(r.render, d)),
             (o.staticRenderFns = r.staticRenderFns.map(function (e) {
-              return jr(e, d);
+              return zr(e, d);
             })),
             (t[i] = o)
           );
@@ -4973,8 +4973,8 @@
           Xr.innerHTML.indexOf("&#10;") > 0
         );
       }
-      var to = !!G && eo(!1),
-        no = !!G && eo(!0),
+      var to = !!j && eo(!1),
+        no = !!j && eo(!0),
         ao = k(function (e) {
           var t = ea(e);
           return t && t.innerHTML;
@@ -5594,9 +5594,9 @@
       S = F,
       R = I,
       C = function (e, t) {
-        return L(I(e, t), t);
+        return E(I(e, t), t);
       },
-      D = L,
+      D = E,
       O = B,
       x = new RegExp(
         [
@@ -5633,7 +5633,7 @@
             repeat: v,
             partial: g,
             asterisk: !!b,
-            pattern: k ? q(k) : b ? ".*" : "[^" + E(_) + "]+?",
+            pattern: k ? q(k) : b ? ".*" : "[^" + L(_) + "]+?",
           });
         }
       }
@@ -5644,7 +5644,7 @@
         return "%" + e.charCodeAt(0).toString(16).toUpperCase();
       });
     }
-    function L(e, t) {
+    function E(e, t) {
       for (var n = new Array(e.length), a = 0; a < e.length; a++)
         "object" == typeof e[a] && (n[a] = new RegExp("^(?:" + e[a].pattern + ")$", H(t)));
       return function (t, a) {
@@ -5699,7 +5699,7 @@
         return s;
       };
     }
-    function E(e) {
+    function L(e) {
       return e.replace(/([.+*?=^!:${}()[\]|\/\\])/g, "\\$1");
     }
     function q(e) {
@@ -5715,16 +5715,16 @@
       A(t) || ((n = t || n), (t = []));
       for (var a = (n = n || {}).strict, s = !1 !== n.end, i = "", r = 0; r < e.length; r++) {
         var o = e[r];
-        if ("string" == typeof o) i += E(o);
+        if ("string" == typeof o) i += L(o);
         else {
-          var d = E(o.prefix),
+          var d = L(o.prefix),
             p = "(?:" + o.pattern + ")";
           t.push(o),
             o.repeat && (p += "(?:" + d + p + ")*"),
             (i += p = o.optional ? (o.partial ? d + "(" + p + ")?" : "(?:" + d + "(" + p + "))?") : d + "(" + p + ")");
         }
       }
-      var u = E(n.delimiter || "/"),
+      var u = L(n.delimiter || "/"),
         l = i.slice(-u.length) === u;
       return (
         a || (i = (l ? i.slice(0, -u.length) : i) + "(?:" + u + "(?=$))?"),
@@ -5822,8 +5822,8 @@
       return T && "#" !== T.charAt(0) && (T = "#" + T), { _normalized: !0, path: m, query: c, hash: T };
     }
     var N,
-      z = function () {},
-      G = {
+      G = function () {},
+      j = {
         name: "RouterLink",
         props: {
           to: { type: [String, Object], required: !0 },
@@ -5870,9 +5870,9 @@
                   })(a, g));
           var h = p[b] ? this.ariaCurrentValue : null,
             _ = function (e) {
-              j(e) && (t.replace ? n.replace(r, z) : n.push(r, z));
+              z(e) && (t.replace ? n.replace(r, G) : n.push(r, G));
             },
-            k = { click: j };
+            k = { click: z };
           Array.isArray(this.event)
             ? this.event.forEach(function (e) {
                 k[e] = _;
@@ -5912,7 +5912,7 @@
           return e(this.tag, w, this.$slots.default);
         },
       };
-    function j(e) {
+    function z(e) {
       if (
         !(
           e.metaKey ||
@@ -6526,9 +6526,9 @@
           (this.current = f),
           (this.pending = null);
       });
-    var Le = (function (e) {
+    var Ee = (function (e) {
       function t(t, n) {
-        e.call(this, t, n), (this._startLocation = Ee(this.base));
+        e.call(this, t, n), (this._startLocation = Le(this.base));
       }
       return (
         e && (t.__proto__ = e),
@@ -6543,7 +6543,7 @@
             a && this.listeners.push(re());
             var s = function () {
               var n = e.current,
-                s = Ee(e.base);
+                s = Le(e.base);
               (e.current === f && s === e._startLocation) ||
                 e.transitionTo(s, function (e) {
                   a && oe(t, e, n, !0);
@@ -6581,18 +6581,18 @@
           );
         }),
         (t.prototype.ensureURL = function (e) {
-          if (Ee(this.base) !== this.current.fullPath) {
+          if (Le(this.base) !== this.current.fullPath) {
             var t = M(this.base + this.current.fullPath);
             e ? be(t) : ge(t);
           }
         }),
         (t.prototype.getCurrentLocation = function () {
-          return Ee(this.base);
+          return Le(this.base);
         }),
         t
       );
     })(xe);
-    function Ee(e) {
+    function Le(e) {
       var t = window.location.pathname;
       return (
         e && 0 === t.toLowerCase().indexOf(e.toLowerCase()) && (t = t.slice(e.length)),
@@ -6604,7 +6604,7 @@
         e.call(this, t, n),
           (a &&
             (function (e) {
-              var t = Ee(e);
+              var t = Le(e);
               if (!/^\/#/.test(t)) return window.location.replace(M(e + "/#" + t)), !0;
             })(this.base)) ||
             Ue();
@@ -6763,7 +6763,7 @@
           t)
         ) {
           case "history":
-            this.history = new Le(this, e.base);
+            this.history = new Ee(this, e.base);
             break;
           case "hash":
             this.history = new qe(this, e.base, this.fallback);
@@ -6776,7 +6776,7 @@
         }
       },
       Ne = { currentRoute: { configurable: !0 } };
-    function ze(e, t) {
+    function Ge(e, t) {
       return (
         e.push(t),
         function () {
@@ -6803,7 +6803,7 @@
         ) {
           this.app = e;
           var n = this.history;
-          if (n instanceof Le || n instanceof qe) {
+          if (n instanceof Ee || n instanceof qe) {
             var a = function (e) {
               n.setupListeners(),
                 (function (e) {
@@ -6822,13 +6822,13 @@
         }
       }),
       (We.prototype.beforeEach = function (e) {
-        return ze(this.beforeHooks, e);
+        return Ge(this.beforeHooks, e);
       }),
       (We.prototype.beforeResolve = function (e) {
-        return ze(this.resolveHooks, e);
+        return Ge(this.resolveHooks, e);
       }),
       (We.prototype.afterEach = function (e) {
-        return ze(this.afterHooks, e);
+        return Ge(this.afterHooks, e);
       }),
       (We.prototype.onReady = function (e, t) {
         this.history.onReady(e, t);
@@ -6936,7 +6936,7 @@
               },
             }),
             t.component("RouterView", k),
-            t.component("RouterLink", G);
+            t.component("RouterLink", j);
           var s = t.config.optionMergeStrategies;
           s.beforeRouteEnter = s.beforeRouteLeave = s.beforeRouteUpdate = s.created;
         }
@@ -6946,13 +6946,13 @@
       (We.NavigationFailureType = he),
       (We.START_LOCATION = f),
       K && window.Vue && window.Vue.use(We);
-    var Ge = We,
-      je = function () {
+    var je = We,
+      ze = function () {
         var e = this.$createElement,
           t = this._self._c || e;
         return t("div", { staticClass: "min-h-screen bg-gray-100 px-4 pt-6" }, [t("router-view")], 1);
       };
-    je._withStripped = !0;
+    ze._withStripped = !0;
     n(4);
     function Ke(e, t, n, a, s, i, r, o) {
       var d,
@@ -6993,7 +6993,7 @@
         }
       return { exports: e, options: p };
     }
-    var Je = Ke({}, je, [], !1, null, null, null);
+    var Je = Ke({}, ze, [], !1, null, null, null);
     Je.options.__file = "node_modules/hardhat-docgen/src/App.vue";
     var Xe = Je.exports,
       Ze = function () {
@@ -7375,7 +7375,7 @@
     );
     gt.options.__file = "node_modules/hardhat-docgen/src/components/Index.vue";
     var vt = gt.exports;
-    a.a.use(Ge);
+    a.a.use(je);
     const ht = {
         "contracts/dependencies/chi/ChiDeployer.sol:Deployer": {
           source: "contracts/dependencies/chi/ChiDeployer.sol",
@@ -9348,7 +9348,7 @@
           source: "contracts/interfaces/opty/IAPROracle.sol",
           name: "IAPROracle",
           title: "Interface for APROracle Contract",
-          author: "Opty.Fi inspired on yearn.finance APROracle contract",
+          author: "Opty.fi inspired on yearn.finance APROracle contract",
           details: "Interface for faciliating the best APR calculation among aave and compound",
           notice: "Interface to getting the APRs from aave and compund protocols",
           methods: {
@@ -9815,7 +9815,10 @@
         "contracts/interfaces/opty/IHarvestCodeProvider.sol:IHarvestCodeProvider": {
           source: "contracts/interfaces/opty/IHarvestCodeProvider.sol",
           name: "IHarvestCodeProvider",
-          details: "Interface of the harvest code provider.",
+          title: "Interface for HarvestCodeProvider Contract",
+          author: "Opty.fi",
+          details: "Interface for facilitating the logic for harvest reward token codes",
+          notice: "Abstraction layer to DeFi exchanges like Uniswap",
           methods: {
             "getHarvestCodes(address,address,address,uint256)": {
               inputs: [
@@ -9835,10 +9838,7 @@
                 _rewardTokenAmount: "reward token amount to harvest",
                 _underlyingToken: "Token address acting as underlying Asset for the vault contract",
               },
-              returns: {
-                _codes:
-                  "Array of harvest codes which can be executed to complete the execution of         harvesting of reward token Requirements: - `_rewardTokenAmount` should be greater than 0.",
-              },
+              returns: { _codes: "List of harvest codes for harvesting reward tokens" },
             },
             "getOptimalTokenAmount(address,address,uint256)": {
               inputs: [
@@ -9850,15 +9850,13 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the optimal amount for the token",
+              details: "Get the optimal amount for the token while borrow",
               params: {
                 _borrowToken: "Address of token which has to be borrowed",
                 _borrowTokenAmount: "amount of token to borrow",
                 _underlyingToken: "Token address acting as underlying Asset for the vault contract",
               },
-              returns: {
-                _0: "borrow token's optimal amount Requirements: - `_borrowTokenAmount` should be greater than 0",
-              },
+              returns: { _0: "borrow token's optimal amount" },
             },
             "getWETHInToken(address,uint256)": {
               inputs: [
@@ -9869,6 +9867,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              details: "Get the no. of tokens equivalent to the amount provided",
+              params: { _amount: "amount in weth", _underlyingToken: "Underlying token address" },
+              returns: { _0: "equivalent WETH token balance in Underlying token value" },
             },
             "rewardBalanceInUnderlyingTokens(address,address,uint256)": {
               inputs: [
@@ -9893,7 +9894,9 @@
         "contracts/interfaces/opty/IModifiers.sol:IModifiers": {
           source: "contracts/interfaces/opty/IModifiers.sol",
           name: "IModifiers",
-          details: "Interface used to keep all the modifiers at one place",
+          title: "Interface for Modifiers Contract",
+          author: "Opty.fi",
+          notice: "Interface used to set the registry contract address",
           methods: {
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -9901,18 +9904,17 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
         "contracts/interfaces/opty/IModifiersController.sol:IModifiersController": {
           source: "contracts/interfaces/opty/IModifiersController.sol",
           name: "IModifiersController",
-          details: "Interface used to authorize and keep all the modifiers at one place",
+          title: "Interface for ModifiersController Contract",
+          author: "Opty.fi",
+          notice: "Interface used to authorize operator and minter accounts",
           methods: {
             "setOPTYMinter(address)": {
               inputs: [{ internalType: "address", name: "_minter", type: "address" }],
@@ -9920,8 +9922,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers minter to a new account (`_minter`).",
-              params: { _minter: "address of minter's account Requirements: - `msg.sender` Can only be governance." },
+              params: { _minter: "address of minter's account" },
+              notice: "Transfers minter to a new account (`_minter`)",
             },
             "setOperator(address)": {
               inputs: [{ internalType: "address", name: "_operator", type: "address" }],
@@ -9929,17 +9931,15 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers operator to a new account (`_operator`).",
-              params: {
-                _operator: "address of Operator's account Requirements: - `msg.sender` Can only be governance.",
-              },
+              params: { _operator: "address of Operator's account" },
+              notice: "Transfers operator to a new account (`_operator`)",
             },
           },
         },
         "contracts/interfaces/opty/IMultiCall.sol:IMultiCall": {
           source: "contracts/interfaces/opty/IMultiCall.sol",
           name: "IMultiCall",
-          title: "IMultiCall",
+          title: "Interface for MultiCall Contract",
           author: "Opty.fi",
           details: "Interface for functions to batch together multi calls",
           methods: {
@@ -10324,7 +10324,9 @@
         "contracts/interfaces/opty/IPriceOracle.sol:IPriceOracle": {
           source: "contracts/interfaces/opty/IPriceOracle.sol",
           name: "IPriceOracle",
-          details: "Bridge to connect the chainlink's price oracle contract",
+          title: "Interface for PriceOracle Contract",
+          author: "Opty.fi",
+          notice: "Bridge to connect the chainlink's price oracle contract",
           methods: {
             "getUSDAmountInUnderlyingToken(uint256,address)": {
               inputs: [
@@ -10336,11 +10338,8 @@
               stateMutability: "view",
               type: "function",
               details: "Get the underlying token amount in USD",
-              params: {
-                _amount: "amount in USD for underlying token",
-                _underlyingToken: "address of underlying token",
-              },
-              returns: { _0: "Returns the latest price" },
+              params: { _amount: "amount in underlyingToken", _underlyingToken: "address of underlying token" },
+              returns: { _0: "Returns the value in USD for the underlying tokens provided" },
             },
             "getUnderlyingTokenAmountInUSD(uint256,address)": {
               inputs: [
@@ -10352,8 +10351,8 @@
               stateMutability: "view",
               type: "function",
               details: "Get the latest price in USD for token",
-              params: { _amount: "amount of underlying Token", _underlyingToken: "address of underlying token" },
-              returns: { _0: "Returns the latest price" },
+              params: { _amount: "amount in USD", _underlyingToken: "address of underlying token" },
+              returns: { _0: "Returns the no. of tokens for an amount given in USD" },
             },
             "setOracle(address,address)": {
               inputs: [
@@ -10364,22 +10363,22 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the price feed oracle for the underlying token",
+              details: "Sets the price feed for the underlying token",
               params: {
-                _oracle: "address of price feed oracle for underlying token provided",
+                _oracle: "address of price feed for underlying token provided",
                 _underlyingToken: "address of underlying token",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be operator.",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
           },
         },
         "contracts/interfaces/opty/IRegistry.sol:IRegistry": {
           source: "contracts/interfaces/opty/IRegistry.sol",
           name: "IRegistry",
-          details: "Interface of the opty.fi's protocol reegistry",
+          title: "Interface for Registry Contract",
+          author: "Opty.fi",
+          details:
+            "Interface of the opty.fi's protocol reegistry to store all the mappings, governance operator, minyer, strategiet and all optyFi's protocol contract addresses",
           methods: {
             "addRiskProfile(string,uint8,(uint8,uint8))": {
               inputs: [
@@ -10461,12 +10460,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_pools` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
+              details: "Approves multiple credit pools in one transaction",
               params: { _pools: "List of pools for approval to be considered as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
             "approveLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10474,12 +10470,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_pool` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pool: "pools (act as liquidity/credit pools) to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pool: "liquidity/credit pool to approve" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "For approving single liquidity pool",
             },
             "approveLiquidityPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -10487,12 +10480,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_pools` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pools: "list of pools (act as liquidity/credit pools) to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pools: "list of liquidity/credit pools to approve" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple liquidity pools in one transaction",
             },
             "approveToken(address)": {
               inputs: [{ internalType: "address", name: "_token", type: "address" }],
@@ -10500,12 +10490,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_token` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _token: "token to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements:\\ - `_token` cannot be the zero address or an EOA. - `msg.sender` should be governance. - `_token` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves the token provided",
             },
             "approveToken(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -10513,12 +10500,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_tokens` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _tokens: "List of tokens to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_token` cannot be the zero address or an EOA. - `_token` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple tokens in one transaction",
             },
             "discontinue(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -10881,13 +10865,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide [`_pool`,`_rate`] from the {liquidityPools} mapping.      Emit event {LogRateLiquidityPool}",
-              params: { _poolRates: "List of pool rates (format: [_pool, _rate]) to set for liquidityPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              params: { _poolRates: "List of pool rates ([_pool, _rate]) to set" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the pool rate for the liquidity pool provided",
             },
             "rateLiquidityPool(address,uint8)": {
               inputs: [
@@ -10898,13 +10878,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide `_rate` to `_pool` from the {liquidityPools} mapping.      Emit event {LogRateLiquidityPool}",
+              details: "Sets the pool rate for the liquidity pool provided",
               params: { _pool: "liquidityPool to map with its rating", _rate: "rate for the liquidityPool provided" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
             "removeRiskProfile(uint256)": {
               inputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
@@ -10951,13 +10927,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Revokes multiple `_pools` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pools: "list of pools (act as liquidity/credit pools) to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pools: "list of liquidity/credit pools to revoke" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes multiple liquidity pools in one transaction",
             },
             "revokeLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10965,12 +10937,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_pool` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pool: "pools (act as liquidity/credit pools) to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              params: { _pool: "liquidity/credit pool to revoke" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes the liquidity pool",
             },
             "revokeToken(address)": {
               inputs: [{ internalType: "address", name: "_token", type: "address" }],
@@ -10978,12 +10947,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_token` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _token: "token to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_token` cannot be the zero address or an EOA. - `_token` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Disable the token",
             },
             "revokeToken(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -10991,12 +10957,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes multiple `_tokens` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _tokens: "List of tokens to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_tokens` cannot be the zero address or an EOA. - `_tokens` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Disable multiple tokens in one transaction",
             },
             "setAPROracle(address)": {
               inputs: [{ internalType: "address", name: "_aprOracle", type: "address" }],
@@ -11004,12 +10967,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the APROracle contract address.",
               params: { _aprOracle: "Address of APR Pracle contract to be set" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance.",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the APROracle contract address",
             },
             "setHarvestCodeProvider(address)": {
               inputs: [{ internalType: "address", name: "_harvestCodeProvider", type: "address" }],
@@ -11017,12 +10977,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the HarvestCodeProvider contract address.",
               params: { _harvestCodeProvider: "Address of HarvestCodeProvider Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_harvestCodeProvider` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the HarvestCodeProvider contract address",
             },
             "setLiquidityPoolToAdapter(address,address)": {
               inputs: [
@@ -11074,12 +11031,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the $OPTY token's contract address.",
               params: { _opty: "Address of Opty Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_opty` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the $OPTY token's contract address",
             },
             "setOPTYStakingRateBalancer(address)": {
               inputs: [{ internalType: "address", name: "_optyStakingRateBalancer", type: "address" }],
@@ -11087,12 +11041,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the OPTYStakingRateBalancer contract address.",
               params: { _optyStakingRateBalancer: "Address of OptyStakingRateBalancer Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_optyStakingRateBalancer` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the OPTYStakingRateBalancer contract address",
             },
             "setPriceOracle(address)": {
               inputs: [{ internalType: "address", name: "_priceOracle", type: "address" }],
@@ -11100,12 +11051,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the PriceOracle contract address.",
               params: { _priceOracle: "Address of PriceOracle Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_priceOracle` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the PriceOracle contract address",
             },
             "setRiskManager(address)": {
               inputs: [{ internalType: "address", name: "_riskManager", type: "address" }],
@@ -11113,12 +11061,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the RiskManager's contract address.",
               params: { _riskManager: "Address of RiskManager Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_riskManager` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the RiskManager's contract address",
             },
             "setStrategyManager(address)": {
               inputs: [{ internalType: "address", name: "_strategyManager", type: "address" }],
@@ -11126,12 +11071,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the StrategyManager contract address.",
               params: { _strategyManager: "Address of StrategyManager Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_strategyManager` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the StrategyManager contract address",
             },
             "setStrategyProvider(address)": {
               inputs: [{ internalType: "address", name: "_strategyProvider", type: "address" }],
@@ -11139,12 +11081,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the StrategyProvider contract address.",
               params: { _strategyProvider: "Address of StrategyProvider Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_strategyProvider` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the StrategyProvider contract address",
             },
             "setTokensHashToTokens(address[][])": {
               inputs: [{ internalType: "address[][]", name: "_setOfTokens", type: "address[][]" }],
@@ -11191,12 +11130,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the treasury accounts along with  their fee shares corresponding to vault contract.",
+              details: "Set the treasury accounts with their fee shares corresponding to vault contract",
               params: { _treasuryShares: "Array of treasuries and their fee shares", _vault: "Vault contract address" },
-              returns: {
-                _0:
-                  "Returns a boolean value indicating whether the operation succeeded Requirements:  - `msg.sender` Can only be current governance.",
-              },
+              returns: { _0: "Returns a boolean value indicating whether the operation succeeded" },
             },
             "setUnderlyingAssetHashToRPToVaults(address[][],string[],address[][])": {
               inputs: [
@@ -11250,15 +11186,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the VaultStepInvestStrategyDefinitionRegistry contract address.",
               params: {
-                "":
-                  "`_vaultStepInvestStrategyDefinitionRegistry` VaultStepInvestStrategyDefinitionRegistry contract address",
+                _vaultStepInvestStrategyDefinitionRegistry:
+                  "VaultStepInvestStrategyDefinitionRegistry contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_vaultStepInvestStrategyDefinitionRegistry` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the VaultStepInvestStrategyDefinitionRegistry contract address",
             },
             "setWithdrawalFee(address,uint256)": {
               inputs: [
@@ -11963,6 +11896,9 @@
         "contracts/interfaces/opty/IVaultBooster.sol:IVaultBooster": {
           source: "contracts/interfaces/opty/IVaultBooster.sol",
           name: "IVaultBooster",
+          title: "Interface for VaultBooster Contract",
+          author: "Opty.fi inspired by Compound.finance",
+          notice: "Interface for managing the ODEFI rewards",
           methods: {
             "addOdefiVault(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -11970,6 +11906,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Adding new ODEFI vault address",
             },
             "balance()": {
               inputs: [],
@@ -11977,6 +11916,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the no. of ODEFI tokens in the Vault booster contract" },
+              notice: "Get the no. of ODEFI tokens balance in the Vault booster contract",
             },
             "claimODEFI(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -11984,7 +11925,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _holder: "The address to claim ODEFI for" },
+              params: { _holder: "User's address to claim ODEFI" },
+              returns: { _0: "Total No. of ODEFI tokens accrued by holder in all markets" },
               notice: "Claim all the ODEFI accrued by holder in all markets",
             },
             "claimODEFI(address[],address[])": {
@@ -11997,10 +11939,11 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _holders: "The addresses to claim ODEFI for",
-                _odefiVaults: "The list of vaults to claim ODEFI in",
+                _holders: "list of User addresses to claim ODEFI",
+                _odefiVaults: "The list of ODEFI vaults to claim ODEFI",
               },
-              notice: "Claim all odefi accrued by the holders",
+              returns: { _0: "Total No. of ODEFI tokens accrued by holders in specified odefiVaults" },
+              notice: "Claim all odefi accrued by the holders in specified odefiVaults",
             },
             "claimODEFI(address,address[])": {
               inputs: [
@@ -12012,9 +11955,10 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _holder: "The address to claim ODEFI for",
-                _odefiVaults: "The list of vaults to claim ODEFI in",
+                _holder: "User's address to claim ODEFI",
+                _odefiVaults: "The list of ODEFI vaults to claim ODEFI",
               },
+              returns: { _0: "Total No. of ODEFI tokens accrued by holder in specified odefiVaults" },
               notice: "Claim all the ODEFI accrued by holder in the specified markets",
             },
             "claimableODEFI(address,address[])": {
@@ -12027,10 +11971,11 @@
               stateMutability: "view",
               type: "function",
               params: {
-                _holder: "The address to claim ODEFI for",
+                _holder: "User's address to check claimable ODEFI tokens",
                 _odefiVaults: "The list of vaults to claim ODEFI in",
               },
-              notice: "Claim all the odefi accrued by holder in the specified markets",
+              returns: { _0: "Returns the no. of claimable ODEFI tokens" },
+              notice: "Get the total amount of claimable ODEFI tokens in the specified markets",
             },
             "claimableODEFI(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -12038,8 +11983,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              params: { _holder: "The address to claim ODEFI for" },
-              notice: "Claim all the odefi accrued by holder in all markets",
+              params: { _holder: "User's address to check claimable ODEFI tokens" },
+              returns: { _0: "Returns the no. of claimable ODEFI tokens" },
+              notice: "Get the total amount of claimable ODEFI tokens in all markets",
             },
             "currentOdefiVaultIndex(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -12047,6 +11993,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              params: { _odefiVault: "The list of vaults to claim ODEFI in" },
+              returns: { _0: "Returns the index of ODEFI vault" },
+              notice: "Get the index of the specified ODEFI vault",
             },
             "getBlockTimestamp()": {
               inputs: [],
@@ -12054,6 +12003,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the current block timestamp" },
+              notice: "Get the current block timestamp",
             },
             "getOdefiAddress()": {
               inputs: [],
@@ -12061,6 +12012,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              returns: { _0: "Returns the address of ODEFI token" },
+              notice: "Get the ODEFI token address",
             },
             "rewardDepletionSeconds(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -12068,6 +12021,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              details: "Divides the ODEFI tokens balance by ODEFI rate per second in a specific vault",
+              returns: { _0: "Returns the no. of seconds until ODEFI distribution has ended in a specific vault" },
+              notice: "Get the no. of seconds until the ODEFI distribution has ended",
             },
             "setOdefiVault(address,bool)": {
               inputs: [
@@ -12078,6 +12034,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _enable: "ODEFI vault is enabled or not", _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Enabling the ODEFI vault",
             },
             "setRewardRate(address,uint256)": {
               inputs: [
@@ -12088,7 +12047,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "The amount of ODEFI which was NOT transferred to the user" },
+              details: "Sets the rate in reward tokens per second",
+              params: { _odefiVault: "ODEFI Vault's address", _rate: "Rate to be set for ODEFI token" },
+              returns: { _0: "Returns a boolean whether opertaion succeeded or not" },
               notice: "Set the ODEFI rate for a specific pool",
             },
             "setRewarder(address,address)": {
@@ -12100,6 +12061,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
+              params: { _odefiVault: "ODEFI Vault's address", _rewarder: "ODEFI community address" },
+              returns: { _0: "Returns a boolean whether opertaion is succeeded or not" },
+              notice: "Set the rewarder account address as ODEFI community",
             },
             "updateOdefiVaultIndex(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -12107,8 +12071,10 @@
               outputs: [{ internalType: "uint224", name: "", type: "uint224" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _odefiVault: "The market whose index to update" },
-              notice: "Accrue ODEFI to the market by updating the supply index",
+              details: "Stores the last ODEFI vault rate as well as timestamp",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns the ODEFI vault index" },
+              notice: "Updates the vault's state",
             },
             "updateOdefiVaultRatePerSecondAndVaultToken(address)": {
               inputs: [{ internalType: "address", name: "_odefiVault", type: "address" }],
@@ -12116,7 +12082,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "The amount of ODEFI which was NOT transferred to the user" },
+              details: "Set the ODEFI rate in ODEFI per second per vault token for a specific pool",
+              params: { _odefiVault: "ODEFI Vault's address" },
+              returns: { _0: "Returns a boolean whether the operation succeeded or not" },
               notice: "Set the ODEFI rate for a specific pool",
             },
             "updateUserRewards(address,address)": {
@@ -12128,7 +12096,11 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _user: "The address to calculate contributor rewards for" },
+              details: "Update user rewards acc. to user state and ODEFI vault index in the ODEFI vault",
+              params: {
+                _odefiVault: "ODEFI Vault's address to update ODEFI reward token",
+                _user: "User address to calculate contributor rewards",
+              },
               notice: "Calculate additional accrued ODEFI for a contributor since last accrual",
             },
             "updateUserStateInVault(address,address)": {
@@ -12140,6 +12112,12 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
+              details: "Updates the last ODEFI vault index and timestamp",
+              params: {
+                _odefiVault: "ODEFI Vault's address",
+                _user: "User address to update his last ODEFI index and timestamp",
+              },
+              notice: "Update the user's state in ODEFI vault contract",
             },
           },
         },
@@ -12969,7 +12947,7 @@
           source: "contracts/protocol/configuration/APROracle.sol",
           name: "APROracle",
           title: "APROracle contract",
-          author: "Opty.Fi inspired on yearn.finance APROracle contract",
+          author: "Opty.fi inspired on yearn.finance APROracle contract",
           details: "Contract contains math for getting best APR among Aave and Compound",
           notice: "Contract for getting APR from Aave and compound protocols",
           constructor: {
@@ -13000,7 +12978,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "Store AaveV1 Lending Pool address ",
+              notice: "Store AaveV1 LendingPoolProvider address ",
             },
             "aaveV2AddressProvider()": {
               inputs: [],
@@ -13008,7 +12986,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "Store AaveV2 Address provider ",
+              notice: "Store AaveV2 LendingPoolProvider address ",
             },
             "blocksPerYear()": {
               inputs: [],
@@ -13025,14 +13003,6 @@
               stateMutability: "view",
               type: "function",
               notice: "Store Compound address ",
-            },
-            "dydxModifier()": {
-              inputs: [],
-              name: "dydxModifier",
-              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-              stateMutability: "view",
-              type: "function",
-              notice: "Address of dYdX modifier ",
             },
             "getAaveV1APR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -13114,20 +13084,18 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
         "contracts/protocol/configuration/HarvestCodeProvider.sol:HarvestCodeProvider": {
           source: "contracts/protocol/configuration/HarvestCodeProvider.sol",
           name: "HarvestCodeProvider",
-          title: "HarvestCodeProvider",
+          title: "HarvestCodeProvider Contract",
           author: "Opty.fi",
-          details: "Abstraction layer to DeFi exchanges like Uniswap",
+          details: "Contract for generating the codes for harvest tokens",
+          notice: "Abstraction layer to DeFi exchanges like Uniswap",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -13152,10 +13120,7 @@
                 _rewardTokenAmount: "reward token amount to harvest",
                 _underlyingToken: "Token address acting as underlying Asset for the vault contract",
               },
-              returns: {
-                _codes:
-                  "Array of harvest codes which can be executed to complete the execution of         harvesting of reward token Requirements: - `_rewardTokenAmount` should be greater than 0.",
-              },
+              returns: { _codes: "List of harvest codes for harvesting reward tokens" },
             },
             "getOptimalTokenAmount(address,address,uint256)": {
               inputs: [
@@ -13167,15 +13132,13 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the optimal amount for the token",
+              details: "Get the optimal amount for the token while borrow",
               params: {
                 _borrowToken: "Address of token which has to be borrowed",
                 _borrowTokenAmount: "amount of token to borrow",
                 _underlyingToken: "Token address acting as underlying Asset for the vault contract",
               },
-              returns: {
-                _0: "borrow token's optimal amount Requirements: - `_borrowTokenAmount` should be greater than 0",
-              },
+              returns: { _0: "borrow token's optimal amount" },
             },
             "getWETHInToken(address,uint256)": {
               inputs: [
@@ -13186,6 +13149,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              details: "Get the no. of tokens equivalent to the amount provided",
+              params: { _amount: "amount in weth", _underlyingToken: "Underlying token address" },
+              returns: { _0: "equivalent WETH token balance in Underlying token value" },
             },
             "registryContract()": {
               inputs: [],
@@ -13219,11 +13185,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "uniswapV2Router02()": {
               inputs: [],
@@ -13256,11 +13219,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -13579,8 +13539,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers minter to a new account (`_minter`).",
-              params: { _minter: "address of minter's account Requirements: - `msg.sender` Can only be governance." },
+              params: { _minter: "address of minter's account" },
+              notice: "Transfers minter to a new account (`_minter`)",
             },
             "setOperator(address)": {
               inputs: [{ internalType: "address", name: "_operator", type: "address" }],
@@ -13588,10 +13548,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers operator to a new account (`_operator`).",
-              params: {
-                _operator: "address of Operator's account Requirements: - `msg.sender` Can only be governance.",
-              },
+              params: { _operator: "address of Operator's account" },
+              notice: "Transfers operator to a new account (`_operator`)",
             },
             "strategyManager()": {
               inputs: [],
@@ -13670,9 +13628,10 @@
         "contracts/protocol/configuration/PriceOracle.sol:PriceOracle": {
           source: "contracts/protocol/configuration/PriceOracle.sol",
           name: "PriceOracle",
-          title: "PriceOracle",
+          title: "PriceOracle Contract",
           author: "Opty.fi",
-          details: "Bridge to connect the chainlink's price oracle contract",
+          details: "Contract that converts token units to USD and vice versa",
+          notice: "Bridge to connect the chainlink's price oracle contract",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -13689,11 +13648,8 @@
               stateMutability: "view",
               type: "function",
               details: "Get the underlying token amount in USD",
-              params: {
-                _amount: "amount in USD for underlying token",
-                _underlyingToken: "address of underlying token",
-              },
-              returns: { _0: "Returns the latest price" },
+              params: { _amount: "amount in underlyingToken", _underlyingToken: "address of underlying token" },
+              returns: { _0: "Returns the value in USD for the underlying tokens provided" },
             },
             "getUnderlyingTokenAmountInUSD(uint256,address)": {
               inputs: [
@@ -13705,8 +13661,8 @@
               stateMutability: "view",
               type: "function",
               details: "Get the latest price in USD for token",
-              params: { _amount: "amount of underlying Token", _underlyingToken: "address of underlying token" },
-              returns: { _0: "Returns the latest price" },
+              params: { _amount: "amount in USD", _underlyingToken: "address of underlying token" },
+              returns: { _0: "Returns the no. of tokens for an amount given in USD" },
             },
             "registryContract()": {
               inputs: [],
@@ -13725,15 +13681,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the price feed oracle for the underlying token",
+              details: "Sets the price feed for the underlying token",
               params: {
-                _oracle: "address of price feed oracle for underlying token provided",
+                _oracle: "address of price feed for underlying token provided",
                 _underlyingToken: "address of underlying token",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be operator.",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -13741,11 +13694,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "underlyingTokenToPriceFeed(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -13997,12 +13947,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_pools` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
+              details: "Approves multiple credit pools in one transaction",
               params: { _pools: "List of pools for approval to be considered as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
             "approveLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14010,12 +13957,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_pool` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pool: "pools (act as liquidity/credit pools) to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pool: "liquidity/credit pool to approve" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "For approving single liquidity pool",
             },
             "approveLiquidityPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -14023,12 +13967,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_pools` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pools: "list of pools (act as liquidity/credit pools) to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pools: "list of liquidity/credit pools to approve" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple liquidity pools in one transaction",
             },
             "approveToken(address)": {
               inputs: [{ internalType: "address", name: "_token", type: "address" }],
@@ -14036,12 +13977,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_token` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _token: "token to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements:\\ - `_token` cannot be the zero address or an EOA. - `msg.sender` should be governance. - `_token` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves the token provided",
             },
             "approveToken(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -14049,12 +13987,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets multiple `_tokens` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _tokens: "List of tokens to approve" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_token` cannot be the zero address or an EOA. - `_token` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple tokens in one transaction",
             },
             "aprOracle()": {
               inputs: [],
@@ -14539,13 +14474,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide [`_pool`,`_rate`] from the {liquidityPools} mapping.      Emit event {LogRateLiquidityPool}",
-              params: { _poolRates: "List of pool rates (format: [_pool, _rate]) to set for liquidityPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              params: { _poolRates: "List of pool rates ([_pool, _rate]) to set" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the pool rate for the liquidity pool provided",
             },
             "rateLiquidityPool(address,uint8)": {
               inputs: [
@@ -14556,13 +14487,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide `_rate` to `_pool` from the {liquidityPools} mapping.      Emit event {LogRateLiquidityPool}",
+              details: "Sets the pool rate for the liquidity pool provided",
               params: { _pool: "liquidityPool to map with its rating", _rate: "rate for the liquidityPool provided" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
             },
             "registryImplementation()": {
               inputs: [],
@@ -14617,13 +14544,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Revokes multiple `_pools` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pools: "list of pools (act as liquidity/credit pools) to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pools` cannot be the zero address or an EOA. - `_pools` should not be approved",
-              },
+              params: { _pools: "list of liquidity/credit pools to revoke" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes multiple liquidity pools in one transaction",
             },
             "revokeLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14631,12 +14554,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_pool` from the {liquidityPools} mapping.      Emit event {LogLiquidityPool}",
-              params: { _pool: "pools (act as liquidity/credit pools) to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              params: { _pool: "liquidity/credit pool to revoke" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes the liquidity pool",
             },
             "revokeToken(address)": {
               inputs: [{ internalType: "address", name: "_token", type: "address" }],
@@ -14644,12 +14564,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_token` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _token: "token to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_token` cannot be the zero address or an EOA. - `_token` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Disable the token",
             },
             "revokeToken(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -14657,12 +14574,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes multiple `_tokens` from the {tokens} mapping.      Emits a {LogToken} event.",
               params: { _tokens: "List of tokens to revoke" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_tokens` cannot be the zero address or an EOA. - `_tokens` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Disable multiple tokens in one transaction",
             },
             "riskManager()": {
               inputs: [],
@@ -14700,12 +14614,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the APROracle contract address.",
               params: { _aprOracle: "Address of APR Pracle contract to be set" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance.",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the APROracle contract address",
             },
             "setHarvestCodeProvider(address)": {
               inputs: [{ internalType: "address", name: "_harvestCodeProvider", type: "address" }],
@@ -14713,12 +14624,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the HarvestCodeProvider contract address.",
               params: { _harvestCodeProvider: "Address of HarvestCodeProvider Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_harvestCodeProvider` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the HarvestCodeProvider contract address",
             },
             "setLiquidityPoolToAdapter(address,address)": {
               inputs: [
@@ -14770,12 +14678,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the $OPTY token's contract address.",
               params: { _opty: "Address of Opty Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_opty` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the $OPTY token's contract address",
             },
             "setOPTYMinter(address)": {
               inputs: [{ internalType: "address", name: "_minter", type: "address" }],
@@ -14783,8 +14688,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers minter to a new account (`_minter`).",
-              params: { _minter: "address of minter's account Requirements: - `msg.sender` Can only be governance." },
+              params: { _minter: "address of minter's account" },
+              notice: "Transfers minter to a new account (`_minter`)",
             },
             "setOPTYStakingRateBalancer(address)": {
               inputs: [{ internalType: "address", name: "_optyStakingRateBalancer", type: "address" }],
@@ -14792,12 +14697,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the OPTYStakingRateBalancer contract address.",
               params: { _optyStakingRateBalancer: "Address of OptyStakingRateBalancer Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_optyStakingRateBalancer` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the OPTYStakingRateBalancer contract address",
             },
             "setOperator(address)": {
               inputs: [{ internalType: "address", name: "_operator", type: "address" }],
@@ -14805,10 +14707,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers operator to a new account (`_operator`).",
-              params: {
-                _operator: "address of Operator's account Requirements: - `msg.sender` Can only be governance.",
-              },
+              params: { _operator: "address of Operator's account" },
+              notice: "Transfers operator to a new account (`_operator`)",
             },
             "setPriceOracle(address)": {
               inputs: [{ internalType: "address", name: "_priceOracle", type: "address" }],
@@ -14816,12 +14716,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the PriceOracle contract address.",
               params: { _priceOracle: "Address of PriceOracle Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_priceOracle` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the PriceOracle contract address",
             },
             "setRiskManager(address)": {
               inputs: [{ internalType: "address", name: "_riskManager", type: "address" }],
@@ -14829,12 +14726,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the RiskManager's contract address.",
               params: { _riskManager: "Address of RiskManager Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_riskManager` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the RiskManager's contract address",
             },
             "setStrategyManager(address)": {
               inputs: [{ internalType: "address", name: "_strategyManager", type: "address" }],
@@ -14842,12 +14736,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the StrategyManager contract address.",
               params: { _strategyManager: "Address of StrategyManager Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_strategyManager` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the StrategyManager contract address",
             },
             "setStrategyProvider(address)": {
               inputs: [{ internalType: "address", name: "_strategyProvider", type: "address" }],
@@ -14855,12 +14746,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the StrategyProvider contract address.",
               params: { _strategyProvider: "Address of StrategyProvider Contract" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_strategyProvider` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the StrategyProvider contract address",
             },
             "setTokensHashToTokens(address[][])": {
               inputs: [{ internalType: "address[][]", name: "_setOfTokens", type: "address[][]" }],
@@ -14907,12 +14795,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the treasury accounts along with  their fee shares corresponding to vault contract.",
+              details: "Set the treasury accounts with their fee shares corresponding to vault contract",
               params: { _treasuryShares: "Array of treasuries and their fee shares", _vault: "Vault contract address" },
-              returns: {
-                _0:
-                  "Returns a boolean value indicating whether the operation succeeded Requirements:  - `msg.sender` Can only be current governance.",
-              },
+              returns: { _0: "Returns a boolean value indicating whether the operation succeeded" },
             },
             "setUnderlyingAssetHashToRPToVaults(address[][],string[],address[][])": {
               inputs: [
@@ -14966,15 +14851,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "set the VaultStepInvestStrategyDefinitionRegistry contract address.",
               params: {
-                "":
-                  "`_vaultStepInvestStrategyDefinitionRegistry` VaultStepInvestStrategyDefinitionRegistry contract address",
+                _vaultStepInvestStrategyDefinitionRegistry:
+                  "VaultStepInvestStrategyDefinitionRegistry contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` Can only be governance. - `_vaultStepInvestStrategyDefinitionRegistry` can not be address(0)",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Set the VaultStepInvestStrategyDefinitionRegistry contract address",
             },
             "setWithdrawalFee(address,uint256)": {
               inputs: [
@@ -15511,8 +15393,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers minter to a new account (`_minter`).",
-              params: { _minter: "address of minter's account Requirements: - `msg.sender` Can only be governance." },
+              params: { _minter: "address of minter's account" },
+              notice: "Transfers minter to a new account (`_minter`)",
             },
             "setOperator(address)": {
               inputs: [{ internalType: "address", name: "_operator", type: "address" }],
@@ -15520,10 +15402,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Transfers operator to a new account (`_operator`).",
-              params: {
-                _operator: "address of Operator's account Requirements: - `msg.sender` Can only be governance.",
-              },
+              params: { _operator: "address of Operator's account" },
+              notice: "Transfers operator to a new account (`_operator`)",
             },
             "setPendingGovernance(address)": {
               inputs: [{ internalType: "address", name: "newPendingGovernance", type: "address" }],
@@ -16206,11 +16086,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -16310,11 +16187,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -16622,11 +16496,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -16771,11 +16642,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
               inputs: [
@@ -16903,11 +16771,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setStrategy(bytes32,(address,address,bool)[][])": {
               inputs: [
@@ -17515,11 +17380,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -18029,11 +17891,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -18543,11 +18402,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardToken(address)": {
               inputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
@@ -19064,11 +18920,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardToken(address)": {
               inputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
@@ -20140,11 +19993,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -21171,11 +21021,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardToken(address)": {
               inputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
@@ -21772,11 +21619,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -22324,11 +22168,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardToken(address)": {
               inputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
@@ -22800,11 +22641,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -23506,11 +23344,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardToken(address)": {
               inputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
@@ -23982,11 +23817,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
@@ -24451,17 +24283,18 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
           },
         },
         "contracts/protocol/partnership/VaultBooster.sol:VaultBooster": {
           source: "contracts/protocol/partnership/VaultBooster.sol",
           name: "VaultBooster",
+          title: "VaultBooster Contract",
+          author: "Opty.fi inspired by Compound.finance",
+          details: "Contract contains math for calculating the ODEFI rewards for all the users",
+          notice: "Contract for managing the ODEFI rewards",
           constructor: {
             inputs: [
               { internalType: "address", name: "_registry", type: "address" },
@@ -24484,6 +24317,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "List of all ODEFI vaults",
             },
             "balance()": {
               inputs: [],
@@ -24585,6 +24419,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp",
             },
             "odefiAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24600,6 +24435,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "ODEFI token address",
             },
             "odefiTotalRate()": {
               inputs: [],
@@ -24629,6 +24465,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "view",
               type: "function",
+              notice: "If the ODEFI vault is enabled or not",
             },
             "odefiVaultRatePerSecond(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24652,6 +24489,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping of ODEFI vault address to first interaction timestamp",
             },
             "odefiVaultState(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24685,6 +24523,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping ODEFI vault address to ODEFI community address",
             },
             "setOdefiVault(address,bool)": {
               inputs: [
@@ -24702,11 +24541,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setRewardRate(address,uint256)": {
               inputs: [
@@ -24782,6 +24618,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "List of all ODEFI vaults",
             },
             "lastUserUpdate(address,address)": {
               inputs: [
@@ -24792,6 +24629,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping of ODEFI vault address to user address to user last interaction timestamp",
             },
             "odefiAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24807,6 +24645,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "ODEFI token address",
             },
             "odefiTotalRate()": {
               inputs: [],
@@ -24836,6 +24675,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "view",
               type: "function",
+              notice: "If the ODEFI vault is enabled or not",
             },
             "odefiVaultRatePerSecond(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24859,6 +24699,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping of ODEFI vault address to first interaction timestamp",
             },
             "odefiVaultState(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -24877,6 +24718,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "Mapping ODEFI vault address to ODEFI community address",
             },
           },
         },
@@ -25160,11 +25002,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "symbol()": {
               inputs: [],
@@ -25470,11 +25309,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setStakingVault(address,bool)": {
               inputs: [
@@ -25719,11 +25555,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setStakingVaultMultipliers(address,uint256)": {
               inputs: [
@@ -25926,11 +25759,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "stakingVault180DLockingTerm()": {
               inputs: [],
@@ -26288,11 +26118,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setTimelockPeriod(uint256)": {
               inputs: [{ internalType: "uint256", name: "_timelock", type: "uint256" }],
@@ -26850,11 +26677,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the regsitry contract address",
-              params: {
-                _registry:
-                  "address of registry contract Requirements: - `msg.sender` should be operator - `registry` can not be zero address",
-              },
+              params: { _registry: "address of registry contract" },
+              notice: "Sets the regsitry contract address",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -27402,7 +27226,7 @@
           },
         },
       },
-      _t = new Ge({
+      _t = new je({
         routes: [
           { path: "/", component: vt, props: () => ({ json: ht }) },
           { path: "*", component: ct, props: e => ({ json: ht[e.path.slice(1)] }) },
