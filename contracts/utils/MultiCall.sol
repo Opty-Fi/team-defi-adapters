@@ -6,11 +6,9 @@ import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
 
 /**
  * @title MultiCall Contract
- *
  * @author Opty.fi
- *
  * @dev Provides functions used commonly for decoding codes and execute
- *      the code calls for Opty.Fi contracts
+ * the code calls for Opty.fi contracts
  */
 abstract contract MultiCall is IMultiCall {
     /**
