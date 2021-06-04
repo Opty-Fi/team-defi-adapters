@@ -363,7 +363,7 @@ contract Vault is
             );
         }
         executeCodes(
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateOptyVaultRateAndIndexCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
                 address(this)
             ),
             "!updateOptyVaultRateAndIndex"
@@ -413,7 +413,7 @@ contract Vault is
         );
         _mint(msg.sender, shares);
         executeCodes(
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateOptyVaultRateAndIndexCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
                 address(this)
             ),
             "!updateOptyVaultRateAndIndex"
@@ -470,7 +470,7 @@ contract Vault is
         _redeemAndBurn(msg.sender, _balance().sub(depositQueue), _redeemAmount, _vaultStrategyConfiguration);
 
         executeCodes(
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateOptyVaultRateAndIndexCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
                 address(this)
             ),
             "!updateOptyVaultRateAndIndex"
@@ -506,7 +506,9 @@ contract Vault is
             "!_beforeTokenTransfer (updateUserRewards)"
         );
         executeCodes(
-            IStrategyManager(registryContract.getStrategyManager()).getUpdateOptyVaultRateAndIndexCodes(address(this)),
+            IStrategyManager(registryContract.getStrategyManager()).getUpdateRewardVaultRateAndIndexCodes(
+                address(this)
+            ),
             "!updateOptyVaultRateAndIndex"
         );
         executeCodes(

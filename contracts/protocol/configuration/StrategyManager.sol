@@ -127,8 +127,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getUpdateUserStateInVaultCodes(_vault, _from);
     }
 
-    function getUpdateOptyVaultRateAndIndexCodes(address _vault) public view override returns (bytes[] memory _codes) {
-        _codes = _getUpdateOptyVaultRateAndIndexCodes(_vault);
+    function getUpdateRewardVaultRateAndIndexCodes(address _vault)
+        public
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        _codes = _getUpdateRewardVaultRateAndIndexCodes(_vault);
     }
 
     function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
@@ -462,7 +467,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         );
     }
 
-    function _getUpdateOptyVaultRateAndIndexCodes(address _vault) internal view returns (bytes[] memory _codes) {
+    function _getUpdateRewardVaultRateAndIndexCodes(address _vault) internal view returns (bytes[] memory _codes) {
         _codes = new bytes[](4);
         address _optyMinter = registryContract.getOptyMinter();
         address _odefiVaultBooster = registryContract.getODEFIVaultBooster();

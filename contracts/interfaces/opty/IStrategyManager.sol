@@ -73,7 +73,7 @@ interface IStrategyManager {
         view
         returns (bytes[] memory _codes);
 
-    function getUpdateOptyVaultRateAndIndexCodes(address _vault) external view returns (bytes[] memory _codes);
+    function getUpdateRewardVaultRateAndIndexCodes(address _vault) external view returns (bytes[] memory _codes);
 
     function getRewardToken(bytes32 _investStrategyHash) external view returns (address _rewardToken);
 }
