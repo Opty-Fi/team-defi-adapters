@@ -45,6 +45,10 @@ contract Vault is
     using SafeERC20 for IERC20;
     using Address for address;
 
+    /**
+     * @notice
+     * @dev
+     */
     uint256 public constant opTOKEN_REVISION = 0x1;
 
     /* solhint-disable no-empty-blocks */
@@ -63,7 +67,14 @@ contract Vault is
     {}
 
     /* solhint-disable no-empty-blocks */
-
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function initialize(
         address _registry,
         address _underlyingToken,
@@ -81,11 +92,17 @@ contract Vault is
         _setDecimals(IncentivisedERC20(_underlyingToken).decimals());
     }
 
+    /**
+     * @inheritdoc
+     */
     function setMaxVaultValueJump(uint256 _maxVaultValueJump) external override onlyGovernance returns (bool _success) {
         maxVaultValueJump = _maxVaultValueJump;
         _success = true;
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function rebalance() external override ifNotPausedAndDiscontinued(address(this)) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -128,76 +145,118 @@ contract Vault is
         }
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function harvest(bytes32 _investStrategyHash) external override {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _harvest(_investStrategyHash, _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositAll() external override {
         _userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDeposit(uint256 _amount) external override returns (bool) {
         _userDeposit(_amount);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositAllRebalance() external override {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositRebalance(uint256 _amount) external override returns (bool) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userWithdrawAllRebalance() external override {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userWithdrawRebalance(balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userWithdrawRebalance(uint256 _redeemAmount) external override returns (bool) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userWithdrawRebalance(_redeemAmount, _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositAllWithCHI() external override discountCHI {
         _userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositWithCHI(uint256 _amount) external override discountCHI {
         _userDeposit(_amount);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositAllRebalanceWithCHI() external override discountCHI {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userDepositRebalanceWithCHI(uint256 _amount) external override discountCHI {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) external override discountCHI {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userWithdrawRebalance(_redeemAmount, _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function userWithdrawAllRebalanceWithCHI() external override discountCHI {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userWithdrawRebalance(balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function discontinue() external override onlyRegistry {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -207,6 +266,9 @@ contract Vault is
         }
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function setUnpaused(bool _unpaused) external override onlyRegistry {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -217,12 +279,15 @@ contract Vault is
     }
 
     /**
-     * @dev Function to get the underlying token balance of OptyVault Contract
+     * @inheritdoc IVault
      */
     function balance() public view override returns (uint256) {
         return _balance();
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function getPricePerFullShare() public view override returns (uint256) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -232,6 +297,9 @@ contract Vault is
         return uint256(0);
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function setProfile(string memory _profile) public override onlyOperator returns (bool _success) {
         require(bytes(_profile).length > 0, "Profile_Empty!");
         DataTypes.RiskProfile memory _riskProfile = registryContract.getRiskProfile(_profile);
@@ -240,6 +308,9 @@ contract Vault is
         _success = true;
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function setToken(address _underlyingToken) public override onlyOperator returns (bool _success) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
         require(registryContract.isApprovedToken(_underlyingToken), "!tokens");
@@ -247,10 +318,21 @@ contract Vault is
         _success = true;
     }
 
+    /**
+     * @inheritdoc IVault
+     */
     function isMaxVaultValueJumpAllowed(uint256 _diff, uint256 _currentVaultValue) public view override returns (bool) {
         return (_diff.mul(10000)).div(_currentVaultValue) < maxVaultValueJump;
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMintAndBurn(_vaultStrategyConfiguration);
         uint8 _steps =
@@ -270,6 +352,14 @@ contract Vault is
         vaultValue = _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration);
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _withdrawAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         uint8 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(investStrategyHash);
@@ -288,6 +378,14 @@ contract Vault is
         }
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _harvest(
         bytes32 _investStrategyHash,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
@@ -325,6 +423,14 @@ contract Vault is
      *  - Amount should be greater than 0
      *  - Amount is in wad units, Eg: _amount = 1e18 wad means _amount = 1 DAI
      */
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _userDeposit(uint256 _amount)
         internal
         ifNotPausedAndDiscontinued(address(this))
@@ -340,6 +446,14 @@ contract Vault is
         _success = true;
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _batchMintAndBurn(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
         internal
         returns (bool _success)
@@ -369,6 +483,14 @@ contract Vault is
      *
      *  - Amount should be greater than 0
      *  - Amount is in wad units, Eg: _amount = 1e18 wad means _amount = 1 DAI
+     */
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
      */
     function _userDepositRebalance(
         uint256 _amount,
@@ -420,6 +542,14 @@ contract Vault is
      *  -   _redeemAmount: amount to withdraw from the vault. Its units are:
      *      in weth uints i.e. 1e18
      */
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _userWithdrawRebalance(
         uint256 _redeemAmount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
@@ -454,6 +584,9 @@ contract Vault is
         return true;
     }
 
+    /**
+     * @inheritdoc IncentivisedERC20
+     */
     function _beforeTokenTransfer(
         address from,
         address,
@@ -472,6 +605,14 @@ contract Vault is
      *  - Need to modify this function in future whenever 2nd layer of depositing
      *    the underlying token (for example DAI) into any
      *    credit pool like compound is added.
+     */
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
      */
     function _calVaultValueInUnderlyingToken(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
         internal
@@ -493,14 +634,33 @@ contract Vault is
     /**
      * @dev Internal function to get the underlying token balance of OptyVault Contract
      */
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _balance() internal view returns (uint256) {
         return IERC20(underlyingToken).balanceOf(address(this));
     }
 
+    /**
+     * @inheritdoc
+     */
     function getRevision() internal pure virtual override returns (uint256) {
         return opTOKEN_REVISION;
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _abs(uint256 _a, uint256 _b) internal pure returns (uint256) {
         if (_a > _b) {
             return _a.sub(_b);
@@ -508,6 +668,14 @@ contract Vault is
         return _b.sub(_a);
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _emergencyBrake(uint256 _vaultValue) private returns (bool) {
         uint256 _blockTransactions = blockToBlockVaultValues[block.number].length;
         if (_blockTransactions > 0) {
@@ -545,6 +713,14 @@ contract Vault is
         }
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _redeemAndBurn(
         address _account,
         uint256 _balanceInUnderlyingToken,
@@ -565,6 +741,14 @@ contract Vault is
         );
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _mintShares(
         address _account,
         uint256 _balanceInUnderlyingToken,

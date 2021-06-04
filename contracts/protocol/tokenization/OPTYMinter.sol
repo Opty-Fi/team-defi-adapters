@@ -21,8 +21,6 @@ import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
  */
 
 contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modifiers {
-    uint256 public immutable maxUnlockClaimOPTYTimestamp;
-
     constructor(
         address _registry,
         address _opty,
@@ -40,6 +38,10 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         _;
     }
 
+    /**
+     * @dev Modifier to restrict operator to set the token token lock
+     *      more than current time stamp
+     */
     modifier isOperatorTimeLockPeriodEnded() {
         require(
             _getBlockTimestamp() > operatorUnlockClaimOPTYTimestamp,
@@ -48,6 +50,9 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         _;
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function setOperatorUnlockClaimOPTYTimestamp(uint256 _operatorUnlockClaimOPTYTimestamp)
         external
         override
@@ -63,8 +68,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @dev Maps staking vault to a boolean variable that indicates wether the staking vault is enabled`or not
-     *
+     * @inheritdoc IOPTYMinter
      */
     function setStakingVault(address _stakingVault, bool _enable) external override onlyOperator returns (bool) {
         require(_stakingVault != address(0), "Invalid address");
@@ -72,6 +76,9 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         return true;
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function claimAndStake(address _stakingPool) external override isOperatorTimeLockPeriodEnded {
         address[] memory holders = new address[](1);
         holders[0] = msg.sender;
@@ -81,8 +88,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @notice Claim all the OPTY accrued by holder in all markets
-     * @param _holder The address to claim OPTY for
+     * @inheritdoc IOPTYMinter
      */
     function claimOpty(address _holder) external override isOperatorTimeLockPeriodEnded returns (uint256) {
         address[] memory holders = new address[](1);
@@ -91,9 +97,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @notice Claim all the OPTY accrued by holder in the specified markets
-     * @param _holder The address to claim OPTY for
-     * @param _optyVaults The list of vaults to claim OPTY in
+     * @inheritdoc IOPTYMinter
      */
     function claimOpty(address _holder, address[] memory _optyVaults)
         external
@@ -106,6 +110,9 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         _claimOpty(holders, _optyVaults);
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function claimOpty(address[] memory _holders, address[] memory _optyVaults)
         external
         override
@@ -115,6 +122,9 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         _claimOpty(_holders, _optyVaults);
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function updateUserStateInVault(address _optyVault, address _user) external override {
         if (optyVaultRatePerSecond[_optyVault] > 0) {
             optyUserStateInVault[_optyVault][_user].index = optyVaultState[_optyVault].index;
@@ -123,8 +133,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @notice Set the OPTY rate for a specific pool
-     * @return The amount of OPTY which was NOT transferred to the user
+     * @inheritdoc IOPTYMinter
      */
     function updateOptyVaultRatePerSecondAndVaultToken(address _optyVault) external override returns (bool) {
         if (optyVaultRatePerSecond[_optyVault] > 0) {
@@ -136,8 +145,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @notice Accrue OPTY to the market by updating the supply index
-     * @param _optyVault The market whose index to update
+     * @inheritdoc IOPTYMinter
      */
     function updateOptyVaultIndex(address _optyVault) external override returns (uint224) {
         if (optyVaultRatePerSecond[_optyVault] > 0) {
@@ -177,19 +185,24 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         }
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function mintOpty(address _user, uint256 _amount) external override onlyStakingVault returns (uint256) {
         _mintOpty(_user, _amount);
     }
 
     /**
-     * @notice Set the OPTY rate for a specific pool
-     * @return The amount of OPTY which was NOT transferred to the user
+     * @inheritdoc IOPTYMinter
      */
     function setOptyVaultRate(address _optyVault, uint256 _rate) external override onlyOperator returns (bool) {
         optyVaultRatePerSecond[_optyVault] = _rate;
         return true;
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function addOptyVault(address _optyVault) external override onlyOperator returns (bool) {
         for (uint256 i = 0; i < allOptyVaults.length; i++) {
             require(allOptyVaults[i] != _optyVault, "optyVault already added");
@@ -197,22 +210,23 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         allOptyVaults.push(_optyVault);
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function setOptyVault(address _optyVault, bool _enable) external override onlyOperator returns (bool) {
         optyVaultEnabled[_optyVault] = _enable;
         return true;
     }
 
     /**
-     * @notice Claim all the opty accrued by holder in all markets
-     * @param _holder The address to claim OPTY for
+     * @inheritdoc IOPTYMinter
      */
     function claimableOpty(address _holder) external view override returns (uint256) {
         return claimableOpty(_holder, allOptyVaults);
     }
 
     /**
-     * @notice Calculate additional accrued OPTY for a contributor since last accrual
-     * @param _user The address to calculate contributor rewards for
+     * @inheritdoc IOPTYMinter
      */
     function updateUserRewards(address _optyVault, address _user) public override {
         if (optyVaultRatePerSecond[_optyVault] > 0) {
@@ -247,14 +261,15 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         }
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function getOptyAddress() public view override returns (address) {
         return optyAddress;
     }
 
     /**
-     * @notice Claim all the opty accrued by holder in the specified markets
-     * @param _holder The address to claim OPTY for
-     * @param _optyVaults The list of vaults to claim OPTY in
+     * @inheritdoc IOPTYMinter
      */
     function claimableOpty(address _holder, address[] memory _optyVaults) public view override returns (uint256) {
         uint256 claimableOptyAmount;
@@ -291,6 +306,9 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         return div_(add_(claimableOptyAmount, optyAccrued[_holder]), 1e18);
     }
 
+    /**
+     * @inheritdoc IOPTYMinter
+     */
     function currentOptyVaultIndex(address _optyVault) public view override returns (uint256) {
         uint256 _deltaSecondsSinceStart = sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_optyVault]);
         uint256 _deltaSeconds = sub_(_getBlockTimestamp(), uint256(optyVaultState[_optyVault].timestamp));
@@ -325,6 +343,14 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         return _amount;
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _setOptyAddress(address _opty) internal {
         require(_opty != address(0), "Invalid address");
         optyAddress = _opty;
@@ -354,6 +380,14 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         }
     }
 
+    /**
+     * @notice
+     * @dev
+     * @param
+     * @param
+     * @param
+     * @return
+     */
     function _getBlockTimestamp() internal view returns (uint256) {
         return block.timestamp;
     }

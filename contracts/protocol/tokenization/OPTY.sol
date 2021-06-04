@@ -21,6 +21,9 @@ contract OPTY is IOPTY, ERC20, Modifiers {
         _mint(msg.sender, initialSupply);
     }
 
+    /**
+     * @inheritdoc IOPTY
+     */
     function mint(address to, uint256 amount) external override onlyMinter {
         _mint(to, amount);
     }

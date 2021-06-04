@@ -47,10 +47,14 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         )
         Modifiers(_registry)
     {
-        setToken(_underlyingToken); /* underlying token contract address (for example DAI) */
+        setToken(_underlyingToken); // underlying token like $OPTY
         setTimelockPeriod(_timelock);
     }
 
+    /**
+     * @dev Modifier to protect function getting called by caller
+     *      other than staking rate balancer contract
+     */
     modifier onlyStakingRateBalancer() {
         require(
             msg.sender == registryContract.getOPTYStakingRateBalancer(),
@@ -59,23 +63,38 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function setOptyRatePerSecond(uint256 _rate) external override onlyStakingRateBalancer returns (bool _success) {
         optyRatePerSecond = _rate;
         _success = true;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function userStakeAll() external override returns (bool) {
         _userStake(IERC20(token).balanceOf(msg.sender));
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function userStake(uint256 _amount) external override returns (bool) {
         _userStake(_amount);
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function userUnstakeAll() external override returns (bool) {
         _userUnstake(balanceOf(msg.sender));
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function userUnstake(uint256 _redeemAmount) external override returns (bool) {
         _userUnstake(_redeemAmount);
     }
@@ -87,14 +106,20 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
 
     /* solhint-disable no-empty-blocks */
 
-    function getPricePerFullShare() external view override returns (uint256) {
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
+    function getPricePerFullShare() public view override returns (uint256) {
         if (totalSupply() != 0) {
             return balance().div(totalSupply());
         }
         return uint256(0);
     }
 
-    function balanceInOpty(address _user) external view override returns (uint256) {
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
+    function balanceInOpty(address _user) public view override returns (uint256) {
         if (balanceOf(_user) != uint256(0)) {
             uint256 _balanceInOpty =
                 balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
@@ -105,41 +130,50 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         return uint256(0);
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function setTimelockPeriod(uint256 _timelock) public override onlyOperator returns (bool _success) {
         require(_timelock >= uint256(86400), "Timelock should be at least 1 day.");
         timelockPeriod = _timelock;
         _success = true;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function setToken(address _underlyingToken) public override onlyOperator returns (bool _success) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
         token = _underlyingToken;
         _success = true;
     }
 
-    function updatePool() public override returns (bool _success) {
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
+    function updatePool() external override returns (bool _success) {
         _isUnpaused(address(this));
         return _updatePool();
     }
 
     /**
-     * @dev Function to get the underlying token balance of OptyPool Contract
+     * @inheritdoc IOPTYStakingVault
      */
     function balance() public view override returns (uint256) {
         return IERC20(token).balanceOf(address(this));
     }
 
+    /**
+     * @inheritdoc IOPTYStakingVault
+     */
     function getBlockTimestamp() public view override returns (uint256) {
         return block.timestamp;
     }
 
     /**
-     * @dev Function for depositing underlying tokens (for example DAI) into the contract
-     *
-     * Requirements:
-     *
-     *  - Amount should be greater than 0
-     *  - Amount is in wad units, Eg: _amount = 1e18 wad means _amount = 1 DAI
+     * @dev staking OPTY token
+     * @param _amount of $OTPY to stake in wei
+     * @return _success returns true on successful stake
      */
     function _userStake(uint256 _amount)
         internal
@@ -166,18 +200,15 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
             ),
             "stakingVault:userStake"
         );
-        updatePool();
+        _updatePool();
         userLastUpdate[msg.sender] = getBlockTimestamp();
         _success = true;
     }
 
     /**
-     * @dev Function to queu withdraw of the lp tokens from the liquidity pool (for example opDAI)
-     *
-     * Requirements:
-     *  -   contract function will be called.
-     *  -   _redeemAmount: amount to withdraw from the  liquidity pool. Its uints are:
-     *      in  weth uints i.e. 1e18
+     * @dev unstaking of account's previously staked $OPTY
+     * @param _redeemAmount Amount of $OPTY to unstake
+     * @return _success returns true on successful unstake
      */
     function _userUnstake(uint256 _redeemAmount) internal nonReentrant returns (bool _success) {
         _isUnpaused(address(this));
@@ -204,6 +235,10 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
         _success = true;
     }
 
+    /**
+     * @dev modifies the state during stake/unstake of $OPTY
+     * @return _success returns true on successful vault update
+     */
     function _updatePool() internal returns (bool _success) {
         if (lastPoolUpdate == uint256(0)) {
             lastPoolUpdate = getBlockTimestamp();

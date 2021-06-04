@@ -65,6 +65,9 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         require(_optyStakingRateBalancerProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
+    /**
+     * @inheritdoc IOPTYStakingRateBalancer
+     */
     function setStakingVaultMultipliers(address _stakingVault, uint256 _multiplier)
         external
         override
@@ -75,6 +78,9 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         return true;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingRateBalancer
+     */
     function setStakingVaultOPTYAllocation(uint256 _stakingVaultOPTYAllocation)
         external
         override
@@ -84,6 +90,9 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         stakingVaultOPTYAllocation = _stakingVaultOPTYAllocation;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingRateBalancer
+     */
     function updateOptyRates() external override onlyStakingVaults returns (bool) {
         uint256 _stakingVault1DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault1DLockingTerm];
         uint256 _stakingVault30DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault30DLockingTerm];
@@ -147,6 +156,9 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         return true;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingRateBalancer
+     */
     function updateStakedOPTY(address _staker, uint256 _amount) external override onlyStakingVaults returns (bool) {
         stakingVaultToUserStakedOPTY[msg.sender][_staker] = stakingVaultToUserStakedOPTY[msg.sender][_staker].add(
             _amount
@@ -155,6 +167,9 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         return true;
     }
 
+    /**
+     * @inheritdoc IOPTYStakingRateBalancer
+     */
     function updateUnstakedOPTY(address _staker, uint256 _shares) external override onlyStakingVaults returns (bool) {
         uint256 _stakerStakedAmount = stakingVaultToUserStakedOPTY[msg.sender][_staker];
         uint256 _amount = _shares.mul(_stakerStakedAmount).div(stakingVaultToStakedOPTY[msg.sender]);
