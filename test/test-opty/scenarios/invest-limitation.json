@@ -1,6 +1,6 @@
 {
-  "title": "Adapters",
-  "description": "Test cases for all adapters.",
+  "title": "Invest Limitation",
+  "description": "Test cases for invest limitation.",
   "vaults": [
     {
       "name": "Vault",
