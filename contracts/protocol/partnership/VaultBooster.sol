@@ -8,6 +8,12 @@ import { SafeERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20
 import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
+/**
+ * @title VaultBooster Contract
+ * @author Opty.fi inspired by Compound.finance
+ * @notice Contract for managing the ODEFI rewards
+ * @dev Contract contains math for calculating the ODEFI rewards for all the users
+ */
 contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     using SafeERC20 for IERC20;
 

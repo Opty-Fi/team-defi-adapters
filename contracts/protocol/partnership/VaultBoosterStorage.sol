@@ -5,14 +5,19 @@ pragma solidity ^0.6.12;
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 contract VaultBoosterStorage {
+    /// @notice ODEFI token address
     address public odefiAddress;
 
+    /// @notice Mapping ODEFI vault address to ODEFI community address
     mapping(address => address) public rewarders;
 
+    /// @notice Mapping of ODEFI vault address to first interaction timestamp
     mapping(address => uint256) public odefiVaultStartTimestamp;
 
+    /// @notice List of all ODEFI vaults
     address[] public allOdefiVaults;
 
+    /// @notice If the ODEFI vault is enabled or not
     mapping(address => bool) public odefiVaultEnabled;
 
     /// @notice The rate at which the flywheel distributes ODEFI, per block
@@ -33,5 +38,6 @@ contract VaultBoosterStorage {
     /// @notice The ODEFI index for each market for each user as of the last time they accrued ODEFI
     mapping(address => mapping(address => DataTypes.ODEFIState)) public odefiUserStateInVault;
 
+    /// @notice Mapping of ODEFI vault address to user address to user last interaction timestamp
     mapping(address => mapping(address => uint256)) public lastUserUpdate;
 }

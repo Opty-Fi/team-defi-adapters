@@ -13,8 +13,11 @@ import { ReserveDataV2, IAaveV2 } from "../../interfaces/aave/v2/IAaveV2.sol";
 import { IAaveV2LendingPoolAddressesProvider } from "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import { ICompound } from "../../interfaces/compound/ICompound.sol";
 
-/*
- * @author OptyFi inspired on yearn.finance APROracle contract
+/**
+ * @title APROracle contract
+ * @author Opty.fi inspired on yearn.finance APROracle contract
+ * @notice Contract for getting APR from Aave and compound protocols
+ * @dev Contract contains math for getting best APR among Aave and Compound
  */
 contract APROracle is IAPROracle, Modifiers {
     using SafeMath for uint256;
@@ -26,17 +29,14 @@ contract APROracle is IAPROracle, Modifiers {
     /** @notice Zero value constant for bytes32 */
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
-    /** @notice Store AaveV1 Lending Pool address */
+    /** @notice Store AaveV1 LendingPoolProvider address */
     address public aaveV1;
 
-    /** @notice Store AaveV2 Address provider */
+    /** @notice Store AaveV2 LendingPoolProvider address */
     address public aaveV2AddressProvider;
 
     /** @notice Store Compound address */
     address public compound;
-
-    /** @notice Address of dYdX modifier */
-    uint256 public dydxModifier;
 
     /** @notice Stores the estimation of no. of blocks gets mined per year */
     uint256 public blocksPerYear;
@@ -50,8 +50,7 @@ contract APROracle is IAPROracle, Modifiers {
     }
 
     /**
-     * @notice Sets the Aave protocol lending pool
-     * @dev Set the address of new Aave Lending pool
+     * @notice Sets the new Aave protocol lending pool address
      * @param _newAaveV1 Address of new Aave Lending pool
      */
     function setNewAaveV1(address _newAaveV1) external onlyOperator {
@@ -59,9 +58,8 @@ contract APROracle is IAPROracle, Modifiers {
     }
 
     /**
-     * @notice Sets the No. of blocks estimated per year
-     * @dev Set the no. of block calculated by formula = noOfSecondsInAYear/blockMintNoOfSeconds
-     *      As an eg: _newBlocksPerYear = 3153600/13 = 242584
+     * @notice Sets the estimated No. of blocks mined per year
+     * @dev Formula used = noOfSecondsInAYear/blockMintNoOfSeconds Eg: _newBlocksPerYear = 3153600/13 = 242584
      * @param _newBlocksPerYear New No. of blocks value estimated per year
      */
     function setNewBlocksPerYear(uint256 _newBlocksPerYear) external onlyOperator {
@@ -71,28 +69,28 @@ contract APROracle is IAPROracle, Modifiers {
     /**
      * @inheritdoc IAPROracle
      */
-    function getCompoundAPR(address token) external view override returns (uint256) {
+    function getCompoundAPR(address token) public view override returns (uint256) {
         return _getCompoundAPR(token);
     }
 
     /**
      * @inheritdoc IAPROracle
      */
-    function getAaveV1APR(address token) external view override returns (address, uint256) {
+    function getAaveV1APR(address token) public view override returns (address, uint256) {
         return _getAaveV1APR(token);
     }
 
     /**
      * @inheritdoc IAPROracle
      */
-    function getAaveV2APR(address token) external view override returns (address, uint256) {
+    function getAaveV2APR(address token) public view override returns (address, uint256) {
         return _getAaveV2APR(token);
     }
 
     /**
      * @inheritdoc IAPROracle
      */
-    function getBestAPR(bytes32 _tokensHash) external view override returns (bytes32) {
+    function getBestAPR(bytes32 _tokensHash) public view override returns (bytes32) {
         return _getBestAPR(_tokensHash);
     }
 

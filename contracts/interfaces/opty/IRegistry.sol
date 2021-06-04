@@ -6,305 +6,162 @@ pragma experimental ABIEncoderV2;
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 /**
- * @dev Interface of the opty.fi's protocol reegistry
+ * @title Interface for Registry Contract
+ * @author Opty.fi
+ * @dev Interface of the opty.fi's protocol reegistry to store all the mappings, governance
+ * operator, minyer, strategiet and all optyFi's protocol contract addresses
  */
 interface IRegistry {
     /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
+     * @dev Set the treasury accounts with their fee shares corresponding to vault contract
      * @param _vault Vault contract address
      * @param _treasuryShares Array of treasuries and their fee shares
-     *
      * @return Returns a boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *  - `msg.sender` Can only be current governance.
      */
     function setTreasuryShares(address _vault, DataTypes.TreasuryShare[] memory _treasuryShares)
         external
         returns (bool);
 
     /**
-     * @dev set the VaultStepInvestStrategyDefinitionRegistry contract address.
-     *
-     * @param `_vaultStepInvestStrategyDefinitionRegistry` VaultStepInvestStrategyDefinitionRegistry contract address
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_vaultStepInvestStrategyDefinitionRegistry` can not be address(0)
+     * @notice Set the VaultStepInvestStrategyDefinitionRegistry contract address
+     * @param _vaultStepInvestStrategyDefinitionRegistry VaultStepInvestStrategyDefinitionRegistry contract address
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
         external
         returns (bool);
 
     /**
-     * @dev set the APROracle contract address.
-     *
+     * @notice Set the APROracle contract address
      * @param _aprOracle Address of APR Pracle contract to be set
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setAPROracle(address _aprOracle) external returns (bool);
 
     /**
-     * @dev set the StrategyProvider contract address.
-     *
+     * @notice Set the StrategyProvider contract address
      * @param _strategyProvider Address of StrategyProvider Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_strategyProvider` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setStrategyProvider(address _strategyProvider) external returns (bool);
 
     /**
-     * @dev set the RiskManager's contract address.
-     *
+     * @notice Set the RiskManager's contract address
      * @param _riskManager Address of RiskManager Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_riskManager` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setRiskManager(address _riskManager) external returns (bool);
 
     /**
-     * @dev set the HarvestCodeProvider contract address.
-     *
+     * @notice Set the HarvestCodeProvider contract address
      * @param _harvestCodeProvider Address of HarvestCodeProvider Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_harvestCodeProvider` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setHarvestCodeProvider(address _harvestCodeProvider) external returns (bool);
 
     /**
-     * @dev set the StrategyManager contract address.
-     *
+     * @notice Set the StrategyManager contract address
      * @param _strategyManager Address of StrategyManager Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_strategyManager` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setStrategyManager(address _strategyManager) external returns (bool);
 
     /**
-     * @dev set the $OPTY token's contract address.
-     *
+     * @notice Set the $OPTY token's contract address
      * @param _opty Address of Opty Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_opty` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setOPTY(address _opty) external returns (bool);
 
     /**
-     * @dev set the PriceOracle contract address.
-     *
+     * @notice Set the PriceOracle contract address
      * @param _priceOracle Address of PriceOracle Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_priceOracle` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setPriceOracle(address _priceOracle) external returns (bool);
 
     /**
-     * @dev set the OPTYStakingRateBalancer contract address.
-     *
+     * @notice Set the OPTYStakingRateBalancer contract address
      * @param _optyStakingRateBalancer Address of OptyStakingRateBalancer Contract
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` Can only be governance.
-     * - `_optyStakingRateBalancer` can not be address(0)
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setOPTYStakingRateBalancer(address _optyStakingRateBalancer) external returns (bool);
 
     /**
-     * @dev Sets multiple `_tokens` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
+     * @notice Approves multiple tokens in one transaction
      * @param _tokens List of tokens to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_token` cannot be the zero address or an EOA.
-     * - `_token` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveToken(address[] memory _tokens) external returns (bool);
 
     /**
-     * @dev Sets `_token` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
+     * @notice Approves the token provided
      * @param _token token to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:\
-     * - `_token` cannot be the zero address or an EOA.
-     * - `msg.sender` should be governance.
-     * - `_token` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveToken(address _token) external returns (bool);
 
     /**
-     * @dev Revokes multiple `_tokens` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
+     * @notice Disable multiple tokens in one transaction
      * @param _tokens List of tokens to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_tokens` cannot be the zero address or an EOA.
-     * - `_tokens` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeToken(address[] memory _tokens) external returns (bool);
 
     /**
-     * @dev Revokes `_token` from the {tokens} mapping.
-     *      Emits a {LogToken} event.
-     *
+     * @notice Disable the token
      * @param _token token to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_token` cannot be the zero address or an EOA.
-     * - `_token` should be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeToken(address _token) external returns (bool);
 
     /**
-     * @dev Sets multiple `_pools` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pools list of pools (act as liquidity/credit pools) to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @notice Approves multiple liquidity pools in one transaction
+     * @param _pools list of liquidity/credit pools to approve
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveLiquidityPool(address[] memory _pools) external returns (bool);
 
     /**
-     * @dev Sets `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pool pools (act as liquidity/credit pools) to approve
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @notice For approving single liquidity pool
+     * @param _pool liquidity/credit pool to approve
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveLiquidityPool(address _pool) external returns (bool);
 
     /**
-     * @dev Revokes multiple `_pools` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pools list of pools (act as liquidity/credit pools) to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pools` cannot be the zero address or an EOA.
-     * - `_pools` should not be approved
+     * @notice Revokes multiple liquidity pools in one transaction
+     * @param _pools list of liquidity/credit pools to revoke
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeLiquidityPool(address[] memory _pools) external returns (bool);
 
     /**
-     * @dev Revokes `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogLiquidityPool}
-     *
-     * @param _pool pools (act as liquidity/credit pools) to revoke
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @notice Revokes the liquidity pool
+     * @param _pool liquidity/credit pool to revoke
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeLiquidityPool(address _pool) external returns (bool);
 
     /**
-     * @dev Provide [`_pool`,`_rate`] from the {liquidityPools} mapping.
-     *      Emit event {LogRateLiquidityPool}
-     *
-     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for liquidityPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @notice Sets the pool rate for the liquidity pool provided
+     * @param _poolRates List of pool rates ([_pool, _rate]) to set
+     * @return A boolean value indicating whether the operation succeeded
      */
     function rateLiquidityPool(DataTypes.PoolRate[] memory _poolRates) external returns (bool);
 
     /**
-     * @dev Provide `_rate` to `_pool` from the {liquidityPools} mapping.
-     *      Emit event {LogRateLiquidityPool}
-     *
+     * @dev Sets the pool rate for the liquidity pool provided
      * @param _pool liquidityPool to map with its rating
      * @param _rate rate for the liquidityPool provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function rateLiquidityPool(address _pool, uint8 _rate) external returns (bool);
 
     /**
-     * @dev Sets multiple `_pools` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
+     * @dev Approves multiple credit pools in one transaction
      * @param _pools List of pools for approval to be considered as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveCreditPool(address[] memory _pools) external returns (bool);
 

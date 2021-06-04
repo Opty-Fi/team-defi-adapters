@@ -9347,6 +9347,10 @@
         "contracts/interfaces/opty/IAPROracle.sol:IAPROracle": {
           source: "contracts/interfaces/opty/IAPROracle.sol",
           name: "IAPROracle",
+          title: "Interface for APROracle Contract",
+          author: "Opty.Fi inspired on yearn.finance APROracle contract",
+          details: "Interface for faciliating the best APR calculation among aave and compound",
+          notice: "Interface to getting the APRs from aave and compund protocols",
           methods: {
             "getAaveV1APR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -9357,9 +9361,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from AaveV1 protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from AaveV1 protocol",
             },
             "getAaveV2APR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -9370,9 +9374,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from AaveV2 protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from AaveV2 protocol",
             },
             "getBestAPR(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "tokensHash", type: "bytes32" }],
@@ -9380,12 +9384,9 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the best startegy for the token among compound and aave",
-              params: {
-                tokensHash:
-                  "Hash of token address/addresses for which                   you want to get the Best strategy",
-              },
+              params: { tokensHash: "Hash of token address/addresses" },
               returns: { _0: "Best strategy hash corresponding to the tokens hash provided" },
+              notice: "Get the best strategy for the token among compound and aave",
             },
             "getCompoundAPR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -9393,9 +9394,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from Compound protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from Compound protocol",
             },
           },
         },
@@ -11513,7 +11514,7 @@
               details:
                 "Get all codes for harvesting reward tokens from pool available in the      strategy hash provided",
               params: {
-                _investStrategyHash: "Hash of the strategy being used in vault contract ",
+                _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
@@ -11547,7 +11548,7 @@
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
-                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis) ",
+                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)",
               },
               returns: {
                 _codes:
@@ -12967,6 +12968,10 @@
         "contracts/protocol/configuration/APROracle.sol:APROracle": {
           source: "contracts/protocol/configuration/APROracle.sol",
           name: "APROracle",
+          title: "APROracle contract",
+          author: "Opty.Fi inspired on yearn.finance APROracle contract",
+          details: "Contract contains math for getting best APR among Aave and Compound",
+          notice: "Contract for getting APR from Aave and compound protocols",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -13038,9 +13043,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from AaveV1 protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from AaveV1 protocol",
             },
             "getAaveV2APR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -13051,9 +13056,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from AaveV2 protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from AaveV2 protocol",
             },
             "getBestAPR(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -13061,12 +13066,9 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the best startegy for the token among compound and aave",
-              params: {
-                tokensHash:
-                  "Hash of token address/addresses for which                   you want to get the Best strategy",
-              },
+              params: { tokensHash: "Hash of token address/addresses" },
               returns: { _0: "Best strategy hash corresponding to the tokens hash provided" },
+              notice: "Get the best strategy for the token among compound and aave",
             },
             "getCompoundAPR(address)": {
               inputs: [{ internalType: "address", name: "token", type: "address" }],
@@ -13074,9 +13076,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the APR for the token from Compound protocol",
               params: { token: "Token address for which you want to get APR" },
               returns: { _0: "APR corresponding to the token provided" },
+              notice: "Get the APR for the token from Compound protocol",
             },
             "registryContract()": {
               inputs: [],
@@ -13092,9 +13094,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the address of new Aave Lending pool",
               params: { _newAaveV1: "Address of new Aave Lending pool" },
-              notice: "Sets the Aave protocol lending pool",
+              notice: "Sets the new Aave protocol lending pool address",
             },
             "setNewBlocksPerYear(uint256)": {
               inputs: [{ internalType: "uint256", name: "_newBlocksPerYear", type: "uint256" }],
@@ -13103,9 +13104,9 @@
               stateMutability: "nonpayable",
               type: "function",
               details:
-                "Set the no. of block calculated by formula = noOfSecondsInAYear/blockMintNoOfSeconds      As an eg: _newBlocksPerYear = 3153600/13 = 242584",
+                "Formula used = noOfSecondsInAYear/blockMintNoOfSeconds Eg: _newBlocksPerYear = 3153600/13 = 242584",
               params: { _newBlocksPerYear: "New No. of blocks value estimated per year" },
-              notice: "Sets the No. of blocks estimated per year",
+              notice: "Sets the estimated No. of blocks mined per year",
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -16484,7 +16485,7 @@
               details:
                 "Get all codes for harvesting reward tokens from pool available in the      strategy hash provided",
               params: {
-                _investStrategyHash: "Hash of the strategy being used in vault contract ",
+                _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
@@ -16518,7 +16519,7 @@
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
-                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis) ",
+                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)",
               },
               returns: {
                 _codes:

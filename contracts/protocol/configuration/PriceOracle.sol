@@ -8,11 +8,10 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { IPriceOracle } from "../../interfaces/opty/IPriceOracle.sol";
 
 /**
- * @title PriceOracle
- *
+ * @title PriceOracle Contract
  * @author Opty.fi
- *
- * @dev Bridge to connect the chainlink's price oracle contract
+ * @notice Bridge to connect the chainlink's price oracle contract
+ * @dev Contract that converts token units to USD and vice versa
  */
 contract PriceOracle is IPriceOracle, Modifiers {
     using SafeMath for uint256;

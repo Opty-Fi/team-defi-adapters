@@ -9,11 +9,10 @@ import { Modifiers } from "./Modifiers.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
- * @title HarvestCodeProvider
- *
+ * @title HarvestCodeProvider Contract
  * @author Opty.fi
- *
- * @dev Abstraction layer to DeFi exchanges like Uniswap
+ * @notice Abstraction layer to DeFi exchanges like Uniswap
+ * @dev Contract for generating the codes for harvest tokens
  */
 contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     using SafeERC20 for IERC20;
@@ -37,7 +36,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _rewardTokenAmount
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _weth = uniswapV2Router02.WETH();
         if (_rewardTokenAmount > 0) {
             address[] memory _path;
@@ -86,7 +85,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         if (_borrowTokenAmount > 0) {
             address[] memory _path;
@@ -120,7 +119,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         uint256[] memory amounts = new uint256[](3);
         address[] memory path = new address[](3);
@@ -131,6 +130,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         return amounts[2];
     }
 
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
     function getWETHInToken(address _underlyingToken, uint256 _amount) public view override returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         if (_underlyingToken == _weth) {
