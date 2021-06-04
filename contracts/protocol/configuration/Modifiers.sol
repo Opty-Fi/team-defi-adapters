@@ -13,7 +13,8 @@ import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
 /**
  * @title Modifiers Contract
  * @author Opty.fi
- * @dev Contract used to keep all the modifiers at one place
+ * @notice Contract used to keep all the modifiers at one place
+ * @dev Contract is used throughout the contracts expect registry contract
  */
 abstract contract Modifiers is IModifiers {
     /**
@@ -35,7 +36,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check if the address is zero address or not
+     * @notice Modifier to check if the address is zero address or not
      */
     modifier onlyValidAddress() {
         require(msg.sender != address(0), "caller is zero address");
@@ -43,7 +44,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check caller is governance or not
+     * @notice Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
         require(msg.sender == registryContract.getGovernance(), "caller is not having governance");
@@ -51,7 +52,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check caller is operator or not
+     * @notice Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
         require(msg.sender == registryContract.getOperator(), "caller is not the operator");
@@ -59,30 +60,30 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check caller is minter or not
+     * @notice Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
         require(msg.sender == registryContract.getOptyMinter(), "!minter");
         _;
     }
 
+    /**
+     * @notice Modifier to check if vault is unpaused or discontinued
+     * @param _vault Address of vault/stakingVault contract to disconitnue
+     */
     modifier ifNotPausedAndDiscontinued(address _vault) {
         _ifNotPausedAndDiscontinued(_vault);
         _;
     }
 
     /**
-     * @dev Modifier to check caller is registry or not
+     * @notice Modifier to check caller is registry or not
      */
     modifier onlyRegistry() {
         require(msg.sender == address(registryContract), "!Registry Contract");
         _;
     }
 
-    /**
-     * @notice Checks if vault contract is discontinued from usage or not
-     * @param _vault Address of vault/stakingVault contract to disconitnue
-     */
     function _ifNotPausedAndDiscontinued(address _vault) internal view {
         DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(_vault);
         require(_vaultConfiguration.unpaused && !_vaultConfiguration.discontinued, "paused or discontinued");

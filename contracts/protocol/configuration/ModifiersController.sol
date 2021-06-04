@@ -14,7 +14,8 @@ import { IModifiersController } from "../../interfaces/opty/IModifiersController
 /**
  * @title ModifiersController Contract
  * @author Opty.fi
- * @dev Contract used to authorize and keep all the modifiers at one place
+ * @notice Contract used by registry contract and acts as source of truth
+ * @dev It manages operator, minter addresses as well as modifiers
  */
 abstract contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
@@ -38,7 +39,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is governance or not
+     * @notice Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
         require(msg.sender == governance, "caller is not having governance");
@@ -46,7 +47,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is operator or not
+     * @notice Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
         require(msg.sender == operator, "caller is not the operator");
@@ -54,7 +55,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is minter or not
+     * @notice Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
         require(msg.sender == minter, "caller is not the minter");
