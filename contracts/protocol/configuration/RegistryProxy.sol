@@ -6,12 +6,13 @@ import { RegistryStorage } from "./RegistryStorage.sol";
 import { ModifiersController } from "./ModifiersController.sol";
 
 /**
- * @title RegistryProxy
- *
+ * @title RegistryProxy Contract
  * @author Opty.fi
- *
- * @dev Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`.
+ * @dev Storage for the Registry is at this address,
+ * while execution is delegated to the `registryImplementation`.
  * Registry should reference this contract as their controller.
+ * It defines a fallback function that delegates all calls to the address
+ * returned by the abstract _implementation() internal function.
  */
 contract RegistryProxy is RegistryStorage, ModifiersController {
     /**
@@ -20,8 +21,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
     /**
-     * @notice Emitted when pendingComptrollerImplementation is accepted,
-     *         which means comptroller implementation is updated
+     * @notice Emitted when pendingComptrollerImplementation is updated
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
@@ -35,10 +35,6 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
      */
     event NewGovernance(address oldGovernance, address newGovernance);
 
-    /**
-     * @dev Constructor to initialize `msg.sender` as governance, strategist, operator and
-     *      minter while deployment
-     */
     constructor() public {
         governance = msg.sender;
         setOperator(msg.sender);
@@ -48,9 +44,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     /*** Admin Functions ***/
     /**
      * @dev Set the registry contract as pending implementation initally
-     *
-     * @param newPendingImplementation registry contract address to act as pending
-     *        implementation initally
+     * @param newPendingImplementation registry address to act as pending implementation
      */
     function setPendingImplementation(address newPendingImplementation) external onlyOperator {
         address oldPendingImplementation = pendingRegistryImplementation;
@@ -61,7 +55,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Accepts new implementation of registry. msg.sender must be pendingImplementation
+     * @notice Accepts new implementation of registry
      * @dev Governance function for new implementation to accept it's role as implementation
      */
     function acceptImplementation() external returns (uint256) {
@@ -86,13 +80,9 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Begins transfer of governance rights.
-     *         The newPendingGovernance must call `acceptGovernance`
-     *         to finalize the transfer.
-     * @dev Governance function to begin change of governance.
-     *      The newPendingGovernance must call `acceptGovernance`
-     *      to finalize the transfer.
-     * @param newPendingGovernance New pending governance.
+     * @notice Transfers the governance rights
+     * @dev The newPendingGovernance must call acceptGovernance() to finalize the transfer
+     * @param newPendingGovernance New pending governance address
      */
     function setPendingGovernance(address newPendingGovernance) external onlyOperator {
         // Save current value, if any, for inclusion in log
@@ -106,7 +96,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Accepts transfer of Governance rights. msg.sender must be pendingGovernance
+     * @notice Accepts transfer of Governance rights
      * @dev Governance function for pending governance to accept role and update Governance
      */
     function acceptGovernance() external returns (uint256) {

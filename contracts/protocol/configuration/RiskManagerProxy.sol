@@ -6,12 +6,12 @@ import { Modifiers } from "./Modifiers.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 
 /**
- * @title RiskManagerProxy
- *
+ * @title RiskManagerProxy Contract
  * @author Opty.fi
- *
  * @dev Storage for the RiskManager is at this address, while execution is delegated to the
- *      `riskManagerImplementation`. RiskManager should reference this contract as their controller.
+ * riskManagerImplementation. RiskManager should reference this contract as their controller.
+ * It defines a fallback function that delegates all calls to the address returned by the
+ * abstract _implementation() internal function.
  */
 contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     /**
@@ -24,18 +24,13 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
-    /* solhint-disable */
-    /**
-     * @dev Constructor to set the registry contract address
-     */
+    /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
     /*** Admin Functions ***/
     /**
      * @dev Set the riskManager contract as pending implementation initally
-     *
-     * @param newPendingImplementation riskManager contract address to act as pending
-     *        implementation initally
+     * @param newPendingImplementation riskManager address to act as pending implementation
      */
     function setPendingImplementation(address newPendingImplementation) external onlyOperator {
         address oldPendingImplementation = pendingRiskManagerImplementation;
@@ -46,7 +41,7 @@ contract RiskManagerProxy is RiskManagerStorage, Modifiers {
     }
 
     /**
-     * @notice Accepts new implementation of riskManager. msg.sender must be pendingImplementation
+     * @notice Accepts new implementation of riskManager
      * @dev Governance function for new implementation to accept it's role as implementation
      */
     function acceptImplementation() external returns (uint256) {

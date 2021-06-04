@@ -16,31 +16,19 @@ import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 
 /**
- * @title RiskManager
- *
+ * @title RiskManager Contract
  * @author Opty.fi
- *
- * @dev An extra protection for the best strategy of the opty-fi vault's
- *      underlying token
+ * @dev Contract contains functionality for getting the best invest and vaultRewardToken strategy
  */
 contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     using Address for address;
 
     /* solhint-disable no-empty-blocks */
-    /**
-     * @dev Constructor to set the registry contract address
-     */
     constructor(address _registry) public Modifiers(_registry) {}
-
-    /* solhint-disable no-empty-blocks */
 
     /**
      * @dev Set RiskManagerProxy to act as RiskManager
-     *
      * @param _riskManagerProxy RiskManagerProxy contract address to act as RiskManager
-     *
-     *  Requirements:
-     * - `msg.sender` can only be Governance
      */
     function become(RiskManagerProxy _riskManagerProxy) external onlyGovernance {
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
@@ -50,7 +38,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
      * @inheritdoc IRiskManager
      */
     function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
-        external
+        public
         view
         override
         returns (bytes32)
@@ -71,7 +59,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
      * @inheritdoc IRiskManager
      */
     function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
-        external
+        public
         view
         override
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)

@@ -127,23 +127,23 @@
       function _(e, t) {
         return h.call(e, t);
       }
-      function k(e) {
+      function w(e) {
         var t = Object.create(null);
         return function (n) {
           return t[n] || (t[n] = e(n));
         };
       }
-      var w = /-(\w)/g,
-        P = k(function (e) {
-          return e.replace(w, function (e, t) {
+      var k = /-(\w)/g,
+        P = w(function (e) {
+          return e.replace(k, function (e, t) {
             return t ? t.toUpperCase() : "";
           });
         }),
-        M = k(function (e) {
+        M = w(function (e) {
           return e.charAt(0).toUpperCase() + e.slice(1);
         }),
         A = /\B([A-Z])/g,
-        S = k(function (e) {
+        S = w(function (e) {
           return e.replace(A, "-$1").toLowerCase();
         });
       var R = Function.prototype.bind
@@ -210,13 +210,13 @@
         for (var n = 0; n < e.length; n++) if (E(e[n], t)) return n;
         return -1;
       }
-      function q(e) {
+      function U(e) {
         var t = !1;
         return function () {
           t || ((t = !0), e.apply(this, arguments));
         };
       }
-      var U = ["component", "directive", "filter"],
+      var q = ["component", "directive", "filter"],
         H = [
           "beforeCreate",
           "created",
@@ -400,10 +400,10 @@
         );
       }
       var _e = Array.prototype,
-        ke = Object.create(_e);
+        we = Object.create(_e);
       ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"].forEach(function (e) {
         var t = _e[e];
-        Y(ke, e, function () {
+        Y(we, e, function () {
           for (var n = [], a = arguments.length; a--; ) n[a] = arguments[a];
           var s,
             i = t.apply(this, n),
@@ -419,7 +419,7 @@
           return s && r.observeArray(s), r.dep.notify(), i;
         });
       });
-      var we = Object.getOwnPropertyNames(ke),
+      var ke = Object.getOwnPropertyNames(we),
         Pe = !0;
       function Me(e) {
         Pe = e;
@@ -433,13 +433,13 @@
             ? (G
                 ? (function (e, t) {
                     e.__proto__ = t;
-                  })(e, ke)
+                  })(e, we)
                 : (function (e, t, n) {
                     for (var a = 0, s = n.length; a < s; a++) {
                       var i = n[a];
                       Y(e, i, t[i]);
                     }
-                  })(e, ke, we),
+                  })(e, we, ke),
               this.observeArray(e))
             : this.walk(e);
       };
@@ -544,7 +544,7 @@
         H.forEach(function (e) {
           xe[e] = Ee;
         }),
-        U.forEach(function (e) {
+        q.forEach(function (e) {
           xe[e + "s"] = Le;
         }),
         (xe.watch = function (e, t, n, a) {
@@ -564,10 +564,10 @@
           return D(s, e), t && D(s, t), s;
         }),
         (xe.provide = Ve);
-      var qe = function (e, t) {
+      var Ue = function (e, t) {
         return void 0 === t ? e : t;
       };
-      function Ue(e, t, n) {
+      function qe(e, t, n) {
         if (
           ("function" == typeof t && (t = t.options),
           (function (e, t) {
@@ -604,15 +604,15 @@
                 "function" == typeof a && (t[n] = { bind: a, update: a });
               }
           })(t),
-          !t._base && (t.extends && (e = Ue(e, t.extends, n)), t.mixins))
+          !t._base && (t.extends && (e = qe(e, t.extends, n)), t.mixins))
         )
-          for (var a = 0, s = t.mixins.length; a < s; a++) e = Ue(e, t.mixins[a], n);
+          for (var a = 0, s = t.mixins.length; a < s; a++) e = qe(e, t.mixins[a], n);
         var i,
           r = {};
         for (i in e) o(i);
         for (i in t) _(e, i) || o(i);
         function o(a) {
-          var s = xe[a] || qe;
+          var s = xe[a] || Ue;
           r[a] = s(e[a], t[a], n, a);
         }
         return r;
@@ -787,7 +787,7 @@
         })(e, st),
           st.clear();
       }
-      var rt = k(function (e) {
+      var rt = w(function (e) {
         var t = "&" === e.charAt(0),
           n = "~" === (e = t ? e.slice(1) : e).charAt(0),
           a = "!" === (e = n ? e.slice(1) : e).charAt(0);
@@ -970,12 +970,12 @@
       function _t(e) {
         return He(this.$options, "filters", e) || V;
       }
-      function kt(e, t) {
+      function wt(e, t) {
         return Array.isArray(e) ? -1 === e.indexOf(t) : e !== t;
       }
-      function wt(e, t, n, a, s) {
+      function kt(e, t, n, a, s) {
         var i = B.keyCodes[t] || n;
-        return s && a && !B.keyCodes[t] ? kt(s, a) : i ? kt(i, e) : a ? S(a) !== t : void 0;
+        return s && a && !B.keyCodes[t] ? wt(s, a) : i ? wt(i, e) : a ? S(a) !== t : void 0;
       }
       function Pt(e, t, n, a, s) {
         if (n)
@@ -1062,7 +1062,7 @@
           (e._i = L),
           (e._m = Mt),
           (e._f = _t),
-          (e._k = wt),
+          (e._k = kt),
           (e._b = Pt),
           (e._v = ve),
           (e._e = ge),
@@ -1112,11 +1112,11 @@
         for (var n in t) e[P(n)] = t[n];
       }
       It(Vt.prototype);
-      var qt = {
+      var Ut = {
           init: function (e, t) {
             if (e.componentInstance && !e.componentInstance._isDestroyed && e.data.keepAlive) {
               var n = e;
-              qt.prepatch(n, n);
+              Ut.prepatch(n, n);
             } else {
               (e.componentInstance = (function (e, t) {
                 var n = { _isComponent: !0, _parentVnode: e, parent: t },
@@ -1177,7 +1177,7 @@
                 : t.$destroy());
           },
         },
-        Ut = Object.keys(qt);
+        qt = Object.keys(Ut);
       function Ht(e, t, n, o, p) {
         if (!s(e)) {
           var u = n.$options._base;
@@ -1207,10 +1207,10 @@
                           null !== p && (clearTimeout(p), (p = null)),
                           null !== u && (clearTimeout(u), (u = null)));
                       },
-                      y = q(function (n) {
+                      y = U(function (n) {
                         (e.resolved = Wt(n, t)), o ? (a.length = 0) : l(!0);
                       }),
-                      c = q(function (t) {
+                      c = U(function (t) {
                         i(e.errorComp) && ((e.error = !0), l(!0));
                       }),
                       T = e(y, c);
@@ -1290,10 +1290,10 @@
               (t = {}), T && (t.slot = T);
             }
             !(function (e) {
-              for (var t = e.hook || (e.hook = {}), n = 0; n < Ut.length; n++) {
-                var a = Ut[n],
+              for (var t = e.hook || (e.hook = {}), n = 0; n < qt.length; n++) {
+                var a = qt[n],
                   s = t[a],
-                  i = qt[a];
+                  i = Ut[a];
                 s === i || (s && s._merged) || (t[a] = s ? Bt(i, s) : i);
               }
             })(t);
@@ -1668,8 +1668,8 @@
             (function (e, t) {
               for (var n in t) {
                 var a = t[n];
-                if (Array.isArray(a)) for (var s = 0; s < a.length; s++) kn(e, n, a[s]);
-                else kn(e, n, a);
+                if (Array.isArray(a)) for (var s = 0; s < a.length; s++) wn(e, n, a[s]);
+                else wn(e, n, a);
               }
             })(e, t.watch);
       }
@@ -1692,10 +1692,10 @@
           return e.call(this, this);
         };
       }
-      function kn(e, t, n, a) {
+      function wn(e, t, n, a) {
         return u(n) && ((a = n), (n = n.handler)), "string" == typeof n && (n = e[n]), e.$watch(t, n, a);
       }
-      var wn = 0;
+      var kn = 0;
       function Pn(e) {
         var t = e.options;
         if (e.super) {
@@ -1709,7 +1709,7 @@
               for (var s in n) n[s] !== a[s] && (t || (t = {}), (t[s] = n[s]));
               return t;
             })(e);
-            a && D(e.extendOptions, a), (t = e.options = Ue(n, e.extendOptions)).name && (t.components[t.name] = e);
+            a && D(e.extendOptions, a), (t = e.options = qe(n, e.extendOptions)).name && (t.components[t.name] = e);
           }
         }
         return t;
@@ -1733,7 +1733,7 @@
           return (
             ((r.prototype = Object.create(n.prototype)).constructor = r),
             (r.cid = t++),
-            (r.options = Ue(n.options, e)),
+            (r.options = qe(n.options, e)),
             (r.super = n),
             r.options.props &&
               (function (e) {
@@ -1748,7 +1748,7 @@
             (r.extend = n.extend),
             (r.mixin = n.mixin),
             (r.use = n.use),
-            U.forEach(function (e) {
+            q.forEach(function (e) {
               r[e] = n[e];
             }),
             i && (r.options.components[i] = r),
@@ -1789,7 +1789,7 @@
       !(function (e) {
         e.prototype._init = function (e) {
           var t = this;
-          (t._uid = wn++),
+          (t._uid = kn++),
             (t._isVue = !0),
             e && e._isComponent
               ? (function (e, t) {
@@ -1803,7 +1803,7 @@
                     (n._componentTag = s.tag),
                     t.render && ((n.render = t.render), (n.staticRenderFns = t.staticRenderFns));
                 })(t, e)
-              : (t.$options = Ue(Pn(t.constructor), e || {}, t)),
+              : (t.$options = qe(Pn(t.constructor), e || {}, t)),
             (t._renderProxy = t),
             (t._self = t),
             (function (e) {
@@ -1880,7 +1880,7 @@
             (e.prototype.$set = Ce),
             (e.prototype.$delete = De),
             (e.prototype.$watch = function (e, t, n) {
-              if (u(t)) return kn(this, e, t, n);
+              if (u(t)) return wn(this, e, t, n);
               (n = n || {}).user = !0;
               var a = new cn(this, e, t, n);
               if (n.immediate)
@@ -2047,7 +2047,7 @@
           },
         };
         Object.defineProperty(e, "config", t),
-          (e.util = { warn: ue, extend: D, mergeOptions: Ue, defineReactive: Re }),
+          (e.util = { warn: ue, extend: D, mergeOptions: qe, defineReactive: Re }),
           (e.set = Ce),
           (e.delete = De),
           (e.nextTick = at),
@@ -2055,7 +2055,7 @@
             return Se(e), e;
           }),
           (e.options = Object.create(null)),
-          U.forEach(function (t) {
+          q.forEach(function (t) {
             e.options[t + "s"] = Object.create(null);
           }),
           (e.options._base = e),
@@ -2075,12 +2075,12 @@
           })(e),
           (function (e) {
             e.mixin = function (e) {
-              return (this.options = Ue(this.options, e)), this;
+              return (this.options = qe(this.options, e)), this;
             };
           })(e),
           An(e),
           (function (e) {
-            U.forEach(function (t) {
+            q.forEach(function (t) {
               e[t] = function (e, n) {
                 return n
                   ? ("component" === t && u(n) && ((n.name = n.name || e), (n = this.options._base.extend(n))),
@@ -2111,8 +2111,8 @@
           );
         },
         Ln = f("contenteditable,draggable,spellcheck"),
-        qn = f("events,caret,typing,plaintext-only"),
-        Un = f(
+        Un = f("events,caret,typing,plaintext-only"),
+        qn = f(
           "allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,default,defaultchecked,defaultmuted,defaultselected,defer,disabled,enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,required,reversed,scoped,seamless,selected,sortable,translate,truespeed,typemustmatch,visible",
         ),
         Hn = "http://www.w3.org/1999/xlink",
@@ -2356,7 +2356,7 @@
       function fa(e, t, n) {
         e.tagName.indexOf("-") > -1
           ? ba(e, t, n)
-          : Un(t)
+          : qn(t)
           ? $n(n)
             ? e.removeAttribute(t)
             : ((n = "allowfullscreen" === t && "EMBED" === e.tagName ? "true" : t), e.setAttribute(t, n))
@@ -2364,7 +2364,7 @@
           ? e.setAttribute(
               t,
               (function (e, t) {
-                return $n(t) || "false" === t ? "false" : "contenteditable" === e && qn(t) ? t : "true";
+                return $n(t) || "false" === t ? "false" : "contenteditable" === e && Un(t) ? t : "true";
               })(t, n),
             )
           : Bn(t)
@@ -2398,8 +2398,8 @@
       }
       var ha,
         _a,
-        ka,
         wa,
+        ka,
         Pa,
         Ma,
         Aa = { create: va, update: va },
@@ -2506,7 +2506,7 @@
       function La(e, t, n) {
         return n ? "_p(" + t + ',"' + e + '")' : e + t;
       }
-      function qa(e, t, n, s, i, r, o, d) {
+      function Ua(e, t, n, s, i, r, o, d) {
         var p;
         (s = s || a).right
           ? d
@@ -2524,7 +2524,7 @@
         var l = p[t];
         Array.isArray(l) ? (i ? l.unshift(u) : l.push(u)) : (p[t] = l ? (i ? [u, l] : [l, u]) : u), (e.plain = !1);
       }
-      function Ua(e, t, n) {
+      function qa(e, t, n) {
         var a = Ha(e, ":" + t) || Ha(e, "v-bind:" + t);
         if (null != a) return Ra(a);
         if (!1 !== n) {
@@ -2562,30 +2562,30 @@
       function Ya(e, t) {
         var n = (function (e) {
           if (((e = e.trim()), (ha = e.length), e.indexOf("[") < 0 || e.lastIndexOf("]") < ha - 1))
-            return (wa = e.lastIndexOf(".")) > -1
-              ? { exp: e.slice(0, wa), key: '"' + e.slice(wa + 1) + '"' }
+            return (ka = e.lastIndexOf(".")) > -1
+              ? { exp: e.slice(0, ka), key: '"' + e.slice(ka + 1) + '"' }
               : { exp: e, key: null };
-          (_a = e), (wa = Pa = Ma = 0);
-          for (; !Na(); ) Ga((ka = Wa())) ? za(ka) : 91 === ka && ja(ka);
+          (_a = e), (ka = Pa = Ma = 0);
+          for (; !Na(); ) Ga((wa = Wa())) ? za(wa) : 91 === wa && ja(wa);
           return { exp: e.slice(0, Pa), key: e.slice(Pa + 1, Ma) };
         })(e);
         return null === n.key ? e + "=" + t : "$set(" + n.exp + ", " + n.key + ", " + t + ")";
       }
       function Wa() {
-        return _a.charCodeAt(++wa);
+        return _a.charCodeAt(++ka);
       }
       function Na() {
-        return wa >= ha;
+        return ka >= ha;
       }
       function Ga(e) {
         return 34 === e || 39 === e;
       }
       function ja(e) {
         var t = 1;
-        for (Pa = wa; !Na(); )
+        for (Pa = ka; !Na(); )
           if (Ga((e = Wa()))) za(e);
           else if ((91 === e && t++, 93 === e && t--, 0 === t)) {
-            Ma = wa;
+            Ma = ka;
             break;
           }
       }
@@ -2689,7 +2689,7 @@
         );
       }
       var is = { create: as, update: as },
-        rs = k(function (e) {
+        rs = w(function (e) {
           var t = {},
             n = /:(.+)/;
           return (
@@ -2722,7 +2722,7 @@
           }
         },
         ms = ["Webkit", "Moz", "ms"],
-        cs = k(function (e) {
+        cs = w(function (e) {
           if (((ps = ps || document.createElement("div").style), "filter" !== (e = P(e)) && e in ps)) return e;
           for (var t = e.charAt(0).toUpperCase() + e.slice(1), n = 0; n < ms.length; n++) {
             var a = ms[n] + t;
@@ -2794,7 +2794,7 @@
           return "string" == typeof e ? _s(e) : void 0;
         }
       }
-      var _s = k(function (e) {
+      var _s = w(function (e) {
           return {
             enterClass: e + "-enter",
             enterToClass: e + "-enter-to",
@@ -2804,15 +2804,15 @@
             leaveActiveClass: e + "-leave-active",
           };
         }),
-        ks = j && !Z,
-        ws = "transition",
+        ws = j && !Z,
+        ks = "transition",
         Ps = "transitionend",
         Ms = "animation",
         As = "animationend";
-      ks &&
+      ws &&
         (void 0 === window.ontransitionend &&
           void 0 !== window.onwebkittransitionend &&
-          ((ws = "WebkitTransition"), (Ps = "webkitTransitionEnd")),
+          ((ks = "WebkitTransition"), (Ps = "webkitTransitionEnd")),
         void 0 === window.onanimationend &&
           void 0 !== window.onwebkitanimationend &&
           ((Ms = "WebkitAnimation"), (As = "webkitAnimationEnd")));
@@ -2858,8 +2858,8 @@
       function Is(e, t) {
         var n,
           a = window.getComputedStyle(e),
-          s = (a[ws + "Delay"] || "").split(", "),
-          i = (a[ws + "Duration"] || "").split(", "),
+          s = (a[ks + "Delay"] || "").split(", "),
+          i = (a[ks + "Duration"] || "").split(", "),
           r = Vs(s, i),
           o = (a[Ms + "Delay"] || "").split(", "),
           d = (a[Ms + "Duration"] || "").split(", "),
@@ -2876,7 +2876,7 @@
                   ? i.length
                   : d.length
                 : 0),
-          { type: n, timeout: u, propCount: l, hasTransform: "transition" === n && xs.test(a[ws + "Property"]) }
+          { type: n, timeout: u, propCount: l, hasTransform: "transition" === n && xs.test(a[ks + "Property"]) }
         );
       }
       function Vs(e, t) {
@@ -2911,8 +2911,8 @@
               v = a.enterCancelled,
               h = a.beforeAppear,
               _ = a.appear,
-              k = a.afterAppear,
-              w = a.appearCancelled,
+              w = a.afterAppear,
+              k = a.appearCancelled,
               P = a.duration,
               M = Xt,
               A = Xt.$vnode;
@@ -2927,13 +2927,13 @@
               D = S && m ? m : u,
               O = (S && h) || f,
               x = S && "function" == typeof _ ? _ : b,
-              I = (S && k) || g,
-              V = (S && w) || v,
+              I = (S && w) || g,
+              V = (S && k) || v,
               E = T(d(P) ? P.enter : P);
             0;
             var L = !1 !== r && !Z,
-              U = Hs(x),
-              H = (n._enterCb = q(function () {
+              q = Hs(x),
+              H = (n._enterCb = U(function () {
                 L && (Ds(n, D), Ds(n, C)), H.cancelled ? (L && Ds(n, R), V && V(n)) : I && I(n), (n._enterCb = null);
               }));
             e.data.show ||
@@ -2947,14 +2947,14 @@
                 (Cs(n, R),
                 Cs(n, C),
                 Rs(function () {
-                  Ds(n, R), H.cancelled || (Cs(n, D), U || (Us(E) ? setTimeout(H, E) : Os(n, o, H)));
+                  Ds(n, R), H.cancelled || (Cs(n, D), q || (qs(E) ? setTimeout(H, E) : Os(n, o, H)));
                 })),
               e.data.show && (t && t(), x && x(n, H)),
-              L || U || H();
+              L || q || H();
           }
         }
       }
-      function qs(e, t) {
+      function Us(e, t) {
         var n = e.elm;
         i(n._enterCb) && ((n._enterCb.cancelled = !0), n._enterCb());
         var a = hs(e.data.transition);
@@ -2975,29 +2975,29 @@
             h = Hs(m),
             _ = T(d(g) ? g.leave : g);
           0;
-          var k = (n._leaveCb = q(function () {
+          var w = (n._leaveCb = U(function () {
             n.parentNode && n.parentNode._pending && (n.parentNode._pending[e.key] = null),
               v && (Ds(n, u), Ds(n, l)),
-              k.cancelled ? (v && Ds(n, p), f && f(n)) : (t(), c && c(n)),
+              w.cancelled ? (v && Ds(n, p), f && f(n)) : (t(), c && c(n)),
               (n._leaveCb = null);
           }));
-          b ? b(w) : w();
+          b ? b(k) : k();
         }
-        function w() {
-          k.cancelled ||
+        function k() {
+          w.cancelled ||
             (!e.data.show && n.parentNode && ((n.parentNode._pending || (n.parentNode._pending = {}))[e.key] = e),
             y && y(n),
             v &&
               (Cs(n, p),
               Cs(n, l),
               Rs(function () {
-                Ds(n, p), k.cancelled || (Cs(n, u), h || (Us(_) ? setTimeout(k, _) : Os(n, o, k)));
+                Ds(n, p), w.cancelled || (Cs(n, u), h || (qs(_) ? setTimeout(w, _) : Os(n, o, w)));
               })),
-            m && m(n, k),
-            v || h || k());
+            m && m(n, w),
+            v || h || w());
         }
       }
-      function Us(e) {
+      function qs(e) {
         return "number" == typeof e && !isNaN(e);
       }
       function Hs(e) {
@@ -3111,10 +3111,10 @@
         function _(e, t, n) {
           for (; t <= n; ++t) {
             var a = e[t];
-            i(a) && (i(a.tag) ? (k(a), h(a)) : u(a.elm));
+            i(a) && (i(a.tag) ? (w(a), h(a)) : u(a.elm));
           }
         }
-        function k(e, t) {
+        function w(e, t) {
           if (i(t) || i(e.data)) {
             var n,
               s = a.remove.length + 1;
@@ -3127,7 +3127,7 @@
                     }
                     return (n.listeners = t), n;
                   })(e.elm, s)),
-                i((n = e.componentInstance)) && i((n = n._vnode)) && i(n.data) && k(n, t),
+                i((n = e.componentInstance)) && i((n = n._vnode)) && i(n.data) && w(n, t),
                 n = 0;
               n < a.remove.length;
               ++n
@@ -3136,7 +3136,7 @@
             i((n = e.data.hook)) && i((n = n.remove)) ? n(e, t) : t();
           } else u(e.elm);
         }
-        function w(e, t, n, a) {
+        function k(e, t, n, a) {
           for (var s = n; s < a; s++) {
             var r = t[s];
             if (i(r) && ra(e, r)) return s;
@@ -3174,7 +3174,7 @@
                         b = n.length - 1,
                         g = n[0],
                         h = n[b],
-                        k = !r;
+                        w = !r;
                       for (0; y <= c && m <= b; )
                         s(T)
                           ? (T = t[++y])
@@ -3186,16 +3186,16 @@
                           ? (P(f, h, a, n, b), (f = t[--c]), (h = n[--b]))
                           : ra(T, h)
                           ? (P(T, h, a, n, b),
-                            k && p.insertBefore(e, T.elm, p.nextSibling(f.elm)),
+                            w && p.insertBefore(e, T.elm, p.nextSibling(f.elm)),
                             (T = t[++y]),
                             (h = n[--b]))
                           : ra(f, g)
-                          ? (P(f, g, a, n, m), k && p.insertBefore(e, f.elm, T.elm), (f = t[--c]), (g = n[++m]))
+                          ? (P(f, g, a, n, m), w && p.insertBefore(e, f.elm, T.elm), (f = t[--c]), (g = n[++m]))
                           : (s(o) && (o = oa(t, y, c)),
-                            s((d = i(g.key) ? o[g.key] : w(g, t, y, c)))
+                            s((d = i(g.key) ? o[g.key] : k(g, t, y, c)))
                               ? l(g, a, e, T.elm, !1, n, m)
                               : ra((u = t[d]), g)
-                              ? (P(u, g, a, n, m), (t[d] = void 0), k && p.insertBefore(e, u.elm, T.elm))
+                              ? (P(u, g, a, n, m), (t[d] = void 0), w && p.insertBefore(e, u.elm, T.elm))
                               : l(g, a, e, T.elm, !1, n, m),
                             (g = n[++m]));
                       y > c ? v(e, s(n[b + 1]) ? null : n[b + 1].elm, n, m, b, a) : m > b && _(t, y, c);
@@ -3278,9 +3278,9 @@
                   for (var b = t.parent, g = T(t); b; ) {
                     for (var v = 0; v < a.destroy.length; ++v) a.destroy[v](b);
                     if (((b.elm = t.elm), g)) {
-                      for (var k = 0; k < a.create.length; ++k) a.create[k](sa, b);
-                      var w = b.data.hook.insert;
-                      if (w.merged) for (var A = 1; A < w.fns.length; A++) w.fns[A]();
+                      for (var w = 0; w < a.create.length; ++w) a.create[w](sa, b);
+                      var k = b.data.hook.insert;
+                      if (k.merged) for (var A = 1; A < k.fns.length; A++) k.fns[A]();
                     } else aa(b);
                     b = b.parent;
                   }
@@ -3304,7 +3304,7 @@
                 create: Bs,
                 activate: Bs,
                 remove: function (e, t) {
-                  !0 !== e.data.show ? qs(e, t) : t();
+                  !0 !== e.data.show ? Us(e, t) : t();
                 },
               }
             : {},
@@ -3411,7 +3411,7 @@
                       ? Ls(n, function () {
                           e.style.display = e.__vOriginalDisplay;
                         })
-                      : qs(n, function () {
+                      : Us(n, function () {
                           e.style.display = "none";
                         }))
                   : (e.style.display = a ? e.__vOriginalDisplay : "none"));
@@ -3616,7 +3616,7 @@
           },
           methods: {
             hasMove: function (e, t) {
-              if (!ks) return !1;
+              if (!ws) return !1;
               if (this._hasMove) return this._hasMove;
               var n = e.cloneNode();
               e._transitionClasses &&
@@ -3681,7 +3681,7 @@
           }, 0);
       var ui = /\{\{((?:.|\r?\n)+?)\}\}/g,
         li = /[-.*+?^${}()|[\]\/\\]/g,
-        yi = k(function (e) {
+        yi = w(function (e) {
           var t = e[0].replace(li, "\\$&"),
             n = e[1].replace(li, "\\$&");
           return new RegExp(t + "((?:.|\\n)+?)" + n, "g");
@@ -3692,7 +3692,7 @@
           t.warn;
           var n = Ha(e, "class");
           n && (e.staticClass = JSON.stringify(n));
-          var a = Ua(e, "class", !1);
+          var a = qa(e, "class", !1);
           a && (e.classBinding = a);
         },
         genData: function (e) {
@@ -3711,7 +3711,7 @@
             t.warn;
             var n = Ha(e, "style");
             n && (e.staticStyle = JSON.stringify(rs(n)));
-            var a = Ua(e, "style", !1);
+            var a = qa(e, "style", !1);
             a && (e.styleBinding = a);
           },
           genData: function (e) {
@@ -3733,11 +3733,11 @@
         ),
         hi = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/,
         _i = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/,
-        ki = "[a-zA-Z_][\\-\\.0-9_a-zA-Z" + F.source + "]*",
-        wi = "((?:" + ki + "\\:)?" + ki + ")",
-        Pi = new RegExp("^<" + wi),
+        wi = "[a-zA-Z_][\\-\\.0-9_a-zA-Z" + F.source + "]*",
+        ki = "((?:" + wi + "\\:)?" + wi + ")",
+        Pi = new RegExp("^<" + ki),
         Mi = /^\s*(\/?)>/,
-        Ai = new RegExp("^<\\/" + wi + "[^>]*>"),
+        Ai = new RegExp("^<\\/" + ki + "[^>]*>"),
         Si = /^<!DOCTYPE [^>]+>/i,
         Ri = /^<!\--/,
         Ci = /^<!\[/,
@@ -3750,13 +3750,13 @@
         Li = function (e, t) {
           return e && Ei(e) && "\n" === t[0];
         };
-      function qi(e, t) {
+      function Ui(e, t) {
         var n = t ? Vi : Ii;
         return e.replace(n, function (e) {
           return xi[e];
         });
       }
-      var Ui,
+      var qi,
         Hi,
         Bi,
         Fi,
@@ -3776,12 +3776,12 @@
         tr = /^v-slot(:|$)|^#/,
         nr = /[\r\n]/,
         ar = /\s+/g,
-        sr = k(fi);
+        sr = w(fi);
       function ir(e, t, n) {
         return { type: 1, tag: e, attrsList: t, attrsMap: yr(t), rawAttrsMap: {}, parent: n, children: [] };
       }
       function rr(e, t) {
-        (Ui = t.warn || Da), (Yi = t.isPreTag || I), (Wi = t.mustUseProp || I), (Ni = t.getTagNamespace || I);
+        (qi = t.warn || Da), (Yi = t.isPreTag || I), (Wi = t.mustUseProp || I), (Ni = t.getTagNamespace || I);
         var n = t.isReservedTag || I;
         (function (e) {
           return !!e.component || !n(e.tag);
@@ -3859,54 +3859,54 @@
                   if (Ri.test(e)) {
                     var c = e.indexOf("--\x3e");
                     if (c >= 0) {
-                      t.shouldKeepComment && t.comment(e.substring(4, c), d, d + c + 3), w(c + 3);
+                      t.shouldKeepComment && t.comment(e.substring(4, c), d, d + c + 3), k(c + 3);
                       continue;
                     }
                   }
                   if (Ci.test(e)) {
                     var T = e.indexOf("]>");
                     if (T >= 0) {
-                      w(T + 2);
+                      k(T + 2);
                       continue;
                     }
                   }
                   var f = e.match(Si);
                   if (f) {
-                    w(f[0].length);
+                    k(f[0].length);
                     continue;
                   }
                   var b = e.match(Ai);
                   if (b) {
                     var g = d;
-                    w(b[0].length), A(b[1], g, d);
+                    k(b[0].length), A(b[1], g, d);
                     continue;
                   }
                   var v = P();
                   if (v) {
-                    M(v), Li(v.tagName, e) && w(1);
+                    M(v), Li(v.tagName, e) && k(1);
                     continue;
                   }
                 }
                 var h = void 0,
                   _ = void 0,
-                  k = void 0;
+                  w = void 0;
                 if (m >= 0) {
                   for (
                     _ = e.slice(m);
-                    !(Ai.test(_) || Pi.test(_) || Ri.test(_) || Ci.test(_) || (k = _.indexOf("<", 1)) < 0);
+                    !(Ai.test(_) || Pi.test(_) || Ri.test(_) || Ci.test(_) || (w = _.indexOf("<", 1)) < 0);
 
                   )
-                    (m += k), (_ = e.slice(m));
+                    (m += w), (_ = e.slice(m));
                   h = e.substring(0, m);
                 }
-                m < 0 && (h = e), h && w(h.length), t.chars && h && t.chars(h, d - h.length, d);
+                m < 0 && (h = e), h && k(h.length), t.chars && h && t.chars(h, d - h.length, d);
               }
               if (e === n) {
                 t.chars && t.chars(e);
                 break;
               }
             }
-            function w(t) {
+            function k(t) {
               (d += t), (e = e.substring(t));
             }
             function P() {
@@ -3915,9 +3915,9 @@
                 var n,
                   a,
                   s = { tagName: t[1], attrs: [], start: d };
-                for (w(t[0].length); !(n = e.match(Mi)) && (a = e.match(_i) || e.match(hi)); )
-                  (a.start = d), w(a[0].length), (a.end = d), s.attrs.push(a);
-                if (n) return (s.unarySlash = n[1]), w(n[0].length), (s.end = d), s;
+                for (k(t[0].length); !(n = e.match(Mi)) && (a = e.match(_i) || e.match(hi)); )
+                  (a.start = d), k(a[0].length), (a.end = d), s.attrs.push(a);
+                if (n) return (s.unarySlash = n[1]), k(n[0].length), (s.end = d), s;
               }
             }
             function M(e) {
@@ -3928,7 +3928,7 @@
                 var m = e.attrs[y],
                   c = m[3] || m[4] || m[5] || "",
                   T = "a" === n && "href" === m[1] ? t.shouldDecodeNewlinesForHref : t.shouldDecodeNewlines;
-                l[y] = { name: m[1], value: qi(c, T) };
+                l[y] = { name: m[1], value: Ui(c, T) };
               }
               p || (s.push({ tag: n, lowerCasedTag: n.toLowerCase(), attrs: l, start: e.start, end: e.end }), (a = n)),
                 t.start && t.start(n, l, p, e.start, e.end);
@@ -3948,7 +3948,7 @@
             }
             A();
           })(e, {
-            warn: Ui,
+            warn: qi,
             expectHTML: t.expectHTML,
             isUnaryTag: t.isUnaryTag,
             canBeLeftOpenTag: t.canBeLeftOpenTag,
@@ -4069,14 +4069,14 @@
       function or(e, t) {
         var n;
         !(function (e) {
-          var t = Ua(e, "key");
+          var t = qa(e, "key");
           if (t) {
             e.key = t;
           }
         })(e),
           (e.plain = !e.key && !e.scopedSlots && !e.attrsList.length),
           (function (e) {
-            var t = Ua(e, "ref");
+            var t = qa(e, "ref");
             t &&
               ((e.ref = t),
               (e.refInFor = (function (e) {
@@ -4093,7 +4093,7 @@
             "template" === e.tag
               ? ((t = Ha(e, "scope")), (e.slotScope = t || Ha(e, "slot-scope")))
               : (t = Ha(e, "slot-scope")) && (e.slotScope = t);
-            var n = Ua(e, "slot");
+            var n = qa(e, "slot");
             n &&
               ((e.slotTarget = '""' === n ? '"default"' : n),
               (e.slotTargetDynamic = !(!e.attrsMap[":slot"] && !e.attrsMap["v-bind:slot"])),
@@ -4136,10 +4136,10 @@
               }
             }
           })(e),
-          "slot" === (n = e).tag && (n.slotName = Ua(n, "name")),
+          "slot" === (n = e).tag && (n.slotName = qa(n, "name")),
           (function (e) {
             var t;
-            (t = Ua(e, "is")) && (e.component = t);
+            (t = qa(e, "is")) && (e.component = t);
             null != Ha(e, "inline-template") && (e.inlineTemplate = !0);
           })(e);
         for (var a = 0; a < Bi.length; a++) e = Bi[a](e, t) || e;
@@ -4166,14 +4166,14 @@
                       r.sync &&
                         ((o = Ya(i, "$event")),
                         d
-                          ? qa(e, '"update:"+(' + a + ")", o, null, !1, 0, p[t], !0)
-                          : (qa(e, "update:" + P(a), o, null, !1, 0, p[t]),
-                            S(a) !== P(a) && qa(e, "update:" + S(a), o, null, !1, 0, p[t])))),
+                          ? Ua(e, '"update:"+(' + a + ")", o, null, !1, 0, p[t], !0)
+                          : (Ua(e, "update:" + P(a), o, null, !1, 0, p[t]),
+                            S(a) !== P(a) && Ua(e, "update:" + S(a), o, null, !1, 0, p[t])))),
                     (r && r.prop) || (!e.component && Wi(e.tag, e.attrsMap.type, a))
                       ? xa(e, a, i, p[t], d)
                       : Ia(e, a, i, p[t], d);
                 else if (Gi.test(a))
-                  (a = a.replace(Gi, "")), (d = Xi.test(a)) && (a = a.slice(1, -1)), qa(e, a, i, r, !1, 0, p[t], d);
+                  (a = a.replace(Gi, "")), (d = Xi.test(a)) && (a = a.slice(1, -1)), Ua(e, a, i, r, !1, 0, p[t], d);
                 else {
                   var u = (a = a.replace(ji, "")).match(Zi),
                     l = u && u[1];
@@ -4248,7 +4248,7 @@
                 a = e.attrsMap;
               if (!a["v-model"]) return;
               if (
-                ((a[":type"] || a["v-bind:type"]) && (n = Ua(e, "type")),
+                ((a[":type"] || a["v-bind:type"]) && (n = qa(e, "type")),
                 a.type || n || !a["v-bind"] || (n = "(" + a["v-bind"] + ").type"),
                 n)
               ) {
@@ -4302,14 +4302,14 @@
                     (n && n.number ? "_n(val)" : "val") +
                     "});";
                   (a = a + " " + Ya(t, "$event.target.multiple ? $$selectedVal : $$selectedVal[0]")),
-                    qa(e, "change", a, null, !0);
+                    Ua(e, "change", a, null, !0);
                 })(e, a, s);
               else if ("input" === i && "checkbox" === r)
                 !(function (e, t, n) {
                   var a = n && n.number,
-                    s = Ua(e, "value") || "null",
-                    i = Ua(e, "true-value") || "true",
-                    r = Ua(e, "false-value") || "false";
+                    s = qa(e, "value") || "null",
+                    i = qa(e, "true-value") || "true",
+                    r = qa(e, "false-value") || "false";
                   xa(
                     e,
                     "checked",
@@ -4322,7 +4322,7 @@
                       ")>-1" +
                       ("true" === i ? ":(" + t + ")" : ":_q(" + t + "," + i + ")"),
                   ),
-                    qa(
+                    Ua(
                       e,
                       "change",
                       "var $$a=" +
@@ -4347,9 +4347,9 @@
               else if ("input" === i && "radio" === r)
                 !(function (e, t, n) {
                   var a = n && n.number,
-                    s = Ua(e, "value") || "null";
+                    s = qa(e, "value") || "null";
                   xa(e, "checked", "_q(" + t + "," + (s = a ? "_n(" + s + ")" : s) + ")"),
-                    qa(e, "change", Ya(t, s), null, !0);
+                    Ua(e, "change", Ya(t, s), null, !0);
                 })(e, a, s);
               else if ("input" === i || "textarea" === i)
                 !(function (e, t, n) {
@@ -4366,7 +4366,7 @@
                   r && (u = "_n(" + u + ")");
                   var l = Ya(t, u);
                   d && (l = "if($event.target.composing)return;" + l);
-                  xa(e, "value", "(" + t + ")"), qa(e, p, l, null, !0), (o || r) && qa(e, "blur", "$forceUpdate()");
+                  xa(e, "value", "(" + t + ")"), Ua(e, p, l, null, !0), (o || r) && Ua(e, "blur", "$forceUpdate()");
                 })(e, a, s);
               else {
                 if (!B.isReservedTag(i)) return $a(e, a, s), !1;
@@ -4396,7 +4396,7 @@
               .join(",");
           })(fr),
         },
-        hr = k(function (e) {
+        hr = w(function (e) {
           return f(
             "type,tag,attrsList,attrsMap,plain,parent,children,attrs,start,end,rawAttrsMap" + (e ? "," + e : ""),
           );
@@ -4454,8 +4454,8 @@
             }
           })(e, !1));
       }
-      var kr = /^([\w$_]+|\([^)]*?\))\s*=>|^function(?:\s+[\w$]+)?\s*\(/,
-        wr = /\([^)]*?\);*$/,
+      var wr = /^([\w$_]+|\([^)]*?\))\s*=>|^function(?:\s+[\w$]+)?\s*\(/,
+        kr = /\([^)]*?\);*$/,
         Pr = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['[^']*?']|\["[^"]*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*$/,
         Mr = { esc: 27, tab: 9, enter: 13, space: 32, up: 38, left: 37, right: 39, down: 40, delete: [8, 46] },
         Ar = {
@@ -4507,8 +4507,8 @@
             "]"
           );
         var t = Pr.test(e.value),
-          n = kr.test(e.value),
-          a = Pr.test(e.value.replace(wr, ""));
+          n = wr.test(e.value),
+          a = Pr.test(e.value.replace(kr, ""));
         if (e.modifiers) {
           var s = "",
             i = "",
@@ -4604,9 +4604,9 @@
       }
       function Er(e, t) {
         if ((e.parent && (e.pre = e.pre || e.parent.pre), e.staticRoot && !e.staticProcessed)) return Lr(e, t);
-        if (e.once && !e.onceProcessed) return qr(e, t);
+        if (e.once && !e.onceProcessed) return Ur(e, t);
         if (e.for && !e.forProcessed) return Hr(e, t);
-        if (e.if && !e.ifProcessed) return Ur(e, t);
+        if (e.if && !e.ifProcessed) return qr(e, t);
         if ("template" !== e.tag || e.slotTarget || t.pre) {
           if ("slot" === e.tag)
             return (function (e, t) {
@@ -4654,8 +4654,8 @@
           "_m(" + (t.staticRenderFns.length - 1) + (e.staticInFor ? ",true" : "") + ")"
         );
       }
-      function qr(e, t) {
-        if (((e.onceProcessed = !0), e.if && !e.ifProcessed)) return Ur(e, t);
+      function Ur(e, t) {
+        if (((e.onceProcessed = !0), e.if && !e.ifProcessed)) return qr(e, t);
         if (e.staticInFor) {
           for (var n = "", a = e.parent; a; ) {
             if (a.for) {
@@ -4668,7 +4668,7 @@
         }
         return Lr(e, t);
       }
-      function Ur(e, t, n, a) {
+      function qr(e, t, n, a) {
         return (
           (e.ifProcessed = !0),
           (function e(t, n, a, s) {
@@ -4676,7 +4676,7 @@
             var i = t.shift();
             return i.exp ? "(" + i.exp + ")?" + r(i.block) + ":" + e(t, n, a, s) : "" + r(i.block);
             function r(e) {
-              return a ? a(e, n) : e.once ? qr(e, n) : Er(e, n);
+              return a ? a(e, n) : e.once ? Ur(e, n) : Er(e, n);
             }
           })(e.ifConditions.slice(), t, n, a)
         );
@@ -4818,7 +4818,7 @@
       }
       function $r(e, t) {
         var n = e.attrsMap["slot-scope"];
-        if (e.if && !e.ifProcessed && !n) return Ur(e, t, $r, "null");
+        if (e.if && !e.ifProcessed && !n) return qr(e, t, $r, "null");
         if (e.for && !e.forProcessed) return Hr(e, t, $r);
         var a = "_empty_" === e.slotScope ? "" : String(e.slotScope),
           s =
@@ -4975,7 +4975,7 @@
       }
       var to = !!j && eo(!1),
         no = !!j && eo(!0),
-        ao = k(function (e) {
+        ao = w(function (e) {
           var t = ea(e);
           return t && t.innerHTML;
         }),
@@ -5500,7 +5500,7 @@
         }
       }
     }
-    var k = {
+    var w = {
       name: "RouterView",
       functional: !0,
       props: { name: { type: String, default: "default" } },
@@ -5526,7 +5526,7 @@
         if (((r.routerViewDepth = l), y)) {
           var c = u[d],
             T = c && c.component;
-          return T ? (c.configProps && w(T, r, c.route, c.configProps), o(T, r, a)) : o();
+          return T ? (c.configProps && k(T, r, c.route, c.configProps), o(T, r, a)) : o();
         }
         var f = p.matched[l],
           b = f && f.components[d];
@@ -5547,10 +5547,10 @@
               _(p);
           });
         var g = f.props && f.props[d];
-        return g && (s(u[d], { route: p, configProps: g }), w(b, r, p, g)), o(b, r, a);
+        return g && (s(u[d], { route: p, configProps: g }), k(b, r, p, g)), o(b, r, a);
       },
     };
-    function w(e, t, n, a) {
+    function k(e, t, n, a) {
       var i = (t.props = (function (e, t) {
         switch (typeof t) {
           case "undefined":
@@ -5624,7 +5624,7 @@
             v = "+" === f || "*" === f,
             h = "?" === f || "*" === f,
             _ = n[2] || o,
-            k = c || T;
+            w = c || T;
           a.push({
             name: m || s++,
             prefix: y || "",
@@ -5633,7 +5633,7 @@
             repeat: v,
             partial: g,
             asterisk: !!b,
-            pattern: k ? q(k) : b ? ".*" : "[^" + L(_) + "]+?",
+            pattern: w ? U(w) : b ? ".*" : "[^" + L(_) + "]+?",
           });
         }
       }
@@ -5702,10 +5702,10 @@
     function L(e) {
       return e.replace(/([.+*?=^!:${}()[\]|\/\\])/g, "\\$1");
     }
-    function q(e) {
+    function U(e) {
       return e.replace(/([=!:$\/()])/g, "\\$1");
     }
-    function U(e, t) {
+    function q(e, t) {
       return (e.keys = t), e;
     }
     function H(e) {
@@ -5729,7 +5729,7 @@
       return (
         a || (i = (l ? i.slice(0, -u.length) : i) + "(?:" + u + "(?=$))?"),
         (i += s ? "$" : a && l ? "" : "(?=" + u + "|$)"),
-        U(new RegExp("^" + i, H(n)), t)
+        q(new RegExp("^" + i, H(n)), t)
       );
     }
     function F(e, t, n) {
@@ -5751,12 +5751,12 @@
                     asterisk: !1,
                     pattern: null,
                   });
-              return U(e, t);
+              return q(e, t);
             })(e, t)
           : A(e)
           ? (function (e, t, n) {
               for (var a = [], s = 0; s < e.length; s++) a.push(F(e[s], t, n).source);
-              return U(new RegExp("(?:" + a.join("|") + ")", H(n)), t);
+              return q(new RegExp("(?:" + a.join("|") + ")", H(n)), t);
             })(e, t, n)
           : (function (e, t, n) {
               return B(I(e, n), t, n);
@@ -5872,13 +5872,13 @@
             _ = function (e) {
               z(e) && (t.replace ? n.replace(r, G) : n.push(r, G));
             },
-            k = { click: z };
+            w = { click: z };
           Array.isArray(this.event)
             ? this.event.forEach(function (e) {
-                k[e] = _;
+                w[e] = _;
               })
-            : (k[this.event] = _);
-          var w = { class: p },
+            : (w[this.event] = _);
+          var k = { class: p },
             P =
               !this.$scopedSlots.$hasNormal &&
               this.$scopedSlots.default &&
@@ -5887,7 +5887,7 @@
             if (1 === P.length) return P[0];
             if (P.length > 1 || !P.length) return 0 === P.length ? e() : e("span", {}, P);
           }
-          if ("a" === this.tag) (w.on = k), (w.attrs = { href: d, "aria-current": h });
+          if ("a" === this.tag) (k.on = w), (k.attrs = { href: d, "aria-current": h });
           else {
             var M = (function e(t) {
               var n;
@@ -5902,14 +5902,14 @@
               var A = (M.data = s({}, M.data));
               for (var S in ((A.on = A.on || {}), A.on)) {
                 var R = A.on[S];
-                S in k && (A.on[S] = Array.isArray(R) ? R : [R]);
+                S in w && (A.on[S] = Array.isArray(R) ? R : [R]);
               }
-              for (var C in k) C in A.on ? A.on[C].push(k[C]) : (A.on[C] = _);
+              for (var C in w) C in A.on ? A.on[C].push(w[C]) : (A.on[C] = _);
               var D = (M.data.attrs = s({}, M.data.attrs));
               (D.href = d), (D["aria-current"] = h);
-            } else w.on = k;
+            } else k.on = w;
           }
-          return e(this.tag, w, this.$slots.default);
+          return e(this.tag, k, this.$slots.default);
         },
       };
     function z(e) {
@@ -6217,7 +6217,7 @@
     }
     var he = { redirected: 2, aborted: 4, cancelled: 8, duplicated: 16 };
     function _e(e, t) {
-      return we(
+      return ke(
         e,
         t,
         he.redirected,
@@ -6238,15 +6238,15 @@
           '" via a navigation guard.',
       );
     }
-    function ke(e, t) {
-      return we(
+    function we(e, t) {
+      return ke(
         e,
         t,
         he.cancelled,
         'Navigation cancelled from "' + e.fullPath + '" to "' + t.fullPath + '" with a new navigation.',
       );
     }
-    function we(e, t, n, a) {
+    function ke(e, t, n, a) {
       var s = new Error(a);
       return (s._isRouter = !0), (s.from = e), (s.to = t), (s.type = n), s;
     }
@@ -6425,7 +6425,7 @@
           return (
             this.ensureURL(),
             o(
-              (((r = we(
+              (((r = ke(
                 (i = s),
                 e,
                 he.duplicated,
@@ -6457,14 +6457,14 @@
             Se(m),
           ),
           T = function (t, n) {
-            if (a.pending !== e) return o(ke(s, e));
+            if (a.pending !== e) return o(we(s, e));
             try {
               t(e, s, function (t) {
                 !1 === t
                   ? (a.ensureURL(!0),
                     o(
                       (function (e, t) {
-                        return we(
+                        return ke(
                           e,
                           t,
                           he.aborted,
@@ -6503,7 +6503,7 @@
             })(m).concat(a.router.resolveHooks),
             T,
             function () {
-              if (a.pending !== e) return o(ke(s, e));
+              if (a.pending !== e) return o(we(s, e));
               (a.pending = null),
                 t(e),
                 a.router.app &&
@@ -6599,7 +6599,7 @@
         (t || "/") + window.location.search + window.location.hash
       );
     }
-    var qe = (function (e) {
+    var Ue = (function (e) {
       function t(t, n, a) {
         e.call(this, t, n),
           (a &&
@@ -6607,7 +6607,7 @@
               var t = Le(e);
               if (!/^\/#/.test(t)) return window.location.replace(M(e + "/#" + t)), !0;
             })(this.base)) ||
-            Ue();
+            qe();
       }
       return (
         e && (t.__proto__ = e),
@@ -6621,7 +6621,7 @@
             n && this.listeners.push(re());
             var a = function () {
                 var t = e.current;
-                Ue() &&
+                qe() &&
                   e.transitionTo(He(), function (a) {
                     n && oe(e.router, a, t, !0), fe || $e(a.fullPath);
                   });
@@ -6668,7 +6668,7 @@
         t
       );
     })(xe);
-    function Ue() {
+    function qe() {
       var e = He();
       return "/" === e.charAt(0) || ($e("/" + e), !1);
     }
@@ -6766,7 +6766,7 @@
             this.history = new Ee(this, e.base);
             break;
           case "hash":
-            this.history = new qe(this, e.base, this.fallback);
+            this.history = new Ue(this, e.base, this.fallback);
             break;
           case "abstract":
             this.history = new Ye(this, e.base);
@@ -6803,7 +6803,7 @@
         ) {
           this.app = e;
           var n = this.history;
-          if (n instanceof Ee || n instanceof qe) {
+          if (n instanceof Ee || n instanceof Ue) {
             var a = function (e) {
               n.setupListeners(),
                 (function (e) {
@@ -6935,7 +6935,7 @@
                 return this._routerRoot._route;
               },
             }),
-            t.component("RouterView", k),
+            t.component("RouterView", w),
             t.component("RouterLink", j);
           var s = t.config.optionMergeStrategies;
           s.beforeRouteEnter = s.beforeRouteLeave = s.beforeRouteUpdate = s.created;
@@ -10377,8 +10377,8 @@
           name: "IRegistry",
           title: "Interface for Registry Contract",
           author: "Opty.fi",
-          details:
-            "Interface of the opty.fi's protocol reegistry to store all the mappings, governance operator, minyer, strategiet and all optyFi's protocol contract addresses",
+          notice:
+            "Interface of the opty.fi's protocol reegistry to store all the mappings, governance operator, minter, strategist and all optyFi's protocol contract addresses",
           methods: {
             "addRiskProfile(string,uint8,(uint8,uint8))": {
               inputs: [
@@ -10398,17 +10398,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Add the risk profile in Registry contract Storage      Emit events {LogRiskProfile} and {LogRPPoolRatings}",
               params: {
                 _noOfSteps: "No. of permitted corresponding to risk profile provided",
                 _poolRatingRange: "pool rating range ([lowerLimit, upperLimit]) supported by given risk profile",
                 _riskProfile: "Risk Profile to add in Registry Storage",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Adds the risk profile in Registry contract Storage",
             },
             "addRiskProfile(string[],uint8[],(uint8,uint8)[])": {
               inputs: [
@@ -10428,18 +10424,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Add list of the risk profiles in Registry contract Storage in 1 txn.      Emit events {LogRiskProfile} and {LogRPPoolRatings}",
               params: {
-                _noOfSteps: "List of No. of permitted corresponding to list of risk profile provided",
-                _poolRatingRanges:
-                  "List of pool rating range ([lowerLimit, upperLimit]) supported by        given list of risk profiles",
+                _noOfSteps: "List of No. of permitted strategy steps for a given risk profile",
+                _poolRatingRanges: "List of pool rating range supported by given list of risk profiles",
                 _riskProfiles: "List of Risk Profiles to add in Registry Storage",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Adds list of the risk profiles in Registry contract Storage in one transaction",
             },
             "approveCreditPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10447,12 +10438,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_pool` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
-              params: { _pool: "pool for approval to be considered as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              params: { _pool: "credit pool address to be approved" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves the credit pool",
             },
             "approveCreditPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -10460,9 +10448,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Approves multiple credit pools in one transaction",
               params: { _pools: "List of pools for approval to be considered as creditPool" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple credit pools in one transaction",
             },
             "approveLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10510,12 +10498,10 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Discontinue the Vault contract from use permanently      Emits a {LogDiscontinueVault} event",
+              details: "Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage",
               params: { _vault: "Vault address to discontinue" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether operation is succeeded Requirements: - `_vault` cannot be a zero address - `msg.sender` (caller) should be governance Note: Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage.",
-              },
+              returns: { _0: "A boolean value indicating whether operation is succeeded" },
+              notice: "Discontinue the Vault contract from use permanently",
             },
             "getAprOracle()": {
               inputs: [],
@@ -10523,8 +10509,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the AprOracle contract address",
               returns: { _0: "Returns the AprOracle contract address" },
+              notice: "Get the AprOracle contract address",
             },
             "getGovernance()": {
               inputs: [],
@@ -10532,8 +10518,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Governance address",
               returns: { _0: "Returns the Governance address" },
+              notice: "Get the Governance address",
             },
             "getHarvestCodeProvider()": {
               inputs: [],
@@ -10541,8 +10527,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the HarvestCodeProvider contract address",
               returns: { _0: "Returns the HarvestCodeProvider contract address" },
+              notice: "Get the HarvestCodeProvider contract address",
             },
             "getLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10560,9 +10546,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the rating and Is pool a liquidity pool for the _pool provided",
               params: { _pool: "Liquidity Pool (like cDAI etc.) address" },
               returns: { _liquidityPool: "Returns the rating and Is pool a liquidity pool for the _pool provided" },
+              notice: "Get the rating and Is pool a liquidity pool for the _pool provided",
             },
             "getLiquidityPoolToAdapter(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10570,9 +10556,9 @@
               outputs: [{ internalType: "address", name: "_adapter", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the adapter address mapped to the _pool provided",
               params: { _pool: "Liquidity Pool (like cDAI etc.) address" },
               returns: { _adapter: "Returns the adapter address mapped to the _pool provided" },
+              notice: "Get the adapter address mapped to the _pool provided",
             },
             "getOPTYStakingRateBalancer()": {
               inputs: [],
@@ -10580,8 +10566,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the OPTYStakingRateBalancer contract address",
               returns: { _0: "Returns the OPTYStakingRateBalancer contract address" },
+              notice: "Get the OPTYStakingRateBalancer contract address",
             },
             "getOperator()": {
               inputs: [],
@@ -10589,8 +10575,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Operator address",
               returns: { _0: "Returns the Operator address" },
+              notice: "Get the Operator address",
             },
             "getOptyMinter()": {
               inputs: [],
@@ -10598,8 +10584,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the OptyMinter contract address",
               returns: { _0: "Returns the OptyMinter contract address" },
+              notice: "Get the OptyMinter contract address",
             },
             "getRiskManager()": {
               inputs: [],
@@ -10607,8 +10593,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the RiskManager contract address",
               returns: { _0: "Returns the RiskManager contract address" },
+              notice: "Get the RiskManager contract address",
             },
             "getRiskProfile(string)": {
               inputs: [{ internalType: "string", name: "", type: "string" }],
@@ -10629,8 +10615,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the properties corresponding to riskProfile provided",
               returns: { _riskProfile: "Returns the properties corresponding to riskProfile provided" },
+              notice: "Get the properties corresponding to riskProfile provided",
             },
             "getRiskProfileList()": {
               inputs: [],
@@ -10638,8 +10624,8 @@
               outputs: [{ internalType: "string[]", name: "", type: "string[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the list of all the riskProfiles",
               returns: { _0: "Returns the list of all riskProfiles stored in Registry Storage" },
+              notice: "Get the list of all the riskProfiles",
             },
             "getStrategyConfiguration()": {
               inputs: [],
@@ -10658,8 +10644,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the configuration related to Strategy contracts",
               returns: { _strategyConfiguration: "Returns the configuration related to Strategy contracts" },
+              notice: "Get the configuration related to Strategy contracts",
             },
             "getStrategyManager()": {
               inputs: [],
@@ -10667,8 +10653,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the StrategyManager contract address",
               returns: { _0: "Returns the StrategyManager contract address" },
+              notice: "Get the StrategyManager contract address",
             },
             "getStrategyProvider()": {
               inputs: [],
@@ -10676,8 +10662,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the StrategyProvider contract address",
               returns: { _0: "Returns the StrategyProvider contract address" },
+              notice: "Get the StrategyProvider contract address",
             },
             "getTokenHashes()": {
               inputs: [],
@@ -10685,8 +10671,8 @@
               outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the list of tokensHash",
               returns: { _0: "Returns the list of tokensHash." },
+              notice: "Get the list of tokensHash",
             },
             "getTokensHashByIndex(uint256)": {
               inputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
@@ -10694,9 +10680,9 @@
               outputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the tokensHash available at the index provided",
               params: { _index: "Index at which you want to get the tokensHash" },
               returns: { _tokensHash: "Returns the tokensHash available at the index provided" },
+              notice: "Get the tokensHash available at the index provided",
             },
             "getTokensHashIndexByHash(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -10704,9 +10690,9 @@
               outputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the index corresponding to tokensHash provided",
               params: { _tokensHash: "Hash of token address/addresses" },
               returns: { _index: "Returns the index corresponding to tokensHash provided" },
+              notice: "Get the index corresponding to tokensHash provided",
             },
             "getTokensHashToTokenList(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -10714,8 +10700,8 @@
               outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get list of token given the `_tokensHash`.",
-              returns: { _0: "Returns the list of tokens corresponding to `_tokensHash`." },
+              returns: { _0: "Returns the list of tokens corresponding to tokensHash" },
+              notice: "Get list of token given the tokensHash",
             },
             "getTreasuryShares(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -10733,9 +10719,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Set the treasury accounts along with  their fee shares corresponding to vault contract.",
               params: { _vault: "Vault contract address" },
               returns: { _0: "Returns Treasuries along with their fee shares" },
+              notice: "Get the treasury accounts with their fee shares corresponding to vault contract",
             },
             "getVaultConfiguration(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -10763,8 +10749,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the configuration of vault contract",
               returns: { _vaultConfiguration: "Returns the configuration of vault contract" },
+              notice: "Get the configuration of vault contract",
             },
             "getVaultStepInvestStrategyDefinitionRegistry()": {
               inputs: [],
@@ -10772,8 +10758,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the VaultStepInvestStrategyDefinitionRegistry contract address",
               returns: { _0: "Returns the VaultStepInvestStrategyDefinitionRegistry contract address" },
+              notice: "Get the VaultStepInvestStrategyDefinitionRegistry contract address",
             },
             "getVaultStrategyConfiguration()": {
               inputs: [],
@@ -10793,10 +10779,10 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the contract address required as part of strategy by vault contract",
               returns: {
                 _vaultStrategyConfiguration: "Returns the configuration related to Strategy for Vault contracts",
               },
+              notice: "Get the contract address required as part of strategy by vault contract",
             },
             "isApprovedToken(address)": {
               inputs: [{ internalType: "address", name: "_token", type: "address" }],
@@ -10804,9 +10790,9 @@
               outputs: [{ internalType: "bool", name: "_isTokenApproved", type: "bool" }],
               stateMutability: "view",
               type: "function",
-              details: "Check if the token is approved or not",
               params: { _token: "Token address for which to check if it is approved or not" },
               returns: { _isTokenApproved: "Returns a boolean for token approved or not" },
+              notice: "Check if the token is approved or not",
             },
             "rateCreditPool(address,uint8)": {
               inputs: [
@@ -10817,13 +10803,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide `_rate` to `_pool` from the {creditPools} mapping.      Emits a {LogRateCreditPool} event.",
               params: { _pool: "creditPool to map with its rating", _rate: "rate for the creaditPool provided" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded." },
+              notice: "Sets the pool rate for the credit pool provided",
             },
             "rateCreditPool((address,uint8)[])": {
               inputs: [
@@ -10841,13 +10823,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide [`_pool`,`_rate`] from the {creditPools} mapping.      Emits a {LogRateCreditPool} event.",
-              params: { _poolRates: "List of pool rates (format: [_pool, _rate]) to set for creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              params: { _poolRates: "List of pool rates ([_pool, _rate]) to set for creditPool" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the multiple pool rates and credit pools provided",
             },
             "rateLiquidityPool((address,uint8)[])": {
               inputs: [
@@ -10867,7 +10845,7 @@
               type: "function",
               params: { _poolRates: "List of pool rates ([_pool, _rate]) to set" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
-              notice: "Sets the pool rate for the liquidity pool provided",
+              notice: "Sets multiple pool rates and liquidity pools provided",
             },
             "rateLiquidityPool(address,uint8)": {
               inputs: [
@@ -10878,9 +10856,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the pool rate for the liquidity pool provided",
               params: { _pool: "liquidityPool to map with its rating", _rate: "rate for the liquidityPool provided" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the pool rate for the liquidity pool provided",
             },
             "removeRiskProfile(uint256)": {
               inputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
@@ -10888,12 +10866,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Remove the existing risk profile in Registry contract Storage      Emit event {LogRiskProfile}",
               params: { _index: "Index of risk profile to be removed" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Remove the existing risk profile in Registry contract Storage",
             },
             "revokeCreditPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -10901,12 +10876,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes multiple `_pool` from the {revokeCreditPools} mapping.      Emit event {LogCreditPool}",
               params: { _pools: "List of pools for revoking from being used as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes multiple credit pools in one transaction",
             },
             "revokeCreditPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -10914,12 +10886,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_pool` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
               params: { _pool: "pool for revoking from being used as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes the credit pool",
             },
             "revokeLiquidityPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -10990,16 +10959,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.      Emits a {LogLiquidityPoolToDepositToken} event.",
               params: {
                 _adapter: "adapter for the liquidityPool provided",
                 _pool: "liquidityPool to map with its adapter",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool`should be approved. - `_adapter` should be contract",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps liquidity pool to its protocol adapter",
             },
             "setLiquidityPoolToAdapter((address,address)[])": {
               inputs: [
@@ -11017,13 +10982,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Maps liquidity `_pool` to the protocol adapter `_adapter` using {liquidityPoolToAdapter}.      Emits a {LogLiquidityPoolToDepositToken} event.",
-              params: { _poolAdapters: "List of `[_pool, _adapter]` pairs to set" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool`should be approved. - `_adapter` should be contract",
-              },
+              params: { _poolAdapters: "List of [pool, adapter] pairs to set" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps multiple liquidity pools to their protocol adapters",
             },
             "setOPTY(address)": {
               inputs: [{ internalType: "address", name: "_opty", type: "address" }],
@@ -11091,13 +11052,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets multiple `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.      Emits a {LogSetTokensHashToTokens} event.",
               params: { _setOfTokens: "List of mulitple token addresses to map with their (paired tokens) hashes" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_tokens` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps multiple token pairs to their keccak256 hash",
             },
             "setTokensHashToTokens(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -11105,13 +11062,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.      Emits a {LogSetTokensHashToTokens} event.",
               params: { _tokens: "List of token addresses to map with their hashes" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_tokens` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets token pair to its keccak256 hash",
             },
             "setTreasuryShares(address,(address,uint256)[])": {
               inputs: [
@@ -11130,9 +11083,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the treasury accounts with their fee shares corresponding to vault contract",
               params: { _treasuryShares: "Array of treasuries and their fee shares", _vault: "Vault contract address" },
               returns: { _0: "Returns a boolean value indicating whether the operation succeeded" },
+              notice: "Set the treasury accounts with their fee shares corresponding to vault contract",
             },
             "setUnderlyingAssetHashToRPToVaults(address[][],string[],address[][])": {
               inputs: [
@@ -11144,17 +11097,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`      and `_riskProfiles`in one transaction      Emits a {LogUnderlyingAssetHashToRPToVaults} event",
               params: {
                 _riskProfiles: "List of Risk profile mapped to the vault contract",
                 _underlyingAssets: "List of paired token addresses to map with the riskProfile and Vault contract",
                 _vaults: "List of Vault contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded Requirements: - `msg.sender` (caller) should be operator - `_underlyingAssets` cannot be empty - `_vault` cannot be the zero address or EOA",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps mulitple underlying tokens to risk profiles to vault contracts address",
             },
             "setUnderlyingAssetHashToRPToVaults(address[],string,address)": {
               inputs: [
@@ -11166,17 +11115,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingAsset` and `_riskProfile`      Emits a {LogUnderlyingAssetHashToRPToVaults} event",
               params: {
                 _riskProfile: "Risk profile mapped to the vault contract",
                 _underlyingAssets: "List of token addresses to map with the riskProfile and Vault contract",
                 _vault: "Vault contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded Requirements: - `msg.sender` (caller) should be operator - `_underlyingAssets` cannot be empty - `_vault` cannot be the zero address or EOA",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps the Vault contract with underlying assets and riskProfile",
             },
             "setVaultStepInvestStrategyDefinitionRegistry(address)": {
               inputs: [
@@ -11202,15 +11147,12 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the withdrawal fee for the vault contract.",
               params: {
                 _vault: "Vault contract address",
                 _withdrawalFee: "Withdrawal fee to be set for vault contract",
               },
-              returns: {
-                _success:
-                  "Returns a boolean value indicating whether the operation succeeded Requirements:  - `msg.sender` Can only be current governance.",
-              },
+              returns: { _success: "Returns a boolean value indicating whether the operation succeeded" },
+              notice: "Set the withdrawal fee for the vault contract",
             },
             "unpauseVaultContract(address,bool)": {
               inputs: [
@@ -11221,13 +11163,11 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Pause tha Vault contract for use temporarily during any emergency      Emits a {LogUnpauseVault} event",
               params: {
-                _unpaused:
-                  "A boolean value `true` to pause vault contract and `false` for un-pause vault contract Requirements: - `_vault` cannot be a zero address - `msg.sender` (caller) should be governance",
+                _unpaused: "A boolean value true to unpause vault contract and false for pause vault contract",
                 _vault: "Vault contract address to pause",
               },
+              notice: "Pause/Unpause tha Vault contract for use temporarily during any emergency",
             },
             "updateRPPoolRatings(string,(uint8,uint8))": {
               inputs: [
@@ -11246,16 +11186,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Update the pool ratings for existing risk profile      Emit event {LogRPPoolRatings}",
               params: {
-                _poolRatingRange:
-                  "pool rating range ([lowerLimit, upperLimit])        to update for given risk profile",
+                _poolRatingRange: "pool rating range ([lowerLimit, upperLimit]) to update for given risk profile",
                 _riskProfile: "Risk profile to update with pool rating range",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` should exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Update the pool ratings for existing risk profile",
             },
             "updateRiskProfileSteps(string,uint8)": {
               inputs: [
@@ -11266,23 +11202,22 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Update the no. of steps for existing risk profile      Emit event {LogRiskProfile}",
               params: {
-                _noOfSteps: "No. of steps for a given risk profile",
-                _riskProfile: "Risk Profile to update with steps",
+                _noOfSteps: "No. of strategy steps allowed for a given risk profile",
+                _riskProfile: "Risk Profile to update with strategy steps",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` should exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Update the no. of strategy steps allowed for existing risk profile",
             },
           },
         },
         "contracts/interfaces/opty/IRiskManager.sol:IRiskManager": {
           source: "contracts/interfaces/opty/IRiskManager.sol",
           name: "IRiskManager",
-          details:
-            "Interface for RiskManaget - An extra protection for the best strategy      of the opty-fi vault's underlying token",
+          title: "Interface for RiskManager contract",
+          author: "Opty.fi",
+          notice:
+            "A layer between vault and registry contract to get the best invest strategy as well as vault reward token strategy",
           methods: {
             "getBestStrategy(string,address[])": {
               inputs: [
@@ -11293,15 +11228,12 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the best strategy for respective RiskProfiles",
               params: {
                 _profile: "risk profile corresponding to which get the best strategy",
                 _underlyingTokens: "array of underlying token addresses",
               },
-              returns: {
-                _0:
-                  'Returns the hash of the best strategy corresponding to the riskProfile provided Requirements: - `_profile` can be among these values ["RP1"/"RP2"/"RP3"] or as decided by governance      - Can not be empty - `_underlyingTokens` is an array of underlying tokens like dai, usdc and so forth      - Can not have length 0',
-              },
+              returns: { _0: "Returns the hash of the best strategy corresponding to the riskProfile provided" },
+              notice: "Get the best strategy for respective RiskProfiles",
             },
             "getVaultRewardTokenStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_vaultRewardTokenHash", type: "bytes32" }],
@@ -11319,19 +11251,19 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the VaultRewardToken strategy for respective VaultRewardToken hash",
               params: { _vaultRewardTokenHash: "Hash of vault contract address and reward token address" },
-              returns: {
-                _vaultRewardStrategy:
-                  "Returns the hash of the VaultRewardToken strategy corresponding         to the `_vaultRewardTokenHash` provided Requirements: - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses      - Can not be empty",
-              },
+              returns: { _vaultRewardStrategy: "Returns the VaultRewardToken strategy for given vaultRewardTokenHash" },
+              notice: "Get the VaultRewardToken strategy for respective VaultRewardToken hash",
             },
           },
         },
         "contracts/interfaces/opty/IStrategyManager.sol:IStrategyManager": {
           source: "contracts/interfaces/opty/IStrategyManager.sol",
           name: "IStrategyManager",
-          details: "Interface for StrategyManager -      Central processing unit of the earn protocol",
+          title: "Interface for StrategyManager Contract",
+          author: "Opty.fi",
+          details: "Contains the functionality for getting the codes from the adapters",
+          notice: "Central processing unit of the earn protocol",
           methods: {
             "getBalanceInUnderlyingToken(address,address,bytes32)": {
               inputs: [
@@ -11343,13 +11275,13 @@
               outputs: [{ internalType: "uint256", name: "_balance", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the balance of vault in underlyingToken provided",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: { _balance: "Returns the balance of vault in underlyingToken provided" },
+              notice: "Get the balance of vault in underlyingToken provided",
             },
             "getClaimRewardStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyHash", type: "bytes32" }],
@@ -11357,12 +11289,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the claim reward token codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the claim reward token codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0:
-                  "Returns the claim reward token codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the claim reward token codes steps count for the given stretagy hash" },
             },
             "getDepositAllStepCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyHash", type: "bytes32" }],
@@ -11370,11 +11299,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the deposit codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the deposit codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0: "Returns the deposit codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the deposit codes steps count for the given stretagy hash" },
             },
             "getHarvestRewardStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyHash", type: "bytes32" }],
@@ -11382,13 +11309,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get the harvest reward token codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the harvest reward token codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0:
-                  "Returns the harvest reward token codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the harvest reward token codes steps count for the given stretagy hash" },
             },
             "getPoolClaimAllRewardCodes(address,bytes32)": {
               inputs: [
@@ -11399,16 +11322,12 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get all codes for claiming reward tokens from pool available in the      strategy hash provided",
+              details: "Get codes for claiming all reward tokens from pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
               },
-              returns: {
-                _codes:
-                  "Returns all codes for claiming reward tokens from pool available         in the strategy hash provided",
-              },
+              returns: { _codes: "Returns codes for claiming all reward tokens from pool for the given strategy hash" },
             },
             "getPoolDepositAllCodes(address,address,bytes32,uint8,uint8)": {
               inputs: [
@@ -11422,7 +11341,7 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get all codes for depositing into pool available from the      strategy hash provided",
+              details: "Get codes for depositing all balance in the pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
@@ -11430,9 +11349,7 @@
                 _stepIndex: "The index corresponding to the strategy step",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
-              returns: {
-                _codes: "Returns all codes for depositing into pool available         from the strategy hash provided",
-              },
+              returns: { _codes: "Returns codes for depositing all balance in pool for the given strategy hash" },
             },
             "getPoolHarvestAllRewardCodes(address,address,bytes32)": {
               inputs: [
@@ -11444,16 +11361,14 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get all codes for harvesting reward tokens from pool available in the      strategy hash provided",
+              details: "Get codes for harvesting all reward tokens from pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: {
-                _codes:
-                  "Returns all codes for harvesting reward tokens from pool available         in the strategy hash provided",
+                _codes: "Returns codes for harvesting all reward tokens from pool for the given strategy hash",
               },
             },
             "getPoolHarvestSomeRewardCodes(address,address,bytes32,(uint256,uint256))": {
@@ -11476,16 +11391,15 @@
               stateMutability: "view",
               type: "function",
               details:
-                "Get some codes (with the amount cal. based on _convertRewardTokensPercent) for      harvesting reward tokens from pool available in the strategy hash provided",
+                "Get codes for harvesting some reward tokens from pool for the given strategy hashAmount of reward tokens to be harvest depends upon on convert percentage",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
-                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)",
+                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)]",
               },
               returns: {
-                _codes:
-                  "Returns some codes for harvesting reward tokens from pool available         in the strategy hash provided",
+                _codes: "Returns codes for harvesting some reward tokens from pool for the given strategy hash",
               },
             },
             "getPoolWithdrawAllCodes(address,address,bytes32,uint8,uint8)": {
@@ -11500,7 +11414,7 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get all codes for withdrawing from pool available in the      strategy hash provided",
+              details: "Get codes for withdrawing all balance from the pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
@@ -11509,7 +11423,7 @@
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: {
-                _codes: "Returns all codes for withdrawing from pool available         in the strategy hash provided",
+                _codes: "Returns codes for withdrawing all balance from the pool for the given strategy hash",
               },
             },
             "getRewardToken(bytes32)": {
@@ -11518,6 +11432,9 @@
               outputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
               stateMutability: "view",
               type: "function",
+              params: { _investStrategyHash: "Hash associated with the strategy" },
+              returns: { _rewardToken: "Address of reward token" },
+              notice: "Get the reward token for the given strategy hash",
             },
             "getSplitPaymentCode((address,uint256)[],address,address,uint256)": {
               inputs: [
@@ -11539,12 +11456,11 @@
               stateMutability: "pure",
               type: "function",
               details:
-                "Get the codes for the withdraw fee split shares between the      treasury accounts and also the codes for the remaining amount      to be transferred to the caller (user or msg.sender)",
+                "Get the codes for spliting the withdraw fee shares between the treasury accountsGet the code for the the remaining amount to be transferred to the caller (user or msg.sender)",
               params: {
                 _account: "User's (msg.sender) address who is initiating withdraw",
                 _redeemAmountInToken: "Amount to be redeemed in token",
-                _treasuryShares:
-                  "Shares (in basis percent) for corresponding                        treasury account address",
+                _treasuryShares: "Shares (in basis percent) for corresponding treasury account address",
                 _underlyingToken: "Underlying toke address",
               },
             },
@@ -11557,6 +11473,9 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
+              details: "Provides the codes to update the reward tokens distribution state",
+              params: { _from: "User's address", _vault: "Vault contract address (Eg: op<RP><Token>Vault)" },
+              returns: { _codes: "Returns the codes to update the reward tokens distribution state" },
             },
             "getWithdrawAllStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyHash", type: "bytes32" }],
@@ -11564,18 +11483,19 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the withdrawal codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the withdrawal codes step's count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0: "Returns the withdrawal codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the withdrawal codes steps count for the given stretagy hash" },
             },
           },
         },
         "contracts/interfaces/opty/IStrategyProvider.sol:IStrategyProvider": {
           source: "contracts/interfaces/opty/IStrategyProvider.sol",
           name: "IStrategyProvider",
-          details: "Interface for strategy provider",
+          title: "Interface for StrategyProvider Contract",
+          author: "Opty.fi",
+          notice:
+            "Contains functions for setting and getting the best and default strategy as well as vault reward token strategy",
           methods: {
             "getDefaultStrategyState()": {
               inputs: [],
@@ -11583,8 +11503,8 @@
               outputs: [{ internalType: "enum DataTypes.DefaultStrategyState", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Default strategy state already set",
               returns: { _0: "Returns the Default strategy state (zero or compound or aave) already set" },
+              notice: "Get the Default strategy state already set",
             },
             "getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -11602,9 +11522,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the Vault reward token's strategy corresponding to the `_tokensHash` provided",
               params: { _tokensHash: "Hash of Vault contract and reward token address" },
-              returns: { _0: "Returns the Vault reward token's strategy corresponding to the `_tokensHash` provided" },
+              returns: { _0: "Returns the Vault reward token's strategy corresponding to the tokensHash provided" },
+              notice: "Get the Vault reward token's strategy corresponding to the tokensHash provided",
             },
             "rpToTokenToBestStrategy(string,bytes32)": {
               inputs: [
@@ -11615,12 +11535,12 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Best strategy corresponding to _riskProfile and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
-              returns: { _0: "Returns the best strategy hash corresponding to _riskProfile and _tokenHash provided" },
+              returns: { _0: "Returns the best strategy hash corresponding to riskProfile and tokenHash provided" },
+              notice: "Get the Best strategy corresponding to riskProfile and tokenHash provided",
             },
             "rpToTokenToDefaultStrategy(string,bytes32)": {
               inputs: [
@@ -11631,14 +11551,14 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Best Default strategy corresponding to _riskProfile and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
               returns: {
-                _0: "Returns the best default strategy hash corresponding to _riskProfile and _tokenHash provided",
+                _0: "Returns the best default strategy hash corresponding to riskProfile and tokenHash provided",
               },
+              notice: "Get the Best Default strategy corresponding to riskProfile and tokenHash provided",
             },
             "setBestDefaultStrategy(string,bytes32,bytes32)": {
               inputs: [
@@ -11650,14 +11570,12 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Set the best default stratetgy: _strategyHash for the _riskProfile      and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
-                _strategyHash:
-                  "Strategy hash to be set as best default strategy Requirements: - msg.sender should be operator.",
+                _strategyHash: "Strategy hash to be set as best default strategy",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
+              notice: "Set the best default stratetgy for the given riskProfile and tokenHash",
             },
             "setBestStrategy(string,bytes32,bytes32)": {
               inputs: [
@@ -11669,13 +11587,12 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the best stratetgy: _strategyHash for the _riskProfile      and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
-                _strategyHash:
-                  "Strategy hash to be set as best strategy Requirements: - msg.sender should be operator.",
+                _strategyHash: "Strategy hash to be set as best strategy",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
+              notice: "Set the best stratetgy for the given riskProfile and tokenHash",
             },
             "setDefaultStrategyState(uint8)": {
               inputs: [
@@ -11685,8 +11602,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the Default strategy state to zero or compound or aave",
               params: { _defaultStrategyState: "Default strategy state (zero or compound or aave) to be set" },
+              notice: "Set the Default strategy state to zero or compound or aave",
             },
             "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
               inputs: [
@@ -11715,17 +11632,12 @@
               ],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign strategy in form of `_vaultRewardStrategy` to the `_vaultRewardTokenHash`.      Emits a {LogSetVaultRewardStrategy} event.",
+              details: "Assign strategy in form of vaultRewardStrategy to the vaultRewardTokenHash",
               params: {
-                _vaultRewardStrategy:
-                  "Vault reward token's strategy to be set corresponding                             _vaultRewardTokenHash provided",
+                _vaultRewardStrategy: "Vault reward token's strategy for the specified vaultRewardTokenHash",
                 _vaultRewardTokenHash: "Hash of vault contract and reward token address",
               },
-              returns: {
-                _0:
-                  "Returns a vaultRewardStrategy hash value indicating successful operation. Requirements: - msg.sender should be operator. - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000. - `convert` in {_vaultRewardStrategy} should be approved      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.",
-              },
+              returns: { _0: "Returns a vaultRewardStrategy hash value indicating successful operation" },
             },
           },
         },
@@ -12126,7 +12038,7 @@
           name: "IVaultStepInvestStrategyDefinitionRegistry",
           title: "IVaultStepInvestStrategyDefinitionRegistry",
           author: "Opty.fi",
-          details: "Interface for IVaultStepInvestStrategyDefinitionRegistry",
+          notice: "Contains functionality to setting all the strategies for all tokens",
           methods: {
             "getStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_hash", type: "bytes32" }],
@@ -12146,12 +12058,12 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Returns the Strategy Steps corresponding to `_hash`.",
               params: { _hash: "Hash of the strategy steps" },
               returns: {
                 _index: "Index at which strategy is stored",
-                _strategySteps: "Returns the Strategy Steps corresponding to `_hash` provided",
+                _strategySteps: "Returns the Strategy Steps corresponding to _hash provided",
               },
+              notice: "Returns the Strategy Steps corresponding to _hash",
             },
             "getTokenToStrategies(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -12159,9 +12071,9 @@
               outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Returns the Strategy Steps corresponding to `_tokensHash`.",
               params: { _tokensHash: "Hash of the underlying token address/addresses" },
-              returns: { _0: "Returns the List of Strategies corresponding to `_tokensHash` provided" },
+              returns: { _0: "Returns the List of Strategies corresponding to _tokensHash provided" },
+              notice: "Returns the Strategy Steps corresponding to _tokensHash",
             },
             "setStrategy(bytes32,(address,address,bool)[][])": {
               inputs: [
@@ -12181,8 +12093,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign multiple strategies in form of `_strategySteps` to the `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps} can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign multiple strategies in form of _strategySteps to the _tokensHash",
               params: {
                 _strategySteps: "List of Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "List of Hashes of underlying token address/addresses",
@@ -12207,8 +12118,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign strategy in form of `_strategySteps` to the `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign strategy in form of _strategySteps to the _tokensHash",
               params: {
                 _strategySteps: "Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "Hash of underlying token address/addresses",
@@ -12233,8 +12143,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign multiple strategies in form of `_strategySteps` to multiple tokens in form of `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps} can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign multiple strategies in form of _strategySteps to multiple tokens in form of _tokensHash",
               params: {
                 _strategySteps: "List of Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "List of Hashes of underlying token address/addresses",
@@ -13201,7 +13110,7 @@
         "contracts/protocol/configuration/Modifiers.sol:Modifiers": {
           source: "contracts/protocol/configuration/Modifiers.sol",
           name: "Modifiers",
-          title: "Modifiers",
+          title: "Modifiers Contract",
           author: "Opty.fi",
           details: "Contract used to keep all the modifiers at one place",
           methods: {
@@ -13227,7 +13136,7 @@
         "contracts/protocol/configuration/ModifiersController.sol:ModifiersController": {
           source: "contracts/protocol/configuration/ModifiersController.sol",
           name: "ModifiersController",
-          title: "ModifiersController",
+          title: "ModifiersController Contract",
           author: "Opty.fi",
           details: "Contract used to authorize and keep all the modifiers at one place",
           events: {
@@ -13240,6 +13149,7 @@
               ],
               name: "LogCreditPool",
               type: "event",
+              notice: "Emitted when credit pool is approved or revoked",
             },
             "LogDiscontinueVault(address,bool,address)": {
               anonymous: !1,
@@ -13260,6 +13170,7 @@
               ],
               name: "LogLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is approved or revoked",
             },
             "LogLiquidityPoolToDepositToken(address,address,address)": {
               anonymous: !1,
@@ -13270,6 +13181,7 @@
               ],
               name: "LogLiquidityPoolToDepositToken",
               type: "event",
+              notice: "Emitted when liquidity pool pool is assigned to adapter",
             },
             "LogRPPoolRatings(uint256,uint8,uint8,address)": {
               anonymous: !1,
@@ -13281,6 +13193,7 @@
               ],
               name: "LogRPPoolRatings",
               type: "event",
+              notice: "Emitted when Risk profile is set",
             },
             "LogRateCreditPool(address,uint8,address)": {
               anonymous: !1,
@@ -13291,6 +13204,7 @@
               ],
               name: "LogRateCreditPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRateLiquidityPool(address,uint8,address)": {
               anonymous: !1,
@@ -13301,6 +13215,7 @@
               ],
               name: "LogRateLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRiskProfile(uint256,bool,uint8,address)": {
               anonymous: !1,
@@ -13312,6 +13227,7 @@
               ],
               name: "LogRiskProfile",
               type: "event",
+              notice: "Emitted when RiskProfile is added",
             },
             "LogScoreStrategy(address,bytes32,uint8)": {
               anonymous: !1,
@@ -13322,6 +13238,7 @@
               ],
               name: "LogScoreStrategy",
               type: "event",
+              notice: "Emitted when hash strategy is scored",
             },
             "LogToken(address,bool,address)": {
               anonymous: !1,
@@ -13332,6 +13249,7 @@
               ],
               name: "LogToken",
               type: "event",
+              notice: "Emitted when token is approved or revoked",
             },
             "LogTokensToTokensHash(bytes32,address)": {
               anonymous: !1,
@@ -13341,6 +13259,7 @@
               ],
               name: "LogTokensToTokensHash",
               type: "event",
+              notice: "Emitted when tokens are assigned to tokensHash",
             },
             "LogUnderlyingAssetHashToRPToVaults(bytes32,string,address,address)": {
               anonymous: !1,
@@ -13352,6 +13271,7 @@
               ],
               name: "LogUnderlyingAssetHashToRPToVaults",
               type: "event",
+              notice: "Emitted when setUnderlyingAssetHashToRPToVaults function is called",
             },
             "LogUnpauseVault(address,bool,address)": {
               anonymous: !1,
@@ -13362,6 +13282,7 @@
               ],
               name: "LogUnpauseVault",
               type: "event",
+              notice: "Emitted when Pause over vault is activated/deactivated",
             },
             "TransferOPTYMinter(address,address)": {
               anonymous: !1,
@@ -13703,13 +13624,14 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
+              notice: "Map underlying token with its respective price feed contract address",
             },
           },
         },
         "contracts/protocol/configuration/Registry.sol:Registry": {
           source: "contracts/protocol/configuration/Registry.sol",
           name: "Registry",
-          title: "Registry",
+          title: "Registry Contract",
           author: "Opty.fi",
           details: "Contract to persit status of tokens,lpTokens,lp/cp and Vaults",
           events: {
@@ -13722,6 +13644,7 @@
               ],
               name: "LogCreditPool",
               type: "event",
+              notice: "Emitted when credit pool is approved or revoked",
             },
             "LogDiscontinueVault(address,bool,address)": {
               anonymous: !1,
@@ -13742,6 +13665,7 @@
               ],
               name: "LogLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is approved or revoked",
             },
             "LogLiquidityPoolToDepositToken(address,address,address)": {
               anonymous: !1,
@@ -13752,6 +13676,7 @@
               ],
               name: "LogLiquidityPoolToDepositToken",
               type: "event",
+              notice: "Emitted when liquidity pool pool is assigned to adapter",
             },
             "LogRPPoolRatings(uint256,uint8,uint8,address)": {
               anonymous: !1,
@@ -13763,6 +13688,7 @@
               ],
               name: "LogRPPoolRatings",
               type: "event",
+              notice: "Emitted when Risk profile is set",
             },
             "LogRateCreditPool(address,uint8,address)": {
               anonymous: !1,
@@ -13773,6 +13699,7 @@
               ],
               name: "LogRateCreditPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRateLiquidityPool(address,uint8,address)": {
               anonymous: !1,
@@ -13783,6 +13710,7 @@
               ],
               name: "LogRateLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRiskProfile(uint256,bool,uint8,address)": {
               anonymous: !1,
@@ -13794,6 +13722,7 @@
               ],
               name: "LogRiskProfile",
               type: "event",
+              notice: "Emitted when RiskProfile is added",
             },
             "LogScoreStrategy(address,bytes32,uint8)": {
               anonymous: !1,
@@ -13804,6 +13733,7 @@
               ],
               name: "LogScoreStrategy",
               type: "event",
+              notice: "Emitted when hash strategy is scored",
             },
             "LogToken(address,bool,address)": {
               anonymous: !1,
@@ -13814,6 +13744,7 @@
               ],
               name: "LogToken",
               type: "event",
+              notice: "Emitted when token is approved or revoked",
             },
             "LogTokensToTokensHash(bytes32,address)": {
               anonymous: !1,
@@ -13823,6 +13754,7 @@
               ],
               name: "LogTokensToTokensHash",
               type: "event",
+              notice: "Emitted when tokens are assigned to tokensHash",
             },
             "LogUnderlyingAssetHashToRPToVaults(bytes32,string,address,address)": {
               anonymous: !1,
@@ -13834,6 +13766,7 @@
               ],
               name: "LogUnderlyingAssetHashToRPToVaults",
               type: "event",
+              notice: "Emitted when setUnderlyingAssetHashToRPToVaults function is called",
             },
             "LogUnpauseVault(address,bool,address)": {
               anonymous: !1,
@@ -13844,6 +13777,7 @@
               ],
               name: "LogUnpauseVault",
               type: "event",
+              notice: "Emitted when Pause over vault is activated/deactivated",
             },
             "TransferOPTYMinter(address,address)": {
               anonymous: !1,
@@ -13885,17 +13819,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Add the risk profile in Registry contract Storage      Emit events {LogRiskProfile} and {LogRPPoolRatings}",
               params: {
                 _noOfSteps: "No. of permitted corresponding to risk profile provided",
                 _poolRatingRange: "pool rating range ([lowerLimit, upperLimit]) supported by given risk profile",
                 _riskProfile: "Risk Profile to add in Registry Storage",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Adds the risk profile in Registry contract Storage",
             },
             "addRiskProfile(string[],uint8[],(uint8,uint8)[])": {
               inputs: [
@@ -13915,18 +13845,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Add list of the risk profiles in Registry contract Storage in 1 txn.      Emit events {LogRiskProfile} and {LogRPPoolRatings}",
               params: {
-                _noOfSteps: "List of No. of permitted corresponding to list of risk profile provided",
-                _poolRatingRanges:
-                  "List of pool rating range ([lowerLimit, upperLimit]) supported by        given list of risk profiles",
+                _noOfSteps: "List of No. of permitted strategy steps for a given risk profile",
+                _poolRatingRanges: "List of pool rating range supported by given list of risk profiles",
                 _riskProfiles: "List of Risk Profiles to add in Registry Storage",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Adds list of the risk profiles in Registry contract Storage in one transaction",
             },
             "approveCreditPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -13934,12 +13859,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets `_pool` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
-              params: { _pool: "pool for approval to be considered as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              params: { _pool: "credit pool address to be approved" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves the credit pool",
             },
             "approveCreditPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -13947,9 +13869,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Approves multiple credit pools in one transaction",
               params: { _pools: "List of pools for approval to be considered as creditPool" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Approves multiple credit pools in one transaction",
             },
             "approveLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14006,10 +13928,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Set RegistryProxy to act as Registry",
-              params: {
-                _registryProxy:
-                  "RegistryProxy Contract address to act as Registry Requirements: - `msg.sender` should be onlyGovernance and same as RegistryProxy",
-              },
+              params: { _registryProxy: "RegistryProxy Contract address to act as Registry" },
             },
             "creditPools(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -14028,12 +13947,10 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Discontinue the Vault contract from use permanently      Emits a {LogDiscontinueVault} event",
+              details: "Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage",
               params: { _vault: "Vault address to discontinue" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether operation is succeeded Requirements: - `_vault` cannot be a zero address - `msg.sender` (caller) should be governance Note: Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage.",
-              },
+              returns: { _0: "A boolean value indicating whether operation is succeeded" },
+              notice: "Discontinue the Vault contract from use permanently",
             },
             "getAprOracle()": {
               inputs: [],
@@ -14041,8 +13958,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the AprOracle contract address",
               returns: { _0: "Returns the AprOracle contract address" },
+              notice: "Get the AprOracle contract address",
             },
             "getGovernance()": {
               inputs: [],
@@ -14050,8 +13967,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Governance address",
               returns: { _0: "Returns the Governance address" },
+              notice: "Get the Governance address",
             },
             "getHarvestCodeProvider()": {
               inputs: [],
@@ -14059,8 +13976,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the HarvestCodeProvider contract address",
               returns: { _0: "Returns the HarvestCodeProvider contract address" },
+              notice: "Get the HarvestCodeProvider contract address",
             },
             "getLiquidityPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14078,9 +13995,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the rating and Is pool a liquidity pool for the _pool provided",
               params: { _pool: "Liquidity Pool (like cDAI etc.) address" },
               returns: { _liquidityPool: "Returns the rating and Is pool a liquidity pool for the _pool provided" },
+              notice: "Get the rating and Is pool a liquidity pool for the _pool provided",
             },
             "getLiquidityPoolToAdapter(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14088,9 +14005,9 @@
               outputs: [{ internalType: "address", name: "_adapter", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the adapter address mapped to the _pool provided",
               params: { _pool: "Liquidity Pool (like cDAI etc.) address" },
               returns: { _adapter: "Returns the adapter address mapped to the _pool provided" },
+              notice: "Get the adapter address mapped to the _pool provided",
             },
             "getOPTYStakingRateBalancer()": {
               inputs: [],
@@ -14098,8 +14015,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the OPTYStakingRateBalancer contract address",
               returns: { _0: "Returns the OPTYStakingRateBalancer contract address" },
+              notice: "Get the OPTYStakingRateBalancer contract address",
             },
             "getOperator()": {
               inputs: [],
@@ -14107,8 +14024,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Operator address",
               returns: { _0: "Returns the Operator address" },
+              notice: "Get the Operator address",
             },
             "getOptyMinter()": {
               inputs: [],
@@ -14116,8 +14033,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the OptyMinter contract address",
               returns: { _0: "Returns the OptyMinter contract address" },
+              notice: "Get the OptyMinter contract address",
             },
             "getRiskManager()": {
               inputs: [],
@@ -14125,8 +14042,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the RiskManager contract address",
               returns: { _0: "Returns the RiskManager contract address" },
+              notice: "Get the RiskManager contract address",
             },
             "getRiskProfile(string)": {
               inputs: [{ internalType: "string", name: "_riskProfileName", type: "string" }],
@@ -14147,8 +14064,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the properties corresponding to riskProfile provided",
               returns: { _riskProfile: "Returns the properties corresponding to riskProfile provided" },
+              notice: "Get the properties corresponding to riskProfile provided",
             },
             "getRiskProfileList()": {
               inputs: [],
@@ -14156,8 +14073,8 @@
               outputs: [{ internalType: "string[]", name: "", type: "string[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the list of all the riskProfiles",
               returns: { _0: "Returns the list of all riskProfiles stored in Registry Storage" },
+              notice: "Get the list of all the riskProfiles",
             },
             "getStrategyConfiguration()": {
               inputs: [],
@@ -14176,8 +14093,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the configuration related to Strategy contracts",
               returns: { _strategyConfiguration: "Returns the configuration related to Strategy contracts" },
+              notice: "Get the configuration related to Strategy contracts",
             },
             "getStrategyManager()": {
               inputs: [],
@@ -14185,8 +14102,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the StrategyManager contract address",
               returns: { _0: "Returns the StrategyManager contract address" },
+              notice: "Get the StrategyManager contract address",
             },
             "getStrategyProvider()": {
               inputs: [],
@@ -14194,8 +14111,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the StrategyProvider contract address",
               returns: { _0: "Returns the StrategyProvider contract address" },
+              notice: "Get the StrategyProvider contract address",
             },
             "getTokenHashes()": {
               inputs: [],
@@ -14203,8 +14120,8 @@
               outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the list of tokensHash",
               returns: { _0: "Returns the list of tokensHash." },
+              notice: "Get the list of tokensHash",
             },
             "getTokensHashByIndex(uint256)": {
               inputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
@@ -14212,9 +14129,9 @@
               outputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the tokensHash available at the index provided",
               params: { _index: "Index at which you want to get the tokensHash" },
               returns: { _tokensHash: "Returns the tokensHash available at the index provided" },
+              notice: "Get the tokensHash available at the index provided",
             },
             "getTokensHashIndexByHash(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -14222,9 +14139,9 @@
               outputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the index corresponding to tokensHash provided",
               params: { _tokensHash: "Hash of token address/addresses" },
               returns: { _index: "Returns the index corresponding to tokensHash provided" },
+              notice: "Get the index corresponding to tokensHash provided",
             },
             "getTokensHashToTokenList(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -14232,8 +14149,8 @@
               outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get list of token given the `_tokensHash`.",
-              returns: { _0: "Returns the list of tokens corresponding to `_tokensHash`." },
+              returns: { _0: "Returns the list of tokens corresponding to tokensHash" },
+              notice: "Get list of token given the tokensHash",
             },
             "getTreasuryShares(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -14251,9 +14168,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Set the treasury accounts along with  their fee shares corresponding to vault contract.",
               params: { _vault: "Vault contract address" },
               returns: { _0: "Returns Treasuries along with their fee shares" },
+              notice: "Get the treasury accounts with their fee shares corresponding to vault contract",
             },
             "getVaultConfiguration(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -14281,8 +14198,8 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the configuration of vault contract",
               returns: { _vaultConfiguration: "Returns the configuration of vault contract" },
+              notice: "Get the configuration of vault contract",
             },
             "getVaultStepInvestStrategyDefinitionRegistry()": {
               inputs: [],
@@ -14290,8 +14207,8 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the VaultStepInvestStrategyDefinitionRegistry contract address",
               returns: { _0: "Returns the VaultStepInvestStrategyDefinitionRegistry contract address" },
+              notice: "Get the VaultStepInvestStrategyDefinitionRegistry contract address",
             },
             "getVaultStrategyConfiguration()": {
               inputs: [],
@@ -14311,10 +14228,10 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the contract address required as part of strategy by vault contract",
               returns: {
                 _vaultStrategyConfiguration: "Returns the configuration related to Strategy for Vault contracts",
               },
+              notice: "Get the contract address required as part of strategy by vault contract",
             },
             "governance()": {
               inputs: [],
@@ -14338,9 +14255,9 @@
               outputs: [{ internalType: "bool", name: "_isTokenApproved", type: "bool" }],
               stateMutability: "view",
               type: "function",
-              details: "Check if the token is approved or not",
               params: { _token: "Token address for which to check if it is approved or not" },
               returns: { _isTokenApproved: "Returns a boolean for token approved or not" },
+              notice: "Check if the token is approved or not",
             },
             "liquidityPoolToAdapter(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -14426,13 +14343,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide `_rate` to `_pool` from the {creditPools} mapping.      Emits a {LogRateCreditPool} event.",
               params: { _pool: "creditPool to map with its rating", _rate: "rate for the creaditPool provided" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded." },
+              notice: "Sets the pool rate for the credit pool provided",
             },
             "rateCreditPool((address,uint8)[])": {
               inputs: [
@@ -14450,13 +14363,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Provide [`_pool`,`_rate`] from the {creditPools} mapping.      Emits a {LogRateCreditPool} event.",
-              params: { _poolRates: "List of pool rates (format: [_pool, _rate]) to set for creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_pool` cannot be the zero address or an EOA. - `_pool` should be approved",
-              },
+              params: { _poolRates: "List of pool rates ([_pool, _rate]) to set for creditPool" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the multiple pool rates and credit pools provided",
             },
             "rateLiquidityPool((address,uint8)[])": {
               inputs: [
@@ -14476,7 +14385,7 @@
               type: "function",
               params: { _poolRates: "List of pool rates ([_pool, _rate]) to set" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
-              notice: "Sets the pool rate for the liquidity pool provided",
+              notice: "Sets multiple pool rates and liquidity pools provided",
             },
             "rateLiquidityPool(address,uint8)": {
               inputs: [
@@ -14487,9 +14396,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Sets the pool rate for the liquidity pool provided",
               params: { _pool: "liquidityPool to map with its rating", _rate: "rate for the liquidityPool provided" },
               returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets the pool rate for the liquidity pool provided",
             },
             "registryImplementation()": {
               inputs: [],
@@ -14505,12 +14414,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Remove the existing risk profile in Registry contract Storage      Emit event {LogRiskProfile}",
               params: { _index: "Index of risk profile to be removed" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` can not be empty - `_riskProfile` should not already exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Remove the existing risk profile in Registry contract Storage",
             },
             "revokeCreditPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -14518,12 +14424,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes multiple `_pool` from the {revokeCreditPools} mapping.      Emit event {LogCreditPool}",
               params: { _pools: "List of pools for revoking from being used as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes multiple credit pools in one transaction",
             },
             "revokeCreditPool(address)": {
               inputs: [{ internalType: "address", name: "_pool", type: "address" }],
@@ -14531,12 +14434,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Revokes `_pool` from the {creditPools} mapping.      Emits a {LogCreditPool} event.",
               params: { _pool: "pool for revoking from being used as creditPool" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool` cannot be the zero address or an EOA. - `_pool` should not be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Revokes the credit pool",
             },
             "revokeLiquidityPool(address[])": {
               inputs: [{ internalType: "address[]", name: "_pools", type: "address[]" }],
@@ -14637,16 +14537,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.      Emits a {LogLiquidityPoolToDepositToken} event.",
               params: {
                 _adapter: "adapter for the liquidityPool provided",
                 _pool: "liquidityPool to map with its adapter",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool`should be approved. - `_adapter` should be contract",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps liquidity pool to its protocol adapter",
             },
             "setLiquidityPoolToAdapter((address,address)[])": {
               inputs: [
@@ -14664,13 +14560,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Maps liquidity `_pool` to the protocol adapter `_adapter` using {liquidityPoolToAdapter}.      Emits a {LogLiquidityPoolToDepositToken} event.",
-              params: { _poolAdapters: "List of `[_pool, _adapter]` pairs to set" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be governance. - `_pool`should be approved. - `_adapter` should be contract",
-              },
+              params: { _poolAdapters: "List of [pool, adapter] pairs to set" },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps multiple liquidity pools to their protocol adapters",
             },
             "setOPTY(address)": {
               inputs: [{ internalType: "address", name: "_opty", type: "address" }],
@@ -14756,13 +14648,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets multiple `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.      Emits a {LogSetTokensHashToTokens} event.",
               params: { _setOfTokens: "List of mulitple token addresses to map with their (paired tokens) hashes" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_tokens` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps multiple token pairs to their keccak256 hash",
             },
             "setTokensHashToTokens(address[])": {
               inputs: [{ internalType: "address[]", name: "_tokens", type: "address[]" }],
@@ -14770,13 +14658,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.      Emits a {LogSetTokensHashToTokens} event.",
               params: { _tokens: "List of token addresses to map with their hashes" },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` should be operator. - `_tokens` should be approved",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Sets token pair to its keccak256 hash",
             },
             "setTreasuryShares(address,(address,uint256)[])": {
               inputs: [
@@ -14795,9 +14679,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the treasury accounts with their fee shares corresponding to vault contract",
               params: { _treasuryShares: "Array of treasuries and their fee shares", _vault: "Vault contract address" },
               returns: { _0: "Returns a boolean value indicating whether the operation succeeded" },
+              notice: "Set the treasury accounts with their fee shares corresponding to vault contract",
             },
             "setUnderlyingAssetHashToRPToVaults(address[][],string[],address[][])": {
               inputs: [
@@ -14809,17 +14693,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`      and `_riskProfiles`in one transaction      Emits a {LogUnderlyingAssetHashToRPToVaults} event",
               params: {
                 _riskProfiles: "List of Risk profile mapped to the vault contract",
                 _underlyingAssets: "List of paired token addresses to map with the riskProfile and Vault contract",
                 _vaults: "List of Vault contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded Requirements: - `msg.sender` (caller) should be operator - `_underlyingAssets` cannot be empty - `_vault` cannot be the zero address or EOA",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps mulitple underlying tokens to risk profiles to vault contracts address",
             },
             "setUnderlyingAssetHashToRPToVaults(address[],string,address)": {
               inputs: [
@@ -14831,17 +14711,13 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingAsset` and `_riskProfile`      Emits a {LogUnderlyingAssetHashToRPToVaults} event",
               params: {
                 _riskProfile: "Risk profile mapped to the vault contract",
                 _underlyingAssets: "List of token addresses to map with the riskProfile and Vault contract",
                 _vault: "Vault contract address",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded Requirements: - `msg.sender` (caller) should be operator - `_underlyingAssets` cannot be empty - `_vault` cannot be the zero address or EOA",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Maps the Vault contract with underlying assets and riskProfile",
             },
             "setVaultStepInvestStrategyDefinitionRegistry(address)": {
               inputs: [
@@ -14867,15 +14743,12 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the withdrawal fee for the vault contract.",
               params: {
                 _vault: "Vault contract address",
                 _withdrawalFee: "Withdrawal fee to be set for vault contract",
               },
-              returns: {
-                _success:
-                  "Returns a boolean value indicating whether the operation succeeded Requirements:  - `msg.sender` Can only be current governance.",
-              },
+              returns: { _success: "Returns a boolean value indicating whether the operation succeeded" },
+              notice: "Set the withdrawal fee for the vault contract",
             },
             "strategyManager()": {
               inputs: [],
@@ -14938,13 +14811,11 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Pause tha Vault contract for use temporarily during any emergency      Emits a {LogUnpauseVault} event",
               params: {
-                _unpaused:
-                  "A boolean value `true` to pause vault contract and `false` for un-pause vault contract Requirements: - `_vault` cannot be a zero address - `msg.sender` (caller) should be governance",
+                _unpaused: "A boolean value true to unpause vault contract and false for pause vault contract",
                 _vault: "Vault contract address to pause",
               },
+              notice: "Pause/Unpause tha Vault contract for use temporarily during any emergency",
             },
             "updateRPPoolRatings(string,(uint8,uint8))": {
               inputs: [
@@ -14963,16 +14834,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Update the pool ratings for existing risk profile      Emit event {LogRPPoolRatings}",
               params: {
-                _poolRatingRange:
-                  "pool rating range ([lowerLimit, upperLimit])        to update for given risk profile",
+                _poolRatingRange: "pool rating range ([lowerLimit, upperLimit]) to update for given risk profile",
                 _riskProfile: "Risk profile to update with pool rating range",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` should exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Update the pool ratings for existing risk profile",
             },
             "updateRiskProfileSteps(string,uint8)": {
               inputs: [
@@ -14983,15 +14850,12 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Update the no. of steps for existing risk profile      Emit event {LogRiskProfile}",
               params: {
-                _noOfSteps: "No. of steps for a given risk profile",
-                _riskProfile: "Risk Profile to update with steps",
+                _noOfSteps: "No. of strategy steps allowed for a given risk profile",
+                _riskProfile: "Risk Profile to update with strategy steps",
               },
-              returns: {
-                _0:
-                  "A boolean value indicating whether the operation succeeded. Requirements: - `msg.sender` can only be operator - `_riskProfile` should exists",
-              },
+              returns: { _0: "A boolean value indicating whether the operation succeeded" },
+              notice: "Update the no. of strategy steps allowed for existing risk profile",
             },
             "vaultStepInvestStrategyDefinitionRegistry()": {
               inputs: [],
@@ -15018,10 +14882,10 @@
         "contracts/protocol/configuration/RegistryProxy.sol:RegistryProxy": {
           source: "contracts/protocol/configuration/RegistryProxy.sol",
           name: "RegistryProxy",
-          title: "RegistryProxy",
+          title: "RegistryProxy Contract",
           author: "Opty.fi",
           details:
-            "Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`. Registry should reference this contract as their controller.",
+            "Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`. Registry should reference this contract as their controller. It defines a fallback function that delegates all calls to the address returned by the abstract _implementation() internal function.",
           constructor: { inputs: [], stateMutability: "nonpayable", type: "constructor" },
           fallback: { stateMutability: "payable", type: "fallback" },
           receive: { stateMutability: "payable", type: "receive" },
@@ -15035,6 +14899,7 @@
               ],
               name: "LogCreditPool",
               type: "event",
+              notice: "Emitted when credit pool is approved or revoked",
             },
             "LogDiscontinueVault(address,bool,address)": {
               anonymous: !1,
@@ -15055,6 +14920,7 @@
               ],
               name: "LogLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is approved or revoked",
             },
             "LogLiquidityPoolToDepositToken(address,address,address)": {
               anonymous: !1,
@@ -15065,6 +14931,7 @@
               ],
               name: "LogLiquidityPoolToDepositToken",
               type: "event",
+              notice: "Emitted when liquidity pool pool is assigned to adapter",
             },
             "LogRPPoolRatings(uint256,uint8,uint8,address)": {
               anonymous: !1,
@@ -15076,6 +14943,7 @@
               ],
               name: "LogRPPoolRatings",
               type: "event",
+              notice: "Emitted when Risk profile is set",
             },
             "LogRateCreditPool(address,uint8,address)": {
               anonymous: !1,
@@ -15086,6 +14954,7 @@
               ],
               name: "LogRateCreditPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRateLiquidityPool(address,uint8,address)": {
               anonymous: !1,
@@ -15096,6 +14965,7 @@
               ],
               name: "LogRateLiquidityPool",
               type: "event",
+              notice: "Emitted when pool is rated",
             },
             "LogRiskProfile(uint256,bool,uint8,address)": {
               anonymous: !1,
@@ -15107,6 +14977,7 @@
               ],
               name: "LogRiskProfile",
               type: "event",
+              notice: "Emitted when RiskProfile is added",
             },
             "LogScoreStrategy(address,bytes32,uint8)": {
               anonymous: !1,
@@ -15117,6 +14988,7 @@
               ],
               name: "LogScoreStrategy",
               type: "event",
+              notice: "Emitted when hash strategy is scored",
             },
             "LogToken(address,bool,address)": {
               anonymous: !1,
@@ -15127,6 +14999,7 @@
               ],
               name: "LogToken",
               type: "event",
+              notice: "Emitted when token is approved or revoked",
             },
             "LogTokensToTokensHash(bytes32,address)": {
               anonymous: !1,
@@ -15136,6 +15009,7 @@
               ],
               name: "LogTokensToTokensHash",
               type: "event",
+              notice: "Emitted when tokens are assigned to tokensHash",
             },
             "LogUnderlyingAssetHashToRPToVaults(bytes32,string,address,address)": {
               anonymous: !1,
@@ -15147,6 +15021,7 @@
               ],
               name: "LogUnderlyingAssetHashToRPToVaults",
               type: "event",
+              notice: "Emitted when setUnderlyingAssetHashToRPToVaults function is called",
             },
             "LogUnpauseVault(address,bool,address)": {
               anonymous: !1,
@@ -15157,6 +15032,7 @@
               ],
               name: "LogUnpauseVault",
               type: "event",
+              notice: "Emitted when Pause over vault is activated/deactivated",
             },
             "NewGovernance(address,address)": {
               anonymous: !1,
@@ -15176,8 +15052,7 @@
               ],
               name: "NewImplementation",
               type: "event",
-              notice:
-                "Emitted when pendingComptrollerImplementation is accepted,         which means comptroller implementation is updated",
+              notice: "Emitted when pendingComptrollerImplementation is updated",
             },
             "NewPendingGovernance(address,address)": {
               anonymous: !1,
@@ -15228,7 +15103,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Governance function for pending governance to accept role and update Governance",
-              notice: "Accepts transfer of Governance rights. msg.sender must be pendingGovernance",
+              notice: "Accepts transfer of Governance rights",
             },
             "acceptImplementation()": {
               inputs: [],
@@ -15237,7 +15112,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Governance function for new implementation to accept it's role as implementation",
-              notice: "Accepts new implementation of registry. msg.sender must be pendingImplementation",
+              notice: "Accepts new implementation of registry",
             },
             "aprOracle()": {
               inputs: [],
@@ -15411,11 +15286,9 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Governance function to begin change of governance.      The newPendingGovernance must call `acceptGovernance`      to finalize the transfer.",
-              params: { newPendingGovernance: "New pending governance." },
-              notice:
-                "Begins transfer of governance rights.         The newPendingGovernance must call `acceptGovernance`         to finalize the transfer.",
+              details: "The newPendingGovernance must call acceptGovernance() to finalize the transfer",
+              params: { newPendingGovernance: "New pending governance address" },
+              notice: "Transfers the governance rights",
             },
             "setPendingImplementation(address)": {
               inputs: [{ internalType: "address", name: "newPendingImplementation", type: "address" }],
@@ -15424,9 +15297,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Set the registry contract as pending implementation initally",
-              params: {
-                newPendingImplementation: "registry contract address to act as pending        implementation initally",
-              },
+              params: { newPendingImplementation: "registry address to act as pending implementation" },
             },
             "strategyManager()": {
               inputs: [],
@@ -15505,7 +15376,7 @@
         "contracts/protocol/configuration/RegistryStorage.sol:RegistryAdminStorage": {
           source: "contracts/protocol/configuration/RegistryStorage.sol",
           name: "RegistryAdminStorage",
-          title: "RegistryAdminStorage",
+          title: "RegistryAdminStorage Contract",
           author: "Opty.fi",
           details: "Contract used to store registry's admin account",
           events: {
@@ -15584,7 +15455,7 @@
         "contracts/protocol/configuration/RegistryStorage.sol:RegistryStorage": {
           source: "contracts/protocol/configuration/RegistryStorage.sol",
           name: "RegistryStorage",
-          title: "RegistryStorage",
+          title: "RegistryStorage Contract",
           author: "Opty.fi",
           details: "Contract used to store registry's contract state variables and events",
           events: {
@@ -15597,8 +15468,7 @@
               ],
               name: "LogCreditPool",
               type: "event",
-              details:
-                "Emitted when credit `pool` is approved or revoked. Note that `pool` cannot be zero address or EOA.",
+              notice: "Emitted when credit pool is approved or revoked",
             },
             "LogDiscontinueVault(address,bool,address)": {
               anonymous: !1,
@@ -15609,7 +15479,7 @@
               ],
               name: "LogDiscontinueVault",
               type: "event",
-              details: "Emiited when `Discontinue` over vault is activated Note that `vault` can not be a zero address",
+              details: "Emitted when Discontinue over vault is activated",
             },
             "LogLiquidityPool(address,bool,address)": {
               anonymous: !1,
@@ -15620,7 +15490,7 @@
               ],
               name: "LogLiquidityPool",
               type: "event",
-              details: "Emitted when `pool` is approved or revoked. Note that `pool` cannot be zero address or EOA.",
+              notice: "Emitted when pool is approved or revoked",
             },
             "LogLiquidityPoolToDepositToken(address,address,address)": {
               anonymous: !1,
@@ -15631,8 +15501,7 @@
               ],
               name: "LogLiquidityPoolToDepositToken",
               type: "event",
-              details:
-                "Emitted when liquidity pool `pool` is assigned to `adapter`. Note that `pool` should be approved in {liquidityPools}.",
+              notice: "Emitted when liquidity pool pool is assigned to adapter",
             },
             "LogRPPoolRatings(uint256,uint8,uint8,address)": {
               anonymous: !1,
@@ -15644,7 +15513,7 @@
               ],
               name: "LogRPPoolRatings",
               type: "event",
-              details: "Emitted when Risk profile is set Note that `riskProfile` can not be empty",
+              notice: "Emitted when Risk profile is set",
             },
             "LogRateCreditPool(address,uint8,address)": {
               anonymous: !1,
@@ -15655,7 +15524,7 @@
               ],
               name: "LogRateCreditPool",
               type: "event",
-              details: "Emitted when `pool` is rated. Note that `pool` cannot be zero address or EOA.",
+              notice: "Emitted when pool is rated",
             },
             "LogRateLiquidityPool(address,uint8,address)": {
               anonymous: !1,
@@ -15666,7 +15535,7 @@
               ],
               name: "LogRateLiquidityPool",
               type: "event",
-              details: "Emitted when `pool` is rated. Note that `pool` cannot be zero address or EOA.",
+              notice: "Emitted when pool is rated",
             },
             "LogRiskProfile(uint256,bool,uint8,address)": {
               anonymous: !1,
@@ -15678,7 +15547,7 @@
               ],
               name: "LogRiskProfile",
               type: "event",
-              details: "Emitted when RiskProfile is added Note that `riskProfile` can not be empty",
+              notice: "Emitted when RiskProfile is added",
             },
             "LogScoreStrategy(address,bytes32,uint8)": {
               anonymous: !1,
@@ -15689,8 +15558,7 @@
               ],
               name: "LogScoreStrategy",
               type: "event",
-              details:
-                "Emitted when `hash` strategy is scored. Note that `hash` startegy should exist in {strategyHashIndexes}.",
+              notice: "Emitted when hash strategy is scored",
             },
             "LogToken(address,bool,address)": {
               anonymous: !1,
@@ -15701,7 +15569,7 @@
               ],
               name: "LogToken",
               type: "event",
-              details: "Emitted when `token` is approved or revoked. Note that `token` cannot be zero address or EOA.",
+              notice: "Emitted when token is approved or revoked",
             },
             "LogTokensToTokensHash(bytes32,address)": {
               anonymous: !1,
@@ -15711,7 +15579,7 @@
               ],
               name: "LogTokensToTokensHash",
               type: "event",
-              details: "Emitted when tokens are assigned to `_tokensHash`. Note that tokens should be approved",
+              notice: "Emitted when tokens are assigned to tokensHash",
             },
             "LogUnderlyingAssetHashToRPToVaults(bytes32,string,address,address)": {
               anonymous: !1,
@@ -15723,8 +15591,7 @@
               ],
               name: "LogUnderlyingAssetHashToRPToVaults",
               type: "event",
-              details:
-                "Emitted when `setUnderlyingAssetHashToRPToVaults` function is called. Note that `underlyingAssetHash` cannot be zero.",
+              notice: "Emitted when setUnderlyingAssetHashToRPToVaults function is called",
             },
             "LogUnpauseVault(address,bool,address)": {
               anonymous: !1,
@@ -15735,8 +15602,7 @@
               ],
               name: "LogUnpauseVault",
               type: "event",
-              details:
-                "Emiited when `Pause` over vault is activated/deactivated Note that `vault` can not be a zero address",
+              notice: "Emitted when Pause over vault is activated/deactivated",
             },
             "TransferOPTYMinter(address,address)": {
               anonymous: !1,
@@ -15985,9 +15851,9 @@
         "contracts/protocol/configuration/RiskManager.sol:RiskManager": {
           source: "contracts/protocol/configuration/RiskManager.sol",
           name: "RiskManager",
-          title: "RiskManager",
+          title: "RiskManager Contract",
           author: "Opty.fi",
-          details: "An extra protection for the best strategy of the opty-fi vault's      underlying token",
+          details: "Contract contains functionality for getting the best invest and vaultRewardToken strategy",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -16009,10 +15875,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Set RiskManagerProxy to act as RiskManager",
-              params: {
-                _riskManagerProxy:
-                  "RiskManagerProxy contract address to act as RiskManager  Requirements: - `msg.sender` can only be Governance",
-              },
+              params: { _riskManagerProxy: "RiskManagerProxy contract address to act as RiskManager" },
             },
             "getBestStrategy(string,address[])": {
               inputs: [
@@ -16023,15 +15886,12 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the best strategy for respective RiskProfiles",
               params: {
                 _profile: "risk profile corresponding to which get the best strategy",
                 _underlyingTokens: "array of underlying token addresses",
               },
-              returns: {
-                _0:
-                  'Returns the hash of the best strategy corresponding to the riskProfile provided Requirements: - `_profile` can be among these values ["RP1"/"RP2"/"RP3"] or as decided by governance      - Can not be empty - `_underlyingTokens` is an array of underlying tokens like dai, usdc and so forth      - Can not have length 0',
-              },
+              returns: { _0: "Returns the hash of the best strategy corresponding to the riskProfile provided" },
+              notice: "Get the best strategy for respective RiskProfiles",
             },
             "getVaultRewardTokenStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_vaultRewardTokenHash", type: "bytes32" }],
@@ -16049,12 +15909,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the VaultRewardToken strategy for respective VaultRewardToken hash",
               params: { _vaultRewardTokenHash: "Hash of vault contract address and reward token address" },
-              returns: {
-                _vaultRewardStrategy:
-                  "Returns the hash of the VaultRewardToken strategy corresponding         to the `_vaultRewardTokenHash` provided Requirements: - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses      - Can not be empty",
-              },
+              returns: { _vaultRewardStrategy: "Returns the VaultRewardToken strategy for given vaultRewardTokenHash" },
+              notice: "Get the VaultRewardToken strategy for respective VaultRewardToken hash",
             },
             "pendingRiskManagerImplementation()": {
               inputs: [],
@@ -16094,10 +15951,10 @@
         "contracts/protocol/configuration/RiskManagerProxy.sol:RiskManagerProxy": {
           source: "contracts/protocol/configuration/RiskManagerProxy.sol",
           name: "RiskManagerProxy",
-          title: "RiskManagerProxy",
+          title: "RiskManagerProxy Contract",
           author: "Opty.fi",
           details:
-            "Storage for the RiskManager is at this address, while execution is delegated to the      `riskManagerImplementation`. RiskManager should reference this contract as their controller.",
+            "Storage for the RiskManager is at this address, while execution is delegated to the riskManagerImplementation. RiskManager should reference this contract as their controller. It defines a fallback function that delegates all calls to the address returned by the abstract _implementation() internal function.",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -16143,7 +16000,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Governance function for new implementation to accept it's role as implementation",
-              notice: "Accepts new implementation of riskManager. msg.sender must be pendingImplementation",
+              notice: "Accepts new implementation of riskManager",
             },
             "pendingRiskManagerImplementation()": {
               inputs: [],
@@ -16176,10 +16033,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Set the riskManager contract as pending implementation initally",
-              params: {
-                newPendingImplementation:
-                  "riskManager contract address to act as pending        implementation initally",
-              },
+              params: { newPendingImplementation: "riskManager address to act as pending implementation" },
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -16195,9 +16049,9 @@
         "contracts/protocol/configuration/RiskManagerStorage.sol:RiskManagerStorage": {
           source: "contracts/protocol/configuration/RiskManagerStorage.sol",
           name: "RiskManagerStorage",
-          title: "RiskManagerStorage",
+          title: "RiskManagerStorage Contract",
           author: "Opty.fi",
-          details: "Contract to store the state variables of the      RiskManager",
+          notice: "Contract to store the state variables of the RiskManager Contract",
           methods: {
             "ZERO_BYTES32()": {
               inputs: [],
@@ -16228,9 +16082,11 @@
         "contracts/protocol/configuration/StrategyManager.sol:StrategyManager": {
           source: "contracts/protocol/configuration/StrategyManager.sol",
           name: "StrategyManager",
-          title: "StrategyManager",
+          title: "StrategyManager Contract",
           author: "Opty.fi",
-          details: "Central processing unit of the earn protocol",
+          details:
+            "Contains the functionality for getting the codes for deposit/withdraw tokens, claim/harvest reward tokens from the adapters and pass it onto vault contract",
+          notice: "Central processing unit of the earn protocol",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -16255,13 +16111,13 @@
               outputs: [{ internalType: "uint256", name: "_balance", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the balance of vault in underlyingToken provided",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: { _balance: "Returns the balance of vault in underlyingToken provided" },
+              notice: "Get the balance of vault in underlyingToken provided",
             },
             "getClaimRewardStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyhash", type: "bytes32" }],
@@ -16269,12 +16125,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the claim reward token codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the claim reward token codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0:
-                  "Returns the claim reward token codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the claim reward token codes steps count for the given stretagy hash" },
             },
             "getDepositAllStepCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyhash", type: "bytes32" }],
@@ -16282,11 +16135,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the deposit codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the deposit codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0: "Returns the deposit codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the deposit codes steps count for the given stretagy hash" },
             },
             "getHarvestRewardStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyhash", type: "bytes32" }],
@@ -16294,13 +16145,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get the harvest reward token codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the harvest reward token codes steps count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0:
-                  "Returns the harvest reward token codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the harvest reward token codes steps count for the given stretagy hash" },
             },
             "getPoolClaimAllRewardCodes(address,bytes32)": {
               inputs: [
@@ -16311,16 +16158,12 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get all codes for claiming reward tokens from pool available in the      strategy hash provided",
+              details: "Get codes for claiming all reward tokens from pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
               },
-              returns: {
-                _codes:
-                  "Returns all codes for claiming reward tokens from pool available         in the strategy hash provided",
-              },
+              returns: { _codes: "Returns codes for claiming all reward tokens from pool for the given strategy hash" },
             },
             "getPoolDepositAllCodes(address,address,bytes32,uint8,uint8)": {
               inputs: [
@@ -16334,7 +16177,7 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get all codes for depositing into pool available from the      strategy hash provided",
+              details: "Get codes for depositing all balance in the pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
@@ -16342,9 +16185,7 @@
                 _stepIndex: "The index corresponding to the strategy step",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
-              returns: {
-                _codes: "Returns all codes for depositing into pool available         from the strategy hash provided",
-              },
+              returns: { _codes: "Returns codes for depositing all balance in pool for the given strategy hash" },
             },
             "getPoolHarvestAllRewardCodes(address,address,bytes32)": {
               inputs: [
@@ -16356,16 +16197,14 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details:
-                "Get all codes for harvesting reward tokens from pool available in the      strategy hash provided",
+              details: "Get codes for harvesting all reward tokens from pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: {
-                _codes:
-                  "Returns all codes for harvesting reward tokens from pool available         in the strategy hash provided",
+                _codes: "Returns codes for harvesting all reward tokens from pool for the given strategy hash",
               },
             },
             "getPoolHarvestSomeRewardCodes(address,address,bytes32,(uint256,uint256))": {
@@ -16388,16 +16227,15 @@
               stateMutability: "view",
               type: "function",
               details:
-                "Get some codes (with the amount cal. based on _convertRewardTokensPercent) for      harvesting reward tokens from pool available in the strategy hash provided",
+                "Get codes for harvesting some reward tokens from pool for the given strategy hashAmount of reward tokens to be harvest depends upon on convert percentage",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
-                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)",
+                _vaultRewardStrategy: "Vault Reward strategy to get convert Percent (in basis)]",
               },
               returns: {
-                _codes:
-                  "Returns some codes for harvesting reward tokens from pool available         in the strategy hash provided",
+                _codes: "Returns codes for harvesting some reward tokens from pool for the given strategy hash",
               },
             },
             "getPoolWithdrawAllCodes(address,address,bytes32,uint8,uint8)": {
@@ -16412,7 +16250,7 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Get all codes for withdrawing from pool available in the      strategy hash provided",
+              details: "Get codes for withdrawing all balance from the pool for the given strategy hash",
               params: {
                 _investStrategyHash: "Hash of the strategy being used in vault contract",
                 _optyVault: "Vault contract address",
@@ -16421,7 +16259,7 @@
                 _underlyingToken: "Underlying token (eg: DAI, USDC etc.) address",
               },
               returns: {
-                _codes: "Returns all codes for withdrawing from pool available         in the strategy hash provided",
+                _codes: "Returns codes for withdrawing all balance from the pool for the given strategy hash",
               },
             },
             "getRewardToken(bytes32)": {
@@ -16430,6 +16268,9 @@
               outputs: [{ internalType: "address", name: "_rewardToken", type: "address" }],
               stateMutability: "view",
               type: "function",
+              params: { _investStrategyHash: "Hash associated with the strategy" },
+              returns: { _rewardToken: "Address of reward token" },
+              notice: "Get the reward token for the given strategy hash",
             },
             "getSplitPaymentCode((address,uint256)[],address,address,uint256)": {
               inputs: [
@@ -16451,12 +16292,11 @@
               stateMutability: "pure",
               type: "function",
               details:
-                "Get the codes for the withdraw fee split shares between the      treasury accounts and also the codes for the remaining amount      to be transferred to the caller (user or msg.sender)",
+                "Get the codes for spliting the withdraw fee shares between the treasury accountsGet the code for the the remaining amount to be transferred to the caller (user or msg.sender)",
               params: {
                 _account: "User's (msg.sender) address who is initiating withdraw",
                 _redeemAmountInToken: "Amount to be redeemed in token",
-                _treasuryShares:
-                  "Shares (in basis percent) for corresponding                        treasury account address",
+                _treasuryShares: "Shares (in basis percent) for corresponding treasury account address",
                 _underlyingToken: "Underlying toke address",
               },
             },
@@ -16469,6 +16309,9 @@
               outputs: [{ internalType: "bytes[]", name: "_codes", type: "bytes[]" }],
               stateMutability: "view",
               type: "function",
+              details: "Provides the codes to update the reward tokens distribution state",
+              params: { _from: "User's address", _vault: "Vault contract address (Eg: op<RP><Token>Vault)" },
+              returns: { _codes: "Returns the codes to update the reward tokens distribution state" },
             },
             "getWithdrawAllStepsCount(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyhash", type: "bytes32" }],
@@ -16476,11 +16319,9 @@
               outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the withdrawal codes steps count corresponding      to the stretagy hash provided",
+              details: "Get the withdrawal codes step's count for the given stretagy hash",
               params: { _investStrategyHash: "Hash of the strategy being used in vault contract" },
-              returns: {
-                _0: "Returns the withdrawal codes steps count corresponding         to the stretagy hash provided",
-              },
+              returns: { _0: "Returns the withdrawal codes steps count for the given stretagy hash" },
             },
             "registryContract()": {
               inputs: [],
@@ -16504,7 +16345,11 @@
         "contracts/protocol/configuration/StrategyProvider.sol:StrategyProvider": {
           source: "contracts/protocol/configuration/StrategyProvider.sol",
           name: "StrategyProvider",
-          details: "Serves as an oracle service of opty-fi's earn protocol      for best strategy",
+          title: "StrategyProvider Contract",
+          author: "Opty.fi",
+          details:
+            "Contracts contains logic for setting and getting the best and default strategy as well as vault reward token strategy",
+          notice: "Serves as an oracle service of opty-fi's earn protocol",
           constructor: {
             inputs: [{ internalType: "address", name: "_registry", type: "address" }],
             stateMutability: "nonpayable",
@@ -16517,7 +16362,7 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              notice: "Zero value contract for bytes32 datatype ",
+              notice: "Zero value constant of bytes32 datatype ",
             },
             "defaultStrategyState()": {
               inputs: [],
@@ -16533,8 +16378,8 @@
               outputs: [{ internalType: "enum DataTypes.DefaultStrategyState", name: "", type: "uint8" }],
               stateMutability: "view",
               type: "function",
-              details: "Get the Default strategy state already set",
               returns: { _0: "Returns the Default strategy state (zero or compound or aave) already set" },
+              notice: "Get the Default strategy state already set",
             },
             "getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -16552,9 +16397,9 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Get the Vault reward token's strategy corresponding to the `_tokensHash` provided",
               params: { _tokensHash: "Hash of Vault contract and reward token address" },
-              returns: { _0: "Returns the Vault reward token's strategy corresponding to the `_tokensHash` provided" },
+              returns: { _0: "Returns the Vault reward token's strategy corresponding to the tokensHash provided" },
+              notice: "Get the Vault reward token's strategy corresponding to the tokensHash provided",
             },
             "registryContract()": {
               inputs: [],
@@ -16573,8 +16418,7 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              notice:
-                "Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash (hash of underlying token address/addresses)         to the best strategy hash",
+              notice: "Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to the best strategy hash",
             },
             "rpToTokenToDefaultStrategy(string,bytes32)": {
               inputs: [
@@ -16585,8 +16429,7 @@
               outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
               stateMutability: "view",
               type: "function",
-              notice:
-                "Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash (hash of underlying token address/addresses)         to the best default strategy hash",
+              notice: "Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to best default strategy hash",
             },
             "setBestDefaultStrategy(string,bytes32,bytes32)": {
               inputs: [
@@ -16598,14 +16441,12 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Set the best default stratetgy: _strategyHash for the _riskProfile      and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
-                _strategyHash:
-                  "Strategy hash to be set as best default strategy Requirements: - msg.sender should be operator.",
+                _strategyHash: "Strategy hash to be set as best default strategy",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
+              notice: "Set the best default stratetgy for the given riskProfile and tokenHash",
             },
             "setBestStrategy(string,bytes32,bytes32)": {
               inputs: [
@@ -16617,13 +16458,12 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the best stratetgy: _strategyHash for the _riskProfile      and _tokenHash provided",
               params: {
                 _riskProfile: "Risk profile (Eg: RP1, RP2, etc)",
-                _strategyHash:
-                  "Strategy hash to be set as best strategy Requirements: - msg.sender should be operator.",
+                _strategyHash: "Strategy hash to be set as best strategy",
                 _tokenHash: "Hash of the underlying token address/addresses",
               },
+              notice: "Set the best stratetgy for the given riskProfile and tokenHash",
             },
             "setDefaultStrategyState(uint8)": {
               inputs: [
@@ -16633,8 +16473,8 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Set the Default strategy state to zero or compound or aave",
               params: { _defaultStrategyState: "Default strategy state (zero or compound or aave) to be set" },
+              notice: "Set the Default strategy state to zero or compound or aave",
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -16672,17 +16512,12 @@
               ],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign strategy in form of `_vaultRewardStrategy` to the `_vaultRewardTokenHash`.      Emits a {LogSetVaultRewardStrategy} event.",
+              details: "Assign strategy in form of vaultRewardStrategy to the vaultRewardTokenHash",
               params: {
-                _vaultRewardStrategy:
-                  "Vault reward token's strategy to be set corresponding                             _vaultRewardTokenHash provided",
+                _vaultRewardStrategy: "Vault reward token's strategy for the specified vaultRewardTokenHash",
                 _vaultRewardTokenHash: "Hash of vault contract and reward token address",
               },
-              returns: {
-                _0:
-                  "Returns a vaultRewardStrategy hash value indicating successful operation. Requirements: - msg.sender should be operator. - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000. - `convert` in {_vaultRewardStrategy} should be approved      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.",
-              },
+              returns: { _0: "Returns a vaultRewardStrategy hash value indicating successful operation" },
             },
             "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
@@ -16693,14 +16528,14 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "Mapping of hash (vault and reward token address hash) to vault reward token strategy",
+              notice: "Mapping of vaultRewardToken address hash to vault reward token strategy",
             },
           },
         },
         "contracts/protocol/configuration/VaultStepInvestStrategyDefinitionRegistry.sol:VaultStepInvestStrategyDefinitionRegistry": {
           source: "contracts/protocol/configuration/VaultStepInvestStrategyDefinitionRegistry.sol",
           name: "VaultStepInvestStrategyDefinitionRegistry",
-          title: "VaultStepInvestStrategyDefinitionRegistry",
+          title: "VaultStepInvestStrategyDefinitionRegistry Contract",
           author: "Opty.fi",
           details: "Contract to persist vault's step invest strategy definition",
           constructor: {
@@ -16718,7 +16553,7 @@
               ],
               name: "LogSetVaultInvestStrategy",
               type: "event",
-              details: "Emitted when `hash` strategy is set. Note that `token` cannot be zero address or EOA.",
+              notice: "Emitted when hash strategy is set",
             },
           },
           methods: {
@@ -16740,12 +16575,12 @@
               ],
               stateMutability: "view",
               type: "function",
-              details: "Returns the Strategy Steps corresponding to `_hash`.",
               params: { _hash: "Hash of the strategy steps" },
               returns: {
                 _index: "Index at which strategy is stored",
-                _strategySteps: "Returns the Strategy Steps corresponding to `_hash` provided",
+                _strategySteps: "Returns the Strategy Steps corresponding to _hash provided",
               },
+              notice: "Returns the Strategy Steps corresponding to _hash",
             },
             "getTokenToStrategies(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_tokensHash", type: "bytes32" }],
@@ -16753,9 +16588,9 @@
               outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
               stateMutability: "view",
               type: "function",
-              details: "Returns the Strategy Steps corresponding to `_tokensHash`.",
               params: { _tokensHash: "Hash of the underlying token address/addresses" },
-              returns: { _0: "Returns the List of Strategies corresponding to `_tokensHash` provided" },
+              returns: { _0: "Returns the List of Strategies corresponding to _tokensHash provided" },
+              notice: "Returns the Strategy Steps corresponding to _tokensHash",
             },
             "registryContract()": {
               inputs: [],
@@ -16792,8 +16627,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign multiple strategies in form of `_strategySteps` to the `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps} can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign multiple strategies in form of _strategySteps to the _tokensHash",
               params: {
                 _strategySteps: "List of Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "List of Hashes of underlying token address/addresses",
@@ -16818,8 +16652,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign strategy in form of `_strategySteps` to the `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign strategy in form of _strategySteps to the _tokensHash",
               params: {
                 _strategySteps: "Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "Hash of underlying token address/addresses",
@@ -16844,8 +16677,7 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details:
-                "Assign multiple strategies in form of `_strategySteps` to multiple tokens in form of `_tokensHash`.      Emits a {LogSetVaultInvestStrategy} event. Requirements: - msg.sender should be operator. - `creditPool` and `borrowToken` in {_strategySteps} can be zero address simultaneously only - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.",
+              details: "Assign multiple strategies in form of _strategySteps to multiple tokens in form of _tokensHash",
               params: {
                 _strategySteps: "List of Strategy steps containing [pool, outputToken, isBorrow]",
                 _tokensHash: "List of Hashes of underlying token address/addresses",

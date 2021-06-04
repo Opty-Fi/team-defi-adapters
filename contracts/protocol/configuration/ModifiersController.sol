@@ -7,10 +7,8 @@ import { RegistryStorage } from "./RegistryStorage.sol";
 import { IModifiersController } from "../../interfaces/opty/IModifiersController.sol";
 
 /**
- * @title ModifiersController
- *
+ * @title ModifiersController Contract
  * @author Opty.fi
- *
  * @dev Contract used to authorize and keep all the modifiers at one place
  */
 abstract contract ModifiersController is IModifiersController, RegistryStorage {

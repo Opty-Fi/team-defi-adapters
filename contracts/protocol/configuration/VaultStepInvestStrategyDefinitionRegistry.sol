@@ -10,10 +10,8 @@ import {
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 
 /**
- * @title VaultStepInvestStrategyDefinitionRegistry
- *
+ * @title VaultStepInvestStrategyDefinitionRegistry Contract
  * @author Opty.fi
- *
  * @dev Contract to persist vault's step invest strategy definition
  */
 contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDefinitionRegistry, Modifiers {
@@ -27,16 +25,12 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     bytes32[] public strategyHashIndexes;
 
     /**
-     * @dev Emitted when `hash` strategy is set.
-     *
-     * Note that `token` cannot be zero address or EOA.
+     * @notice Emitted when hash strategy is set
      */
     event LogSetVaultInvestStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller);
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
-
-    /* solhint-disable no-empty-blocks */
 
     /**
      * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
@@ -88,7 +82,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
      * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
     function getStrategy(bytes32 _hash)
-        external
+        public
         view
         override
         returns (uint256 _index, DataTypes.StrategyStep[] memory _strategySteps)
@@ -100,7 +94,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     /**
      * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
-    function getTokenToStrategies(bytes32 _tokensHash) external view override returns (bytes32[] memory) {
+    function getTokenToStrategies(bytes32 _tokensHash) public view override returns (bytes32[] memory) {
         return tokenToStrategies[_tokensHash];
     }
 
@@ -130,13 +124,9 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev Check duplicate `_hash` Startegy from the {strategyHashIndexes} mapping.
-     *
-     * Requirements:
-     * - {strategyHashIndexes} length should be more than zero.
-     *
+     * @dev Check duplicate _hash Strategy
      * @param _hash Strategy Hash to be checked if it is new or not
-     * @return Returns a boolean value indicating whether duplicate `_hash` exists or not.
+     * @return Returns a boolean value indicating whether duplicate _hash exists or not.
      */
     function _isNewStrategy(bytes32 _hash) internal view returns (bool) {
         if (strategyHashIndexes.length == 0) {

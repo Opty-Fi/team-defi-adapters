@@ -6,10 +6,8 @@ pragma experimental ABIEncoderV2;
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 /**
- * @title RegistryAdminStorage
- *
+ * @title RegistryAdminStorage Contract
  * @author Opty.fi
- *
  * @dev Contract used to store registry's admin account
  */
 contract RegistryAdminStorage {
@@ -55,10 +53,8 @@ contract RegistryAdminStorage {
 }
 
 /**
- * @title RegistryStorage
- *
+ * @title RegistryStorage Contract
  * @author Opty.fi
- *
  * @dev Contract used to store registry's contract state variables and events
  */
 contract RegistryStorage is RegistryAdminStorage {
@@ -92,14 +88,17 @@ contract RegistryStorage is RegistryAdminStorage {
      *         address for keeping track of all the vault contracts
      */
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
+
     /**
      * @notice riskProfile mapped to its struct `RiskProfile`
      */
     mapping(string => DataTypes.RiskProfile) public riskProfiles;
+
     /**
      * @notice vault contract address mapped to VaultConfiguration
      */
     mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
+
     /**
      * @notice List of all the tokenHashes
      */
@@ -156,79 +155,57 @@ contract RegistryStorage is RegistryAdminStorage {
     address public optyStakingRateBalancer;
 
     /**
-     * @dev Emitted when `token` is approved or revoked.
-     *
-     * Note that `token` cannot be zero address or EOA.
+     * @notice Emitted when token is approved or revoked
      */
     event LogToken(address indexed token, bool indexed enabled, address indexed caller);
 
     /**
-     * @dev Emitted when `pool` is approved or revoked.
-     *
-     * Note that `pool` cannot be zero address or EOA.
+     * @notice Emitted when pool is approved or revoked
      */
     event LogLiquidityPool(address indexed pool, bool indexed enabled, address indexed caller);
 
     /**
-     * @dev Emitted when credit `pool` is approved or revoked.
-     *
-     * Note that `pool` cannot be zero address or EOA.
+     * @notice Emitted when credit pool is approved or revoked
      */
     event LogCreditPool(address indexed pool, bool indexed enabled, address indexed caller);
 
     /**
-     * @dev Emitted when `pool` is rated.
-     *
-     * Note that `pool` cannot be zero address or EOA.
+     * @notice Emitted when pool is rated
      */
     event LogRateLiquidityPool(address indexed pool, uint8 indexed rate, address indexed caller);
 
     /**
-     * @dev Emitted when `pool` is rated.
-     *
-     * Note that `pool` cannot be zero address or EOA.
+     * @notice Emitted when pool is rated
      */
     event LogRateCreditPool(address indexed pool, uint8 indexed rate, address indexed caller);
 
     /**
-     * @dev Emitted when `hash` strategy is scored.
-     *
-     * Note that `hash` startegy should exist in {strategyHashIndexes}.
+     * @notice Emitted when hash strategy is scored
      */
     event LogScoreStrategy(address indexed caller, bytes32 indexed hash, uint8 indexed score);
 
     /**
-     * @dev Emitted when liquidity pool `pool` is assigned to `adapter`.
-     *
-     * Note that `pool` should be approved in {liquidityPools}.
+     * @notice Emitted when liquidity pool pool is assigned to adapter
      */
     event LogLiquidityPoolToDepositToken(address indexed pool, address indexed adapter, address indexed caller);
 
     /**
-     * @dev Emitted when tokens are assigned to `_tokensHash`.
-     *
-     * Note that tokens should be approved
+     * @notice Emitted when tokens are assigned to tokensHash
      */
     event LogTokensToTokensHash(bytes32 indexed _tokensHash, address indexed caller);
 
     /**
-     * @dev Emiited when `Discontinue` over vault is activated
-     *
-     * Note that `vault` can not be a zero address
+     * @dev Emitted when Discontinue over vault is activated
      */
     event LogDiscontinueVault(address indexed vault, bool indexed discontinued, address indexed caller);
 
     /**
-     * @dev Emiited when `Pause` over vault is activated/deactivated
-     *
-     * Note that `vault` can not be a zero address
+     * @notice Emitted when Pause over vault is activated/deactivated
      */
     event LogUnpauseVault(address indexed vault, bool indexed unpaused, address indexed caller);
 
     /**
-     * @dev Emitted when `setUnderlyingAssetHashToRPToVaults` function is called.
-     *
-     * Note that `underlyingAssetHash` cannot be zero.
+     * @notice Emitted when setUnderlyingAssetHashToRPToVaults function is called
      */
     event LogUnderlyingAssetHashToRPToVaults(
         bytes32 indexed underlyingAssetHash,
@@ -238,16 +215,12 @@ contract RegistryStorage is RegistryAdminStorage {
     );
 
     /**
-     * @dev Emitted when RiskProfile is added
-     *
-     * Note that `riskProfile` can not be empty
+     * @notice Emitted when RiskProfile is added
      */
     event LogRiskProfile(uint256 indexed index, bool indexed exists, uint8 indexed steps, address caller);
 
     /**
-     * @dev Emitted when Risk profile is set
-     *
-     * Note that `riskProfile` can not be empty
+     * @notice Emitted when Risk profile is set
      */
     event LogRPPoolRatings(uint256 indexed index, uint8 indexed lowerLimit, uint8 indexed upperLimit, address caller);
 }

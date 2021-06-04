@@ -3,15 +3,23 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./Modifiers.sol";
-import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
-import { ReserveDataV1, IAaveV1 } from "../../interfaces/aave/v1/IAaveV1.sol";
+
+//  libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  interfaces
 import { IAaveV1LendingPoolAddressesProvider } from "../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";
 import { IAaveV1LendingPoolCore } from "../../interfaces/aave/v1/IAaveV1LendingPoolCore.sol";
 import { ReserveDataV2, IAaveV2 } from "../../interfaces/aave/v2/IAaveV2.sol";
 import { IAaveV2LendingPoolAddressesProvider } from "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import { ICompound } from "../../interfaces/compound/ICompound.sol";
+import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
+import { ReserveDataV1, IAaveV1 } from "../../interfaces/aave/v1/IAaveV1.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title APROracle contract

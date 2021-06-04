@@ -8,10 +8,8 @@ import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
 
 /**
- * @title Modifiers
- *
+ * @title Modifiers Contract
  * @author Opty.fi
- *
  * @dev Contract used to keep all the modifiers at one place
  */
 abstract contract Modifiers is IModifiers {
@@ -22,11 +20,6 @@ abstract contract Modifiers is IModifiers {
 
     using Address for address;
 
-    /**
-     * @dev Sets the owner, governance and strategist while deploying the contract
-     *
-     * @param _registry Registry contract address
-     */
     constructor(address _registry) internal {
         registryContract = IRegistry(_registry);
     }
@@ -84,7 +77,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check if vault contract is discontinued from usage or not
+     * @notice Checks if vault contract is discontinued from usage or not
      * @param _vault Address of vault/stakingVault contract to disconitnue
      */
     function _ifNotPausedAndDiscontinued(address _vault) internal view {
@@ -93,7 +86,7 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
-     * @dev Modifier to check if vault contract is paused from usage or not
+     * @notice Checks if vault contract is paused or unpaused from usage
      * @param _vault Address of vault/stakingVault contract to pause/unpause
      */
     function _isUnpaused(address _vault) internal view {

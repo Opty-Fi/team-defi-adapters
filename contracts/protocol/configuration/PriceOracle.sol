@@ -31,15 +31,10 @@ contract PriceOracle is IPriceOracle, Modifiers {
     address private constant BTC_USD = address(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
 
     /**
-     * @dev Map underlying token with its respective price feed contract address
+     * @notice Map underlying token with its respective price feed contract address
      */
     mapping(address => address) public underlyingTokenToPriceFeed;
 
-    /**
-     * @dev Sets the registry contract along with underlying tokens with their oracles
-     *
-     * @param _registry address of registry contract
-     */
     constructor(address _registry) public Modifiers(_registry) {
         setOracle(DAI, DAI_USD);
         setOracle(USDC, USDC_USD);
@@ -60,7 +55,7 @@ contract PriceOracle is IPriceOracle, Modifiers {
      * @inheritdoc IPriceOracle
      */
     function getUnderlyingTokenAmountInUSD(uint256 _amount, address _underlyingToken)
-        external
+        public
         view
         override
         returns (uint256)
@@ -75,7 +70,7 @@ contract PriceOracle is IPriceOracle, Modifiers {
      * @inheritdoc IPriceOracle
      */
     function getUSDAmountInUnderlyingToken(uint256 _amount, address _underlyingToken)
-        external
+        public
         view
         override
         returns (uint256)

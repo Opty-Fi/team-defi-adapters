@@ -11,10 +11,8 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 
 /**
- * @title Registry
- *
+ * @title Registry Contract
  * @author Opty.fi
- *
  * @dev Contract to persit status of tokens,lpTokens,lp/cp and Vaults
  */
 contract Registry is IRegistry, ModifiersController {
@@ -23,12 +21,7 @@ contract Registry is IRegistry, ModifiersController {
 
     /**
      * @dev Set RegistryProxy to act as Registry
-     *
      * @param _registryProxy RegistryProxy Contract address to act as Registry
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be onlyGovernance and same as RegistryProxy
      */
     function become(RegistryProxy _registryProxy) external {
         require(msg.sender == _registryProxy.governance(), "!governance");
@@ -493,21 +486,21 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getTokenHashes() external view override returns (bytes32[] memory) {
+    function getTokenHashes() public view override returns (bytes32[] memory) {
         return tokensHashIndexes;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTokensHashToTokenList(bytes32 _tokensHash) external view override returns (address[] memory) {
+    function getTokensHashToTokenList(bytes32 _tokensHash) public view override returns (address[] memory) {
         return tokensHashToTokens[_tokensHash].tokens;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getRiskProfileList() external view override returns (string[] memory) {
+    function getRiskProfileList() public view override returns (string[] memory) {
         return riskProfilesArray;
     }
 
@@ -515,7 +508,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getVaultConfiguration(address _vault)
-        external
+        public
         view
         override
         returns (DataTypes.VaultConfiguration memory _vaultConfiguration)
@@ -526,42 +519,42 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getVaultStepInvestStrategyDefinitionRegistry() external view override returns (address) {
+    function getVaultStepInvestStrategyDefinitionRegistry() public view override returns (address) {
         return vaultStepInvestStrategyDefinitionRegistry;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTokensHashIndexByHash(bytes32 _tokensHash) external view override returns (uint256 _index) {
+    function getTokensHashIndexByHash(bytes32 _tokensHash) public view override returns (uint256 _index) {
         _index = tokensHashToTokens[_tokensHash].index;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTokensHashByIndex(uint256 _index) external view override returns (bytes32 _tokensHash) {
+    function getTokensHashByIndex(uint256 _index) public view override returns (bytes32 _tokensHash) {
         _tokensHash = tokensHashIndexes[_index];
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function isApprovedToken(address _token) external view override returns (bool _isTokenApproved) {
+    function isApprovedToken(address _token) public view override returns (bool _isTokenApproved) {
         _isTokenApproved = tokens[_token];
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getStrategyProvider() external view override returns (address) {
+    function getStrategyProvider() public view override returns (address) {
         return strategyProvider;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getStrategyManager() external view override returns (address) {
+    function getStrategyManager() public view override returns (address) {
         return strategyManager;
     }
 
@@ -576,7 +569,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getRiskProfile(string memory _riskProfileName)
-        external
+        public
         view
         override
         returns (DataTypes.RiskProfile memory _riskProfile)
@@ -587,42 +580,42 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getRiskManager() external view override returns (address) {
+    function getRiskManager() public view override returns (address) {
         return riskManager;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getOptyMinter() external view override returns (address) {
+    function getOptyMinter() public view override returns (address) {
         return minter;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getGovernance() external view override returns (address) {
+    function getGovernance() public view override returns (address) {
         return governance;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getOperator() external view override returns (address) {
+    function getOperator() public view override returns (address) {
         return operator;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getHarvestCodeProvider() external view override returns (address) {
+    function getHarvestCodeProvider() public view override returns (address) {
         return harvestCodeProvider;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getOPTYStakingRateBalancer() external view override returns (address) {
+    function getOPTYStakingRateBalancer() public view override returns (address) {
         return optyStakingRateBalancer;
     }
 
@@ -630,7 +623,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getLiquidityPool(address _pool)
-        external
+        public
         view
         override
         returns (DataTypes.LiquidityPool memory _liquidityPool)
@@ -642,7 +635,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getStrategyConfiguration()
-        external
+        public
         view
         override
         returns (DataTypes.StrategyConfiguration memory _strategyConfiguration)
@@ -656,7 +649,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getVaultStrategyConfiguration()
-        external
+        public
         view
         override
         returns (DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
@@ -670,14 +663,14 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getLiquidityPoolToAdapter(address _pool) external view override returns (address _adapter) {
+    function getLiquidityPoolToAdapter(address _pool) public view override returns (address _adapter) {
         _adapter = liquidityPoolToAdapter[_pool];
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTreasuryShares(address _vault) external view override returns (DataTypes.TreasuryShare[] memory) {
+    function getTreasuryShares(address _vault) public view override returns (DataTypes.TreasuryShare[] memory) {
         return vaultToVaultConfiguration[_vault].treasuryShares;
     }
 
@@ -852,15 +845,9 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev Check duplicate `_hash` tokensHash from the {tokensHashIndexes} mapping.
-     *
+     * @dev Checks duplicate tokensHash
      * @param _hash Hash of the token address/addresses
-     *
-     * @return A boolean value indicating whether duplicate `_hash` exists or not.
-     *
-     * Requirements:
-     *
-     * - {tokensHashIndexes} length should be more than zero.
+     * @return A boolean value indicating whether duplicate _hash exists or not
      */
     function _isNewTokensHash(bytes32 _hash) internal view returns (bool) {
         if (tokensHashIndexes.length == 0) {

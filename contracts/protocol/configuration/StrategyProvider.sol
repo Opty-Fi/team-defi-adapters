@@ -9,41 +9,40 @@ import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 
 /**
- * @dev Serves as an oracle service of opty-fi's earn protocol
- *      for best strategy
+ * @title StrategyProvider Contract
+ * @author Opty.fi
+ * @notice Serves as an oracle service of opty-fi's earn protocol
+ * @dev Contracts contains logic for setting and getting the best and default strategy
+ * as well as vault reward token strategy
  */
 contract StrategyProvider is IStrategyProvider, Modifiers {
     using SafeMath for uint256;
 
     /**
-     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash (hash of underlying token address/addresses)
-     *         to the best strategy hash
+     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to the best strategy hash
      */
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToBestStrategy;
 
     /**
-     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash (hash of underlying token address/addresses)
-     *         to the best default strategy hash
+     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to best default strategy hash
      */
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToDefaultStrategy;
 
     /**
-     * @notice Mapping of hash (vault and reward token address hash) to vault reward token strategy
+     * @notice Mapping of vaultRewardToken address hash to vault reward token strategy
      */
     mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
 
-    /** Zero value contract for bytes32 datatype */
+    /** @notice Zero value constant of bytes32 datatype */
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
-    /** Stores the default strategy state (zero or compound or aave) */
+    /** @notice Stores the default strategy state (zero or compound or aave) */
     DataTypes.DefaultStrategyState public defaultStrategyState;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {
         setDefaultStrategyState(DataTypes.DefaultStrategyState.CompoundOrAave);
     }
-
-    /* solhint-disable no-empty-blocks */
 
     /**
      * @inheritdoc IStrategyProvider
@@ -99,7 +98,18 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
     /**
      * @inheritdoc IStrategyProvider
      */
-    function getDefaultStrategyState() external view override returns (DataTypes.DefaultStrategyState) {
+    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
+        public
+        override
+        onlyGovernance
+    {
+        defaultStrategyState = _defaultStrategyState;
+    }
+
+    /**
+     * @inheritdoc IStrategyProvider
+     */
+    function getDefaultStrategyState() public view override returns (DataTypes.DefaultStrategyState) {
         return defaultStrategyState;
     }
 
@@ -107,22 +117,11 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
      * @inheritdoc IStrategyProvider
      */
     function getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokensHash)
-        external
+        public
         view
         override
         returns (DataTypes.VaultRewardStrategy memory)
     {
         return vaultRewardTokenHashToVaultRewardTokenStrategy[_tokensHash];
-    }
-
-    /**
-     * @inheritdoc IStrategyProvider
-     */
-    function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
-        public
-        override
-        onlyGovernance
-    {
-        defaultStrategyState = _defaultStrategyState;
     }
 }

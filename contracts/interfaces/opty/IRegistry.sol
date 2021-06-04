@@ -8,12 +8,12 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 /**
  * @title Interface for Registry Contract
  * @author Opty.fi
- * @dev Interface of the opty.fi's protocol reegistry to store all the mappings, governance
- * operator, minyer, strategiet and all optyFi's protocol contract addresses
+ * @notice Interface of the opty.fi's protocol reegistry to store all the mappings, governance
+ * operator, minter, strategist and all optyFi's protocol contract addresses
  */
 interface IRegistry {
     /**
-     * @dev Set the treasury accounts with their fee shares corresponding to vault contract
+     * @notice Set the treasury accounts with their fee shares corresponding to vault contract
      * @param _vault Vault contract address
      * @param _treasuryShares Array of treasuries and their fee shares
      * @return Returns a boolean value indicating whether the operation succeeded
@@ -144,14 +144,14 @@ interface IRegistry {
     function revokeLiquidityPool(address _pool) external returns (bool);
 
     /**
-     * @notice Sets the pool rate for the liquidity pool provided
+     * @notice Sets multiple pool rates and liquidity pools provided
      * @param _poolRates List of pool rates ([_pool, _rate]) to set
      * @return A boolean value indicating whether the operation succeeded
      */
     function rateLiquidityPool(DataTypes.PoolRate[] memory _poolRates) external returns (bool);
 
     /**
-     * @dev Sets the pool rate for the liquidity pool provided
+     * @notice Sets the pool rate for the liquidity pool provided
      * @param _pool liquidityPool to map with its rating
      * @param _rate rate for the liquidityPool provided
      * @return A boolean value indicating whether the operation succeeded
@@ -159,162 +159,83 @@ interface IRegistry {
     function rateLiquidityPool(address _pool, uint8 _rate) external returns (bool);
 
     /**
-     * @dev Approves multiple credit pools in one transaction
+     * @notice Approves multiple credit pools in one transaction
      * @param _pools List of pools for approval to be considered as creditPool
      * @return A boolean value indicating whether the operation succeeded
      */
     function approveCreditPool(address[] memory _pools) external returns (bool);
 
     /**
-     * @dev Sets `_pool` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
-     * @param _pool pool for approval to be considered as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     *
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @notice Approves the credit pool
+     * @param _pool credit pool address to be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function approveCreditPool(address _pool) external returns (bool);
 
     /**
-     * @dev Revokes multiple `_pool` from the {revokeCreditPools} mapping.
-     *      Emit event {LogCreditPool}
-     *
+     * @notice Revokes multiple credit pools in one transaction
      * @param _pools List of pools for revoking from being used as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeCreditPool(address[] memory _pools) external returns (bool);
 
     /**
-     * @dev Revokes `_pool` from the {creditPools} mapping.
-     *      Emits a {LogCreditPool} event.
-     *
+     * @notice Revokes the credit pool
      * @param _pool pool for revoking from being used as creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should not be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function revokeCreditPool(address _pool) external returns (bool);
 
     /**
-     * @dev Provide [`_pool`,`_rate`] from the {creditPools} mapping.
-     *      Emits a {LogRateCreditPool} event.
-     *
-     * @param _poolRates List of pool rates (format: [_pool, _rate]) to set for creditPool
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
+     * @notice Sets the multiple pool rates and credit pools provided
+     * @param _poolRates List of pool rates ([_pool, _rate]) to set for creditPool
+     * @return A boolean value indicating whether the operation succeeded
      */
     function rateCreditPool(DataTypes.PoolRate[] memory _poolRates) external returns (bool);
 
     /**
-     * @dev Provide `_rate` to `_pool` from the {creditPools} mapping.
-     *      Emits a {LogRateCreditPool} event.
-     *
+     * @notice Sets the pool rate for the credit pool provided
      * @param _pool creditPool to map with its rating
      * @param _rate rate for the creaditPool provided
-     *
      * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_pool` cannot be the zero address or an EOA.
-     * - `_pool` should be approved
      */
     function rateCreditPool(address _pool, uint8 _rate) external returns (bool);
 
     /**
-     * @dev Maps liquidity `_pool` to the protocol adapter `_adapter` using {liquidityPoolToAdapter}.
-     *      Emits a {LogLiquidityPoolToDepositToken} event.
-     *
-     * @param _poolAdapters List of `[_pool, _adapter]` pairs to set
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool`should be approved.
-     * - `_adapter` should be contract
+     * @notice Maps multiple liquidity pools to their protocol adapters
+     * @param _poolAdapters List of [pool, adapter] pairs to set
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setLiquidityPoolToAdapter(DataTypes.PoolAdapter[] memory _poolAdapters) external returns (bool);
 
     /**
-     * @dev Sets liquidity `_pool` to the protocol adapter `_adapter` from the {liquidityPoolToAdapter} mapping.
-     *      Emits a {LogLiquidityPoolToDepositToken} event.
-     *
+     * @notice Maps liquidity pool to its protocol adapter
      * @param _pool liquidityPool to map with its adapter
      * @param _adapter adapter for the liquidityPool provided
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be governance.
-     * - `_pool`should be approved.
-     * - `_adapter` should be contract
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setLiquidityPoolToAdapter(address _pool, address _adapter) external returns (bool);
 
     /**
-     * @dev Sets multiple `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
-     *      Emits a {LogSetTokensHashToTokens} event.
-     *
+     * @notice Maps multiple token pairs to their keccak256 hash
      * @param _setOfTokens List of mulitple token addresses to map with their (paired tokens) hashes
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_tokens` should be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setTokensHashToTokens(address[][] memory _setOfTokens) external returns (bool);
 
     /**
-     * @dev Sets `_tokens` to keccak256 hash the {tokensHashToTokens} mapping.
-     *      Emits a {LogSetTokensHashToTokens} event.
-     *
+     * @notice Sets token pair to its keccak256 hash
      * @param _tokens List of token addresses to map with their hashes
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` should be operator.
-     * - `_tokens` should be approved
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setTokensHashToTokens(address[] memory _tokens) external returns (bool);
 
     /**
-     * @dev Sets `Vault`/`LM_vault` contract for the corresponding `_underlyingAsset` and `_riskProfile`
-     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
-     *
+     * @notice Maps the Vault contract with underlying assets and riskProfile
      * @param _vault Vault contract address
      * @param _riskProfile Risk profile mapped to the vault contract
      * @param _underlyingAssets List of token addresses to map with the riskProfile and Vault contract
-     *
      * @return A boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     * - `msg.sender` (caller) should be operator
-     * - `_underlyingAssets` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[] memory _underlyingAssets,
@@ -323,33 +244,19 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
-     * @dev Set the withdrawal fee for the vault contract.
-     *
+     * @notice Set the withdrawal fee for the vault contract
      * @param _vault Vault contract address
      * @param _withdrawalFee Withdrawal fee to be set for vault contract
-     *
      * @return _success Returns a boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     *  - `msg.sender` Can only be current governance.
      */
     function setWithdrawalFee(address _vault, uint256 _withdrawalFee) external returns (bool _success);
 
     /**
-     * @dev Sets bunch of `Vaults`/`LP_vaults` contract for the corresponding `_underlyingTokens`
-     *      and `_riskProfiles`in one transaction
-     *      Emits a {LogUnderlyingAssetHashToRPToVaults} event
-     *
+     * @notice Maps mulitple underlying tokens to risk profiles to vault contracts address
      * @param _vaults List of Vault contract address
      * @param _riskProfiles List of Risk profile mapped to the vault contract
      * @param _underlyingAssets List of paired token addresses to map with the riskProfile and Vault contract
-     *
      * @return A boolean value indicating whether the operation succeeded
-     *
-     * Requirements:
-     * - `msg.sender` (caller) should be operator
-     * - `_underlyingAssets` cannot be empty
-     * - `_vault` cannot be the zero address or EOA
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[][] memory _underlyingAssets,
@@ -358,47 +265,26 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
-     * @dev Discontinue the Vault contract from use permanently
-     *      Emits a {LogDiscontinueVault} event
-     *
+     * @notice Discontinue the Vault contract from use permanently
+     * @dev Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage
      * @param _vault Vault address to discontinue
      * @return A boolean value indicating whether operation is succeeded
-     *
-     * Requirements:
-     * - `_vault` cannot be a zero address
-     * - `msg.sender` (caller) should be governance
-     *
-     * Note: Once Vault contract is disconitnued, then it CAN NOT be re-activated for usage.
      */
     function discontinue(address _vault) external returns (bool);
 
     /**
-     * @dev Pause tha Vault contract for use temporarily during any emergency
-     *      Emits a {LogUnpauseVault} event
-     *
+     * @notice Pause/Unpause tha Vault contract for use temporarily during any emergency
      * @param _vault Vault contract address to pause
-     * @param _unpaused A boolean value `true` to pause vault contract and `false` for un-pause vault contract
-     *
-     * Requirements:
-     * - `_vault` cannot be a zero address
-     * - `msg.sender` (caller) should be governance
+     * @param _unpaused A boolean value true to unpause vault contract and false for pause vault contract
      */
     function unpauseVaultContract(address _vault, bool _unpaused) external returns (bool);
 
     /**
-     * @dev Add the risk profile in Registry contract Storage
-     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
-     *
+     * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfile Risk Profile to add in Registry Storage
      * @param _noOfSteps No. of permitted corresponding to risk profile provided
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string memory _riskProfile,
@@ -407,20 +293,11 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
-     * @dev Add list of the risk profiles in Registry contract Storage in 1 txn.
-     *      Emit events {LogRiskProfile} and {LogRPPoolRatings}
-     *
+     * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
      * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _noOfSteps List of No. of permitted corresponding to list of risk profile provided
-     * @param _poolRatingRanges List of pool rating range ([lowerLimit, upperLimit]) supported by
-     *        given list of risk profiles
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @param _noOfSteps List of No. of permitted strategy steps for a given risk profile
+     * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
+     * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string[] memory _riskProfiles,
@@ -429,147 +306,110 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
-     * @dev Update the no. of steps for existing risk profile
-     *      Emit event {LogRiskProfile}
-     *
-     * @param _riskProfile Risk Profile to update with steps
-     * @param _noOfSteps No. of steps for a given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` should exists
+     * @notice Update the no. of strategy steps allowed for existing risk profile
+     * @param _riskProfile Risk Profile to update with strategy steps
+     * @param _noOfSteps No. of strategy steps allowed for a given risk profile
+     * @return A boolean value indicating whether the operation succeeded
      */
     function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) external returns (bool);
 
     /**
-     * @dev Update the pool ratings for existing risk profile
-     *      Emit event {LogRPPoolRatings}
-     *
+     * @notice Update the pool ratings for existing risk profile
      * @param _riskProfile Risk profile to update with pool rating range
-     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit])
-     *        to update for given risk profile
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` should exists
+     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) to update for given risk profile
+     * @return A boolean value indicating whether the operation succeeded
      */
     function updateRPPoolRatings(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
         external
         returns (bool);
 
     /**
-     * @dev Remove the existing risk profile in Registry contract Storage
-     *      Emit event {LogRiskProfile}
-     *
+     * @notice Remove the existing risk profile in Registry contract Storage
      * @param _index Index of risk profile to be removed
-     *
-     * @return A boolean value indicating whether the operation succeeded.
-     *
-     * Requirements:
-     * - `msg.sender` can only be operator
-     * - `_riskProfile` can not be empty
-     * - `_riskProfile` should not already exists
+     * @return A boolean value indicating whether the operation succeeded
      */
     function removeRiskProfile(uint256 _index) external returns (bool);
 
     /**
-     * @dev Get the list of tokensHash
-     *
+     * @notice Get the list of tokensHash
      * @return Returns the list of tokensHash.
      */
     function getTokenHashes() external view returns (bytes32[] memory);
 
     /**
-     * @dev Get list of token given the `_tokensHash`.
-     *
-     * @return Returns the list of tokens corresponding to `_tokensHash`.
+     * @notice Get list of token given the tokensHash
+     * @return Returns the list of tokens corresponding to tokensHash
      */
     function getTokensHashToTokenList(bytes32 _tokensHash) external view returns (address[] memory);
 
     /**
-     * @dev Get the list of all the riskProfiles
-     *
+     * @notice Get the list of all the riskProfiles
      * @return Returns the list of all riskProfiles stored in Registry Storage
      */
     function getRiskProfileList() external view returns (string[] memory);
 
     /**
-     * @dev Get the StrategyManager contract address
-     *
+     * @notice Get the StrategyManager contract address
      * @return Returns the StrategyManager contract address
      */
     function getStrategyManager() external view returns (address);
 
     /**
-     * @dev Get the StrategyProvider contract address
-     *
+     * @notice Get the StrategyProvider contract address
      * @return Returns the StrategyProvider contract address
      */
     function getStrategyProvider() external view returns (address);
 
     /**
-     * @dev Get the VaultStepInvestStrategyDefinitionRegistry contract address
-     *
+     * @notice Get the VaultStepInvestStrategyDefinitionRegistry contract address
      * @return Returns the VaultStepInvestStrategyDefinitionRegistry contract address
      */
     function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
 
     /**
-     * @dev Get the RiskManager contract address
-     *
+     * @notice Get the RiskManager contract address
      * @return Returns the RiskManager contract address
      */
     function getRiskManager() external view returns (address);
 
     /**
-     * @dev Get the OptyMinter contract address
-     *
+     * @notice Get the OptyMinter contract address
      * @return Returns the OptyMinter contract address
      */
     function getOptyMinter() external view returns (address);
 
     /**
-     * @dev Get the Governance address
-     *
+     * @notice Get the Governance address
      * @return Returns the Governance address
      */
     function getGovernance() external view returns (address);
 
     /**
-     * @dev Get the Operator address
-     *
+     * @notice Get the Operator address
      * @return Returns the Operator address
      */
     function getOperator() external view returns (address);
 
     /**
-     * @dev Get the HarvestCodeProvider contract address
-     *
+     * @notice Get the HarvestCodeProvider contract address
      * @return Returns the HarvestCodeProvider contract address
      */
     function getHarvestCodeProvider() external view returns (address);
 
     /**
-     * @dev Get the AprOracle contract address
-     *
+     * @notice Get the AprOracle contract address
      * @return Returns the AprOracle contract address
      */
     function getAprOracle() external view returns (address);
 
     /**
-     * @dev Get the OPTYStakingRateBalancer contract address
-     *
+     * @notice Get the OPTYStakingRateBalancer contract address
      * @return Returns the OPTYStakingRateBalancer contract address
      */
     function getOPTYStakingRateBalancer() external view returns (address);
 
     /**
-     * @dev Get the configuration of vault contract
-     *
+     * @notice Get the configuration of vault contract
      * @return _vaultConfiguration Returns the configuration of vault contract
      */
     function getVaultConfiguration(address _vault)
@@ -578,39 +418,34 @@ interface IRegistry {
         returns (DataTypes.VaultConfiguration memory _vaultConfiguration);
 
     /**
-     * @dev Get the properties corresponding to riskProfile provided
-     *
+     * @notice Get the properties corresponding to riskProfile provided
      * @return _riskProfile Returns the properties corresponding to riskProfile provided
      */
     function getRiskProfile(string memory) external view returns (DataTypes.RiskProfile memory _riskProfile);
 
     /**
-     * @dev Get the index corresponding to tokensHash provided
-     *
+     * @notice Get the index corresponding to tokensHash provided
      * @param _tokensHash Hash of token address/addresses
      * @return _index Returns the index corresponding to tokensHash provided
      */
     function getTokensHashIndexByHash(bytes32 _tokensHash) external view returns (uint256 _index);
 
     /**
-     * @dev Get the tokensHash available at the index provided
-     *
+     * @notice Get the tokensHash available at the index provided
      * @param _index Index at which you want to get the tokensHash
      * @return _tokensHash Returns the tokensHash available at the index provided
      */
     function getTokensHashByIndex(uint256 _index) external view returns (bytes32 _tokensHash);
 
     /**
-     * @dev Get the rating and Is pool a liquidity pool for the _pool provided
-     *
+     * @notice Get the rating and Is pool a liquidity pool for the _pool provided
      * @param _pool Liquidity Pool (like cDAI etc.) address
      * @return _liquidityPool Returns the rating and Is pool a liquidity pool for the _pool provided
      */
     function getLiquidityPool(address _pool) external view returns (DataTypes.LiquidityPool memory _liquidityPool);
 
     /**
-     * @dev Get the configuration related to Strategy contracts
-     *
+     * @notice Get the configuration related to Strategy contracts
      * @return _strategyConfiguration Returns the configuration related to Strategy contracts
      */
     function getStrategyConfiguration()
@@ -619,8 +454,7 @@ interface IRegistry {
         returns (DataTypes.StrategyConfiguration memory _strategyConfiguration);
 
     /**
-     * @dev Get the contract address required as part of strategy by vault contract
-     *
+     * @notice Get the contract address required as part of strategy by vault contract
      * @return _vaultStrategyConfiguration Returns the configuration related to Strategy for Vault contracts
      */
     function getVaultStrategyConfiguration()
@@ -629,24 +463,21 @@ interface IRegistry {
         returns (DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration);
 
     /**
-     * @dev Get the adapter address mapped to the _pool provided
-     *
+     * @notice Get the adapter address mapped to the _pool provided
      * @param _pool Liquidity Pool (like cDAI etc.) address
      * @return _adapter Returns the adapter address mapped to the _pool provided
      */
     function getLiquidityPoolToAdapter(address _pool) external view returns (address _adapter);
 
     /**
-     * @dev Set the treasury accounts along with  their fee shares corresponding to vault contract.
-     *
+     * @notice Get the treasury accounts with their fee shares corresponding to vault contract
      * @param _vault Vault contract address
      * @return Returns Treasuries along with their fee shares
      */
     function getTreasuryShares(address _vault) external view returns (DataTypes.TreasuryShare[] memory);
 
     /**
-     * @dev Check if the token is approved or not
-     *
+     * @notice Check if the token is approved or not
      * @param _token Token address for which to check if it is approved or not
      * @return _isTokenApproved Returns a boolean for token approved or not
      */
