@@ -18,8 +18,8 @@ type EXPECTED_ARGUMENTS = {
 describe("AaveV2Adapter", () => {
   const ADAPTER_NAME = "AaveV2Adapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
-  const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  const BORROW_AMOUNT = BigNumber.from("20000000000000000");
+  const MAX_AMOUNT = BigNumber.from("50000000000000000000");
+  const BORROW_AMOUNT = BigNumber.from("20000000000000");
   const SNTToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
   let essentialContracts: CONTRACTS;
   let adapter: Contract;
@@ -62,14 +62,25 @@ describe("AaveV2Adapter", () => {
             strategy.strategy[0].contract,
           );
           const lpProviderAddress = await lpRegistry.getAddressesProvidersList();
-          lpProvider = await hre.ethers.getContractAt("IAaveV2LendingPoolAddressesProvider", lpProviderAddress[0]);
+          lpProvider = await hre.ethers.getContractAt(
+            "IAaveV2LendingPoolAddressesProvider",
+            lpProviderAddress[0],
+            owner,
+          );
+          console.log(lpProvider.address);
           lpAddress = await lpProvider.getLendingPool();
-          lpContract = await hre.ethers.getContractAt("IAaveV2", lpAddress);
+          lpContract = await hre.ethers.getContractAt("IAaveV2", lpAddress, owner);
           const reserveData = await lpContract.getReserveData(token);
           lpToken = reserveData.aTokenAddress;
+          const tokenContract = await hre.ethers.getContractAt("IERC20", token, owner);
+
+          console.log(lpToken);
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
           await fundWalletToken(hre, SNTToken, owner, MAX_AMOUNT, timestamp);
+          await tokenContract.approve(lpAddress, BORROW_AMOUNT);
+          await lpContract.deposit(token, BORROW_AMOUNT, ownerAddress, 0);
+          await lpContract.setUserUseReserveAsCollateral(token, true);
         } catch (error) {
           console.error(error);
         }
@@ -166,29 +177,37 @@ describe("AaveV2Adapter", () => {
                 break;
               }
               case "getBorrowAllCodes(address,address[],address,address)": {
-                // Cannot run setUserUseReserveAsCollateral(token,true) : Got revert
-                // await lpContract.setUserUseReserveAsCollateral(token, true);
+                const codes = await adapter[action.action](
+                  ownerAddress,
+                  [token],
+                  strategy.strategy[0].contract,
+                  SNTToken,
+                );
+                expect(codes.length).to.be.equal(1);
+
+                const inter = new utils.Interface(["function borrow(address,uint256,uint256,uint16,address)"]);
+                const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[0]);
+                expect(address).to.be.equal(lpAddress);
+                const value = inter.decodeFunctionData("borrow", abiCode);
+                expect(value.length).to.be.equal(5);
+                expect(value[0]).to.be.equal(SNTToken);
+                console.log(value[1].toString());
+                expect(value[2]).to.be.equal(1);
+                expect(value[3]).to.be.equal(0);
+                expect(value[4]).to.be.equal(ownerAddress);
+                break;
+              }
+              case "getRepayAndWithdrawAllCodes(address,address[],address,address)": {
+                await lpContract.borrow(SNTToken, BigNumber.from("2000000000"), 2, 0, ownerAddress);
+                // @Error : the code getting revert with division by zero error
+                // @Reason : _debt() returns error.
+                // @Solution: need to have currentStableDebt in userReserveData
                 // const codes = await adapter[action.action](
                 //   ownerAddress,
                 //   [token],
                 //   strategy.strategy[0].contract,
                 //   SNTToken,
                 // );
-                // expect(codes.length).to.be.equal(1);
-
-                // const inter = new utils.Interface(["function borrow(address,uint256,uint256,uint16)"]);
-                // const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[0]);
-                // expect(address).to.be.equal(lpAddress);
-                // const value = inter.decodeFunctionData("borrow", abiCode);
-                // expect(value.length).to.be.equal(4);
-                // expect(value[0]).to.be.equal(SNTToken);
-
-                break;
-              }
-              case "getRepayAndWithdrawAllCodes(address,address[],address,address)": {
-                // Cannot run borrow() : Got revert
-                // await lpContract.borrow(SNTToken, BORROW_AMOUNT, 2, 0, ownerAddress);
-                // const _ = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, SNTToken);
               }
             }
           }

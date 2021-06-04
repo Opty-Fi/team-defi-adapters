@@ -19,7 +19,7 @@ describe("AaveV1Adapter", () => {
   const ADAPTER_NAME = "AaveV1Adapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  const BORROW_AMOUNT = BigNumber.from("20000000000000000");
+  const BORROW_AMOUNT = BigNumber.from("200000000000000000");
   const SNTToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
   let essentialContracts: CONTRACTS;
   let adapter: Contract;
@@ -173,7 +173,39 @@ describe("AaveV1Adapter", () => {
               }
               case "getRepayAndWithdrawAllCodes(address,address[],address,address)": {
                 await lpContract.borrow(SNTToken, BORROW_AMOUNT, 2, 0);
-                const _ = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, SNTToken);
+                const SNTContract = await hre.ethers.getContractAt("IERC20", SNTToken);
+                const SNTBalance = await SNTContract.balanceOf(ownerAddress);
+                const codes = await adapter[action.action](
+                  ownerAddress,
+                  [token],
+                  strategy.strategy[0].contract,
+                  SNTToken,
+                );
+                expect(codes.length).to.equal(4);
+                for (let i = 0; i < codes.length; i++) {
+                  if (i === 3) {
+                    const inter = new utils.Interface(["function redeem(uint256)"]);
+                    const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
+                    expect(address).to.equal(lpToken);
+                    const value = inter.decodeFunctionData("redeem", abiCode);
+                    expect(value[0]).to.gt(0);
+                  } else if (i === 2) {
+                    const inter = new utils.Interface(["function repay(address,uint256,address)"]);
+                    const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
+                    expect(address).to.equal(lpAddress);
+                    const value = inter.decodeFunctionData("repay", abiCode);
+                    expect(value[0]).to.equal(SNTToken);
+                    expect(value[1]).to.equal(SNTBalance);
+                    expect(value[2]).to.equal(ownerAddress);
+                  } else {
+                    const inter = new utils.Interface(["function approve(address,uint256)"]);
+                    const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
+                    expect(address).to.equal(SNTToken);
+                    const value = inter.decodeFunctionData("approve", abiCode);
+                    expect(value[0]).to.equal(lpCoreAddress);
+                    expect(value[1]).to.equal(i === 0 ? 0 : SNTBalance);
+                  }
+                }
               }
             }
           }
