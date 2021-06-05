@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { Address, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
@@ -9,6 +9,7 @@ import { RegistryProxy } from "./RegistryProxy.sol";
 import { IVault } from "../../interfaces/opty/IVault.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
+import { Constants } from "../../utils/Constants.sol";
 
 /**
  * @title Registry
@@ -931,10 +932,7 @@ contract Registry is IRegistry, ModifiersController {
         string memory _riskProfile,
         address _vault
     ) internal returns (bool) {
-        require(
-            _underlyingAssetHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
-            "!underlyingAssetHash"
-        );
+        require(_underlyingAssetHash != Constants.ZERO_BYTES32, "!underlyingAssetHash");
         require(bytes(_riskProfile).length > 0, "RP_empty.");
         require(_vault != address(0), "!address(0)");
         require(address(_vault).isContract(), "!isContract");

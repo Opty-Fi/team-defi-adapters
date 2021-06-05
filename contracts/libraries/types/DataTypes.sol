@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 library DataTypes {
-    struct Operation {
+    struct UserDepositOperation {
         address account;
-        bool isDeposit;
         uint256 value;
     }
 

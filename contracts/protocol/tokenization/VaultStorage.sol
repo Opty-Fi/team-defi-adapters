@@ -1,7 +1,7 @@
 // solhint-disable max-states-count
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 // library
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
@@ -14,92 +14,56 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 contract VaultStorage {
     /**
-     * @notice
-     * @dev
+     * @dev A list to maintain sequence of unprocessed deposits
      */
-    DataTypes.Operation[] public queue;
+    DataTypes.UserDepositOperation[] public queue;
 
     /**
-     * @notice
-     * @dev
+     * @dev mapping of user account who has not received shares against deposited amount
      */
     mapping(address => uint256) public pendingDeposits;
 
     /**
-     * @notice
-     * @dev
-     */
-    mapping(address => uint256) public pendingWithdraws;
-
-    /**
-     * @notice
-     * @dev
+     * @dev map the underlying token in vault to the current block for emergency brakes
      */
     mapping(uint256 => DataTypes.BlockVaultValue[]) public blockToBlockVaultValues;
 
     /**
-     * @notice
-     * @dev
-     */
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
-
-    /**
-     * @notice
-     * @dev
+     * @dev Current vault invest strategy
      */
     bytes32 public investStrategyHash;
 
     /**
-     * @notice
-     * @dev
-     */
-    uint256 public vaultValue;
-
-    /**
-     * @notice
-     * @dev
+     * @dev Operational cost for rebalance owed by the vault to operator
      */
     uint256 public gasOwedToOperator;
 
     /**
-     * @notice
-     * @dev
+     * @dev Total amount of unprocessed deposit till next rebalance
      */
     uint256 public depositQueue;
 
     /**
-     * @notice
-     * @dev
-     */
-    uint256 public withdrawQueue;
-
-    /**
-     * @notice
-     * @dev
+     * @dev The standard deviation allowed for vault value
      */
     uint256 public maxVaultValueJump = 100; // basis points
 
     /**
-     * @notice
-     * @dev
+     * @dev store the underlying token contract address (for example DAI)
      */
-    address public underlyingToken; //  store the underlying token contract address (for example DAI)
+    address public underlyingToken;
 
     /**
-     * @notice
-     * @dev
+     * @dev The risk profile name of the vault
      */
     string public profile;
 
     /**
-     * @notice
-     * @dev
+     * @notice Logs and event when user calls user deposit underlying asset without rebalance
+     * @dev the shares are not minted until next rebalance
+     * @param _sender the account address of the user
+     * @param _index the position of user in the queue
+     * @param _amount the amount of underlying asset deposit
      */
     event DepositQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
-
-    /**
-     * @notice
-     * @dev
-     */
-    event WithdrawQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
 }

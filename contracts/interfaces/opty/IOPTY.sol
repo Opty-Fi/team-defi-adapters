@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 /**
  * @title Interface for the OPTY token
@@ -9,12 +9,9 @@ pragma solidity ^0.6.10;
  */
 interface IOPTY {
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @notice Minting new $OPTY tokens only by authorized minter
+     * @param to account to receive the minted $OPTY
+     * @param amount amount of new $OPTY minted
      */
     function mint(address to, uint256 amount) external;
 }

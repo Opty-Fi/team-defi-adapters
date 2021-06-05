@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { Modifiers } from "./Modifiers.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
+import { Constants } from "../../utils/Constants.sol";
 
 /**
  * @dev Serves as an oracle service of opty-fi's earn protocol
@@ -18,7 +19,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToBestStrategy;
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToDefaultStrategy;
     mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+
     DataTypes.DefaultStrategyState public defaultStrategyState;
 
     /* solhint-disable no-empty-blocks */
@@ -70,7 +71,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         bytes32 _vaultRewardTokenHash,
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) external override onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
-        require(_vaultRewardTokenHash != ZERO_BYTES32, "!bytes32(0)");
+        require(_vaultRewardTokenHash != Constants.ZERO_BYTES32, "!bytes32(0)");
         uint256 _index = registryContract.getTokensHashIndexByHash(_vaultRewardTokenHash);
         require(registryContract.getTokensHashByIndex(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
         require(

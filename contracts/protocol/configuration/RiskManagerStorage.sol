@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 /**
  * @dev Contract to store the state variables of the
@@ -16,6 +16,4 @@ contract RiskManagerStorage {
      * @notice Pending brains of Risk Manager
      */
     address public pendingRiskManagerImplementation;
-
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
@@ -12,6 +12,7 @@ import { IAaveV1LendingPoolCore } from "../../interfaces/aave/v1/IAaveV1LendingP
 import { ReserveDataV2, IAaveV2 } from "../../interfaces/aave/v2/IAaveV2.sol";
 import { IAaveV2LendingPoolAddressesProvider } from "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import { ICompound } from "../../interfaces/compound/ICompound.sol";
+import { Constants } from "../../utils/Constants.sol";
 
 /*
  * @author OptyFi inspired on yearn.finance APROracle contract
@@ -19,9 +20,6 @@ import { ICompound } from "../../interfaces/compound/ICompound.sol";
 contract APROracle is IAPROracle, Modifiers {
     using SafeMath for uint256;
     using Address for address;
-
-    uint256 public constant DECIMAL = 10**18;
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     address public aaveV1;
     address public aaveV2AddressProvider;
@@ -101,7 +99,7 @@ contract APROracle is IAPROracle, Modifiers {
             compoundAPR = uint256(0);
         }
         if (aaveV1APR == uint256(0) && aaveV2APR == uint256(0) && compoundAPR == uint256(0)) {
-            return ZERO_BYTES32;
+            return Constants.ZERO_BYTES32;
         } else {
             if (aaveV1APR > compoundAPR) {
                 if (aaveV1APR > aaveV2APR) {

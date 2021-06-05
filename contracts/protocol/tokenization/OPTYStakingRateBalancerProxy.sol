@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 // helper contracts
 import { Modifiers } from "../configuration/Modifiers.sol";

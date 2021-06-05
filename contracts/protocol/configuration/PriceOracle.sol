@@ -1,6 +1,6 @@
 // SPDX-License-Identifier:MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Modifiers } from "./Modifiers.sol";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
@@ -13,6 +13,7 @@ import {
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
+import { Constants } from "../../utils/Constants.sol";
 
 /**
  * @dev Central processing unit of the earn protocol
@@ -22,8 +23,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
-
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
@@ -372,7 +371,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getDepositAllStepCount(bytes32 _investStrategyhash) internal view returns (uint8) {
-        if (_investStrategyhash == ZERO_BYTES32) {
+        if (_investStrategyhash == Constants.ZERO_BYTES32) {
             return uint8(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
@@ -392,7 +391,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getWithdrawAllStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
-        if (_investStrategyhash == ZERO_BYTES32) {
+        if (_investStrategyhash == Constants.ZERO_BYTES32) {
             return uint8(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);

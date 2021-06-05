@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 /**
  * @title Interface for $OPTY staking rate balancer
@@ -9,52 +9,39 @@ pragma solidity ^0.6.10;
  */
 interface IOPTYStakingRateBalancer {
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @dev Assign a rate balancing co-efficient to the staking vault
+     * @param _stakingVault the $OPTY staking vault
+     * @param _multiplier the co-efficient to balance the $OPTY rate
+     * @return _success returns true if assigning co-efficient is successful
      */
-    function setStakingVaultMultipliers(address _stakingVault, uint256 _multiplier) external returns (bool);
+    function setStakingVaultMultipliers(address _stakingVault, uint256 _multiplier) external returns (bool _success);
 
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @dev assign $OPTY allocated to staking vaults only by governance
+     * @param _stakingVaultOPTYAllocation amount of $OPTY alloted to all stakingVaults as a whole
+     * @return _success returns true if $OPTY allocation to staking vault is assigned succesfuly
      */
-    function setStakingVaultOPTYAllocation(uint256 _stakingVaultOPTYAllocation) external returns (bool);
+    function setStakingVaultOPTYAllocation(uint256 _stakingVaultOPTYAllocation) external returns (bool _success);
 
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @dev balance the $OPTY rate across all staking vaults
+     * @return _success returns true on successful update to $OPTY rate
      */
-    function updateOptyRates() external returns (bool);
+    function updateOptyRates() external returns (bool _success);
 
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @dev update $OPTY staked on per user and per vault basis only called by staking vault
+     * @param _staker the account address that staked $OPTY
+     * @param _amount the amount of $OPTY staked
+     * @return _success returns true on successful update to state of staked $OPTY
      */
-    function updateStakedOPTY(address _staker, uint256 _amount) external returns (bool);
+    function updateStakedOPTY(address _staker, uint256 _amount) external returns (bool _success);
 
     /**
-     * @notice
-     * @dev
-     * @param
-     * @param
-     * @param
-     * @return
+     * @dev deduct the $OPTY that is staked by user and vault as a whole
+     * @param _staker the account addres that unstaked $OPTY
+     * @param _shares the amount of $stkOPTY to unstake
+     * @return _success returns true on successful update to state of unstaked $OPTY
      */
-    function updateUnstakedOPTY(address _staker, uint256 _shares) external returns (bool);
+    function updateUnstakedOPTY(address _staker, uint256 _shares) external returns (bool _success);
 }

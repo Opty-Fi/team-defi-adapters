@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 // helper contracts
@@ -39,7 +39,10 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
 
     /**
      * @dev initialize the different stakingVaults
-     *
+     * @param _stakingVault1DLockingTerm  staking vault address for 1 day locking period
+     * @param _stakingVault30DLockingTerm staking vault address for 30 days locking period
+     * @param _stakingVault60DLockingTerm staking vault address for 60 days locking period
+     * @param _stakingVault180DLockingTerm staking vault address for 180 days locking period
      */
     function initialize(
         address _stakingVault1DLockingTerm,
@@ -72,10 +75,10 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         external
         override
         onlyGovernance
-        returns (bool)
+        returns (bool _success)
     {
         stakingVaultMultipliers[_stakingVault] = _multiplier;
-        return true;
+        _success = true;
     }
 
     /**
@@ -85,15 +88,16 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         external
         override
         onlyGovernance
-        returns (bool)
+        returns (bool _success)
     {
         stakingVaultOPTYAllocation = _stakingVaultOPTYAllocation;
+        _success = true;
     }
 
     /**
      * @inheritdoc IOPTYStakingRateBalancer
      */
-    function updateOptyRates() external override onlyStakingVaults returns (bool) {
+    function updateOptyRates() external override onlyStakingVaults returns (bool _success) {
         uint256 _stakingVault1DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault1DLockingTerm];
         uint256 _stakingVault30DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault30DLockingTerm];
         uint256 _stakingVault60DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault60DLockingTerm];
@@ -153,24 +157,34 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
             IOPTYStakingVault(stakingVault180DLockingTerm).setOptyRatePerSecond(_rate180DLock),
             "updateOptyRates:180Dlockingterm"
         );
-        return true;
+        _success = true;
     }
 
     /**
      * @inheritdoc IOPTYStakingRateBalancer
      */
-    function updateStakedOPTY(address _staker, uint256 _amount) external override onlyStakingVaults returns (bool) {
+    function updateStakedOPTY(address _staker, uint256 _amount)
+        external
+        override
+        onlyStakingVaults
+        returns (bool _success)
+    {
         stakingVaultToUserStakedOPTY[msg.sender][_staker] = stakingVaultToUserStakedOPTY[msg.sender][_staker].add(
             _amount
         );
         stakingVaultToStakedOPTY[msg.sender] = stakingVaultToStakedOPTY[msg.sender].add(_amount);
-        return true;
+        _success = true;
     }
 
     /**
      * @inheritdoc IOPTYStakingRateBalancer
      */
-    function updateUnstakedOPTY(address _staker, uint256 _shares) external override onlyStakingVaults returns (bool) {
+    function updateUnstakedOPTY(address _staker, uint256 _shares)
+        external
+        override
+        onlyStakingVaults
+        returns (bool _success)
+    {
         uint256 _stakerStakedAmount = stakingVaultToUserStakedOPTY[msg.sender][_staker];
         uint256 _amount = _shares.mul(_stakerStakedAmount).div(stakingVaultToStakedOPTY[msg.sender]);
         if (_shares == IERC20(msg.sender).balanceOf(_staker)) {
@@ -181,6 +195,6 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
             );
         }
         stakingVaultToStakedOPTY[msg.sender] = stakingVaultToStakedOPTY[msg.sender].sub(_amount);
-        return true;
+        _success = true;
     }
 }
