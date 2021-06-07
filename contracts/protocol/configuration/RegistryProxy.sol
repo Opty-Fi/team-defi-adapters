@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
+//  helper contracts
 import { RegistryStorage } from "./RegistryStorage.sol";
 import { ModifiersController } from "./ModifiersController.sol";
 
 /**
- * @title RegistryCore
- * @dev Storage for the Registry is at this address, while execution is delegated to the `registryImplementation`.
+ * @title RegistryProxy Contract
+ * @author Opty.fi
+ * @dev Storage for the Registry is at this address,
+ * while execution is delegated to the `registryImplementation`.
  * Registry should reference this contract as their controller.
+ * It defines a fallback function that delegates all calls to the address
+ * returned by the abstract _implementation() internal function.
  */
 contract RegistryProxy is RegistryStorage, ModifiersController {
     /**
@@ -17,8 +22,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
     /**
-     * @notice Emitted when pendingComptrollerImplementation is accepted,
-     *         which means comptroller implementation is updated
+     * @notice Emitted when pendingComptrollerImplementation is updated
      */
     event NewImplementation(address oldImplementation, address newImplementation);
 
@@ -38,7 +42,40 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
         setOPTYMinter(msg.sender);
     }
 
+    /* solhint-disable */
+    receive() external payable {
+        revert();
+    }
+
+    /**
+     * @notice Delegates execution to an implementation contract
+     * @dev Returns to external caller whatever implementation returns or forwards reverts
+     */
+    fallback() external payable {
+        // delegate all other functions to current implementation
+        (bool success, ) = registryImplementation.delegatecall(msg.data);
+
+        assembly {
+            let free_mem_ptr := mload(0x40)
+            returndatacopy(free_mem_ptr, 0, returndatasize())
+
+            switch success
+                case 0 {
+                    revert(free_mem_ptr, returndatasize())
+                }
+                default {
+                    return(free_mem_ptr, returndatasize())
+                }
+        }
+    }
+
+    /* solhint-disable */
+
     /*** Admin Functions ***/
+    /**
+     * @dev Set the registry contract as pending implementation initally
+     * @param newPendingImplementation registry address to act as pending implementation
+     */
     function setPendingImplementation(address newPendingImplementation) external onlyOperator {
         address oldPendingImplementation = pendingRegistryImplementation;
 
@@ -48,7 +85,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Accepts new implementation of registry. msg.sender must be pendingImplementation
+     * @notice Accepts new implementation of registry
      * @dev Governance function for new implementation to accept it's role as implementation
      */
     function acceptImplementation() external returns (uint256) {
@@ -73,13 +110,9 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Begins transfer of governance rights.
-     *         The newPendingGovernance must call `acceptGovernance`
-     *         to finalize the transfer.
-     * @dev Governance function to begin change of governance.
-     *      The newPendingGovernance must call `acceptGovernance`
-     *      to finalize the transfer.
-     * @param newPendingGovernance New pending governance.
+     * @notice Transfers the governance rights
+     * @dev The newPendingGovernance must call acceptGovernance() to finalize the transfer
+     * @param newPendingGovernance New pending governance address
      */
     function setPendingGovernance(address newPendingGovernance) external onlyOperator {
         // Save current value, if any, for inclusion in log
@@ -93,7 +126,7 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
     }
 
     /**
-     * @notice Accepts transfer of Governance rights. msg.sender must be pendingGovernance
+     * @notice Accepts transfer of Governance rights
      * @dev Governance function for pending governance to accept role and update Governance
      */
     function acceptGovernance() external returns (uint256) {
@@ -113,33 +146,4 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
         emit NewPendingGovernance(oldPendingGovernance, pendingGovernance);
         return uint256(0);
     }
-
-    /* solhint-disable */
-    receive() external payable {
-        revert();
-    }
-
-    /**
-     * @dev Delegates execution to an implementation contract.
-     * It returns to the external caller whatever the implementation returns
-     * or forwards reverts.
-     */
-    fallback() external payable {
-        // delegate all other functions to current implementation
-        (bool success, ) = registryImplementation.delegatecall(msg.data);
-
-        assembly {
-            let free_mem_ptr := mload(0x40)
-            returndatacopy(free_mem_ptr, 0, returndatasize())
-
-            switch success
-                case 0 {
-                    revert(free_mem_ptr, returndatasize())
-                }
-                default {
-                    return(free_mem_ptr, returndatasize())
-                }
-        }
-    }
-    /* solhint-disable */
 }

@@ -1,50 +1,44 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { Modifiers } from "./Modifiers.sol";
+//  libraries
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { Modifiers } from "./Modifiers.sol";
+
+//  interfaces
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 
 /**
- * @title VaultStepInvestStrategyDefinitionRegistry
- *
+ * @title VaultStepInvestStrategyDefinitionRegistry Contract
  * @author Opty.fi
- *
  * @dev Contract to persist vault's step invest strategy definition
  */
 contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDefinitionRegistry, Modifiers {
+    /** @notice Mapping of hash (underlying Tokens hash) to strategy steps hash */
     mapping(bytes32 => bytes32[]) public tokenToStrategies;
+
+    /** @notice Mapping of hash (tokens and strategy steps hash) to Strategy Steps */
     mapping(bytes32 => DataTypes.Strategy) public strategies;
+
+    /** @notice Stores the indexes of all the strategies stored */
     bytes32[] public strategyHashIndexes;
 
     /**
-     * @dev Emitted when `hash` strategy is set.
-     *
-     * Note that `token` cannot be zero address or EOA.
+     * @notice Emitted when hash strategy is set
      */
     event LogSetVaultInvestStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller);
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
-    /* solhint-disable no-empty-blocks */
-
     /**
-     * @dev assign strategy in form of `_strategySteps` to the `_tokensHash`.
-     *
-     * Returns true indicating successful operation.
-     *
-     * Emits a {LogSetVaultInvestStrategy} event.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be operator.
-     * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
-     * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
+     * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
     function setStrategy(bytes32 _tokensHash, DataTypes.StrategyStep[] memory _strategySteps)
         external
@@ -57,15 +51,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev assign multiple strategies in form of `_strategySteps` to the `_tokensHash`.
-     *
-     * Emits a {LogSetVaultInvestStrategy} event per successful assignment of the strategy.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be operator.
-     * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
-     * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
+     * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
     function setStrategy(bytes32 _tokensHash, DataTypes.StrategyStep[][] memory _strategySteps)
         external
@@ -81,15 +67,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev assign multiple strategies in form of `_strategySteps` to multiple tokens in form of `_tokensHash`.
-     *
-     * Emits a {LogSetVaultInvestStrategy} event per successful assignment of the strategy.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be operator.
-     * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
-     * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
+     * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
     function setStrategy(bytes32[] memory _tokensHash, DataTypes.StrategyStep[][] memory _strategySteps)
         external
@@ -106,10 +84,10 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev Returns the Strategy by `_hash`.
+     * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
     function getStrategy(bytes32 _hash)
-        external
+        public
         view
         override
         returns (uint256 _index, DataTypes.StrategyStep[] memory _strategySteps)
@@ -119,25 +97,12 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev Returns the list of strategy hashes by `_token`.
+     * @inheritdoc IVaultStepInvestStrategyDefinitionRegistry
      */
-    function getTokenToStrategies(bytes32 _tokensHash) external view override returns (bytes32[] memory) {
+    function getTokenToStrategies(bytes32 _tokensHash) public view override returns (bytes32[] memory) {
         return tokenToStrategies[_tokensHash];
     }
 
-    /**
-     * @dev assign strategy in form of `_strategySteps` to the `_tokensHash`.
-     *
-     * Returns true indicating successful operation.
-     *
-     * Emits a {LogSetVaultInvestStrategy} event.
-     *
-     * Requirements:
-     *
-     * - msg.sender is operator.
-     * - `creditPool` and `borrowToken` in {_strategySteps}can be zero address simultaneously only
-     * - `token`, `liquidityPool` and `strategyContract` cannot be zero address or EOA.
-     */
     function _setStrategy(bytes32 _tokensHash, DataTypes.StrategyStep[] memory _strategySteps) internal returns (bool) {
         bytes32[] memory hashes = new bytes32[](_strategySteps.length);
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
@@ -164,13 +129,9 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
     }
 
     /**
-     * @dev Check duplicate `_hash` Startegy from the {strategyHashIndexes} mapping.
-     *
-     * Returns a boolean value indicating whether duplicate `_hash` exists or not.
-     *
-     * Requirements:
-     *
-     * - {strategyHashIndexes} length should be more than zero.
+     * @dev Check duplicate _hash Strategy
+     * @param _hash Strategy Hash to be checked if it is new or not
+     * @return Returns a boolean value indicating whether duplicate _hash exists or not.
      */
     function _isNewStrategy(bytes32 _hash) internal view returns (bool) {
         if (strategyHashIndexes.length == 0) {

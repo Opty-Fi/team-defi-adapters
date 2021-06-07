@@ -11,6 +11,7 @@ import "@typechain/hardhat";
 import "hardhat-watcher";
 import "solidity-coverage";
 import "hardhat-deploy";
+import "hardhat-docgen";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
@@ -75,7 +76,7 @@ const getCommonNetworkConfig = (networkName: eEthereumNetwork, networkId: number
 const buidlerConfig: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.6.10",
+    version: "0.6.12",
     settings: {
       optimizer: { enabled: true, runs: 200 },
       evmVersion: "istanbul",
@@ -146,6 +147,11 @@ const buidlerConfig: HardhatUserConfig = {
       tasks: ["test"],
       files: ["./contracts", "./test/test-opty/invest-limitation.spec.ts"],
     },
+  },
+  docgen: {
+    path: "./specification_docs",
+    clear: true,
+    runOnCompile: true,
   },
   typechain: {
     outDir: "typechain",

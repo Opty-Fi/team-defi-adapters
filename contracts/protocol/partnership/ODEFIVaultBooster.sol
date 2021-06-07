@@ -1,14 +1,26 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
-import { ODEFIVaultBoosterStorage } from "./ODEFIVaultBoosterStorage.sol";
-import { Modifiers } from "../configuration/Modifiers.sol";
-import { SafeERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
-import { IODEFIVaultBooster } from "../../interfaces/opty/IODEFIVaultBooster.sol";
+//  libraries
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
+//  helper contracts
+import { ODEFIVaultBoosterStorage } from "./ODEFIVaultBoosterStorage.sol";
+import { Modifiers } from "../configuration/Modifiers.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
+
+//  interfaces
+import { IODEFIVaultBooster } from "../../interfaces/opty/IODEFIVaultBooster.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+/**
+ * @title ODEFIVaultBooster Contract
+ * @author Opty.fi inspired by Compound.finance
+ * @notice Contract for managing the ODEFI rewards
+ * @dev Contract contains math for calculating the ODEFI rewards for all the users
+ */
 contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, ExponentialNoError, Modifiers {
     using SafeERC20 for IERC20;
 
@@ -17,8 +29,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Claim all the ODEFI accrued by holder in all markets
-     * @param _holder The address to claim ODEFI for
+     * @inheritdoc IODEFIVaultBooster
      */
     function claimODEFI(address _holder) external override returns (uint256) {
         address[] memory holders = new address[](1);
@@ -34,8 +45,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Set the ODEFI rate for a specific pool
-     * @return The amount of ODEFI which was NOT transferred to the user
+     * @inheritdoc IODEFIVaultBooster
      */
     function updateOdefiVaultRatePerSecondAndVaultToken(address _odefiVault) external override returns (bool) {
         if (odefiVaultRatePerSecond[_odefiVault] > 0) {
@@ -47,8 +57,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Accrue ODEFI to the market by updating the supply index
-     * @param _odefiVault The market whose index to update
+     * @inheritdoc IODEFIVaultBooster
      */
     function updateOdefiVaultIndex(address _odefiVault) external override returns (uint224) {
         if (odefiVaultRatePerSecond[_odefiVault] > 0) {
@@ -89,8 +98,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Set the ODEFI rate for a specific pool
-     * @return The amount of ODEFI which was NOT transferred to the user
+     * @inheritdoc IODEFIVaultBooster
      */
     function setOdefiVaultRate(address _odefiVault, uint256 _rate) external override returns (bool) {
         require(msg.sender == rewarders[_odefiVault], "!rewarder");
@@ -115,10 +123,6 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         return true;
     }
 
-    function getOdefiAddress() external view override returns (address) {
-        return odefiAddress;
-    }
-
     function rewardDepletionSeconds() external view returns (uint256) {
         uint256 totalOdefiRate;
         for (uint256 i = 0; i < allOdefiVaults.length; i++) {
@@ -128,17 +132,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Claim all the odefi accrued by holder in all markets
-     * @param _holder The address to claim ODEFI for
-     */
-    function claimableODEFI(address _holder) external view override returns (uint256) {
-        return claimableODEFI(_holder, allOdefiVaults);
-    }
-
-    /**
-     * @notice Claim all the ODEFI accrued by holder in the specified markets
-     * @param _holder The address to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @inheritdoc IODEFIVaultBooster
      */
     function claimODEFI(address _holder, address[] memory _odefiVaults) public override returns (uint256) {
         address[] memory holders = new address[](1);
@@ -146,6 +140,9 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         _claimODEFI(holders, _odefiVaults);
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function claimODEFI(address[] memory _holders, address[] memory _odefiVaults) external override returns (uint256) {
         _claimODEFI(_holders, _odefiVaults);
     }
@@ -172,8 +169,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Calculate additional accrued ODEFI for a contributor since last accrual
-     * @param _user The address to calculate contributor rewards for
+     * @inheritdoc IODEFIVaultBooster
      */
     function updateUserRewards(address _odefiVault, address _user) public override {
         if (odefiVaultRatePerSecond[_odefiVault] > 0) {
@@ -211,9 +207,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
-     * @notice Claim all the odefi accrued by holder in the specified markets
-     * @param _holder The address to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @inheritdoc IODEFIVaultBooster
      */
     function claimableODEFI(address _holder, address[] memory _odefiVaults) public view override returns (uint256) {
         uint256 claimableOdefiAmount;
@@ -253,6 +247,9 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         return div_(add_(claimableOdefiAmount, odefiAccrued[_holder]), 1e18);
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function currentOdefiVaultIndex(address _odefiVault) public view override returns (uint256) {
         uint256 _deltaSecondsSinceStart = sub_(_getBlockTimestamp(), odefiVaultStartTimestamp[_odefiVault]);
         uint256 _deltaSeconds = sub_(_getBlockTimestamp(), uint256(odefiVaultState[_odefiVault].timestamp));
@@ -273,10 +270,38 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         return _index;
     }
 
-    function balance() public view returns (uint256) {
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
+    function getOdefiAddress() public view override returns (address) {
+        return odefiAddress;
+    }
+
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
+    function rewardDepletionSeconds(address _odefiVault) public view override returns (uint256) {
+        return div_(balance(), odefiVaultRatePerSecond[_odefiVault]);
+    }
+
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
+    function claimableODEFI(address _holder) public view override returns (uint256) {
+        return claimableODEFI(_holder, allOdefiVaults);
+    }
+
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
+    function balance() public view override returns (uint256) {
         return IERC20(odefiAddress).balanceOf(address(this));
     }
 
+    /**
+     * @notice Get the current block timestamp
+     * @return Returns the current block timestamp
+     */
     function _getBlockTimestamp() internal view returns (uint256) {
         return block.timestamp;
     }
