@@ -10,7 +10,7 @@ import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Abstraction layer to DForce's pools
@@ -33,14 +33,12 @@ contract DForceAdapter is IAdapter, Modifiers {
     address public constant USDC_STAKING_VAULT = address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5);
     address public constant DAI_STAKING_VAULT = address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B);
 
-    HarvestCodeProvider public harvestCodeProviderContract;
     DataTypes.MaxExposure public maxExposureType;
     address public rewardToken;
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256 public maxDepositAmountDefault;
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
         setLiquidityPoolToStakingVault(USDT_DEPOSIT_POOL, USDT_STAKING_VAULT);
         setLiquidityPoolToStakingVault(USDC_DEPOSIT_POOL, USDC_STAKING_VAULT);
@@ -258,10 +256,6 @@ contract DForceAdapter is IAdapter, Modifiers {
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }
@@ -357,7 +351,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _optyVault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -415,7 +409,7 @@ contract DForceAdapter is IAdapter, Modifiers {
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward

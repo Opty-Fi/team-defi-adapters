@@ -9,7 +9,7 @@ import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Abstraction layer to Cream's pools
@@ -18,7 +18,6 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 contract CreamAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
-    HarvestCodeProvider public harvestCodeProviderContract;
     mapping(address => uint256) public maxDepositPoolPct; // basis points
     mapping(address => uint256) public maxDepositAmount;
 
@@ -29,10 +28,9 @@ contract CreamAdapter is IAdapter, Modifiers {
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256 public maxDepositAmountDefault;
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
+    constructor(address _registry) public Modifiers(_registry) {
         setComptroller(address(0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258));
         setRewardToken(address(0x2ba592F78dB6436527729929AAf6c908497cB200));
-        setHarvestCodeProvider(_harvestCodeProvider);
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
@@ -248,10 +246,6 @@ contract CreamAdapter is IAdapter, Modifiers {
         rewardToken = _rewardToken;
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }
@@ -328,7 +322,7 @@ contract CreamAdapter is IAdapter, Modifiers {
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -374,7 +368,7 @@ contract CreamAdapter is IAdapter, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _optyVault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,

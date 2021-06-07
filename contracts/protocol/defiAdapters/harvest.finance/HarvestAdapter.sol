@@ -10,7 +10,7 @@ import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Abstraction layer to harvest finance's pools
@@ -55,14 +55,12 @@ contract HarvestAdapter is IAdapter, Modifiers {
     address public constant F_USDN_THREE_CRV_STAKE_VAULT = address(0xef4Da1CE3f487DA2Ed0BE23173F76274E0D47579);
     address public constant F_YDAI_YUSDC_YUSDT_YBUSD_STAKE_VAULT = address(0x093C2ae5E6F3D2A897459aa24551289D462449AD);
 
-    HarvestCodeProvider public harvestCodeProviderContract;
     DataTypes.MaxExposure public maxExposureType;
     address public rewardToken;
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256 public maxDepositAmountDefault;
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
         setLiquidityPoolToStakingVault(TBTC_SBTC_CRV_DEPOSIT_POOL, TBTC_SBTC_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(THREE_CRV_DEPOSIT_POOL, THREE_CRV_STAKE_VAULT);
@@ -271,10 +269,6 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _unstakeAmount);
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyGovernance {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
@@ -393,7 +387,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _optyVault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -449,7 +443,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward

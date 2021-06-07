@@ -11,8 +11,8 @@ import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
 import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
-import { PriceOracle } from "../../configuration/PriceOracle.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
+import { IPriceOracle } from "../../../interfaces/opty/IPriceOracle.sol";
 
 /**
  * @dev Abstraction layer to Curve's deposit pools
@@ -103,21 +103,13 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     address public constant TBTC_GAUGE = address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6);
     address public constant DUSD_GAUGE = address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D);
 
-    HarvestCodeProvider public harvestCodeProviderContract;
-    PriceOracle public oracleContract;
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256[4] public maxDepositAmountDefault;
 
     /**
      * @dev map coins and tokens to curve deposit pool
      */
-    constructor(
-        address _registry,
-        address _harvestCodeProvider,
-        address _oracle
-    ) public Modifiers(_registry) {
-        setOracle(_oracle);
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         // deposit pool
         address[] memory _compoundUnderlyingTokens = new address[](2);
         _compoundUnderlyingTokens[0] = DAI;
@@ -252,7 +244,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, TBTC_GAUGE);
         setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, DUSD_GAUGE);
 
-        setMaxDepositPoolPctDefault(uint256(5000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
@@ -475,20 +467,12 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         liquidityPoolToGauges[_pool] = _gauge;
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
         liquidityPoolToSwap[_liquidityPool] = _swapPool;
-    }
-
-    function setOracle(address _oracle) public onlyOperator {
-        oracleContract = PriceOracle(_oracle);
     }
 
     /**
@@ -619,7 +603,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _optyVault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -687,7 +671,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
         }
         _b = _b.add(
-            harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
                 getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool)
@@ -1034,10 +1018,11 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         } else {
             _maxDepositPct = maxDepositPoolPct[_liquidityPool];
         }
-        uint256 _amountInUSD = oracleContract.getUnderlyingTokenAmountInUSD(_amount, _underlyingToken);
+        IPriceOracle _priceOracleContract = IPriceOracle(registryContract.getAprOracle());
+        uint256 _amountInUSD = _priceOracleContract.getUnderlyingTokenAmountInUSD(_amount, _underlyingToken);
         uint256 _maxAmountInUSD = _poolValue.mul(_maxDepositPct).div(uint256(10000));
         if (_amountInUSD > _maxAmountInUSD) {
-            return oracleContract.getUSDAmountInUnderlyingToken(_maxAmountInUSD, _underlyingToken);
+            return _priceOracleContract.getUSDAmountInUnderlyingToken(_maxAmountInUSD, _underlyingToken);
         } else {
             return _amount;
         }

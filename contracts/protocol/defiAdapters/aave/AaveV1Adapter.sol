@@ -21,7 +21,7 @@ import {
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Abstraction layer to Aave V1's pools
@@ -33,7 +33,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
     mapping(address => uint256) public maxDepositPoolPct; // basis points
     mapping(address => uint256) public maxDepositAmount;
 
-    HarvestCodeProvider public harvestCodeProviderContract;
     DataTypes.MaxExposure public maxExposureType;
 
     uint256 public healthFactor = 2;
@@ -42,8 +41,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256 public maxDepositAmountDefault;
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
@@ -347,10 +345,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }
@@ -464,7 +458,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         } else {
             return
                 _aTokenAmount.add(
-                    harvestCodeProviderContract.getOptimalTokenAmount(
+                    IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getOptimalTokenAmount(
                         _borrowToken,
                         _underlyingToken,
                         _borrowAmount.sub(_outputTokenRepayable)

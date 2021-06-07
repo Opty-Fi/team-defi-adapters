@@ -10,7 +10,7 @@ import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
  * @dev Abstraction layer to Curve's swap pools
@@ -100,7 +100,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     address public constant TBTC_SBTC_CRV = address(0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd);
     address public constant DUSD_THREE_CRV = address(0x3a664Ab939FD8482048609f652f9a0B0677337B9);
 
-    HarvestCodeProvider public harvestCodeProviderContract;
     address public rewardToken; // reward token
     uint256 public maxDepositPoolPctDefault; // basis points
     uint256[4] public maxDepositAmountDefault;
@@ -108,8 +107,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     /**
      * @dev mapp coins and tokens to curve deposit pool
      */
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         // reward token
         setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
 
@@ -264,7 +262,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         setSwapPoolToGauges(TBTC_SWAP_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
         setSwapPoolToGauges(DUSD_SWAP_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
 
-        setMaxDepositPoolPctDefault(uint256(5000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 50%
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
@@ -499,10 +497,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         }
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
@@ -640,7 +634,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _optyVault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -703,7 +697,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
         }
         _b = _b.add(
-            harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
                 getUnclaimedRewardTokenAmount(_optyVault, _liquidityPool)
