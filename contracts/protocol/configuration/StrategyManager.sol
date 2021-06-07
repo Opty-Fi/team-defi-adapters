@@ -30,143 +30,101 @@ contract StrategyManager is IStrategyManager, Modifiers {
 
     /* solhint-disable no-empty-blocks */
 
-    function getWithdrawAllStepsCount(bytes32 _hash) external view override returns (uint8) {
-        return _getWithdrawAllStepsCount(_hash);
+    function getWithdrawAllStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+        return _getWithdrawAllStepsCount(_investStrategyhash);
     }
 
-    function getDepositAllStepCount(bytes32 _hash) external view override returns (uint8) {
-        return _getDepositAllStepCount(_hash);
+    function getDepositAllStepCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+        return _getDepositAllStepCount(_investStrategyhash);
     }
 
-    function getClaimRewardStepsCount(bytes32 _hash) external view override returns (uint8) {
-        return _getClaimRewardStepsCount(_hash);
+    function getClaimRewardStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+        return _getClaimRewardStepsCount(_investStrategyhash);
     }
 
-    function getHarvestRewardStepsCount(bytes32 _hash) external view override returns (uint8) {
-        return _getHarvestRewardStepsCount(_hash);
+    function getHarvestRewardStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+        return _getHarvestRewardStepsCount(_investStrategyhash);
     }
 
     function getBalanceInUnderlyingToken(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash
-    ) external view override returns (uint256 _balance) {
-        return _getBalanceInUnderlyingToken(_optyVault, _underlyingToken, _hash);
+        bytes32 _investStrategyhash
+    ) public view override returns (uint256 _balance) {
+        return _getBalanceInUnderlyingToken(_vault, _underlyingToken, _investStrategyhash);
     }
 
     function getPoolDepositAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyhash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) external view override returns (bytes[] memory _codes) {
-        _codes = _getPoolDepositAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getPoolDepositAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
 
     function getPoolWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyhash,
         uint8 _stepIndex,
         uint8 _stepCount
-    ) external view override returns (bytes[] memory _codes) {
-        _codes = _getPoolWithdrawAllCodes(_optyVault, _underlyingToken, _hash, _stepIndex, _stepCount);
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getPoolWithdrawAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
 
-    function getPoolClaimAllRewardCodes(
-        address payable _optyVault,
-        bytes32 _hash,
-        uint8 _stepIndex,
-        uint8 _stepCount
-    ) external view override returns (bytes[] memory _codes) {
-        _codes = _getPoolClaimAllRewardCodes(_optyVault, _hash, _stepIndex, _stepCount);
-    }
-
-    function getPoolHarvestAllRewardCodes(
-        address payable _optyVault,
-        address _underlyingToken,
-        bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
-    ) external view override returns (bytes[] memory _codes) {
-        _codes = _getPoolHarvestAllRewardCodes(
-            _optyVault,
-            _underlyingToken,
-            _investStrategyHash,
-            _stepIndex,
-            _stepCount
-        );
-    }
-
-    function getPoolHarvestSomeRewardCodes(
-        address payable _optyVault,
-        address _underlyingToken,
-        bytes32 _investStrategyHash,
-        uint256 _convertRewardTokensPercent,
-        uint8 _stepIndex,
-        uint8 _stepCount
-    ) external view override returns (bytes[] memory _codes) {
-        _codes = _getPoolHarvestSomeRewardCodes(
-            _optyVault,
-            _underlyingToken,
-            _investStrategyHash,
-            _convertRewardTokensPercent,
-            _stepIndex,
-            _stepCount
-        );
-    }
-
-    function getFeeTransferAllCodes(
-        DataTypes.TreasuryShare[] memory _treasuryShares,
-        address _account,
-        address _underlyingToken,
-        uint256 _redeemAmountInToken,
-        uint256 _withdrawalFee
-    ) external pure override returns (bytes[] memory _treasuryCodes, bytes memory _accountCode) {
-        if (_redeemAmountInToken > 0) {
-            uint256 _fee = 0;
-            if (_treasuryShares.length > 0 && _withdrawalFee > 0) {
-                uint8 _treasurySharesLength = uint8(_treasuryShares.length);
-                _treasuryCodes = new bytes[](_treasurySharesLength);
-                for (uint8 _i = 0; _i < uint8(_treasuryShares.length); _i++) {
-                    if (_treasuryShares[_i].treasury != address(0)) {
-                        uint256 _share = _treasuryShares[_i].share;
-                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
-                        _treasuryCodes[_i] = abi.encode(
-                            _underlyingToken,
-                            abi.encodeWithSignature(
-                                "transfer(address,uint256)",
-                                _treasuryShares[_i].treasury,
-                                uint256(_treasuryAccountFee)
-                            )
-                        );
-                        _fee = _fee.add(_treasuryAccountFee);
-                    }
-                }
-            }
-            require(_account != address(0), "Account==0x0");
-            _accountCode = abi.encode(
-                _underlyingToken,
-                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
-            );
-        }
-    }
-
-    function getLpAdapterRewardToken(bytes32 _investStrategyHash)
+    function getPoolClaimAllRewardCodes(address payable _vault, bytes32 _investStrategyhash)
         public
         view
         override
-        returns (
-            address _liquidityPool,
-            address _optyAdapter,
-            address _rewardToken
-        )
+        returns (bytes[] memory _codes)
     {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
-        _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-        _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-        _rewardToken = IAdapter(_optyAdapter).getRewardToken(_liquidityPool);
+        _codes = _getPoolClaimAllRewardCodes(_vault, _investStrategyhash);
+    }
+
+    function getPoolHarvestAllRewardCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getPoolHarvestAllRewardCodes(_vault, _underlyingToken, _investStrategyHash);
+    }
+
+    function getPoolHarvestSomeRewardCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash,
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getPoolHarvestSomeRewardCodes(_vault, _underlyingToken, _investStrategyHash, _vaultRewardStrategy);
+    }
+
+    function getStrategySteps(bytes32 _investStrategyhash)
+        internal
+        view
+        returns (DataTypes.StrategyStep[] memory _strategySteps)
+    {
+        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
+            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
+        (, _strategySteps) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_investStrategyhash);
+    }
+
+    function getSplitPaymentCode(
+        DataTypes.TreasuryShare[] memory _treasuryShares,
+        address _account,
+        address _underlyingToken,
+        uint256 _redeemAmountInToken
+    ) public pure override returns (bytes[] memory _treasuryCodes) {
+        _treasuryCodes = _getSplitPaymentCode(_treasuryShares, _account, _underlyingToken, _redeemAmountInToken);
+    }
+
+    function getUserRewardCodes(address _vault, address _from) public view override returns (bytes[] memory _codes) {
+        _codes = _getUserRewardCodes(_vault, _from);
+    }
+
+    function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
+        (, , _rewardToken) = _getLastStepLiquidityPool(_investStrategyHash);
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
@@ -176,38 +134,38 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getPoolDepositAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyhash,
         uint8 _stepIndex,
         uint8
     ) internal view returns (bytes[] memory _codes) {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _subStepCounter = 0;
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
             if (_strategySteps[_i].isBorrow) {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_optyAdapter).getDepositAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == _subStepCounter + 1) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _outputToken = _strategySteps[_i].outputToken; // borrow token
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_optyAdapter).getBorrowAllCodes(
-                        _optyVault,
+                    _codes = IAdapter(_adapter).getBorrowAllCodes(
+                        _vault,
                         _underlyingTokens,
                         _liquidityPool,
                         _outputToken
@@ -218,23 +176,23 @@ contract StrategyManager is IStrategyManager, Modifiers {
             } else {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_optyAdapter).getDepositAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == (_subStepCounter + 1) && _i == uint8(_strategySteps.length - 1)) {
                     address _liquidityPool = _strategySteps[_i].pool;
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_optyAdapter).getStakeAllCodes(_optyVault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapter(_adapter).getStakeAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // stake at ith step
                 _subStepCounter++;
@@ -243,13 +201,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getPoolWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash,
+        bytes32 _investStrategyhash,
         uint8 _stepIndex,
         uint8 _stepCount
     ) internal view returns (bytes[] memory _codes) {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _subStepCounter = _stepCount - 1;
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
             uint8 _iterator = uint8(_strategySteps.length) - 1 - _i;
@@ -257,11 +215,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 address _outputToken = _strategySteps[_iterator].outputToken;
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
-                    _codes = IAdapter(_optyAdapter).getRepayAndWithdrawAllCodes(
-                        _optyVault,
+                    _codes = IAdapter(_adapter).getRepayAndWithdrawAllCodes(
+                        _vault,
                         _underlyingTokens,
                         _strategySteps[_iterator].pool,
                         _outputToken
@@ -270,11 +228,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 } // repayAndWithdraw at ith step
                 if (_stepIndex == _subStepCounter - 1) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_optyVault);
+                    uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_vault);
                     IHarvestCodeProvider _harvestCodeProviderContract =
                         IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
                     _codes = _harvestCodeProviderContract.getHarvestCodes(
-                        _optyVault,
+                        _vault,
                         _outputToken,
                         _underlyingToken,
                         _borrowTokenRemainingAmount
@@ -285,18 +243,18 @@ contract StrategyManager is IStrategyManager, Modifiers {
             } else {
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
-                    address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
+                    address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     _codes = (_iterator == uint8(_strategySteps.length) - 1 &&
-                        IAdapter(_optyAdapter).canStake(_strategySteps[_iterator].pool))
-                        ? IAdapter(_optyAdapter).getUnstakeAndWithdrawAllCodes(
-                            _optyVault,
+                        IAdapter(_adapter).canStake(_strategySteps[_iterator].pool))
+                        ? IAdapter(_adapter).getUnstakeAndWithdrawAllCodes(
+                            _vault,
                             _underlyingTokens,
                             _strategySteps[_iterator].pool
                         )
-                        : IAdapter(_optyAdapter).getWithdrawAllCodes(
-                            _optyVault,
+                        : IAdapter(_adapter).getWithdrawAllCodes(
+                            _vault,
                             _underlyingTokens,
                             _strategySteps[_iterator].pool
                         );
@@ -308,91 +266,79 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getPoolHarvestAllRewardCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _investStrategyHash,
-        uint8,
-        uint8
+        bytes32 _investStrategyHash
     ) internal view returns (bytes[] memory _codes) {
-        (address _liquidityPool, address _optyAdapter, ) = getLpAdapterRewardToken(_investStrategyHash);
-        _codes = IAdapter(_optyAdapter).getHarvestAllCodes(_optyVault, _underlyingToken, _liquidityPool);
+        (address _liquidityPool, address _adapter, ) = _getLastStepLiquidityPool(_investStrategyHash);
+        _codes = IAdapter(_adapter).getHarvestAllCodes(_vault, _underlyingToken, _liquidityPool);
     }
 
     function _getPoolHarvestSomeRewardCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint256 _convertRewardTokensPercent,
-        uint8,
-        uint8
+        DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) internal view returns (bytes[] memory _codes) {
-        (address _liquidityPool, address _optyAdapter, address _rewardToken) =
-            getLpAdapterRewardToken(_investStrategyHash);
-        //  get reward token balance for optyVault
-        uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_optyVault);
-        //  calculation in basis
-        uint256 _redeemRewardTokens = _rewardTokenBalance.mul(_convertRewardTokensPercent).div(10000);
-        _codes = IAdapter(_optyAdapter).getHarvestSomeCodes(
-            _optyVault,
+        (address _liquidityPool, address _adapter, address _rewardToken) =
+            _getLastStepLiquidityPool(_investStrategyHash);
+        //  get reward token balance for vault
+        uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_vault);
+        //  calculation in basis points
+        uint256 _harvestableRewardTokens =
+            _vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0)
+                ? _rewardTokenBalance
+                : _rewardTokenBalance.mul(_vaultRewardStrategy.convert).div(10000);
+        _codes = IAdapter(_adapter).getHarvestSomeCodes(
+            _vault,
             _underlyingToken,
             _liquidityPool,
-            _redeemRewardTokens
+            _harvestableRewardTokens
         );
     }
 
-    function _getPoolClaimAllRewardCodes(
-        address payable _optyVault,
-        bytes32 _hash,
-        uint8,
-        uint8
-    ) internal view returns (bytes[] memory _codes) {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
-        address _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
-        address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-        _codes = IAdapter(_optyAdapter).getClaimRewardTokenCode(_optyVault, _liquidityPool);
+    function _getPoolClaimAllRewardCodes(address payable _vault, bytes32 _investStrategyhash)
+        internal
+        view
+        returns (bytes[] memory _codes)
+    {
+        (address _liquidityPool, address _adapter, ) = _getLastStepLiquidityPool(_investStrategyhash);
+        _codes = IAdapter(_adapter).getClaimRewardTokenCode(_vault, _liquidityPool);
     }
 
     function _getBalanceInUnderlyingToken(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
-        bytes32 _hash
+        bytes32 _investStrategyhash
     ) internal view returns (uint256 _balance) {
-        uint8 _steps = uint8(_getStrategySteps(_hash).length);
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        uint8 _steps = uint8(_getStrategySteps(_investStrategyhash).length);
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         _balance = 0;
         uint256 _outputTokenAmount = _balance;
         for (uint8 _i = 0; _i < _steps; _i++) {
             uint256 _iterator = _steps - 1 - _i;
             address _liquidityPool = _strategySteps[_iterator].pool;
-            address _optyAdapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+            address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
             address _inputToken = _underlyingToken;
             if (_iterator != 0) {
                 _inputToken = _strategySteps[_iterator - 1].outputToken;
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (IAdapter(_optyAdapter).canStake(_liquidityPool)) {
-                        _balance = IAdapter(_optyAdapter).getAllAmountInTokenStake(
-                            _optyVault,
-                            _inputToken,
-                            _liquidityPool
-                        );
+                    if (IAdapter(_adapter).canStake(_liquidityPool)) {
+                        _balance = IAdapter(_adapter).getAllAmountInTokenStake(_vault, _inputToken, _liquidityPool);
                     } else {
-                        _balance = IAdapter(_optyAdapter).getAllAmountInToken(_optyVault, _inputToken, _liquidityPool);
+                        _balance = IAdapter(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
                     }
                 } else {
-                    _balance = IAdapter(_optyAdapter).getSomeAmountInToken(
-                        _inputToken,
-                        _liquidityPool,
-                        _outputTokenAmount
-                    );
+                    _balance = IAdapter(_adapter).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
                 }
             }
             // deposit
             else {
                 address _borrowToken = _strategySteps[_iterator].outputToken;
-                _balance = IAdapter(_optyAdapter).getAllAmountInTokenBorrow(
-                    _optyVault,
+                _balance = IAdapter(_adapter).getAllAmountInTokenBorrow(
+                    _vault,
                     _inputToken,
                     _liquidityPool,
                     _borrowToken,
@@ -403,8 +349,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
-    function _getHarvestRewardStepsCount(bytes32 _hash) internal view returns (uint8) {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+    function _getHarvestRewardStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
@@ -414,8 +360,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return uint8(0);
     }
 
-    function _getClaimRewardStepsCount(bytes32 _hash) internal view returns (uint8) {
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+    function _getClaimRewardStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
@@ -425,11 +371,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return uint8(0);
     }
 
-    function _getDepositAllStepCount(bytes32 _hash) internal view returns (uint8) {
-        if (_hash == ZERO_BYTES32) {
+    function _getDepositAllStepCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+        if (_investStrategyhash == ZERO_BYTES32) {
             return uint8(0);
         }
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _strategyStepCount = uint8(_strategySteps.length);
         uint8 _lastStepIndex = _strategyStepCount - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
@@ -445,11 +391,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return _strategyStepCount;
     }
 
-    function _getWithdrawAllStepsCount(bytes32 _hash) internal view returns (uint8) {
-        if (_hash == ZERO_BYTES32) {
+    function _getWithdrawAllStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+        if (_investStrategyhash == ZERO_BYTES32) {
             return uint8(0);
         }
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _steps = uint8(_strategySteps.length);
         for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
             if (_strategySteps[_i].isBorrow) {
@@ -457,5 +403,73 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
         }
         return _steps;
+    }
+
+    function _getSplitPaymentCode(
+        DataTypes.TreasuryShare[] memory _treasuryShares,
+        address _account,
+        address _underlyingToken,
+        uint256 _redeemAmountInToken
+    ) internal pure returns (bytes[] memory _treasuryCodes) {
+        uint256 _fee = 0;
+        if (_redeemAmountInToken > 0) {
+            uint8 _i;
+            uint256 _treasurySharesLength = _treasuryShares.length;
+            _treasuryCodes = new bytes[](_treasurySharesLength.add(1));
+            if (_treasurySharesLength > 0) {
+                for (_i = 0; _i < uint8(_treasurySharesLength); _i++) {
+                    if (_treasuryShares[_i].treasury != address(0)) {
+                        uint256 _share = _treasuryShares[_i].share;
+                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
+                        _treasuryCodes[_i] = abi.encode(
+                            _underlyingToken,
+                            abi.encodeWithSignature(
+                                "transfer(address,uint256)",
+                                _treasuryShares[_i].treasury,
+                                uint256(_treasuryAccountFee)
+                            )
+                        );
+                        _fee = _fee.add(_treasuryAccountFee);
+                    }
+                }
+            }
+            _treasuryCodes[_i] = abi.encode(
+                _underlyingToken,
+                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
+            );
+        }
+    }
+
+    function _getUserRewardCodes(address _vault, address _from) internal view returns (bytes[] memory _codes) {
+        _codes = new bytes[](4);
+        address _optyMinter = registryContract.getOptyMinter();
+        _codes[0] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateUserRewards(address,address)", _vault, _from)
+        );
+        _codes[1] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateOptyVaultRatePerSecondAndVaultToken(address)", _vault)
+        );
+        _codes[2] = abi.encode(_optyMinter, abi.encodeWithSignature("updateOptyVaultIndex(address)", _vault));
+        _codes[3] = abi.encode(
+            _optyMinter,
+            abi.encodeWithSignature("updateUserStateInVault(address,address)", _vault, _from)
+        );
+    }
+
+    function _getLastStepLiquidityPool(bytes32 _investStrategyHash)
+        internal
+        view
+        returns (
+            address _liquidityPool,
+            address _adapter,
+            address _rewardToken
+        )
+    {
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
+        _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
+        _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+        _rewardToken = IAdapter(_adapter).getRewardToken(_liquidityPool);
     }
 }

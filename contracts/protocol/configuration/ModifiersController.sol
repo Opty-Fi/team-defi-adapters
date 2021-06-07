@@ -24,17 +24,6 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Transfers strategist to a new account (`_strategist`).
-     * Can only be called by the current governance.
-     */
-
-    function setStrategist(address _strategist) public override onlyGovernance {
-        require(_strategist != address(0), "!address(0)");
-        strategist = _strategist;
-        emit TransferStrategist(strategist, msg.sender);
-    }
-
-    /**
      * @dev Transfers minter to a new account (`_minter`).
      * Can only be called by the current governance.
      */
@@ -58,14 +47,6 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
      */
     modifier onlyOperator() {
         require(msg.sender == operator, "caller is not the operator");
-        _;
-    }
-
-    /**
-     * @dev Modifier to check caller is strategist or not
-     */
-    modifier onlyStrategist() {
-        require(msg.sender == strategist, "caller is not the strategist");
         _;
     }
 

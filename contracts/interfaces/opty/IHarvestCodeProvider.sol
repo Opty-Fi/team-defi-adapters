@@ -25,4 +25,6 @@ interface IHarvestCodeProvider {
         address _underlyingToken,
         uint256 _amount
     ) external view returns (uint256);
+
+    function getWETHInToken(address _underlyingToken, uint256 _amount) external view returns (uint256);
 }

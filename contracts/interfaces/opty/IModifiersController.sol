@@ -14,13 +14,6 @@ interface IModifiersController {
     function setOperator(address _operator) external;
 
     /**
-     * @dev Transfers strategist to a new account (`_strategist`).
-     * Can only be called by the current governance.
-     */
-
-    function setStrategist(address _strategist) external;
-
-    /**
      * @dev Transfers minter to a new account (`_minter`).
      * Can only be called by the current governance.
      */

@@ -4,7 +4,6 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import { IVault } from "../../interfaces/opty/IVault.sol";
-import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Deployer } from "../../dependencies/chi/ChiDeployer.sol";
 import { VersionedInitializable } from "../../dependencies/openzeppelin/VersionedInitializable.sol";
@@ -17,7 +16,7 @@ import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
-import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
+import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 
 /**
@@ -81,42 +80,34 @@ contract Vault is
         _success = true;
     }
 
-    function rebalance() external override ifNotDiscontinued(address(this)) ifNotPaused(address(this)) {
-        uint256 _gasInitial;
-
+    function rebalance() external override ifNotPausedAndDiscontinued(address(this)) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
 
-        if (msg.sender == _vaultStrategyConfiguration.operator) {
-            _gasInitial = gasleft();
-        }
+        uint256 _gasInitial = msg.sender == _vaultStrategyConfiguration.operator ? gasleft() : uint256(0);
 
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = underlyingToken;
-        bytes32 newStrategyHash =
+        bytes32 _newInvestStrategyHash =
             IRiskManager(_vaultStrategyConfiguration.riskManager).getBestStrategy(profile, _underlyingTokens);
         if (
-            keccak256(abi.encodePacked(newStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
+            keccak256(abi.encodePacked(_newInvestStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
             investStrategyHash != ZERO_BYTES32
         ) {
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
             if (msg.sender == _vaultStrategyConfiguration.operator && gasOwedToOperator != uint256(0)) {
-                address[] memory _path = new address[](2);
-                _path[0] = IUniswapV2Router02(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D)).WETH();
-                _path[1] = underlyingToken;
-                uint256[] memory _amounts =
-                    IUniswapV2Router02(address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D)).getAmountsOut(
-                        gasOwedToOperator,
-                        _path
-                    );
-                uint256 _gasToTransfer = _amounts[1];
-                gasOwedToOperator = uint256(0);
-                IERC20(underlyingToken).safeTransfer(_vaultStrategyConfiguration.operator, _gasToTransfer);
+                IERC20(underlyingToken).safeTransfer(
+                    _vaultStrategyConfiguration.operator,
+                    IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getWETHInToken(
+                        underlyingToken,
+                        gasOwedToOperator
+                    )
+                );
             }
         }
 
-        investStrategyHash = newStrategyHash;
+        investStrategyHash = _newInvestStrategyHash;
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             investStrategyHash = IRiskManager(_vaultStrategyConfiguration.riskManager).getBestStrategy(
@@ -127,10 +118,7 @@ contract Vault is
         }
 
         if (msg.sender == _vaultStrategyConfiguration.operator) {
-            uint256 _gasFinal = gasleft();
-            uint256 _gasBurned = _gasInitial.sub(_gasFinal);
-            uint256 _gasCost = _gasBurned.mul(tx.gasprice);
-            gasOwedToOperator = gasOwedToOperator.add(_gasCost);
+            gasOwedToOperator = gasOwedToOperator.add((_gasInitial.sub(gasleft())).mul(tx.gasprice));
         }
     }
 
@@ -148,14 +136,6 @@ contract Vault is
         _userDeposit(_amount);
     }
 
-    function userDepositAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
-        _userDepositAndStake(_amount, _stakingVault);
-    }
-
-    function userDepositAllAndStake(address _stakingVault) external override returns (bool) {
-        _userDepositAllAndStake(_stakingVault);
-    }
-
     function userDepositAllRebalance() external override {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
@@ -166,18 +146,6 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
-    }
-
-    function userDepositRebalanceAndStake(uint256 _amount, address _stakingVault) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositRebalanceAndStake(_amount, _stakingVault, _vaultStrategyConfiguration);
-    }
-
-    function userDepositAllRebalanceAndStake(address _stakingVault) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositAllRebalanceAndStake(_stakingVault, _vaultStrategyConfiguration);
     }
 
     function userWithdrawAllRebalance() external override {
@@ -196,16 +164,8 @@ contract Vault is
         _userDeposit(IERC20(underlyingToken).balanceOf(msg.sender));
     }
 
-    function userDepositAllAndStakeWithCHI(address _stakingVault) external override discountCHI {
-        _userDepositAllAndStake(_stakingVault);
-    }
-
     function userDepositWithCHI(uint256 _amount) external override discountCHI {
         _userDeposit(_amount);
-    }
-
-    function userDepositAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
-        _userDepositAndStake(_amount, _stakingVault);
     }
 
     function userDepositAllRebalanceWithCHI() external override discountCHI {
@@ -218,18 +178,6 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
-    }
-
-    function userDepositRebalanceAndStakeWithCHI(uint256 _amount, address _stakingVault) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositRebalanceAndStake(_amount, _stakingVault, _vaultStrategyConfiguration);
-    }
-
-    function userDepositAllRebalanceAndStakeWithCHI(address _stakingVault) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        _userDepositAllRebalanceAndStake(_stakingVault, _vaultStrategyConfiguration);
     }
 
     function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) external override discountCHI {
@@ -265,11 +213,11 @@ contract Vault is
     /**
      * @dev Function to get the underlying token balance of OptyVault Contract
      */
-    function balance() external view override returns (uint256) {
+    function balance() public view override returns (uint256) {
         return _balance();
     }
 
-    function getPricePerFullShare() external view override returns (uint256) {
+    function getPricePerFullShare() public view override returns (uint256) {
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         if (totalSupply() != 0) {
@@ -297,26 +245,21 @@ contract Vault is
         return (_diff.mul(10000)).div(_currentVaultValue) < maxVaultValueJump;
     }
 
-    function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-    {
-        uint256 _tokenBalance = IERC20(underlyingToken).balanceOf(address(this));
-        require(_tokenBalance > 0, "!amount>0");
+    function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMintAndBurn(_vaultStrategyConfiguration);
         uint8 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
-        for (uint8 _i = 0; _i < _steps; _i++) {
-            bytes[] memory _codes =
+        for (uint8 _i; _i < _steps; _i++) {
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolDepositAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
                     _i,
                     _steps
-                );
-            executeCodes(_codes, "!_supplyAll");
+                ),
+                "!_supplyAll"
+            );
         }
         vaultValue = _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration);
     }
@@ -324,17 +267,18 @@ contract Vault is
     function _withdrawAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         uint8 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(investStrategyHash);
-        for (uint8 _i = 0; _i < _steps; _i++) {
+        for (uint8 _i; _i < _steps; _i++) {
             uint8 _iterator = _steps - 1 - _i;
-            bytes[] memory _codes =
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolWithdrawAllCodes(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash,
                     _iterator,
                     _steps
-                );
-            executeCodes(_codes, "!_withdrawAll");
+                ),
+                "!_withdrawAll"
+            );
         }
     }
 
@@ -342,52 +286,28 @@ contract Vault is
         bytes32 _investStrategyHash,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
     ) internal {
-        uint8 _claimRewardSteps =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getClaimRewardStepsCount(_investStrategyHash);
-        for (uint8 _i = 0; _i < _claimRewardSteps; _i++) {
-            bytes[] memory _codes =
+        address _rewardToken =
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getRewardToken(_investStrategyHash);
+        if (_rewardToken != address(0)) {
+            // means rewards exists
+            executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolClaimAllRewardCodes(
                     payable(address(this)),
-                    _investStrategyHash,
-                    _i,
-                    _claimRewardSteps
-                );
-            executeCodes(_codes, "!claim");
-        }
-
-        (, , address _rewardToken) =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getLpAdapterRewardToken(_investStrategyHash);
-        if (_rewardToken != address(0)) {
-            bytes32 _vaultRewardTokenHash = keccak256(abi.encodePacked([address(this), _rewardToken]));
-            DataTypes.VaultRewardStrategy memory _vaultRewardStrategy =
-                IRiskManager(_vaultStrategyConfiguration.riskManager).getVaultRewardTokenStrategy(
-                    _vaultRewardTokenHash
-                );
-
-            uint8 _harvestSteps =
-                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getHarvestRewardStepsCount(
                     _investStrategyHash
-                );
-            for (uint8 _i = 0; _i < _harvestSteps; _i++) {
-                bytes[] memory _codes =
-                    (_vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0))
-                        ? IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestAllRewardCodes(
-                            payable(address(this)),
-                            underlyingToken,
-                            _investStrategyHash,
-                            _i,
-                            _harvestSteps
-                        )
-                        : IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestSomeRewardCodes(
-                            payable(address(this)),
-                            underlyingToken,
-                            _investStrategyHash,
-                            _vaultRewardStrategy.convert,
-                            _i,
-                            _harvestSteps
-                        );
-                executeCodes(_codes, "!harvest");
-            }
+                ),
+                "!claim"
+            );
+            executeCodes(
+                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolHarvestSomeRewardCodes(
+                    payable(address(this)),
+                    underlyingToken,
+                    _investStrategyHash,
+                    IRiskManager(_vaultStrategyConfiguration.riskManager).getVaultRewardTokenStrategy(
+                        keccak256(abi.encodePacked([address(this), _rewardToken]))
+                    )
+                ),
+                "!harvest"
+            );
         }
     }
 
@@ -401,8 +321,7 @@ contract Vault is
      */
     function _userDeposit(uint256 _amount)
         internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
+        ifNotPausedAndDiscontinued(address(this))
         nonReentrant
         returns (bool _success)
     {
@@ -415,36 +334,11 @@ contract Vault is
         _success = true;
     }
 
-    function _userDepositAndStake(uint256 _amount, address _stakingVault)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-        nonReentrant
-        returns (bool _success)
-    {
-        _userDeposit(_amount);
-        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-        uint256 _optyAmount = _optyMinterContract.claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
-    function _userDepositAllAndStake(address _stakingVault)
-        internal
-        ifNotDiscontinued(address(this))
-        ifNotPaused(address(this))
-        nonReentrant
-        returns (bool _success)
-    {
-        _userDepositAndStake(IERC20(underlyingToken).balanceOf(msg.sender), _stakingVault);
-        _success = true;
-    }
-
     function _batchMintAndBurn(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
         internal
         returns (bool _success)
     {
-        for (uint256 i = 0; i < queue.length; i++) {
+        for (uint256 i; i < queue.length; i++) {
             if (queue[i].isDeposit) {
                 _mintShares(queue[i].account, _balance(), queue[i].value);
                 pendingDeposits[msg.sender] -= queue[i].value;
@@ -473,7 +367,7 @@ contract Vault is
     function _userDepositRebalance(
         uint256 _amount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
+    ) internal ifNotPausedAndDiscontinued(address(this)) nonReentrant returns (bool _success) {
         require(_amount > 0, "!(_amount>0)");
 
         if (investStrategyHash != ZERO_BYTES32) {
@@ -512,27 +406,6 @@ contract Vault is
         _success = true;
     }
 
-    function _userDepositRebalanceAndStake(
-        uint256 _amount,
-        address _stakingVault,
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
-        _userDepositRebalance(_amount, _vaultStrategyConfiguration);
-        uint256 _optyAmount = IOPTYMinter(_vaultStrategyConfiguration.optyMinter).claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
-    function _userDepositAllRebalanceAndStake(
-        address _stakingVault,
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotDiscontinued(address(this)) ifNotPaused(address(this)) nonReentrant returns (bool _success) {
-        _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
-        uint256 _optyAmount = IOPTYMinter(_vaultStrategyConfiguration.optyMinter).claimOpty(msg.sender);
-        IOPTYStakingVault(_stakingVault).userStake(_optyAmount);
-        _success = true;
-    }
-
     /**
      * @dev Function to withdraw the vault tokens from the vault (for example cDAI)
      *
@@ -544,18 +417,17 @@ contract Vault is
     function _userWithdrawRebalance(
         uint256 _redeemAmount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotPaused(address(this)) nonReentrant returns (bool) {
+    ) internal nonReentrant returns (bool) {
+        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
+        require(_vaultConfiguration.unpaused, "unpause");
         require(_redeemAmount > 0, "!_redeemAmount>0");
         uint256 opBalance = balanceOf(msg.sender);
         require(_redeemAmount <= opBalance, "!!balance");
-
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
         if (!_vaultConfiguration.discontinued && investStrategyHash != ZERO_BYTES32) {
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
         }
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
-
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, _balance().sub(depositQueue), _redeemAmount, _vaultStrategyConfiguration);
 
@@ -581,11 +453,10 @@ contract Vault is
         address,
         uint256
     ) internal override {
-        IOPTYMinter _optyMinterContract = IOPTYMinter(registryContract.getOptyMinter());
-        _optyMinterContract.updateUserRewards(address(this), from);
-        _optyMinterContract.updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        _optyMinterContract.updateOptyVaultIndex(address(this));
-        _optyMinterContract.updateUserStateInVault(address(this), from);
+        executeCodes(
+            IStrategyManager(registryContract.getStrategyManager()).getUserRewardCodes(address(this), from),
+            "!_beforeTokenTransfer"
+        );
     }
 
     /**
@@ -677,21 +548,15 @@ contract Vault is
         uint256 redeemAmountInToken = (_balanceInUnderlyingToken.mul(_redeemAmount)).div(totalSupply());
         //  Updating the totalSupply of op tokens
         _burn(msg.sender, _redeemAmount);
-        DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
-        (bytes[] memory _treasuryCodes, bytes memory _accountCode) =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getFeeTransferAllCodes(
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getSplitPaymentCode(
                 registryContract.getTreasuryShares(address(this)),
                 _account,
                 underlyingToken,
-                redeemAmountInToken,
-                _vaultConfiguration.withdrawalFee
-            );
-        if (_treasuryCodes.length > 0) {
-            executeCodes(_treasuryCodes, "!TreasuryRedeemAmt");
-        }
-        if (_accountCode.length > 0) {
-            executeCode(_accountCode, "!CallerRedeemAmt");
-        }
+                redeemAmountInToken
+            ),
+            "!TreasuryRedeemAmt"
+        );
     }
 
     function _mintShares(
