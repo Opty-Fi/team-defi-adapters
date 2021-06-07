@@ -2,21 +2,27 @@
 
 pragma solidity ^0.6.12;
 
+//  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+
+//  helper contracts
 import { RegistryStorage } from "./RegistryStorage.sol";
+
+//  interfaces
 import { IModifiersController } from "../../interfaces/opty/IModifiersController.sol";
 
 /**
- * @dev Contract used to authorize and keep all the modifiers at one place
+ * @title ModifiersController Contract
+ * @author Opty.fi
+ * @notice Contract used by registry contract and acts as source of truth
+ * @dev It manages operator, minter addresses as well as modifiers
  */
 abstract contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
 
     /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
+     * @inheritdoc IModifiersController
      */
-
     function setOperator(address _operator) public override onlyGovernance {
         require(_operator != address(0), "!address(0)");
         operator = _operator;
@@ -24,10 +30,8 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Transfers minter to a new account (`_minter`).
-     * Can only be called by the current governance.
+     * @inheritdoc IModifiersController
      */
-
     function setOPTYMinter(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");
         minter = _minter;
@@ -35,7 +39,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is governance or not
+     * @notice Modifier to check caller is governance or not
      */
     modifier onlyGovernance() {
         require(msg.sender == governance, "caller is not having governance");
@@ -43,7 +47,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is operator or not
+     * @notice Modifier to check caller is operator or not
      */
     modifier onlyOperator() {
         require(msg.sender == operator, "caller is not the operator");
@@ -51,7 +55,7 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     }
 
     /**
-     * @dev Modifier to check caller is minter or not
+     * @notice Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
         require(msg.sender == minter, "caller is not the minter");

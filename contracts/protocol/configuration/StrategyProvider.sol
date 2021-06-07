@@ -3,23 +3,46 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { Modifiers } from "./Modifiers.sol";
+//  libraries
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
-import { SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { Modifiers } from "./Modifiers.sol";
+
+//  interfaces
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 import { Constants } from "../../utils/Constants.sol";
 
 /**
- * @dev Serves as an oracle service of opty-fi's earn protocol
- *      for best strategy
+ * @title StrategyProvider Contract
+ * @author Opty.fi
+ * @notice Serves as an oracle service of opty-fi's earn protocol
+ * @dev Contracts contains logic for setting and getting the best and default strategy
+ * as well as vault reward token strategy
  */
 contract StrategyProvider is IStrategyProvider, Modifiers {
     using SafeMath for uint256;
 
+    /**
+     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to the best strategy hash
+     */
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToBestStrategy;
+
+    /**
+     * @notice Mapping of RiskProfile (eg: RP1, RP2, etc) to tokensHash to best default strategy hash
+     */
     mapping(string => mapping(bytes32 => bytes32)) public override rpToTokenToDefaultStrategy;
+
+    /**
+     * @notice Mapping of vaultRewardToken address hash to vault reward token strategy
+     */
     mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
 
+    /** @notice Zero value constant of bytes32 datatype */
+    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+
+    /** @notice Stores the default strategy state (zero or compound or aave) */
     DataTypes.DefaultStrategyState public defaultStrategyState;
 
     /* solhint-disable no-empty-blocks */
@@ -27,7 +50,9 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         setDefaultStrategyState(DataTypes.DefaultStrategyState.CompoundOrAave);
     }
 
-    /* solhint-disable no-empty-blocks */
+    /**
+     * @inheritdoc IStrategyProvider
+     */
     function setBestStrategy(
         string memory _riskProfile,
         bytes32 _tokenHash,
@@ -40,6 +65,9 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         rpToTokenToBestStrategy[_riskProfile][_tokenHash] = _strategyHash;
     }
 
+    /**
+     * @inheritdoc IStrategyProvider
+     */
     function setBestDefaultStrategy(
         string memory _riskProfile,
         bytes32 _tokenHash,
@@ -53,19 +81,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
     }
 
     /**
-     * @dev assign strategy in form of `_vaultRewardStrategy` to the `_vaultRewardTokenHash`.
-     *
-     * Returns a vaultRewardStrategy hash value indicating successful operation.
-     *
-     * Emits a {LogSetVaultRewardStrategy} event.
-     *
-     * Requirements:
-     *
-     * - msg.sender should be operator.
-     * - `hold` in {_vaultRewardStrategy} shoould be greater than 0 and should be in `basis` format.
-     *      For eg: If hold is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
-     * - `convert` in {_vaultRewardStrategy} should be approved
-     *      For eg: If convert is 50%, then it's basis will be 5000, Similarly, if it 20%, then it's basis is 2000.
+     * @inheritdoc IStrategyProvider
      */
     function setVaultRewardStrategy(
         bytes32 _vaultRewardTokenHash,
@@ -85,24 +101,33 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         return vaultRewardTokenHashToVaultRewardTokenStrategy[_vaultRewardTokenHash];
     }
 
-    function getDefaultStrategyState() external view override returns (DataTypes.DefaultStrategyState) {
-        return defaultStrategyState;
-    }
-
-    function getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokensHash)
-        external
-        view
-        override
-        returns (DataTypes.VaultRewardStrategy memory)
-    {
-        return vaultRewardTokenHashToVaultRewardTokenStrategy[_tokensHash];
-    }
-
+    /**
+     * @inheritdoc IStrategyProvider
+     */
     function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
         public
         override
         onlyGovernance
     {
         defaultStrategyState = _defaultStrategyState;
+    }
+
+    /**
+     * @inheritdoc IStrategyProvider
+     */
+    function getDefaultStrategyState() public view override returns (DataTypes.DefaultStrategyState) {
+        return defaultStrategyState;
+    }
+
+    /**
+     * @inheritdoc IStrategyProvider
+     */
+    function getVaultRewardTokenHashToVaultRewardTokenStrategy(bytes32 _tokensHash)
+        public
+        view
+        override
+        returns (DataTypes.VaultRewardStrategy memory)
+    {
+        return vaultRewardTokenHashToVaultRewardTokenStrategy[_tokensHash];
     }
 }
