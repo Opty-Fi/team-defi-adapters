@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
@@ -43,6 +43,7 @@ interface IAdapter {
     /**
      * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`.
      *
+     * @param _optyPool Address of vault contract
      * Returns a bytes value to be executed.
      */
     function getBorrowAllCodes(
