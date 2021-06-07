@@ -413,7 +413,7 @@ contract Vault is
      * @dev transfer underlying tokens to vault without rebalance
      *      User will have to wait for shares until next rebalance
      * @param _amount The amount of underlying asset to deposit
-     * @return _success returns true on successful deposition of the underlying asset
+     * @return returns true on successful deposition of the underlying asset
      */
     function _userDeposit(uint256 _amount)
         internal
@@ -456,8 +456,8 @@ contract Vault is
      * @dev Transfer the underlying assets and immediately mints the shares
      *      It also updates the user rewards
      * @param _amount The amount of underlying asset to deposit
-     * @param _vaultStrategyConfiguration
-     * @return _success return true on successful execution of user deposit with rebalance
+     * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
+     * @return return true on successful execution of user deposit with rebalance
      */
     function _userDepositRebalance(
         uint256 _amount,
@@ -504,7 +504,7 @@ contract Vault is
     /**
      * @dev Redeems the shares from the vault
      * @param _redeemAmount The amount of shares to be burned
-     * @param _vaultStrategyConfiguration
+     * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      * @return returns true on successful user withdraw with rebalance
      */
     function _userWithdrawRebalance(
@@ -541,9 +541,6 @@ contract Vault is
         return true;
     }
 
-    /**
-     * @inheritdoc IncentivisedERC20
-     */
     function _beforeTokenTransfer(
         address from,
         address,
@@ -556,7 +553,6 @@ contract Vault is
     }
 
     /**
-     * @notice
      * @dev This function computes the market value of shares
      * @param _vaultStrategyConfiguration configuration for calculating market value of shares
      * @return _vaultValue the market value of the shares
@@ -580,15 +576,12 @@ contract Vault is
 
     /**
      * @dev Internal function to get the underlying token balance of vault
-     * @return _balance underlying asset balance in this vault
+     * @return underlying asset balance in this vault
      */
-    function _balance() internal view returns (uint256 _balance) {
-        _balance = IERC20(underlyingToken).balanceOf(address(this));
+    function _balance() internal view returns (uint256) {
+        return IERC20(underlyingToken).balanceOf(address(this));
     }
 
-    /**
-     * @inheritdoc
-     */
     function getRevision() internal pure virtual override returns (uint256) {
         return opTOKEN_REVISION;
     }
@@ -608,8 +601,7 @@ contract Vault is
 
     /**
      * @dev Mechanism to to stop the vault value deviating from maxVaultValueJump
-     * @param _vaultVault The underlying token balance in the vault
-     * @return _success returns true on successful execution of the emergency brake
+     * @param _vaultValue The underlying token balance in the vault
      */
     function _emergencyBrake(uint256 _vaultValue) private {
         uint256 _blockTransactions = blockToBlockVaultValues[block.number].length;
@@ -654,6 +646,7 @@ contract Vault is
      * @param _account The user to redeem the shares
      * @param _balanceInUnderlyingToken the total balance of underlying token in the vault
      * @param _redeemAmount The amount of shares to be burned.
+     * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      */
     function _redeemAndBurn(
         address _account,

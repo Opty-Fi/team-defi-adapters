@@ -27,9 +27,9 @@ interface IVault {
 
     /**
      * @notice claim the rewards if any strategy have it and swap for underlying token
-     * @param _hash vault invest strategy hash
+     * @param _investStrategyHash vault invest strategy hash
      */
-    function harvest(bytes32 _hash) external;
+    function harvest(bytes32 _investStrategyHash) external;
 
     /**
      * @notice a cheap function to deposit whole underlying token's balance
@@ -68,6 +68,7 @@ interface IVault {
     /**
      * @notice redeem the amount of vault shares for getting yield optimized underlying tokens
      * @dev this function rebalances the vault
+     * @param _redeemAmount the vault shares to redeem
      * @return bool returns true on successful redemption of the vault shares
      */
     function userWithdrawRebalance(uint256 _redeemAmount) external returns (bool);
