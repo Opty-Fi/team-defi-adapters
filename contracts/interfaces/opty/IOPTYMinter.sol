@@ -92,9 +92,9 @@ interface IOPTYMinter {
      * @dev If there is not enough $OPTY, we do not perform the transferm at all.
      * @param _user The address of the user to transfer $OPTY to
      * @param _amount The amount of $OPTY to (possibly) transfer
-     * @return _mintAmount The amount of $OPTY which was transferred to the user
+     * @return _mintedAmount The amount of $OPTY which was transferred to the user
      */
-    function mintOpty(address _user, uint256 _amount) external returns (uint256 _mintAmount);
+    function mintOpty(address _user, uint256 _amount) external returns (uint256 _mintedAmount);
 
     /**
      * @notice Set the $OPTY rate for a specific vault

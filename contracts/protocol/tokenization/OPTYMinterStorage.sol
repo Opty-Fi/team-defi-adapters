@@ -93,5 +93,5 @@ contract OPTYMinterStorage {
      * @notice Master lock period after which $OPTY
      *         can be claimed
      */
-    uint256 public immutable maxUnlockClaimOPTYTimestamp;
+    uint256 public maxUnlockClaimOPTYTimestamp;
 }

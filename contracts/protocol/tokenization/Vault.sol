@@ -67,6 +67,7 @@ contract Vault is
     {}
 
     /* solhint-disable no-empty-blocks */
+
     /**
      * @dev Initialize the vault
      * @param _registry the address of registry for helping get the protocol configuration
@@ -95,9 +96,9 @@ contract Vault is
     /**
      * @inheritdoc IVault
      */
-    function setMaxVaultValueJump(uint256 _maxVaultValueJump) external override onlyGovernance returns (bool _success) {
+    function setMaxVaultValueJump(uint256 _maxVaultValueJump) external override onlyGovernance returns (bool) {
         maxVaultValueJump = _maxVaultValueJump;
-        _success = true;
+        return true;
     }
 
     /**
@@ -165,7 +166,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userDeposit(uint256 _amount) external override returns (bool) {
-        _userDeposit(_amount);
+        require(_userDeposit(_amount), "userDeposit");
+        return true;
     }
 
     /**
@@ -184,6 +186,7 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
+        return true;
     }
 
     /**
@@ -202,6 +205,7 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         _userWithdrawRebalance(_redeemAmount, _vaultStrategyConfiguration);
+        return true;
     }
 
     /**
@@ -300,22 +304,22 @@ contract Vault is
     /**
      * @inheritdoc IVault
      */
-    function setProfile(string memory _profile) public override onlyOperator returns (bool _success) {
+    function setProfile(string memory _profile) public override onlyOperator returns (bool) {
         require(bytes(_profile).length > 0, "Profile_Empty!");
         DataTypes.RiskProfile memory _riskProfile = registryContract.getRiskProfile(_profile);
         require(_riskProfile.exists, "!Rp_Exists");
         profile = _profile;
-        _success = true;
+        return true;
     }
 
     /**
      * @inheritdoc IVault
      */
-    function setToken(address _underlyingToken) public override onlyOperator returns (bool _success) {
+    function setToken(address _underlyingToken) public override onlyOperator returns (bool) {
         require(_underlyingToken.isContract(), "!_underlyingToken.isContract");
         require(registryContract.isApprovedToken(_underlyingToken), "!tokens");
         underlyingToken = _underlyingToken;
-        _success = true;
+        return true;
     }
 
     /**
@@ -415,7 +419,7 @@ contract Vault is
         internal
         ifNotPausedAndDiscontinued(address(this))
         nonReentrant
-        returns (bool _success)
+        returns (bool)
     {
         require(_amount > 0, "!(_amount>0)");
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
@@ -423,18 +427,18 @@ contract Vault is
         pendingDeposits[msg.sender] += _amount;
         depositQueue += _amount;
         emit DepositQueue(msg.sender, queue.length, _amount);
-        _success = true;
+        return true;
     }
 
     /**
      * @dev Mint the shares for the users who deposited without rebalancing
      *      It also updates the user rewards
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
-     * @return _success returns true on successful minting of shares and updating protocol rewards
+     * @return returns true on successful minting of shares and updating protocol rewards
      */
     function _batchMint(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration)
         internal
-        returns (bool _success)
+        returns (bool)
     {
         for (uint256 i; i < queue.length; i++) {
             _mintShares(queue[i].account, _balance(), queue[i].value);
@@ -445,7 +449,7 @@ contract Vault is
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
         IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
         delete queue;
-        _success = true;
+        return true;
     }
 
     /**
@@ -458,7 +462,7 @@ contract Vault is
     function _userDepositRebalance(
         uint256 _amount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal ifNotPausedAndDiscontinued(address(this)) nonReentrant returns (bool _success) {
+    ) internal ifNotPausedAndDiscontinued(address(this)) nonReentrant returns (bool) {
         require(_amount > 0, "!(_amount>0)");
 
         if (investStrategyHash != Constants.ZERO_BYTES32) {
@@ -494,19 +498,19 @@ contract Vault is
             );
             _supplyAll(_vaultStrategyConfiguration);
         }
-        _success = true;
+        return true;
     }
 
     /**
      * @dev Redeems the shares from the vault
      * @param _redeemAmount The amount of shares to be burned
      * @param _vaultStrategyConfiguration
-     * @return _success returns true on successful user withdraw with rebalance
+     * @return returns true on successful user withdraw with rebalance
      */
     function _userWithdrawRebalance(
         uint256 _redeemAmount,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
-    ) internal nonReentrant returns (bool _success) {
+    ) internal nonReentrant returns (bool) {
         DataTypes.VaultConfiguration memory _vaultConfiguration = registryContract.getVaultConfiguration(address(this));
         require(_vaultConfiguration.unpaused, "unpause");
         require(_redeemAmount > 0, "!_redeemAmount>0");
@@ -534,7 +538,7 @@ contract Vault is
             );
             _supplyAll(_vaultStrategyConfiguration);
         }
-        _success = true;
+        return true;
     }
 
     /**

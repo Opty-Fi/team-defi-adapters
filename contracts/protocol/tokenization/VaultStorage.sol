@@ -61,9 +61,9 @@ contract VaultStorage {
     /**
      * @notice Logs and event when user calls user deposit underlying asset without rebalance
      * @dev the shares are not minted until next rebalance
-     * @param _sender the account address of the user
-     * @param _index the position of user in the queue
-     * @param _amount the amount of underlying asset deposit
+     * @param sender the account address of the user
+     * @param index the position of user in the queue
+     * @param amount the amount of underlying asset deposit
      */
     event DepositQueue(address indexed sender, uint256 indexed index, uint256 indexed amount);
 }
