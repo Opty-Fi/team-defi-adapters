@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import { SafeERC20, IERC20, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { VaultBooster } from "../protocol/partnership/VaultBooster.sol";
-import { IncentivisedERC20 } from "../protocol/tokenization/IncentivisedERC20.sol";
+import { VaultBooster } from "../../protocol/partnership/VaultBooster.sol";
+import { IncentivisedERC20 } from "../../protocol/tokenization/IncentivisedERC20.sol";
 
 contract TestOpenDefiVault is IncentivisedERC20 {
     using SafeERC20 for IERC20;

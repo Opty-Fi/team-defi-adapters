@@ -3,49 +3,75 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
-import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { Modifiers } from "./Modifiers.sol";
+//  libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { Modifiers } from "./Modifiers.sol";
+
+// interfaces
+import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * @dev Central processing unit of the earn protocol
+ * @title StrategyManager Contract
+ * @author Opty.fi
+ * @notice Central processing unit of the earn protocol
+ * @dev Contains the functionality for getting the codes for deposit/withdraw tokens,
+ * claim/harvest reward tokens from the adapters and pass it onto vault contract
  */
-
 contract StrategyManager is IStrategyManager, Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
+    /**
+     * @notice Zero bytes32 type Constant
+     */
     bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
-    /* solhint-disable no-empty-blocks */
-
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getWithdrawAllStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
         return _getWithdrawAllStepsCount(_investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getDepositAllStepCount(bytes32 _investStrategyhash) public view override returns (uint8) {
         return _getDepositAllStepCount(_investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getClaimRewardStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
         return _getClaimRewardStepsCount(_investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getHarvestRewardStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
         return _getHarvestRewardStepsCount(_investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getBalanceInUnderlyingToken(
         address payable _vault,
         address _underlyingToken,
@@ -54,6 +80,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return _getBalanceInUnderlyingToken(_vault, _underlyingToken, _investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolDepositAllCodes(
         address payable _vault,
         address _underlyingToken,
@@ -64,6 +93,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolDepositAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolWithdrawAllCodes(
         address payable _vault,
         address _underlyingToken,
@@ -74,6 +106,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolWithdrawAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolClaimAllRewardCodes(address payable _vault, bytes32 _investStrategyhash)
         public
         view
@@ -83,6 +118,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolClaimAllRewardCodes(_vault, _investStrategyhash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolHarvestAllRewardCodes(
         address payable _vault,
         address _underlyingToken,
@@ -91,6 +129,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolHarvestAllRewardCodes(_vault, _underlyingToken, _investStrategyHash);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getPoolHarvestSomeRewardCodes(
         address payable _vault,
         address _underlyingToken,
@@ -100,16 +141,23 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolHarvestSomeRewardCodes(_vault, _underlyingToken, _investStrategyHash, _vaultRewardStrategy);
     }
 
-    function getStrategySteps(bytes32 _investStrategyhash)
-        internal
-        view
-        returns (DataTypes.StrategyStep[] memory _strategySteps)
-    {
-        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
-            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
-        (, _strategySteps) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_investStrategyhash);
+    /**
+     * @inheritdoc IStrategyManager
+     */
+    function getUserRewardCodes(address _vault, address _from) public view override returns (bytes[] memory _codes) {
+        _codes = _getUserRewardCodes(_vault, _from);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
+    function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
+        (, , _rewardToken) = _getLastStepLiquidityPool(_investStrategyHash);
+    }
+
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
@@ -117,14 +165,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
         uint256 _redeemAmountInToken
     ) public pure override returns (bytes[] memory _treasuryCodes) {
         _treasuryCodes = _getSplitPaymentCode(_treasuryShares, _account, _underlyingToken, _redeemAmountInToken);
-    }
-
-    function getUserRewardCodes(address _vault, address _from) public view override returns (bytes[] memory _codes) {
-        _codes = _getUserRewardCodes(_vault, _from);
-    }
-
-    function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
-        (, , _rewardToken) = _getLastStepLiquidityPool(_investStrategyHash);
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {

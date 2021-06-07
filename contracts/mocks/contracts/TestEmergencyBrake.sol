@@ -3,7 +3,7 @@
 
 pragma solidity ^0.6.12;
 
-import { Vault } from "../protocol/tokenization/Vault.sol";
+import { Vault } from "../../protocol/tokenization/Vault.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TestEmergencyBrake {
