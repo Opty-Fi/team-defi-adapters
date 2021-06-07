@@ -172,7 +172,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
 
     /**
      * @dev staking OPTY token
-     * @param _amount of $OTPY to stake in wei
+     * @param _amount of $OPTY to stake in wei
      * @return _success returns true on successful stake
      */
     function _userStake(uint256 _amount)
@@ -236,7 +236,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
     }
 
     /**
-     * @dev modifies the state during stake/unstake of $OPTY
+     * @dev modify the state during stake/unstake of $OPTY
      * @return _success returns true on successful vault update
      */
     function _updatePool() internal returns (bool _success) {

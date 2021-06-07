@@ -12,7 +12,7 @@ import { IOPTY } from "../../interfaces/opty/IOPTY.sol";
 /**
  * @title Governance token of the opty.fi's earn protocol
  * @author opty.fi
- * @notice implementation of the OPTY token contract
+ * @notice implementation of the $OPTY token contract
  */
 
 contract OPTY is IOPTY, ERC20, Modifiers {

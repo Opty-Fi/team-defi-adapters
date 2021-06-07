@@ -19,7 +19,7 @@ interface IVault {
     /**
      * @notice Withdraws the underying asset of vault from previous strategy if any,
      *         claims and swaps the reward tokens for the underlying token
-     *         performs batch minting of shares for users deposited previosuly without rebalance,
+     *         performs batch minting of shares for users deposited previously without rebalance,
      *         deposits the assets into the new strategy if any or holds the same in the vault
      * @dev the vault will be charged to compensate gas fees if operator calls this function
      */
@@ -39,9 +39,9 @@ interface IVault {
 
     /**
      * @notice a cheap function to deposit _amount of underlying token to the vault
-     * @dev the user will recieve vault shares on next rebalance
-     * @param _amount the amount of the undelying token to be deposited
-     * @return returns true on successful deposting underlying token without rebalance
+     * @dev the user will receive vault shares on next rebalance
+     * @param _amount the amount of the underlying token to be deposited
+     * @return returns true on successful depositing underlying token without rebalance
      */
     function userDeposit(uint256 _amount) external returns (bool);
 
@@ -80,7 +80,7 @@ interface IVault {
     function userDepositAllWithCHI() external;
 
     /**
-     * @notice a cheap function to deposit amount of  underlying token's balance of caller
+     * @notice a cheap function to deposit amount of underlying token's balance of caller
      * @dev the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance
      * @param _amount the amount of underlying tokens to be deposited
      */
@@ -94,7 +94,7 @@ interface IVault {
 
     /**
      * @notice deposit amount of underlying token of caller and rebalance
-     * @dev the vault shares are minted right away and gas fess are paid in $CHI tokens
+     * @dev the vault shares are minted right away and gas fees are paid in $CHI tokens
      * @param _amount the amount of the underlying token
      */
     function userDepositRebalanceWithCHI(uint256 _amount) external;
@@ -135,7 +135,7 @@ interface IVault {
 
     /**
      * @notice Calculates the value of a vault share in underlying token
-     * @return uint256 the underling token worth a vault share is
+     * @return uint256 the underlying token worth a vault share is
      */
     function getPricePerFullShare() external view returns (uint256);
 

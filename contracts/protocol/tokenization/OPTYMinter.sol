@@ -39,7 +39,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @dev Modifier to restrict operator to set the token token lock
+     * @dev Modifier to restrict operator to set the token lock
      *      more than current time stamp
      */
     modifier isOperatorTimeLockPeriodEnded() {
@@ -334,7 +334,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
 
     /**
      * @notice Transfer OPTY to the user
-     * @dev Note: If there is not enough OPTY, we do not perform the transfer all.
+     * @dev Note: If there is not enough OPTY, we do not perform the transfer at all.
      * @param _user The address of the user to transfer OPTY to
      * @param _amount The amount of OPTY to (possibly) transfer
      * @return _mintAmount The amount of OPTY which was transferred to the user

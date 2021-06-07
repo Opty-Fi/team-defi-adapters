@@ -19,7 +19,7 @@ interface IOPTYMinter {
         returns (bool _success);
 
     /**
-     * @notice Enable or diable the staking vault done only by operator
+     * @notice Enable or disable the staking vault done only by operator
      * @dev It sets a boolean value to stakingVaults mapping
      * @param _stakingVault the contract address of the staking vault
      * @param _enable set or unset the staking vault
@@ -46,7 +46,7 @@ interface IOPTYMinter {
      * @dev runs a loop to calculate accrued $OPTY and mints the total
      * @param _holder The address to claim OPTY for
      * @param _vaults The list of vaults to claim $OPTY in
-     * @return _amount returns the total amount of $OPTY transfered to _holder
+     * @return _amount returns the total amount of $OPTY transferred to _holder
      */
     function claimOpty(address _holder, address[] memory _vaults) external returns (uint256 _amount);
 
@@ -68,7 +68,7 @@ interface IOPTYMinter {
     function updateUserRewards(address _vault, address _user) external;
 
     /**
-     * @notice Updates the $OPTY rate for each market for each user
+     * @notice Updates the state of the OPTYMinter related to a market and an user
      * @param _vault the vault for which user state will be updated
      * @param _user the account address of the user
      */
@@ -76,8 +76,8 @@ interface IOPTYMinter {
 
     /**
      * @notice Set the OPTY rate for a specific pool
-     * @param _vault the market for whom $OPTY rate per second need to get updated
-     * @return _success return true on successfull update of $OPTY rate of each vault per second
+     * @param _vault the market for whom $OPTY rate per second needs to get updated
+     * @return _success return true on successfull update of $OPTY rate of a vault per second and vault token
      */
     function updateOptyVaultRatePerSecondAndVaultToken(address _vault) external returns (bool);
 
@@ -89,7 +89,7 @@ interface IOPTYMinter {
 
     /**
      * @notice Transfer $OPTY to the user
-     * @dev If there is not enough $OPTY, we do not perform the transferm at all.
+     * @dev If there is not enough $OPTY, we do not perform the transfer at all.
      * @param _user The address of the user to transfer $OPTY to
      * @param _amount The amount of $OPTY to (possibly) transfer
      * @return _mintedAmount The amount of $OPTY which was transferred to the user
@@ -98,8 +98,8 @@ interface IOPTYMinter {
 
     /**
      * @notice Set the $OPTY rate for a specific vault
-     * @param _vault The market for which $OTPY rate is set
-     * @param _rate The $OPTY rate per second for the given the vault
+     * @param _vault The market for which $OPTY rate is set
+     * @param _rate The $OPTY rate per second for the given vault
      * @return _success returns true on successful setting of the $OPTY vault rate
      */
     function setOptyVaultRate(address _vault, uint256 _rate) external returns (bool _success);
@@ -113,9 +113,9 @@ interface IOPTYMinter {
     function addOptyVault(address _vault) external returns (bool _success);
 
     /**
-     * @notice Whitelists the market (vault contracts)
-     * @param _vault the market that will b
-     * @param _enable true will whitelist the market ,
+     * @notice Whitelist the market (vault contracts)
+     * @param _vault the market that will be set/unset
+     * @param _enable true will whitelist the market
      * @return _success returns true on successful set/unset of vault
      */
     function setOptyVault(address _vault, bool _enable) external returns (bool _success);
@@ -128,22 +128,22 @@ interface IOPTYMinter {
     function claimableOpty(address _holder) external view returns (uint256 _amount);
 
     /**
-     * @notice Claim all the opty accrued by holder in the specified markets
+     * @notice Claim all the $OPTY accrued by holder in the specified markets
      * @param _holder The address to claim OPTY for
      * @param _vaults The list of vaults to claim OPTY in
-     * @param _amount The total amount of unclaimed $OPTY of user across all markets
+     * @return _amount The total amount of unclaimed $OPTY of user across all markets
      */
     function claimableOpty(address _holder, address[] memory _vaults) external view returns (uint256 _amount);
 
     /**
-     * @dev Computes the index based on $OPTY accrued and vault tokens' total supply
+     * @dev Compute the index based on $OPTY accrued and vault tokens' total supply
      * @param _vault The vault to claim $OPTY in
      * @return _index returns current vault index
      */
     function currentOptyVaultIndex(address _vault) external view returns (uint256 _index);
 
     /**
-     * @notice Retrieves the address of $OPTY token
+     * @notice Retrieve the address of $OPTY token
      * @return _opty The contract address of the ERC20 based $OPTY token
      */
     function getOptyAddress() external view returns (address _opty);

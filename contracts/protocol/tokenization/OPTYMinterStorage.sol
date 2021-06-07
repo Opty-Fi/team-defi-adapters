@@ -10,7 +10,7 @@ pragma solidity ^0.6.12;
 
 contract OPTYMinterStorage {
     /**
-     * @dev A data type to persist $OPTY's state
+     * @dev A data type to persist vault's state or user'state
      * @param index The market's last index
      * @param timestamp The block number the index was last updated at
      */
@@ -44,11 +44,6 @@ contract OPTYMinterStorage {
      * @notice Whitelisted interest bearing vaults
      */
     mapping(address => bool) public optyVaultEnabled;
-
-    /**
-     * @notice rate of flywheel $OPTY distribution per block
-     */
-    uint256 public optyTotalRate;
 
     /**
      * @notice $OPTY's rate received by vaults per second
@@ -85,7 +80,7 @@ contract OPTYMinterStorage {
 
     /**
      * @notice Period till $OPTY cannot be unlocked
-     *         This period cannnot exceed maxUnlockClaimOPTYTimestamp
+     *         This period cannot exceed maxUnlockClaimOPTYTimestamp
      */
     uint256 public operatorUnlockClaimOPTYTimestamp;
 

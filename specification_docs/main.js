@@ -10047,7 +10047,7 @@
               type: "function",
               details: "runs a loop to calculate accrued $OPTY and mints the total",
               params: { _holder: "The address to claim OPTY for", _vaults: "The list of vaults to claim $OPTY in" },
-              returns: { _amount: "returns the total amount of $OPTY transfered to _holder" },
+              returns: { _amount: "returns the total amount of $OPTY transferred to _holder" },
               notice: "Claim all the $OPTY accrued by holder in the specified markets",
             },
             "claimableOpty(address,address[])": {
@@ -10059,12 +10059,9 @@
               outputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              params: {
-                _amount: "The total amount of unclaimed $OPTY of user across all markets",
-                _holder: "The address to claim OPTY for",
-                _vaults: "The list of vaults to claim OPTY in",
-              },
-              notice: "Claim all the opty accrued by holder in the specified markets",
+              params: { _holder: "The address to claim OPTY for", _vaults: "The list of vaults to claim OPTY in" },
+              returns: { _amount: "The total amount of unclaimed $OPTY of user across all markets" },
+              notice: "Claim all the $OPTY accrued by holder in the specified markets",
             },
             "claimableOpty(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -10082,7 +10079,7 @@
               outputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Computes the index based on $OPTY accrued and vault tokens' total supply",
+              details: "Compute the index based on $OPTY accrued and vault tokens' total supply",
               params: { _vault: "The vault to claim $OPTY in" },
               returns: { _index: "returns current vault index" },
             },
@@ -10093,7 +10090,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _opty: "The contract address of the ERC20 based $OPTY token" },
-              notice: "Retrieves the address of $OPTY token",
+              notice: "Retrieve the address of $OPTY token",
             },
             "mintOpty(address,uint256)": {
               inputs: [
@@ -10104,7 +10101,7 @@
               outputs: [{ internalType: "uint256", name: "_mintedAmount", type: "uint256" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "If there is not enough $OPTY, we do not perform the transferm at all.",
+              details: "If there is not enough $OPTY, we do not perform the transfer at all.",
               params: {
                 _amount: "The amount of $OPTY to (possibly) transfer",
                 _user: "The address of the user to transfer $OPTY to",
@@ -10131,9 +10128,9 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _enable: "true will whitelist the market ,", _vault: "the market that will b" },
+              params: { _enable: "true will whitelist the market", _vault: "the market that will be set/unset" },
               returns: { _success: "returns true on successful set/unset of vault" },
-              notice: "Whitelists the market (vault contracts)",
+              notice: "Whitelist the market (vault contracts)",
             },
             "setOptyVaultRate(address,uint256)": {
               inputs: [
@@ -10145,8 +10142,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _rate: "The $OPTY rate per second for the given the vault",
-                _vault: "The market for which $OTPY rate is set",
+                _rate: "The $OPTY rate per second for the given vault",
+                _vault: "The market for which $OPTY rate is set",
               },
               returns: { _success: "returns true on successful setting of the $OPTY vault rate" },
               notice: "Set the $OPTY rate for a specific vault",
@@ -10166,7 +10163,7 @@
                 _stakingVault: "the contract address of the staking vault",
               },
               returns: { _success: "return true if staking vault is set" },
-              notice: "Enable or diable the staking vault done only by operator",
+              notice: "Enable or disable the staking vault done only by operator",
             },
             "updateOptyVaultIndex(address)": {
               inputs: [{ internalType: "address", name: "_vault", type: "address" }],
@@ -10183,8 +10180,10 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _vault: "the market for whom $OPTY rate per second need to get updated" },
-              returns: { _0: "_success return true on successfull update of $OPTY rate of each vault per second" },
+              params: { _vault: "the market for whom $OPTY rate per second needs to get updated" },
+              returns: {
+                _0: "_success return true on successfull update of $OPTY rate of a vault per second and vault token",
+              },
               notice: "Set the OPTY rate for a specific pool",
             },
             "updateUserRewards(address,address)": {
@@ -10216,7 +10215,7 @@
                 _user: "the account address of the user",
                 _vault: "the vault for which user state will be updated",
               },
-              notice: "Updates the $OPTY rate for each market for each user",
+              notice: "Updates the state of the OPTYMinter related to a market and an user",
             },
           },
         },
@@ -10225,7 +10224,7 @@
           name: "IOPTYStakingRateBalancer",
           title: "Interface for $OPTY staking rate balancer",
           author: "opty.fi",
-          notice: "Contains permissioned staking rate balancer methods",
+          notice: "Contain permissioned staking rate balancer methods",
           methods: {
             "setStakingVaultMultipliers(address,uint256)": {
               inputs: [
@@ -10236,12 +10235,12 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Assign a rate balancing co-efficient to the staking vault",
+              details: "Assign a rate balancing coefficient to the staking vault",
               params: {
-                _multiplier: "the co-efficient to balance the $OPTY rate",
+                _multiplier: "the coefficient to balance the $OPTY rate",
                 _stakingVault: "the $OPTY staking vault",
               },
-              returns: { _success: "returns true if assigning co-efficient is successful" },
+              returns: { _success: "returns true if assigning coefficient is successful" },
             },
             "setStakingVaultOPTYAllocation(uint256)": {
               inputs: [{ internalType: "uint256", name: "_stakingVaultOPTYAllocation", type: "uint256" }],
@@ -10249,7 +10248,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "assign $OPTY allocated to staking vaults only by governance",
+              details: "Assign $OPTY allocated to staking vaults only by governance",
               params: { _stakingVaultOPTYAllocation: "amount of $OPTY alloted to all stakingVaults as a whole" },
               returns: { _success: "returns true if $OPTY allocation to staking vault is assigned succesfuly" },
             },
@@ -10259,7 +10258,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "balance the $OPTY rate across all staking vaults",
+              details: "Balance the $OPTY rate across all staking vaults",
               returns: { _success: "returns true on successful update to $OPTY rate" },
             },
             "updateStakedOPTY(address,uint256)": {
@@ -10271,7 +10270,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "update $OPTY staked on per user and per vault basis only called by staking vault",
+              details: "Update $OPTY staked on per user and per vault basis only called by staking vault",
               params: { _amount: "the amount of $OPTY staked", _staker: "the account address that staked $OPTY" },
               returns: { _success: "returns true on successful update to state of staked $OPTY" },
             },
@@ -10284,10 +10283,10 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "deduct the $OPTY that is staked by user and vault as a whole",
+              details: "Deduct the $OPTY that is staked by user and vault as a whole",
               params: {
                 _shares: "the amount of $stkOPTY to unstake",
-                _staker: "the account addres that unstaked $OPTY",
+                _staker: "the account address that unstaked $OPTY",
               },
               returns: { _success: "returns true on successful update to state of unstaked $OPTY" },
             },
@@ -10306,8 +10305,10 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrieve $OPTY tokens staked in the vault",
+              details:
+                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the       vault with new OPTYs that weren't staked by the users.       It is true that the users can't withdraw them,       but they weren't staked.",
               returns: { _0: "uint256 the balance of $OPTY in the vault" },
+              notice: "Retrieve $OPTY tokens in the vault",
             },
             "balanceInOpty(address)": {
               inputs: [{ internalType: "address", name: "_user", type: "address" }],
@@ -10325,8 +10326,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrives the time elapsed since epoch",
-              returns: { _0: "uint256 time in secons" },
+              details: "Retrieves the time elapsed since epoch",
+              returns: { _0: "uint256 time in seconds" },
             },
             "getPricePerFullShare()": {
               inputs: [],
@@ -10334,8 +10335,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              returns: { _0: "uint256 calculated value of $OPTY per $veOPTY" },
-              notice: "Computes the value of $veOPTY in $OPTY",
+              returns: { _0: "uint256 calculated value of $OPTY per stkOPTY" },
+              notice: "Computes the value of $stkOPTY in $OPTY",
             },
             "setOptyRatePerSecond(uint256)": {
               inputs: [{ internalType: "uint256", name: "_rate", type: "uint256" }],
@@ -10356,7 +10357,7 @@
               details: "this function can be accessible to the operator",
               params: { _timelock: "time period in seconds" },
               returns: { _success: "returns true on successful initialization of the timelock" },
-              notice: "initialize the the period for the staking $OPTY tokens",
+              notice: "initialize the period for the staking $OPTY tokens",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -10364,8 +10365,8 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "initializes the address of the $OPTY token",
-              params: { _underlyingToken: "the address of the $OPYY token" },
+              details: "initialize the address of the $OPTY token",
+              params: { _underlyingToken: "the address of the $OPTY token" },
               returns: { _success: "returns true if initialization of the staked token address is success" },
               notice: "function to set the address of the $OPTY token",
             },
@@ -10386,7 +10387,7 @@
               type: "function",
               params: { _amount: "the amount of $OPTY tokens" },
               returns: { _0: "bool returns true on successful staking of the $OPTY" },
-              notice: "stakes amount of $OPTY sof the users",
+              notice: "stakes amount of $OPTYs of the users",
             },
             "userStakeAll()": {
               inputs: [],
@@ -10404,7 +10405,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _redeemAmount: "the amount of staked $OPTY" },
-              returns: { _0: "bool returns true on successful unstakes of all staked $OPTY" },
+              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
               notice: "unstakes amount of the staked $OPTY",
             },
             "userUnstakeAll()": {
@@ -11770,7 +11771,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              returns: { _0: "uint256 the underling token worth a vault share is" },
+              returns: { _0: "uint256 the underlying token worth a vault share is" },
               notice: "Calculates the value of a vault share in underlying token",
             },
             "harvest(bytes32)": {
@@ -11807,7 +11808,7 @@
               type: "function",
               details: "the vault will be charged to compensate gas fees if operator calls this function",
               notice:
-                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previosuly without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
+                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
             },
             "setMaxVaultValueJump(uint256)": {
               inputs: [{ internalType: "uint256", name: "_maxVaultValueJump", type: "uint256" }],
@@ -11859,9 +11860,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "the user will recieve vault shares on next rebalance",
-              params: { _amount: "the amount of the undelying token to be deposited" },
-              returns: { _0: "returns true on successful deposting underlying token without rebalance" },
+              details: "the user will receive vault shares on next rebalance",
+              params: { _amount: "the amount of the underlying token to be deposited" },
+              returns: { _0: "returns true on successful depositing underlying token without rebalance" },
               notice: "a cheap function to deposit _amount of underlying token to the vault",
             },
             "userDepositAll()": {
@@ -11917,7 +11918,7 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "the vault shares are minted right away and gas fess are paid in $CHI tokens",
+              details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
               params: { _amount: "the amount of the underlying token" },
               notice: "deposit amount of underlying token of caller and rebalance",
             },
@@ -11929,7 +11930,7 @@
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
               params: { _amount: "the amount of underlying tokens to be deposited" },
-              notice: "a cheap function to deposit amount of  underlying token's balance of caller",
+              notice: "a cheap function to deposit amount of underlying token's balance of caller",
             },
             "userWithdrawAllRebalance()": {
               inputs: [],
@@ -24891,7 +24892,7 @@
           name: "OPTY",
           title: "Governance token of the opty.fi's earn protocol",
           author: "opty.fi",
-          notice: "implementation of the OPTY token contract",
+          notice: "implementation of the $OPTY token contract",
           constructor: {
             inputs: [
               { internalType: "address", name: "_registry", type: "address" },
@@ -25147,7 +25148,7 @@
               type: "function",
               details: "runs a loop to calculate accrued $OPTY and mints the total",
               params: { _holder: "The address to claim OPTY for", _vaults: "The list of vaults to claim $OPTY in" },
-              returns: { _amount: "returns the total amount of $OPTY transfered to _holder" },
+              returns: { _amount: "returns the total amount of $OPTY transferred to _holder" },
               notice: "Claim all the $OPTY accrued by holder in the specified markets",
             },
             "claimableOpty(address,address[])": {
@@ -25159,12 +25160,9 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              params: {
-                _amount: "The total amount of unclaimed $OPTY of user across all markets",
-                _holder: "The address to claim OPTY for",
-                _vaults: "The list of vaults to claim OPTY in",
-              },
-              notice: "Claim all the opty accrued by holder in the specified markets",
+              params: { _holder: "The address to claim OPTY for", _vaults: "The list of vaults to claim OPTY in" },
+              returns: { _0: "_amount The total amount of unclaimed $OPTY of user across all markets" },
+              notice: "Claim all the $OPTY accrued by holder in the specified markets",
             },
             "claimableOpty(address)": {
               inputs: [{ internalType: "address", name: "_holder", type: "address" }],
@@ -25182,7 +25180,7 @@
               outputs: [{ internalType: "uint256", name: "_index", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Computes the index based on $OPTY accrued and vault tokens' total supply",
+              details: "Compute the index based on $OPTY accrued and vault tokens' total supply",
               params: { _vault: "The vault to claim $OPTY in" },
               returns: { _index: "returns current vault index" },
             },
@@ -25193,7 +25191,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "_opty The contract address of the ERC20 based $OPTY token" },
-              notice: "Retrieves the address of $OPTY token",
+              notice: "Retrieve the address of $OPTY token",
             },
             "lastUserUpdate(address,address)": {
               inputs: [
@@ -25223,7 +25221,7 @@
               outputs: [{ internalType: "uint256", name: "_mintedAmount", type: "uint256" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "If there is not enough $OPTY, we do not perform the transferm at all.",
+              details: "If there is not enough $OPTY, we do not perform the transfer at all.",
               params: {
                 _amount: "The amount of $OPTY to (possibly) transfer",
                 _user: "The address of the user to transfer $OPTY to",
@@ -25238,7 +25236,7 @@
               stateMutability: "view",
               type: "function",
               notice:
-                "Period till $OPTY cannot be unlocked         This period cannnot exceed maxUnlockClaimOPTYTimestamp",
+                "Period till $OPTY cannot be unlocked         This period cannot exceed maxUnlockClaimOPTYTimestamp",
             },
             "optyAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -25255,14 +25253,6 @@
               stateMutability: "view",
               type: "function",
               notice: "The $OPTY token's address",
-            },
-            "optyTotalRate()": {
-              inputs: [],
-              name: "optyTotalRate",
-              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-              stateMutability: "view",
-              type: "function",
-              notice: "rate of flywheel $OPTY distribution per block",
             },
             "optyUserStateInVault(address,address)": {
               inputs: [
@@ -25348,9 +25338,9 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _enable: "true will whitelist the market ,", _vault: "the market that will b" },
+              params: { _enable: "true will whitelist the market", _vault: "the market that will be set/unset" },
               returns: { _success: "returns true on successful set/unset of vault" },
-              notice: "Whitelists the market (vault contracts)",
+              notice: "Whitelist the market (vault contracts)",
             },
             "setOptyVaultRate(address,uint256)": {
               inputs: [
@@ -25362,8 +25352,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: {
-                _rate: "The $OPTY rate per second for the given the vault",
-                _vault: "The market for which $OTPY rate is set",
+                _rate: "The $OPTY rate per second for the given vault",
+                _vault: "The market for which $OPTY rate is set",
               },
               returns: { _success: "returns true on successful setting of the $OPTY vault rate" },
               notice: "Set the $OPTY rate for a specific vault",
@@ -25392,7 +25382,7 @@
                 _stakingVault: "the contract address of the staking vault",
               },
               returns: { _success: "return true if staking vault is set" },
-              notice: "Enable or diable the staking vault done only by operator",
+              notice: "Enable or disable the staking vault done only by operator",
             },
             "stakingVaults(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -25417,8 +25407,10 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _vault: "the market for whom $OPTY rate per second need to get updated" },
-              returns: { _0: "_success return true on successfull update of $OPTY rate of each vault per second" },
+              params: { _vault: "the market for whom $OPTY rate per second needs to get updated" },
+              returns: {
+                _0: "_success return true on successfull update of $OPTY rate of a vault per second and vault token",
+              },
               notice: "Set the OPTY rate for a specific pool",
             },
             "updateUserRewards(address,address)": {
@@ -25450,7 +25442,7 @@
                 _user: "the account address of the user",
                 _vault: "the vault for which user state will be updated",
               },
-              notice: "Updates the $OPTY rate for each market for each user",
+              notice: "Updates the state of the OPTYMinter related to a market and an user",
             },
           },
         },
@@ -25495,7 +25487,7 @@
               stateMutability: "view",
               type: "function",
               notice:
-                "Period till $OPTY cannot be unlocked         This period cannnot exceed maxUnlockClaimOPTYTimestamp",
+                "Period till $OPTY cannot be unlocked         This period cannot exceed maxUnlockClaimOPTYTimestamp",
             },
             "optyAccrued(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -25512,14 +25504,6 @@
               stateMutability: "view",
               type: "function",
               notice: "The $OPTY token's address",
-            },
-            "optyTotalRate()": {
-              inputs: [],
-              name: "optyTotalRate",
-              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-              stateMutability: "view",
-              type: "function",
-              notice: "rate of flywheel $OPTY distribution per block",
             },
             "optyUserStateInVault(address,address)": {
               inputs: [
@@ -25675,12 +25659,12 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "Assign a rate balancing co-efficient to the staking vault",
+              details: "Assign a rate balancing coefficient to the staking vault",
               params: {
-                _multiplier: "the co-efficient to balance the $OPTY rate",
+                _multiplier: "the coefficient to balance the $OPTY rate",
                 _stakingVault: "the $OPTY staking vault",
               },
-              returns: { _success: "returns true if assigning co-efficient is successful" },
+              returns: { _success: "returns true if assigning coefficient is successful" },
             },
             "setStakingVaultOPTYAllocation(uint256)": {
               inputs: [{ internalType: "uint256", name: "_stakingVaultOPTYAllocation", type: "uint256" }],
@@ -25688,7 +25672,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "assign $OPTY allocated to staking vaults only by governance",
+              details: "Assign $OPTY allocated to staking vaults only by governance",
               params: { _stakingVaultOPTYAllocation: "amount of $OPTY alloted to all stakingVaults as a whole" },
               returns: { _success: "returns true if $OPTY allocation to staking vault is assigned succesfuly" },
             },
@@ -25773,7 +25757,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "balance the $OPTY rate across all staking vaults",
+              details: "Balance the $OPTY rate across all staking vaults",
               returns: { _success: "returns true on successful update to $OPTY rate" },
             },
             "updateStakedOPTY(address,uint256)": {
@@ -25785,7 +25769,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "update $OPTY staked on per user and per vault basis only called by staking vault",
+              details: "Update $OPTY staked on per user and per vault basis only called by staking vault",
               params: { _amount: "the amount of $OPTY staked", _staker: "the account address that staked $OPTY" },
               returns: { _success: "returns true on successful update to state of staked $OPTY" },
             },
@@ -25798,10 +25782,10 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "deduct the $OPTY that is staked by user and vault as a whole",
+              details: "Deduct the $OPTY that is staked by user and vault as a whole",
               params: {
                 _shares: "the amount of $stkOPTY to unstake",
-                _staker: "the account addres that unstaked $OPTY",
+                _staker: "the account address that unstaked $OPTY",
               },
               returns: { _success: "returns true on successful update to state of unstaked $OPTY" },
             },
@@ -26137,8 +26121,10 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrieve $OPTY tokens staked in the vault",
+              details:
+                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the       vault with new OPTYs that weren't staked by the users.       It is true that the users can't withdraw them,       but they weren't staked.",
               returns: { _0: "uint256 the balance of $OPTY in the vault" },
+              notice: "Retrieve $OPTY tokens in the vault",
             },
             "balanceInOpty(address)": {
               inputs: [{ internalType: "address", name: "_user", type: "address" }],
@@ -26192,8 +26178,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrives the time elapsed since epoch",
-              returns: { _0: "uint256 time in secons" },
+              details: "Retrieves the time elapsed since epoch",
+              returns: { _0: "uint256 time in seconds" },
             },
             "getPricePerFullShare()": {
               inputs: [],
@@ -26201,8 +26187,8 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              returns: { _0: "uint256 calculated value of $OPTY per $veOPTY" },
-              notice: "Computes the value of $veOPTY in $OPTY",
+              returns: { _0: "uint256 calculated value of $OPTY per stkOPTY" },
+              notice: "Computes the value of $stkOPTY in $OPTY",
             },
             "increaseAllowance(address,uint256)": {
               inputs: [
@@ -26274,7 +26260,7 @@
               details: "this function can be accessible to the operator",
               params: { _timelock: "time period in seconds" },
               returns: { _success: "returns true on successful initialization of the timelock" },
-              notice: "initialize the the period for the staking $OPTY tokens",
+              notice: "initialize the period for the staking $OPTY tokens",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -26282,8 +26268,8 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "initializes the address of the $OPTY token",
-              params: { _underlyingToken: "the address of the $OPYY token" },
+              details: "initialize the address of the $OPTY token",
+              params: { _underlyingToken: "the address of the $OPTY token" },
               returns: { _success: "returns true if initialization of the staked token address is success" },
               notice: "function to set the address of the $OPTY token",
             },
@@ -26373,7 +26359,7 @@
               type: "function",
               params: { _amount: "the amount of $OPTY tokens" },
               returns: { _0: "bool returns true on successful staking of the $OPTY" },
-              notice: "stakes amount of $OPTY sof the users",
+              notice: "stakes amount of $OPTYs of the users",
             },
             "userStakeAll()": {
               inputs: [],
@@ -26391,7 +26377,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _redeemAmount: "the amount of staked $OPTY" },
-              returns: { _0: "bool returns true on successful unstakes of all staked $OPTY" },
+              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
               notice: "unstakes amount of the staked $OPTY",
             },
             "userUnstakeAll()": {
@@ -26426,7 +26412,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "stateVariable",
-              details: "store the rate at which $OTPY is accrued",
+              details: "store the rate at which $OPTY is accrued",
             },
             "timelockPeriod()": {
               inputs: [],
@@ -26491,7 +26477,7 @@
               ],
               name: "DepositQueue",
               type: "event",
-              notice: "Logs and event when user calls user deposit underlying asset without rebalance",
+              notice: "Logs an event when user calls user deposit underlying asset without rebalance",
             },
             "Transfer(address,address,uint256)": {
               anonymous: !1,
@@ -26675,7 +26661,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              returns: { _0: "uint256 the underling token worth a vault share is" },
+              returns: { _0: "uint256 the underlying token worth a vault share is" },
               notice: "Calculates the value of a vault share in underlying token",
             },
             "gst()": {
@@ -26815,7 +26801,7 @@
               type: "function",
               details: "the vault will be charged to compensate gas fees if operator calls this function",
               notice:
-                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previosuly without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
+                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
             },
             "registryContract()": {
               inputs: [],
@@ -26932,9 +26918,9 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "the user will recieve vault shares on next rebalance",
-              params: { _amount: "the amount of the undelying token to be deposited" },
-              returns: { _0: "returns true on successful deposting underlying token without rebalance" },
+              details: "the user will receive vault shares on next rebalance",
+              params: { _amount: "the amount of the underlying token to be deposited" },
+              returns: { _0: "returns true on successful depositing underlying token without rebalance" },
               notice: "a cheap function to deposit _amount of underlying token to the vault",
             },
             "userDepositAll()": {
@@ -26990,7 +26976,7 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "the vault shares are minted right away and gas fess are paid in $CHI tokens",
+              details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
               params: { _amount: "the amount of the underlying token" },
               notice: "deposit amount of underlying token of caller and rebalance",
             },
@@ -27002,7 +26988,7 @@
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
               params: { _amount: "the amount of underlying tokens to be deposited" },
-              notice: "a cheap function to deposit amount of  underlying token's balance of caller",
+              notice: "a cheap function to deposit amount of underlying token's balance of caller",
             },
             "userWithdrawAllRebalance()": {
               inputs: [],
@@ -27277,7 +27263,7 @@
                 index: "the position of user in the queue",
                 sender: "the account address of the user",
               },
-              notice: "Logs and event when user calls user deposit underlying asset without rebalance",
+              notice: "Logs an event when user calls user deposit underlying asset without rebalance",
             },
           },
           stateVariables: {

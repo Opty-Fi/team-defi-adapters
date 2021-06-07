@@ -413,7 +413,7 @@ contract Vault is
      * @dev transfer underlying tokens to vault without rebalance
      *      User will have to wait for shares until next rebalance
      * @param _amount The amount of underlying asset to deposit
-     * @return returns true on successful deposition of the underlying asset
+     * @return returns true on successful deposit of the underlying asset
      */
     function _userDeposit(uint256 _amount)
         internal
@@ -441,6 +441,7 @@ contract Vault is
         returns (bool)
     {
         for (uint256 i; i < queue.length; i++) {
+            IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), queue[i].account);
             _mintShares(queue[i].account, _balance(), queue[i].value);
             pendingDeposits[msg.sender] -= queue[i].value;
             depositQueue -= queue[i].value;
@@ -600,7 +601,7 @@ contract Vault is
     }
 
     /**
-     * @dev Mechanism to to stop the vault value deviating from maxVaultValueJump
+     * @dev Mechanism to stop the vault value deviating from maxVaultValueJump
      * @param _vaultValue The underlying token balance in the vault
      */
     function _emergencyBrake(uint256 _vaultValue) private {

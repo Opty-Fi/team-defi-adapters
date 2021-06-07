@@ -21,7 +21,7 @@ contract OPTYStakingVaultStorage {
     uint256 public lastPoolUpdate;
 
     /**
-     * @dev store the rate at which $OTPY is accrued
+     * @dev store the rate at which $OPTY is accrued
      */
     uint256 public optyRatePerSecond;
 
