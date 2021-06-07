@@ -278,6 +278,16 @@ contract CompoundAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @notice Get the codes for depositing some amount of underlying token in the liquidity pool provided
+     * @dev Supply `liquidityPool` for Curve, Compound and others except Aave
+     * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
+     * @dev `_amounts` is an array because there can be multiple underlying tokens for the given liquidityPool
+     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+     * @param _liquidityPool liquidity Pool address
+     * @param _amounts  List of underlying token amounts
+     * @return _codes Returns a bytes value to be executed
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,

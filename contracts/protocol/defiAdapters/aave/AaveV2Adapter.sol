@@ -67,6 +67,15 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @notice Get the codes for depositing full balance of underlying token in the liquidity pool provided
+     * @dev Supply `liquidityPool` for Curve, Compound and others except Aave
+     * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
+     * @param _optyVault Vault contract address
+     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+     * @param _liquidityPoolAddressProviderRegistry address of liquidity Pool address provider where to deposit
+     * @return _codes Returns a bytes value to be executed
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -77,6 +86,15 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _amounts);
     }
 
+    /**
+     * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
+     * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`
+     * @param _optyVault Address of vault contract
+     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+     * @param _liquidityPoolAddressProviderRegistry address of liquidity Pool address provider from where to borrow
+     * @param _outputToken token address to borrow
+     * @return _codes Returns a bytes value to be executed.
+     */
     function getBorrowAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -141,6 +159,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRepayAndWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
