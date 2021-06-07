@@ -10,38 +10,28 @@ pragma solidity ^0.6.12;
 
 contract OPTYStakingVaultStorage {
     /**
-     * @notice
-     * @dev
+     * @dev persist the timestamp of user's latest update to staking vault
+     *      when staking and unstaking $OPTY
      */
     mapping(address => uint256) public userLastUpdate;
 
     /**
-     * @notice
-     * @dev
+     * @dev persist the timestamp when vault is updated
      */
     uint256 public lastPoolUpdate;
 
     /**
-     * @notice
-     * @dev
+     * @dev store the rate at which $OTPY is accrued
      */
     uint256 public optyRatePerSecond;
 
     /**
-     * @notice
-     * @dev
+     * @dev store the $OPTY token's address
      */
-    address public token; /* store the underlying token contract address (for example DAI) */
+    address public token;
 
     /**
-     * @notice
-     * @dev
-     */
-    uint256 public poolValue;
-
-    /**
-     * @notice
-     * @dev
+     * @dev store the period in seconds for which $OPTY tokens will be locked
      */
     uint256 public timelockPeriod;
 }
