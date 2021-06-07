@@ -11,7 +11,7 @@ pragma solidity ^0.6.12;
 interface IOPTYMinter {
     /**
      * @notice Set the period to keep $OPTY locked within maximum period set during deployment
-     * @param _operatorUnlockClaimOPTYTimestamp The period until which $OPTY cannot be claimed
+     * @param _operatorUnlockClaimOPTYTimestamp The timestamp until which $OPTY cannot be claimed
      * @return _success returns true if unlock period is set successfuly
      */
     function setOperatorUnlockClaimOPTYTimestamp(uint256 _operatorUnlockClaimOPTYTimestamp)
