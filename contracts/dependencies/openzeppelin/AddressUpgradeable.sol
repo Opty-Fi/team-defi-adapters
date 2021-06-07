@@ -1,7 +1,7 @@
 // solhint-disable
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 /**
  * @dev Collection of functions related to the address type

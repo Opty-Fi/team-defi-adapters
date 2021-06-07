@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+//  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  helper contracts
 import { Modifiers } from "./Modifiers.sol";
 import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 import { RiskManagerProxy } from "./RiskManagerProxy.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
+//  interfaces
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
@@ -16,40 +21,29 @@ import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
 
 /**
- * @dev An extra protection for the best strategy of the opty-fi vault's
- *      underlying token
+ * @title RiskManager Contract
+ * @author Opty.fi
+ * @dev Contract contains functionality for getting the best invest and vaultRewardToken strategy
  */
-
 contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     using Address for address;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
-    /* solhint-disable no-empty-blocks */
-
     /**
      * @dev Set RiskManagerProxy to act as RiskManager
+     * @param _riskManagerProxy RiskManagerProxy contract address to act as RiskManager
      */
     function become(RiskManagerProxy _riskManagerProxy) external onlyGovernance {
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
     /**
-     * @dev Get the best strategy for respective RiskProfiles
-     *
-     * Returns the hash of the best strategy corresponding to the riskProfile provided
-     *
-     * Requirements:
-     *
-     * - `_profile` can be among these values ["RP1"/"RP2"/"RP3"] or as decided by governance
-     *      - Can not be empty
-     * - `_underlyingTokens` is an array of underlying tokens like dai, usdc and so forth
-     *      - Can not have length 0
-     *
+     * @inheritdoc IRiskManager
      */
     function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
-        external
+        public
         view
         override
         returns (bytes32)
@@ -67,17 +61,10 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     }
 
     /**
-     * @dev Get the VaultRewardToken strategy for respective VaultRewardToken hash
-     *
-     * Returns the hash of the VaultRewardToken strategy corresponding to the `_vaultRewardTokenHash` provided
-     *
-     * Requirements:
-     *
-     * - `_vaultRewardTokenHash` is the hash of Vault and RewardToken addresses
-     *      - Can not be empty
+     * @inheritdoc IRiskManager
      */
     function getVaultRewardTokenStrategy(bytes32 _vaultRewardTokenHash)
-        external
+        public
         view
         override
         returns (DataTypes.VaultRewardStrategy memory _vaultRewardStrategy)
@@ -87,16 +74,6 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
             .getVaultRewardTokenHashToVaultRewardTokenStrategy(_vaultRewardTokenHash);
     }
 
-    /**
-     * @dev Get the best strategy corresponding to _riskProfile and _tokenHash
-     *
-     * Returns the hash of the best strategy corresponding to _riskProfile provided
-     *
-     * Requirements:
-     *
-     * - `_profile` should exists in Registry contract
-     *
-     */
     function _getBestStrategy(
         string memory _riskProfile,
         bytes32 _tokensHash,

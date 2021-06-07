@@ -1,7 +1,7 @@
 // solhint-disable max-states-count
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 

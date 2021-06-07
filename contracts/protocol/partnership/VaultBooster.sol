@@ -1,14 +1,27 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
-import { VaultBoosterStorage } from "./VaultBoosterStorage.sol";
-import { Modifiers } from "../configuration/Modifiers.sol";
-import { SafeERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
+//  libraries
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
-contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
+//  helper contracts
+import { VaultBoosterStorage } from "./VaultBoosterStorage.sol";
+import { Modifiers } from "../configuration/Modifiers.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { ExponentialNoError } from "../../dependencies/compound/ExponentialNoError.sol";
+
+//  interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IVaultBooster } from "../../interfaces/opty/IVaultBooster.sol";
+
+/**
+ * @title VaultBooster Contract
+ * @author Opty.fi inspired by Compound.finance
+ * @notice Contract for managing the ODEFI rewards
+ * @dev Contract contains math for calculating the ODEFI rewards for all the users
+ */
+contract VaultBooster is IVaultBooster, VaultBoosterStorage, ExponentialNoError, Modifiers {
     using SafeERC20 for IERC20;
 
     constructor(address _registry, address _odefi) public Modifiers(_registry) {
@@ -16,23 +29,24 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @notice Claim all the ODEFI accrued by holder in all markets
-     * @param _holder The address to claim ODEFI for
+     * @inheritdoc IVaultBooster
      */
-    function claimODEFI(address _holder) external returns (uint256) {
+    function claimODEFI(address _holder) external override returns (uint256) {
         claimODEFI(_holder, allOdefiVaults);
     }
 
-    function updateUserStateInVault(address _odefiVault, address _user) external {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function updateUserStateInVault(address _odefiVault, address _user) external override {
         odefiUserStateInVault[_odefiVault][_user].index = odefiVaultState[_odefiVault].index;
         odefiUserStateInVault[_odefiVault][_user].timestamp = odefiVaultState[_odefiVault].timestamp;
     }
 
     /**
-     * @notice Set the ODEFI rate for a specific pool
-     * @return The amount of ODEFI which was NOT transferred to the user
+     * @inheritdoc IVaultBooster
      */
-    function updateOdefiVaultRatePerSecondAndVaultToken(address _odefiVault) external returns (bool) {
+    function updateOdefiVaultRatePerSecondAndVaultToken(address _odefiVault) external override returns (bool) {
         odefiVaultRatePerSecondAndVaultToken[_odefiVault] = IERC20(_odefiVault).totalSupply() > 0
             ? div_(mul_(odefiVaultRatePerSecond[_odefiVault], 1e18), IERC20(_odefiVault).totalSupply())
             : uint256(0);
@@ -40,10 +54,9 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @notice Accrue ODEFI to the market by updating the supply index
-     * @param _odefiVault The market whose index to update
+     * @inheritdoc IVaultBooster
      */
-    function updateOdefiVaultIndex(address _odefiVault) external returns (uint224) {
+    function updateOdefiVaultIndex(address _odefiVault) external override returns (uint224) {
         if (odefiVaultState[_odefiVault].index == uint224(0)) {
             odefiVaultStartTimestamp[_odefiVault] = getBlockTimestamp();
             odefiVaultState[_odefiVault].timestamp = uint32(odefiVaultStartTimestamp[_odefiVault]);
@@ -80,65 +93,53 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @notice Set the ODEFI rate for a specific pool
-     * @return The amount of ODEFI which was NOT transferred to the user
+     * @inheritdoc IVaultBooster
      */
-    function setRewardRate(address _odefiVault, uint256 _rate) external returns (bool) {
+    function setRewardRate(address _odefiVault, uint256 _rate) external override returns (bool) {
         require(msg.sender == rewarders[_odefiVault], "!rewarder");
         odefiVaultRatePerSecond[_odefiVault] = _rate;
         return true;
     }
 
-    function setRewarder(address _odefiVault, address _rewarder) external onlyOperator returns (bool) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function setRewarder(address _odefiVault, address _rewarder) external override onlyOperator returns (bool) {
         rewarders[_odefiVault] = _rewarder;
         return true;
     }
 
-    function addOdefiVault(address _odefiVault) external onlyOperator returns (bool) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function addOdefiVault(address _odefiVault) external override onlyOperator returns (bool) {
         for (uint256 i = 0; i < allOdefiVaults.length; i++) {
             require(allOdefiVaults[i] != _odefiVault, "odefiVault already added");
         }
         allOdefiVaults.push(_odefiVault);
     }
 
-    function setOdefiVault(address _odefiVault, bool _enable) external onlyOperator returns (bool) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function setOdefiVault(address _odefiVault, bool _enable) external override onlyOperator returns (bool) {
         odefiVaultEnabled[_odefiVault] = _enable;
         return true;
     }
 
-    function getOdefiAddress() external view returns (address) {
-        return odefiAddress;
-    }
-
-    function rewardDepletionSeconds(address _odefiVault) external view returns (uint256) {
-        return div_(balance(), odefiVaultRatePerSecond[_odefiVault]);
-    }
-
     /**
-     * @notice Claim all the odefi accrued by holder in all markets
-     * @param _holder The address to claim ODEFI for
+     * @inheritdoc IVaultBooster
      */
-    function claimableODEFI(address _holder) external view returns (uint256) {
-        return claimableODEFI(_holder, allOdefiVaults);
-    }
-
-    /**
-     * @notice Claim all the ODEFI accrued by holder in the specified markets
-     * @param _holder The address to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
-     */
-    function claimODEFI(address _holder, address[] memory _odefiVaults) public returns (uint256) {
+    function claimODEFI(address _holder, address[] memory _odefiVaults) public override returns (uint256) {
         address[] memory holders = new address[](1);
         holders[0] = _holder;
         claimODEFI(holders, _odefiVaults);
     }
 
     /**
-     * @notice Claim all odefi accrued by the holders
-     * @param _holders The addresses to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @inheritdoc IVaultBooster
      */
-    function claimODEFI(address[] memory _holders, address[] memory _odefiVaults) public returns (uint256) {
+    function claimODEFI(address[] memory _holders, address[] memory _odefiVaults) public override returns (uint256) {
         uint256 _total;
         for (uint256 i = 0; i < _odefiVaults.length; i++) {
             address _odefiVault = _odefiVaults[i];
@@ -155,10 +156,9 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @notice Calculate additional accrued ODEFI for a contributor since last accrual
-     * @param _user The address to calculate contributor rewards for
+     * @inheritdoc IVaultBooster
      */
-    function updateUserRewards(address _odefiVault, address _user) public {
+    function updateUserRewards(address _odefiVault, address _user) public override {
         if (IERC20(_odefiVault).balanceOf(_user) > 0 && lastUserUpdate[_odefiVault][_user] != getBlockTimestamp()) {
             uint256 _deltaSecondsVault = sub_(getBlockTimestamp(), odefiVaultStartTimestamp[_odefiVault]);
             uint256 _deltaSecondsUser;
@@ -190,11 +190,9 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
     }
 
     /**
-     * @notice Claim all the odefi accrued by holder in the specified markets
-     * @param _holder The address to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @inheritdoc IVaultBooster
      */
-    function claimableODEFI(address _holder, address[] memory _odefiVaults) public view returns (uint256) {
+    function claimableODEFI(address _holder, address[] memory _odefiVaults) public view override returns (uint256) {
         uint256 claimableOdefiAmount;
         for (uint256 i = 0; i < _odefiVaults.length; i++) {
             address _odefiVault = _odefiVaults[i];
@@ -232,7 +230,10 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
         return div_(add_(claimableOdefiAmount, odefiAccrued[_holder]), 1e18);
     }
 
-    function currentOdefiVaultIndex(address _odefiVault) public view returns (uint256) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function currentOdefiVaultIndex(address _odefiVault) public view override returns (uint256) {
         uint256 _deltaSecondsSinceStart = sub_(getBlockTimestamp(), odefiVaultStartTimestamp[_odefiVault]);
         uint256 _deltaSeconds = sub_(getBlockTimestamp(), uint256(odefiVaultState[_odefiVault].timestamp));
         uint256 _supplyTokens = IERC20(_odefiVault).totalSupply();
@@ -252,11 +253,38 @@ contract VaultBooster is VaultBoosterStorage, ExponentialNoError, Modifiers {
         return _index;
     }
 
-    function balance() public view returns (uint256) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function getOdefiAddress() public view override returns (address) {
+        return odefiAddress;
+    }
+
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function rewardDepletionSeconds(address _odefiVault) public view override returns (uint256) {
+        return div_(balance(), odefiVaultRatePerSecond[_odefiVault]);
+    }
+
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function claimableODEFI(address _holder) public view override returns (uint256) {
+        return claimableODEFI(_holder, allOdefiVaults);
+    }
+
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function balance() public view override returns (uint256) {
         return IERC20(odefiAddress).balanceOf(address(this));
     }
 
-    function getBlockTimestamp() public view returns (uint256) {
+    /**
+     * @inheritdoc IVaultBooster
+     */
+    function getBlockTimestamp() public view override returns (uint256) {
         return block.timestamp;
     }
 
