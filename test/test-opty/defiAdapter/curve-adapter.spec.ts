@@ -183,35 +183,6 @@ describe("CurvePoolAdapter", () => {
                     }
                   }
                 }
-                // for (let i = 0; i < codes.length - 1; i = i + 2) {
-                //   const tokenIndex = i / 2;
-                //   if (parseInt(depositAmount[tokenIndex]) > 0) {
-                //     const inter = new utils.Interface(["function approve(address,uint256)"]);
-                //     const checkApproval = (code: string, amount: string) => {
-                //       const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], code);
-                //       expect(address).to.equal(nCoins[tokenIndex]);
-                //       const value = inter.decodeFunctionData("approve", abiCode);
-                //       expect(value[0]).to.equal(strategy.strategy[0].contract);
-                //       if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                //         expect(value[1]).to.equal(amount);
-                //       }
-                //     };
-                //     checkApproval(codes[i], "0");
-                //     checkApproval(codes[i + 1], depositAmount[tokenIndex]);
-                //   }
-                // }
-                // const inter = new utils.Interface([`function add_liquidity(uint256[${nCoins.length}],uint256)`]);
-                // const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[codes.length - 1]);
-                // expect(address).to.equal(strategy.strategy[0].contract);
-                // const value = inter.decodeFunctionData("add_liquidity", abiCode);
-                // if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                //   expect(value[0].length).to.equal(depositAmount.length);
-                //   for (let i = 0; i < depositAmount.length; i++) {
-                //     expect(value[0][i]).to.equal(depositAmount[i]);
-                //   }
-                // }
-                // expect(value[1]).to.equal(0);
-
                 break;
               }
             }
