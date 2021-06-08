@@ -374,7 +374,7 @@ contract Vault is
     }
 
     /**
-     * @notice perform vault reward strategy
+     * @notice Perform vault reward strategy
      * @dev claim and swap the earned rewards into underlying asset
      * @param _investStrategyHash the current vault invest strategy
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
@@ -410,7 +410,7 @@ contract Vault is
 
     /**
      * @notice Cheap deposit of underlying asset
-     * @dev transfer underlying tokens to vault without rebalance
+     * @dev Transfer underlying tokens to vault without rebalance
      *      User will have to wait for shares until next rebalance
      * @param _amount The amount of underlying asset to deposit
      * @return returns true on successful deposit of the underlying asset
@@ -503,7 +503,7 @@ contract Vault is
     }
 
     /**
-     * @dev Redeems the shares from the vault
+     * @dev Redeem the shares from the vault
      * @param _redeemAmount The amount of shares to be burned
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      * @return returns true on successful user withdraw with rebalance

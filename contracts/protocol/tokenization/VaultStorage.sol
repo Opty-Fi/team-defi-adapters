@@ -19,12 +19,12 @@ contract VaultStorage {
     DataTypes.UserDepositOperation[] public queue;
 
     /**
-     * @dev mapping of user account who has not received shares against deposited amount
+     * @dev Mapping of user account who has not received shares against deposited amount
      */
     mapping(address => uint256) public pendingDeposits;
 
     /**
-     * @dev map the underlying token in vault to the current block for emergency brakes
+     * @dev Map the underlying token in vault to the current block for emergency brakes
      */
     mapping(uint256 => DataTypes.BlockVaultValue[]) public blockToBlockVaultValues;
 
@@ -59,7 +59,7 @@ contract VaultStorage {
     string public profile;
 
     /**
-     * @notice Logs an event when user calls user deposit underlying asset without rebalance
+     * @notice Log an event when user calls user deposit underlying asset without rebalance
      * @dev the shares are not minted until next rebalance
      * @param sender the account address of the user
      * @param index the position of user in the queue

@@ -68,7 +68,7 @@ interface IOPTYMinter {
     function updateUserRewards(address _vault, address _user) external;
 
     /**
-     * @notice Updates the state of the OPTYMinter related to a market and an user
+     * @notice Update the state of the OPTYMinter related to a market and an user
      * @param _vault the vault for which user state will be updated
      * @param _user the account address of the user
      */

@@ -38,7 +38,7 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
     /* solhint-disable no-empty-blocks */
 
     /**
-     * @dev initialize the different stakingVaults
+     * @dev Initialize the different stakingVaults
      * @param _stakingVault1DLockingTerm  staking vault address for 1 day locking period
      * @param _stakingVault30DLockingTerm staking vault address for 30 days locking period
      * @param _stakingVault60DLockingTerm staking vault address for 60 days locking period

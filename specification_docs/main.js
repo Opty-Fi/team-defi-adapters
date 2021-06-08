@@ -9980,7 +9980,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { amount: "amount of new $OPTY minted", to: "account to receive the minted $OPTY" },
-              notice: "Minting new $OPTY tokens only by authorized minter",
+              notice: "Mint new $OPTY tokens only by authorized minter",
             },
           },
         },
@@ -10115,7 +10115,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _operatorUnlockClaimOPTYTimestamp: "The period until which $OPTY cannot be claimed" },
+              params: { _operatorUnlockClaimOPTYTimestamp: "The timestamp until which $OPTY cannot be claimed" },
               returns: { _success: "returns true if unlock period is set successfuly" },
               notice: "Set the period to keep $OPTY locked within maximum period set during deployment",
             },
@@ -10215,7 +10215,7 @@
                 _user: "the account address of the user",
                 _vault: "the vault for which user state will be updated",
               },
-              notice: "Updates the state of the OPTYMinter related to a market and an user",
+              notice: "Update the state of the OPTYMinter related to a market and an user",
             },
           },
         },
@@ -10306,7 +10306,7 @@
               stateMutability: "view",
               type: "function",
               details:
-                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the       vault with new OPTYs that weren't staked by the users.       It is true that the users can't withdraw them,       but they weren't staked.",
+                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the      vault with new OPTYs that weren't staked by the users.      It is true that the users can't withdraw them,      but they weren't staked.",
               returns: { _0: "uint256 the balance of $OPTY in the vault" },
               notice: "Retrieve $OPTY tokens in the vault",
             },
@@ -10318,7 +10318,7 @@
               type: "function",
               params: { _user: "the address of the staker" },
               returns: { _0: "uint256 accrued $OPTY tokens" },
-              notice: "Computes the amount of $OPTY accrued by staking",
+              notice: "Compute the amount of $OPTY accrued by staking",
             },
             "getBlockTimestamp()": {
               inputs: [],
@@ -10326,7 +10326,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrieves the time elapsed since epoch",
+              details: "Retrieve the time elapsed since epoch",
               returns: { _0: "uint256 time in seconds" },
             },
             "getPricePerFullShare()": {
@@ -10336,7 +10336,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 calculated value of $OPTY per stkOPTY" },
-              notice: "Computes the value of $stkOPTY in $OPTY",
+              notice: "Compute the value of $stkOPTY in $OPTY",
             },
             "setOptyRatePerSecond(uint256)": {
               inputs: [{ internalType: "uint256", name: "_rate", type: "uint256" }],
@@ -10345,8 +10345,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _rate: "the rate of $OPTY accrual per second" },
-              returns: { _success: "returns true on successful initialization of the $OPTY distribution rate/second" },
-              notice: "Sets the rate at which $OPTYs are distributed to the stakers per second",
+              returns: { _success: "return true on successful initialization of the $OPTY distribution rate/second" },
+              notice: "Set the rate at which $OPTYs are distributed to the stakers per second",
             },
             "setTimelockPeriod(uint256)": {
               inputs: [{ internalType: "uint256", name: "_timelock", type: "uint256" }],
@@ -10356,8 +10356,8 @@
               type: "function",
               details: "this function can be accessible to the operator",
               params: { _timelock: "time period in seconds" },
-              returns: { _success: "returns true on successful initialization of the timelock" },
-              notice: "initialize the period for the staking $OPTY tokens",
+              returns: { _success: "return true on successful initialization of the timelock" },
+              notice: "Initialize the period for the staking $OPTY tokens",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -10367,8 +10367,8 @@
               type: "function",
               details: "initialize the address of the $OPTY token",
               params: { _underlyingToken: "the address of the $OPTY token" },
-              returns: { _success: "returns true if initialization of the staked token address is success" },
-              notice: "function to set the address of the $OPTY token",
+              returns: { _success: "return true if initialization of the staked token address is success" },
+              notice: "Function to set the address of the $OPTY token",
             },
             "updatePool()": {
               inputs: [],
@@ -10376,8 +10376,8 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "modifies the state during stake/unstake of $OPTY",
-              returns: { _success: "returns true on successful vault update" },
+              details: "Modify the state during stake/unstake of $OPTY",
+              returns: { _success: "return true on successful vault update" },
             },
             "userStake(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -10386,8 +10386,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _amount: "the amount of $OPTY tokens" },
-              returns: { _0: "bool returns true on successful staking of the $OPTY" },
-              notice: "stakes amount of $OPTYs of the users",
+              returns: { _0: "bool return true on successful staking of the $OPTY" },
+              notice: "Stake amount of $OPTYs of the users",
             },
             "userStakeAll()": {
               inputs: [],
@@ -10395,8 +10395,8 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "bool returns true on successful staking of $OPTY" },
-              notice: "stake whole balance of $OPTYs of the user",
+              returns: { _0: "bool return true on successful staking of $OPTY" },
+              notice: "Stake whole balance of $OPTYs of the user",
             },
             "userUnstake(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -10405,8 +10405,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _redeemAmount: "the amount of staked $OPTY" },
-              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
-              notice: "unstakes amount of the staked $OPTY",
+              returns: { _0: "bool return true on successful unstake of all staked $OPTY" },
+              notice: "Unstake amount of the staked $OPTY",
             },
             "userUnstakeAll()": {
               inputs: [],
@@ -10414,8 +10414,8 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
-              notice: "unstakes all of staked $OPTY from the vault",
+              returns: { _0: "bool return true on successful unstake of all staked $OPTY" },
+              notice: "Unstake all of staked $OPTY from the vault",
             },
           },
         },
@@ -11753,7 +11753,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 the balance of underlying token in the vault" },
-              notice: "Retrieves underlying token balance in the vault",
+              notice: "Retrieve underlying token balance in the vault",
             },
             "discontinue()": {
               inputs: [],
@@ -11772,7 +11772,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 the underlying token worth a vault share is" },
-              notice: "Calculates the value of a vault share in underlying token",
+              notice: "Calculate the value of a vault share in underlying token",
             },
             "harvest(bytes32)": {
               inputs: [{ internalType: "bytes32", name: "_investStrategyHash", type: "bytes32" }],
@@ -11781,7 +11781,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _investStrategyHash: "vault invest strategy hash" },
-              notice: "claim the rewards if any strategy have it and swap for underlying token",
+              notice: "Claim the rewards if any strategy have it and swap for underlying token",
             },
             "isMaxVaultValueJumpAllowed(uint256,uint256)": {
               inputs: [
@@ -11808,7 +11808,7 @@
               type: "function",
               details: "the vault will be charged to compensate gas fees if operator calls this function",
               notice:
-                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
+                "Withdraw the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
             },
             "setMaxVaultValueJump(uint256)": {
               inputs: [{ internalType: "uint256", name: "_maxVaultValueJump", type: "uint256" }],
@@ -11818,8 +11818,8 @@
               type: "function",
               details: "the maximum vault value jump is in percentage basis points set by governance",
               params: { _maxVaultValueJump: "the standard deviation from a vault value in basis points" },
-              returns: { _0: "returns true on successful setting of the max vault value jump" },
-              notice: "sets maximum standard deviation of vault value in a single block",
+              returns: { _0: "return true on successful setting of the max vault value jump" },
+              notice: "Set maximum standard deviation of vault value in a single block",
             },
             "setProfile(string)": {
               inputs: [{ internalType: "string", name: "_profile", type: "string" }],
@@ -11830,7 +11830,7 @@
               details: "name of the risk profile should be approved by governance",
               params: { _profile: "name of the risk profile" },
               returns: { _0: "returns true on successfully setting risk profile name." },
-              notice: "assigns a risk profile name",
+              notice: "Assign a risk profile name",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -11841,7 +11841,7 @@
               details: "the underlying asset should be approved by the governance",
               params: { _underlyingToken: "the address of the underlying asset" },
               returns: { _0: "return true on successful persisting underlying asset address" },
-              notice: "assigns the address of the underlying asset of the vault",
+              notice: "Assign the address of the underlying asset of the vault",
             },
             "setUnpaused(bool)": {
               inputs: [{ internalType: "bool", name: "_unpaused", type: "bool" }],
@@ -11863,7 +11863,7 @@
               details: "the user will receive vault shares on next rebalance",
               params: { _amount: "the amount of the underlying token to be deposited" },
               returns: { _0: "returns true on successful depositing underlying token without rebalance" },
-              notice: "a cheap function to deposit _amount of underlying token to the vault",
+              notice: "A cheap function to deposit _amount of underlying token to the vault",
             },
             "userDepositAll()": {
               inputs: [],
@@ -11872,7 +11872,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function does not rebalance, hence vault shares will be minted on the next rebalance",
-              notice: "a cheap function to deposit whole underlying token's balance",
+              notice: "A cheap function to deposit whole underlying token's balance",
             },
             "userDepositAllRebalance()": {
               inputs: [],
@@ -11881,7 +11881,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the vault shares are minted right away",
-              notice: "deposit full balance in underlying token of the caller and rebalance",
+              notice: "Deposit full balance in underlying token of the caller and rebalance",
             },
             "userDepositAllRebalanceWithCHI()": {
               inputs: [],
@@ -11890,7 +11890,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
-              notice: "deposit full balance in underlying token of the caller and rebalance",
+              notice: "Deposit full balance in underlying token of the caller and rebalance",
             },
             "userDepositAllWithCHI()": {
               inputs: [],
@@ -11899,7 +11899,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
-              notice: "a cheap function to deposit whole underlying token's balance of caller",
+              notice: "A cheap function to deposit whole underlying token's balance of caller",
             },
             "userDepositRebalance(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -11910,7 +11910,7 @@
               details: "the vault shares are minted right away",
               params: { _amount: "the amount of the underlying token" },
               returns: { _0: "returns true on successful deposit of the underlying token" },
-              notice: "deposit amount of underlying token of caller and rebalance",
+              notice: "Deposit amount of underlying token of caller and rebalance",
             },
             "userDepositRebalanceWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -11920,7 +11920,7 @@
               type: "function",
               details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
               params: { _amount: "the amount of the underlying token" },
-              notice: "deposit amount of underlying token of caller and rebalance",
+              notice: "Deposit amount of underlying token of caller and rebalance",
             },
             "userDepositWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -11930,7 +11930,7 @@
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
               params: { _amount: "the amount of underlying tokens to be deposited" },
-              notice: "a cheap function to deposit amount of underlying token's balance of caller",
+              notice: "A cheap function to deposit amount of underlying token's balance of caller",
             },
             "userWithdrawAllRebalance()": {
               inputs: [],
@@ -11939,7 +11939,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function rebalances the vault",
-              notice: "redeem full balance of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem full balance of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawAllRebalanceWithCHI()": {
               inputs: [],
@@ -11948,7 +11948,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function rebalances the vault and gas fees are paid in $CHI tokens",
-              notice: "redeem full balance of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem full balance of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawRebalance(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -11959,7 +11959,7 @@
               details: "this function rebalances the vault",
               params: { _redeemAmount: "the vault shares to redeem" },
               returns: { _0: "bool returns true on successful redemption of the vault shares" },
-              notice: "redeem the amount of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem the amount of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawRebalanceWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -11969,7 +11969,7 @@
               type: "function",
               details: "this function rebalances the vault and gas fees are paid in $CHI tokens",
               params: { _redeemAmount: "the amount of vault shares" },
-              notice: "redeem the amount of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem the amount of vault shares for getting yield optimized underlying tokens",
             },
           },
         },
@@ -24997,7 +24997,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { amount: "amount of new $OPTY minted", to: "account to receive the minted $OPTY" },
-              notice: "Minting new $OPTY tokens only by authorized minter",
+              notice: "Mint new $OPTY tokens only by authorized minter",
             },
             "name()": {
               inputs: [],
@@ -25101,7 +25101,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "store the list of all interest bearing vault",
+              notice: "Store the list of all interest bearing vault",
             },
             "claimAndStake(address)": {
               inputs: [{ internalType: "address", name: "_stakingVault", type: "address" }],
@@ -25309,7 +25309,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "persist the state of $OPTY per vault",
+              notice: "Persist the state of $OPTY per vault",
             },
             "registryContract()": {
               inputs: [],
@@ -25325,7 +25325,7 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              params: { _operatorUnlockClaimOPTYTimestamp: "The period until which $OPTY cannot be claimed" },
+              params: { _operatorUnlockClaimOPTYTimestamp: "The timestamp until which $OPTY cannot be claimed" },
               returns: { _success: "returns true if unlock period is set successfuly" },
               notice: "Set the period to keep $OPTY locked within maximum period set during deployment",
             },
@@ -25442,7 +25442,7 @@
                 _user: "the account address of the user",
                 _vault: "the vault for which user state will be updated",
               },
-              notice: "Updates the state of the OPTYMinter related to a market and an user",
+              notice: "Update the state of the OPTYMinter related to a market and an user",
             },
           },
         },
@@ -25459,7 +25459,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "function",
-              notice: "store the list of all interest bearing vault",
+              notice: "Store the list of all interest bearing vault",
             },
             "lastUserUpdate(address,address)": {
               inputs: [
@@ -25560,7 +25560,7 @@
               ],
               stateMutability: "view",
               type: "function",
-              notice: "persist the state of $OPTY per vault",
+              notice: "Persist the state of $OPTY per vault",
             },
             "stakingVaults(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -25609,7 +25609,7 @@
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
-              details: "initialize the different stakingVaults",
+              details: "Initialize the different stakingVaults",
               params: {
                 _stakingVault180DLockingTerm: "staking vault address for 180 days locking period",
                 _stakingVault1DLockingTerm: "staking vault address for 1 day locking period",
@@ -25835,7 +25835,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "Governance function for new implementation to accept it's role as implementation",
-              notice: "Accepts new implementation of OPTYStakingRateBalancer. msg.sender must be pendingImplementation",
+              notice: "Accept new implementation of OPTYStakingRateBalancer. msg.sender must be pendingImplementation",
             },
             "optyStakingRateBalancerImplementation()": {
               inputs: [],
@@ -26122,7 +26122,7 @@
               stateMutability: "view",
               type: "function",
               details:
-                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the       vault with new OPTYs that weren't staked by the users.       It is true that the users can't withdraw them,       but they weren't staked.",
+                "We can have OPTYs in the vault that are not staked.      Every time we update the vault, we are funding the      vault with new OPTYs that weren't staked by the users.      It is true that the users can't withdraw them,      but they weren't staked.",
               returns: { _0: "uint256 the balance of $OPTY in the vault" },
               notice: "Retrieve $OPTY tokens in the vault",
             },
@@ -26134,7 +26134,7 @@
               type: "function",
               params: { _user: "the address of the staker" },
               returns: { _0: "uint256 accrued $OPTY tokens" },
-              notice: "Computes the amount of $OPTY accrued by staking",
+              notice: "Compute the amount of $OPTY accrued by staking",
             },
             "balanceOf(address)": {
               inputs: [{ internalType: "address", name: "account", type: "address" }],
@@ -26178,7 +26178,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "function",
-              details: "Retrieves the time elapsed since epoch",
+              details: "Retrieve the time elapsed since epoch",
               returns: { _0: "uint256 time in seconds" },
             },
             "getPricePerFullShare()": {
@@ -26188,7 +26188,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 calculated value of $OPTY per stkOPTY" },
-              notice: "Computes the value of $stkOPTY in $OPTY",
+              notice: "Compute the value of $stkOPTY in $OPTY",
             },
             "increaseAllowance(address,uint256)": {
               inputs: [
@@ -26239,8 +26239,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _rate: "the rate of $OPTY accrual per second" },
-              returns: { _success: "returns true on successful initialization of the $OPTY distribution rate/second" },
-              notice: "Sets the rate at which $OPTYs are distributed to the stakers per second",
+              returns: { _success: "return true on successful initialization of the $OPTY distribution rate/second" },
+              notice: "Set the rate at which $OPTYs are distributed to the stakers per second",
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -26259,8 +26259,8 @@
               type: "function",
               details: "this function can be accessible to the operator",
               params: { _timelock: "time period in seconds" },
-              returns: { _success: "returns true on successful initialization of the timelock" },
-              notice: "initialize the period for the staking $OPTY tokens",
+              returns: { _success: "return true on successful initialization of the timelock" },
+              notice: "Initialize the period for the staking $OPTY tokens",
             },
             "setToken(address)": {
               inputs: [{ internalType: "address", name: "_underlyingToken", type: "address" }],
@@ -26270,8 +26270,8 @@
               type: "function",
               details: "initialize the address of the $OPTY token",
               params: { _underlyingToken: "the address of the $OPTY token" },
-              returns: { _success: "returns true if initialization of the staked token address is success" },
-              notice: "function to set the address of the $OPTY token",
+              returns: { _success: "return true if initialization of the staked token address is success" },
+              notice: "Function to set the address of the $OPTY token",
             },
             "setUnpaused(bool)": {
               inputs: [{ internalType: "bool", name: "_unpaused", type: "bool" }],
@@ -26341,8 +26341,8 @@
               outputs: [{ internalType: "bool", name: "_success", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              details: "modifies the state during stake/unstake of $OPTY",
-              returns: { _success: "returns true on successful vault update" },
+              details: "Modify the state during stake/unstake of $OPTY",
+              returns: { _success: "return true on successful vault update" },
             },
             "userLastUpdate(address)": {
               inputs: [{ internalType: "address", name: "", type: "address" }],
@@ -26358,8 +26358,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _amount: "the amount of $OPTY tokens" },
-              returns: { _0: "bool returns true on successful staking of the $OPTY" },
-              notice: "stakes amount of $OPTYs of the users",
+              returns: { _0: "bool return true on successful staking of the $OPTY" },
+              notice: "Stake amount of $OPTYs of the users",
             },
             "userStakeAll()": {
               inputs: [],
@@ -26367,8 +26367,8 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "bool returns true on successful staking of $OPTY" },
-              notice: "stake whole balance of $OPTYs of the user",
+              returns: { _0: "bool return true on successful staking of $OPTY" },
+              notice: "Stake whole balance of $OPTYs of the user",
             },
             "userUnstake(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -26377,8 +26377,8 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _redeemAmount: "the amount of staked $OPTY" },
-              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
-              notice: "unstakes amount of the staked $OPTY",
+              returns: { _0: "bool return true on successful unstake of all staked $OPTY" },
+              notice: "Unstake amount of the staked $OPTY",
             },
             "userUnstakeAll()": {
               inputs: [],
@@ -26386,8 +26386,8 @@
               outputs: [{ internalType: "bool", name: "", type: "bool" }],
               stateMutability: "nonpayable",
               type: "function",
-              returns: { _0: "bool returns true on successful unstake of all staked $OPTY" },
-              notice: "unstakes all of staked $OPTY from the vault",
+              returns: { _0: "bool return true on successful unstake of all staked $OPTY" },
+              notice: "Unstake all of staked $OPTY from the vault",
             },
           },
         },
@@ -26404,7 +26404,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "stateVariable",
-              details: "persist the timestamp when vault is updated",
+              details: "Persist the timestamp when vault is updated",
             },
             "optyRatePerSecond()": {
               inputs: [],
@@ -26412,7 +26412,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "stateVariable",
-              details: "store the rate at which $OPTY is accrued",
+              details: "Store the rate at which $OPTY is accrued",
             },
             "timelockPeriod()": {
               inputs: [],
@@ -26420,7 +26420,7 @@
               outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
               stateMutability: "view",
               type: "stateVariable",
-              details: "store the period in seconds for which $OPTY tokens will be locked",
+              details: "Store the period in seconds for which $OPTY tokens will be locked",
             },
             "token()": {
               inputs: [],
@@ -26428,7 +26428,7 @@
               outputs: [{ internalType: "address", name: "", type: "address" }],
               stateMutability: "view",
               type: "stateVariable",
-              details: "store the $OPTY token's address",
+              details: "Store the $OPTY token's address",
             },
           },
           methods: {
@@ -26477,7 +26477,7 @@
               ],
               name: "DepositQueue",
               type: "event",
-              notice: "Logs an event when user calls user deposit underlying asset without rebalance",
+              notice: "Log an event when user calls user deposit underlying asset without rebalance",
             },
             "Transfer(address,address,uint256)": {
               anonymous: !1,
@@ -26530,7 +26530,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 the balance of underlying token in the vault" },
-              notice: "Retrieves underlying token balance in the vault",
+              notice: "Retrieve underlying token balance in the vault",
             },
             "balanceOf(address)": {
               inputs: [{ internalType: "address", name: "account", type: "address" }],
@@ -26662,7 +26662,7 @@
               stateMutability: "view",
               type: "function",
               returns: { _0: "uint256 the underlying token worth a vault share is" },
-              notice: "Calculates the value of a vault share in underlying token",
+              notice: "Calculate the value of a vault share in underlying token",
             },
             "gst()": {
               inputs: [],
@@ -26695,7 +26695,7 @@
               stateMutability: "nonpayable",
               type: "function",
               params: { _investStrategyHash: "vault invest strategy hash" },
-              notice: "claim the rewards if any strategy have it and swap for underlying token",
+              notice: "Claim the rewards if any strategy have it and swap for underlying token",
             },
             "increaseAllowance(address,uint256)": {
               inputs: [
@@ -26801,7 +26801,7 @@
               type: "function",
               details: "the vault will be charged to compensate gas fees if operator calls this function",
               notice:
-                "Withdraws the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
+                "Withdraw the underying asset of vault from previous strategy if any,         claims and swaps the reward tokens for the underlying token         performs batch minting of shares for users deposited previously without rebalance,         deposits the assets into the new strategy if any or holds the same in the vault",
             },
             "registryContract()": {
               inputs: [],
@@ -26819,8 +26819,8 @@
               type: "function",
               details: "the maximum vault value jump is in percentage basis points set by governance",
               params: { _maxVaultValueJump: "the standard deviation from a vault value in basis points" },
-              returns: { _0: "returns true on successful setting of the max vault value jump" },
-              notice: "sets maximum standard deviation of vault value in a single block",
+              returns: { _0: "return true on successful setting of the max vault value jump" },
+              notice: "Set maximum standard deviation of vault value in a single block",
             },
             "setProfile(string)": {
               inputs: [{ internalType: "string", name: "_profile", type: "string" }],
@@ -26831,7 +26831,7 @@
               details: "name of the risk profile should be approved by governance",
               params: { _profile: "name of the risk profile" },
               returns: { _0: "returns true on successfully setting risk profile name." },
-              notice: "assigns a risk profile name",
+              notice: "Assign a risk profile name",
             },
             "setRegistry(address)": {
               inputs: [{ internalType: "address", name: "_registry", type: "address" }],
@@ -26851,7 +26851,7 @@
               details: "the underlying asset should be approved by the governance",
               params: { _underlyingToken: "the address of the underlying asset" },
               returns: { _0: "return true on successful persisting underlying asset address" },
-              notice: "assigns the address of the underlying asset of the vault",
+              notice: "Assign the address of the underlying asset of the vault",
             },
             "setUnpaused(bool)": {
               inputs: [{ internalType: "bool", name: "_unpaused", type: "bool" }],
@@ -26921,7 +26921,7 @@
               details: "the user will receive vault shares on next rebalance",
               params: { _amount: "the amount of the underlying token to be deposited" },
               returns: { _0: "returns true on successful depositing underlying token without rebalance" },
-              notice: "a cheap function to deposit _amount of underlying token to the vault",
+              notice: "A cheap function to deposit _amount of underlying token to the vault",
             },
             "userDepositAll()": {
               inputs: [],
@@ -26930,7 +26930,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function does not rebalance, hence vault shares will be minted on the next rebalance",
-              notice: "a cheap function to deposit whole underlying token's balance",
+              notice: "A cheap function to deposit whole underlying token's balance",
             },
             "userDepositAllRebalance()": {
               inputs: [],
@@ -26939,7 +26939,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the vault shares are minted right away",
-              notice: "deposit full balance in underlying token of the caller and rebalance",
+              notice: "Deposit full balance in underlying token of the caller and rebalance",
             },
             "userDepositAllRebalanceWithCHI()": {
               inputs: [],
@@ -26948,7 +26948,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
-              notice: "deposit full balance in underlying token of the caller and rebalance",
+              notice: "Deposit full balance in underlying token of the caller and rebalance",
             },
             "userDepositAllWithCHI()": {
               inputs: [],
@@ -26957,7 +26957,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
-              notice: "a cheap function to deposit whole underlying token's balance of caller",
+              notice: "A cheap function to deposit whole underlying token's balance of caller",
             },
             "userDepositRebalance(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -26968,7 +26968,7 @@
               details: "the vault shares are minted right away",
               params: { _amount: "the amount of the underlying token" },
               returns: { _0: "returns true on successful deposit of the underlying token" },
-              notice: "deposit amount of underlying token of caller and rebalance",
+              notice: "Deposit amount of underlying token of caller and rebalance",
             },
             "userDepositRebalanceWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -26978,7 +26978,7 @@
               type: "function",
               details: "the vault shares are minted right away and gas fees are paid in $CHI tokens",
               params: { _amount: "the amount of the underlying token" },
-              notice: "deposit amount of underlying token of caller and rebalance",
+              notice: "Deposit amount of underlying token of caller and rebalance",
             },
             "userDepositWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
@@ -26988,7 +26988,7 @@
               type: "function",
               details: "the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance",
               params: { _amount: "the amount of underlying tokens to be deposited" },
-              notice: "a cheap function to deposit amount of underlying token's balance of caller",
+              notice: "A cheap function to deposit amount of underlying token's balance of caller",
             },
             "userWithdrawAllRebalance()": {
               inputs: [],
@@ -26997,7 +26997,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function rebalances the vault",
-              notice: "redeem full balance of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem full balance of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawAllRebalanceWithCHI()": {
               inputs: [],
@@ -27006,7 +27006,7 @@
               stateMutability: "nonpayable",
               type: "function",
               details: "this function rebalances the vault and gas fees are paid in $CHI tokens",
-              notice: "redeem full balance of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem full balance of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawRebalance(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -27017,7 +27017,7 @@
               details: "this function rebalances the vault",
               params: { _redeemAmount: "the vault shares to redeem" },
               returns: { _0: "bool returns true on successful redemption of the vault shares" },
-              notice: "redeem the amount of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem the amount of vault shares for getting yield optimized underlying tokens",
             },
             "userWithdrawRebalanceWithCHI(uint256)": {
               inputs: [{ internalType: "uint256", name: "_redeemAmount", type: "uint256" }],
@@ -27027,7 +27027,7 @@
               type: "function",
               details: "this function rebalances the vault and gas fees are paid in $CHI tokens",
               params: { _redeemAmount: "the amount of vault shares" },
-              notice: "redeem the amount of vault shares for getting yield optimized underlying tokens",
+              notice: "Redeem the amount of vault shares for getting yield optimized underlying tokens",
             },
           },
         },
@@ -27263,7 +27263,7 @@
                 index: "the position of user in the queue",
                 sender: "the account address of the user",
               },
-              notice: "Logs an event when user calls user deposit underlying asset without rebalance",
+              notice: "Log an event when user calls user deposit underlying asset without rebalance",
             },
           },
           stateVariables: {

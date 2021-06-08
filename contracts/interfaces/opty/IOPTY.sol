@@ -9,7 +9,7 @@ pragma solidity ^0.6.12;
  */
 interface IOPTY {
     /**
-     * @notice Minting new $OPTY tokens only by authorized minter
+     * @notice Mint new $OPTY tokens only by authorized minter
      * @param to account to receive the minted $OPTY
      * @param amount amount of new $OPTY minted
      */

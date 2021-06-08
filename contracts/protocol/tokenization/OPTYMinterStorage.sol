@@ -36,7 +36,7 @@ contract OPTYMinterStorage {
     mapping(address => uint256) public optyVaultStartTimestamp;
 
     /**
-     * @notice store the list of all interest bearing vault
+     * @notice Store the list of all interest bearing vault
      */
     address[] public allOptyVaults;
 
@@ -62,7 +62,7 @@ contract OPTYMinterStorage {
     mapping(address => uint256) public optyAccrued;
 
     /**
-     * @notice persist the state of $OPTY per vault
+     * @notice Persist the state of $OPTY per vault
      */
     mapping(address => OptyState) public optyVaultState;
 

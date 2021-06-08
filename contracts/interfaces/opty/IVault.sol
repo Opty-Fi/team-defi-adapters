@@ -9,15 +9,15 @@ pragma solidity ^0.6.12;
  */
 interface IVault {
     /**
-     * @notice sets maximum standard deviation of vault value in a single block
+     * @notice Set maximum standard deviation of vault value in a single block
      * @dev the maximum vault value jump is in percentage basis points set by governance
      * @param _maxVaultValueJump the standard deviation from a vault value in basis points
-     * @return returns true on successful setting of the max vault value jump
+     * @return return true on successful setting of the max vault value jump
      */
     function setMaxVaultValueJump(uint256 _maxVaultValueJump) external returns (bool);
 
     /**
-     * @notice Withdraws the underying asset of vault from previous strategy if any,
+     * @notice Withdraw the underying asset of vault from previous strategy if any,
      *         claims and swaps the reward tokens for the underlying token
      *         performs batch minting of shares for users deposited previously without rebalance,
      *         deposits the assets into the new strategy if any or holds the same in the vault
@@ -26,19 +26,19 @@ interface IVault {
     function rebalance() external;
 
     /**
-     * @notice claim the rewards if any strategy have it and swap for underlying token
+     * @notice Claim the rewards if any strategy have it and swap for underlying token
      * @param _investStrategyHash vault invest strategy hash
      */
     function harvest(bytes32 _investStrategyHash) external;
 
     /**
-     * @notice a cheap function to deposit whole underlying token's balance
+     * @notice A cheap function to deposit whole underlying token's balance
      * @dev this function does not rebalance, hence vault shares will be minted on the next rebalance
      */
     function userDepositAll() external;
 
     /**
-     * @notice a cheap function to deposit _amount of underlying token to the vault
+     * @notice A cheap function to deposit _amount of underlying token to the vault
      * @dev the user will receive vault shares on next rebalance
      * @param _amount the amount of the underlying token to be deposited
      * @return returns true on successful depositing underlying token without rebalance
@@ -46,13 +46,13 @@ interface IVault {
     function userDeposit(uint256 _amount) external returns (bool);
 
     /**
-     * @notice deposit full balance in underlying token of the caller and rebalance
+     * @notice Deposit full balance in underlying token of the caller and rebalance
      * @dev the vault shares are minted right away
      */
     function userDepositAllRebalance() external;
 
     /**
-     * @notice deposit amount of underlying token of caller and rebalance
+     * @notice Deposit amount of underlying token of caller and rebalance
      * @dev the vault shares are minted right away
      * @param _amount the amount of the underlying token
      * @return returns true on successful deposit of the underlying token
@@ -60,13 +60,13 @@ interface IVault {
     function userDepositRebalance(uint256 _amount) external returns (bool);
 
     /**
-     * @notice redeem full balance of vault shares for getting yield optimized underlying tokens
+     * @notice Redeem full balance of vault shares for getting yield optimized underlying tokens
      * @dev this function rebalances the vault
      */
     function userWithdrawAllRebalance() external;
 
     /**
-     * @notice redeem the amount of vault shares for getting yield optimized underlying tokens
+     * @notice Redeem the amount of vault shares for getting yield optimized underlying tokens
      * @dev this function rebalances the vault
      * @param _redeemAmount the vault shares to redeem
      * @return bool returns true on successful redemption of the vault shares
@@ -74,39 +74,39 @@ interface IVault {
     function userWithdrawRebalance(uint256 _redeemAmount) external returns (bool);
 
     /**
-     * @notice a cheap function to deposit whole underlying token's balance of caller
+     * @notice A cheap function to deposit whole underlying token's balance of caller
      * @dev the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance
      */
     function userDepositAllWithCHI() external;
 
     /**
-     * @notice a cheap function to deposit amount of underlying token's balance of caller
+     * @notice A cheap function to deposit amount of underlying token's balance of caller
      * @dev the gas fees are paid in $CHI tokens and vault shares are minted on next rebalance
      * @param _amount the amount of underlying tokens to be deposited
      */
     function userDepositWithCHI(uint256 _amount) external;
 
     /**
-     * @notice deposit full balance in underlying token of the caller and rebalance
+     * @notice Deposit full balance in underlying token of the caller and rebalance
      * @dev the vault shares are minted right away and gas fees are paid in $CHI tokens
      */
     function userDepositAllRebalanceWithCHI() external;
 
     /**
-     * @notice deposit amount of underlying token of caller and rebalance
+     * @notice Deposit amount of underlying token of caller and rebalance
      * @dev the vault shares are minted right away and gas fees are paid in $CHI tokens
      * @param _amount the amount of the underlying token
      */
     function userDepositRebalanceWithCHI(uint256 _amount) external;
 
     /**
-     * @notice redeem full balance of vault shares for getting yield optimized underlying tokens
+     * @notice Redeem full balance of vault shares for getting yield optimized underlying tokens
      * @dev this function rebalances the vault and gas fees are paid in $CHI tokens
      */
     function userWithdrawAllRebalanceWithCHI() external;
 
     /**
-     * @notice redeem the amount of vault shares for getting yield optimized underlying tokens
+     * @notice Redeem the amount of vault shares for getting yield optimized underlying tokens
      * @dev this function rebalances the vault and gas fees are paid in $CHI tokens
      * @param _redeemAmount the amount of vault shares
      */
@@ -128,19 +128,19 @@ interface IVault {
     function setUnpaused(bool _unpaused) external;
 
     /**
-     * @notice Retrieves underlying token balance in the vault
+     * @notice Retrieve underlying token balance in the vault
      * @return uint256 the balance of underlying token in the vault
      */
     function balance() external view returns (uint256);
 
     /**
-     * @notice Calculates the value of a vault share in underlying token
+     * @notice Calculate the value of a vault share in underlying token
      * @return uint256 the underlying token worth a vault share is
      */
     function getPricePerFullShare() external view returns (uint256);
 
     /**
-     * @notice assigns a risk profile name
+     * @notice Assign a risk profile name
      * @dev name of the risk profile should be approved by governance
      * @param _profile name of the risk profile
      * @return returns true on successfully setting risk profile name.
@@ -148,7 +148,7 @@ interface IVault {
     function setProfile(string memory _profile) external returns (bool);
 
     /**
-     * @notice assigns the address of the underlying asset of the vault
+     * @notice Assign the address of the underlying asset of the vault
      * @dev the underlying asset should be approved by the governance
      * @param _underlyingToken the address of the underlying asset
      * @return return true on successful persisting underlying asset address

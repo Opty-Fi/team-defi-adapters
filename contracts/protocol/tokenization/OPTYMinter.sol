@@ -379,7 +379,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
     }
 
     /**
-     * @dev Reads the current block timestamp from the chain
+     * @dev Retrieve the current block timestamp from the chain
      * @return _timestamp current block timestamp in seconds since unix epoch
      */
     function _getBlockTimestamp() internal view returns (uint256 _timestamp) {

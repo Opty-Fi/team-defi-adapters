@@ -10,57 +10,57 @@ pragma solidity ^0.6.12;
 
 interface IOPTYStakingVault {
     /**
-     * @notice initialize the period for the staking $OPTY tokens
+     * @notice Initialize the period for the staking $OPTY tokens
      * @dev this function can be accessible to the operator
      * @param _timelock time period in seconds
-     * @return _success returns true on successful initialization of the timelock
+     * @return _success return true on successful initialization of the timelock
      */
     function setTimelockPeriod(uint256 _timelock) external returns (bool _success);
 
     /**
-     * @notice function to set the address of the $OPTY token
+     * @notice Function to set the address of the $OPTY token
      * @dev initialize the address of the $OPTY token
      * @param _underlyingToken the address of the $OPTY token
-     * @return _success returns true if initialization of the staked token address is success
+     * @return _success return true if initialization of the staked token address is success
      */
     function setToken(address _underlyingToken) external returns (bool _success);
 
     /**
-     * @notice Sets the rate at which $OPTYs are distributed to the stakers per second
+     * @notice Set the rate at which $OPTYs are distributed to the stakers per second
      * @param _rate the rate of $OPTY accrual per second
-     * @return _success returns true on successful initialization of the $OPTY distribution rate/second
+     * @return _success return true on successful initialization of the $OPTY distribution rate/second
      */
     function setOptyRatePerSecond(uint256 _rate) external returns (bool _success);
 
     /**
-     * @notice stake whole balance of $OPTYs of the user
-     * @return bool returns true on successful staking of $OPTY
+     * @notice Stake whole balance of $OPTYs of the user
+     * @return bool return true on successful staking of $OPTY
      */
     function userStakeAll() external returns (bool);
 
     /**
-     * @notice stakes amount of $OPTYs of the users
+     * @notice Stake amount of $OPTYs of the users
      * @param _amount the amount of $OPTY tokens
-     * @return bool returns true on successful staking of the $OPTY
+     * @return bool return true on successful staking of the $OPTY
      */
     function userStake(uint256 _amount) external returns (bool);
 
     /**
-     * @notice unstakes all of staked $OPTY from the vault
-     * @return bool returns true on successful unstake of all staked $OPTY
+     * @notice Unstake all of staked $OPTY from the vault
+     * @return bool return true on successful unstake of all staked $OPTY
      */
     function userUnstakeAll() external returns (bool);
 
     /**
-     * @notice unstakes amount of the staked $OPTY
+     * @notice Unstake amount of the staked $OPTY
      * @param _redeemAmount the amount of staked $OPTY
-     * @return bool returns true on successful unstake of all staked $OPTY
+     * @return bool return true on successful unstake of all staked $OPTY
      */
     function userUnstake(uint256 _redeemAmount) external returns (bool);
 
     /**
-     * @dev modifies the state during stake/unstake of $OPTY
-     * @return _success returns true on successful vault update
+     * @dev Modify the state during stake/unstake of $OPTY
+     * @return _success return true on successful vault update
      */
     function updatePool() external returns (bool _success);
 
@@ -76,20 +76,20 @@ interface IOPTYStakingVault {
     function balance() external view returns (uint256);
 
     /**
-     * @notice Computes the value of $stkOPTY in $OPTY
+     * @notice Compute the value of $stkOPTY in $OPTY
      * @return uint256 calculated value of $OPTY per stkOPTY
      */
     function getPricePerFullShare() external view returns (uint256);
 
     /**
-     * @notice Computes the amount of $OPTY accrued by staking
+     * @notice Compute the amount of $OPTY accrued by staking
      * @param _user the address of the staker
      * @return uint256 accrued $OPTY tokens
      */
     function balanceInOpty(address _user) external view returns (uint256);
 
     /**
-     * @dev Retrieves the time elapsed since epoch
+     * @dev Retrieve the time elapsed since epoch
      * @return uint256 time in seconds
      */
     function getBlockTimestamp() external view returns (uint256);

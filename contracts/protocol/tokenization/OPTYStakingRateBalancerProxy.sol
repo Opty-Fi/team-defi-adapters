@@ -40,7 +40,7 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
     }
 
     /**
-     * @notice Accepts new implementation of OPTYStakingRateBalancer. msg.sender must be pendingImplementation
+     * @notice Accept new implementation of OPTYStakingRateBalancer. msg.sender must be pendingImplementation
      * @dev Governance function for new implementation to accept it's role as implementation
      */
     function acceptImplementation() external returns (uint256) {
@@ -71,7 +71,7 @@ contract OPTYStakingRateBalancerProxy is OPTYStakingRateBalancerStorage, Modifie
     }
 
     /**
-     * @dev Delegates execution to an OPTYStakingRateBalancer implementation contract.
+     * @dev Delegate execution to an OPTYStakingRateBalancer implementation contract.
      * It returns to the external caller whatever the implementation returns
      * or forwards reverts.
      */

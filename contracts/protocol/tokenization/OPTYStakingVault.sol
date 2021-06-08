@@ -206,7 +206,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
     }
 
     /**
-     * @dev unstaking of account's previously staked $OPTY
+     * @dev Unstake account's previously staked $OPTY
      * @param _redeemAmount Amount of $OPTY to unstake
      * @return _success returns true on successful unstake
      */
@@ -236,7 +236,7 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
     }
 
     /**
-     * @dev modify the state during stake/unstake of $OPTY
+     * @dev Modify the state during stake/unstake of $OPTY
      * @return _success returns true on successful vault update
      */
     function _updatePool() internal returns (bool _success) {
