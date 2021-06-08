@@ -122,6 +122,7 @@ describe(scenario.title, () => {
               assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
               break;
             }
+            case "userDeposit(uint256)":
             case "userDepositRebalance(uint256)": {
               let { amount }: ARGUMENTS = action.args;
               if (action.action.includes("userWithdrawRebalance")) {
@@ -171,6 +172,12 @@ describe(scenario.title, () => {
             case "balanceOf(address)": {
               const value = await contracts[action.contract][action.action](operator.getAddress());
               expect(value).to.be.equal(action.expectedValue);
+              break;
+            }
+            case "balance()": {
+              const value = await contracts[action.contract][action.action]();
+              expect(+value).to.be.equal(+action.expectedValue);
+              break;
             }
           }
         }

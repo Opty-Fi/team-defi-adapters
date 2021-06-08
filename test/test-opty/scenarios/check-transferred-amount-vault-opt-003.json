@@ -3,7 +3,7 @@
   "description": "Test cases to check the actual amount transferred to vault contracts",
   "stories": [
     {
-      "description": "Vault shouldn't mint more vault tokens than expected according to the amount transferred by the user",
+      "description": "[UserDepositRebalance()] Vault shouldn't mint more vault tokens than expected according to the amount transferred by the user",
       "setActions": [
         {
           "contract": "strategyProvider",
@@ -41,6 +41,50 @@
         {
           "contract": "vault",
           "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": "1353750000000000"
+        }
+      ]
+    },
+    {
+      "description": "[UserDeposit()] Vault shouldn't have more tokens than expected according to the amount transferred by the user",
+      "setActions": [
+        {
+          "contract": "strategyProvider",
+          "action": "setDefaultStrategyState(uint8)",
+          "args": {
+            "defaultStrategyState": 0
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "erc20",
+          "action": "approve(address,uint256)",
+          "args": {
+            "contractName": "vault",
+            "amount": "1425000000000000"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vault",
+          "action": "userDeposit(uint256)",
+          "args": {
+            "amount": "1425000000000000"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "vault",
+          "action": "balance()",
           "args": {},
           "expectedValue": "1353750000000000"
         }
