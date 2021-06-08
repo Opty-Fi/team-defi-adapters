@@ -8,9 +8,8 @@ library DataTypes {
      * @param isDeposit True if it is deposit and false if it withdraw
      * @param value Amount to deposit/withdraw
      */
-    struct Operation {
+    struct UserDepositOperation {
         address account;
-        bool isDeposit;
         uint256 value;
     }
 
