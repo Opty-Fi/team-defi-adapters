@@ -305,12 +305,13 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
 
     /**
      * @notice Set the ODEFI token's contract address
-     * @param _opty Address of ODEFI Contract
+     * @param _odefi Address of ODEFI Contract
      * @return A boolean value indicating whether the operation succeeded
      */
-    function _setODEFIAddress(address _odefi) internal {
+    function _setODEFIAddress(address _odefi) internal returns (bool) {
         require(_odefi != address(0), "!zeroAddress");
         odefiAddress = _odefi;
+        return true;
     }
 
     /**
