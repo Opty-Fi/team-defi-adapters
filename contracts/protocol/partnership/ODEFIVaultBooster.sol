@@ -135,7 +135,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     /**
      * @inheritdoc IODEFIVaultBooster
      */
-    function rewardDepletionSeconds() external view returns (uint256) {
+    function rewardDepletionSeconds() public view override returns (uint256) {
         uint256 totalOdefiRate;
         for (uint256 i = 0; i < allOdefiVaults.length; i++) {
             add_(totalOdefiRate, odefiVaultRatePerSecond[allOdefiVaults[i]]);
@@ -287,13 +287,6 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      */
     function getOdefiAddress() public view override returns (address) {
         return odefiAddress;
-    }
-
-    /**
-     * @inheritdoc IODEFIVaultBooster
-     */
-    function rewardDepletionSeconds(address _odefiVault) public view override returns (uint256) {
-        return div_(balance(), odefiVaultRatePerSecond[_odefiVault]);
     }
 
     /**
