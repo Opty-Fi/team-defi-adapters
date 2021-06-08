@@ -425,11 +425,11 @@ contract Vault is
         uint256 _tokenBalanceBefore = _balance();
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         uint256 _tokenBalanceAfter = _balance();
-        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
-        queue.push(DataTypes.UserDepositOperation(msg.sender, _tokenBalanceDiff));
-        pendingDeposits[msg.sender] += _tokenBalanceDiff;
-        depositQueue += _tokenBalanceDiff;
-        emit DepositQueue(msg.sender, queue.length, _tokenBalanceDiff);
+        uint256 _actualDepositAmount = _tokenBalanceAfter.sub(_tokenBalanceBefore);
+        queue.push(DataTypes.UserDepositOperation(msg.sender, _actualDepositAmount));
+        pendingDeposits[msg.sender] += _actualDepositAmount;
+        depositQueue += _actualDepositAmount;
+        emit DepositQueue(msg.sender, queue.length, _actualDepositAmount);
         return true;
     }
 
@@ -493,14 +493,14 @@ contract Vault is
         uint256 _tokenBalanceBefore = _balance();
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
         uint256 _tokenBalanceAfter = _balance();
-        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
+        uint256 _actualDepositAmount = _tokenBalanceAfter.sub(_tokenBalanceBefore);
 
         uint256 shares = 0;
 
         if (_tokenBalanceBefore == 0 || totalSupply() == 0) {
-            shares = _tokenBalanceDiff;
+            shares = _actualDepositAmount;
         } else {
-            shares = (_tokenBalanceDiff.mul(totalSupply())).div((_tokenBalanceBefore));
+            shares = (_actualDepositAmount.mul(totalSupply())).div((_tokenBalanceBefore));
         }
 
         executeCodes(
