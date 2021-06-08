@@ -421,11 +421,14 @@ contract Vault is
         returns (bool)
     {
         require(_amount > 0, "!(_amount>0)");
+        uint256 _tokenBalanceBefore = _balance();
         IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), _amount);
-        queue.push(DataTypes.UserDepositOperation(msg.sender, _amount));
-        pendingDeposits[msg.sender] += _amount;
-        depositQueue += _amount;
-        emit DepositQueue(msg.sender, queue.length, _amount);
+        uint256 _tokenBalanceAfter = _balance();
+        uint256 _tokenBalanceDiff = _tokenBalanceAfter.sub(_tokenBalanceBefore);
+        queue.push(DataTypes.UserDepositOperation(msg.sender, _tokenBalanceDiff));
+        pendingDeposits[msg.sender] += _tokenBalanceDiff;
+        depositQueue += _tokenBalanceDiff;
+        emit DepositQueue(msg.sender, queue.length, _tokenBalanceDiff);
         return true;
     }
 
