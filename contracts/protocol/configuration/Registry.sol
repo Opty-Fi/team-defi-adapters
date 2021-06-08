@@ -15,6 +15,7 @@ import { RegistryProxy } from "./RegistryProxy.sol";
 //  interfaces
 import { IVault } from "../../interfaces/opty/IVault.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
+import { Constants } from "../../utils/Constants.sol";
 
 /**
  * @title Registry Contract
@@ -770,10 +771,7 @@ contract Registry is IRegistry, ModifiersController {
         string memory _riskProfile,
         address _vault
     ) internal returns (bool) {
-        require(
-            _underlyingAssetHash != 0x0000000000000000000000000000000000000000000000000000000000000000,
-            "!underlyingAssetHash"
-        );
+        require(_underlyingAssetHash != Constants.ZERO_BYTES32, "!underlyingAssetHash");
         require(bytes(_riskProfile).length > 0, "RP_empty.");
         require(_vault != address(0), "!address(0)");
         require(address(_vault).isContract(), "!isContract");
