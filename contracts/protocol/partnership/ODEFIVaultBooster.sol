@@ -37,6 +37,9 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         _claimODEFI(holders, allOdefiVaults);
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function updateUserStateInVault(address _odefiVault, address _user) external override {
         if (odefiVaultRatePerSecond[_odefiVault] > 0) {
             odefiUserStateInVault[_odefiVault][_user].index = odefiVaultState[_odefiVault].index;
@@ -111,6 +114,9 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         return true;
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function addOdefiVault(address _odefiVault) external override onlyOperator returns (bool) {
         for (uint256 i = 0; i < allOdefiVaults.length; i++) {
             require(allOdefiVaults[i] != _odefiVault, "odefiVault already added");
@@ -118,11 +124,17 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         allOdefiVaults.push(_odefiVault);
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function setOdefiVault(address _odefiVault, bool _enable) external override onlyOperator returns (bool) {
         odefiVaultEnabled[_odefiVault] = _enable;
         return true;
     }
 
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
     function rewardDepletionSeconds() external view returns (uint256) {
         uint256 totalOdefiRate;
         for (uint256 i = 0; i < allOdefiVaults.length; i++) {

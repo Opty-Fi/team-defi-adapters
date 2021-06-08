@@ -119,8 +119,8 @@ interface IODEFIVaultBooster {
 
     /**
      * @notice Get the no. of seconds until the ODEFI distribution has ended
-     * @dev Divides the ODEFI tokens balance by ODEFI rate per second in a specific vault
-     * @return Returns the no. of seconds until ODEFI distribution has ended in a specific vault
+     * @dev Divides the ODEFI tokens balance by the sum of all the ODEFI rates per second in all the vaults
+     * @return Returns the no. of seconds until ODEFI distribution has ended
      */
     function rewardDepletionSeconds(address _odefiVault) external view returns (uint256);
 

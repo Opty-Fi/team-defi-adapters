@@ -134,8 +134,7 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     /**
-     * @dev set the ODEFIVaultBooster contract address.
-     * Can only be called by the current governance.
+     * @inheritdoc IRegistry
      */
     function setODEFIVaultBooster(address _odefiVaultBooster) external override onlyGovernance returns (bool) {
         require(_odefiVaultBooster != address(0), "!address(0)");

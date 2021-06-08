@@ -89,8 +89,10 @@ interface IRegistry {
     function setOPTYStakingRateBalancer(address _optyStakingRateBalancer) external returns (bool);
 
     /**
-     * @dev set the ODEFIVaultBooster contract address.
-     * Can only be called by the current governance.
+     * @notice Set the ODEFIVaultBooster contract address
+     * @dev Can only be called by the current governance
+     * @param _odefiVaultBooster address of the ODEFIVaultBooster Contract
+     * @return A boolean value indicating whether the operation succeeded
      */
     function setODEFIVaultBooster(address _odefiVaultBooster) external returns (bool);
 
