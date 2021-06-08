@@ -135,18 +135,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     /**
      * @inheritdoc IODEFIVaultBooster
      */
-    function rewardDepletionSeconds() public view override returns (uint256) {
-        uint256 totalOdefiRate;
-        for (uint256 i = 0; i < allOdefiVaults.length; i++) {
-            add_(totalOdefiRate, odefiVaultRatePerSecond[allOdefiVaults[i]]);
-        }
-        return div_(balance(), totalOdefiRate);
-    }
-
-    /**
-     * @inheritdoc IODEFIVaultBooster
-     */
-    function claimODEFI(address _holder, address[] memory _odefiVaults) public override returns (uint256) {
+    function claimODEFI(address _holder, address[] memory _odefiVaults) external override returns (uint256) {
         address[] memory holders = new address[](1);
         holders[0] = _holder;
         _claimODEFI(holders, _odefiVaults);
@@ -157,27 +146,6 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      */
     function claimODEFI(address[] memory _holders, address[] memory _odefiVaults) external override returns (uint256) {
         _claimODEFI(_holders, _odefiVaults);
-    }
-
-    /**
-     * @notice Claim all odefi accrued by the holders
-     * @param _holders The addresses to claim ODEFI for
-     * @param _odefiVaults The list of vaults to claim ODEFI in
-     */
-    function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256) {
-        uint256 _total;
-        for (uint256 i = 0; i < _odefiVaults.length; i++) {
-            address _odefiVault = _odefiVaults[i];
-            require(odefiVaultEnabled[_odefiVault], "odefiVault must be enabled");
-            for (uint256 j = 0; j < _holders.length; j++) {
-                updateUserRewards(address(_odefiVault), _holders[j]);
-                uint256 _amount = div_(odefiAccrued[_holders[j]], 1e18);
-                odefiAccrued[_holders[j]] = uint256(0);
-                IERC20(odefiAddress).safeTransfer(_holders[j], _amount);
-                _total = add_(_total, _amount);
-            }
-        }
-        return _total;
     }
 
     /**
@@ -216,6 +184,17 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
             }
             lastUserUpdate[_odefiVault][_user] = _getBlockTimestamp();
         }
+    }
+
+    /**
+     * @inheritdoc IODEFIVaultBooster
+     */
+    function rewardDepletionSeconds() public view override returns (uint256) {
+        uint256 totalOdefiRate;
+        for (uint256 i = 0; i < allOdefiVaults.length; i++) {
+            add_(totalOdefiRate, odefiVaultRatePerSecond[allOdefiVaults[i]]);
+        }
+        return div_(balance(), totalOdefiRate);
     }
 
     /**
@@ -304,15 +283,41 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
     }
 
     /**
+     * @notice Claim all odefi accrued by the holders
+     * @param _holders The addresses to claim ODEFI for
+     * @param _odefiVaults The list of vaults to claim ODEFI in
+     */
+    function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256) {
+        uint256 _total;
+        for (uint256 i = 0; i < _odefiVaults.length; i++) {
+            address _odefiVault = _odefiVaults[i];
+            require(odefiVaultEnabled[_odefiVault], "odefiVault must be enabled");
+            for (uint256 j = 0; j < _holders.length; j++) {
+                updateUserRewards(address(_odefiVault), _holders[j]);
+                uint256 _amount = div_(odefiAccrued[_holders[j]], 1e18);
+                odefiAccrued[_holders[j]] = uint256(0);
+                IERC20(odefiAddress).safeTransfer(_holders[j], _amount);
+                _total = add_(_total, _amount);
+            }
+        }
+        return _total;
+    }
+
+    /**
+     * @notice Set the ODEFI token's contract address
+     * @param _opty Address of ODEFI Contract
+     * @return A boolean value indicating whether the operation succeeded
+     */
+    function _setODEFIAddress(address _odefi) internal {
+        require(_odefi != address(0), "!zeroAddress");
+        odefiAddress = _odefi;
+    }
+
+    /**
      * @notice Get the current block timestamp
      * @return Returns the current block timestamp
      */
     function _getBlockTimestamp() internal view returns (uint256) {
         return block.timestamp;
-    }
-
-    function _setODEFIAddress(address _odefi) internal {
-        require(_odefi != address(0), "!zeroAddress");
-        odefiAddress = _odefi;
     }
 }

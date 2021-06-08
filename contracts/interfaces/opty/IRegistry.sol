@@ -388,6 +388,10 @@ interface IRegistry {
      */
     function getOptyMinter() external view returns (address);
 
+    /**
+     * @notice Get the ODEFIVaultBooster contract address
+     * @return Returns the ODEFIVaultBooster contract address
+     */
     function getODEFIVaultBooster() external view returns (address);
 
     /**
