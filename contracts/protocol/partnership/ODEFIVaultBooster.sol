@@ -286,6 +286,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      * @notice Claim all odefi accrued by the holders
      * @param _holders The addresses to claim ODEFI for
      * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @return amount of claimed ODEFI tokens
      */
     function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256) {
         uint256 _total;

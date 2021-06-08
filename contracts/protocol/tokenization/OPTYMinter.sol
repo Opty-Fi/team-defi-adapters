@@ -329,6 +329,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
      * @notice Claim all opty accrued by the holders
      * @param _holders The addresses to claim OPTY for
      * @param _optyVaults The list of vaults to claim OPTY in
+     * @return amount of claimed OPTY tokens
      */
     function _claimOpty(address[] memory _holders, address[] memory _optyVaults)
         internal
