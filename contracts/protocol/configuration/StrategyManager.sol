@@ -19,6 +19,7 @@ import {
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
+import { Constants } from "../../utils/Constants.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -32,11 +33,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
-
-    /**
-     * @notice Zero bytes32 type Constant
-     */
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
@@ -412,7 +408,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getDepositAllStepCount(bytes32 _investStrategyhash) internal view returns (uint8) {
-        if (_investStrategyhash == ZERO_BYTES32) {
+        if (_investStrategyhash == Constants.ZERO_BYTES32) {
             return uint8(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
@@ -432,7 +428,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getWithdrawAllStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
-        if (_investStrategyhash == ZERO_BYTES32) {
+        if (_investStrategyhash == Constants.ZERO_BYTES32) {
             return uint8(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
