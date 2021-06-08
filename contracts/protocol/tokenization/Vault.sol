@@ -24,7 +24,6 @@ import { IVault } from "../../interfaces/opty/IVault.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
-import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
@@ -441,14 +440,30 @@ contract Vault is
         returns (bool)
     {
         for (uint256 i; i < queue.length; i++) {
-            IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), queue[i].account);
+            executeCodes(
+                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserRewardsCodes(
+                    address(this),
+                    queue[i].account
+                ),
+                "!updateUserRewards"
+            );
             _mintShares(queue[i].account, _balance(), queue[i].value);
             pendingDeposits[msg.sender] -= queue[i].value;
             depositQueue -= queue[i].value;
-            IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), queue[i].account);
+            executeCodes(
+                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserStateInVaultCodes(
+                    address(this),
+                    queue[i].account
+                ),
+                "!updateUserStateInVault"
+            );
         }
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
+                address(this)
+            ),
+            "!updateOptyVaultRateAndIndex"
+        );
         delete queue;
         return true;
     }
@@ -484,11 +499,27 @@ contract Vault is
             shares = (_tokenBalanceDiff.mul(totalSupply())).div((_tokenBalanceBefore));
         }
 
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserRewardsCodes(
+                address(this),
+                msg.sender
+            ),
+            "!updateUserRewards"
+        );
         _mint(msg.sender, shares);
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), msg.sender);
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
+                address(this)
+            ),
+            "!updateOptyVaultRateAndIndex"
+        );
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserStateInVaultCodes(
+                address(this),
+                msg.sender
+            ),
+            "!updateUserStateInVault"
+        );
         if (_balance() > 0) {
             _emergencyBrake(_balance());
             address[] memory _underlyingTokens = new address[](1);
@@ -521,13 +552,29 @@ contract Vault is
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
         }
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserRewards(address(this), msg.sender);
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserRewardsCodes(
+                address(this),
+                msg.sender
+            ),
+            "!updateUserRewards"
+        );
         // subtract pending deposit from total balance
         _redeemAndBurn(msg.sender, _balance().sub(depositQueue), _redeemAmount, _vaultStrategyConfiguration);
 
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultRatePerSecondAndVaultToken(address(this));
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateOptyVaultIndex(address(this));
-        IOPTYMinter(_vaultStrategyConfiguration.optyMinter).updateUserStateInVault(address(this), msg.sender);
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateRewardVaultRateAndIndexCodes(
+                address(this)
+            ),
+            "!updateOptyVaultRateAndIndex"
+        );
+        executeCodes(
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserStateInVaultCodes(
+                address(this),
+                msg.sender
+            ),
+            "!updateUserStateInVault"
+        );
 
         if (!_vaultConfiguration.discontinued && (_balance() > 0)) {
             _emergencyBrake(_balance());
@@ -548,8 +595,21 @@ contract Vault is
         uint256
     ) internal override {
         executeCodes(
-            IStrategyManager(registryContract.getStrategyManager()).getUserRewardCodes(address(this), from),
-            "!_beforeTokenTransfer"
+            IStrategyManager(registryContract.getStrategyManager()).getUpdateUserRewardsCodes(address(this), from),
+            "!_beforeTokenTransfer (updateUserRewards)"
+        );
+        executeCodes(
+            IStrategyManager(registryContract.getStrategyManager()).getUpdateRewardVaultRateAndIndexCodes(
+                address(this)
+            ),
+            "!updateOptyVaultRateAndIndex"
+        );
+        executeCodes(
+            IStrategyManager(registryContract.getStrategyManager()).getUpdateUserStateInVaultCodes(
+                address(this),
+                msg.sender
+            ),
+            "!updateUserStateInVault"
         );
     }
 
