@@ -286,10 +286,9 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      * @notice Claim all odefi accrued by the holders
      * @param _holders The addresses to claim ODEFI for
      * @param _odefiVaults The list of vaults to claim ODEFI in
-     * @return amount of claimed ODEFI tokens
+     * @return _total amount of claimed ODEFI tokens
      */
-    function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256) {
-        uint256 _total;
+    function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256 _total) {
         for (uint256 i = 0; i < _odefiVaults.length; i++) {
             address _odefiVault = _odefiVaults[i];
             require(odefiVaultEnabled[_odefiVault], "odefiVault must be enabled");
@@ -301,7 +300,6 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
                 _total = add_(_total, _amount);
             }
         }
-        return _total;
     }
 
     /**
