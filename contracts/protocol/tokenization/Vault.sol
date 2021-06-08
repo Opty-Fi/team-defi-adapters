@@ -127,6 +127,7 @@ contract Vault is
                         gasOwedToOperator
                     )
                 );
+                gasOwedToOperator = uint256(0);
             }
         }
 
