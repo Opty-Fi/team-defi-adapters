@@ -141,6 +141,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getPoolHarvestSomeRewardCodes(_vault, _underlyingToken, _investStrategyHash, _vaultRewardStrategy);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
@@ -150,6 +153,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _treasuryCodes = _getSplitPaymentCode(_treasuryShares, _account, _underlyingToken, _redeemAmountInToken);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getUpdateUserRewardsCodes(address _vault, address _from)
         public
         view
@@ -159,6 +165,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getUpdateUserRewardsCodes(_vault, _from);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getUpdateUserStateInVaultCodes(address _vault, address _from)
         public
         view
@@ -168,6 +177,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getUpdateUserStateInVaultCodes(_vault, _from);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getUpdateRewardVaultRateAndIndexCodes(address _vault)
         public
         view
@@ -177,6 +189,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _codes = _getUpdateRewardVaultRateAndIndexCodes(_vault);
     }
 
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getRewardToken(bytes32 _investStrategyHash) public view override returns (address _rewardToken) {
         (, , _rewardToken) = _getLastStepLiquidityPool(_investStrategyHash);
     }
