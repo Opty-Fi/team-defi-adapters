@@ -30,6 +30,7 @@ interface IODEFIVaultBooster {
      * @notice Claim all ODEFI accrued by the holders
      * @param _holders The addresses to claim ODEFI for
      * @param _odefiVaults The list of vaults to claim ODEFI in
+     * @return Total No. of ODEFI tokens accrued by holders in specified odefiVaults
      */
     function claimODEFI(address[] memory _holders, address[] memory _odefiVaults) external returns (uint256);
 
