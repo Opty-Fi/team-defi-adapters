@@ -255,10 +255,19 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setMaxDepositPoolPctDefault(uint256(5000)); // 50%
     }
 
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @notice Sets the default max deposit value (in munber)
+     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     */
     function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
@@ -475,10 +484,18 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         liquidityPoolToGauges[_pool] = _gauge;
     }
 
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
     function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }

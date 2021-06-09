@@ -27,9 +27,10 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for AaveV2 protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Aave V2's pools
  */
-
 contract AaveV2Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -55,26 +56,34 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
 
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @notice Sets the default max deposit value (in munber)
+     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @notice Get the codes for depositing full balance of underlying token in the liquidity pool provided
-     * @dev Supply `liquidityPool` for Curve, Compound and others except Aave
-     * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
-     * @param _optyVault Vault contract address
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-     * @param _liquidityPoolAddressProviderRegistry address of liquidity Pool address provider where to deposit
-     * @return _codes Returns a bytes value to be executed
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -87,13 +96,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
-     * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`
-     * @param _optyVault Address of vault contract
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-     * @param _liquidityPoolAddressProviderRegistry address of liquidity Pool address provider from where to borrow
-     * @param _outputToken token address to borrow
-     * @return _codes Returns a bytes value to be executed.
+     * @inheritdoc IAdapter
      */
     function getBorrowAllCodes(
         address payable _optyVault,
@@ -234,6 +237,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -245,6 +251,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
             getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         external
         view
@@ -255,6 +264,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IAaveV2Token(_liquidityPoolToken).UNDERLYING_ASSET_ADDRESS();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address,
@@ -263,6 +275,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,
@@ -283,6 +298,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address,
@@ -291,6 +309,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _underlyingTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable,
         address,
@@ -300,6 +321,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -311,18 +335,33 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -332,6 +371,10 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getHarvestAllCodes(
         address payable,
         address,
@@ -340,14 +383,25 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -356,14 +410,26 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -372,10 +438,18 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -385,6 +459,10 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -394,6 +472,10 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -403,6 +485,10 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -411,18 +497,34 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
     function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }
 
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
         public
         view
@@ -434,6 +536,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _reserveData.aTokenAddress;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -442,6 +547,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -453,6 +561,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,
@@ -480,6 +591,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)
         public
         view
@@ -489,6 +603,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         return _getReserveData(_liquidityPoolAddressProviderRegistry, _underlyingToken).availableLiquidity;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -521,6 +638,9 @@ contract AaveV2Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
