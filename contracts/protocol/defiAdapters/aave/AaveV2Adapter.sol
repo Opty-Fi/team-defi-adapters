@@ -52,7 +52,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
@@ -548,7 +548,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
             maxExposureType == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
                 : _getMaxDepositAmount(_liquidityPool, _amount);
-        if (_limit != 0 && _depositAmount > _limit) {
+        if (_depositAmount > _limit) {
             _depositAmount = _limit;
         }
     }

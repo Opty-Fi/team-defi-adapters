@@ -80,7 +80,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         setLiquidityPoolToStakingVault(F_YDAI_YUSDC_YUSDT_YBUSD_DEPOSIT_POOL, F_YDAI_YUSDC_YUSDT_YBUSD_STAKE_VAULT);
 
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {

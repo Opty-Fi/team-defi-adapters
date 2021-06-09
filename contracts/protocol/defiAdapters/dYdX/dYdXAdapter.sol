@@ -53,7 +53,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         addMarket(USDC, 2);
         addMarket(DAI, 3);
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {

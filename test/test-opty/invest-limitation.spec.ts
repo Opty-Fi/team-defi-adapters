@@ -129,224 +129,133 @@ describe(scenarios.title, () => {
             for (let i = 0; i < stories.length; i++) {
               it(stories[i].description, async () => {
                 const story = stories[i];
-                if (story.maxDepositType === "amount") {
-                  for (let i = 0; i < story.setActions.length; i++) {
-                    const setAction = story.setActions[i];
-                    switch (setAction.action) {
-                      case "setMaxDepositPoolType(uint8)": {
-                        const { type }: ARGUMENTS = setAction.args;
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](type);
-                        } else {
-                          await expect(
-                            contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
+                for (let i = 0; i < story.setActions.length; i++) {
+                  const setAction = story.setActions[i];
+                  switch (setAction.action) {
+                    case "setMaxDepositPoolType(uint8)": {
+                      const { type }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type);
+                      } else {
+                        await expect(
+                          contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
+                        ).to.be.revertedWith(setAction.message);
                       }
-                      case "setMaxDepositAmount(address,uint256)": {
-                        const { amount }: ARGUMENTS = setAction.args;
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0");
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0"),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "setMaxDepositAmountDefault(uint256)": {
-                        const { amount }: ARGUMENTS = setAction.args;
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](amount ? amount[strategy.token] : "0");
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](amount ? amount[strategy.token] : "0"),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "approve(address,uint256)": {
-                        const { amount }: ARGUMENTS = setAction.args;
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](contracts["vault"].address, amount ? amount[strategy.token] : "0");
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](contracts["vault"].address, amount ? amount[strategy.token] : "0"),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "userDepositRebalance(uint256)":
-                      case "userWithdrawRebalance(uint256)": {
-                        const { amount }: ARGUMENTS = setAction.args;
-                        if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
-                          currentPoolValue = await contracts["adapter"].getPoolValue(
-                            strategy.strategy[0].contract,
-                            token,
-                          );
-                        } else {
-                          currentPoolValue = await contracts["adapter"].getPoolValue(
-                            strategy.strategy[0].contract,
-                            ADDRESS_ZERO,
-                          );
-                        }
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](amount ? amount[strategy.token] : "0");
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](amount ? amount[strategy.token] : "0"),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      default:
-                        break;
+                      break;
                     }
-                  }
-                  for (let i = 0; i < story.getActions.length; i++) {
-                    const getAction = story.getActions[i];
-                    switch (getAction.action) {
-                      case "balanceOf(address)": {
-                        const { userName }: ARGUMENTS = getAction.args;
-                        if (userName) {
-                          const address = await users[userName].getAddress();
-                          const balance = await contracts[getAction.contract][getAction.action](address);
-                          const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                          expect(balance).to.equal(expectedValue[strategy.token]);
-                        }
-                        break;
+                    case "setMaxDepositAmount(address,uint256)":
+                    case "setMaxDepositPoolPct(address,uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
                       }
-                      case "balance()": {
-                        const balance = await contracts[getAction.contract][getAction.action]();
+                      break;
+                    }
+                    case "setMaxDepositAmountDefault(uint256)":
+                    case "setMaxDepositPoolPctDefault(uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
+                    case "approve(address,uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](contracts["vault"].address, amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](contracts["vault"].address, amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
+                    case "userDepositRebalance(uint256)":
+                    case "userWithdrawRebalance(uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                        currentPoolValue = await contracts["adapter"].getPoolValue(
+                          strategy.strategy[0].contract,
+                          token,
+                        );
+                      } else {
+                        currentPoolValue = await contracts["adapter"].getPoolValue(
+                          strategy.strategy[0].contract,
+                          ADDRESS_ZERO,
+                        );
+                      }
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
+                    default:
+                      break;
+                  }
+                }
+                for (let i = 0; i < story.getActions.length; i++) {
+                  const getAction = story.getActions[i];
+                  switch (getAction.action) {
+                    case "balanceOf(address)": {
+                      const { userName }: ARGUMENTS = getAction.args;
+                      if (userName) {
+                        const address = await users[userName].getAddress();
+                        const balance = await contracts[getAction.contract][getAction.action](address);
                         const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
                         expect(balance).to.equal(expectedValue[strategy.token]);
-                        break;
                       }
-                      case "getPoolValue(address,address)": {
-                        const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                        let value: BigNumber;
-                        if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
-                          value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
-                        } else {
-                          value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
-                        }
-                        if (expectedValue[strategy.token] === "<") {
-                          expect(value.sub(currentPoolValue)).to.lt(0);
-                        } else {
-                          expect(value.sub(currentPoolValue)).to.gt(0);
-                        }
-                        break;
-                      }
+                      break;
                     }
-                  }
-                } else if (story.maxDepositType === "pct") {
-                  let maxValue = BigNumber.from("0");
-                  let investedValue = BigNumber.from("0");
-                  for (let i = 0; i < story.setActions.length; i++) {
-                    const setAction = story.setActions[i];
-                    switch (setAction.action) {
-                      case "setMaxDepositPoolType(uint8)": {
-                        const { type }: ARGUMENTS = setAction.args;
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](type);
-                        } else {
-                          await expect(
-                            contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "setMaxDepositPoolPct(address,uint256)": {
-                        const { amount }: ARGUMENTS = setAction.args;
-
-                        const poolValue = await contracts["adapter"].getPoolValue(
-                          strategy.strategy[0].contract,
-                          TOKENS[strategy.token],
-                        );
-                        maxValue = BigNumber.from(poolValue)
-                          .mul(BigNumber.from(amount ? amount[strategy.token] : "0"))
-                          .div(BigNumber.from("10000"));
-                        investedValue = maxValue.mul(BigNumber.from("2"));
-
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](
-                              contracts["adapter"].address,
-                              BigNumber.from(amount ? amount[strategy.token] : "0"),
-                            );
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](
-                                contracts["adapter"].address,
-                                BigNumber.from(amount ? amount[strategy.token] : "0"),
-                              ),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "approve(address,uint256)": {
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](contracts["vault"].address, investedValue);
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](contracts["vault"].address, investedValue),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      case "userDepositRebalance(uint256)": {
-                        if (setAction.expect === "success") {
-                          await contracts[setAction.contract]
-                            .connect(users[setAction.executer])
-                            [setAction.action](investedValue);
-                        } else {
-                          await expect(
-                            contracts[setAction.contract]
-                              .connect(users[setAction.executer])
-                              [setAction.action](investedValue),
-                          ).to.be.revertedWith(setAction.message);
-                        }
-                        break;
-                      }
-                      default:
-                        break;
+                    case "balance()": {
+                      const balance = await contracts[getAction.contract][getAction.action]();
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      expect(balance).to.equal(expectedValue[strategy.token]);
+                      break;
                     }
-                  }
-                  for (let i = 0; i < story.getActions.length; i++) {
-                    const getAction = story.getActions[i];
-                    switch (getAction.action) {
-                      case "balance()": {
-                        const balance = await contracts[getAction.contract][getAction.action]();
-                        expect(balance).to.equal(maxValue);
+                    case "getPoolValue(address,address)": {
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      let value: BigNumber;
+                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
+                      } else {
+                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
                       }
+                      if (expectedValue[strategy.token] === "<") {
+                        expect(value.sub(currentPoolValue)).to.lt(0);
+                      } else if (expectedValue[strategy.token] === "=") {
+                        expect(value.sub(currentPoolValue)).to.equal(0);
+                      } else {
+                        expect(value.sub(currentPoolValue)).to.gt(0);
+                      }
+                      break;
                     }
                   }
                 }

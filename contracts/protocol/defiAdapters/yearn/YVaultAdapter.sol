@@ -26,7 +26,7 @@ contract YVaultAdapter is IAdapter, Modifiers {
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {

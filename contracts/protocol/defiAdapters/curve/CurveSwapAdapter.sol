@@ -264,7 +264,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         setSwapPoolToGauges(TBTC_SWAP_POOL, address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6));
         setSwapPoolToGauges(DUSD_SWAP_POOL, address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D));
 
-        setMaxDepositPoolPctDefault(uint256(5000)); // 50%
+        setMaxDepositPoolPctDefault(uint256(10000));
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
