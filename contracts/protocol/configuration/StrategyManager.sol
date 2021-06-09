@@ -83,8 +83,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolDepositAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
@@ -96,8 +96,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolWithdrawAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
@@ -202,8 +202,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8
+        uint256 _stepIndex,
+        uint256
     ) internal view returns (bytes[] memory _codes) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _subStepCounter = 0;
@@ -269,11 +269,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) internal view returns (bytes[] memory _codes) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _subStepCounter = _stepCount - 1;
+        uint256 _subStepCounter = _stepCount - 1;
         for (uint256 _i = 0; _i < uint256(_strategySteps.length); _i++) {
             uint256 _iterator = uint256(_strategySteps.length) - 1 - _i;
             if (_strategySteps[_iterator].isBorrow) {

@@ -600,14 +600,14 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
+        uint256 tokenIndex = 0;
         for (uint256 i = 0; i < uint256(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
         if (_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
         }
         return 0;
     }
@@ -691,7 +691,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _liquidityPool
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
+        uint256 tokenIndex = 0;
         for (uint256 i = 0; i < uint256(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
@@ -700,7 +700,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
         }
         _b = _b.add(
             harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
@@ -929,7 +929,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     ) internal view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-            int128 i = 0;
+            uint256 i = 0;
             for (uint256 j = 0; j < uint256(_underlyingTokens.length); j++) {
                 if (_underlyingTokens[j] == _underlyingToken) {
                     i = j;

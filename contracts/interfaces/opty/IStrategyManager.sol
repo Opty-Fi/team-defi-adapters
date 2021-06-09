@@ -67,8 +67,8 @@ interface IStrategyManager {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) external view returns (bytes[] memory _codes);
 
     /**
@@ -84,8 +84,8 @@ interface IStrategyManager {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) external view returns (bytes[] memory _codes);
 
     /**
