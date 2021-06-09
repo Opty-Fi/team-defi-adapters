@@ -319,7 +319,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         uint256 nCoins = _underlyingTokens.length;
         uint256[] memory _amounts = new uint256[](nCoins);
@@ -338,7 +338,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -351,7 +351,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -362,7 +362,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _amount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amount);
     }
@@ -390,7 +390,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -404,7 +404,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -416,7 +416,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -428,7 +428,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
+    ) public view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -443,7 +443,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -473,7 +473,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
@@ -481,7 +481,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function canStake(address _liquidityPool) external view override returns (bool) {
+    function canStake(address _liquidityPool) public view override returns (bool) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             return true;
         }
@@ -495,7 +495,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _stakeAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
@@ -521,7 +521,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
+    ) public view override returns (uint256 _amount) {
         uint256 _stakedLiquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -536,7 +536,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInTokenStaked >= _redeemAmount;
     }
@@ -548,7 +548,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }

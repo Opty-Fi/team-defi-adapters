@@ -82,7 +82,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _amounts);
@@ -96,7 +96,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         address _outputToken
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         ReserveConfigurationData memory _inputTokenReserveConfigurationData =
             IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
@@ -155,7 +155,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         address _outputToken
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         uint256 _liquidityPoolTokenBalance =
@@ -203,7 +203,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount =
             getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProvider);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
@@ -229,7 +229,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256 _liquidityPoolTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _liquidityPoolTokenAmount;
     }
 
@@ -242,7 +242,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address _liquidityPoolAddressProvider,
         address _borrowToken,
         uint256 _borrowAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance =
             getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProvider);
         return
@@ -263,7 +263,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256 _underlyingTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _underlyingTokenAmount;
     }
 
@@ -275,7 +275,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256 _redeemAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _redeemAmount;
     }
 
@@ -287,7 +287,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -295,7 +295,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) external view override returns (address) {
+    function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
@@ -303,7 +303,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -311,7 +311,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -324,7 +324,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -336,7 +336,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -344,7 +344,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function canStake(address) external view override returns (bool) {
+    function canStake(address) public view override returns (bool) {
         return false;
     }
 
@@ -352,7 +352,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -364,7 +364,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -372,7 +372,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -380,7 +380,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -392,7 +392,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -400,7 +400,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
      */
-    function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -413,7 +413,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -426,7 +426,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         revert("!empty");
     }
 
@@ -439,7 +439,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address[] memory,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -451,7 +451,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 

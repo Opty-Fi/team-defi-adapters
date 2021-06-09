@@ -90,7 +90,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
         for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
@@ -110,7 +110,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -123,7 +123,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -134,7 +134,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getAllAmountInToken(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -142,7 +142,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getLiquidityPoolToken(address, address) external view override returns (address) {
+    function getLiquidityPoolToken(address, address) public view override returns (address) {
         return address(0);
     }
 
@@ -165,7 +165,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
     }
 
@@ -177,7 +177,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -192,7 +192,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -206,7 +206,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -218,7 +218,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -230,7 +230,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256 _redeemAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _redeemAmount;
     }
 
@@ -242,7 +242,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -250,7 +250,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) external view override returns (address) {
+    function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
@@ -258,7 +258,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -266,7 +266,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -279,7 +279,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -291,14 +291,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
     /**
      * @inheritdoc IAdapter
      */
-    function canStake(address) external view override returns (bool) {
+    function canStake(address) public view override returns (bool) {
         return false;
     }
 
@@ -306,7 +306,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -318,7 +318,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -326,7 +326,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -334,7 +334,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -346,7 +346,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable,
         address,
         address
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -354,7 +354,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
-    function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -367,7 +367,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -380,7 +380,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         revert("!empty");
     }
 
@@ -393,7 +393,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -405,7 +405,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 

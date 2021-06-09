@@ -117,7 +117,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
@@ -132,7 +132,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -145,7 +145,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
@@ -156,7 +156,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -185,7 +185,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -199,7 +199,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
@@ -210,7 +210,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address,
         address _liquidityPool,
         uint256 _depositAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return
             _depositAmount.mul(10**IHarvestDeposit(_liquidityPool).decimals()).div(
                 IHarvestDeposit(_liquidityPool).getPricePerFullShare()
@@ -225,7 +225,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
+    ) public view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
@@ -240,7 +240,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
@@ -266,7 +266,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
@@ -274,7 +274,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function canStake(address) external view override returns (bool) {
+    function canStake(address) public view override returns (bool) {
         return true;
     }
 
@@ -285,7 +285,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _depositAmount);
     }
@@ -311,7 +311,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
+    ) public view override returns (uint256 _amount) {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
         uint256 _liquidityPoolTokenBalance = IHarvestFarm(_stakingVault).balanceOf(_optyVault);
         uint256 _balanceInToken = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
@@ -327,7 +327,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInTokenStake = getAllAmountInTokenStake(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInTokenStake >= _redeemAmount;
     }
@@ -339,7 +339,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _unstakeAmount);
     }
