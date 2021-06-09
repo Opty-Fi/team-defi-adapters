@@ -40,14 +40,14 @@ contract StrategyManager is IStrategyManager, Modifiers {
     /**
      * @inheritdoc IStrategyManager
      */
-    function getWithdrawAllStepsCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+    function getWithdrawAllStepsCount(bytes32 _investStrategyhash) public view override returns (uint256) {
         return _getWithdrawAllStepsCount(_investStrategyhash);
     }
 
     /**
      * @inheritdoc IStrategyManager
      */
-    function getDepositAllStepCount(bytes32 _investStrategyhash) public view override returns (uint8) {
+    function getDepositAllStepCount(bytes32 _investStrategyhash) public view override returns (uint256) {
         return _getDepositAllStepCount(_investStrategyhash);
     }
 
@@ -83,8 +83,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolDepositAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
@@ -96,8 +96,8 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) public view override returns (bytes[] memory _codes) {
         _codes = _getPoolWithdrawAllCodes(_vault, _underlyingToken, _investStrategyhash, _stepIndex, _stepCount);
     }
@@ -202,12 +202,12 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8
+        uint256 _stepIndex,
+        uint256
     ) internal view returns (bytes[] memory _codes) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _subStepCounter = 0;
-        for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
+        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
             if (_strategySteps[_i].isBorrow) {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
@@ -250,7 +250,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
-                if (_stepIndex == (_subStepCounter + 1) && _i == uint8(_strategySteps.length - 1)) {
+                if (_stepIndex == (_subStepCounter + 1) && _i == (_strategySteps.length - 1)) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
@@ -269,13 +269,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) internal view returns (bytes[] memory _codes) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _subStepCounter = _stepCount - 1;
-        for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
-            uint8 _iterator = uint8(_strategySteps.length) - 1 - _i;
+        uint256 _subStepCounter = _stepCount - 1;
+        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
+            uint256 _iterator = _strategySteps.length - 1 - _i;
             if (_strategySteps[_iterator].isBorrow) {
                 address _outputToken = _strategySteps[_iterator].outputToken;
                 if (_stepIndex == _subStepCounter) {
@@ -311,7 +311,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
-                    _codes = (_iterator == uint8(_strategySteps.length) - 1 &&
+                    _codes = (_iterator == (_strategySteps.length - 1) &&
                         IAdapter(_adapter).canStake(_strategySteps[_iterator].pool))
                         ? IAdapter(_adapter).getUnstakeAndWithdrawAllCodes(
                             _vault,
@@ -376,11 +376,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address _underlyingToken,
         bytes32 _investStrategyhash
     ) internal view returns (uint256 _balance) {
-        uint8 _steps = uint8(_getStrategySteps(_investStrategyhash).length);
+        uint256 _steps = _getStrategySteps(_investStrategyhash).length;
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         _balance = 0;
         uint256 _outputTokenAmount = _balance;
-        for (uint8 _i = 0; _i < _steps; _i++) {
+        for (uint256 _i = 0; _i < _steps; _i++) {
             uint256 _iterator = _steps - 1 - _i;
             address _liquidityPool = _strategySteps[_iterator].pool;
             address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
@@ -416,7 +416,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
 
     function _getHarvestRewardStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
+        uint256 _lastStepIndex = _strategySteps.length - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
         if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
@@ -427,7 +427,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
 
     function _getClaimRewardStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
+        uint256 _lastStepIndex = _strategySteps.length - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
         if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
@@ -436,19 +436,19 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return uint8(0);
     }
 
-    function _getDepositAllStepCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+    function _getDepositAllStepCount(bytes32 _investStrategyhash) internal view returns (uint256) {
         if (_investStrategyhash == Constants.ZERO_BYTES32) {
             return uint8(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _strategyStepCount = uint8(_strategySteps.length);
-        uint8 _lastStepIndex = _strategyStepCount - 1;
+        uint256 _strategyStepCount = _strategySteps.length;
+        uint256 _lastStepIndex = _strategyStepCount - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
         if (IAdapter(_lastStepOptyAdapter).canStake(_lastStepLiquidityPool)) {
             return (_strategyStepCount + 1);
         }
-        for (uint8 i = 0; i < uint8(_strategySteps.length); i++) {
+        for (uint256 i = 0; i < _strategySteps.length; i++) {
             if (_strategySteps[i].isBorrow) {
                 _strategyStepCount++;
             }
@@ -456,13 +456,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
         return _strategyStepCount;
     }
 
-    function _getWithdrawAllStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+    function _getWithdrawAllStepsCount(bytes32 _investStrategyhash) internal view returns (uint256) {
         if (_investStrategyhash == Constants.ZERO_BYTES32) {
-            return uint8(0);
+            return uint256(0);
         }
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint8 _steps = uint8(_strategySteps.length);
-        for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
+        uint256 _steps = _strategySteps.length;
+        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
             if (_strategySteps[_i].isBorrow) {
                 _steps++;
             }
@@ -478,11 +478,11 @@ contract StrategyManager is IStrategyManager, Modifiers {
     ) internal pure returns (bytes[] memory _treasuryCodes) {
         uint256 _fee = 0;
         if (_redeemAmountInToken > 0) {
-            uint8 _i;
+            uint256 _i;
             uint256 _treasurySharesLength = _treasuryShares.length;
             _treasuryCodes = new bytes[](_treasurySharesLength.add(1));
             if (_treasurySharesLength > 0) {
-                for (_i = 0; _i < uint8(_treasurySharesLength); _i++) {
+                for (_i = 0; _i < _treasurySharesLength; _i++) {
                     if (_treasuryShares[_i].treasury != address(0)) {
                         uint256 _share = _treasuryShares[_i].share;
                         uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
@@ -491,7 +491,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                             abi.encodeWithSignature(
                                 "transfer(address,uint256)",
                                 _treasuryShares[_i].treasury,
-                                uint256(_treasuryAccountFee)
+                                _treasuryAccountFee
                             )
                         );
                         _fee = _fee.add(_treasuryAccountFee);
