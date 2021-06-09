@@ -250,7 +250,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
-                if (_stepIndex == (_subStepCounter + 1) && _i == _strategySteps.length - 1) {
+                if (_stepIndex == (_subStepCounter + 1) && _i == (_strategySteps.length - 1)) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
                     address[] memory _underlyingTokens = new address[](1);
@@ -311,7 +311,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
-                    _codes = (_iterator == _strategySteps.length - 1 &&
+                    _codes = (_iterator == (_strategySteps.length - 1) &&
                         IAdapter(_adapter).canStake(_strategySteps[_iterator].pool))
                         ? IAdapter(_adapter).getUnstakeAndWithdrawAllCodes(
                             _vault,
