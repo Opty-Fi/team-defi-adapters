@@ -484,6 +484,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @notice Sets the reward token for Curve protocol
+     * @param _rewardToken Address of reward token to be set
+     */
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }

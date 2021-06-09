@@ -258,6 +258,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         comptroller = _comptroller;
     }
 
+    /**
+     * @notice Sets the reward token for Cream protocol
+     * @param _rewardToken Address of reward token to be set
+     */
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }

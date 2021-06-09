@@ -13,9 +13,10 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for Harvest.finance protocol
+ * @author Opty.fi
  * @dev Abstraction layer to harvest finance's pools
  */
-
 contract HarvestAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -109,6 +110,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -119,6 +123,10 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -128,6 +136,10 @@ contract HarvestAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -137,6 +149,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -146,6 +161,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -156,6 +174,10 @@ contract HarvestAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IHarvestDeposit(_liquidityPool).underlying();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -167,6 +189,10 @@ contract HarvestAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -177,6 +203,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address _liquidityPool,
@@ -188,6 +217,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
@@ -200,6 +232,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -210,6 +245,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         external
         view
@@ -221,6 +259,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         _codes[0] = abi.encode(_stakingVault, abi.encodeWithSignature("getReward()"));
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestAllCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -230,10 +271,16 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return true;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getStakeAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -243,6 +290,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getStakeSomeCodes(_liquidityPool, _depositAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
         external
         view
@@ -253,6 +303,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return getUnstakeSomeCodes(_liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable _optyVault,
         address _underlyingToken,
@@ -266,6 +319,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficientStake(
         address payable _optyVault,
         address _underlyingToken,
@@ -276,6 +332,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return _balanceInTokenStake >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -293,6 +352,11 @@ contract HarvestAdapter is IAdapter, Modifiers {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
+    /**
+     * @notice Map the liquidity pool to its Staking vault address
+     * @param _liquidityPool liquidity pool address to be mapped with staking vault
+     * @param _stakingVault staking vault address to be linked with liquidity pool
+     */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
@@ -301,6 +365,10 @@ contract HarvestAdapter is IAdapter, Modifiers {
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
     }
 
+    /**
+     * @notice Sets the reward token for Harvest protocol
+     * @param _rewardToken Address of reward token to be set
+     */
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }
@@ -322,6 +390,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -343,6 +414,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -358,14 +432,23 @@ contract HarvestAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IHarvestDeposit(_liquidityPool).underlyingBalanceWithInvestment();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -379,6 +462,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address,
@@ -387,6 +473,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address _liquidityPool,
@@ -400,10 +489,16 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address _liquidityPool)
         public
         view
@@ -413,6 +508,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).earned(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestSomeCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -428,6 +526,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getStakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
         view
@@ -450,6 +551,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
         view
@@ -463,6 +567,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInTokenStake(
         address payable _optyVault,
         address _underlyingToken,
@@ -486,6 +593,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return b;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool)
         public
         view
@@ -496,6 +606,9 @@ contract HarvestAdapter is IAdapter, Modifiers {
         return IHarvestFarm(_stakingVault).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,

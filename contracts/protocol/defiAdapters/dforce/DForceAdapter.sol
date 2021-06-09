@@ -264,6 +264,11 @@ contract DForceAdapter is IAdapter, Modifiers {
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @notice Map the liquidity pool to its Staking vault address
+     * @param _liquidityPool liquidity pool address to be mapped with staking vault
+     * @param _stakingVault staking vault address to be linked with liquidity pool
+     */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
@@ -280,6 +285,10 @@ contract DForceAdapter is IAdapter, Modifiers {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
+    /**
+     * @notice Sets the reward token for DForce protocol
+     * @param _rewardToken Address of reward token to be set
+     */
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }
