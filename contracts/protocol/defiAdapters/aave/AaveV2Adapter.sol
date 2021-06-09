@@ -255,7 +255,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
-        external
+        public
         view
         override
         returns (address[] memory _underlyingTokens)

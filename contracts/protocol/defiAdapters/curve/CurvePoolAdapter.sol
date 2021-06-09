@@ -367,7 +367,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
-        external
+        public
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -448,7 +448,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
-        external
+        public
         view
         override
         returns (bytes[] memory _codes)
@@ -500,7 +500,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
-        external
+        public
         view
         override
         returns (bytes[] memory _codes)

@@ -119,7 +119,7 @@ contract CompoundAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
-        external
+        public
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -203,7 +203,7 @@ contract CompoundAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getClaimRewardTokenCode(address payable _optyVault, address)
-        external
+        public
         view
         override
         returns (bytes[] memory _codes)
