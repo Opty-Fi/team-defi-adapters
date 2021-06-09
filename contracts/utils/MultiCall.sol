@@ -24,7 +24,7 @@ abstract contract MultiCall is IMultiCall {
      * @inheritdoc IMultiCall
      */
     function executeCodes(bytes[] memory _codes, string memory _errorMsg) public override {
-        for (uint256 _j = 0; _j < uint256(_codes.length); _j++) {
+        for (uint256 _j = 0; _j < _codes.length; _j++) {
             executeCode(_codes[_j], _errorMsg);
         }
     }

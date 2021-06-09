@@ -212,7 +212,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
      * @inheritdoc IOPTYMinter
      */
     function addOptyVault(address _vault) external override onlyOperator returns (bool _success) {
-        for (uint256 i = 0; i < uint256(allOptyVaults.length); i++) {
+        for (uint256 i = 0; i < allOptyVaults.length; i++) {
             require(allOptyVaults[i] != _vault, "optyVault already added");
         }
         allOptyVaults.push(_vault);
@@ -282,7 +282,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
      */
     function claimableOpty(address _holder, address[] memory _vaults) public view override returns (uint256) {
         uint256 claimableOptyAmount;
-        for (uint256 i = 0; i < uint256(_vaults.length); i++) {
+        for (uint256 i = 0; i < _vaults.length; i++) {
             address _vault = _vaults[i];
             if (optyVaultEnabled[_vault] == true) {
                 uint256 _deltaSecondsUser;
@@ -367,10 +367,10 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
         isOperatorTimeLockPeriodEnded
         returns (uint256 _total)
     {
-        for (uint256 i = 0; i < uint256(_vaults.length); i++) {
+        for (uint256 i = 0; i < _vaults.length; i++) {
             address _vault = _vaults[i];
             require(optyVaultEnabled[_vault], "optyVault must be enabled");
-            for (uint256 j = 0; j < uint256(_holders.length); j++) {
+            for (uint256 j = 0; j < _holders.length; j++) {
                 updateUserRewards(address(_vault), _holders[j]);
                 uint256 _amount = div_(optyAccrued[_holders[j]], 1e18);
                 optyAccrued[_holders[j]] = uint256(0);

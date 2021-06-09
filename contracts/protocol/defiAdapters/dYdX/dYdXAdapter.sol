@@ -74,7 +74,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address _liquidityPool
     ) external view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
-        for (uint256 i = 0; i < uint256(liquidityPoolToUnderlyingTokens[_liquidityPool].length); i++) {
+        for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
                 _amounts[i] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
             }
@@ -311,7 +311,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         uint256 _underlyingTokenIndex;
         bool _isAmount = false;
-        for (uint256 i = 0; i < uint256(_amounts.length); i++) {
+        for (uint256 i = 0; i < _amounts.length; i++) {
             if (_amounts[i] > 0) {
                 _isAmount = true;
                 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];

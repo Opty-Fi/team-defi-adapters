@@ -150,7 +150,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function approveToken(address[] memory _tokens) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_tokens.length); _i++) {
+        for (uint256 _i = 0; _i < _tokens.length; _i++) {
             _approveToken(_tokens[_i]);
         }
         return true;
@@ -168,7 +168,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function revokeToken(address[] memory _tokens) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_tokens.length); _i++) {
+        for (uint256 _i = 0; _i < _tokens.length; _i++) {
             _revokeToken(_tokens[_i]);
         }
         return true;
@@ -185,7 +185,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function approveLiquidityPool(address[] memory _pools) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_pools.length); _i++) {
+        for (uint256 _i = 0; _i < _pools.length; _i++) {
             _approveLiquidityPool(_pools[_i]);
         }
         return true;
@@ -203,7 +203,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function revokeLiquidityPool(address[] memory _pools) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_pools.length); _i++) {
+        for (uint256 _i = 0; _i < _pools.length; _i++) {
             _revokeLiquidityPool(_pools[_i]);
         }
         return true;
@@ -221,7 +221,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function rateLiquidityPool(DataTypes.PoolRate[] memory _poolRates) external override onlyOperator returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_poolRates.length); _i++) {
+        for (uint256 _i = 0; _i < _poolRates.length; _i++) {
             _rateLiquidityPool(_poolRates[_i].pool, _poolRates[_i].rate);
         }
         return true;
@@ -239,7 +239,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function approveCreditPool(address[] memory _pools) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_pools.length); _i++) {
+        for (uint256 _i = 0; _i < _pools.length; _i++) {
             _approveCreditPool(_pools[_i]);
         }
         return true;
@@ -257,7 +257,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function revokeCreditPool(address[] memory _pools) external override onlyGovernance returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_pools.length); _i++) {
+        for (uint256 _i = 0; _i < _pools.length; _i++) {
             _revokeCreditPool(_pools[_i]);
         }
         return true;
@@ -275,7 +275,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function rateCreditPool(DataTypes.PoolRate[] memory _poolRates) external override onlyOperator returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_poolRates.length); _i++) {
+        for (uint256 _i = 0; _i < _poolRates.length; _i++) {
             _rateCreditPool(_poolRates[_i].pool, _poolRates[_i].rate);
         }
         return true;
@@ -298,7 +298,7 @@ contract Registry is IRegistry, ModifiersController {
         onlyGovernance
         returns (bool)
     {
-        for (uint256 _i = 0; _i < uint256(_poolAdapters.length); _i++) {
+        for (uint256 _i = 0; _i < _poolAdapters.length; _i++) {
             _setLiquidityPoolToAdapter(_poolAdapters[_i].pool, _poolAdapters[_i].adapter);
         }
         return true;
@@ -321,7 +321,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function setTokensHashToTokens(address[][] memory _setOfTokens) external override onlyOperator returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_setOfTokens.length); _i++) {
+        for (uint256 _i = 0; _i < _setOfTokens.length; _i++) {
             _setTokensHashToTokens(_setOfTokens[_i]);
         }
         return true;
@@ -376,7 +376,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_vault.isContract(), "!isContract");
         require(_treasuryShares.length > 0, "length!>0");
         uint256 _sharesSum = 0;
-        for (uint256 _i = 0; _i < uint256(_treasuryShares.length); _i++) {
+        for (uint256 _i = 0; _i < _treasuryShares.length; _i++) {
             require(_treasuryShares[_i].treasury != address(0), "!address(0)");
             _sharesSum = _sharesSum.add(_treasuryShares[_i].share);
         }
@@ -386,7 +386,7 @@ contract Registry is IRegistry, ModifiersController {
         if (vaultToVaultConfiguration[_vault].treasuryShares.length > 0) {
             delete vaultToVaultConfiguration[_vault].treasuryShares;
         }
-        for (uint256 _i = 0; _i < uint256(_treasuryShares.length); _i++) {
+        for (uint256 _i = 0; _i < _treasuryShares.length; _i++) {
             vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryShares[_i]);
         }
         return true;
@@ -400,10 +400,10 @@ contract Registry is IRegistry, ModifiersController {
         string[] memory _riskProfiles,
         address[][] memory _vaults
     ) external override onlyOperator returns (bool) {
-        require(uint256(_riskProfiles.length) == uint256(_vaults.length), "!Profileslength");
-        for (uint256 _i = 0; _i < uint256(_vaults.length); _i++) {
-            require(uint256(_vaults[_i].length) == uint256(_underlyingAssets.length), "!VaultsLength");
-            for (uint256 _j = 0; _j < uint256(_vaults[_i].length); _j++) {
+        require(_riskProfiles.length == _vaults.length, "!Profileslength");
+        for (uint256 _i = 0; _i < _vaults.length; _i++) {
+            require(_vaults[_i].length == _underlyingAssets.length, "!VaultsLength");
+            for (uint256 _j = 0; _j < _vaults[_i].length; _j++) {
                 _setUnderlyingAssetHashToRPToVaults(
                     keccak256(abi.encodePacked(_underlyingAssets[_j])),
                     _riskProfiles[_i],
@@ -460,7 +460,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_riskProfiles.length == _noOfSteps.length, "!Stepslength");
         require(_riskProfiles.length == _poolRatingRanges.length, "!PoolRatingsLength");
 
-        for (uint256 _i = 0; _i < uint256(_riskProfiles.length); _i++) {
+        for (uint256 _i = 0; _i < _riskProfiles.length; _i++) {
             _addRiskProfile(_riskProfiles[_i], _noOfSteps[_i], _poolRatingRanges[_i]);
         }
         return true;
@@ -770,14 +770,14 @@ contract Registry is IRegistry, ModifiersController {
     }
 
     function _setTokensHashToTokens(address[] memory _tokens) internal returns (bool) {
-        for (uint256 _i = 0; _i < uint256(_tokens.length); _i++) {
+        for (uint256 _i = 0; _i < _tokens.length; _i++) {
             require(tokens[_tokens[_i]], "!tokens");
         }
         bytes32 _tokensHash = keccak256(abi.encodePacked(_tokens));
         require(_isNewTokensHash(_tokensHash), "!_isNewTokensHash");
         tokensHashIndexes.push(_tokensHash);
         tokensHashToTokens[_tokensHash].index = tokensHashIndexes.length - 1;
-        for (uint256 _i = 0; _i < uint256(_tokens.length); _i++) {
+        for (uint256 _i = 0; _i < _tokens.length; _i++) {
             tokensHashToTokens[_tokensHash].tokens.push(_tokens[_i]);
         }
         emit LogTokensToTokensHash(_tokensHash, msg.sender);

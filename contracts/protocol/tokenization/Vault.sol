@@ -443,7 +443,7 @@ contract Vault is
         internal
         returns (bool)
     {
-        for (uint256 i; i < uint256(queue.length); i++) {
+        for (uint256 i; i < queue.length; i++) {
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserRewardsCodes(
                     address(this),
