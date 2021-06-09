@@ -11,9 +11,9 @@ interface IAdapter {
      * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
      * @param _liquidityPool liquidity Pool address from where to get the pool value
      * @param _underlyingToken address of underlying token for which to get the pool value
-     * @return _poolValue pool value in underlying token for the given liquidity pool and underlying token
+     * @return pool value in underlying token for the given liquidity pool and underlying token
      */
-    function getPoolValue(address _liquidityPool, address _underlyingToken) external view returns (uint256 _poolValue);
+    function getPoolValue(address _liquidityPool, address _underlyingToken) external view returns (uint256);
 
     /**
      * @notice Get the codes for depositing some amount of underlying token in the liquidity pool provided
@@ -78,7 +78,7 @@ interface IAdapter {
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         address _outputToken
-    ) external view returns (bytes[] memory);
+    ) external view returns (bytes[] memory _codes);
 
     /**
      * @notice Get the codes for withdrawing some amount from the liquidityPool provided
@@ -123,12 +123,12 @@ interface IAdapter {
      * @dev Returns the underlying token given the liquidityPoolToken for Aave, others & liquidity pool for Curve
      * @param _liquidityPool Liquidity Pool address from where to get the lpToken
      * @param _liquidityPoolToken liquidity pool's token address
-     * @return Returns the array of underlying token addresses
+     * @return _underlyingTokens Returns the array of underlying token addresses
      */
     function getUnderlyingTokens(address _liquidityPool, address _liquidityPoolToken)
         external
         view
-        returns (address[] memory);
+        returns (address[] memory _underlyingTokens);
 
     /**
      * @notice Returns the balance in underlying for liquidityPoolToken balance of holder
@@ -212,13 +212,13 @@ interface IAdapter {
      * @dev Returns the equivalent value of liquidityPoolToken for given underlyingTokenAmount
      * @param _underlyingToken Underlying token address for the given liquidity pool
      * @param _liquidityPool liquidityPool address from where to redeem the tokens
-     * @param _underlygingTokenAmount amount of underlying token to be calculated w.r.t. lpToken
+     * @param _underlyingTokenAmount amount of underlying token to be calculated w.r.t. lpToken
      * @return Returns the calculated amount lpToken equivalent to underlyingTokenAmount
      */
     function calculateAmountInLPToken(
         address _underlyingToken,
         address _liquidityPool,
-        uint256 _underlygingTokenAmount
+        uint256 _underlyingTokenAmount
     ) external view returns (uint256);
 
     /**

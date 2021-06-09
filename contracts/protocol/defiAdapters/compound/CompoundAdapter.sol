@@ -37,14 +37,28 @@ contract CompoundAdapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Number);
     }
 
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @notice Sets the default max deposit value (in munber)
+     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
@@ -62,9 +76,13 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    // /**
+    //  * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
     /**
-     * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
-     * @dev Reverting '!empty' message as there is no borrow functionality in Compound protocol
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
      */
     function getBorrowAllCodes(
         address payable,
@@ -75,9 +93,13 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Get the codes for repaying and withdrawing the given outputToken from the liquidityPool provided
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
     /**
-     * @notice Get the codes for repaying and withdrawing the given outputToken from the liquidityPool provided
-     * @dev Reverting '!empty' message as there is no borrow functionality in Compound protocol
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
      */
     function getRepayAndWithdrawAllCodes(
         address payable,
@@ -100,11 +122,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    // /**
+    //  * @notice Get the underlying token addresses given the liquidityPool/liquidityPoolToken
+    //  * @dev Returns the underlying token given the liquidityPoolToken for Aave, others & liquidity pool for Curve
+    //  * @param _liquidityPool Liquidity Pool address from where to get the lpToken
+    //  * @return _underlyingTokens List of underlying token addresses for compound liquidityPool
+    //  */
     /**
-     * @notice Get the underlying token addresses given the liquidityPool/liquidityPoolToken
-     * @dev Returns the underlying token given the liquidityPoolToken for Aave, others & liquidity pool for Curve
-     * @param _liquidityPool Liquidity Pool address from where to get the lpToken
-     * @return _underlyingTokens List of underlying token addresses for compound liquidityPool
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
@@ -116,8 +141,13 @@ contract CompoundAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = ICompound(_liquidityPool).underlying();
     }
 
+    // /**
+    //  * @notice Get some amount to borrow from the given liquidity pool
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
     /**
-     * @notice Get some amount to borrow from the given liquidity pool
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
      */
     function getSomeAmountInTokenBorrow(
         address payable,
@@ -130,8 +160,13 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Get the amount to borrow from the given liquidity pool
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
     /**
-     * @notice Get the amount to borrow from the given liquidity pool
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
      */
     function getAllAmountInTokenBorrow(
         address payable,
@@ -185,6 +220,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    // /**
+    //  * @notice Returns code for claiming the reward tokens (eg: COMP etc.)
+    //  * @param _optyVault Vault contract address
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getClaimRewardTokenCode(address payable _optyVault, address)
         external
         view
@@ -207,14 +250,33 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    // /**
+    //  * @notice Returns code for staking liquidityPool token
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns code for staking all liquidityPool tokens balance
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -223,14 +285,38 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns code for unstaking some liquidityPool tokens
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns codes for unstaking all liquidityPool tokens balance
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns the balance in underlying for staked liquidityPoolToken balance of holder
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -239,10 +325,26 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Get liquidity pool token staked balance
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns the equivalent amount of liquidity pool token given the share amount to be withdrawn
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -252,6 +354,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns whether the share amount is redeemable or not
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -261,6 +371,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns the code for unstake and withdraw of some liquidty pool tokens
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -270,6 +388,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @notice Returns the code for unstake and withdraw of all liquidty pool tokens
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -278,34 +404,49 @@ contract CompoundAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @notice Sets the reward token for Compound protocol
+     * @param _rewardToken Address of reward token to be set
+     */
     function setRewardToken(address _rewardToken) public onlyOperator {
         rewardToken = _rewardToken;
     }
 
+    /**
+     * @notice Sets the Comptroller of Compound protocol
+     * @param _comptroller Compound's Comptroller contract address
+     */
     function setComptroller(address _comptroller) public onlyOperator {
         comptroller = _comptroller;
     }
 
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
     function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }
 
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @notice Get the codes for depositing some amount of underlying token in the liquidity pool provided
-     * @dev Supply `liquidityPool` for Curve, Compound and others except Aave
-     * @dev `_amounts` is an array because there can be multiple underlying tokens for the given liquidityPool
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-     * @param _liquidityPool liquidity Pool address
-     * @param _amounts  List of underlying token amounts
-     * @return _codes Returns a bytes value to be executed
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -328,13 +469,16 @@ contract CompoundAdapter is IAdapter, Modifiers {
         }
     }
 
+    // /**
+    //  * @notice Get the codes for withdrawing some amount from the liquidityPool provided
+    //  * @dev Redeem some `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPool liquidity Pool address from where to withdraw
+    //  * @param _amount amount of underlying token to withdraw from the given liquidity pool
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
     /**
-     * @notice Get the codes for withdrawing some amount from the liquidityPool provided
-     * @dev Redeem some `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-     * @param _liquidityPool liquidity Pool address from where to withdraw
-     * @param _amount amount of underlying token to withdraw from the given liquidity pool
-     * @return _codes Returns a bytes value to be executed
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -351,24 +495,33 @@ contract CompoundAdapter is IAdapter, Modifiers {
         }
     }
 
+    // /**
+    //  * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
+    //  * @param _liquidityPool liquidity Pool address from where to get the pool value
+    //  * @return Returns pool value in underlying token for the given liquidity pool and underlying token
+    //  */
     /**
-     * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
-     * @param _liquidityPool liquidity Pool address from where to get the pool value
-     * @return Returns pool value in underlying token for the given liquidity pool and underlying token
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return ICompound(_liquidityPool).getCash();
     }
 
+    // /**
+    //  * @notice Get the liquidity pool token address
+    //  * @param _liquidityPool Liquidity Pool address from where to get the lpToken
+    //  * @return Returns the liquidity pool token address
+    //  */
     /**
-     * @notice Get the liquidity pool token address
-     * @param _liquidityPool Liquidity Pool address from where to get the lpToken
-     * @return Returns the liquidity pool token address
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
+    // /**
+    //  * @inheritdoc IAdapter
+    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -397,11 +550,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return b;
     }
 
+    // /**
+    //  * @notice Get liquidity pool token balance
+    //  * @param _optyVault Vault contract address
+    //  * @param _liquidityPool liquidity pool address from where to get the balance of lpToken
+    //  * @return Returns the balance of liquidity pool token (lpToken)
+    //  */
     /**
-     * @notice Get liquidity pool token balance
-     * @param _optyVault Vault contract address
-     * @param _liquidityPool liquidity pool address from where to get the balance of lpToken
-     * @return Returns the balance of liquidity pool token (lpToken)
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -411,11 +567,14 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
+    // /**
+    //  * @notice Returns the equivalent value of underlying token for given liquidityPoolTokenAmount
+    //  * @param _liquidityPool liquidity pool address from where to get the balance of lpToken
+    //  * @param _liquidityPoolTokenAmount lpToken amount for which to get equivalent underlyingToken amount
+    //  * @return Returns the equivalent amount of underlying token for given liquidityPoolTokenAmount
+    //  */
     /**
-     * @notice Returns the equivalent value of underlying token for given liquidityPoolTokenAmount
-     * @param _liquidityPool liquidity pool address from where to get the balance of lpToken
-     * @param _liquidityPoolTokenAmount lpToken amount for which to get equivalent underlyingToken amount
-     * @return Returns the equivalent amount of underlying token for given liquidityPoolTokenAmount
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,
@@ -430,17 +589,23 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    // /**
+    //  * @notice Returns reward token address for the compound liquidity pool
+    //  */
     /**
-     * @notice Returns reward token address for the compound liquidity pool
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
+    // /**
+    //  * @notice Returns the amount of accrued reward tokens
+    //  * @param _optyVault Vault contract address
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
     /**
-     * @notice Returns the amount of accrued reward tokens
-     * @param _optyVault Vault contract address
-     * @return _codes Returns a bytes value to be executed
+     * @inheritdoc IAdapter
      */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
         return ICompound(comptroller).compAccrued(_optyVault);

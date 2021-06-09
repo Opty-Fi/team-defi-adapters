@@ -60,6 +60,17 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    // /**
+    //  * @notice Get the codes for depositing full balance of underlying token in the liquidity pool provided
+    //  * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
+    //  * @param _optyVault Vault contract address
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address where to deposit
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -70,6 +81,18 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _amounts);
     }
 
+    // /**
+    //  * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
+    //  * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`
+    //  * @param _optyVault Address of vault contract
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to borrow
+    //  * @param _outputToken token address to borrow
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getBorrowAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -126,6 +149,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRepayAndWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -172,6 +198,17 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    // /**
+    //  * @notice Get the codes for withdrawing all balance from the liquidityPool provided
+    //  * @dev Redeem full `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
+    //  * @param _optyVault Address of vault contract
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to withdraw
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -182,6 +219,15 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
     }
 
+    // /**
+    //  * @notice Get the underlying token addresses given the liquidityPool/liquidityPoolToken
+    //  * @dev Returns the underlying token given the liquidityPoolToken for Aave, others & liquidity pool for Curve
+    //  * @param _liquidityPoolToken liquidity pool's token address
+    //  * @return _underlyingTokens Returns the array of underlying token addresses
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         external
         view
@@ -192,6 +238,11 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IAaveV1Token(_liquidityPoolToken).underlyingAssetAddress();
     }
 
+    /**
+     * @notice Returns the equivalent value of underlying token for given liquidityPoolTokenAmount
+     * @param _liquidityPoolTokenAmount lpToken amount for which to get equivalent underlyingToken amount
+     * @return Returns the equivalent amount of underlying token for given liquidityPoolTokenAmount
+     */
     function getSomeAmountInToken(
         address,
         address,
@@ -200,6 +251,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,
@@ -220,6 +274,14 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             );
     }
 
+    // /**
+    //  * @dev Returns the equivalent value of liquidityPoolToken for given underlyingTokenAmount
+    //  * @param _underlyingTokenAmount amount of underlying token to be calculated w.r.t. lpToken
+    //  * @return Returns the calculated amount lpToken equivalent to underlyingTokenAmount
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address,
@@ -228,6 +290,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _underlyingTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable,
         address,
@@ -237,6 +302,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -247,18 +315,33 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -268,6 +351,10 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getHarvestAllCodes(
         address payable,
         address,
@@ -276,14 +363,26 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -292,14 +391,26 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -308,10 +419,18 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -321,6 +440,10 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -330,6 +453,10 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -339,6 +466,13 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    // /**
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -359,6 +493,15 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    // /**
+    //  * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to get the pool value
+    //  * @param _underlyingToken address of underlying token for which to get the pool value
+    //  * @return pool value in underlying token for the given liquidity pool and underlying token
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPoolAddressProvider, address _underlyingToken)
         public
         view
@@ -369,6 +512,18 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
     }
 
+    // /**
+    //  * @notice Get the codes for depositing some amount of underlying token in the liquidity pool provided
+    //  * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
+    //  * @dev `_amounts` is an array because there can be multiple underlying tokens for the given liquidityPool
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address where to depsoit
+    //  * @param _amounts  List of underlying token amounts
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -404,6 +559,17 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    // /**
+    //  * @notice Get the codes for withdrawing some amount from the liquidityPool provided
+    //  * @dev Redeem some `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
+    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to withdraw
+    //  * @param _amount amount of underlying token to withdraw from the given liquidity pool
+    //  * @return _codes Returns a bytes value to be executed
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -419,6 +585,15 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    // /**
+    //  * @notice Get the liquidity pool token address
+    //  * @param _underlyingToken Underlying token address
+    //  * @param _liquidityPoolAddressProvider LiquidityPoolAddressProvider address from where to get the lpToken
+    //  * @return Returns the liquidity pool token address
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
         public
         view
@@ -430,6 +605,17 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _reserveData.aTokenAddress;
     }
 
+    // /**
+    //  * @notice Returns the balance in underlying for liquidityPoolToken balance of holder
+    //  * @param _optyVault Address of vault contract
+    //  * @param _underlyingToken Underlying token address for which to get the balance
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address
+    //  which holds the given underlying token
+    //  * @return Returns the amount of underlying token balance
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -438,6 +624,16 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProvider);
     }
 
+    // /**
+    //  * @notice Get liquidity pool token balance
+    //  * @param _optyVault Vault contract address
+    //  * @param _underlyingToken Underlying token address supported by given liquidityPool
+    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to get lpToken balance
+    //  * @return Returns the balance of liquidity pool token (lpToken)
+    //  */
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -446,6 +642,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider)).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,
