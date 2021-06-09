@@ -59,8 +59,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
         onlyOperator
         returns (bool)
     {
-        uint8 _len = uint8(_strategySteps.length);
-        for (uint8 _i = 0; _i < _len; _i++) {
+        for (uint256 _i = 0; _i < uint256(_strategySteps.length); _i++) {
             _setStrategy(_tokensHash, _strategySteps[_i]);
         }
         return true;
@@ -76,8 +75,7 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
         returns (bool)
     {
         require(_tokensHash.length == _strategySteps.length, "!index mismatch");
-        uint8 _len = uint8(_strategySteps.length);
-        for (uint8 _i = 0; _i < _len; _i++) {
+        for (uint256 _i = 0; _i < uint256(_strategySteps.length); _i++) {
             _setStrategy(_tokensHash[_i], _strategySteps[_i]);
         }
         return true;
@@ -105,14 +103,14 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
 
     function _setStrategy(bytes32 _tokensHash, DataTypes.StrategyStep[] memory _strategySteps) internal returns (bool) {
         bytes32[] memory hashes = new bytes32[](_strategySteps.length);
-        for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
+        for (uint256 _i = 0; _i < uint256(_strategySteps.length); _i++) {
             hashes[_i] = keccak256(
                 abi.encodePacked(_strategySteps[_i].pool, _strategySteps[_i].outputToken, _strategySteps[_i].isBorrow)
             );
         }
         bytes32 hash = keccak256(abi.encodePacked(_tokensHash, hashes));
         require(_isNewStrategy(hash), "isNewStrategy");
-        for (uint8 _i = 0; _i < uint8(_strategySteps.length); _i++) {
+        for (uint256 _i = 0; _i < uint256(_strategySteps.length); _i++) {
             strategies[hash].strategySteps.push(
                 DataTypes.StrategyStep(
                     _strategySteps[_i].pool,

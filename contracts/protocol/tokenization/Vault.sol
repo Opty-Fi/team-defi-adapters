@@ -335,9 +335,9 @@ contract Vault is
      */
     function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMint(_vaultStrategyConfiguration);
-        uint8 _steps =
+        uint256 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
-        for (uint8 _i; _i < _steps; _i++) {
+        for (uint256 _i; _i < _steps; _i++) {
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolDepositAllCodes(
                     payable(address(this)),
@@ -356,10 +356,10 @@ contract Vault is
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      */
     function _withdrawAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
-        uint8 _steps =
+        uint256 _steps =
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(investStrategyHash);
-        for (uint8 _i; _i < _steps; _i++) {
-            uint8 _iterator = _steps - 1 - _i;
+        for (uint256 _i; _i < _steps; _i++) {
+            uint256 _iterator = _steps - 1 - _i;
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolWithdrawAllCodes(
                     payable(address(this)),
@@ -443,7 +443,7 @@ contract Vault is
         internal
         returns (bool)
     {
-        for (uint256 i; i < queue.length; i++) {
+        for (uint256 i; i < uint256(queue.length); i++) {
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getUpdateUserRewardsCodes(
                     address(this),

@@ -118,7 +118,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      * @inheritdoc IODEFIVaultBooster
      */
     function addOdefiVault(address _odefiVault) external override onlyOperator returns (bool) {
-        for (uint256 i = 0; i < allOdefiVaults.length; i++) {
+        for (uint256 i = 0; i < uint256(allOdefiVaults.length); i++) {
             require(allOdefiVaults[i] != _odefiVault, "odefiVault already added");
         }
         allOdefiVaults.push(_odefiVault);
@@ -191,7 +191,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      */
     function rewardDepletionSeconds() public view override returns (uint256) {
         uint256 totalOdefiRate;
-        for (uint256 i = 0; i < allOdefiVaults.length; i++) {
+        for (uint256 i = 0; i < uint256(allOdefiVaults.length); i++) {
             add_(totalOdefiRate, odefiVaultRatePerSecond[allOdefiVaults[i]]);
         }
         return div_(balance(), totalOdefiRate);
@@ -202,7 +202,7 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      */
     function claimableODEFI(address _holder, address[] memory _odefiVaults) public view override returns (uint256) {
         uint256 claimableOdefiAmount;
-        for (uint256 i = 0; i < _odefiVaults.length; i++) {
+        for (uint256 i = 0; i < uint256(_odefiVaults.length); i++) {
             address _odefiVault = _odefiVaults[i];
             if (odefiVaultEnabled[_odefiVault] == true) {
                 uint256 _deltaSecondsUser;
@@ -289,10 +289,10 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
      * @return _total amount of claimed ODEFI tokens
      */
     function _claimODEFI(address[] memory _holders, address[] memory _odefiVaults) internal returns (uint256 _total) {
-        for (uint256 i = 0; i < _odefiVaults.length; i++) {
+        for (uint256 i = 0; i < uint256(_odefiVaults.length); i++) {
             address _odefiVault = _odefiVaults[i];
             require(odefiVaultEnabled[_odefiVault], "odefiVault must be enabled");
-            for (uint256 j = 0; j < _holders.length; j++) {
+            for (uint256 j = 0; j < uint256(_holders.length); j++) {
                 updateUserRewards(address(_odefiVault), _holders[j]);
                 uint256 _amount = div_(odefiAccrued[_holders[j]], 1e18);
                 odefiAccrued[_holders[j]] = uint256(0);

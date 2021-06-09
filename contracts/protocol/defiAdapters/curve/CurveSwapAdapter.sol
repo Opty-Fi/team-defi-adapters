@@ -601,7 +601,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint256 i = 0; i < uint256(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
@@ -692,7 +692,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint256 i = 0; i < uint256(_underlyingTokens.length); i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
@@ -930,7 +930,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         if (_amount > 0) {
             address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
             int128 i = 0;
-            for (uint8 j = 0; j < _underlyingTokens.length; j++) {
+            for (uint256 j = 0; j < uint256(_underlyingTokens.length); j++) {
                 if (_underlyingTokens[j] == _underlyingToken) {
                     i = j;
                 }

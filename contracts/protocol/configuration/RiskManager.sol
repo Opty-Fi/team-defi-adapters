@@ -51,7 +51,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
     {
         require(bytes(_profile).length > 0, "RP_Empty!");
 
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint256 i = 0; i < uint256(_underlyingTokens.length); i++) {
             require(_underlyingTokens[i] != address(0), "!_underlyingTokens");
             require(_underlyingTokens[i].isContract(), "!_underlyingTokens");
         }
