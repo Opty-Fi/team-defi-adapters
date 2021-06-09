@@ -681,14 +681,14 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        uint256 tokenIndex = 0;
+        for (uint256 i = 0; i < _underlyingTokens.length; i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
         if (_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
         }
         return 0;
     }
@@ -787,8 +787,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool
     ) public view override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        uint256 tokenIndex = 0;
+        for (uint256 i = 0; i < _underlyingTokens.length; i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
@@ -797,7 +797,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_optyVault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
         }
         _b = _b.add(
             harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
@@ -1035,8 +1035,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     ) internal view returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-            int128 i = 0;
-            for (uint8 j = 0; j < _underlyingTokens.length; j++) {
+            uint256 i = 0;
+            for (uint256 j = 0; j < _underlyingTokens.length; j++) {
                 if (_underlyingTokens[j] == _underlyingToken) {
                     i = j;
                 }
