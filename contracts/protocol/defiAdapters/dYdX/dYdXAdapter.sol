@@ -20,9 +20,10 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 /**
+ * @title Adapter for DyDx protocol
+ * @author Opty.fi
  * @dev Abstraction layer to DyDx's pools
  */
-
 contract DyDxAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -82,6 +83,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -97,6 +101,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
             getDepositSomeCodes(_optyVault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -106,6 +114,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -115,6 +127,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -124,10 +139,16 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -137,6 +158,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -145,6 +169,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getSomeAmountInToken(
         address,
         address,
@@ -153,6 +181,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -164,6 +196,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -174,6 +210,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function calculateAmountInLPToken(
         address,
         address,
@@ -182,6 +222,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable,
         address,
@@ -191,6 +234,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -201,18 +247,33 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -222,6 +283,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getHarvestAllCodes(
         address payable,
         address,
@@ -230,14 +295,25 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -246,14 +322,26 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -262,10 +350,18 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -275,6 +371,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -284,6 +384,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -293,6 +397,10 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -301,12 +409,22 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @notice Maps the index of market used corresponding to the underlying token
+     * @param _underlyingToken token address for which to set the market index
+     * @param _marketIndex market index of the given underlying token
+     */
     function addMarket(address _underlyingToken, uint256 _marketIndex) public onlyOperator {
         marketToIndexes[_underlyingToken] = _marketIndex;
     }
 
-    function setLiquidityPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
-        liquidityPoolToUnderlyingTokens[_lendingPool] = _tokens;
+    /**
+     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
+     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
+     * @param _tokens list of underlying tokens linked to the given liquidity pool
+     */
+    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
     }
 
     /**
@@ -326,6 +444,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -379,6 +500,9 @@ contract DyDxAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -411,10 +535,16 @@ contract DyDxAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
         return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,

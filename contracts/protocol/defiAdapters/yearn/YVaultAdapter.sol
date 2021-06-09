@@ -11,9 +11,10 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 /**
+ * @title Adapter for YVault pools
+ * @author Opty.fi
  * @dev Abstraction layer to yVault's pools
  */
-
 contract YVaultAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -55,6 +56,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -65,6 +69,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -74,6 +82,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -83,6 +95,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -92,6 +107,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -102,6 +120,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IYVault(_liquidityPool).token();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -113,6 +135,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -123,6 +149,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address _liquidityPool,
@@ -134,6 +163,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
@@ -146,6 +178,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -156,18 +191,33 @@ contract YVaultAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -177,6 +227,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getHarvestAllCodes(
         address payable,
         address,
@@ -185,14 +239,25 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -201,14 +266,26 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -217,10 +294,18 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -230,6 +315,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -239,6 +328,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -248,6 +341,10 @@ contract YVaultAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -273,6 +370,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -294,6 +394,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -306,14 +409,23 @@ contract YVaultAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IYVault(_liquidityPool).balance();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -327,6 +439,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -335,6 +450,9 @@ contract YVaultAdapter is IAdapter, Modifiers {
         return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address _liquidityPool,

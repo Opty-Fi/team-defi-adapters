@@ -11,9 +11,10 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 /**
+ * @title Adapter for Fulcrum protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Fulcrum's pools
  */
-
 contract FulcrumAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -55,6 +56,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -65,6 +69,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -74,6 +82,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -83,6 +95,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -92,10 +107,16 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) external view override returns (address) {
         return _liquidityPool;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -106,6 +127,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IFulcrum(_liquidityPool).loanTokenAddress();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address _liquidityPool,
@@ -119,6 +143,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -130,6 +158,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -140,6 +172,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address _liquidityPool,
@@ -148,6 +183,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return _depositAmount.mul(10**(IFulcrum(_liquidityPool).decimals())).div(IFulcrum(_liquidityPool).tokenPrice());
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
@@ -160,6 +198,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -170,14 +211,25 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) external view override returns (address) {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
@@ -187,6 +239,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getHarvestAllCodes(
         address payable,
         address,
@@ -195,18 +251,33 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -215,14 +286,26 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -231,10 +314,18 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -244,6 +335,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -253,6 +348,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -262,6 +361,10 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -287,6 +390,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -311,6 +417,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory,
@@ -326,10 +435,16 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IFulcrum(_liquidityPool).marketLiquidity();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -342,6 +457,9 @@ contract FulcrumAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenBalance;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address,

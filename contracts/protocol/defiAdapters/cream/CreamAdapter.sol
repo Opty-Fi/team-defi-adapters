@@ -12,9 +12,10 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for Cream protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Cream's pools
  */
-
 contract CreamAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -63,6 +64,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -73,6 +77,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -82,6 +90,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -91,6 +103,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -100,6 +115,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -110,6 +128,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = ICream(_liquidityPool).underlying();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -121,6 +143,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -131,6 +157,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address _underlyingToken,
         address _liquidityPool,
@@ -142,6 +171,9 @@ contract CreamAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
@@ -154,6 +186,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -164,6 +199,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getClaimRewardTokenCode(address payable _optyVault, address)
         external
         view
@@ -174,6 +212,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _optyVault));
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestAllCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -183,14 +224,25 @@ contract CreamAdapter is IAdapter, Modifiers {
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
@@ -199,14 +251,26 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
@@ -215,10 +279,18 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
@@ -228,6 +300,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
@@ -237,6 +313,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
@@ -246,6 +326,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -254,6 +338,10 @@ contract CreamAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @notice Sets the Comptroller of Cream protocol
+     * @param _comptroller Cream's Comptroller contract address
+     */
     function setComptroller(address _comptroller) public onlyOperator {
         comptroller = _comptroller;
     }
@@ -291,6 +379,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -321,6 +412,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -336,14 +430,23 @@ contract CreamAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return ICream(_liquidityPool).getCash();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -369,6 +472,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         return b;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -377,6 +483,9 @@ contract CreamAdapter is IAdapter, Modifiers {
         return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address _liquidityPool,
@@ -390,14 +499,23 @@ contract CreamAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
         return ICream(comptroller).compAccrued(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestSomeCodes(
         address payable _optyVault,
         address _underlyingToken,

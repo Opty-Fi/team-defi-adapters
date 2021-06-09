@@ -13,9 +13,10 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for Curve Swap pools
+ * @author Opty.fi
  * @dev Abstraction layer to Curve's swap pools
  */
-
 contract CurveSwapAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -278,24 +279,42 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
 
     /**
      * @notice Sets the default max deposit value (in munber)
-     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     * @param _maxDepositAmountDefault Array of 4 Pool's Max deposit value in number to be set as default value
      */
     function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Array of 2 Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) external onlyGovernance {
         maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Array of 3 Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) external onlyGovernance {
         maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Array of 4 Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) external onlyGovernance {
         maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory,
@@ -310,6 +329,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
@@ -319,6 +342,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
@@ -328,6 +355,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -337,6 +367,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
         external
         view
@@ -346,6 +379,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -357,6 +394,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
@@ -368,19 +409,20 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
      */
     function calculateAmountInLPToken(
         address,
         address,
         uint256
     ) external view override returns (uint256) {
-        revert("not-implemented");
+        revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
@@ -393,6 +435,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
@@ -403,6 +448,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         external
         view
@@ -418,6 +466,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestAllCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -427,6 +478,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address _liquidityPool) external view override returns (bool) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             return true;
@@ -434,6 +488,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return false;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getStakeAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -443,6 +500,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
         external
         view
@@ -453,6 +513,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable _optyVault,
         address _underlyingToken,
@@ -465,6 +528,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _amount = (_stakedLiquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStaked).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficientStake(
         address payable _optyVault,
         address _underlyingToken,
@@ -475,6 +541,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return _balanceInTokenStaked >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
@@ -492,18 +561,37 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         rewardToken = _rewardToken;
     }
 
+    /**
+     * @notice Maps the curve swap pool with the liquidity pool token
+     * @param _swapPool Curve's Swap pool address
+     * @param _liquidityPoolToken liquidity pool's token address
+     */
     function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
         swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
     }
 
+    /**
+     * @notice Maps the curve liquidity pool with the list of supported underlying tokens
+     * @param _lendingPool Curve's liquidity pool address
+     * @param _tokens liquidity pool's token address
+     */
     function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
         swapPoolToUnderlyingTokens[_lendingPool] = _tokens;
     }
 
+    /**
+     * @notice Maps the curve swap pool with the curve' gauge contract address
+     * @param _pool Curve's Swap pool address
+     * @param _gauge Curve's gauge contract address corresponding to the given swap pool
+     */
     function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
         swapPoolToGauges[_pool] = _gauge;
     }
 
+    /**
+     * @notice Inverse the functionality of removing the liquidity for 1 coin
+     * @param _pool Curve's Swap/liquidity pool address
+     */
     function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
         if (!noRemoveLiquidityOneCoin[_pool]) {
             noRemoveLiquidityOneCoin[_pool] = true;
@@ -529,12 +617,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
-     * @param _amounts Quantity of _underlyingToken to deposit
-     *
-     * @return _codes Returns the codes for deposit tokens in the liquidityPool provided
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -555,10 +638,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @dev Swaps _amount of _liquidityPoolToken for _underlyingToken
-     *
-     * @param _liquidityPool Address of the token that represents users' holdings in the pool
-     * @param _amount Quantity of _liquidityPoolToken to swap for _underlyingToken
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -578,19 +658,23 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+     */
     function getPoolValue(address, address) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return swapPoolToLiquidityPoolToken[_liquidityPool];
     }
 
     /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -601,6 +685,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -610,10 +697,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address _underlyingToken,
@@ -633,6 +717,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return 0;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address _liquidityPool) public view override returns (address) {
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             return rewardToken;
@@ -640,6 +727,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return address(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
         public
         view
@@ -654,6 +744,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return uint256(0);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestSomeCodes(
         address payable _optyVault,
         address _underlyingToken,
@@ -669,6 +762,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getStakeSomeCodes(address _liquidityPool, uint256 _stakeAmount)
         public
         view
@@ -689,6 +785,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _codes[2] = abi.encode(_gauge, abi.encodeWithSignature("deposit(uint256)", _stakeAmount));
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _unstakeAmount)
         public
         view
@@ -701,10 +800,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @dev Calls the appropriate deploy function depending on N_COINS
-     *
-     * @dev This function needs an address _underlyingToken argument to get how many _underlyingToken equal
-     *      the user's balance in _liquidityPoolToken in staking vault(gauge)
+     * @inheritdoc IAdapter
      */
     function getAllAmountInTokenStake(
         address payable _optyVault,
@@ -733,6 +829,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return _b;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool)
         public
         view
@@ -742,6 +841,9 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return ICurveGauge(swapPoolToGauges[_liquidityPool]).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
