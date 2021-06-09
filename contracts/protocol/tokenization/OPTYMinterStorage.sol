@@ -2,6 +2,8 @@
 
 pragma solidity ^0.6.12;
 
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
+
 /**
  * @title OPTY Minter state that can change
  * @author opty.fi
@@ -9,16 +11,6 @@ pragma solidity ^0.6.12;
  */
 
 contract OPTYMinterStorage {
-    /**
-     * @dev A data type to persist vault's state or user'state
-     * @param index The market's last index
-     * @param timestamp The block number the index was last updated at
-     */
-    struct OptyState {
-        uint224 index;
-        uint32 timestamp;
-    }
-
     /**
      * @notice Whitelisted $OPTY staking vaults
      */
@@ -64,13 +56,13 @@ contract OPTYMinterStorage {
     /**
      * @notice Persist the state of $OPTY per vault
      */
-    mapping(address => OptyState) public optyVaultState;
+    mapping(address => DataTypes.RewardsState) public optyVaultState;
 
     /**
      * @notice The $OPTY index for each market for each
      *         user as of the last time they accrued OPTY
      */
-    mapping(address => mapping(address => OptyState)) public optyUserStateInVault;
+    mapping(address => mapping(address => DataTypes.RewardsState)) public optyUserStateInVault;
 
     /**
      * @notice  The time at which the rewards of the user

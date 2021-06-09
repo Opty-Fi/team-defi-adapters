@@ -134,7 +134,7 @@ library DataTypes {
      * @param index The market's last index
      * @param timestamp The block number the index was last updated at
      */
-    struct ODEFIState {
+    struct RewardsState {
         uint224 index;
         uint32 timestamp;
     }
@@ -186,6 +186,7 @@ library DataTypes {
         address strategyManager;
         address riskManager;
         address optyMinter;
+        address odefiVaultBooster;
         address operator;
     }
 }

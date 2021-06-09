@@ -12,6 +12,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IOPTYStakingVault } from "../../interfaces/opty/IOPTYStakingVault.sol";
 import { IOPTY } from "../../interfaces/opty/IOPTY.sol";
 import { IOPTYMinter } from "../../interfaces/opty/IOPTYMinter.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 /**
  * @title OPTYMinter inspired from compound.finance
@@ -177,7 +178,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
                             ),
                             _deltaSecondsSinceStart
                         );
-                    optyVaultState[_vault] = OptyState({
+                    optyVaultState[_vault] = DataTypes.RewardsState({
                         index: safe224(_index, "new index exceeds 224 bits"),
                         timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
                     });
@@ -359,6 +360,7 @@ contract OPTYMinter is IOPTYMinter, OPTYMinterStorage, ExponentialNoError, Modif
      * @notice Claim all opty accrued by the holders
      * @param _holders The addresses to claim OPTY for
      * @param _vaults The list of vaults to claim OPTY in
+     * @return _total amount of claimed OPTY tokens
      */
     function _claimOpty(address[] memory _holders, address[] memory _vaults)
         internal
