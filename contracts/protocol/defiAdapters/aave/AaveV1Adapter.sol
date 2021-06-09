@@ -24,9 +24,10 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for AaveV1 protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Aave V1's pools
  */
-
 contract AaveV1Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
@@ -60,14 +61,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
-    // /**
-    //  * @notice Get the codes for depositing full balance of underlying token in the liquidity pool provided
-    //  * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
-    //  * @param _optyVault Vault contract address
-    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address where to deposit
-    //  * @return _codes Returns a bytes value to be executed
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -81,15 +74,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _amounts);
     }
 
-    // /**
-    //  * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
-    //  * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`
-    //  * @param _optyVault Address of vault contract
-    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to borrow
-    //  * @param _outputToken token address to borrow
-    //  * @return _codes Returns a bytes value to be executed
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -198,14 +182,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
-    // /**
-    //  * @notice Get the codes for withdrawing all balance from the liquidityPool provided
-    //  * @dev Redeem full `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
-    //  * @param _optyVault Address of vault contract
-    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to withdraw
-    //  * @return _codes Returns a bytes value to be executed
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -219,12 +195,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
     }
 
-    // /**
-    //  * @notice Get the underlying token addresses given the liquidityPool/liquidityPoolToken
-    //  * @dev Returns the underlying token given the liquidityPoolToken for Aave, others & liquidity pool for Curve
-    //  * @param _liquidityPoolToken liquidity pool's token address
-    //  * @return _underlyingTokens Returns the array of underlying token addresses
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -239,9 +209,7 @@ contract AaveV1Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @notice Returns the equivalent value of underlying token for given liquidityPoolTokenAmount
-     * @param _liquidityPoolTokenAmount lpToken amount for which to get equivalent underlyingToken amount
-     * @return Returns the equivalent amount of underlying token for given liquidityPoolTokenAmount
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,
@@ -274,11 +242,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             );
     }
 
-    // /**
-    //  * @dev Returns the equivalent value of liquidityPoolToken for given underlyingTokenAmount
-    //  * @param _underlyingTokenAmount amount of underlying token to be calculated w.r.t. lpToken
-    //  * @return Returns the calculated amount lpToken equivalent to underlyingTokenAmount
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -466,9 +429,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
-    // /**
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
     /**
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
@@ -493,12 +453,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
-    // /**
-    //  * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to get the pool value
-    //  * @param _underlyingToken address of underlying token for which to get the pool value
-    //  * @return pool value in underlying token for the given liquidity pool and underlying token
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -512,15 +466,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
     }
 
-    // /**
-    //  * @notice Get the codes for depositing some amount of underlying token in the liquidity pool provided
-    //  * @dev Supply `liquidityPoolAddressProvider` instead of `liquidityPool` for Aave
-    //  * @dev `_amounts` is an array because there can be multiple underlying tokens for the given liquidityPool
-    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address where to depsoit
-    //  * @param _amounts  List of underlying token amounts
-    //  * @return _codes Returns a bytes value to be executed
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -559,14 +504,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
-    // /**
-    //  * @notice Get the codes for withdrawing some amount from the liquidityPool provided
-    //  * @dev Redeem some `amount` of `liquidityPoolToken` token and sends the `underlyingToken` to the caller`
-    //  * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to withdraw
-    //  * @param _amount amount of underlying token to withdraw from the given liquidity pool
-    //  * @return _codes Returns a bytes value to be executed
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -585,12 +522,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
-    // /**
-    //  * @notice Get the liquidity pool token address
-    //  * @param _underlyingToken Underlying token address
-    //  * @param _liquidityPoolAddressProvider LiquidityPoolAddressProvider address from where to get the lpToken
-    //  * @return Returns the liquidity pool token address
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -605,14 +536,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _reserveData.aTokenAddress;
     }
 
-    // /**
-    //  * @notice Returns the balance in underlying for liquidityPoolToken balance of holder
-    //  * @param _optyVault Address of vault contract
-    //  * @param _underlyingToken Underlying token address for which to get the balance
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address
-    //  which holds the given underlying token
-    //  * @return Returns the amount of underlying token balance
-    //  */
     /**
      * @inheritdoc IAdapter
      */
@@ -624,13 +547,6 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProvider);
     }
 
-    // /**
-    //  * @notice Get liquidity pool token balance
-    //  * @param _optyVault Vault contract address
-    //  * @param _underlyingToken Underlying token address supported by given liquidityPool
-    //  * @param _liquidityPoolAddressProvider liquidityPoolAddressProvider address from where to get lpToken balance
-    //  * @return Returns the balance of liquidity pool token (lpToken)
-    //  */
     /**
      * @inheritdoc IAdapter
      */
