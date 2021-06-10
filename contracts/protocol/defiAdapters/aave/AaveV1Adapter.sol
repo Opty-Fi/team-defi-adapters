@@ -4,9 +4,17 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  libraries
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+
+//  interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAaveV1PriceOracle } from "../../../interfaces/aave/v1/IAaveV1PriceOracle.sol";
 import {
     IAaveV1LendingPoolAddressesProvider
@@ -20,26 +28,43 @@ import {
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
+ * @title Adapter for AaveV1 protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Aave V1's pools
  */
-
 contract AaveV1Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
 
+    /** @notice threshold that indicates min. health factor in AaveV1 deposits */
     uint256 public healthFactor = 2;
+
+    /**
+     * @notice  Pct of the value in USD of the collateral we can borrow
+     * @dev ltv defines as loan-to-value
+     */
     uint256 public ltv = 65;
+
+    /** @notice Max percentage value i.e. 100% */
     uint256 public max = 100;
+
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
@@ -48,34 +73,79 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @notice Sets the default max deposit value (in munber)
+     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getBorrowAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         address _outputToken
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         ReserveConfigurationData memory _inputTokenReserveConfigurationData =
             IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
@@ -126,12 +196,15 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRepayAndWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider,
         address _outputToken
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         uint256 _liquidityPoolTokenBalance =
@@ -172,18 +245,24 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProvider
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount =
             getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProvider);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
-        external
+        public
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -192,21 +271,27 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         _underlyingTokens[0] = IAaveV1Token(_liquidityPoolToken).underlyingAssetAddress();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address,
         uint256 _liquidityPoolTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPoolAddressProvider,
         address _borrowToken,
         uint256 _borrowAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance =
             getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProvider);
         return
@@ -220,145 +305,208 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address,
         uint256 _underlyingTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _underlyingTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable,
         address,
         address,
         uint256 _redeemAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 
-    function getRewardToken(address) external view override returns (address) {
+    /**
+     * @inheritdoc IAdapter
+     */
+    function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
-    function getUnclaimedRewardTokenAmount(address payable, address) external view override returns (uint256) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getHarvestSomeCodes(
         address payable,
         address,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getHarvestAllCodes(
         address payable,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function canStake(address) external view override returns (bool) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function canStake(address) public view override returns (bool) {
         return false;
     }
 
-    function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
         address
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
         address,
         uint256
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
-    }
-
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPoolAddressProvider, address _underlyingToken)
         public
         view
@@ -369,6 +517,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
             IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getReserveData(_underlyingToken).availableLiquidity;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -404,6 +555,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -419,6 +573,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
         public
         view
@@ -430,6 +587,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return _reserveData.aTokenAddress;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -438,6 +598,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProvider);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address _underlyingToken,
@@ -446,6 +609,9 @@ contract AaveV1Adapter is IAdapter, Modifiers {
         return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider)).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
         address _underlyingToken,

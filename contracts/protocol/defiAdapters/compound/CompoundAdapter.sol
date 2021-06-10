@@ -4,29 +4,52 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { ICompound } from "../../../interfaces/compound/ICompound.sol";
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { Modifiers } from "../../configuration/Modifiers.sol";
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+//  libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
+//  interfaces
+import { ICompound } from "../../../interfaces/compound/ICompound.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+
 /**
+ * @title Adapter for Compound protocol
+ * @author Opty.fi
  * @dev Abstraction layer to Compound's pools
  */
-
 contract CompoundAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
 
+    /** WETH ERC20 token address */
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
+    /** @notice Compound's comptroller contract address */
     address public comptroller;
+
+    /** @notice Compound's reward token (COMP) address */
     address public rewardToken;
+
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
@@ -37,57 +60,129 @@ contract CompoundAdapter is IAdapter, Modifiers {
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @notice Sets the default max deposit value (in munber)
+     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @notice Sets the max deposit value (in munber) for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @notice Sets the reward token for Compound protocol
+     * @param _rewardToken Address of reward token to be set
+     */
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+
+    /**
+     * @notice Sets the Comptroller of Compound protocol
+     * @param _comptroller Compound's Comptroller contract address
+     */
+    function setComptroller(address _comptroller) public onlyOperator {
+        comptroller = _comptroller;
+    }
+
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getBorrowAllCodes(
         address payable,
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getRepayAndWithdrawAllCodes(
         address payable,
         address[] memory,
         address,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address _liquidityPool, address)
-        external
+        public
         view
         override
         returns (address[] memory _underlyingTokens)
@@ -96,6 +191,10 @@ contract CompoundAdapter is IAdapter, Modifiers {
         _underlyingTokens[0] = ICompound(_liquidityPool).underlying();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getSomeAmountInTokenBorrow(
         address payable,
         address,
@@ -103,55 +202,71 @@ contract CompoundAdapter is IAdapter, Modifiers {
         uint256,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getAllAmountInTokenBorrow(
         address payable,
         address,
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address _underlyingToken,
         address _liquidityPool,
         uint256 _depositAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return
             _depositAmount.mul(1e18).div(
                 ICompound(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).exchangeRateStored()
             );
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (uint256 _amount) {
+    ) public view override returns (uint256 _amount) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPool);
         return _balanceInToken >= _redeemAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getClaimRewardTokenCode(address payable _optyVault, address)
-        external
+        public
         view
         override
         returns (bytes[] memory _codes)
@@ -160,106 +275,135 @@ contract CompoundAdapter is IAdapter, Modifiers {
         _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _optyVault));
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestAllCodes(
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_optyVault);
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
-    function canStake(address) external view override returns (bool) {
+    /**
+     * @inheritdoc IAdapter
+     */
+    function canStake(address) public view override returns (bool) {
         return false;
     }
 
-    function getStakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
+    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getStakeAllCodes(
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeSomeCodes(address, uint256) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
+    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function getUnstakeAllCodes(address payable, address) external view override returns (bytes[] memory) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
+    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getAllAmountInTokenStake(
         address payable,
         address,
         address
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
-    function getLiquidityPoolTokenBalanceStake(address payable, address) external view override returns (uint256) {
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
+    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function calculateRedeemableLPTokenAmountStake(
         address payable,
         address,
         address,
         uint256
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function isRedeemableAmountSufficientStake(
         address payable,
         address,
         address,
         uint256
-    ) external view override returns (bool) {
+    ) public view override returns (bool) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeAndWithdrawSomeCodes(
         address payable,
         address[] memory,
         address,
         uint256
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
+     */
     function getUnstakeAndWithdrawAllCodes(
         address payable,
         address[] memory,
         address
-    ) external view override returns (bytes[] memory) {
+    ) public view override returns (bytes[] memory) {
         revert("!empty");
     }
 
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
-    function setComptroller(address _comptroller) public onlyOperator {
-        comptroller = _comptroller;
-    }
-
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
-    }
-
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -281,6 +425,9 @@ contract CompoundAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -296,14 +443,23 @@ contract CompoundAdapter is IAdapter, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return ICompound(_liquidityPool).getCash();
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _optyVault,
         address _underlyingToken,
@@ -329,6 +485,9 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return b;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
         address,
@@ -337,6 +496,9 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address _liquidityPool,
@@ -350,14 +512,23 @@ contract CompoundAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
         return ICompound(comptroller).compAccrued(_optyVault);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getHarvestSomeCodes(
         address payable _optyVault,
         address _underlyingToken,
