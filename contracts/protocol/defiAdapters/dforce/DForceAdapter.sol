@@ -4,13 +4,19 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+//  libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { Modifiers } from "../../configuration/Modifiers.sol";
+import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+
+//  interfaces
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
 import { IDForceStake } from "../../../interfaces/dforce/IDForceStake.sol";
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
-import { Modifiers } from "../../configuration/Modifiers.sol";
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
  * @title Adapter for DForce protocol

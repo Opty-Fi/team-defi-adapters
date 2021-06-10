@@ -4,15 +4,22 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+//  libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { Modifiers } from "../../configuration/Modifiers.sol";
+import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { PriceOracle } from "../../configuration/PriceOracle.sol";
+
+//  interfaces
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
-import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
-import { PriceOracle } from "../../configuration/PriceOracle.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Adapter for Curve Deposit pools

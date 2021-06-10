@@ -4,9 +4,17 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  libraries
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+
+//  interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAaveV1PriceOracle } from "../../../interfaces/aave/v1/IAaveV1PriceOracle.sol";
 import {
     IAaveV1LendingPoolAddressesProvider
@@ -20,8 +28,6 @@ import {
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
  * @title Adapter for AaveV1 protocol

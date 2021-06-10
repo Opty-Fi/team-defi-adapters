@@ -4,11 +4,17 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IYVault } from "../../../interfaces/yearn/IYVault.sol";
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
-import { Modifiers } from "../../configuration/Modifiers.sol";
+//  libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+
+//  helper contracts
+import { Modifiers } from "../../configuration/Modifiers.sol";
+
+//  interfaces
+import { IYVault } from "../../../interfaces/yearn/IYVault.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 
 /**
  * @title Adapter for YVault pools
