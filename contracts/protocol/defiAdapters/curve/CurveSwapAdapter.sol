@@ -118,7 +118,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address[] memory _compoundUnderTokens = new address[](2);
         _compoundUnderTokens[0] = CDAI;
         _compoundUnderTokens[1] = CUSDC;
-        setLiquidityPoolToken(COMPOUND_SWAP_POOL, CDAI_CUSDC);
+        setSwapPoolToLiquidityPoolToken(COMPOUND_SWAP_POOL, CDAI_CUSDC);
         setSwapPoolToUnderlyingTokens(COMPOUND_SWAP_POOL, _compoundUnderTokens);
         toggleNoRemoveLiquidityOneCoin(COMPOUND_SWAP_POOL);
 
@@ -126,7 +126,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _usdtUnderTokens[0] = CDAI;
         _usdtUnderTokens[1] = CUSDC;
         _usdtUnderTokens[2] = USDT;
-        setLiquidityPoolToken(USDT_SWAP_POOL, CDAI_CUSD_CUSDT);
+        setSwapPoolToLiquidityPoolToken(USDT_SWAP_POOL, CDAI_CUSD_CUSDT);
         setSwapPoolToUnderlyingTokens(USDT_SWAP_POOL, _usdtUnderTokens);
         toggleNoRemoveLiquidityOneCoin(USDT_SWAP_POOL);
 
@@ -135,7 +135,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _paxUnderTokens[1] = YCUSDC;
         _paxUnderTokens[2] = YCUSDT;
         _paxUnderTokens[3] = PAX;
-        setLiquidityPoolToken(PAX_SWAP_POOL, Y_PAX_CRV);
+        setSwapPoolToLiquidityPoolToken(PAX_SWAP_POOL, Y_PAX_CRV);
         setSwapPoolToUnderlyingTokens(PAX_SWAP_POOL, _paxUnderTokens);
         toggleNoRemoveLiquidityOneCoin(PAX_SWAP_POOL);
 
@@ -144,7 +144,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _yUnderTokens[1] = YUSDC;
         _yUnderTokens[2] = YUSDT;
         _yUnderTokens[3] = YTUSD;
-        setLiquidityPoolToken(Y_SWAP_POOL, YDAI_YUSDC_YUSDT_YTUSD);
+        setSwapPoolToLiquidityPoolToken(Y_SWAP_POOL, YDAI_YUSDC_YUSDT_YTUSD);
         setSwapPoolToUnderlyingTokens(Y_SWAP_POOL, _yUnderTokens);
         toggleNoRemoveLiquidityOneCoin(Y_SWAP_POOL);
 
@@ -153,7 +153,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _busdUnderTokens[1] = YUSDC;
         _busdUnderTokens[2] = YUSDT;
         _busdUnderTokens[3] = YBUSD;
-        setLiquidityPoolToken(BUSD_SWAP_POOL, YDAI_YUSDC_YUSDT_YBUSD);
+        setSwapPoolToLiquidityPoolToken(BUSD_SWAP_POOL, YDAI_YUSDC_YUSDT_YBUSD);
         setSwapPoolToUnderlyingTokens(BUSD_SWAP_POOL, _compoundUnderTokens);
         toggleNoRemoveLiquidityOneCoin(BUSD_SWAP_POOL);
 
@@ -162,88 +162,88 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _susdUnderTokens[1] = USDC;
         _susdUnderTokens[2] = USDT;
         _susdUnderTokens[3] = SUSD;
-        setLiquidityPoolToken(SUSD_SWAP_POOL, CRV_PLAIN_3_AND_SUSD);
+        setSwapPoolToLiquidityPoolToken(SUSD_SWAP_POOL, CRV_PLAIN_3_AND_SUSD);
         setSwapPoolToUnderlyingTokens(SUSD_SWAP_POOL, _susdUnderTokens);
         toggleNoRemoveLiquidityOneCoin(SUSD_SWAP_POOL);
 
         address[] memory _crvrenBTCwBTCUnderTokens = new address[](2);
         _crvrenBTCwBTCUnderTokens[0] = REN_BTC;
         _crvrenBTCwBTCUnderTokens[1] = WBTC;
-        setLiquidityPoolToken(REN_SWAP_POOL, CRV_REN_WBTC);
+        setSwapPoolToLiquidityPoolToken(REN_SWAP_POOL, CRV_REN_WBTC);
         setSwapPoolToUnderlyingTokens(REN_SWAP_POOL, _crvrenBTCwBTCUnderTokens);
 
         address[] memory _crvrenBTCwBTCsBTCUnderTokens = new address[](3);
         _crvrenBTCwBTCsBTCUnderTokens[0] = REN_BTC;
         _crvrenBTCwBTCsBTCUnderTokens[1] = WBTC;
         _crvrenBTCwBTCsBTCUnderTokens[2] = SBTC;
-        setLiquidityPoolToken(SBTC_SWAP_POOL, CRV_REN_BTC_WBTC_SBTC);
+        setSwapPoolToLiquidityPoolToken(SBTC_SWAP_POOL, CRV_REN_BTC_WBTC_SBTC);
         setSwapPoolToUnderlyingTokens(SBTC_SWAP_POOL, _crvrenBTCwBTCsBTCUnderTokens);
 
         address[] memory _crvhBTCwBTCUnderTokens = new address[](2);
         _crvhBTCwBTCUnderTokens[0] = HBTC;
         _crvhBTCwBTCUnderTokens[1] = WBTC;
-        setLiquidityPoolToken(HBTC_SWAP_POOL, HCRV);
+        setSwapPoolToLiquidityPoolToken(HBTC_SWAP_POOL, HCRV);
         setSwapPoolToUnderlyingTokens(HBTC_SWAP_POOL, _crvhBTCwBTCUnderTokens);
 
         address[] memory _crvDAIUSDCUSDTUnderTokens = new address[](3);
         _crvDAIUSDCUSDTUnderTokens[0] = DAI;
         _crvDAIUSDCUSDTUnderTokens[1] = USDC;
         _crvDAIUSDCUSDTUnderTokens[2] = USDT;
-        setLiquidityPoolToken(THREE_SWAP_POOL, THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(THREE_SWAP_POOL, THREE_CRV);
         setSwapPoolToUnderlyingTokens(THREE_SWAP_POOL, _crvDAIUSDCUSDTUnderTokens);
 
         address[] memory _gusdUnderlyingTokens = new address[](2);
         _gusdUnderlyingTokens[0] = GUSD;
         _gusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(GUSD_SWAP_POOL, GUSD_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(GUSD_SWAP_POOL, GUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(GUSD_SWAP_POOL, _gusdUnderlyingTokens);
 
         address[] memory _husdUnderlyingTokens = new address[](2);
         _husdUnderlyingTokens[0] = HUSD;
         _husdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(HUSD_SWAP_POOL, HUSD_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(HUSD_SWAP_POOL, HUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(HUSD_SWAP_POOL, _husdUnderlyingTokens);
 
         address[] memory _usdkUnderlyingTokens = new address[](2);
         _usdkUnderlyingTokens[0] = USDK;
         _usdkUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(USDK_SWAP_POOL, USDK_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(USDK_SWAP_POOL, USDK_THREE_CRV);
         setSwapPoolToUnderlyingTokens(USDK_SWAP_POOL, _usdkUnderlyingTokens);
 
         address[] memory _usdnUnderlyingTokens = new address[](2);
         _usdnUnderlyingTokens[0] = USDN;
         _usdnUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(USDN_SWAP_POOL, USDN_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(USDN_SWAP_POOL, USDN_THREE_CRV);
         setSwapPoolToUnderlyingTokens(USDN_SWAP_POOL, _usdnUnderlyingTokens);
 
         address[] memory _linkusdUnderlyingTokens = new address[](2);
         _linkusdUnderlyingTokens[0] = LINKUSD;
         _linkusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(LINKUSD_SWAP_POOL, LINKUSD_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(LINKUSD_SWAP_POOL, LINKUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(LINKUSD_SWAP_POOL, _linkusdUnderlyingTokens);
 
         address[] memory _musdUnderlyingTokens = new address[](2);
         _musdUnderlyingTokens[0] = MUSD;
         _musdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(MUSD_SWAP_POOL, MUSD_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(MUSD_SWAP_POOL, MUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(MUSD_SWAP_POOL, _musdUnderlyingTokens);
 
         address[] memory _rsvUnderlyingTokens = new address[](2);
         _rsvUnderlyingTokens[0] = RSV;
         _rsvUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(RSV_SWAP_POOL, RSV_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(RSV_SWAP_POOL, RSV_THREE_CRV);
         setSwapPoolToUnderlyingTokens(RSV_SWAP_POOL, _rsvUnderlyingTokens);
 
         address[] memory _tbtcUnderlyingTokens = new address[](2);
         _tbtcUnderlyingTokens[0] = TBTC;
         _tbtcUnderlyingTokens[1] = CRV_REN_BTC_WBTC_SBTC;
-        setLiquidityPoolToken(TBTC_SWAP_POOL, TBTC_SBTC_CRV);
+        setSwapPoolToLiquidityPoolToken(TBTC_SWAP_POOL, TBTC_SBTC_CRV);
         setSwapPoolToUnderlyingTokens(TBTC_SWAP_POOL, _tbtcUnderlyingTokens);
 
         address[] memory _dusdUnderlyingTokens = new address[](2);
         _dusdUnderlyingTokens[0] = DUSD;
         _dusdUnderlyingTokens[1] = THREE_CRV;
-        setLiquidityPoolToken(DUSD_SWAP_POOL, DUSD_THREE_CRV);
+        setSwapPoolToLiquidityPoolToken(DUSD_SWAP_POOL, DUSD_THREE_CRV);
         setSwapPoolToUnderlyingTokens(DUSD_SWAP_POOL, _dusdUnderlyingTokens);
 
         setSwapPoolToGauges(COMPOUND_SWAP_POOL, address(0x7ca5b0a2910B33e9759DC7dDB0413949071D7575));
@@ -325,7 +325,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @param _swapPool Curve's Swap pool address
      * @param _liquidityPoolToken liquidity pool's token address
      */
-    function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
+    function setSwapPoolToLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
         swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
     }
 
@@ -348,8 +348,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @notice Inverse the functionality of removing the liquidity for 1 coin
-     * @param _pool Curve's Swap/liquidity pool address
+     * @notice Inverse the allowance of removing the liquidity for 1 coin
+     * @dev If the balance of the coin to withdraw is too low in the swap pool, we
+     * shouldn't remove_liquidity_one_coin. Otherwise, we will get penalized
+     * @param _pool Curve's Swap pool address
      */
     function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
         if (!noRemoveLiquidityOneCoin[_pool]) {
