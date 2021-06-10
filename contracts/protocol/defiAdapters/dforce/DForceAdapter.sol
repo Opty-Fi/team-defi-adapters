@@ -77,6 +77,52 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
+     * @notice Map the liquidity pool to its Staking vault address
+     * @param _liquidityPool liquidity pool address to be mapped with staking vault
+     * @param _stakingVault staking vault address to be linked with liquidity pool
+     */
+    function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
+        require(
+            liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
+            "liquidityPoolToStakingVault already set"
+        );
+        liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
+    }
+
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the reward token for DForce protocol
+     * @param _rewardToken Address of reward token to be set
+     */
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
      * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
@@ -320,52 +366,6 @@ contract DForceAdapter is IAdapter, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
-    }
-
-    /**
-     * @notice Map the liquidity pool to its Staking vault address
-     * @param _liquidityPool liquidity pool address to be mapped with staking vault
-     * @param _stakingVault staking vault address to be linked with liquidity pool
-     */
-    function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
-        require(
-            liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
-            "liquidityPoolToStakingVault already set"
-        );
-        liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    /**
-     * @notice Sets the reward token for DForce protocol
-     * @param _rewardToken Address of reward token to be set
-     */
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
-    /**
-     * @notice Sets the max deposit amount's data type
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be Number or percentage)
-     */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**

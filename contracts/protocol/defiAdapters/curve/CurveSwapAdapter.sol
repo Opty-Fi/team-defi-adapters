@@ -313,6 +313,69 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     }
 
     /**
+     * @notice Sets the reward token for Curve protocol
+     * @param _rewardToken Address of reward token to be set
+     */
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+
+    /**
+     * @notice Maps the curve swap pool with the liquidity pool token
+     * @param _swapPool Curve's Swap pool address
+     * @param _liquidityPoolToken liquidity pool's token address
+     */
+    function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
+        swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
+    }
+
+    /**
+     * @notice Maps the curve liquidity pool with the list of supported underlying tokens
+     * @param _swapPool Curve's liquidity pool address
+     * @param _tokens liquidity pool's token address
+     */
+    function setSwapPoolToUnderlyingTokens(address _swapPool, address[] memory _tokens) public onlyOperator {
+        swapPoolToUnderlyingTokens[_swapPool] = _tokens;
+    }
+
+    /**
+     * @notice Maps the curve swap pool with the curve' gauge contract address
+     * @param _pool Curve's Swap pool address
+     * @param _gauge Curve's gauge contract address corresponding to the given swap pool
+     */
+    function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
+        swapPoolToGauges[_pool] = _gauge;
+    }
+
+    /**
+     * @notice Inverse the functionality of removing the liquidity for 1 coin
+     * @param _pool Curve's Swap/liquidity pool address
+     */
+    function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
+        if (!noRemoveLiquidityOneCoin[_pool]) {
+            noRemoveLiquidityOneCoin[_pool] = true;
+        } else {
+            noRemoveLiquidityOneCoin[_pool] = false;
+        }
+    }
+
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
      * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
@@ -551,69 +614,6 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
-    }
-
-    /**
-     * @notice Sets the reward token for Curve protocol
-     * @param _rewardToken Address of reward token to be set
-     */
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
-    /**
-     * @notice Maps the curve swap pool with the liquidity pool token
-     * @param _swapPool Curve's Swap pool address
-     * @param _liquidityPoolToken liquidity pool's token address
-     */
-    function setLiquidityPoolToken(address _swapPool, address _liquidityPoolToken) public onlyOperator {
-        swapPoolToLiquidityPoolToken[_swapPool] = _liquidityPoolToken;
-    }
-
-    /**
-     * @notice Maps the curve liquidity pool with the list of supported underlying tokens
-     * @param _lendingPool Curve's liquidity pool address
-     * @param _tokens liquidity pool's token address
-     */
-    function setSwapPoolToUnderlyingTokens(address _lendingPool, address[] memory _tokens) public onlyOperator {
-        swapPoolToUnderlyingTokens[_lendingPool] = _tokens;
-    }
-
-    /**
-     * @notice Maps the curve swap pool with the curve' gauge contract address
-     * @param _pool Curve's Swap pool address
-     * @param _gauge Curve's gauge contract address corresponding to the given swap pool
-     */
-    function setSwapPoolToGauges(address _pool, address _gauge) public onlyOperator {
-        swapPoolToGauges[_pool] = _gauge;
-    }
-
-    /**
-     * @notice Inverse the functionality of removing the liquidity for 1 coin
-     * @param _pool Curve's Swap/liquidity pool address
-     */
-    function toggleNoRemoveLiquidityOneCoin(address _pool) public onlyOperator {
-        if (!noRemoveLiquidityOneCoin[_pool]) {
-            noRemoveLiquidityOneCoin[_pool] = true;
-        } else {
-            noRemoveLiquidityOneCoin[_pool] = false;
-        }
-    }
-
-    /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**

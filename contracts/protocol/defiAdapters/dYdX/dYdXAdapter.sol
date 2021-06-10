@@ -84,6 +84,41 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
+     * @notice Maps the index of market used corresponding to the underlying token
+     * @param _underlyingToken token address for which to set the market index
+     * @param _marketIndex market index of the given underlying token
+     */
+    function addMarket(address _underlyingToken, uint256 _marketIndex) public onlyOperator {
+        marketToIndexes[_underlyingToken] = _marketIndex;
+    }
+
+    /**
+     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
+     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
+     * @param _tokens list of underlying tokens linked to the given liquidity pool
+     */
+    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
+    }
+
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
      * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
@@ -407,41 +442,6 @@ contract DyDxAdapter is IAdapter, Modifiers {
         address
     ) public view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    /**
-     * @notice Maps the index of market used corresponding to the underlying token
-     * @param _underlyingToken token address for which to set the market index
-     * @param _marketIndex market index of the given underlying token
-     */
-    function addMarket(address _underlyingToken, uint256 _marketIndex) public onlyOperator {
-        marketToIndexes[_underlyingToken] = _marketIndex;
-    }
-
-    /**
-     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
-     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
-     * @param _tokens list of underlying tokens linked to the given liquidity pool
-     */
-    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
-        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
-    }
-
-    /**
-     * @notice Sets the max deposit amount's data type
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be Number or percentage)
-     */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**

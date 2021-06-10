@@ -65,6 +65,47 @@ contract CompoundAdapter is IAdapter, Modifiers {
     }
 
     /**
+     * @notice Sets the reward token for Compound protocol
+     * @param _rewardToken Address of reward token to be set
+     */
+    function setRewardToken(address _rewardToken) public onlyOperator {
+        rewardToken = _rewardToken;
+    }
+
+    /**
+     * @notice Sets the Comptroller of Compound protocol
+     * @param _comptroller Compound's Comptroller contract address
+     */
+    function setComptroller(address _comptroller) public onlyOperator {
+        comptroller = _comptroller;
+    }
+
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the max deposit amount's data type
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
      * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
@@ -336,47 +377,6 @@ contract CompoundAdapter is IAdapter, Modifiers {
         address
     ) public view override returns (bytes[] memory) {
         revert("!empty");
-    }
-
-    /**
-     * @notice Sets the reward token for Compound protocol
-     * @param _rewardToken Address of reward token to be set
-     */
-    function setRewardToken(address _rewardToken) public onlyOperator {
-        rewardToken = _rewardToken;
-    }
-
-    /**
-     * @notice Sets the Comptroller of Compound protocol
-     * @param _comptroller Compound's Comptroller contract address
-     */
-    function setComptroller(address _comptroller) public onlyOperator {
-        comptroller = _comptroller;
-    }
-
-    /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    /**
-     * @notice Sets the max deposit amount's data type
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be Number or percentage)
-     */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**

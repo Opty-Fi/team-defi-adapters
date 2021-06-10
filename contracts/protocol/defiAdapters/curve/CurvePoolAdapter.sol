@@ -301,6 +301,57 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
+     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
+     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
+     * @param _tokens list of underlying tokens linked to the given liquidity pool
+     */
+    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
+    }
+
+    /**
+     * @notice Maps the liquidity pool to the curve's guage contract address
+     * @param _pool Curve's liquidity pool address
+     * @param _gauge Curve's gauge contract address
+     */
+    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
+        liquidityPoolToGauges[_pool] = _gauge;
+    }
+
+    /**
+     * @notice Sets the HarvestCodeProvider contract address
+     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     */
+    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    }
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    }
+
+    /**
+     * @notice Maps the liquidity pool to the curve's swap pool address
+     * @param _liquidityPool Curve's liquidity pool address
+     * @param _swapPool Curve's swap pool address
+     */
+    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
+        liquidityPoolToSwap[_liquidityPool] = _swapPool;
+    }
+
+    /**
+     * @notice Set the Curve's oracle contract address
+     * @param _oracle Curve's oracle contract address to be set
+     */
+    function setOracle(address _oracle) public onlyOperator {
+        oracleContract = PriceOracle(_oracle);
+    }
+
+    /**
      * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
@@ -547,57 +598,6 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _redeemAmount);
-    }
-
-    /**
-     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
-     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
-     * @param _tokens list of underlying tokens linked to the given liquidity pool
-     */
-    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
-        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
-    }
-
-    /**
-     * @notice Maps the liquidity pool to the curve's guage contract address
-     * @param _pool Curve's liquidity pool address
-     * @param _gauge Curve's gauge contract address
-     */
-    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
-        liquidityPoolToGauges[_pool] = _gauge;
-    }
-
-    /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
-    }
-
-    /**
-     * @notice Maps the liquidity pool to the curve's swap pool address
-     * @param _liquidityPool Curve's liquidity pool address
-     * @param _swapPool Curve's swap pool address
-     */
-    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
-        liquidityPoolToSwap[_liquidityPool] = _swapPool;
-    }
-
-    /**
-     * @notice Set the Curve's oracle contract address
-     * @param _oracle Curve's oracle contract address to be set
-     */
-    function setOracle(address _oracle) public onlyOperator {
-        oracleContract = PriceOracle(_oracle);
     }
 
     /**
