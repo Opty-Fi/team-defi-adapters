@@ -33,9 +33,13 @@ import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 contract DyDxAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
+    /** @notice Maps underlyingToken address to its market index in dYdX protocol */
     mapping(address => uint256) public marketToIndexes;
+    /** @notice Maps liquidityPool to the list of underlyingTokens */
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
 
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
@@ -44,8 +48,11 @@ contract DyDxAdapter is IAdapter, Modifiers {
     address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry) public Modifiers(_registry) {

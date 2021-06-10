@@ -26,8 +26,13 @@ import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 contract DForceAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice Maps liquidityPool to staking vault */
     mapping(address => address) public liquidityPoolToStakingVault;
+
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
 
     // deposit pools
@@ -40,10 +45,19 @@ contract DForceAdapter is IAdapter, Modifiers {
     address public constant USDC_STAKING_VAULT = address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5);
     address public constant DAI_STAKING_VAULT = address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B);
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
+    /** @notice DForce's reward token address */
     address public rewardToken;
+
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {

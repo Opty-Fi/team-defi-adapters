@@ -37,16 +37,34 @@ import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 contract AaveV1Adapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
 
+    /** @notice threshold that indicates min. health factor in AaveV1 deposits */
     uint256 public healthFactor = 2;
+
+    /**
+     * @notice  Pct of the value in USD of the collateral we can borrow
+     * @dev ltv defines as loan-to-value
+     */
     uint256 public ltv = 65;
+
+    /** @notice Max percentage value i.e. 100% */
     uint256 public max = 100;
+
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {

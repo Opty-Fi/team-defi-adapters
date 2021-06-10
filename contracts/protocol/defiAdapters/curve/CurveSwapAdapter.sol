@@ -26,13 +26,21 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract CurveSwapAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice Mapping  of swapPool to the underlyingTokens */
     mapping(address => address[]) public swapPoolToUnderlyingTokens;
+    /** @notice Mapping  of swapPool to the LiquidityPoolToken */
     mapping(address => address) public swapPoolToLiquidityPoolToken;
+    /** @notice Mapping  of swapPool to the Gauge contract address */
     mapping(address => address) public swapPoolToGauges;
+    /** @notice Mapping  of swapPool to status of removing liquidity pool for 1 coin */
     mapping(address => bool) public noRemoveLiquidityOneCoin;
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+    /** @notice  Maps liquidityPool to list of 2 max deposit values in number */
     mapping(address => uint256[2]) public maxDeposit2Amount;
+    /** @notice  Maps liquidityPool to list of 3 max deposit values in number */
     mapping(address => uint256[3]) public maxDeposit3Amount;
+    /** @notice  Maps liquidityPool to list of 4 max deposit values in number */
     mapping(address => uint256[4]) public maxDeposit4Amount;
 
     // underlying token
@@ -107,9 +115,16 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     address public constant TBTC_SBTC_CRV = address(0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd);
     address public constant DUSD_THREE_CRV = address(0x3a664Ab939FD8482048609f652f9a0B0677337B9);
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
-    address public rewardToken; // reward token
+
+    /** @notice CurveSwap Pools's reward token address */
+    address public rewardToken;
+
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
+    /** @notice list of max deposit's default values in number */
     uint256[4] public maxDepositAmountDefault;
 
     /**

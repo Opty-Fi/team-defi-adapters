@@ -24,11 +24,16 @@ import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 contract YearnAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+    /** @notice  Maps liquidityPool to max deposit value in number */
     mapping(address => uint256) public maxDepositAmount;
 
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+    /** @notice max deposit's default value in number */
     uint256 public maxDepositAmountDefault;
 
     constructor(address _registry) public Modifiers(_registry) {

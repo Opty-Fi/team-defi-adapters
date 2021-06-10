@@ -30,12 +30,19 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    /** @notice Mapping  of depositPool to the underlyingTokens */
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
+    /** @notice Mapping  of depositPool to the swapPool */
     mapping(address => address) public liquidityPoolToSwap;
+    /** @notice Mapping  of depositPool to the Gauge contract address */
     mapping(address => address) public liquidityPoolToGauges;
+    /** @notice  Maps liquidityPool to list of 2 max deposit values in number */
     mapping(address => uint256[2]) public maxDeposit2Amount;
+    /** @notice  Maps liquidityPool to list of 3 max deposit values in number */
     mapping(address => uint256[3]) public maxDeposit3Amount;
+    /** @notice  Maps liquidityPool to list of 4 max deposit values in number */
     mapping(address => uint256[4]) public maxDeposit4Amount;
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
     // underlying token
@@ -111,9 +118,13 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     address public constant TBTC_GAUGE = address(0x6828bcF74279eE32f2723eC536c22c51Eed383C6);
     address public constant DUSD_GAUGE = address(0xAEA6c312f4b3E04D752946d329693F7293bC2e6D);
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+    /** @notice Price Oracle contract address */
     PriceOracle public oracleContract;
+    /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+    /** @notice list of max deposit's default values in number */
     uint256[4] public maxDepositAmountDefault;
 
     /**
