@@ -24,7 +24,7 @@ interface IAdapterReward {
         returns (uint256 _codes);
 
     /**
-     * @notice Returns code for claiming the reward tokens (eg: COMP etc.)
+     * @notice Return codes for claiming the reward tokens (eg: COMP etc.)
      * @param _optyVault Vault contract address
      * @param _liquidityPool liquidityPool address from where to claim reward tokens
      * @return _codes Returns a bytes value to be executed
@@ -35,11 +35,11 @@ interface IAdapterReward {
         returns (bytes[] memory _codes);
 
     /**
-     * @notice Returns the code for harvesting some rewards
+     * @dev Return codes for swapping specified amount of rewards in vault to underlying tokens via DEX like Uniswap
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token address for the given liquidity pool
      * @param _liquidityPool liquidityPool address where to harvest some liquidityPool tokens
-     * @param _rewardTokenAmount amount of lpToken to be harvested
+     * @param _rewardTokenAmount amount of reward token to be harvested to underlyingTokens via DEX
      * @return _codes Returns a bytes value to be executed
      */
     function getHarvestSomeCodes(
@@ -50,7 +50,7 @@ interface IAdapterReward {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @notice Returns the code for harvesting all reward
+     * @dev Return codes for swapping full balance of rewards in vault to underlying tokens via DEX like Uniswap
      * @param _optyVault Vault contract address
      * @param _underlyingToken List of underlying token addresses for the given liquidity pool
      * @param _liquidityPool liquidityPool address where to harvest all liquidityPool tokens

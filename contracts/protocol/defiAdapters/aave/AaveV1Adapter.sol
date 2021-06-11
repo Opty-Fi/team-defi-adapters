@@ -49,7 +49,10 @@ contract AaveV1Adapter is IAdapter, Modifiers {
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
 
-    /** @notice threshold that indicates min. health factor in AaveV1 deposits */
+    /**
+     * @notice numeric representation of the safety of vault's deposited assets against the borrowed assets
+     * and its underlying value
+     */
     uint256 public healthFactor = 2;
 
     /**

@@ -13,8 +13,7 @@ pragma experimental ABIEncoderV2;
  */
 interface IAdapterBorrow {
     /**
-     * @notice Get the codes for borrowing the given outputToken from the liquidityPool provided
-     * @dev Borrow full `amount` of `_outputToken` and sends the  `_outputToken` token to the caller`
+     * @dev Get codes for token amount that can be borrowed safely against the underlying token when kept as collateral
      * @param _optyVault Address of vault contract
      * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
      * @param _liquidityPool liquidity Pool address from where to borrow
@@ -29,8 +28,7 @@ interface IAdapterBorrow {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @notice Get the codes for repaying and withdrawing the given outputToken from the liquidityPool provided
-     * @dev Repay full amount of  `_outputToken` and sends the  `_underlyingTokens` token to the caller`
+     * @dev Return codes require to reapy the debt, unlock collateral and redeem shares from the given liquidity pool
      * @param _optyVault Address of vault contract
      * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
      * @param _liquidityPoolAddressProvider address of liquidity Pool address provider where to repay collateral
@@ -45,7 +43,7 @@ interface IAdapterBorrow {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @notice Get some amount to borrow from the given liquidity pool
+     * @notice Get the amount in underlying token that you'll receive if borrowed token is repaid
      * @dev Returns the amount in underlying token for _liquidityPoolTokenAmount collateral if
      * _borrowAmount in _borrowToken is repaid.
      * @param _optyVault Vault contract address
@@ -53,7 +51,7 @@ interface IAdapterBorrow {
      * @param _liquidityPoolAddressProvider liquidityPool address from where to borrow the tokens
      * @param _borrowToken address of token to borrow
      * @param _borrowAmount amount of token to be borrowed
-     * @return Returns the amount that can be borrowed
+     * @return Returns the amount in underlying token that can be received if borrowed token is repaid
      */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
@@ -65,7 +63,7 @@ interface IAdapterBorrow {
     ) external view returns (uint256);
 
     /**
-     * @notice Get the amount to borrow from the given liquidity pool
+     * @notice Get the amount in underlying token that you'll receive if whole balance of vault borrowed token is repaid
      * @dev Returns the amount in underlying token for whole collateral of _optyVault balance if
      * _borrowAmount in _borrowToken is repaid.
      * @param _optyVault Vault contract address
@@ -73,7 +71,7 @@ interface IAdapterBorrow {
      * @param _liquidityPoolAddressProvider liquidityPool address from where to borrow the tokens
      * @param _borrowToken address of token to borrow
      * @param _borrowAmount amount of token to be borrowed
-     * @return Returns the amount that can be borrowed
+     * @return Returns the amount in underlying token that you'll receive if whole bal of vault borrowed token is repaid
      */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
