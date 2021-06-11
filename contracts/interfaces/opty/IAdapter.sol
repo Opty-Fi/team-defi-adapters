@@ -432,7 +432,7 @@ interface IAdapter {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @notice Returns the code for unstake and withdraw of all liquidty pool tokens
+     * @notice batch of function calls for unstake and redeem whole balance of shares held in a vault
      * @param _optyVault Vault contract address
      * @param _underlyingTokens List of underlying token addresses for the given liquidity pool
      * @param _liquidityPool liquidity pool address from where to unstake and withdraw
