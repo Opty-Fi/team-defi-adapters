@@ -177,7 +177,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -190,7 +190,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
      */
     function getBorrowAllCodes(
@@ -203,7 +203,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
      */
     function getRepayAndWithdrawAllCodes(
@@ -216,7 +216,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -228,7 +228,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -241,7 +241,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
      */
     function getSomeAmountInTokenBorrow(
@@ -256,7 +256,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Harvest protocol
      */
     function getAllAmountInTokenBorrow(
@@ -270,7 +270,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateAmountInLPToken(
         address,
@@ -284,7 +284,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -299,7 +299,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -312,7 +312,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         public
@@ -326,7 +326,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestAllCodes(
         address payable _optyVault,
@@ -338,14 +338,14 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return true;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getStakeAllCodes(
         address payable _optyVault,
@@ -357,7 +357,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
         public
@@ -370,7 +370,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _optyVault,
@@ -386,7 +386,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficientStake(
         address payable _optyVault,
@@ -399,7 +399,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _optyVault,
@@ -411,7 +411,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable,
@@ -435,7 +435,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -453,21 +453,21 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IHarvestDeposit(_liquidityPool).underlyingBalanceWithInvestment();
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -483,7 +483,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -494,7 +494,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInToken(
         address,
@@ -510,14 +510,14 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address _liquidityPool)
         public
@@ -529,7 +529,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestSomeCodes(
         address payable _optyVault,
@@ -547,7 +547,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getStakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
@@ -572,7 +572,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
@@ -588,7 +588,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInTokenStake(
         address payable _optyVault,
@@ -614,7 +614,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool)
         public
@@ -627,7 +627,7 @@ contract HarvestAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,

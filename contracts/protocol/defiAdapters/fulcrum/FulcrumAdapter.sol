@@ -85,7 +85,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -98,7 +98,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getBorrowAllCodes(
@@ -111,7 +111,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getRepayAndWithdrawAllCodes(
@@ -124,7 +124,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -136,14 +136,14 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -156,7 +156,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInToken(
         address,
@@ -172,7 +172,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getSomeAmountInTokenBorrow(
@@ -187,7 +187,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getAllAmountInTokenBorrow(
@@ -201,7 +201,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateAmountInLPToken(
         address,
@@ -212,7 +212,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -227,7 +227,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -240,14 +240,14 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
@@ -255,7 +255,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getHarvestSomeCodes(
@@ -268,7 +268,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getHarvestAllCodes(
@@ -280,7 +280,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
@@ -288,14 +288,14 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -303,7 +303,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getStakeAllCodes(
@@ -315,7 +315,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -323,7 +323,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
@@ -331,7 +331,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getAllAmountInTokenStake(
@@ -343,7 +343,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
@@ -351,7 +351,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function calculateRedeemableLPTokenAmountStake(
@@ -364,7 +364,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function isRedeemableAmountSufficientStake(
@@ -377,7 +377,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getUnstakeAndWithdrawSomeCodes(
@@ -390,7 +390,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
      */
     function getUnstakeAndWithdrawAllCodes(
@@ -402,7 +402,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable _optyVault,
@@ -429,7 +429,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable _optyVault,
@@ -447,14 +447,14 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IFulcrum(_liquidityPool).marketLiquidity();
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -469,7 +469,7 @@ contract FulcrumAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,

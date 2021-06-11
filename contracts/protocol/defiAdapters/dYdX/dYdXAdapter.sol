@@ -132,7 +132,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -150,7 +150,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getBorrowAllCodes(
@@ -163,7 +163,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getRepayAndWithdrawAllCodes(
@@ -176,7 +176,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -188,14 +188,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address, address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -207,7 +207,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -218,7 +218,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getSomeAmountInToken(
@@ -230,7 +230,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getSomeAmountInTokenBorrow(
@@ -245,7 +245,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getAllAmountInTokenBorrow(
@@ -259,7 +259,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function calculateAmountInLPToken(
@@ -271,7 +271,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable,
@@ -283,7 +283,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -296,14 +296,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
@@ -311,7 +311,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
@@ -319,7 +319,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getHarvestSomeCodes(
@@ -332,7 +332,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getHarvestAllCodes(
@@ -344,14 +344,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -359,7 +359,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getStakeAllCodes(
@@ -371,7 +371,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -379,7 +379,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
@@ -387,7 +387,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getAllAmountInTokenStake(
@@ -399,7 +399,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
@@ -407,7 +407,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function calculateRedeemableLPTokenAmountStake(
@@ -420,7 +420,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function isRedeemableAmountSufficientStake(
@@ -433,7 +433,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getUnstakeAndWithdrawSomeCodes(
@@ -446,7 +446,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getUnstakeAndWithdrawAllCodes(
@@ -458,7 +458,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable _optyVault,
@@ -514,7 +514,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable _optyVault,
@@ -549,14 +549,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
         return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _optyVault,

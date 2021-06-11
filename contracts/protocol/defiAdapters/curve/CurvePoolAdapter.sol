@@ -370,7 +370,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getPoolValue(address, address) public view override returns (uint256) {
@@ -378,7 +378,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -395,7 +395,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getBorrowAllCodes(
@@ -408,7 +408,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getRepayAndWithdrawAllCodes(
@@ -421,7 +421,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -433,7 +433,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -445,7 +445,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getSomeAmountInTokenBorrow(
@@ -460,7 +460,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getAllAmountInTokenBorrow(
@@ -474,7 +474,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function calculateAmountInLPToken(
@@ -486,7 +486,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -501,7 +501,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -514,7 +514,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         public
@@ -532,7 +532,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestAllCodes(
         address payable _optyVault,
@@ -544,7 +544,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address _liquidityPool) public view override returns (bool) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
@@ -554,7 +554,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getStakeAllCodes(
         address payable _optyVault,
@@ -566,7 +566,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
         public
@@ -579,7 +579,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _optyVault,
@@ -594,7 +594,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficientStake(
         address payable _optyVault,
@@ -607,7 +607,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _optyVault,
@@ -619,7 +619,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable,
@@ -640,7 +640,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -661,14 +661,14 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return ICurveDeposit(_liquidityPool).token();
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _holder,
@@ -680,7 +680,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -691,7 +691,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInToken(
         address _underlyingToken,
@@ -712,7 +712,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address _liquidityPool) public view override returns (address) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
@@ -722,7 +722,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
         public
@@ -738,7 +738,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestSomeCodes(
         address payable _optyVault,
@@ -756,7 +756,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getStakeSomeCodes(address _liquidityPool, uint256 _stakeAmount)
         public
@@ -781,7 +781,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _unstakeAmount)
         public
@@ -797,7 +797,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInTokenStake(
         address payable _optyVault,
@@ -828,7 +828,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool)
         public
@@ -840,7 +840,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,

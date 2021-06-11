@@ -120,7 +120,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -133,7 +133,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getBorrowAllCodes(
@@ -146,7 +146,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getRepayAndWithdrawAllCodes(
@@ -159,7 +159,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -171,7 +171,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -184,7 +184,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getSomeAmountInTokenBorrow(
@@ -199,7 +199,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getAllAmountInTokenBorrow(
@@ -213,7 +213,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateAmountInLPToken(
         address _underlyingToken,
@@ -227,7 +227,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -242,7 +242,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -255,7 +255,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getClaimRewardTokenCode(address payable _optyVault, address)
         public
@@ -268,7 +268,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestAllCodes(
         address payable _optyVault,
@@ -280,14 +280,14 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -295,7 +295,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getStakeAllCodes(
@@ -307,7 +307,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -315,7 +315,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
@@ -323,7 +323,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getAllAmountInTokenStake(
@@ -335,7 +335,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
@@ -343,7 +343,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function calculateRedeemableLPTokenAmountStake(
@@ -356,7 +356,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function isRedeemableAmountSufficientStake(
@@ -369,7 +369,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getUnstakeAndWithdrawSomeCodes(
@@ -382,7 +382,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in Cream protocol
      */
     function getUnstakeAndWithdrawAllCodes(
@@ -394,7 +394,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable,
@@ -427,7 +427,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -445,21 +445,21 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return ICream(_liquidityPool).getCash();
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -487,7 +487,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -498,7 +498,7 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInToken(
         address,
@@ -514,21 +514,21 @@ contract CreamAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address) public view override returns (uint256) {
         return ICream(comptroller).compAccrued(_optyVault);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getHarvestSomeCodes(
         address payable _optyVault,

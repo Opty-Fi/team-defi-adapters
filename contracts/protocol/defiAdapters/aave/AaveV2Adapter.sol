@@ -31,6 +31,8 @@ import {
 } from "../../../interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
+import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
 
 /**
  * @title Adapter for AaveV2 protocol
@@ -132,7 +134,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -145,7 +147,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getBorrowAllCodes(
         address payable _optyVault,
@@ -212,7 +214,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRepayAndWithdrawAllCodes(
         address payable _optyVault,
@@ -287,7 +289,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -301,7 +303,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         public
@@ -314,7 +316,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInToken(
         address,
@@ -325,7 +327,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
@@ -348,7 +350,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateAmountInLPToken(
         address,
@@ -359,7 +361,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function calculateRedeemableLPTokenAmount(
         address payable,
@@ -371,7 +373,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -385,14 +387,14 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
@@ -400,7 +402,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
@@ -408,7 +410,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getHarvestSomeCodes(
@@ -421,7 +423,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getHarvestAllCodes(
@@ -433,14 +435,14 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -448,7 +450,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getStakeAllCodes(
@@ -460,7 +462,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
@@ -468,7 +470,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
@@ -476,7 +478,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getAllAmountInTokenStake(
@@ -488,7 +490,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
@@ -496,7 +498,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function calculateRedeemableLPTokenAmountStake(
@@ -509,7 +511,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function isRedeemableAmountSufficientStake(
@@ -522,7 +524,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getUnstakeAndWithdrawSomeCodes(
@@ -535,7 +537,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV2 protocol
      */
     function getUnstakeAndWithdrawAllCodes(
@@ -547,7 +549,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
         public
@@ -561,7 +563,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -572,7 +574,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -586,7 +588,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
@@ -616,7 +618,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getPoolValue(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)
         public
@@ -628,7 +630,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getDepositSomeCodes(
         address payable _optyVault,
@@ -663,7 +665,7 @@ contract AaveV2Adapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice TODO IADAPTER INHERIT TAG
      */
     function getWithdrawSomeCodes(
         address payable _optyVault,
