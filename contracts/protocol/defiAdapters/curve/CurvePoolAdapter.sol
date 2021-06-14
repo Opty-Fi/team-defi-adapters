@@ -300,7 +300,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 nCoins = _underlyingTokens.length;
         require(_amounts.length == nCoins, "!_amounts.length");
 
-        uint8 _codeLength = 1;
+        uint256 _codeLength = 1;
         for (uint256 i = 0; i < nCoins; i++) {
             if (_amounts[i] > 0) {
                 if (_underlyingTokens[i] == HBTC) {
@@ -316,20 +316,22 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
             _codes = new bytes[](_codeLength);
             uint256 _j = 0;
             for (uint256 i = 0; i < nCoins; i++) {
-                if (_underlyingTokens[i] == HBTC) {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
-                    );
-                } else {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-                    );
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
-                    );
+                if (_amounts[i] > 0) {
+                    if (_underlyingTokens[i] == HBTC) {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    } else {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+                        );
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    }
                 }
             }
             if (nCoins == uint256(2)) {

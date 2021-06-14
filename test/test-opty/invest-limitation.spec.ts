@@ -52,7 +52,7 @@ describe(scenarios.title, () => {
       const vault = scenarios.vaults[i];
       const stories = vault.stories;
       const profile = vault.profile;
-      const adaptersName = Object.keys(TypedAdapterStrategies);
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(strategy => strategy !== "CurvePoolAdapter");
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
