@@ -373,7 +373,7 @@ contract CurveSwapAdapter is
     }
 
     /**
-     * @notice Maps the curve swap pool with the curve' gauge contract address
+     * @notice Maps the curve swap pool with its gauge contract address
      * @param _pool Curve's Swap pool address
      * @param _gauge Curve's gauge contract address corresponding to the given swap pool
      */
@@ -841,7 +841,7 @@ contract CurveSwapAdapter is
     }
 
     /**
-     * @notice Get the Curve's Minter address
+     * @notice Get the Curve Minter's address
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();

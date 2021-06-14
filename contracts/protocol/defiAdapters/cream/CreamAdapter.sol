@@ -38,7 +38,7 @@ contract CreamAdapter is
     HarvestCodeProvider public harvestCodeProviderContract;
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    /** @notice  Maps liquidityPool to max deposit value in number */
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
     mapping(address => uint256) public maxDepositAmount;
 
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);

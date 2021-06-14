@@ -4,11 +4,11 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface for staking feature for defi adapters
+ * @title Interface for staking feature for DeFi adapters
  * @author Opty.fi
- * @notice Interface of the Defi protocol adapter for staking functionality
- * @dev Abstraction layer to different defi protocols like Harvest.finance, DForce etc.
- * It is used as a layer for adding any new staking functions being used in defi adapters.
+ * @notice Interface of the DeFi protocol adapter for staking functionality
+ * @dev Abstraction layer to different DeFi protocols like Harvest.finance, DForce etc.
+ * It is used as a layer for adding any new staking functions being used in DeFi adapters.
  * Conventions used:
  *  - lp: liquidityPool
  *  - lpToken: liquidityPool token
@@ -16,7 +16,8 @@ pragma experimental ABIEncoderV2;
 interface IAdapterStaking {
     /**
      * @notice Return batch of function calls for staking specified amount of lp token held in a vault
-     * @param _liquidityPool lp address where to stake some lp tokens
+     * @param _liquidityPool lp address where the vault has deposited and which is associated to a staking pool
+     * where to stake some lp tokens
      * @param _stakeAmount amount of lpToken (held in vault) to be staked
      * @return _codes Returns a bytes value to be executed
      */
@@ -29,7 +30,8 @@ interface IAdapterStaking {
      * @notice Return batch of function calls for staking full balance of lp tokens held in a vault
      * @param _optyVault Vault contract address
      * @param _underlyingTokens List of underlying token addresses for the given lp
-     * @param _liquidityPool lp address where to stake all lp tokens
+     * @param _liquidityPool lp address where the vault has deposited and which is associated to a staking pool
+     * where to stake all lp tokens
      * @return _codes Returns a bytes value to be executed
      */
     function getStakeAllCodes(
@@ -40,7 +42,8 @@ interface IAdapterStaking {
 
     /**
      * @notice Return batch of function calls for unstaking specified amount of lp tokens held in a vault
-     * @param _liquidityPool lp address from where to unstake some lp tokens
+     * @param _liquidityPool lp address from where the vault has deposited and which is associated to a staking pool
+     * where to unstake some lp tokens
      * @param _unstakeAmount amount of lpToken (held in a vault) to be unstaked
      * @return _codes Returns a bytes value to be executed
      */
@@ -49,7 +52,8 @@ interface IAdapterStaking {
     /**
      * @notice Returns the batch of function calls for unstaking whole balance of lp tokens held in a vault
      * @param _optyVault Vault contract address
-     * @param _liquidityPool lp address from where to unstake all lp tokens
+     * @param _liquidityPool lp address from where the vault has deposited and which is associated to a staking pool
+     * where to unstake all lp tokens
      * @return _codes Returns a bytes value to be executed
      */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
@@ -61,7 +65,7 @@ interface IAdapterStaking {
      * @notice Returns the balance in underlying for staked liquidityPoolToken balance of vault
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token address for the given lp
-     * @param _liquidityPool lp address from where to get the amount of staked lpToken
+     * @param _liquidityPool lp which is associated to a staking pool from where to get the amount of staked lpToken
      * @return Returns the underlying token amount for the staked lpToken
      */
     function getAllAmountInTokenStake(
@@ -97,7 +101,7 @@ interface IAdapterStaking {
     ) external view returns (uint256 _amount);
 
     /**
-     * @notice Checks whether the amount specified underlying token can be received for full balance of staked lpToken
+     * @notice Checks whether the given amount of underlying token can be received for full balance of staked lpToken
      * @param _optyVault Vault contract address
      * @param _underlyingToken Underlying token address for the given lp
      * @param _liquidityPool lp address where to check the redeem amt is enough to stake
@@ -115,7 +119,7 @@ interface IAdapterStaking {
      * @notice Returns the batch of function calls for unstake and redeem specified amount of shares
      * @param _optyVault Vault contract address
      * @param _underlyingTokens List of underlying token addresses for the given lp
-     * @param _liquidityPool lp address from where to unstake and withdraw
+     * @param _liquidityPool lp address associated to a staking pool from where to unstake and then withdraw
      * @param _redeemAmount amount of lp token to unstake and redeem
      * @return _codes Returns a bytes value to be executed
      */
@@ -130,7 +134,7 @@ interface IAdapterStaking {
      * @notice Returns the batch of function calls for unstake and redeem whole balance of shares held in a vault
      * @param _optyVault Vault contract address
      * @param _underlyingTokens List of underlying token addresses for the given lp
-     * @param _liquidityPool lp address from where to unstake and withdraw
+     * @param _liquidityPool lp address associated to a staking pool from where to unstake and then withdraw
      * @return _codes Returns a bytes value to be executed
      */
     function getUnstakeAndWithdrawAllCodes(

@@ -27,7 +27,7 @@ contract FulcrumAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    /** @notice  Maps liquidityPool to max deposit value in number */
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice max deposit value datatypes */

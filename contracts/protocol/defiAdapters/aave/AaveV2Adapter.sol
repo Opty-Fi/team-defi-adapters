@@ -51,7 +51,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in number */
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice max deposit value datatypes */
@@ -61,7 +61,10 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     bytes32 public constant PROTOCOL_DATA_PROVIDER_ID =
         0x0100000000000000000000000000000000000000000000000000000000000000;
 
-    /** @notice threshold that indicates min. health factor in AaveV2 deposits */
+    /**
+     * @notice numeric representation of the safety of vault's deposited assets against the borrowed assets
+     * and its underlying value
+     */
     uint256 public healthFactor = 2;
 
     /**

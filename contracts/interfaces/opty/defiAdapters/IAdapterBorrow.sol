@@ -4,11 +4,11 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface for borrow feature for defi adapters
+ * @title Interface for borrow feature for DeFi adapters
  * @author Opty.fi
- * @notice Interface of the Defi protocol adapter for borrow functionality
- * @dev Abstraction layer to different defi protocols like AaveV1, AaveV2 etc. which has borrow feature
- * It is used as a layer for adding any new functions in defi adapters if they include borrow functionality
+ * @notice Interface of the DeFi protocol adapter for borrow functionality
+ * @dev Abstraction layer to different DeFi protocols like AaveV1, AaveV2 etc. which has borrow feature
+ * It is used as a layer for adding any new functions in DeFi adapters if they include borrow functionality
  * Conventions used:
  *  - lp: liquidityPool
  */
@@ -30,7 +30,7 @@ interface IAdapterBorrow {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @dev Return batch of function calls require to reapy debt, unlock collateral and redeem shares from the given lp
+     * @dev Return batch of function calls require to repay debt, unlock collateral and redeem shares from the given lp
      * @param _optyVault Address of vault contract
      * @param _underlyingTokens List of underlying tokens supported by the given lp
      * @param _liquidityPoolAddressProvider address of lp address provider where to repay collateral
@@ -52,7 +52,7 @@ interface IAdapterBorrow {
      * @param _underlyingToken Underlying token address for the given lp
      * @param _liquidityPoolAddressProvider lp address from where to borrow the tokens
      * @param _borrowToken address of token to borrow
-     * @param _borrowAmount amount of token to be borrowed
+     * @param _borrowAmount amount of token to borrow
      * @return Returns the amount in underlying token that can be received if borrowed token is repaid
      */
     function getSomeAmountInTokenBorrow(
@@ -72,8 +72,8 @@ interface IAdapterBorrow {
      * @param _underlyingToken Underlying token address for the given lp
      * @param _liquidityPoolAddressProvider lp address from where to borrow the tokens
      * @param _borrowToken address of token to borrow
-     * @param _borrowAmount amount of token to be borrowed
-     * @return Returns the amount in underlying token that you'll receive if whole bal of vault borrowed token is repaid
+     * @param _borrowAmount amount of token to borrow
+     * @return Returns amount in underlyingToken that you'll receive if whole balance of vault borrowed token is repaid
      */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,

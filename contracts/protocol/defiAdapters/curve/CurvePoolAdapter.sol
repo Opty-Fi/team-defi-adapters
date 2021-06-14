@@ -382,8 +382,8 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Set the Curve's oracle contract address
-     * @param _oracle Curve's oracle contract address to be set
+     * @notice Set the OptyFi's PriceOracle contract address
+     * @param _oracle OptyFi's PriceOracle contract address to be set
      */
     function setOracle(address _oracle) public onlyOperator {
         oracleContract = PriceOracle(_oracle);
@@ -825,7 +825,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Get the Curve's Minter address
+     * @notice Get the Curve Minter's address
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
