@@ -23,14 +23,18 @@ import {
     AssetReference,
     ActionType
 } from "../../../interfaces/dydx/IdYdX.sol";
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
+// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
+// import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
+// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for DyDx protocol
  * @author Opty.fi
  * @dev Abstraction layer to DyDx's pools
  */
-contract DyDxAdapter is IAdapter, Modifiers {
+contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -75,24 +79,24 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit percentage
      * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    /**
+     * @notice TODO IADAPTER INHERIT TAG
+     */
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice Sets the default max deposit value (in munber)
-     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     * @notice TODO IADAPTER INHERIT TAG
      */
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
+    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice Sets the max deposit value (in munber) for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
-     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     * @notice TODO IADAPTER INHERIT TAG
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -119,7 +123,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @dev Types (can be number or percentage) supported for the maxDeposit value
      * @param _type Type of maxDeposit to be set (can be Number or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
@@ -127,7 +131,7 @@ contract DyDxAdapter is IAdapter, Modifiers {
      * @notice Sets the default percentage of max deposit pool value
      * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
@@ -149,31 +153,31 @@ contract DyDxAdapter is IAdapter, Modifiers {
             getDepositSomeCodes(_optyVault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getBorrowAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getBorrowAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getRepayAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getRepayAndWithdrawAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -229,34 +233,34 @@ contract DyDxAdapter is IAdapter, Modifiers {
         revert("!empty");
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getSomeAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        uint256,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getSomeAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getAllAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getAllAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -302,46 +306,46 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return address(0);
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getHarvestSomeCodes(
-        address payable,
-        address,
-        address,
-        uint256
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getHarvestSomeCodes(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getHarvestAllCodes(
-        address payable,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getHarvestAllCodes(
+    //     address payable,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -350,112 +354,112 @@ contract DyDxAdapter is IAdapter, Modifiers {
         return false;
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getStakeAllCodes(
-        address payable,
-        address[] memory,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getStakeAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getAllAmountInTokenStake(
-        address payable,
-        address,
-        address
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getAllAmountInTokenStake(
+    //     address payable,
+    //     address,
+    //     address
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function calculateRedeemableLPTokenAmountStake(
-        address payable,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function calculateRedeemableLPTokenAmountStake(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function isRedeemableAmountSufficientStake(
-        address payable,
-        address,
-        address,
-        uint256
-    ) public view override returns (bool) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function isRedeemableAmountSufficientStake(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (bool) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getUnstakeAndWithdrawSomeCodes(
-        address payable,
-        address[] memory,
-        address,
-        uint256
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getUnstakeAndWithdrawSomeCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     uint256
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
-     */
-    function getUnstakeAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
+    //  */
+    // function getUnstakeAndWithdrawAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

@@ -9,11 +9,15 @@ pragma experimental ABIEncoderV2;
  * @notice Interface of the Defi protocol code provider/adapter
  * @dev Abstraction layer to different defi protocols like AaveV1, Compound etc.
  * It is used as an interface layer for any new defi protocol
+ * Conventions used:
+ *  - lp: liquidityPool
+ *  - lpToken: liquidityPool token
  */
 interface IAdapterMinimal {
     /**
      * @notice NOT THERE IN ONLY CURVEPOOL, CURVESWAP
-     * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
+     * @notice Returns pool value in underlying token (for all adapters except Curve for which the poolValue is
+     * in US dollar) for the given lp and underlyingToken
      * @dev poolValue can be in US dollar (eg. Curve etc.) and in underlyingTokens (eg. Compound etc.)
      * @param _liquidityPool liquidity Pool address from where to get the pool value
      * @param _underlyingToken address of underlying token for which to get the pool value
@@ -195,4 +199,17 @@ interface IAdapterMinimal {
      * @return Returns a boolean true if liquidityPool token staking is allowed else false if it not enabled
      */
     function canStake(address _liquidityPool) external view returns (bool);
+
+    /**
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
+     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
+     */
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external;
+
+    /**
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     */
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) external;
 }

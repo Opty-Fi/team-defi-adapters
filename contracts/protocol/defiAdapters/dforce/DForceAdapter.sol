@@ -16,14 +16,26 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
 import { IDForceStake } from "../../../interfaces/dforce/IDForceStake.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
+// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for DForce protocol
  * @author Opty.fi
  * @dev Abstraction layer to DForce's pools
  */
-contract DForceAdapter is IAdapter, Modifiers {
+contract DForceAdapter is
+    IAdapterMinimal,
+    IAdapterProtocolConfig,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterInvestLimit,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to staking vault */
@@ -75,24 +87,24 @@ contract DForceAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit percentage
      * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    /**
+     * @notice TODO IADAPTER INHERIT TAG
+     */
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice Sets the default max deposit value (in munber)
-     * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
+     * @notice TODO IADAPTER INHERIT TAG
      */
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
+    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice Sets the max deposit value (in munber) for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
-     * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
+     * @notice TODO IADAPTER INHERIT TAG
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -113,7 +125,7 @@ contract DForceAdapter is IAdapter, Modifiers {
      * @notice Sets the HarvestCodeProvider contract address
      * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
@@ -121,7 +133,7 @@ contract DForceAdapter is IAdapter, Modifiers {
      * @notice Sets the reward token for DForce protocol
      * @param _rewardToken Address of reward token to be set
      */
-    function setRewardToken(address _rewardToken) public onlyOperator {
+    function setRewardToken(address _rewardToken) public override onlyOperator {
         rewardToken = _rewardToken;
     }
 
@@ -130,7 +142,7 @@ contract DForceAdapter is IAdapter, Modifiers {
      * @dev Types (can be number or percentage) supported for the maxDeposit value
      * @param _type Type of maxDeposit to be set (can be Number or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
@@ -138,7 +150,7 @@ contract DForceAdapter is IAdapter, Modifiers {
      * @notice Sets the default percentage of max deposit pool value
      * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
@@ -155,29 +167,29 @@ contract DForceAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     */
-    function getBorrowAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  */
+    // function getBorrowAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     */
-    function getRepayAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  */
+    // function getRepayAndWithdrawAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -220,32 +232,32 @@ contract DForceAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     */
-    function getSomeAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        uint256,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  */
+    // function getSomeAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     */
-    function getAllAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  */
+    // function getAllAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

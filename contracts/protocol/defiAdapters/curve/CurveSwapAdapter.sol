@@ -12,7 +12,13 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+// import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
+// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
+import { IAdapterCurveInvestLimit } from "../../../interfaces/opty/IAdapterCurveInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -23,7 +29,14 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @author Opty.fi
  * @dev Abstraction layer to Curve's swap pools
  */
-contract CurveSwapAdapter is IAdapter, Modifiers {
+contract CurveSwapAdapter is
+    IAdapterMinimal,
+    IAdapterProtocolConfig,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterCurveInvestLimit,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice Mapping  of swapPool to the underlyingTokens */
@@ -294,7 +307,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit percentage
      * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    /**
+     * @notice TODO IADAPTER INHERIT TAG
+     */
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
@@ -302,7 +318,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @notice Sets the default max deposit value (in munber)
      * @param _maxDepositAmountDefault Array of 4 Pool's Max deposit value in number to be set as default value
      */
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
@@ -311,7 +327,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
      * @param _maxDepositAmount Array of 2 Pool's Max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount)
+        external
+        override
+        onlyGovernance
+    {
         maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -320,7 +340,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
      * @param _maxDepositAmount Array of 3 Pool's Max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount)
+        external
+        override
+        onlyGovernance
+    {
         maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -329,7 +353,11 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
      * @param _maxDepositAmount Array of 4 Pool's Max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount)
+        external
+        override
+        onlyGovernance
+    {
         maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -337,7 +365,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @notice Sets the reward token for Curve protocol
      * @param _rewardToken Address of reward token to be set
      */
-    function setRewardToken(address _rewardToken) public onlyOperator {
+    function setRewardToken(address _rewardToken) public override onlyOperator {
         rewardToken = _rewardToken;
     }
 
@@ -386,7 +414,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @notice Sets the HarvestCodeProvider contract address
      * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
@@ -394,7 +422,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
      * @notice Sets the default percentage of max deposit pool value
      * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
@@ -415,31 +443,31 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-     */
-    function getBorrowAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+    //  */
+    // function getBorrowAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-     */
-    function getRepayAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+    //  */
+    // function getRepayAndWithdrawAllCodes(
+    //     address payable,
+    //     address[] memory,
+    //     address,
+    //     address
+    // ) public view override returns (bytes[] memory) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -465,34 +493,34 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
     }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-     */
-    function getSomeAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        uint256,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+    //  */
+    // function getSomeAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     uint256,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-     */
-    function getAllAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
+    // /**
+    //  * @notice TODO IADAPTER INHERIT TAG
+    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
+    //  */
+    // function getAllAmountInTokenBorrow(
+    //     address payable,
+    //     address,
+    //     address,
+    //     address,
+    //     uint256
+    // ) public view override returns (uint256) {
+    //     revert("!empty");
+    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

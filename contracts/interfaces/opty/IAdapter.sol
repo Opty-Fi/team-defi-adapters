@@ -5,8 +5,12 @@ pragma experimental ABIEncoderV2;
 
 import { IAdapterMinimal } from "./IAdapterMinimal.sol";
 import { IAdapterBorrow } from "./IAdapterBorrow.sol";
-import { IAdapterReward } from "./IAdapterReward.sol";
+import { IAdapterHarvestReward } from "./IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "./IAdapterStaking.sol";
+// import { IAdapterComptroller } from "./IAdapterComptroller.sol";
+import { IAdapterInvestLimit } from "./IAdapterInvestLimit.sol";
+import { IAdapterCurveInvestLimit } from "./IAdapterCurveInvestLimit.sol";
+import { IAdapterProtocolConfig } from "./IAdapterProtocolConfig.sol";
 
 /**
  * @title Interface for all the defi adapters
@@ -16,7 +20,15 @@ import { IAdapterStaking } from "./IAdapterStaking.sol";
  * It is used as an interface layer for any new defi protocol
  */
 /* solhint-disable no-empty-blocks */
-interface IAdapter {
+interface IAdapter is
+    IAdapterMinimal,
+    IAdapterBorrow,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterInvestLimit,
+    IAdapterCurveInvestLimit,
+    IAdapterProtocolConfig
+{
     // /**
     //  * @notice Returns pool value in underlying token for the given liquidity pool and underlying token
     //  * @dev poolValue can be in US dollar (eg. Curve etc.) and in underlyingTokens (eg. Compound etc.)

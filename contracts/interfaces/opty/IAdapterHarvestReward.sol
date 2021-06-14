@@ -11,7 +11,7 @@ pragma experimental ABIEncoderV2;
  * It is used as an interface layer for any new defi protocol if it includes reward token
  * functionality
  */
-interface IAdapterReward {
+interface IAdapterHarvestReward {
     /**
      * @notice Returns the amount of accrued reward tokens
      * @param _optyVault Vault contract address
@@ -61,4 +61,11 @@ interface IAdapterReward {
         address _underlyingToken,
         address _liquidityPool
     ) external view returns (bytes[] memory _codes);
+
+    /**
+     * @notice ONLY THERE IN COMP,CREAM,CURVESWAP,DFORCE,HARVEST
+     * @notice Sets the reward token for Compound protocol
+     * @param _rewardToken Address of reward token to be set
+     */
+    function setRewardToken(address _rewardToken) external;
 }
