@@ -4,18 +4,20 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface for all the defi adapters
+ * @title Interface for Reward tokens and Swapping tokens for the defi adapters
  * @author Opty.fi
- * @notice Interface of the Defi protocol code provider/adapter for reward token functionality
- * @dev Abstraction layer to different defi protocols like AaveV1, Compound etc.
- * It is used as an interface layer for any new defi protocol if it includes reward token
- * functionality
+ * @notice Interface of the Defi protocol code adapter for reward tokens and swapping tokens functionality
+ * @dev Abstraction layer to different defi protocols like Compound, Cream etc.
+ * It is used as a layer for adding any new function related to reward token feature to be used in defi-adapters.
+ * It is also used as a middleware for adding functionality of swapping/harvesting of tokens used in defi-adapters.
+ * Conventions used:
+ *  - lp: liquidityPool
  */
 interface IAdapterHarvestReward {
     /**
      * @notice Returns the amount of accrued reward tokens
      * @param _optyVault Vault contract address
-     * @param _liquidityPool liquidityPool address from where to unclaim reward tokens
+     * @param _liquidityPool lp address from where to unclaim reward tokens
      * @return _codes Returns a bytes value to be executed
      */
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address _liquidityPool)
@@ -26,7 +28,7 @@ interface IAdapterHarvestReward {
     /**
      * @notice Return codes for claiming the reward tokens (eg: COMP etc.)
      * @param _optyVault Vault contract address
-     * @param _liquidityPool liquidityPool address from where to claim reward tokens
+     * @param _liquidityPool lp address from where to claim reward tokens
      * @return _codes Returns a bytes value to be executed
      */
     function getClaimRewardTokenCode(address payable _optyVault, address _liquidityPool)
@@ -37,8 +39,8 @@ interface IAdapterHarvestReward {
     /**
      * @dev Return codes for swapping specified amount of rewards in vault to underlying tokens via DEX like Uniswap
      * @param _optyVault Vault contract address
-     * @param _underlyingToken Underlying token address for the given liquidity pool
-     * @param _liquidityPool liquidityPool address where to harvest some liquidityPool tokens
+     * @param _underlyingToken Underlying token address for the given lp
+     * @param _liquidityPool lp address where to harvest some lp tokens
      * @param _rewardTokenAmount amount of reward token to be harvested to underlyingTokens via DEX
      * @return _codes Returns a bytes value to be executed
      */
@@ -52,8 +54,8 @@ interface IAdapterHarvestReward {
     /**
      * @dev Return codes for swapping full balance of rewards in vault to underlying tokens via DEX like Uniswap
      * @param _optyVault Vault contract address
-     * @param _underlyingToken List of underlying token addresses for the given liquidity pool
-     * @param _liquidityPool liquidityPool address where to harvest all liquidityPool tokens
+     * @param _underlyingToken List of underlying token addresses for the given lp
+     * @param _liquidityPool lp address where to harvest all lp tokens
      * @return _codes Returns a bytes value to be executed
      */
     function getHarvestAllCodes(

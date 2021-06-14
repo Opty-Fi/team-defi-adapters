@@ -4,12 +4,11 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface for all the defi adapters
+ * @title Interface for the defi adapters having protocol configuration contract setter functions
  * @author Opty.fi
- * @notice Interface of the Defi protocol code provider/adapter for borrow functionality
+ * @notice Interface of the Defi protocol adapter for having protocol configuration contract setter functions
  * @dev Abstraction layer to different defi protocols like AaveV1, Compound etc.
- * It is used as an interface layer for any new defi protocol if it includes borrow
- * functionality
+ * It is used as an interface layer for adding new protocol configuration contract addresses setter functions
  */
 interface IAdapterProtocolConfig {
     /**

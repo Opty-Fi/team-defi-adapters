@@ -13,7 +13,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./Modifiers.sol";
 
 // interfaces
-import { IAdapter } from "../../interfaces/opty/IAdapter.sol";
+import { IAdapterFull } from "../../interfaces/opty/IAdapterFull.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
@@ -217,7 +217,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == _subStepCounter + 1) {
@@ -229,7 +229,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_adapter).getBorrowAllCodes(
+                    _codes = IAdapterFull(_adapter).getBorrowAllCodes(
                         _vault,
                         _underlyingTokens,
                         _liquidityPool,
@@ -247,7 +247,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == (_subStepCounter + 1) && _i == (_strategySteps.length - 1)) {
@@ -257,7 +257,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     if (_i != 0) {
                         _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
                     }
-                    _codes = IAdapter(_adapter).getStakeAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getStakeAllCodes(_vault, _underlyingTokens, _liquidityPool);
                     break;
                 } // stake at ith step
                 _subStepCounter++;
@@ -283,7 +283,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
-                    _codes = IAdapter(_adapter).getRepayAndWithdrawAllCodes(
+                    _codes = IAdapterFull(_adapter).getRepayAndWithdrawAllCodes(
                         _vault,
                         _underlyingTokens,
                         _strategySteps[_iterator].pool,
@@ -312,13 +312,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     address[] memory _underlyingTokens = new address[](1);
                     _underlyingTokens[0] = _underlyingToken;
                     _codes = (_iterator == (_strategySteps.length - 1) &&
-                        IAdapter(_adapter).canStake(_strategySteps[_iterator].pool))
-                        ? IAdapter(_adapter).getUnstakeAndWithdrawAllCodes(
+                        IAdapterFull(_adapter).canStake(_strategySteps[_iterator].pool))
+                        ? IAdapterFull(_adapter).getUnstakeAndWithdrawAllCodes(
                             _vault,
                             _underlyingTokens,
                             _strategySteps[_iterator].pool
                         )
-                        : IAdapter(_adapter).getWithdrawAllCodes(
+                        : IAdapterFull(_adapter).getWithdrawAllCodes(
                             _vault,
                             _underlyingTokens,
                             _strategySteps[_iterator].pool
@@ -336,7 +336,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         bytes32 _investStrategyHash
     ) internal view returns (bytes[] memory _codes) {
         (address _liquidityPool, address _adapter, ) = _getLastStepLiquidityPool(_investStrategyHash);
-        _codes = IAdapter(_adapter).getHarvestAllCodes(_vault, _underlyingToken, _liquidityPool);
+        _codes = IAdapterFull(_adapter).getHarvestAllCodes(_vault, _underlyingToken, _liquidityPool);
     }
 
     function _getPoolHarvestSomeRewardCodes(
@@ -354,7 +354,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
             _vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0)
                 ? _rewardTokenBalance
                 : _rewardTokenBalance.mul(_vaultRewardStrategy.convert).div(10000);
-        _codes = IAdapter(_adapter).getHarvestSomeCodes(
+        _codes = IAdapterFull(_adapter).getHarvestSomeCodes(
             _vault,
             _underlyingToken,
             _liquidityPool,
@@ -368,7 +368,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         returns (bytes[] memory _codes)
     {
         (address _liquidityPool, address _adapter, ) = _getLastStepLiquidityPool(_investStrategyhash);
-        _codes = IAdapter(_adapter).getClaimRewardTokenCode(_vault, _liquidityPool);
+        _codes = IAdapterFull(_adapter).getClaimRewardTokenCode(_vault, _liquidityPool);
     }
 
     function _getBalanceInUnderlyingToken(
@@ -390,19 +390,23 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (IAdapter(_adapter).canStake(_liquidityPool)) {
-                        _balance = IAdapter(_adapter).getAllAmountInTokenStake(_vault, _inputToken, _liquidityPool);
+                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
+                        _balance = IAdapterFull(_adapter).getAllAmountInTokenStake(_vault, _inputToken, _liquidityPool);
                     } else {
-                        _balance = IAdapter(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
+                        _balance = IAdapterFull(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
                     }
                 } else {
-                    _balance = IAdapter(_adapter).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
+                    _balance = IAdapterFull(_adapter).getSomeAmountInToken(
+                        _inputToken,
+                        _liquidityPool,
+                        _outputTokenAmount
+                    );
                 }
             }
             // deposit
             else {
                 address _borrowToken = _strategySteps[_iterator].outputToken;
-                _balance = IAdapter(_adapter).getAllAmountInTokenBorrow(
+                _balance = IAdapterFull(_adapter).getAllAmountInTokenBorrow(
                     _vault,
                     _inputToken,
                     _liquidityPool,
@@ -419,7 +423,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         uint256 _lastStepIndex = _strategySteps.length - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
-        if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
+        if (IAdapterFull(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
             return uint8(1);
         }
         return uint8(0);
@@ -430,7 +434,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         uint256 _lastStepIndex = _strategySteps.length - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
-        if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
+        if (IAdapterFull(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {
             return uint8(1);
         }
         return uint8(0);
@@ -445,7 +449,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         uint256 _lastStepIndex = _strategyStepCount - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
-        if (IAdapter(_lastStepOptyAdapter).canStake(_lastStepLiquidityPool)) {
+        if (IAdapterFull(_lastStepOptyAdapter).canStake(_lastStepLiquidityPool)) {
             return (_strategyStepCount + 1);
         }
         for (uint256 i = 0; i < _strategySteps.length; i++) {
@@ -565,6 +569,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyHash);
         _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
         _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-        _rewardToken = IAdapter(_adapter).getRewardToken(_liquidityPool);
+        _rewardToken = IAdapterFull(_adapter).getRewardToken(_liquidityPool);
     }
 }
