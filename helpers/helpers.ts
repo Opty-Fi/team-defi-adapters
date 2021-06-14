@@ -66,8 +66,12 @@ export async function deployContractWithHash(
 }
 
 export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
-  const tx = await contract.connect(executer)[funcAbi](...args);
-  await tx.wait();
+  try {
+    const tx = await contract.connect(executer)[funcAbi](...args);
+    await tx.wait();
+  } catch (error) {
+    console.log("Got error with function :", funcAbi, error);
+  }
 }
 
 export async function getExistingContractAddress(

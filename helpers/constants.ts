@@ -95,3 +95,96 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export const MAPPING_CURVE_DEPOSIT_DATA = [
+  {
+    lp: "COMPOUND_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC"],
+    swap: "COMPOUND_SWAP_POOL",
+    gauges: "COMPOUND_GAUGE",
+  },
+  {
+    lp: "USDT_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC", "USDT"],
+    swap: "USDT_SWAP_POOL",
+    gauges: "USDT_GAUGE",
+  },
+  {
+    lp: "PAX_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC", "USDT", "PAX"],
+    swap: "PAX_SWAP_POOL",
+    gauges: "PAX_GAUGE",
+  },
+  {
+    lp: "Y_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC", "USDT", "TUSD"],
+    swap: "Y_SWAP_POOL",
+    gauges: "Y_GAUGE",
+  },
+  {
+    lp: "BUSD_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC", "USDT", "BUSD"],
+    swap: "BUSD_SWAP_POOL",
+    gauges: "BUSD_GAUGE",
+  },
+  {
+    lp: "SUSD_DEPOSIT_POOL",
+    tokens: ["DAI", "USDC", "USDT", "SUSD"],
+    swap: "SUSD_SWAP_POOL",
+    gauges: "SUSD_GAUGE",
+  },
+  {
+    lp: "GUSD_DEPOSIT_POOL",
+    tokens: ["GUSD", "DAI", "USDC", "USDT"],
+    swap: "GUSD_SWAP_POOL",
+    gauges: "GUSD_GAUGE",
+  },
+  {
+    lp: "HUSD_DEPOSIT_POOL",
+    tokens: ["HUSD", "DAI", "USDC", "USDT"],
+    swap: "HUSD_SWAP_POOL",
+    gauges: "HUSD_GAUGE",
+  },
+  {
+    lp: "USDK_DEPOSIT_POOL",
+    tokens: ["USDK", "DAI", "USDC", "USDT"],
+    swap: "USDK_SWAP_POOL",
+    gauges: "USDK_GAUGE",
+  },
+  {
+    lp: "USDN_DEPOSIT_POOL",
+    tokens: ["USDN", "DAI", "USDC", "USDT"],
+    swap: "USDN_SWAP_POOL",
+    gauges: "USDN_GAUGE",
+  },
+  {
+    lp: "LINKUSD_DEPOSIT_POOL",
+    tokens: ["LINKUSD", "DAI", "USDC", "USDT"],
+    swap: "LINKUSD_SWAP_POOL",
+    gauges: "LINKUSD_GAUGE",
+  },
+  {
+    lp: "MUSD_DEPOSIT_POOL",
+    tokens: ["MUSD", "DAI", "USDC", "USDT"],
+    swap: "MUSD_SWAP_POOL",
+    gauges: "MUSD_GAUGE",
+  },
+  {
+    lp: "RSV_DEPOSIT_POOL",
+    tokens: ["RSV", "DAI", "USDC", "USDT"],
+    swap: "RSV_SWAP_POOL",
+    gauges: "RSV_GAUGE",
+  },
+  {
+    lp: "TBTC_DEPOSIT_POOL",
+    tokens: ["TBTC", "DAI", "USDC", "USDT"],
+    swap: "TBTC_SWAP_POOL",
+    gauges: "TBTC_GAUGE",
+  },
+  {
+    lp: "DUSD_DEPOSIT_POOL",
+    tokens: ["DUSD", "DAI", "USDC", "USDT"],
+    swap: "DUSD_SWAP_POOL",
+    gauges: "DUSD_GAUGE",
+  },
+];
