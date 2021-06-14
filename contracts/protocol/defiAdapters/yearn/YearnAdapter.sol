@@ -14,8 +14,8 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 //  interfaces
 import { IYearn } from "../../../interfaces/yearn/IYearn.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Yearn protocol

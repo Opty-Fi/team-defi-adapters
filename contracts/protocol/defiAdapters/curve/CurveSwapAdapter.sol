@@ -12,11 +12,11 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
-import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
-import { IAdapterCurveInvestLimit } from "../../../interfaces/opty/IAdapterCurveInvestLimit.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterCurveInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterCurveInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";

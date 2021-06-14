@@ -30,12 +30,12 @@ import {
     ReserveConfigurationData
 } from "../../../interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
-import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
 
 /**
  * @title Adapter for AaveV2 protocol

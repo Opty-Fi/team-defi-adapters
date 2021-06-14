@@ -16,11 +16,11 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 import { IHarvestDeposit } from "../../../interfaces/harvest.finance/IHarvestDeposit.sol";
 import { IHarvestFarm } from "../../../interfaces/harvest.finance/IHarvestFarm.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
-import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
-import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Harvest.finance protocol

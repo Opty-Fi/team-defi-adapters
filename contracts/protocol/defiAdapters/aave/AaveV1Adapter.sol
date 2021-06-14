@@ -27,10 +27,10 @@ import {
     UserAccountData
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
-import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
+import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for AaveV1 protocol

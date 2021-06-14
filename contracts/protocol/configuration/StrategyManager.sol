@@ -13,7 +13,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./Modifiers.sol";
 
 // interfaces
-import { IAdapterFull } from "../../interfaces/opty/IAdapterFull.sol";
+import { IAdapterFull } from "../../interfaces/opty/defiAdapters/IAdapterFull.sol";
 import {
     IVaultStepInvestStrategyDefinitionRegistry
 } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
