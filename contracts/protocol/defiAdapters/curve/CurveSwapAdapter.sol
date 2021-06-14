@@ -12,9 +12,7 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
-// import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
@@ -443,32 +441,6 @@ contract CurveSwapAdapter is
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-    //  */
-    // function getBorrowAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-    //  */
-    // function getRepayAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -492,35 +464,6 @@ contract CurveSwapAdapter is
     {
         _underlyingTokens = swapPoolToUnderlyingTokens[_liquidityPool];
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-    //  */
-    // function getSomeAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
-    //  */
-    // function getAllAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

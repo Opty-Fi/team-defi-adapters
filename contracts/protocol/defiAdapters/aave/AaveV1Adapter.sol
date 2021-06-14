@@ -27,12 +27,9 @@ import {
     UserAccountData
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
-// import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
 import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
-// import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
@@ -352,47 +349,6 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
         return address(0);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getHarvestSomeCodes(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getHarvestAllCodes(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
@@ -400,113 +356,6 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     function canStake(address) public view override returns (bool) {
         return false;
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getStakeAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getAllAmountInTokenStake(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function calculateRedeemableLPTokenAmountStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function isRedeemableAmountSufficientStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bool) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getUnstakeAndWithdrawSomeCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in AaveV1 protocol
-    //  */
-    // function getUnstakeAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

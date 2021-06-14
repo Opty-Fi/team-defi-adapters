@@ -16,11 +16,8 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-// import { IAdapterComptroller } from "../../../interfaces/opty/IAdapterComptroller.sol";
-// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
@@ -152,32 +149,6 @@ contract CompoundAdapter is
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getBorrowAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getRepayAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -202,35 +173,6 @@ contract CompoundAdapter is
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = ICompound(_liquidityPool).underlying();
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getSomeAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getAllAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -305,113 +247,6 @@ contract CompoundAdapter is
     function canStake(address) public view override returns (bool) {
         return false;
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getStakeAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getAllAmountInTokenStake(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function calculateRedeemableLPTokenAmountStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function isRedeemableAmountSufficientStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bool) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getUnstakeAndWithdrawSomeCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Compound protocol
-    //  */
-    // function getUnstakeAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

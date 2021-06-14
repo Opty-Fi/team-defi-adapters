@@ -15,9 +15,6 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { IFulcrum } from "../../../interfaces/fulcrum/IFulcrum.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
-// import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
@@ -101,32 +98,6 @@ contract FulcrumAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getBorrowAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getRepayAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -175,35 +146,6 @@ contract FulcrumAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getSomeAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getAllAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -250,160 +192,12 @@ contract FulcrumAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return address(0);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getHarvestSomeCodes(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getHarvestAllCodes(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getStakeAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getAllAmountInTokenStake(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function calculateRedeemableLPTokenAmountStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function isRedeemableAmountSufficientStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bool) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getUnstakeAndWithdrawSomeCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in Fulcrum protocol
-    //  */
-    // function getUnstakeAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

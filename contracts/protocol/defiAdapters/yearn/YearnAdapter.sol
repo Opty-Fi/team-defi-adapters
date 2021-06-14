@@ -15,9 +15,6 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { IYearn } from "../../../interfaces/yearn/IYearn.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
-// import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
@@ -101,31 +98,6 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getBorrowAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  */
-    // function getRepayAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -150,35 +122,6 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = IYearn(_liquidityPool).token();
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getSomeAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getAllAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -229,47 +172,6 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return address(0);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getHarvestSomeCodes(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getHarvestAllCodes(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
@@ -277,113 +179,6 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     function canStake(address) public view override returns (bool) {
         return false;
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getStakeAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getAllAmountInTokenStake(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function calculateRedeemableLPTokenAmountStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function isRedeemableAmountSufficientStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bool) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getUnstakeAndWithdrawSomeCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
-    //  */
-    // function getUnstakeAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG

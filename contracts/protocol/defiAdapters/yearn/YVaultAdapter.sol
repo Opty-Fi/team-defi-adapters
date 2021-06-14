@@ -15,9 +15,6 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { IYVault } from "../../../interfaces/yearn/IYVault.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
-// import { IAdapterBorrow } from "../../../interfaces/opty/IAdapterBorrow.sol";
-// import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
-// import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
@@ -101,32 +98,6 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getBorrowAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getRepayAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
@@ -151,35 +122,6 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         _underlyingTokens = new address[](1);
         _underlyingTokens[0] = IYVault(_liquidityPool).token();
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getSomeAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getAllAmountInTokenBorrow(
-    //     address payable,
-    //     address,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
@@ -230,160 +172,12 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
         return address(0);
     }
 
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getUnclaimedRewardTokenAmount(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getClaimRewardTokenCode(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getHarvestSomeCodes(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getHarvestAllCodes(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
     /**
      * @notice TODO IADAPTER INHERIT TAG
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getStakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getStakeAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getUnstakeSomeCodes(address, uint256) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getUnstakeAllCodes(address payable, address) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getAllAmountInTokenStake(
-    //     address payable,
-    //     address,
-    //     address
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getLiquidityPoolTokenBalanceStake(address payable, address) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function calculateRedeemableLPTokenAmountStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (uint256) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function isRedeemableAmountSufficientStake(
-    //     address payable,
-    //     address,
-    //     address,
-    //     uint256
-    // ) public view override returns (bool) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getUnstakeAndWithdrawSomeCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address,
-    //     uint256
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
-
-    // /**
-    //  * @notice TODO IADAPTER INHERIT TAG
-    //  * @dev Reverting '!empty' message as there is no related functionality for this in YVault pool
-    //  */
-    // function getUnstakeAndWithdrawAllCodes(
-    //     address payable,
-    //     address[] memory,
-    //     address
-    // ) public view override returns (bytes[] memory) {
-    //     revert("!empty");
-    // }
 
     /**
      * @notice TODO IADAPTER INHERIT TAG
