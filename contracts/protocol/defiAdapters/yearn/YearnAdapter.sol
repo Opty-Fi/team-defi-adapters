@@ -18,9 +18,9 @@ import { IAdapterMinimal } from "../../../interfaces/opty/IAdapterMinimal.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/IAdapterInvestLimit.sol";
 
 /**
- * @title Adapter for YEarn protocol
+ * @title Adapter for Yearn protocol
  * @author Opty.fi
- * @dev Abstraction layer to YEarn's pools
+ * @dev Abstraction layer to Yearn's pools
  */
 contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
@@ -43,50 +43,42 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
-     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
-     */
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @notice Sets the max deposit amount's data type
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
     /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -99,7 +91,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -111,7 +103,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -124,7 +116,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function calculateAmountInLPToken(
         address,
@@ -138,7 +130,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -153,7 +145,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -166,22 +158,21 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
-     * @dev Reverting '!empty' message as there is no related functionality for this in YEarn protocol
+     * @inheritdoc IAdapterMinimal
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositSomeCodes(
         address payable,
@@ -205,7 +196,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -220,21 +211,21 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IYearn(_liquidityPool).calcPoolValueInToken();
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -250,7 +241,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -261,7 +252,7 @@ contract YearnAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getSomeAmountInToken(
         address,

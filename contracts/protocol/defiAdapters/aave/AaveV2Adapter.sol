@@ -86,58 +86,49 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
-     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
-     */
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     * @inheritdoc IAdapterProtocolConfig
      */
     function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     /**
-     * @notice Sets the max deposit amount's data type
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be Number or percentage)
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
     /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -150,7 +141,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterBorrow
      */
     function getBorrowAllCodes(
         address payable _optyVault,
@@ -217,7 +208,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterBorrow
      */
     function getRepayAndWithdrawAllCodes(
         address payable _optyVault,
@@ -292,7 +283,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -306,7 +297,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         public
@@ -319,7 +310,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getSomeAmountInToken(
         address,
@@ -330,7 +321,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterBorrow
      */
     function getAllAmountInTokenBorrow(
         address payable _optyVault,
@@ -353,7 +344,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function calculateAmountInLPToken(
         address,
@@ -364,7 +355,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function calculateRedeemableLPTokenAmount(
         address payable,
@@ -376,7 +367,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -390,21 +381,21 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProviderRegistry)
         public
@@ -418,7 +409,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getAllAmountInToken(
         address payable _optyVault,
@@ -429,7 +420,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -443,7 +434,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterBorrow
      */
     function getSomeAmountInTokenBorrow(
         address payable _optyVault,
@@ -473,7 +464,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getPoolValue(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)
         public
@@ -485,7 +476,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositSomeCodes(
         address payable _optyVault,
@@ -520,7 +511,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawSomeCodes(
         address payable _optyVault,

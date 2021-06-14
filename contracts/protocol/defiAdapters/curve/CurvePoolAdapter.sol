@@ -19,7 +19,6 @@ import { IAdapterProtocolConfig } from "../../../interfaces/opty/IAdapterProtoco
 import { IAdapterHarvestReward } from "../../../interfaces/opty/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/IAdapterStaking.sol";
 import { IAdapterCurveInvestLimit } from "../../../interfaces/opty/IAdapterCurveInvestLimit.sol";
-
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -287,28 +286,21 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit percentage
-     * @param _maxDepositPoolPct Pool's Max deposit percentage to be set for the given liquidity pool
-     */
-    /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterCurveInvestLimit
      */
     function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice Sets the max deposit value (in munber) for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
-     * @param _maxDepositAmount Array of 2 Pool's Max deposit value in number to be set for the given liquidity pool
+     * @inheritdoc IAdapterCurveInvestLimit
      */
     function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount)
         external
@@ -319,9 +311,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Sets the max deposit value (in munber) for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
-     * @param _maxDepositAmount Array of 3 Pool's Max deposit value in number to be set for the given liquidity pool
+     * @inheritdoc IAdapterCurveInvestLimit
      */
     function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount)
         external
@@ -332,9 +322,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Sets the max deposit value (in munber) for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
-     * @param _maxDepositAmount Array of 4 Pool's Max deposit value in number to be set for the given liquidity pool
+     * @inheritdoc IAdapterCurveInvestLimit
      */
     function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount)
         external
@@ -344,6 +332,10 @@ contract CurvePoolAdapter is
         maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
+     */
     function setRewardToken(address) external override {
         revert("!empty");
     }
@@ -367,16 +359,14 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     * @inheritdoc IAdapterProtocolConfig
      */
     function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's Max deposit percentage to be set as default value
+     * @inheritdoc IAdapterMinimal
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
@@ -400,7 +390,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function getPoolValue(address, address) public view override returns (uint256) {
@@ -408,7 +398,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositAllCodes(
         address payable _optyVault,
@@ -425,7 +415,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawAllCodes(
         address payable _optyVault,
@@ -437,7 +427,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -449,7 +439,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function calculateAmountInLPToken(
@@ -461,7 +451,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function calculateRedeemableLPTokenAmount(
         address payable _optyVault,
@@ -476,7 +466,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function isRedeemableAmountSufficient(
         address payable _optyVault,
@@ -489,7 +479,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterHarvestReward
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         public
@@ -507,7 +497,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestAllCodes(
         address payable _optyVault,
@@ -519,7 +509,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function canStake(address _liquidityPool) public view override returns (bool) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
@@ -529,7 +519,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getStakeAllCodes(
         address payable _optyVault,
@@ -541,7 +531,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAllCodes(address payable _optyVault, address _liquidityPool)
         public
@@ -554,7 +544,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _optyVault,
@@ -569,7 +559,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function isRedeemableAmountSufficientStake(
         address payable _optyVault,
@@ -582,7 +572,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _optyVault,
@@ -594,7 +584,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getDepositSomeCodes(
         address payable,
@@ -615,7 +605,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -636,14 +626,14 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return ICurveDeposit(_liquidityPool).token();
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getAllAmountInToken(
         address payable _holder,
@@ -655,7 +645,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolTokenBalance(
         address payable _optyVault,
@@ -666,7 +656,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getSomeAmountInToken(
         address _underlyingToken,
@@ -687,7 +677,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterMinimal
      */
     function getRewardToken(address _liquidityPool) public view override returns (address) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
@@ -697,7 +687,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterHarvestReward
      */
     function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
         public
@@ -713,7 +703,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestSomeCodes(
         address payable _optyVault,
@@ -731,7 +721,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getStakeSomeCodes(address _liquidityPool, uint256 _stakeAmount)
         public
@@ -756,7 +746,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _unstakeAmount)
         public
@@ -772,7 +762,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getAllAmountInTokenStake(
         address payable _optyVault,
@@ -803,7 +793,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getLiquidityPoolTokenBalanceStake(address payable _optyVault, address _liquidityPool)
         public
@@ -815,7 +805,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice TODO IADAPTER INHERIT TAG
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _optyVault,
@@ -835,7 +825,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @notice Get the Minter's address for the given Curve's guage contract address
+     * @notice Get the Curve's Minter address
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();

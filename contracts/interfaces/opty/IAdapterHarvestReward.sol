@@ -65,8 +65,7 @@ interface IAdapterHarvestReward {
     ) external view returns (bytes[] memory _codes);
 
     /**
-     * @notice ONLY THERE IN COMP,CREAM,CURVESWAP,DFORCE,HARVEST
-     * @notice Sets the reward token for Compound protocol
+     * @notice Sets the reward token for defi protocols like Compound, DForce etc.
      * @param _rewardToken Address of reward token to be set
      */
     function setRewardToken(address _rewardToken) external;
