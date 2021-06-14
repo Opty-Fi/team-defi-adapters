@@ -143,7 +143,29 @@ describe(scenarios.title, () => {
                       }
                       break;
                     }
-                    case "setMaxDepositAmount(address,uint256)":
+                    case "setMaxDepositAmount(address,address,uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](
+                            strategy.strategy[0].contract,
+                            TOKENS[strategy.token],
+                            amount ? amount[strategy.token] : "0",
+                          );
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](
+                              strategy.strategy[0].contract,
+                              TOKENS[strategy.token],
+                              amount ? amount[strategy.token] : "0",
+                            ),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
                     case "setMaxDepositPoolPct(address,uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
@@ -159,7 +181,21 @@ describe(scenarios.title, () => {
                       }
                       break;
                     }
-                    case "setMaxDepositAmountDefault(uint256)":
+                    case "setMaxDepositAmountDefault(address,uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](TOKENS[strategy.token], amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](TOKENS[strategy.token], amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
                     case "setMaxDepositPoolPctDefault(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {

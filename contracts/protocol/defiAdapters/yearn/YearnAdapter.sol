@@ -26,15 +26,18 @@ contract YearnAdapter is IAdapter, Modifiers {
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    /** @notice  Maps liquidityPool to max deposit value in number */
-    mapping(address => uint256) public maxDepositAmount;
+
+    /** @notice  Maps liquidityPool to max deposit value of specific token in number */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
     /** @notice max deposit's default value in number */
-    uint256 public maxDepositAmountDefault;
+    mapping(address => uint256) public maxDepositAmountDefault;
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
@@ -52,19 +55,28 @@ contract YearnAdapter is IAdapter, Modifiers {
 
     /**
      * @notice Sets the default max deposit value (in munber)
+     * @param _underlyingToken underlying token address corresponds with max deposit value (in number)
      * @param _maxDepositAmountDefault Pool's Max deposit value in number to be set as default value
      */
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
+    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
+        external
+        onlyGovernance
+    {
+        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
      * @notice Sets the max deposit value (in munber) for the given liquidity pool
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in number)
+     * @param _underlyingToken underlying token address corresponds with max deposit value (in number)
      * @param _maxDepositAmount Pool's Max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _maxDepositAmount
+    ) external onlyGovernance {
+        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
     /**
@@ -391,7 +403,7 @@ contract YearnAdapter is IAdapter, Modifiers {
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
         if (_amounts[0] > 0) {
-            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
                 _underlyingTokens[0],
@@ -477,13 +489,17 @@ contract YearnAdapter is IAdapter, Modifiers {
         return _liquidityPoolTokenAmount;
     }
 
-    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 _limit =
             maxExposureType == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _amount);
-        if (_limit != 0 && _depositAmount > _limit) {
+                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
+        if (_depositAmount > _limit) {
             _depositAmount = _limit;
         }
     }
@@ -505,15 +521,15 @@ contract YearnAdapter is IAdapter, Modifiers {
         }
     }
 
-    function _getMaxDepositAmount(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
+    function _getMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool];
+        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
         if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault;
+            maxDeposit = maxDepositAmountDefault[_underlyingToken];
         }
         if (_depositAmount > maxDeposit) {
             _depositAmount = maxDeposit;
