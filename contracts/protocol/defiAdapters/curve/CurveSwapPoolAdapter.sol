@@ -16,7 +16,7 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @dev Abstraction layer to Curve's swap pools
  */
 
-contract CurveSwapAdapter is IAdapter, Modifiers {
+contract CurveSwapPoolAdapter is IAdapter, Modifiers {
     using SafeMath for uint256;
 
     mapping(address => address[]) public swapPoolToUnderlyingTokens;

@@ -22,7 +22,7 @@ import { CurveGaugePool } from "./CurveGaugePool.sol";
  * @dev Abstraction layer to Curve's deposit pools
  */
 
-contract CurvePoolAdapter is IAdapter, Modifiers {
+contract CurveDepositPoolAdapter is IAdapter, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 

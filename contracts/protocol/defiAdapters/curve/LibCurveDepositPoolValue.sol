@@ -12,6 +12,6 @@ library LibCurveDeposit {
     }
 
     function _getCurveCompoundPoolValueInUSD(address) private view returns (uint256) {
-        return address(0);
+        return uint256(0);
     }
 }
