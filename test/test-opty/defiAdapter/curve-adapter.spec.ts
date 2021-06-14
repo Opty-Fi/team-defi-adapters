@@ -4,7 +4,12 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import {
+  approveTokens,
+  fundWalletToken,
+  getBlockTimestamp,
+  insertDataCurveDeposit,
+} from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
 type ARGUMENTS = {
@@ -50,6 +55,7 @@ describe("CurvePoolAdapter", () => {
         essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
+      await insertDataCurveDeposit(owner, adapter);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
@@ -124,22 +130,20 @@ describe("CurvePoolAdapter", () => {
                       checkApproval(codes[i + 1], depositAmount[tokenIndex]);
                     }
                   }
-                  if (codes[codes.length - 1] !== "0x") {
-                    const inter = new utils.Interface([`function add_liquidity(uint256[${nCoins.length}],uint256)`]);
-                    const [address, abiCode] = utils.defaultAbiCoder.decode(
-                      ["address", "bytes"],
-                      codes[codes.length - 1],
-                    );
-                    expect(address).to.equal(strategy.strategy[0].contract);
-                    const value = inter.decodeFunctionData("add_liquidity", abiCode);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                      expect(value[0].length).to.equal(depositAmount.length);
-                      for (let i = 0; i < depositAmount.length; i++) {
-                        expect(value[0][i]).to.equal(depositAmount[i]);
-                      }
+                  const inter = new utils.Interface([`function add_liquidity(uint256[${nCoins.length}],uint256)`]);
+                  const [address, abiCode] = utils.defaultAbiCoder.decode(
+                    ["address", "bytes"],
+                    codes[codes.length - 1],
+                  );
+                  expect(address).to.equal(strategy.strategy[0].contract);
+                  const value = inter.decodeFunctionData("add_liquidity", abiCode);
+                  if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    expect(value[0].length).to.equal(depositAmount.length);
+                    for (let i = 0; i < depositAmount.length; i++) {
+                      expect(value[0][i]).to.equal(depositAmount[i]);
                     }
-                    expect(value[1]).to.equal(0);
                   }
+                  expect(value[1]).to.equal(0);
                 }
 
                 break;

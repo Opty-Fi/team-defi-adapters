@@ -47,7 +47,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         setOracle(_oracle);
         setHarvestCodeProvider(_harvestCodeProvider);
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
@@ -258,7 +258,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         liquidityPoolToUnderlyingTokens[_lendingPool] = _tokens;
     }
 
-    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
+    function setLiquidityPoolToGauges(address _pool, address _gauge) public onlyOperator {
         liquidityPoolToGauges[_pool] = _gauge;
     }
 
@@ -312,14 +312,14 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         }
 
         if (_codeLength > 1) {
-            uint256[] memory _depositAmounts = _getDepositAmounts(_liquidityPool, _amounts);
+            _amounts = _getDepositAmounts(_liquidityPool, _amounts);
             _codes = new bytes[](_codeLength);
             uint256 _j = 0;
             for (uint256 i = 0; i < nCoins; i++) {
                 if (_underlyingTokens[i] == HBTC) {
                     _codes[_j++] = abi.encode(
                         _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmounts[i])
+                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
                     );
                 } else {
                     _codes[_j++] = abi.encode(
@@ -328,21 +328,24 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
                     );
                     _codes[_j++] = abi.encode(
                         _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmounts[i])
+                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
                     );
                 }
             }
             if (nCoins == uint256(2)) {
+                uint256[2] memory _depositAmounts = [_amounts[0], _amounts[1]];
                 _codes[_j] = abi.encode(
                     _liquidityPool,
                     abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
                 );
             } else if (nCoins == uint256(3)) {
+                uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
                 _codes[_j] = abi.encode(
                     _liquidityPool,
                     abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
                 );
             } else if (nCoins == uint256(4)) {
+                uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
                 _codes[_j] = abi.encode(
                     _liquidityPool,
                     abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, uint256(0))
@@ -609,7 +612,9 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         view
         returns (uint256[] memory _depositAmounts)
     {
-        _depositAmounts = _getMaxDepositAmounts(_liquidityPool, _amounts);
+        _depositAmounts = maxExposureType == DataTypes.MaxExposure.Pct
+            ? _amounts
+            : _getMaxDepositAmounts(_liquidityPool, _amounts);
     }
 
     function _getDepositAmountPct(
@@ -641,13 +646,13 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     {
         _depositAmounts = new uint256[](_amounts.length);
         for (uint256 i = 0; i < _amounts.length; i++) {
-            if (_amounts[i] < maxDepositAmount[_liquidityPool][i]) {
-                _depositAmounts[i] = _amounts[i];
+            if ((maxDepositAmount[_liquidityPool].length > 0) && _amounts[i] > (maxDepositAmount[_liquidityPool])[i]) {
+                _depositAmounts[i] = maxDepositAmount[_liquidityPool][i];
             } else {
-                if (maxDepositAmount[_liquidityPool][i] == uint256(0)) {
+                if (maxDepositAmountDefault.length > 0 && _amounts[i] > maxDepositAmountDefault[i]) {
                     _depositAmounts[i] = maxDepositAmountDefault[i];
                 } else {
-                    _depositAmounts[i] = maxDepositAmount[_liquidityPool][i];
+                    _depositAmounts[i] = _amounts[i];
                 }
             }
         }
