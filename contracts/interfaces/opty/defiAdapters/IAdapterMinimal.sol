@@ -26,14 +26,14 @@ interface IAdapterMinimal {
 
     /**
      * @dev Get batch of function calls for depositing specified amount of underlying token in the lp provided
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingTokens List of underlying tokens supported by the given lp
      * @param _liquidityPool lp address where to deposit
      * @param _amounts  List of underlying token amounts
      * @return _codes Returns a bytes value to be executed
      */
     function getDepositSomeCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
@@ -41,13 +41,13 @@ interface IAdapterMinimal {
 
     /**
      * @dev Get batch of function calls for depositing vault's full balance in underlying tokens in the specified lp
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingTokens List of underlying tokens supported by the given lp
      * @param _liquidityPool lp address where to deposit
      * @return _codes Returns a bytes value to be executed
      */
     function getDepositAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) external view returns (bytes[] memory _codes);
@@ -55,14 +55,14 @@ interface IAdapterMinimal {
     /**
      * @notice Get batch of function calls for redeeming specified amount of lpTokens held in the vault
      * @dev Redeem specified `amount` of `liquidityPoolToken` and send the `underlyingToken` to the caller`
-     * @param _optyVault Address of vault contract
+     * @param _vault Address of vault contract
      * @param _underlyingTokens List of underlying tokens supported by the given lp
      * @param _liquidityPool lp address from where to withdraw
      * @param _amount amount of underlying token to redeem from the given lp
      * @return _codes Returns a bytes value to be executed
      */
     function getWithdrawSomeCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
@@ -71,13 +71,13 @@ interface IAdapterMinimal {
     /**
      * @notice Get batch of function calls for redeeming full balance of lpTokens held in the vault
      * @dev Redeem full `amount` of `liquidityPoolToken` and send the `underlyingToken` to the caller`
-     * @param _optyVault Address of vault contract
+     * @param _vault Address of vault contract
      * @param _underlyingTokens List of underlying tokens supported by the given lp
      * @param _liquidityPool lp address from where to withdraw
      * @return _codes Returns a bytes value to be executed
      */
     function getWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) external view returns (bytes[] memory _codes);
@@ -103,26 +103,26 @@ interface IAdapterMinimal {
 
     /**
      * @dev Returns the market value in underlying for all the shares held in a specified lp
-     * @param _optyVault Address of vault contract
+     * @param _vault Address of vault contract
      * @param _underlyingToken Underlying token address for which to get the balance
      * @param _liquidityPool lp address which holds the given underlying token
      * @return Returns the amount of underlying token balance
      */
     function getAllAmountInToken(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPool
     ) external view returns (uint256);
 
     /**
      * @notice Get the amount of shares in the specified lp
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingToken Underlying token address supported by given lp
      * @param _liquidityPool lp address from where to get the balance of lpToken
      * @return Returns the balance of lp token (lpToken)
      */
     function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPool
     ) external view returns (uint256);
@@ -155,14 +155,14 @@ interface IAdapterMinimal {
 
     /**
      * @dev Returns the market value in underlying token of the shares in the specified lp
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingToken Underlying token address for the given lp
      * @param _liquidityPool lp address from where to redeem the tokens
      * @param _redeemAmount amount of token to be redeemed
      * @return _amount Returns the market value in underlying token of the shares in the given lp
      */
     function calculateRedeemableLPTokenAmount(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
@@ -170,14 +170,14 @@ interface IAdapterMinimal {
 
     /**
      * @notice Checks whether the vault has enough lp token (+ rewards) to redeem for the specified amount of shares
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingToken Underlying token address for the given lp
      * @param _liquidityPool lp address from where to redeem the tokens
      * @param _redeemAmount amount of lpToken (+ rewards) enough to redeem
      * @return Returns a boolean true if lpToken (+ rewards) to redeem for given amount is enough else it returns false
      */
     function isRedeemableAmountSufficient(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount

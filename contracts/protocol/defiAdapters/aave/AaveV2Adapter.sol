@@ -134,20 +134,20 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function getDepositAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_optyVault);
-        return getDepositSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _amounts);
+        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _amounts);
     }
 
     /**
      * @inheritdoc IAdapterBorrow
      */
     function getBorrowAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry,
         address _outputToken
@@ -163,11 +163,10 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
             _reserveConfigurationData.isActive &&
             !_reserveConfigurationData.isFrozen
         ) {
-            uint256 _borrow =
-                _availableToBorrowReserve(_optyVault, _liquidityPoolAddressProviderRegistry, _outputToken);
+            uint256 _borrow = _availableToBorrowReserve(_vault, _liquidityPoolAddressProviderRegistry, _outputToken);
             if (_borrow > 0) {
                 bool _isUserCollateralEnabled =
-                    _getUserReserveData(_liquidityPoolAddressProviderRegistry, _underlyingTokens[0], _optyVault)
+                    _getUserReserveData(_liquidityPoolAddressProviderRegistry, _underlyingTokens[0], _vault)
                         .usageAsCollateralEnabled;
                 if (_isUserCollateralEnabled) {
                     _codes = new bytes[](1);
@@ -179,7 +178,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
                             _borrow,
                             uint256(1),
                             uint16(0),
-                            _optyVault
+                            _vault
                         )
                     );
                 } else {
@@ -200,7 +199,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
                             _borrow,
                             uint256(1),
                             uint16(0),
-                            _optyVault
+                            _vault
                         )
                     );
                 }
@@ -214,21 +213,21 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterBorrow
      */
     function getRepayAndWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry,
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
         uint256 _liquidityPoolTokenBalance =
-            getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
+            getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
 
         // borrow token amount
-        uint256 _borrowAmount = IERC20(_outputToken).balanceOf(_optyVault);
+        uint256 _borrowAmount = IERC20(_outputToken).balanceOf(_vault);
 
         uint256 _aTokenAmount =
             _maxWithdrawal(
-                _optyVault,
+                _vault,
                 _liquidityPoolAddressProviderRegistry,
                 _liquidityPoolTokenBalance,
                 _outputToken,
@@ -236,7 +235,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
             );
 
         uint256 _outputTokenRepayable =
-            _over(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry, _outputToken, _aTokenAmount);
+            _over(_vault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry, _outputToken, _aTokenAmount);
 
         if (_outputTokenRepayable > 0) {
             if (_outputTokenRepayable > _borrowAmount) {
@@ -261,7 +260,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
                         _outputToken,
                         _borrowAmount,
                         uint256(1),
-                        _optyVault
+                        _vault
                     )
                 );
                 _codes[3] = abi.encode(
@@ -278,7 +277,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
                         "withdraw(address,uint256,address)",
                         _underlyingTokens[0],
                         _aTokenAmount,
-                        _optyVault
+                        _vault
                     )
                 );
             }
@@ -289,14 +288,13 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function getWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount =
-            getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
-        return
-            getWithdrawSomeCodes(_optyVault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
+            getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
+        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
     }
 
     /**
@@ -327,17 +325,17 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterBorrow
      */
     function getAllAmountInTokenBorrow(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry,
         address _borrowToken,
         uint256 _borrowAmount
     ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance =
-            getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
+            getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
         return
             getSomeAmountInTokenBorrow(
-                _optyVault,
+                _vault,
                 _underlyingToken,
                 _liquidityPoolAddressProviderRegistry,
                 _liquidityPoolTokenBalance,
@@ -373,13 +371,12 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function isRedeemableAmountSufficient(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry,
         uint256 _redeemAmount
     ) public view override returns (bool) {
-        uint256 _balanceInToken =
-            getAllAmountInToken(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
+        uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
         return _balanceInToken >= _redeemAmount;
     }
 
@@ -415,32 +412,29 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function getAllAmountInToken(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (uint256) {
-        return getLiquidityPoolTokenBalance(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
+        return getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProviderRegistry);
     }
 
     /**
      * @inheritdoc IAdapterMinimal
      */
     function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (uint256) {
-        return
-            IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(
-                _optyVault
-            );
+        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(_vault);
     }
 
     /**
      * @inheritdoc IAdapterBorrow
      */
     function getSomeAmountInTokenBorrow(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry,
         uint256 _liquidityPoolTokenBalance,
@@ -449,9 +443,9 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     ) public view override returns (uint256) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProviderRegistry);
         uint256 _aTokenAmount =
-            _maxWithdrawal(_optyVault, _lendingPool, _liquidityPoolTokenBalance, _borrowToken, _borrowAmount);
+            _maxWithdrawal(_vault, _lendingPool, _liquidityPoolTokenBalance, _borrowToken, _borrowAmount);
         uint256 _outputTokenRepayable =
-            _over(_optyVault, _underlyingToken, _liquidityPoolAddressProviderRegistry, _borrowToken, _aTokenAmount);
+            _over(_vault, _underlyingToken, _liquidityPoolAddressProviderRegistry, _borrowToken, _aTokenAmount);
         if (_outputTokenRepayable > _borrowAmount) {
             return _aTokenAmount;
         } else {
@@ -482,7 +476,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function getDepositSomeCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry,
         uint256[] memory _amounts
@@ -506,7 +500,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
                     "deposit(address,uint256,address,uint16)",
                     _underlyingTokens[0],
                     _depositAmount,
-                    _optyVault,
+                    _vault,
                     uint16(0)
                 )
             );
@@ -517,7 +511,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
      * @inheritdoc IAdapterMinimal
      */
     function getWithdrawSomeCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry,
         uint256 _amount
@@ -537,7 +531,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
             );
             _codes[2] = abi.encode(
                 _lendingPool,
-                abi.encodeWithSignature("withdraw(address,uint256,address)", _underlyingTokens[0], _amount, _optyVault)
+                abi.encodeWithSignature("withdraw(address,uint256,address)", _underlyingTokens[0], _amount, _vault)
             );
         }
     }
@@ -601,7 +595,7 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
         }
     }
 
-    function _maxSafeETH(address _optyVault, address _liquidityPoolAddressProviderRegistry)
+    function _maxSafeETH(address _vault, address _liquidityPoolAddressProviderRegistry)
         internal
         view
         returns (
@@ -611,20 +605,20 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
         )
     {
         UserAccountData memory _userAccountData =
-            IAaveV2(_getLendingPool(_liquidityPoolAddressProviderRegistry)).getUserAccountData(_optyVault);
+            IAaveV2(_getLendingPool(_liquidityPoolAddressProviderRegistry)).getUserAccountData(_vault);
         uint256 _totalBorrowsETH = _userAccountData.totalDebtETH;
         uint256 _availableBorrowsETH = _userAccountData.availableBorrowsETH;
         uint256 _maxBorrowETH = (_totalBorrowsETH.add(_availableBorrowsETH));
         return (_maxBorrowETH.div(healthFactor), _totalBorrowsETH, _availableBorrowsETH);
     }
 
-    function _availableToBorrowETH(address _optyVault, address _liquidityPoolAddressProviderRegistry)
+    function _availableToBorrowETH(address _vault, address _liquidityPoolAddressProviderRegistry)
         internal
         view
         returns (uint256)
     {
         (uint256 _maxSafeETH_, uint256 _totalBorrowsETH, uint256 _availableBorrowsETH) =
-            _maxSafeETH(_optyVault, _liquidityPoolAddressProviderRegistry);
+            _maxSafeETH(_vault, _liquidityPoolAddressProviderRegistry);
         _maxSafeETH_ = _maxSafeETH_.mul(95).div(100); // 5% buffer so we don't go into a earn/rebalance loop
         if (_maxSafeETH_ > _totalBorrowsETH) {
             return _availableBorrowsETH.mul(_maxSafeETH_.sub(_totalBorrowsETH)).div(_availableBorrowsETH);
@@ -650,11 +644,11 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     function _availableToBorrowReserve(
-        address _optyVault,
+        address _vault,
         address _liquidityPoolAddressProvider,
         address _outputToken
     ) internal view returns (uint256) {
-        uint256 _available = _availableToBorrowETH(_optyVault, _liquidityPoolAddressProvider);
+        uint256 _available = _availableToBorrowETH(_vault, _liquidityPoolAddressProvider);
         if (_available > 0) {
             return
                 _available.mul(uint256(10)**ERC20(_outputToken).decimals()).div(
@@ -686,15 +680,14 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     function _over(
-        address _optyVault,
+        address _vault,
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry,
         address _outputToken,
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _eth = _getUnderlyingPriceETH(_underlyingToken, _liquidityPoolAddressProviderRegistry, _amount);
-        (uint256 _maxSafeETH_, uint256 _totalBorrowsETH, ) =
-            _maxSafeETH(_optyVault, _liquidityPoolAddressProviderRegistry);
+        (uint256 _maxSafeETH_, uint256 _totalBorrowsETH, ) = _maxSafeETH(_vault, _liquidityPoolAddressProviderRegistry);
         _maxSafeETH_ = _maxSafeETH_.mul(105).div(100); // 5% buffer so we don't go into a earn/rebalance loop
         if (_eth > _maxSafeETH_) {
             _maxSafeETH_ = 0;
@@ -715,11 +708,11 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     function _getUserReserveData(
         address _liquidityPoolAddressProviderRegistry,
         address _underlyingToken,
-        address _optyVault
+        address _vault
     ) internal view returns (UserReserveData memory) {
         return
             IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry))
-                .getUserReserveData(_underlyingToken, _optyVault);
+                .getUserReserveData(_underlyingToken, _vault);
     }
 
     function _getReserveData(address _liquidityPoolAddressProviderRegistry, address _underlyingToken)
@@ -734,39 +727,39 @@ contract AaveV2Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     function _debt(
-        address _optyVault,
+        address _vault,
         address _liquidityPoolAddressProviderRegistry,
         address _outputToken
     ) internal view returns (uint256) {
         return
             IAaveV2ProtocolDataProvider(_getProtocolDataProvider(_liquidityPoolAddressProviderRegistry))
-                .getUserReserveData(_outputToken, _optyVault)
+                .getUserReserveData(_outputToken, _vault)
                 .currentStableDebt;
     }
 
     // % of tokens locked and cannot be withdrawn per user
     // this is impermanent locked, unless the debt out accrues the strategy
     function _locked(
-        address _optyVault,
+        address _vault,
         address _liquidityPoolAddressProviderRegistry,
         address _borrowToken,
         uint256 _borrowAmount
     ) internal view returns (uint256) {
-        return _borrowAmount.mul(1e18).div(_debt(_optyVault, _liquidityPoolAddressProviderRegistry, _borrowToken));
+        return _borrowAmount.mul(1e18).div(_debt(_vault, _liquidityPoolAddressProviderRegistry, _borrowToken));
     }
 
     // Calculates in impermanent lock due to debt
     function _maxWithdrawal(
-        address _optyVault,
+        address _vault,
         address _liquidityPoolAddressProviderRegistry,
         uint256 _aTokenAmount,
         address _borrowToken,
         uint256 _borrowAmount
     ) internal view returns (uint256) {
         uint256 _safeWithdraw =
-            _aTokenAmount
-                .mul(_locked(_optyVault, _liquidityPoolAddressProviderRegistry, _borrowToken, _borrowAmount))
-                .div(1e18);
+            _aTokenAmount.mul(_locked(_vault, _liquidityPoolAddressProviderRegistry, _borrowToken, _borrowAmount)).div(
+                1e18
+            );
         if (_safeWithdraw > _aTokenAmount) {
             return _aTokenAmount;
         } else {
