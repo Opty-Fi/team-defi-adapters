@@ -15,7 +15,7 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 //  interfaces
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
@@ -25,13 +25,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to Compound's pools
  */
-contract CompoundAdapter is
-    IAdapterMinimal,
-    IAdapterProtocolConfig,
-    IAdapterHarvestReward,
-    IAdapterInvestLimit,
-    Modifiers
-{
+contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice HarvestCodeProvider contract instance */
@@ -70,7 +64,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -120,14 +114,14 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _vault,
@@ -140,7 +134,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawAllCodes(
         address payable _vault,
@@ -152,7 +146,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -165,7 +159,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateAmountInLPToken(
         address _underlyingToken,
@@ -179,7 +173,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateRedeemableLPTokenAmount(
         address payable _vault,
@@ -194,7 +188,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function isRedeemableAmountSufficient(
         address payable _vault,
@@ -232,14 +226,14 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -263,7 +257,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -281,21 +275,21 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return ICompound(_liquidityPool).getCash();
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _vault,
@@ -323,7 +317,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _vault,
@@ -334,7 +328,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,
@@ -350,7 +344,7 @@ contract CompoundAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;

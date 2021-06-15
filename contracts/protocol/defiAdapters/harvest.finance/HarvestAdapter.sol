@@ -16,7 +16,7 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 import { IHarvestDeposit } from "../../../interfaces/harvest.finance/IHarvestDeposit.sol";
 import { IHarvestFarm } from "../../../interfaces/harvest.finance/IHarvestFarm.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
@@ -28,7 +28,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to harvest finance's pools
  */
 contract HarvestAdapter is
-    IAdapterMinimal,
+    IAdapter,
     IAdapterProtocolConfig,
     IAdapterHarvestReward,
     IAdapterStaking,
@@ -116,7 +116,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -171,14 +171,14 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _vault,
@@ -191,7 +191,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawAllCodes(
         address payable _vault,
@@ -203,7 +203,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -216,7 +216,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateAmountInLPToken(
         address,
@@ -230,7 +230,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateRedeemableLPTokenAmount(
         address payable _vault,
@@ -245,7 +245,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function isRedeemableAmountSufficient(
         address payable _vault,
@@ -284,7 +284,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function canStake(address) public view override returns (bool) {
         return true;
@@ -357,7 +357,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -381,7 +381,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -399,21 +399,21 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IHarvestDeposit(_liquidityPool).underlyingBalanceWithInvestment();
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _vault,
@@ -429,7 +429,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _vault,
@@ -440,7 +440,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,
@@ -456,7 +456,7 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;

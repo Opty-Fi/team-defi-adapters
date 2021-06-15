@@ -13,7 +13,7 @@ pragma experimental ABIEncoderV2;
  *  - lp: liquidityPool
  *  - lpToken: liquidityPool token
  */
-interface IAdapterMinimal {
+interface IAdapter {
     /**
      * @notice Returns pool value in underlying token (for all adapters except Curve for which the poolValue is
      * in US dollar) for the given lp and underlyingToken

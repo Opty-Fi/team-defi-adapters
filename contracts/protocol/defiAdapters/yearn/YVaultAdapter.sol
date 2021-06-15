@@ -14,7 +14,7 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 //  interfaces
 import { IYVault } from "../../../interfaces/yearn/IYVault.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
@@ -22,7 +22,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to yVault's pools
  */
-contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
+contract YVaultAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -43,7 +43,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -71,14 +71,14 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _vault,
@@ -91,7 +91,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawAllCodes(
         address payable _vault,
@@ -103,7 +103,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -116,7 +116,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateAmountInLPToken(
         address,
@@ -130,7 +130,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateRedeemableLPTokenAmount(
         address payable _vault,
@@ -145,7 +145,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function isRedeemableAmountSufficient(
         address payable _vault,
@@ -158,21 +158,21 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -196,7 +196,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -211,21 +211,21 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
         return IYVault(_liquidityPool).balance();
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address, address _liquidityPool) public view override returns (address) {
         return _liquidityPool;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _vault,
@@ -241,7 +241,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _vault,
@@ -252,7 +252,7 @@ contract YVaultAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,

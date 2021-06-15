@@ -27,7 +27,7 @@ import {
     UserAccountData
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
@@ -37,7 +37,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to Aave V1's pools
  */
-contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfig, IAdapterInvestLimit, Modifiers {
+contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -80,7 +80,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -115,14 +115,14 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _vault,
@@ -243,7 +243,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawAllCodes(
         address payable _vault,
@@ -256,7 +256,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address, address _liquidityPoolToken)
         public
@@ -269,7 +269,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getSomeAmountInToken(
         address,
@@ -303,7 +303,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateAmountInLPToken(
         address,
@@ -314,7 +314,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateRedeemableLPTokenAmount(
         address payable,
@@ -326,7 +326,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function isRedeemableAmountSufficient(
         address payable _vault,
@@ -339,21 +339,21 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPoolAddressProvider, address _underlyingToken)
         public
@@ -366,7 +366,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable,
@@ -404,7 +404,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable,
@@ -422,7 +422,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address _underlyingToken, address _liquidityPoolAddressProvider)
         public
@@ -436,7 +436,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _vault,
@@ -447,7 +447,7 @@ contract AaveV1Adapter is IAdapterMinimal, IAdapterBorrow, IAdapterProtocolConfi
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _vault,

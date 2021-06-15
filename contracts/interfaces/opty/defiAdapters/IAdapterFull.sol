@@ -3,7 +3,7 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IAdapterMinimal } from "./IAdapterMinimal.sol";
+import { IAdapter } from "./IAdapter.sol";
 import { IAdapterBorrow } from "./IAdapterBorrow.sol";
 import { IAdapterHarvestReward } from "./IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "./IAdapterStaking.sol";
@@ -21,7 +21,7 @@ import { IAdapterProtocolConfig } from "./IAdapterProtocolConfig.sol";
  */
 /* solhint-disable no-empty-blocks */
 interface IAdapterFull is
-    IAdapterMinimal,
+    IAdapter,
     IAdapterBorrow,
     IAdapterHarvestReward,
     IAdapterStaking,

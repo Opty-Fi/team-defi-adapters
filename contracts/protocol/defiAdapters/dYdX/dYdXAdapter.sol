@@ -23,7 +23,7 @@ import {
     AssetReference,
     ActionType
 } from "../../../interfaces/dydx/IdYdX.sol";
-import { IAdapterMinimal } from "../../../interfaces/opty/defiAdapters/IAdapterMinimal.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
@@ -31,7 +31,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to dYdX's pools
  */
-contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
+contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -72,7 +72,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -118,14 +118,14 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositAllCodes(
         address payable _vault,
@@ -142,7 +142,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawAllCodes(
         address payable _vault,
@@ -154,14 +154,14 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolToken(address, address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getUnderlyingTokens(address _liquidityPool, address)
         public
@@ -173,7 +173,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getLiquidityPoolTokenBalance(
         address payable _vault,
@@ -184,7 +184,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function getSomeAmountInToken(
@@ -196,7 +196,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      * @dev Reverting '!empty' message as there is no related functionality for this in dYdX protocol
      */
     function calculateAmountInLPToken(
@@ -208,7 +208,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function calculateRedeemableLPTokenAmount(
         address payable,
@@ -220,7 +220,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function isRedeemableAmountSufficient(
         address payable _vault,
@@ -233,21 +233,21 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getRewardToken(address) public view override returns (address) {
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function canStake(address) public view override returns (bool) {
         return false;
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
         address payable _vault,
@@ -303,7 +303,7 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
         address payable _vault,
@@ -338,14 +338,14 @@ contract DyDxAdapter is IAdapterMinimal, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address _underlyingToken) public view override returns (uint256) {
         return uint256(IdYdX(_liquidityPool).getMarketTotalPar(marketToIndexes[_underlyingToken]).supply);
     }
 
     /**
-     * @inheritdoc IAdapterMinimal
+     * @inheritdoc IAdapter
      */
     function getAllAmountInToken(
         address payable _vault,
