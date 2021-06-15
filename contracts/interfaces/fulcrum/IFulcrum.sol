@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 interface IFulcrum {
     function mint(address receiver, uint256 depositAmount) external;

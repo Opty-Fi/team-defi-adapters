@@ -17,6 +17,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   OPTY_STAKING_RATE_BALANCER: "OPTYStakingRateBalancer",
   OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
   APR_ORACLE: "APROracle",
+  ODEFI_VAULT_BOOSTER: "ODEFIVaultBooster",
 };
 
 export const ADAPTER = [
@@ -67,12 +68,18 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
 
 export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
+  TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
+  RP0: {
+    name: "RP0",
+    steps: 0,
+    poolRating: [0, 0],
+  },
   RP1: {
     name: "RP1",
     steps: 1,

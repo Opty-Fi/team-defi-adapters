@@ -1,29 +1,22 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 /**
- * @dev Interface used to authorize and keep all the modifiers at one place
+ * @title Interface for ModifiersController Contract
+ * @author Opty.fi
+ * @notice Interface used to authorize operator and minter accounts
  */
 interface IModifiersController {
     /**
-     * @dev Transfers operator to a new account (`_governance`).
-     * Can only be called by the governance.
+     * @notice Transfers operator to a new account (`_operator`)
+     * @param _operator address of Operator's account
      */
-
     function setOperator(address _operator) external;
 
     /**
-     * @dev Transfers strategist to a new account (`_strategist`).
-     * Can only be called by the current governance.
+     * @notice Transfers minter to a new account (`_minter`)
+     * @param _minter address of minter's account
      */
-
-    function setStrategist(address _strategist) external;
-
-    /**
-     * @dev Transfers minter to a new account (`_minter`).
-     * Can only be called by the current governance.
-     */
-
     function setOPTYMinter(address _minter) external;
 }

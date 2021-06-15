@@ -1,33 +1,47 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { SafeERC20, IERC20, SafeMath, Address } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  libraries
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./Modifiers.sol";
-import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
-import { ReserveDataV1, IAaveV1 } from "../../interfaces/aave/v1/IAaveV1.sol";
+
+//  interfaces
 import { IAaveV1LendingPoolAddressesProvider } from "../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";
 import { IAaveV1LendingPoolCore } from "../../interfaces/aave/v1/IAaveV1LendingPoolCore.sol";
 import { ReserveDataV2, IAaveV2 } from "../../interfaces/aave/v2/IAaveV2.sol";
 import { IAaveV2LendingPoolAddressesProvider } from "../../interfaces/aave/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import { ICompound } from "../../interfaces/compound/ICompound.sol";
+import { Constants } from "../../utils/Constants.sol";
+import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
+import { ReserveDataV1, IAaveV1 } from "../../interfaces/aave/v1/IAaveV1.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/*
- * @author OptyFi inspired on yearn.finance APROracle contract
+/**
+ * @title APROracle contract
+ * @author Opty.fi inspired on yearn.finance APROracle contract
+ * @notice Contract for getting APR from Aave and compound protocols
+ * @dev Contract contains math for getting best APR among Aave and Compound
  */
 contract APROracle is IAPROracle, Modifiers {
     using SafeMath for uint256;
     using Address for address;
 
-    uint256 public constant DECIMAL = 10**18;
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
-
+    /** @notice Store AaveV1 LendingPoolProvider address */
     address public aaveV1;
+
+    /** @notice Store AaveV2 LendingPoolProvider address */
     address public aaveV2AddressProvider;
+
+    /** @notice Store Compound address */
     address public compound;
 
-    uint256 public dydxModifier;
+    /** @notice Stores the estimation of no. of blocks gets mined per year */
     uint256 public blocksPerYear;
 
     constructor(address _registry) public Modifiers(_registry) {
@@ -38,27 +52,48 @@ contract APROracle is IAPROracle, Modifiers {
         blocksPerYear = 242584;
     }
 
+    /**
+     * @notice Sets the new Aave protocol lending pool address
+     * @param _newAaveV1 Address of new Aave Lending pool
+     */
     function setNewAaveV1(address _newAaveV1) external onlyOperator {
         aaveV1 = _newAaveV1;
     }
 
+    /**
+     * @notice Sets the estimated No. of blocks mined per year
+     * @dev Formula used = noOfSecondsInAYear/blockMintNoOfSeconds Eg: _newBlocksPerYear = 3153600/13 = 242584
+     * @param _newBlocksPerYear New No. of blocks value estimated per year
+     */
     function setNewBlocksPerYear(uint256 _newBlocksPerYear) external onlyOperator {
         blocksPerYear = _newBlocksPerYear;
     }
 
-    function getCompoundAPR(address token) external view override returns (uint256) {
+    /**
+     * @inheritdoc IAPROracle
+     */
+    function getCompoundAPR(address token) public view override returns (uint256) {
         return _getCompoundAPR(token);
     }
 
-    function getAaveV1APR(address token) external view override returns (address, uint256) {
+    /**
+     * @inheritdoc IAPROracle
+     */
+    function getAaveV1APR(address token) public view override returns (address, uint256) {
         return _getAaveV1APR(token);
     }
 
-    function getAaveV2APR(address token) external view override returns (address, uint256) {
+    /**
+     * @inheritdoc IAPROracle
+     */
+    function getAaveV2APR(address token) public view override returns (address, uint256) {
         return _getAaveV2APR(token);
     }
 
-    function getBestAPR(bytes32 _tokensHash) external view override returns (bytes32) {
+    /**
+     * @inheritdoc IAPROracle
+     */
+    function getBestAPR(bytes32 _tokensHash) public view override returns (bytes32) {
         return _getBestAPR(_tokensHash);
     }
 
@@ -101,7 +136,7 @@ contract APROracle is IAPROracle, Modifiers {
             compoundAPR = uint256(0);
         }
         if (aaveV1APR == uint256(0) && aaveV2APR == uint256(0) && compoundAPR == uint256(0)) {
-            return ZERO_BYTES32;
+            return Constants.ZERO_BYTES32;
         } else {
             if (aaveV1APR > compoundAPR) {
                 if (aaveV1APR > aaveV2APR) {

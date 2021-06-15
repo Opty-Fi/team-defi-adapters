@@ -1,7 +1,7 @@
 // solhint-disable func-name-mixedcase
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 
 interface ICurveSwap {
     function remove_liquidity_one_coin(

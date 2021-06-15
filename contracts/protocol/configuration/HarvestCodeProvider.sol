@@ -1,21 +1,33 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import { SafeERC20, IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+//  libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+//  helper contracts
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "./Modifiers.sol";
+
+// interfaces
+import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 
 /**
- * @dev Abstraction layer to DeFi exchanges like Uniswap
+ * @title HarvestCodeProvider Contract
+ * @author Opty.fi
+ * @notice Abstraction layer to DeFi exchanges like Uniswap
+ * @dev Contract for generating the codes for harvest tokens
  */
-
 contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    /**
+     * @notice Uniswap V2 router contract address
+     */
     IUniswapV2Router02 public uniswapV2Router02 = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     /* solhint-disable no-empty-blocks */
@@ -23,12 +35,15 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
 
     /* solhint-disable no-empty-blocks */
 
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
     function getHarvestCodes(
-        address payable _optyPool,
+        address payable _optyVault,
         address _rewardToken,
         address _underlyingToken,
         uint256 _rewardTokenAmount
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         address _weth = uniswapV2Router02.WETH();
         if (_rewardTokenAmount > 0) {
             address[] memory _path;
@@ -62,7 +77,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         _rewardTokenAmount,
                         uint256(0),
                         _path,
-                        _optyPool,
+                        _optyVault,
                         uint256(-1)
                     )
                 );
@@ -70,11 +85,14 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         }
     }
 
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
     function getOptimalTokenAmount(
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         if (_borrowTokenAmount > 0) {
             address[] memory _path;
@@ -101,11 +119,14 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         return uint256(0);
     }
 
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
     function rewardBalanceInUnderlyingTokens(
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         address _weth = uniswapV2Router02.WETH();
         uint256[] memory amounts = new uint256[](3);
         address[] memory path = new address[](3);
@@ -114,5 +135,20 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         path[2] = _underlyingToken;
         amounts = uniswapV2Router02.getAmountsOut(_amount, path);
         return amounts[2];
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function getWETHInToken(address _underlyingToken, uint256 _amount) public view override returns (uint256) {
+        address _weth = uniswapV2Router02.WETH();
+        if (_underlyingToken == _weth) {
+            return _amount;
+        }
+        address[] memory _path = new address[](2);
+        _path[0] = _weth;
+        _path[1] = _underlyingToken;
+        uint256[] memory _amounts = uniswapV2Router02.getAmountsOut(_amount, _path);
+        return _amounts[1];
     }
 }

@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
+
+/**
+ * @title OPTY staking rate balancer state that can change
+ * @author opty.fi
+ * @dev The storage contract for staking rate balancer
+ */
 
 contract OPTYStakingRateBalancerStorage {
     /**
@@ -49,7 +55,14 @@ contract OPTYStakingRateBalancerStorage {
      */
     mapping(address => mapping(address => uint256)) public stakingVaultToUserStakedOPTY;
 
+    /**
+     * @notice The coefficient of $OPTY for staking vault
+     *         with different period
+     */
     mapping(address => uint256) public stakingVaultMultipliers;
 
+    /**
+     * @notice Total amount of $OPTY allocated to staking vaults
+     */
     uint256 public stakingVaultOPTYAllocation;
 }
