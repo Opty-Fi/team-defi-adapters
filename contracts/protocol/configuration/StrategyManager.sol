@@ -414,9 +414,56 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
-    function _getHarvestRewardStepsCount(bytes32 _investStrategyhash) internal view returns (uint8) {
+    function _getBalanceInUnderlyingTokenWrite(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyhash
+    ) internal view returns (uint256 _balance) {
+        uint256 _steps = _getStrategySteps(_investStrategyhash).length;
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        uint256 _lastStepIndex = _strategySteps.length - 1;
+        _balance = 0;
+        uint256 _outputTokenAmount = _balance;
+        for (uint256 _i = 0; _i < _steps; _i++) {
+            uint256 _iterator = _steps - 1 - _i;
+            address _liquidityPool = _strategySteps[_iterator].pool;
+            address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+            address _inputToken = _underlyingToken;
+            if (_iterator != 0) {
+                _inputToken = _strategySteps[_iterator - 1].outputToken;
+            }
+            if (!_strategySteps[_iterator].isBorrow) {
+                if (_iterator == (_steps - 1)) {
+                    if (IAdapter(_adapter).canStake(_liquidityPool)) {
+                        _balance = IAdapter(_adapter).getAllAmountInTokenStakeWrite(
+                            _vault,
+                            _inputToken,
+                            _liquidityPool
+                        );
+                    } else {
+                        _balance = IAdapter(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
+                    }
+                } else {
+                    _balance = IAdapter(_adapter).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
+                }
+            }
+            // deposit
+            else {
+                address _borrowToken = _strategySteps[_iterator].outputToken;
+                _balance = IAdapter(_adapter).getAllAmountInTokenBorrow(
+                    _vault,
+                    _inputToken,
+                    _liquidityPool,
+                    _borrowToken,
+                    _outputTokenAmount
+                );
+            } // borrow
+            _outputTokenAmount = _balance;
+        }
+    }
+
+    function _getHarvestRewardStepsCount(bytes32 _hash) internal view returns (uint8) {
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
+        uint8 _lastStepIndex = uint8(_strategySteps.length) - 1;
         address _lastStepLiquidityPool = _strategySteps[_lastStepIndex].pool;
         address _lastStepOptyAdapter = registryContract.getLiquidityPoolToAdapter(_lastStepLiquidityPool);
         if (IAdapter(_lastStepOptyAdapter).getRewardToken(_lastStepLiquidityPool) != address(0)) {

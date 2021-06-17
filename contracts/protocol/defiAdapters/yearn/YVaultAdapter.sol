@@ -41,6 +41,14 @@ contract YVaultAdapter is IAdapter, Modifiers {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    function getAllAmountInTokenStakeWrite(
+        address payable,
+        address,
+        address
+    ) external override returns (uint256) {
+        revert("!empty");
+    }
+
     function getDepositAllCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,

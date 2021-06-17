@@ -54,6 +54,12 @@ interface IStrategyManager {
         bytes32 _investStrategyHash
     ) external view returns (uint256 _balance);
 
+    function getBalanceInUnderlyingTokenWriteCodes(
+        address payable _optyVault,
+        address _underlyingToken,
+        bytes32 _hash
+    ) external view returns (bytes[] memory _codes);
+
     /**
      * @dev Get codes for depositing all balance in the pool for the given strategy hash
      * @param _optyVault Vault contract address

@@ -301,6 +301,15 @@ contract Vault is
         return uint256(0);
     }
 
+    function getPricePerFullShareWrite() external override returns (uint256) {
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
+            registryContract.getVaultStrategyConfiguration();
+        if (totalSupply() != 0) {
+            return _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration).div(totalSupply());
+        }
+        return uint256(0);
+    }
+
     /**
      * @inheritdoc IVault
      */
@@ -630,6 +639,29 @@ contract Vault is
         if (investStrategyHash != Constants.ZERO_BYTES32) {
             uint256 balanceInUnderlyingToken =
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getBalanceInUnderlyingToken(
+                    payable(address(this)),
+                    underlyingToken,
+                    investStrategyHash
+                );
+            _vaultValue = balanceInUnderlyingToken.add(_balance()).sub(depositQueue);
+        }
+        _vaultValue = _balance().sub(depositQueue);
+    }
+
+    /**
+     * @dev Function to calculate vault value in underlying token (for example DAI)
+     *
+     * Note:
+     *  - Need to modify this function in future whenever 2nd layer of depositing
+     *    the underlying token (for example DAI) into any
+     *    credit pool like compound is added.
+     */
+    function _calVaultValueInUnderlyingTokenWrite(
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
+    ) internal returns (uint256 _vaultValue) {
+        if (investStrategyHash != Constants.ZERO_BYTES32) {
+            uint256 balanceInUnderlyingToken =
+                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getBalanceInUnderlyingTokenWrite(
                     payable(address(this)),
                     underlyingToken,
                     investStrategyHash

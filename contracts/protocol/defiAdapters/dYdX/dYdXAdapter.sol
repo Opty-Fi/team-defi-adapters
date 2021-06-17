@@ -303,6 +303,14 @@ contract DyDxAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    function getAllAmountInTokenStakeWrite(
+        address payable,
+        address,
+        address
+    ) external override returns (uint256) {
+        revert("!empty");
+    }
+
     function getDepositSomeCodes(
         address payable _optyVault,
         address[] memory _underlyingTokens,

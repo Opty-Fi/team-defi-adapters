@@ -507,6 +507,45 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    function getAllAmountInTokenStakeWrite(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) public view override returns (uint256) {
+        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        int128 tokenIndex = 0;
+        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+            if (_underlyingTokens[i] == _underlyingToken) {
+                tokenIndex = i;
+            }
+        }
+        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        uint256 _b = 0;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+        }
+        _b = _b.add(
+            harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
+            )
+        );
+        return _b;
+    }
+
+    function getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        if (swapPoolToGauges[_liquidityPool] != address(0)) {
+            return ICurveGauge(swapPoolToGauges[_liquidityPool]).claimable_tokens(_vault);
+        }
+        return uint256(0);
+    }
+
     /**
      * @dev Calls the appropriate deploy function depending on N_COINS
      *
