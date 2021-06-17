@@ -18,14 +18,14 @@ interface IStrategyManager {
      * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @return Returns the withdrawal codes steps count for the given stretagy hash
      */
-    function getWithdrawAllStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
+    function getWithdrawAllStepsCount(bytes32 _investStrategyHash) external view returns (uint256);
 
     /**
      * @dev Get the deposit codes steps count for the given stretagy hash
      * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @return Returns the deposit codes steps count for the given stretagy hash
      */
-    function getDepositAllStepCount(bytes32 _investStrategyHash) external view returns (uint8);
+    function getDepositAllStepCount(bytes32 _investStrategyHash) external view returns (uint256);
 
     /**
      * @dev Get the claim reward token codes steps count for the given stretagy hash
@@ -67,8 +67,8 @@ interface IStrategyManager {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) external view returns (bytes[] memory _codes);
 
     /**
@@ -84,8 +84,8 @@ interface IStrategyManager {
         address payable _optyVault,
         address _underlyingToken,
         bytes32 _investStrategyHash,
-        uint8 _stepIndex,
-        uint8 _stepCount
+        uint256 _stepIndex,
+        uint256 _stepCount
     ) external view returns (bytes[] memory _codes);
 
     /**
