@@ -17,6 +17,7 @@ import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 /**
@@ -35,6 +36,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
     mapping(address => address) public swapPoolToGauges;
     /** @notice Mapping  of swapPool to status of removing liquidity pool for 1 coin */
     mapping(address => bool) public noRemoveLiquidityOneCoin;
+
     mapping(address => uint256[]) public maxDepositAmount;
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
