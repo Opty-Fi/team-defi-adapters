@@ -41,18 +41,26 @@ contract CurveSwapAdapter is
 
     /** @notice Mapping  of swapPool to the underlyingTokens */
     mapping(address => address[]) public swapPoolToUnderlyingTokens;
+
     /** @notice Mapping  of swapPool to the LiquidityPoolToken */
     mapping(address => address) public swapPoolToLiquidityPoolToken;
+
     /** @notice Mapping  of swapPool to the Gauge contract address */
     mapping(address => address) public swapPoolToGauges;
+
     /** @notice Mapping  of swapPool to status of removing liquidity pool for 1 coin */
     mapping(address => bool) public noRemoveLiquidityOneCoin;
 
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
     mapping(address => uint256[]) public maxDepositAmount;
+
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
+    /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
 
     /** @notice HarvestCodeProvider contract instance */
@@ -72,9 +80,7 @@ contract CurveSwapAdapter is
      */
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
-        // reward token
         setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
-
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
@@ -86,6 +92,9 @@ contract CurveSwapAdapter is
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @inheritdoc IAdapterCurveInvestLimit
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount)
         external
         override
@@ -101,6 +110,9 @@ contract CurveSwapAdapter is
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    /**
+     * @inheritdoc IAdapterCurveInvestLimit
+     */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }

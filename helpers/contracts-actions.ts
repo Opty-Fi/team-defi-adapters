@@ -214,22 +214,25 @@ export async function unpauseVault(
 export async function insertDataCurveDeposit(owner: Signer, curveDeposit: Contract): Promise<void> {
   for (let i = 0; i < MAPPING_CURVE_DEPOSIT_DATA.length; i++) {
     const data = MAPPING_CURVE_DEPOSIT_DATA[i];
-
-    await executeFunc(curveDeposit, owner, "setLiquidityPoolToUnderlyingTokens(address,address[])", [
-      TypedCurveDepositPools[data.lp],
-      data.tokens.map(token => TypedTokens[token]),
-    ]);
-
-    await executeFunc(curveDeposit, owner, "setLiquidityPoolToSwap(address,address)", [
-      TypedCurveDepositPools[data.lp],
-      TypedCurveSwapPools[data.swap],
-    ]);
-
-    if (TypedCurveDepositPoolGauges[data.gauges]) {
-      await executeFunc(curveDeposit, owner, "setLiquidityPoolToGauges(address,address)", [
+    try {
+      await executeFunc(curveDeposit, owner, "setLiquidityPoolToUnderlyingTokens(address,address[])", [
         TypedCurveDepositPools[data.lp],
-        TypedCurveDepositPoolGauges[data.gauges],
+        data.tokens.map(token => TypedTokens[token]),
       ]);
+
+      await executeFunc(curveDeposit, owner, "setLiquidityPoolToSwap(address,address)", [
+        TypedCurveDepositPools[data.lp],
+        TypedCurveSwapPools[data.swap],
+      ]);
+
+      if (TypedCurveDepositPoolGauges[data.gauges]) {
+        await executeFunc(curveDeposit, owner, "setLiquidityPoolToGauges(address,address)", [
+          TypedCurveDepositPools[data.lp],
+          TypedCurveDepositPoolGauges[data.gauges],
+        ]);
+      }
+    } catch (error) {
+      console.log("Got error in insertDataCurveDeposit() ", error);
     }
   }
 }
@@ -237,21 +240,25 @@ export async function insertDataCurveDeposit(owner: Signer, curveDeposit: Contra
 export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): Promise<void> {
   for (let i = 0; i < MAPPING_CURVE_SWAP_DATA.length; i++) {
     const data = MAPPING_CURVE_SWAP_DATA[i];
-    await executeFunc(curveSwap, owner, "setSwapPoolToLiquidityPoolToken(address,address)", [
-      TypedCurveSwapPools[data.swap],
-      TypedTokens[data.lpToken],
-    ]);
-
-    await executeFunc(curveSwap, owner, "setSwapPoolToUnderlyingTokens(address,address[])", [
-      TypedCurveSwapPools[data.swap],
-      data.tokens.map(token => TypedTokens[token]),
-    ]);
-
-    if (TypedCurveDepositPoolGauges[data.gauges]) {
-      await executeFunc(curveSwap, owner, "setSwapPoolToGauges(address,address)", [
+    try {
+      await executeFunc(curveSwap, owner, "setSwapPoolToLiquidityPoolToken(address,address)", [
         TypedCurveSwapPools[data.swap],
-        TypedCurveDepositPoolGauges[data.gauges],
+        TypedTokens[data.lpToken],
       ]);
+
+      await executeFunc(curveSwap, owner, "setSwapPoolToUnderlyingTokens(address,address[])", [
+        TypedCurveSwapPools[data.swap],
+        data.tokens.map(token => TypedTokens[token]),
+      ]);
+
+      if (TypedCurveDepositPoolGauges[data.gauges]) {
+        await executeFunc(curveSwap, owner, "setSwapPoolToGauges(address,address)", [
+          TypedCurveSwapPools[data.swap],
+          TypedCurveDepositPoolGauges[data.gauges],
+        ]);
+      }
+    } catch (error) {
+      console.log("Got error in insertDataCurveSwap() ", error);
     }
   }
 }

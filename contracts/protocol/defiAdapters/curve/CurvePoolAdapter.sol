@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
@@ -25,8 +26,6 @@ import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-
 /**
  * @title Adapter for Curve Deposit pools
  * @author Opty.fi
@@ -45,23 +44,34 @@ contract CurvePoolAdapter is
 
     /** @notice Mapping  of depositPool to the underlyingTokens */
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
+
     /** @notice Mapping  of depositPool to the swapPool */
     mapping(address => address) public liquidityPoolToSwap;
+
     /** @notice Mapping  of depositPool to the Gauge contract address */
     mapping(address => address) public liquidityPoolToGauges;
 
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
     mapping(address => uint256[]) public maxDepositAmount;
 
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    mapping(address => uint256) public maxDepositPoolPct;
 
+    /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
+    /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
     /** @notice Price Oracle contract address */
     PriceOracle public oracleContract;
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
+
     /** @notice list of max deposit's default values in number */
     uint256[4] public maxDepositAmountDefault;
 
@@ -86,6 +96,9 @@ contract CurvePoolAdapter is
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
+    /**
+     * @inheritdoc IAdapterCurveInvestLimit
+     */
     function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount)
         external
         override
@@ -94,6 +107,9 @@ contract CurvePoolAdapter is
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapterCurveInvestLimit
+     */
     function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
@@ -155,11 +171,19 @@ contract CurvePoolAdapter is
         oracleContract = PriceOracle(_oracle);
     }
 
+    /**
+     * @notice Maps the liquidity pool to the curve's guage contract address
+     * @param _pool Curve's liquidity pool address
+     * @param _gauge Curve's gauge contract address
+     */
     function setLiquidityPoolToGauges(address _pool, address _gauge) public onlyOperator {
         liquidityPoolToGauges[_pool] = _gauge;
     }
 
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    /**
+     * @inheritdoc IAdapterCurveInvestLimit
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
