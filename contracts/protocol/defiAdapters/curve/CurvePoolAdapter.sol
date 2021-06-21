@@ -513,22 +513,10 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
             harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
+                _getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
             )
         );
         return _b;
-    }
-
-    function getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
-        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
-            return ICurveGauge(liquidityPoolToGauges[_liquidityPool]).claimable_tokens(_vault);
-        }
-        return uint256(0);
     }
 
     /**
@@ -764,6 +752,24 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
 
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
+    }
+
+    /**
+     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
+     *
+     * @param _vault Address of the OptyFi's vault contract
+     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
+     *
+     * @return uint256 Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        internal
+        returns (uint256)
+    {
+        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
+            return ICurveGauge(liquidityPoolToGauges[_liquidityPool]).claimable_tokens(_vault);
+        }
+        return uint256(0);
     }
 
     /**

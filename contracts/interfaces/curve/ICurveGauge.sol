@@ -12,5 +12,5 @@ interface ICurveGauge {
 
     function balanceOf(address _holder) external view returns (uint256);
 
-    function claimable_tokens(address _holder) external view returns (uint256);
+    function claimable_tokens(address _holder) external returns (uint256);
 }

@@ -511,7 +511,7 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
         address payable _optyVault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (uint256) {
+    ) public override returns (uint256) {
         address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
         int128 tokenIndex = 0;
         for (uint8 i = 0; i < _underlyingTokens.length; i++) {
@@ -528,22 +528,10 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
             harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
+                _getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
             )
         );
         return _b;
-    }
-
-    function getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
-        if (swapPoolToGauges[_liquidityPool] != address(0)) {
-            return ICurveGauge(swapPoolToGauges[_liquidityPool]).claimable_tokens(_vault);
-        }
-        return uint256(0);
     }
 
     /**
@@ -779,6 +767,19 @@ contract CurveSwapAdapter is IAdapter, Modifiers {
 
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
+    }
+
+    /**
+     * @dev Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        internal
+        returns (uint256)
+    {
+        if (swapPoolToGauges[_liquidityPool] != address(0)) {
+            return ICurveGauge(swapPoolToGauges[_liquidityPool]).claimable_tokens(_vault);
+        }
+        return uint256(0);
     }
 
     /**

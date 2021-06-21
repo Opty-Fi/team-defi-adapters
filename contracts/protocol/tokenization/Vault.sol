@@ -285,6 +285,22 @@ contract Vault is
     /**
      * @inheritdoc IVault
      */
+    function getPricePerFullShareWrite() external override returns (uint256) {
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
+            registryContract.getVaultStrategyConfiguration();
+        if (totalSupply() != 0) {
+            balanceWrite = _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration)
+                .mul(Constants.WEI_DECIMAL)
+                .div(totalSupply());
+        } else {
+            balanceWrite = uint256(0);
+        }
+        return balanceWrite;
+    }
+
+    /**
+     * @inheritdoc IVault
+     */
     function balance() public view override returns (uint256) {
         return _balance();
     }
@@ -296,18 +312,13 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         if (totalSupply() != 0) {
-            return _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration).div(totalSupply());
+            return
+                _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration).mul(Constants.WEI_DECIMAL).div(
+                    totalSupply()
+                );
+        } else {
+            return uint256(0);
         }
-        return uint256(0);
-    }
-
-    function getPricePerFullShareWrite() external override returns (uint256) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
-        if (totalSupply() != 0) {
-            return _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration).div(totalSupply());
-        }
-        return uint256(0);
     }
 
     /**
@@ -644,8 +655,9 @@ contract Vault is
                     investStrategyHash
                 );
             _vaultValue = balanceInUnderlyingToken.add(_balance()).sub(depositQueue);
+        } else {
+            _vaultValue = _balance().sub(depositQueue);
         }
-        _vaultValue = _balance().sub(depositQueue);
     }
 
     /**
@@ -667,8 +679,9 @@ contract Vault is
                     investStrategyHash
                 );
             _vaultValue = balanceInUnderlyingToken.add(_balance()).sub(depositQueue);
+        } else {
+            _vaultValue = _balance().sub(depositQueue);
         }
-        _vaultValue = _balance().sub(depositQueue);
     }
 
     /**

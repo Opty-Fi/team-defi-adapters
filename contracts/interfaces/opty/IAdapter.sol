@@ -7,11 +7,16 @@ pragma experimental ABIEncoderV2;
  * @dev Interface of the Defi protocol code provider.
  */
 interface IAdapter {
+    /**
+     * @dev Returns the balance in underlying for staked liquidityPoolToken balance of holder
+     *
+     * @dev It should only be implemented in Curve adapters
+     */
     function getAllAmountInTokenStakeWrite(
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) external override returns (uint256);
+    ) external returns (uint256);
 
     /**
      * @dev Supply `liquidityPool`, `underlyingToken`

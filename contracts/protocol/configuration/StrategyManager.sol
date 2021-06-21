@@ -40,6 +40,17 @@ contract StrategyManager is IStrategyManager, Modifiers {
     /**
      * @inheritdoc IStrategyManager
      */
+    function getBalanceInUnderlyingTokenWrite(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyhash
+    ) public override returns (uint256 _balance) {
+        return _getBalanceInUnderlyingTokenWrite(_vault, _underlyingToken, _investStrategyhash);
+    }
+
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getWithdrawAllStepsCount(bytes32 _investStrategyhash) public view override returns (uint256) {
         return _getWithdrawAllStepsCount(_investStrategyhash);
     }
@@ -418,7 +429,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
         address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyhash
-    ) internal view returns (uint256 _balance) {
+    ) internal returns (uint256 _balance) {
         uint256 _steps = _getStrategySteps(_investStrategyhash).length;
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         _balance = 0;

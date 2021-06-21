@@ -151,7 +151,7 @@ const buidlerConfig: HardhatUserConfig = {
   docgen: {
     path: "./specification_docs",
     clear: true,
-    runOnCompile: true,
+    runOnCompile: false,
   },
   typechain: {
     outDir: "typechain",

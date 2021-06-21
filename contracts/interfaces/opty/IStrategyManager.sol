@@ -14,6 +14,19 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
  */
 interface IStrategyManager {
     /**
+     * @notice Get the balance of vault in underlyingToken provided
+     * @param _optyVault Vault contract address
+     * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
+     * @return _balance Returns the balance of vault in underlyingToken provided
+     */
+    function getBalanceInUnderlyingTokenWrite(
+        address payable _optyVault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) external returns (uint256 _balance);
+
+    /**
      * @dev Get the withdrawal codes step's count for the given stretagy hash
      * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @return Returns the withdrawal codes steps count for the given stretagy hash
@@ -53,12 +66,6 @@ interface IStrategyManager {
         address _underlyingToken,
         bytes32 _investStrategyHash
     ) external view returns (uint256 _balance);
-
-    function getBalanceInUnderlyingTokenWriteCodes(
-        address payable _optyVault,
-        address _underlyingToken,
-        bytes32 _hash
-    ) external view returns (bytes[] memory _codes);
 
     /**
      * @dev Get codes for depositing all balance in the pool for the given strategy hash
