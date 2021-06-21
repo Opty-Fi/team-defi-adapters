@@ -20,21 +20,7 @@ interface IAdapterCurveInvestLimit {
     /**
      * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 2 Pool's max deposit value in number to be set for the given liquidity pool
+     * @param _maxDepositAmount Array of Pool's max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) external;
-
-    /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 3 Pool's max deposit value in number to be set for the given liquidity pool
-     */
-    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) external;
-
-    /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 4 Pool's max deposit value in number to be set for the given liquidity pool
-     */
-    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) external;
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external;
 }

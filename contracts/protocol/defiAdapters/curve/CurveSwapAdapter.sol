@@ -86,7 +86,11 @@ contract CurveSwapAdapter is
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
-    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount)
+        external
+        override
+        onlyGovernance
+    {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
