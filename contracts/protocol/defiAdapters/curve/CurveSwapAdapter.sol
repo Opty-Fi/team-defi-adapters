@@ -111,9 +111,9 @@ contract CurveSwapAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterCurveInvestLimit
+     * @inheritdoc IAdapter
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 

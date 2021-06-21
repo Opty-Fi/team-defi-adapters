@@ -108,7 +108,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     }
 
     /**
-     * @inheritdoc IAdapterInvestLimit
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;

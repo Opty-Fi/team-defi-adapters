@@ -111,7 +111,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapterInvestLimit
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;

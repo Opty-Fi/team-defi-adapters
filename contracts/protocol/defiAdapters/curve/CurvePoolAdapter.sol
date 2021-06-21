@@ -181,7 +181,7 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterCurveInvestLimit
+     * @inheritdoc IAdapter
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
@@ -376,7 +376,7 @@ contract CurvePoolAdapter is
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) external view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }

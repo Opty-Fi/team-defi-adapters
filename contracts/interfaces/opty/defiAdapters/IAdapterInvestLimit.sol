@@ -3,8 +3,6 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-
 /**
  * @title Interface for setting deposit invest limit for DeFi adapters except Curve
  * @author Opty.fi
@@ -25,13 +23,4 @@ interface IAdapterInvestLimit {
      * @param _maxDepositAmount absolute max deposit amount in underlying to be set for given liquidity pool
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external;
-
-    /**
-     * @notice Sets the type of investment limit
-     *                  1. Percentage of pool value
-     *                  2. Amount in underlying token
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
-     */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) external;
 }
