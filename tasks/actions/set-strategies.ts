@@ -5,7 +5,7 @@ import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TOKENS } from "../../helpers/constants";
 import { TypedStrategies } from "../../helpers/data";
 
-task("set-strategies", "Set Strategies")
+task("set-strategies", "Set strategies")
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
   .setAction(async ({ strategyregistry }, hre) => {
     if (strategyregistry === "") {
