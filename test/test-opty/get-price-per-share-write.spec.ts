@@ -124,7 +124,7 @@ describe(scenario.title, () => {
               TOKEN_STRATEGY.strategy[0].contract,
             );
 
-            investStrategyHash = await setBestBasicStrategy(
+            await setBestBasicStrategy(
               TOKEN_STRATEGY.strategy,
               tokensHash,
               essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
@@ -260,7 +260,7 @@ describe(scenario.title, () => {
               for (let j = 0; j < story.getActions.length; j++) {
                 const action = story.getActions[j];
                 switch (action.action) {
-                  case "balanceWrite()": {
+                  case "pricePerShareWrite()": {
                     const balance = await contracts[action.contract][action.action]();
                     expect(balance).to.be.gt(0);
                     break;

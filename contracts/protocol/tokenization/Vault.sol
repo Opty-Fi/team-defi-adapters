@@ -289,13 +289,13 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
             registryContract.getVaultStrategyConfiguration();
         if (totalSupply() != 0) {
-            balanceWrite = _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration)
+            pricePerShareWrite = _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration)
                 .mul(Constants.WEI_DECIMAL)
                 .div(totalSupply());
         } else {
-            balanceWrite = uint256(0);
+            pricePerShareWrite = uint256(0);
         }
-        return balanceWrite;
+        return pricePerShareWrite;
     }
 
     /**

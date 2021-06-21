@@ -75,7 +75,7 @@
           "getActions": [
             {
               "contract": "vault",
-              "action": "balanceWrite()",
+              "action": "pricePerShareWrite()",
               "args": {},
               "expectedValue": {},
               "expect": "success",

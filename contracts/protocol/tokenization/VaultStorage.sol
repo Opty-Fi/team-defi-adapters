@@ -59,9 +59,9 @@ contract VaultStorage {
     string public profile;
 
     /**
-     * @dev The balance in underlying token of the vault
+     * @dev The pricePerShare of the vault
      */
-    uint256 public balanceWrite;
+    uint256 public pricePerShareWrite;
 
     /**
      * @notice Log an event when user calls user deposit underlying asset without rebalance
