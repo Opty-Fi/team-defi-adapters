@@ -16,14 +16,25 @@ import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
 import { IDForceStake } from "../../../interfaces/dforce/IDForceStake.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
+import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for DForce protocol
  * @author Opty.fi
  * @dev Abstraction layer to DForce's pools
  */
-contract DForceAdapter is IAdapter, Modifiers {
+contract DForceAdapter is
+    IAdapter,
+    IAdapterProtocolConfig,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterInvestLimit,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to staking vault */
@@ -71,28 +82,23 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address
-     * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * @inheritdoc IAdapter
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice Sets the default absolute max deposit value in underlying
-     * @param _maxDepositAmountDefault absolute max deposit value in underlying to be set as default value
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external onlyGovernance {
+    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
     /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount absolute max deposit amount in underlying to be set for given liquidity pool
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -110,38 +116,30 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @notice Sets the HarvestCodeProvider contract address
-     * @param _harvestCodeProvider Optyfi's HarvestCodeProvider contract address
+     * @inheritdoc IAdapterProtocolConfig
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
+    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
         harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     /**
-     * @notice Sets the reward token for DForce protocol
-     * @param _rewardToken Address of reward token to be set
+     * @inheritdoc IAdapterHarvestReward
      */
-    function setRewardToken(address _rewardToken) public onlyOperator {
+    function setRewardToken(address _rewardToken) public override onlyOperator {
         rewardToken = _rewardToken;
     }
 
     /**
-     * @notice Sets the type of investment limit
-     *                  1. Percentage of pool value
-     *                  2. Amount in underlying token
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
     /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
-     * to be set as default value
+     * @inheritdoc IAdapter
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
@@ -156,30 +154,6 @@ contract DForceAdapter is IAdapter, Modifiers {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     */
-    function getBorrowAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     */
-    function getRepayAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
     }
 
     /**
@@ -226,33 +200,6 @@ contract DForceAdapter is IAdapter, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getSomeAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        uint256,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     */
-    function getAllAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     */
     function calculateAmountInLPToken(
         address,
         address _liquidityPool,
@@ -293,7 +240,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         public
@@ -307,7 +254,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestAllCodes(
         address payable _vault,
@@ -326,7 +273,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getStakeAllCodes(
         address payable _vault,
@@ -338,7 +285,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAllCodes(address payable _vault, address _liquidityPool)
         public
@@ -351,7 +298,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _vault,
@@ -367,7 +314,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function isRedeemableAmountSufficientStake(
         address payable _vault,
@@ -380,7 +327,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _vault,
@@ -480,7 +427,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getUnclaimedRewardTokenAmount(address payable _vault, address _liquidityPool)
         public
@@ -492,7 +439,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestSomeCodes(
         address payable _vault,
@@ -510,7 +457,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getStakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
@@ -535,7 +482,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _shares)
         public
@@ -551,7 +498,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getAllAmountInTokenStake(
         address payable _vault,
@@ -579,7 +526,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getLiquidityPoolTokenBalanceStake(address payable _vault, address _liquidityPool)
         public
@@ -592,7 +539,7 @@ contract DForceAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _vault,
