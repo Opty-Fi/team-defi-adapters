@@ -1,6 +1,6 @@
 {
-  "title": "Vault Reward Token Strategy",
-  "description": "Test cases for the VaultRewardTokenStrategy (if set or not set)",
+  "title": "Get price per share write",
+  "description": "Test cases for the getPricePerShareWrite (used in Curve strategies)",
   "vaults": [
     {
       "name": "Vault",
