@@ -44,7 +44,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice HarvestCodeProvider contract instance */
@@ -71,12 +71,12 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
 
-    /** @notice max deposit's default value in number */
+    /** @notice max deposit's default value in number for a specific token */
     mapping(address => uint256) public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
@@ -383,14 +383,13 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         address _liquidityPoolAddressProvider,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        if (_amounts[0] > 0) {
+        uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingTokens[0], _amounts[0]);
+        if (_depositAmount > 0) {
             address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
             ReserveConfigurationData memory _inputTokenReserveConfigurationData =
                 IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
             require(_inputTokenReserveConfigurationData.isActive, "!isActive");
             address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
-            uint256 _depositAmount =
-                _getDepositAmount(_liquidityPoolAddressProvider, _underlyingTokens[0], _amounts[0]);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
                 _underlyingTokens[0],

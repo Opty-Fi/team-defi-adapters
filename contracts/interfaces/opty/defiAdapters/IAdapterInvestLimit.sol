@@ -15,6 +15,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 interface IAdapterInvestLimit {
     /**
      * @notice Sets the default absolute max deposit value in underlying
+     * @param _underlyingToken address of underlying token
      * @param _maxDepositAmountDefault absolute max deposit value in underlying to be set as default value
      */
     function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault) external;
@@ -22,6 +23,7 @@ interface IAdapterInvestLimit {
     /**
      * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
+     * @param _underlyingToken address of underlying token
      * @param _maxDepositAmount absolute max deposit amount in underlying to be set for given liquidity pool
      */
     function setMaxDepositAmount(

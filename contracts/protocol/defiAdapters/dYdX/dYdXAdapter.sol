@@ -37,11 +37,12 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice Maps underlyingToken address to its market index in dYdX protocol */
     mapping(address => uint256) public marketToIndexes;
+
     /** @notice Maps liquidityPool to the list of underlyingTokens */
     mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
 
@@ -53,9 +54,11 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
-    /** @notice max deposit's default value in number */
+
+    /** @notice max deposit's default value in number for a specific token */
     mapping(address => uint256) public maxDepositAmountDefault;
 
     constructor(address _registry) public Modifiers(_registry) {
@@ -69,7 +72,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         addMarket(SAI, 1);
         addMarket(USDC, 2);
         addMarket(DAI, 3);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
@@ -266,20 +269,18 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
         uint256 _underlyingTokenIndex;
-        bool _isAmount = false;
         for (uint256 i = 0; i < _amounts.length; i++) {
             if (_amounts[i] > 0) {
-                _isAmount = true;
                 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];
             }
         }
-        if (_isAmount) {
-            uint256 _depositAmount =
-                _getDepositAmount(
-                    _liquidityPool,
-                    _underlyingTokens[_underlyingTokenIndex],
-                    _amounts[_underlyingTokenIndex]
-                );
+        uint256 _depositAmount =
+            _getDepositAmount(
+                _liquidityPool,
+                _underlyingTokens[_underlyingTokenIndex],
+                _amounts[_underlyingTokenIndex]
+            );
+        if (_depositAmount > 0) {
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
             _accountInfos[0] = AccountInfo(_vault, uint256(0));
             AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
@@ -378,7 +379,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
             maxExposureType == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
                 : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_limit != 0 && _depositAmount > _limit) {
+        if (_depositAmount > _limit) {
             _depositAmount = _limit;
         }
     }

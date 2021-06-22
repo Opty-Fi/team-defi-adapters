@@ -265,6 +265,75 @@
           ]
         },
         {
+          "description": "User shouldn't be able to deposit any amount when max deposit amount = 0",
+          "setActions": [
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositPoolType(uint8)",
+              "args": {
+                "type": 0
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositAmount(address,address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "0",
+                  "USDC": "0",
+                  "USDT": "0"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "erc20",
+              "action": "approve(address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            },
+            {
+              "contract": "vault",
+              "action": "userDepositRebalance(uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "2000000000000000000",
+                  "USDC": "2000000",
+                  "USDT": "2000000"
+                }
+              },
+              "executer": "owner",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "vault",
+              "action": "balance()",
+              "args": {},
+              "expectedValue": {
+                "DAI": "2000000000000000000",
+                "USDC": "2000000",
+                "USDT": "2000000"
+              }
+            }
+          ]
+        },
+        {
           "description": "User shouldn't be able to deposit more than max deposit amount default when max deposit amount is set to 0",
           "setActions": [
             {
