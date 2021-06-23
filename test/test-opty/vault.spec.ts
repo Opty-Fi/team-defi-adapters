@@ -87,9 +87,11 @@ describe(scenario.title, () => {
             profile,
           );
 
-          await approveToken(users[0], essentialContracts.registry, [
-            REWARD_TOKENS[adapterName].tokenAddress.toString(),
-          ]);
+          if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
+            await approveToken(users[0], essentialContracts.registry, [
+              REWARD_TOKENS[adapterName].tokenAddress.toString(),
+            ]);
+          }
 
           const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
 

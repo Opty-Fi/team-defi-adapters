@@ -81,7 +81,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -124,7 +124,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;

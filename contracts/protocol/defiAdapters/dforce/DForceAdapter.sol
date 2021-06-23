@@ -83,7 +83,7 @@ contract DForceAdapter is
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -146,7 +146,7 @@ contract DForceAdapter is
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;

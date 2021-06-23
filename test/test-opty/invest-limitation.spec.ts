@@ -52,7 +52,11 @@ describe(scenarios.title, () => {
       const vault = scenarios.vaults[i];
       const stories = vault.stories;
       const profile = vault.profile;
-      const adaptersName = Object.keys(TypedAdapterStrategies);
+      // For all adapters except CurvePool and CurveSwap
+      // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(
+        strategy => !["CurvePoolAdapter", "CurveSwapAdapter"].includes(strategy),
+      );
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
