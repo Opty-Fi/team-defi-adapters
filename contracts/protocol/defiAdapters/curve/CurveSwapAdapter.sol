@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
@@ -21,8 +22,6 @@ import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 /**
  * @title Adapter for Curve Swap pools
