@@ -282,7 +282,7 @@ contract CurvePoolAdapter is
         setLiquiidtyPoolToGauges(TBTC_DEPOSIT_POOL, TBTC_GAUGE);
         setLiquiidtyPoolToGauges(DUSD_DEPOSIT_POOL, DUSD_GAUGE);
 
-        setMaxDepositPoolPctDefault(uint256(10000));
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
     }
 
     /**
