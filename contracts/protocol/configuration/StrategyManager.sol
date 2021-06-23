@@ -448,23 +448,27 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (IAdapter(_adapter).canStake(_liquidityPool)) {
-                        _balance = IAdapter(_adapter).getAllAmountInTokenStakeWrite(
+                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
+                        _balance = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
                             _vault,
                             _inputToken,
                             _liquidityPool
                         );
                     } else {
-                        _balance = IAdapter(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
+                        _balance = IAdapterFull(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
                     }
                 } else {
-                    _balance = IAdapter(_adapter).getSomeAmountInToken(_inputToken, _liquidityPool, _outputTokenAmount);
+                    _balance = IAdapterFull(_adapter).getSomeAmountInToken(
+                        _inputToken,
+                        _liquidityPool,
+                        _outputTokenAmount
+                    );
                 }
             }
             // deposit
             else {
                 address _borrowToken = _strategySteps[_iterator].outputToken;
-                _balance = IAdapter(_adapter).getAllAmountInTokenBorrow(
+                _balance = IAdapterFull(_adapter).getAllAmountInTokenBorrow(
                     _vault,
                     _inputToken,
                     _liquidityPool,
