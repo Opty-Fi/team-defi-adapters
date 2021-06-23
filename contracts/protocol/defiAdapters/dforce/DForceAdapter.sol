@@ -203,7 +203,10 @@ contract DForceAdapter is IAdapter, Modifiers {
         return getHarvestSomeCodes(_optyVault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
-    function canStake(address) external view override returns (bool) {
+    function canStake(address _liquidityPool) external view override returns (bool) {
+        if (liquidityPoolToStakingVault[_liquidityPool] == address(0)) {
+            return false;
+        }
         return true;
     }
 
