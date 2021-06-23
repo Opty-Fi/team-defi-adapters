@@ -77,17 +77,6 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     }
 
     /**
-     * @inheritdoc IAdapterStaking
-     */
-    function getAllAmountInTokenStakeWrite(
-        address payable,
-        address,
-        address
-    ) external override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
      * @notice Sets the Comptroller of Cream protocol
      * @param _comptroller Cream's Comptroller contract address
      */

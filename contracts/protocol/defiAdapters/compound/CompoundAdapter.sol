@@ -85,17 +85,6 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
     }
 
     /**
-     * @inheritdoc IAdapterStaking
-     */
-    function getAllAmountInTokenStakeWrite(
-        address payable,
-        address,
-        address
-    ) external override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
      * @inheritdoc IAdapterHarvestReward
      */
     function setRewardToken(address _rewardToken) public override onlyOperator {
