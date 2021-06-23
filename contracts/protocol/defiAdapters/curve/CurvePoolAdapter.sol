@@ -43,7 +43,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     /** @notice Mapping  of depositPool to the Gauge contract address */
     mapping(address => address) public liquidityPoolToGauges;
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
     mapping(address => uint256[]) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */

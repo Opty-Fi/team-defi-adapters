@@ -42,7 +42,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     /** @notice Mapping  of swapPool to status of removing liquidity pool for 1 coin */
     mapping(address => bool) public noRemoveLiquidityOneCoin;
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
     mapping(address => uint256[]) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
