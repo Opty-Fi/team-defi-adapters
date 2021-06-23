@@ -348,8 +348,11 @@ contract DForceAdapter is IAdapter, Modifiers {
         return IERC20(_liquidityPool).balanceOf(_optyVault);
     }
 
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        if (canStake(_liquidityPool)) {
+            return rewardToken;
+        }
+        return address(0);
     }
 
     function getUnclaimedRewardTokenAmount(address payable _optyVault, address _liquidityPool)
