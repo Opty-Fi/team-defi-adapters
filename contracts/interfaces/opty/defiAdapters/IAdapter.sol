@@ -3,8 +3,6 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-
 /**
  * @title Interface for all the DeFi adapters
  * @author Opty.fi
@@ -199,27 +197,4 @@ interface IAdapter {
      * @return Returns a boolean true if lpToken staking is allowed else false if it not enabled
      */
     function canStake(address _liquidityPool) external view returns (bool);
-
-    /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address
-     * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
-     */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external;
-
-    /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
-     * to be set as default value
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) external;
-
-    /**
-     * @notice Sets the type of investment limit
-     *                  1. Percentage of pool value
-     *                  2. Amount in underlying token
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
-     */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) external;
 }

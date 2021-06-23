@@ -19,7 +19,6 @@ import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
-import { IAdapterCurveInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterCurveInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -31,14 +30,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurvePoolAdapter is
-    IAdapter,
-    IAdapterProtocolConfig,
-    IAdapterHarvestReward,
-    IAdapterStaking,
-    IAdapterCurveInvestLimit,
-    Modifiers
-{
+contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward, IAdapterStaking, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -90,27 +82,28 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice Sets the percentage of max deposit value for the given liquidity pool
+     * @param _liquidityPool liquidity pool address
+     * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @inheritdoc IAdapterCurveInvestLimit
+     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
+     * @param _maxDepositAmount Array of Pool's max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount)
-        external
-        override
-        onlyGovernance
-    {
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @inheritdoc IAdapterCurveInvestLimit
+     * @notice Sets the default absolute max deposit value in underlying
+     * @param _maxDepositAmountDefault array of 4 absolute max deposit values in underlying to be set as default value
      */
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external override onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
@@ -148,9 +141,11 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice Sets the default percentage of max deposit pool value
+     * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
@@ -181,9 +176,13 @@ contract CurvePoolAdapter is
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @notice Sets the type of investment limit
+     *                  1. Percentage of pool value
+     *                  2. Amount in underlying token
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
     }
 

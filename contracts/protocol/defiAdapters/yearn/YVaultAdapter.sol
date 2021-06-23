@@ -43,7 +43,7 @@ contract YVaultAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -64,14 +64,14 @@ contract YVaultAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;

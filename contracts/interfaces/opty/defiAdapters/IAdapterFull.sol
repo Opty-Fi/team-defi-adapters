@@ -8,7 +8,6 @@ import { IAdapterBorrow } from "./IAdapterBorrow.sol";
 import { IAdapterHarvestReward } from "./IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "./IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "./IAdapterInvestLimit.sol";
-import { IAdapterCurveInvestLimit } from "./IAdapterCurveInvestLimit.sol";
 import { IAdapterProtocolConfig } from "./IAdapterProtocolConfig.sol";
 
 /**
@@ -26,7 +25,6 @@ interface IAdapterFull is
     IAdapterHarvestReward,
     IAdapterStaking,
     IAdapterInvestLimit,
-    IAdapterCurveInvestLimit,
     IAdapterProtocolConfig
 {
 
