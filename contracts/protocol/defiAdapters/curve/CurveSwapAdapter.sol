@@ -72,7 +72,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
         setRewardToken(address(0xD533a949740bb3306d119CC777fa900bA034cd52));
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
