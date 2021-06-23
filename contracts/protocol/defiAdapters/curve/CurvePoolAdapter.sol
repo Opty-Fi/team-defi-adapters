@@ -77,7 +77,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     ) public Modifiers(_registry) {
         setOracle(_oracle);
         setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
