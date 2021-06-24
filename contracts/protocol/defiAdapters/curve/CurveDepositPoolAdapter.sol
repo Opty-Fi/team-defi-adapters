@@ -14,12 +14,13 @@ import { CurveGaugePool } from "./CurveGaugePool.sol";
 //  helper contracts
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
-
-//  interfaces
-import { IAdapter } from "../../../interfaces/opty/IAdapter.sol";
+import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
+import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
-import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
+import { ICurveAddressProvider } from "../../../interfaces/curve/ICurveAddressProvider.sol";
+import { ICurveRegistry } from "../../../interfaces/curve/ICurveRegistry.sol";
 import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
@@ -30,18 +31,23 @@ import { IPriceOracle } from "../../../interfaces/opty/IPriceOracle.sol";
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurvePoolAdapter is IAdapter, Modifiers {
+contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
+
+    /** @dev deposit addresses that uses old API */
+    mapping(address => bool) public isOldDepositZap;
+
     /** @notice Mapping  of depositPool to the underlyingTokens */
-    mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
+    // mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
 
     /** @notice Mapping  of depositPool to the swapPool */
-    mapping(address => address) public liquidityPoolToSwap;
+    // mapping(address => address) public liquidityPoolToSwap;
 
     /** @notice Mapping  of depositPool to the Gauge contract address */
-    mapping(address => address) public liquidityPoolToGauges;
+    // mapping(address => address) public liquidityPoolToGauges;
 
     /** @notice  Maps liquidityPool to list of 2 max deposit values in number */
     mapping(address => uint256[2]) public maxDeposit2Amount;
@@ -65,141 +71,148 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @dev map coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
+        isOldDepositZap[0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06] = true; // curve-compound
+        isOldDepositZap[0xac795D2c97e60DF6a99ff1c814727302fD747a80] = true; // curve-usdt
+        isOldDepositZap[0xA50cCc70b6a011CffDdf45057E39679379187287] = true; // curve-pax
+        isOldDepositZap[0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3] = true; // curve-y
+        isOldDepositZap[0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB] = true; // curve-busd
+        isOldDepositZap[0xFCBa3E75865d2d561BE8D220616520c171F12851] = true; // curve-susd
+
         // deposit pool
-        address[] memory _compoundUnderlyingTokens = new address[](2);
-        _compoundUnderlyingTokens[0] = PlainTokens.DAI;
-        _compoundUnderlyingTokens[1] = PlainTokens.USDC;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveSwapPool.COMPOUND_SWAP_POOL);
+        // address[] memory _compoundUnderlyingTokens = new address[](2);
+        // _compoundUnderlyingTokens[0] = PlainTokens.DAI;
+        // _compoundUnderlyingTokens[1] = PlainTokens.USDC;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveSwapPool.COMPOUND_SWAP_POOL);
 
-        address[] memory _usdtUnderlyingTokens = new address[](3);
-        _usdtUnderlyingTokens[0] = PlainTokens.DAI;
-        _usdtUnderlyingTokens[1] = PlainTokens.USDC;
-        _usdtUnderlyingTokens[2] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.USDT_DEPOSIT_POOL, CurveSwapPool.USDT_SWAP_POOL);
+        // address[] memory _usdtUnderlyingTokens = new address[](3);
+        // _usdtUnderlyingTokens[0] = PlainTokens.DAI;
+        // _usdtUnderlyingTokens[1] = PlainTokens.USDC;
+        // _usdtUnderlyingTokens[2] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.USDT_DEPOSIT_POOL, CurveSwapPool.USDT_SWAP_POOL);
 
-        address[] memory _paxUnderlyingTokens = new address[](4);
-        _paxUnderlyingTokens[0] = PlainTokens.DAI;
-        _paxUnderlyingTokens[1] = PlainTokens.USDC;
-        _paxUnderlyingTokens[2] = PlainTokens.USDT;
-        _paxUnderlyingTokens[3] = PlainTokens.PAX;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.PAX_DEPOSIT_POOL, CurveSwapPool.PAX_SWAP_POOL);
+        // address[] memory _paxUnderlyingTokens = new address[](4);
+        // _paxUnderlyingTokens[0] = PlainTokens.DAI;
+        // _paxUnderlyingTokens[1] = PlainTokens.USDC;
+        // _paxUnderlyingTokens[2] = PlainTokens.USDT;
+        // _paxUnderlyingTokens[3] = PlainTokens.PAX;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.PAX_DEPOSIT_POOL, CurveSwapPool.PAX_SWAP_POOL);
 
-        address[] memory _yUnderlyingTokens = new address[](4);
-        _yUnderlyingTokens[0] = PlainTokens.DAI;
-        _yUnderlyingTokens[1] = PlainTokens.USDC;
-        _yUnderlyingTokens[2] = PlainTokens.USDT;
-        _yUnderlyingTokens[3] = PlainTokens.TUSD;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.Y_DEPOSIT_POOL, _yUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.Y_DEPOSIT_POOL, CurveSwapPool.Y_SWAP_POOL);
+        // address[] memory _yUnderlyingTokens = new address[](4);
+        // _yUnderlyingTokens[0] = PlainTokens.DAI;
+        // _yUnderlyingTokens[1] = PlainTokens.USDC;
+        // _yUnderlyingTokens[2] = PlainTokens.USDT;
+        // _yUnderlyingTokens[3] = PlainTokens.TUSD;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.Y_DEPOSIT_POOL, _yUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.Y_DEPOSIT_POOL, CurveSwapPool.Y_SWAP_POOL);
 
-        address[] memory _busdUnderlyingTokens = new address[](4);
-        _busdUnderlyingTokens[0] = PlainTokens.DAI;
-        _busdUnderlyingTokens[1] = PlainTokens.USDC;
-        _busdUnderlyingTokens[2] = PlainTokens.USDT;
-        _busdUnderlyingTokens[3] = PlainTokens.BUSD;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveSwapPool.BUSD_SWAP_POOL);
+        // address[] memory _busdUnderlyingTokens = new address[](4);
+        // _busdUnderlyingTokens[0] = PlainTokens.DAI;
+        // _busdUnderlyingTokens[1] = PlainTokens.USDC;
+        // _busdUnderlyingTokens[2] = PlainTokens.USDT;
+        // _busdUnderlyingTokens[3] = PlainTokens.BUSD;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveSwapPool.BUSD_SWAP_POOL);
 
-        address[] memory _susdUnderlyingTokens = new address[](4);
-        _susdUnderlyingTokens[0] = PlainTokens.DAI;
-        _susdUnderlyingTokens[1] = PlainTokens.USDC;
-        _susdUnderlyingTokens[2] = PlainTokens.USDT;
-        _susdUnderlyingTokens[3] = PlainTokens.SUSD;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveSwapPool.SUSD_SWAP_POOL);
+        // address[] memory _susdUnderlyingTokens = new address[](4);
+        // _susdUnderlyingTokens[0] = PlainTokens.DAI;
+        // _susdUnderlyingTokens[1] = PlainTokens.USDC;
+        // _susdUnderlyingTokens[2] = PlainTokens.USDT;
+        // _susdUnderlyingTokens[3] = PlainTokens.SUSD;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
+        // setLiquidityPoolToSwap(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveSwapPool.SUSD_SWAP_POOL);
 
-        /* solhint-disable max-line-length */
-        address[] memory _gusdUnderlyingTokens = new address[](4);
-        _gusdUnderlyingTokens[0] = PlainTokens.GUSD;
-        _gusdUnderlyingTokens[1] = PlainTokens.DAI;
-        _gusdUnderlyingTokens[2] = PlainTokens.USDC;
-        _gusdUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveSwapPool.GUSD_SWAP_POOL);
+        // /* solhint-disable max-line-length */
+        // address[] memory _gusdUnderlyingTokens = new address[](4);
+        // _gusdUnderlyingTokens[0] = PlainTokens.GUSD;
+        // _gusdUnderlyingTokens[1] = PlainTokens.DAI;
+        // _gusdUnderlyingTokens[2] = PlainTokens.USDC;
+        // _gusdUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveSwapPool.GUSD_SWAP_POOL);
 
-        address[] memory _husdUnderlyingTokens = new address[](4);
-        _gusdUnderlyingTokens[0] = PlainTokens.HUSD;
-        _gusdUnderlyingTokens[1] = PlainTokens.DAI;
-        _gusdUnderlyingTokens[2] = PlainTokens.USDC;
-        _gusdUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveSwapPool.HUSD_SWAP_POOL);
+        // address[] memory _husdUnderlyingTokens = new address[](4);
+        // _gusdUnderlyingTokens[0] = PlainTokens.HUSD;
+        // _gusdUnderlyingTokens[1] = PlainTokens.DAI;
+        // _gusdUnderlyingTokens[2] = PlainTokens.USDC;
+        // _gusdUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveSwapPool.HUSD_SWAP_POOL);
 
-        address[] memory _usdkUnderlyingTokens = new address[](4);
-        _usdkUnderlyingTokens[0] = PlainTokens.USDK;
-        _usdkUnderlyingTokens[1] = PlainTokens.DAI;
-        _usdkUnderlyingTokens[2] = PlainTokens.USDC;
-        _usdkUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.USDK_DEPOSIT_POOL, CurveSwapPool.USDK_SWAP_POOL);
+        // address[] memory _usdkUnderlyingTokens = new address[](4);
+        // _usdkUnderlyingTokens[0] = PlainTokens.USDK;
+        // _usdkUnderlyingTokens[1] = PlainTokens.DAI;
+        // _usdkUnderlyingTokens[2] = PlainTokens.USDC;
+        // _usdkUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.USDK_DEPOSIT_POOL, CurveSwapPool.USDK_SWAP_POOL);
 
-        address[] memory _usdnUnderlyingTokens = new address[](4);
-        _usdnUnderlyingTokens[0] = PlainTokens.USDN;
-        _usdnUnderlyingTokens[1] = PlainTokens.DAI;
-        _usdnUnderlyingTokens[2] = PlainTokens.USDC;
-        _usdnUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.USDN_DEPOSIT_POOL, CurveSwapPool.USDN_SWAP_POOL);
+        // address[] memory _usdnUnderlyingTokens = new address[](4);
+        // _usdnUnderlyingTokens[0] = PlainTokens.USDN;
+        // _usdnUnderlyingTokens[1] = PlainTokens.DAI;
+        // _usdnUnderlyingTokens[2] = PlainTokens.USDC;
+        // _usdnUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.USDN_DEPOSIT_POOL, CurveSwapPool.USDN_SWAP_POOL);
 
-        address[] memory _linkusdUnderlyingTokens = new address[](4);
-        _linkusdUnderlyingTokens[0] = PlainTokens.LINKUSD;
-        _linkusdUnderlyingTokens[1] = PlainTokens.DAI;
-        _linkusdUnderlyingTokens[2] = PlainTokens.USDC;
-        _linkusdUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.LINKUSD_DEPOSIT_POOL, CurveSwapPool.LINKUSD_SWAP_POOL);
+        // address[] memory _linkusdUnderlyingTokens = new address[](4);
+        // _linkusdUnderlyingTokens[0] = PlainTokens.LINKUSD;
+        // _linkusdUnderlyingTokens[1] = PlainTokens.DAI;
+        // _linkusdUnderlyingTokens[2] = PlainTokens.USDC;
+        // _linkusdUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.LINKUSD_DEPOSIT_POOL, CurveSwapPool.LINKUSD_SWAP_POOL);
 
-        address[] memory _musdUnderlyingTokens = new address[](4);
-        _musdUnderlyingTokens[0] = PlainTokens.MUSD;
-        _musdUnderlyingTokens[1] = PlainTokens.DAI;
-        _musdUnderlyingTokens[2] = PlainTokens.USDC;
-        _musdUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveSwapPool.MUSD_SWAP_POOL);
+        // address[] memory _musdUnderlyingTokens = new address[](4);
+        // _musdUnderlyingTokens[0] = PlainTokens.MUSD;
+        // _musdUnderlyingTokens[1] = PlainTokens.DAI;
+        // _musdUnderlyingTokens[2] = PlainTokens.USDC;
+        // _musdUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveSwapPool.MUSD_SWAP_POOL);
 
-        address[] memory _rsvUnderlyingTokens = new address[](4);
-        _rsvUnderlyingTokens[0] = PlainTokens.RSV;
-        _rsvUnderlyingTokens[1] = PlainTokens.DAI;
-        _rsvUnderlyingTokens[2] = PlainTokens.USDC;
-        _rsvUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.RSV_DEPOSIT_POOL, CurveSwapPool.RSV_SWAP_POOL);
+        // address[] memory _rsvUnderlyingTokens = new address[](4);
+        // _rsvUnderlyingTokens[0] = PlainTokens.RSV;
+        // _rsvUnderlyingTokens[1] = PlainTokens.DAI;
+        // _rsvUnderlyingTokens[2] = PlainTokens.USDC;
+        // _rsvUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.RSV_DEPOSIT_POOL, CurveSwapPool.RSV_SWAP_POOL);
 
-        address[] memory _tbtcUnderlyingTokens = new address[](4);
-        _tbtcUnderlyingTokens[0] = PlainTokens.TBTC;
-        _tbtcUnderlyingTokens[1] = PlainTokens.DAI;
-        _tbtcUnderlyingTokens[2] = PlainTokens.USDC;
-        _tbtcUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveSwapPool.TBTC_SWAP_POOL);
+        // address[] memory _tbtcUnderlyingTokens = new address[](4);
+        // _tbtcUnderlyingTokens[0] = PlainTokens.TBTC;
+        // _tbtcUnderlyingTokens[1] = PlainTokens.DAI;
+        // _tbtcUnderlyingTokens[2] = PlainTokens.USDC;
+        // _tbtcUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveSwapPool.TBTC_SWAP_POOL);
 
-        address[] memory _dusdUnderlyingTokens = new address[](4);
-        _dusdUnderlyingTokens[0] = PlainTokens.DUSD;
-        _dusdUnderlyingTokens[1] = PlainTokens.DAI;
-        _dusdUnderlyingTokens[2] = PlainTokens.USDC;
-        _dusdUnderlyingTokens[3] = PlainTokens.USDT;
-        setLiquidityPoolToUnderlyingTokens(CurveDepositPool.DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveSwapPool.DUSD_SWAP_POOL);
-        /* solhint-disable max-line-length */
+        // address[] memory _dusdUnderlyingTokens = new address[](4);
+        // _dusdUnderlyingTokens[0] = PlainTokens.DUSD;
+        // _dusdUnderlyingTokens[1] = PlainTokens.DAI;
+        // _dusdUnderlyingTokens[2] = PlainTokens.USDC;
+        // _dusdUnderlyingTokens[3] = PlainTokens.USDT;
+        // setLiquidityPoolToUnderlyingTokens(CurveDepositPool.DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
+        // setLiquidityPoolToSwap(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveSwapPool.DUSD_SWAP_POOL);
+        // /* solhint-disable max-line-length */
 
-        // set liquidity pool to gauges
-        setLiquiidtyPoolToGauges(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveGaugePool.COMPOUND_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.USDT_DEPOSIT_POOL, CurveGaugePool.USDT_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.PAX_DEPOSIT_POOL, CurveGaugePool.PAX_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.Y_DEPOSIT_POOL, CurveGaugePool.Y_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveGaugePool.BUSD_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveGaugePool.SUSD_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveGaugePool.GUSD_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveGaugePool.HUSD_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.USDK_DEPOSIT_POOL, CurveGaugePool.USDK_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.USDN_DEPOSIT_POOL, CurveGaugePool.USDN_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveGaugePool.MUSD_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.RSV_DEPOSIT_POOL, CurveGaugePool.RSV_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveGaugePool.TBTC_GAUGE);
-        setLiquiidtyPoolToGauges(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveGaugePool.DUSD_GAUGE);
+        // // set liquidity pool to gauges
+        // setLiquiidtyPoolToGauges(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveGaugePool.COMPOUND_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.USDT_DEPOSIT_POOL, CurveGaugePool.USDT_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.PAX_DEPOSIT_POOL, CurveGaugePool.PAX_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.Y_DEPOSIT_POOL, CurveGaugePool.Y_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveGaugePool.BUSD_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveGaugePool.SUSD_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveGaugePool.GUSD_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveGaugePool.HUSD_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.USDK_DEPOSIT_POOL, CurveGaugePool.USDK_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.USDN_DEPOSIT_POOL, CurveGaugePool.USDN_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveGaugePool.MUSD_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.RSV_DEPOSIT_POOL, CurveGaugePool.RSV_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveGaugePool.TBTC_GAUGE);
+        // setLiquiidtyPoolToGauges(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveGaugePool.DUSD_GAUGE);
 
         setMaxDepositPoolPctDefault(uint256(10000)); // 100%
     }
@@ -253,18 +266,18 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
      * @param _tokens list of underlying tokens linked to the given liquidity pool
      */
-    function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
-        liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
-    }
+    // function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+    //     liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
+    // }
 
     /**
      * @notice Maps the liquidity pool to the curve's guage contract address
      * @param _pool Curve's liquidity pool address
      * @param _gauge Curve's gauge contract address
      */
-    function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
-        liquidityPoolToGauges[_pool] = _gauge;
-    }
+    // function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
+    //     liquidityPoolToGauges[_pool] = _gauge;
+    // }
 
     /**
      * @notice Sets the default percentage of max deposit pool value
@@ -275,13 +288,20 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
+    // /**
+    //  * @notice Maps the liquidity pool to the curve's swap pool address
+    //  * @param _liquidityPool Curve's liquidity pool address
+    //  * @param _swapPool Curve's swap pool address
+    //  */
+    // function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
+    //     liquidityPoolToSwap[_liquidityPool] = _swapPool;
+    // }
+
     /**
-     * @notice Maps the liquidity pool to the curve's swap pool address
-     * @param _liquidityPool Curve's liquidity pool address
-     * @param _swapPool Curve's swap pool address
+     * @inheritdoc IAdapterHarvestReward
      */
-    function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
-        liquidityPoolToSwap[_liquidityPool] = _swapPool;
+    function setRewardToken(address) external override onlyOperator {
+        revert("!empty");
     }
 
     function getPoolValue(address, address) external view override returns (uint256) {
@@ -296,39 +316,21 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address[] memory,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        uint256 nCoins = _underlyingTokens.length;
-        uint256[] memory _amounts = new uint256[](nCoins);
-        for (uint256 i = 0; i < nCoins; i++) {
-            _amounts[i] = IERC20(_underlyingTokens[i]).balanceOf(_vault);
+        address _curveRegistry = _getCurveRegistry();
+        address _swapPool = _getSwapPool(_liquidityPool);
+        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+        uint256[] memory _amounts = new uint256[](_nCoins);
+        for (uint256 _i = 0; _i < _nCoins; _i++) {
+            _amounts[_i] = IERC20(_underlyingTokens[_i]).balanceOf(_vault);
         }
-        return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
-     */
-    function getBorrowAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
-     */
-    function getRepayAndWithdrawAllCodes(
-        address payable,
-        address[] memory,
-        address,
-        address
-    ) public view override returns (bytes[] memory) {
-        revert("!empty");
+        if (_nCoins == uint256(2)) {
+            _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
+        } else if (_nCoins == uint256(3)) {
+            _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
+        } else if (_nCoins == uint256(4)) {
+            _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
+        }
     }
 
     /**
@@ -352,36 +354,17 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         override
         returns (address[] memory _underlyingTokens)
     {
-        _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
-     */
-    function getSomeAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        uint256,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
-     * @inheritdoc IAdapter
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
-     */
-    function getAllAmountInTokenBorrow(
-        address payable,
-        address,
-        address,
-        address,
-        uint256
-    ) public view override returns (uint256) {
-        revert("!empty");
+        address _swapPool =
+            isOldDepositZap[_liquidityPool]
+                ? ICurveDeposit(_liquidityPool).curve()
+                : ICurveDeposit(_liquidityPool).pool();
+        address _curveRegistry = ICurveAddressProvider(ADDRESS_PROVIDER).get_registry();
+        uint256 _nCoins = ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
+        address[8] memory _uTokens = ICurveRegistry(_curveRegistry).get_underlying_coins(_swapPool);
+        // liquidityPoolToUnderlyingTokens[_liquidityPool];
+        for (uint256 _i = 0; _i < _nCoins; _i++) {
+            _underlyingTokens[_i] = _uTokens[_i];
+        }
     }
 
     /**
@@ -425,7 +408,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getClaimRewardTokenCode(address payable, address _liquidityPool)
         public
@@ -433,17 +416,19 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         override
         returns (bytes[] memory _codes)
     {
-        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
+        address _curveRegistry = _getCurveRegistry();
+        address _liquidityGauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
+        if (_liquidityGauge != address(0)) {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
-                getMinter(liquidityPoolToGauges[_liquidityPool]),
-                abi.encodeWithSignature("mint(address)", liquidityPoolToGauges[_liquidityPool])
+                getMinter(_liquidityGauge),
+                abi.encodeWithSignature("mint(address)", _liquidityGauge)
             );
         }
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestAllCodes(
         address payable _vault,
@@ -458,14 +443,15 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function canStake(address _liquidityPool) public view override returns (bool) {
-        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
+        address _curveRegistry = _getCurveRegistry();
+        if (_getLiquidityGauge(_liquidityPool, _curveRegistry) != address(0)) {
             return true;
         }
         return false;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getStakeAllCodes(
         address payable _vault,
@@ -477,7 +463,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAllCodes(address payable _vault, address _liquidityPool)
         public
@@ -490,7 +476,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _vault,
@@ -505,7 +491,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function isRedeemableAmountSufficientStake(
         address payable _vault,
@@ -518,7 +504,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _vault,
@@ -538,14 +524,16 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        uint256 nCoins = _underlyingTokens.length;
-        require(_amounts.length == nCoins, "!_amounts.length");
-        if (nCoins == uint256(2)) {
+        address _curveRegistry = _getCurveRegistry();
+        address _swapPool = _getSwapPool(_liquidityPool);
+        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+        require(_amounts.length == _nCoins, "!_amounts.length");
+        if (_nCoins == uint256(2)) {
             _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (nCoins == uint256(3)) {
+        } else if (_nCoins == uint256(3)) {
             _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (nCoins == uint256(4)) {
+        } else if (_nCoins == uint256(4)) {
             _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
         }
     }
@@ -609,9 +597,12 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         address _liquidityPool,
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        address _curveRegistry = _getCurveRegistry();
+        address _swapPool = _getSwapPool(_liquidityPool);
+        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
         uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint256 i = 0; i < _nCoins; i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
@@ -626,14 +617,16 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @inheritdoc IAdapter
      */
     function getRewardToken(address _liquidityPool) public view override returns (address) {
-        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
-            return ITokenMinter(getMinter(liquidityPoolToGauges[_liquidityPool])).token();
+        address _curveRegistry = _getCurveRegistry();
+        address _liquidityGauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
+        if (_liquidityGauge != address(0)) {
+            return ITokenMinter(getMinter(_liquidityGauge)).token();
         }
         return address(0);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
         public
@@ -641,7 +634,8 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         override
         returns (uint256)
     {
-        if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
+        address _curveRegistry = _getCurveRegistry();
+        if (_getLiquidityGauge(_liquidityPool, _curveRegistry) != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
             return uint256(1000000000000000000);
         }
@@ -649,7 +643,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestSomeCodes(
         address payable _vault,
@@ -667,7 +661,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getStakeSomeCodes(address _liquidityPool, uint256 _stakeAmount)
         public
@@ -676,23 +670,24 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         returns (bytes[] memory _codes)
     {
         if (_stakeAmount > 0) {
-            address _gauge = liquidityPoolToGauges[_liquidityPool];
+            address _curveRegistry = _getCurveRegistry();
+            address _liquidityGauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
                 _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _gauge, uint256(0))
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityGauge, uint256(0))
             );
             _codes[1] = abi.encode(
                 _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _gauge, _stakeAmount)
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityGauge, _stakeAmount)
             );
-            _codes[2] = abi.encode(_gauge, abi.encodeWithSignature("deposit(uint256)", _stakeAmount));
+            _codes[2] = abi.encode(_liquidityGauge, abi.encodeWithSignature("deposit(uint256)", _stakeAmount));
         }
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeSomeCodes(address _liquidityPool, uint256 _unstakeAmount)
         public
@@ -701,45 +696,52 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         returns (bytes[] memory _codes)
     {
         if (_unstakeAmount > 0) {
-            address _gauge = liquidityPoolToGauges[_liquidityPool];
+            address _curveRegistry = _getCurveRegistry();
+            address _liquidityGauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
             _codes = new bytes[](1);
-            _codes[0] = abi.encode(_gauge, abi.encodeWithSignature("withdraw(uint256)", _unstakeAmount));
+            _codes[0] = abi.encode(_liquidityGauge, abi.encodeWithSignature("withdraw(uint256)", _unstakeAmount));
         }
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getAllAmountInTokenStake(
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        address _curveRegistry = _getCurveRegistry();
+        address _swapPool = _getSwapPool(_liquidityPool);
+        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
         uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _underlyingTokens.length; i++) {
+        for (uint256 i = 0; i < _nCoins; i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
-        address _gauge = liquidityPoolToGauges[_liquidityPool];
-        uint256 _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
+        uint256 _liquidityPoolTokenAmount =
+            ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(_vault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
         }
+        IHarvestCodeProvider _harvesCodeProviderContract =
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
+        uint256 _unclaimedRewwardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
         _b = _b.add(
-            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
+            _harvesCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmount(_vault, _liquidityPool)
+                _unclaimedRewwardTokenAmount
             )
         );
         return _b;
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getLiquidityPoolTokenBalanceStake(address payable _vault, address _liquidityPool)
         public
@@ -747,11 +749,12 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         override
         returns (uint256)
     {
-        return ICurveGauge(liquidityPoolToGauges[_liquidityPool]).balanceOf(_vault);
+        address _curveRegistry = _getCurveRegistry();
+        return ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(_vault);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterStaking
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _vault,
@@ -781,7 +784,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @dev Deploy function for a pool with 2 tokens
      */
     function _getDeposit2Code(
-        address[] memory _underlyingTokens,
+        address[8] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
@@ -836,7 +839,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @dev Deploy function for a pool with 3 tokens
      */
     function _getDeposit3Code(
-        address[] memory _underlyingTokens,
+        address[8] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
@@ -891,7 +894,7 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
      * @dev Deploy function for a pool with 4 tokens
      */
     function _getDeposit4Code(
-        address[] memory _underlyingTokens,
+        address[8] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
@@ -951,9 +954,12 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         uint256 _amount
     ) internal view returns (bytes[] memory _codes) {
         if (_amount > 0) {
-            address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+            address _curveRegistry = _getCurveRegistry();
+            address _swapPool = _getSwapPool(_liquidityPool);
+            uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+            address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
             uint256 i = 0;
-            for (uint256 j = 0; j < _underlyingTokens.length; j++) {
+            for (uint256 j = 0; j < _nCoins; j++) {
                 if (_underlyingTokens[j] == _underlyingToken) {
                     i = j;
                 }
@@ -1140,7 +1146,35 @@ contract CurvePoolAdapter is IAdapter, Modifiers {
         return _depositAmounts;
     }
 
-    function _getUnderlyingTokens(address _liquidityPool) internal view returns (address[] memory _underlyingTokens) {
-        _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
+    function _getUnderlyingTokens(address _swapPool, address _curveRegistry)
+        internal
+        view
+        returns (address[8] memory _underlyingTokens)
+    {
+        _underlyingTokens = ICurveRegistry(_curveRegistry).get_underlying_coins(_swapPool);
+    }
+
+    function _getLiquidityGauge(address _liquidityPool, address _curveRegistry)
+        internal
+        view
+        returns (address _liquidityGauge)
+    {
+        (address[10] memory _liquidityGauges, ) =
+            ICurveRegistry(_curveRegistry).get_gauges(_getSwapPool(_liquidityPool));
+        _liquidityGauge = _liquidityGauges[0];
+    }
+
+    function _getSwapPool(address _liquidityPool) internal view returns (address _swapPool) {
+        _swapPool = isOldDepositZap[_liquidityPool]
+            ? ICurveDeposit(_liquidityPool).curve()
+            : ICurveDeposit(_liquidityPool).pool();
+    }
+
+    function _getCurveRegistry() internal view returns (address _curveRegistry) {
+        _curveRegistry = ICurveAddressProvider(ADDRESS_PROVIDER).get_registry();
+    }
+
+    function _getNCoins(address _swapPool, address _curveRegistry) internal view returns (uint256 _nCoins) {
+        _nCoins = ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
     }
 }
