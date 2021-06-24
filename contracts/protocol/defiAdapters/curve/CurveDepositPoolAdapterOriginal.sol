@@ -64,7 +64,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
      * @dev map coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
