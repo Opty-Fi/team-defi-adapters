@@ -6,10 +6,6 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { PlainTokens } from "./PlainTokens.sol";
-import { CurveDepositPool } from "./CurveDepositPool.sol";
-import { CurveSwapPool } from "./CurveSwapPool.sol";
-import { CurveGaugePool } from "./CurveGaugePool.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
@@ -48,6 +44,9 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct;
+
+    /** @notice HBTC token contract address */
+    address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
@@ -154,12 +153,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _liquidityPool,
         uint256[] memory _amounts
     ) internal view returns (bytes[] memory _codes) {
-        require(_amounts.length == _nCoins, "!_amounts.length");
-
+        // _nCoins equals length of _amounts array
         uint256 _codeLength = 1;
         for (uint256 i = 0; i < _nCoins; i++) {
             if (_amounts[i] > 0) {
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
+                if (_underlyingTokens[i] == HBTC) {
                     _codeLength++;
                 } else {
                     _codeLength += 2;
@@ -173,7 +171,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
             uint256 _j = 0;
             for (uint256 i = 0; i < _nCoins; i++) {
                 if (_amounts[i] > 0) {
-                    if (_underlyingTokens[i] == PlainTokens.HBTC) {
+                    if (_underlyingTokens[i] == HBTC) {
                         _codes[_j++] = abi.encode(
                             _underlyingTokens[i],
                             abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
@@ -237,6 +235,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _curveRegistry = _getCurveRegistry();
         address[8] memory _underlyingCoins = _getUnderlyingTokens(_swapPool, _curveRegistry);
         uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        _underlyingTokens = new address[](_nCoins);
         for (uint256 _i = 0; _i < _nCoins; _i++) {
             _underlyingTokens[_i] = _underlyingCoins[_i];
         }

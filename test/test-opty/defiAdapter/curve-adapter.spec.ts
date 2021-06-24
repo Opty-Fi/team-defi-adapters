@@ -5,12 +5,7 @@ import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import {
-  approveTokens,
-  fundWalletToken,
-  getBlockTimestamp,
-  insertDataCurveDeposit,
-} from "../../../helpers/contracts-actions";
+import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
 type ARGUMENTS = {
@@ -39,11 +34,8 @@ describe("CurveDepositPoolAdapter", () => {
         owner,
         ADAPTER_NAME,
         essentialContracts["registry"].address,
-        essentialContracts["harvestCodeProvider"].address,
-        essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await insertDataCurveDeposit(owner, adapter);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
