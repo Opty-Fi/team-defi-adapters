@@ -1,5 +1,5 @@
 {
-  "CurveSwapAdapter": [
+  "CurveSwapPoolAdapter": [
     {
       "strategyName": "DAI-deposit-CURVE-3Crv",
       "token": "DAI",
@@ -13,7 +13,7 @@
       ]
     }
   ],
-  "CurvePoolAdapter": [
+  "CurveDepositPoolAdapter": [
     {
       "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
       "token": "DAI",
@@ -139,7 +139,7 @@
       ]
     }
   ],
-  "CurvePoolAdapter": [
+  "CurveDepositPoolAdapter": [
     {
       "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
       "token": "DAI",

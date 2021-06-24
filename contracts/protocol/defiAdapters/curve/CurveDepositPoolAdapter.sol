@@ -10,10 +10,13 @@ import { PlainTokens } from "./PlainTokens.sol";
 import { CurveDepositPool } from "./CurveDepositPool.sol";
 import { CurveSwapPool } from "./CurveSwapPool.sol";
 import { CurveGaugePool } from "./CurveGaugePool.sol";
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
+
+// interfaces
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
@@ -31,7 +34,7 @@ import { IPriceOracle } from "../../../interfaces/opty/IPriceOracle.sol";
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
+contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -40,26 +43,14 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
 
-    /** @notice Mapping  of depositPool to the underlyingTokens */
-    // mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
-
-    /** @notice Mapping  of depositPool to the swapPool */
-    // mapping(address => address) public liquidityPoolToSwap;
-
-    /** @notice Mapping  of depositPool to the Gauge contract address */
-    // mapping(address => address) public liquidityPoolToGauges;
-
-    /** @notice  Maps liquidityPool to list of 2 max deposit values in number */
-    mapping(address => uint256[2]) public maxDeposit2Amount;
-
-    /** @notice  Maps liquidityPool to list of 3 max deposit values in number */
-    mapping(address => uint256[3]) public maxDeposit3Amount;
-
-    /** @notice  Maps liquidityPool to list of 4 max deposit values in number */
-    mapping(address => uint256[4]) public maxDeposit4Amount;
+    /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
+    mapping(address => uint256[]) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
+    mapping(address => uint256) public maxDepositPoolPct;
+
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxExposureType;
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
@@ -214,7 +205,8 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         // setLiquiidtyPoolToGauges(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveGaugePool.TBTC_GAUGE);
         // setLiquiidtyPoolToGauges(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveGaugePool.DUSD_GAUGE);
 
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -227,57 +219,21 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
     }
 
     /**
+     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
+     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
+     * @param _maxDepositAmount Array of Pool's max deposit value in number to be set for the given liquidity pool
+     */
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    /**
      * @notice Sets the default absolute max deposit value in underlying
      * @param _maxDepositAmountDefault array of 4 absolute max deposit values in underlying to be set as default value
      */
     function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
-
-    /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 2 Pool's max deposit value in number to be set for the given liquidity pool
-     */
-    function setMaxDeposit2Amount(address _liquidityPool, uint256[2] memory _maxDepositAmount) external onlyGovernance {
-        maxDeposit2Amount[_liquidityPool] = _maxDepositAmount;
-    }
-
-    /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 3 Pool's max deposit value in number to be set for the given liquidity pool
-     */
-    function setMaxDeposit3Amount(address _liquidityPool, uint256[3] memory _maxDepositAmount) external onlyGovernance {
-        maxDeposit3Amount[_liquidityPool] = _maxDepositAmount;
-    }
-
-    /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of 4 Pool's max deposit value in number to be set for the given liquidity pool
-     */
-    function setMaxDeposit4Amount(address _liquidityPool, uint256[4] memory _maxDepositAmount) external onlyGovernance {
-        maxDeposit4Amount[_liquidityPool] = _maxDepositAmount;
-    }
-
-    /**
-     * @notice Maps the liquidity pool to the list of underlyingTokens supported by the given lp
-     * @param _liquidityPool liquidity pool address for which to map the underlying tokens supported
-     * @param _tokens list of underlying tokens linked to the given liquidity pool
-     */
-    // function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
-    //     liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
-    // }
-
-    /**
-     * @notice Maps the liquidity pool to the curve's guage contract address
-     * @param _pool Curve's liquidity pool address
-     * @param _gauge Curve's gauge contract address
-     */
-    // function setLiquiidtyPoolToGauges(address _pool, address _gauge) public onlyOperator {
-    //     liquidityPoolToGauges[_pool] = _gauge;
-    // }
 
     /**
      * @notice Sets the default percentage of max deposit pool value
@@ -288,14 +244,16 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
-    // /**
-    //  * @notice Maps the liquidity pool to the curve's swap pool address
-    //  * @param _liquidityPool Curve's liquidity pool address
-    //  * @param _swapPool Curve's swap pool address
-    //  */
-    // function setLiquidityPoolToSwap(address _liquidityPool, address _swapPool) public onlyGovernance {
-    //     liquidityPoolToSwap[_liquidityPool] = _swapPool;
-    // }
+    /**
+     * @notice Sets the type of investment limit
+     *                  1. Percentage of pool value
+     *                  2. Amount in underlying token
+     * @dev Types (can be number or percentage) supported for the maxDeposit value
+     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
+     */
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+        maxExposureType = _type;
+    }
 
     /**
      * @inheritdoc IAdapterHarvestReward
@@ -324,12 +282,70 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         for (uint256 _i = 0; _i < _nCoins; _i++) {
             _amounts[_i] = IERC20(_underlyingTokens[_i]).balanceOf(_vault);
         }
-        if (_nCoins == uint256(2)) {
-            _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (_nCoins == uint256(3)) {
-            _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (_nCoins == uint256(4)) {
-            _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
+        _codes = _getDepositCode(_underlyingTokens, _nCoins, _liquidityPool, _amounts);
+    }
+
+    function _getDepositCode(
+        address[8] memory _underlyingTokens,
+        uint256 _nCoins,
+        address _liquidityPool,
+        uint256[] memory _amounts
+    ) internal view returns (bytes[] memory _codes) {
+        require(_amounts.length == _nCoins, "!_amounts.length");
+
+        uint256 _codeLength = 1;
+        for (uint256 i = 0; i < _nCoins; i++) {
+            if (_amounts[i] > 0) {
+                if (_underlyingTokens[i] == PlainTokens.HBTC) {
+                    _codeLength++;
+                } else {
+                    _codeLength += 2;
+                }
+            }
+        }
+
+        if (_codeLength > 1) {
+            _amounts = _getDepositAmounts(_liquidityPool, _amounts);
+            _codes = new bytes[](_codeLength);
+            uint256 _j = 0;
+            for (uint256 i = 0; i < _nCoins; i++) {
+                if (_amounts[i] > 0) {
+                    if (_underlyingTokens[i] == PlainTokens.HBTC) {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    } else {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+                        );
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    }
+                }
+            }
+            if (_nCoins == uint256(2)) {
+                uint256[2] memory _depositAmounts = [_amounts[0], _amounts[1]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
+                );
+            } else if (_nCoins == uint256(3)) {
+                uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
+                );
+            } else if (_nCoins == uint256(4)) {
+                uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, uint256(0))
+                );
+            }
         }
     }
 
@@ -354,16 +370,12 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         override
         returns (address[] memory _underlyingTokens)
     {
-        address _swapPool =
-            isOldDepositZap[_liquidityPool]
-                ? ICurveDeposit(_liquidityPool).curve()
-                : ICurveDeposit(_liquidityPool).pool();
-        address _curveRegistry = ICurveAddressProvider(ADDRESS_PROVIDER).get_registry();
-        uint256 _nCoins = ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
-        address[8] memory _uTokens = ICurveRegistry(_curveRegistry).get_underlying_coins(_swapPool);
-        // liquidityPoolToUnderlyingTokens[_liquidityPool];
+        address _swapPool = _getSwapPool(_liquidityPool);
+        address _curveRegistry = _getCurveRegistry();
+        address[8] memory _underlyingCoins = _getUnderlyingTokens(_swapPool, _curveRegistry);
+        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
         for (uint256 _i = 0; _i < _nCoins; _i++) {
-            _underlyingTokens[_i] = _uTokens[_i];
+            _underlyingTokens[_i] = _underlyingCoins[_i];
         }
     }
 
@@ -528,14 +540,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         address _swapPool = _getSwapPool(_liquidityPool);
         uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
         address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        require(_amounts.length == _nCoins, "!_amounts.length");
-        if (_nCoins == uint256(2)) {
-            _codes = _getDeposit2Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (_nCoins == uint256(3)) {
-            _codes = _getDeposit3Code(_underlyingTokens, _liquidityPool, _amounts);
-        } else if (_nCoins == uint256(4)) {
-            _codes = _getDeposit4Code(_underlyingTokens, _liquidityPool, _amounts);
-        }
+        _codes = _getDepositCode(_underlyingTokens, _nCoins, _liquidityPool, _amounts);
     }
 
     /**
@@ -547,15 +552,61 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 nCoins = _underlyingTokens.length;
-        if (nCoins == uint256(1)) {
-            _codes = _getWithdraw1Code(_underlyingTokens[0], _liquidityPool, _amount);
-        } else if (nCoins == uint256(2)) {
-            _codes = _getWithdraw2Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(3)) {
-            _codes = _getWithdraw3Code(_liquidityPool, _amount);
-        } else if (nCoins == uint256(4)) {
-            _codes = _getWithdraw4Code(_liquidityPool, _amount);
+        if (_amount > 0) {
+            address _swapPool = _getSwapPool(_liquidityPool);
+            address _curveRegistry = _getCurveRegistry();
+            address[8] memory _tokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+            uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
+            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
+
+            _codes = new bytes[](3);
+            _codes[0] = abi.encode(
+                _liquidityPoolToken,
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _liquidityPoolToken,
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
+            );
+
+            if (_nCoins == 1) {
+                uint256 _i;
+                for (uint256 _j = 0; _j < _nCoins; _j++) {
+                    if (_tokens[_j] == _underlyingTokens[0]) {
+                        _i = _j;
+                    }
+                }
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature(
+                        "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
+                        _amount,
+                        _i,
+                        uint256(0),
+                        true
+                    )
+                );
+            } else {
+                if (_nCoins == uint256(2)) {
+                    uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
+                    _codes[2] = abi.encode(
+                        _liquidityPool,
+                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
+                    );
+                } else if (_nCoins == uint256(3)) {
+                    uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
+                    _codes[2] = abi.encode(
+                        _liquidityPool,
+                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
+                    );
+                } else if (_nCoins == uint256(4)) {
+                    uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
+                    _codes[2] = abi.encode(
+                        _liquidityPool,
+                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut)
+                    );
+                }
+            }
         }
     }
 
@@ -780,282 +831,6 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         return ICurveGauge(_gauge).minter();
     }
 
-    /**
-     * @dev Deploy function for a pool with 2 tokens
-     */
-    function _getDeposit2Code(
-        address[8] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) internal view returns (bytes[] memory _codes) {
-        uint256[2] memory _amountsIn;
-        uint256[] memory _amountsAux = new uint256[](2);
-        uint8 _codeLength = 1;
-        bool _isAmount = false;
-        // calculator for lines of code
-        for (uint8 i = 0; i < 2; i++) {
-            _amountsIn[i] = _amounts[i];
-            if (_amountsIn[i] > 0) {
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codeLength++;
-                } else {
-                    _codeLength += 2;
-                }
-            }
-        }
-        _amountsAux = _getDeposit2Amount(_liquidityPool, _amounts);
-        _codes = new bytes[](_codeLength);
-        uint8 _j = 0;
-        for (uint8 i = 0; i < 2; i++) {
-            _amountsIn[i] = _amountsAux[i];
-            if (_amountsIn[i] > 0) {
-                _isAmount = true;
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                } else {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-                    );
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                }
-            }
-        }
-        if (_isAmount) {
-            _codes[_j] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _amountsIn, uint256(0))
-            );
-        }
-    }
-
-    /**
-     * @dev Deploy function for a pool with 3 tokens
-     */
-    function _getDeposit3Code(
-        address[8] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) internal view returns (bytes[] memory _codes) {
-        uint256[3] memory _amountsIn;
-        uint256[] memory _amountsAux = new uint256[](3);
-        uint8 _codeLength = 1;
-        bool _isAmount = false;
-        // calculator for lines of code
-        for (uint8 i = 0; i < 3; i++) {
-            _amountsIn[i] = _amounts[i];
-            if (_amountsIn[i] > 0) {
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codeLength++;
-                } else {
-                    _codeLength += 2;
-                }
-            }
-        }
-        _amountsAux = _getDeposit3Amount(_liquidityPool, _amounts);
-        _codes = new bytes[](_codeLength);
-        uint8 _j = 0;
-        for (uint8 i = 0; i < 3; i++) {
-            _amountsIn[i] = _amountsAux[i];
-            if (_amountsIn[i] > 0) {
-                _isAmount = true;
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                } else {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-                    );
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                }
-            }
-        }
-        if (_isAmount) {
-            _codes[_j] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _amountsIn, uint256(0))
-            );
-        }
-    }
-
-    /**
-     * @dev Deploy function for a pool with 4 tokens
-     */
-    function _getDeposit4Code(
-        address[8] memory _underlyingTokens,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) internal view returns (bytes[] memory _codes) {
-        uint256[2] memory _amountsIn;
-        uint256[] memory _amountsAux = new uint256[](4);
-        uint8 _codeLength = 1;
-        bool _isAmount = false;
-        // calculator for lines of code
-        for (uint8 i = 0; i < 4; i++) {
-            _amountsIn[i] = _amounts[i];
-            if (_amountsIn[i] > 0) {
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codeLength++;
-                } else {
-                    _codeLength += 2;
-                }
-            }
-        }
-        _amountsAux = _getDeposit4Amount(_liquidityPool, _amounts);
-        _codes = new bytes[](_codeLength);
-        uint8 _j = 0;
-        for (uint8 i = 0; i < 4; i++) {
-            _amountsIn[i] = _amountsAux[i];
-            if (_amountsIn[i] > 0) {
-                _isAmount = true;
-                if (_underlyingTokens[i] == PlainTokens.HBTC) {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                } else {
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-                    );
-                    _codes[_j++] = abi.encode(
-                        _underlyingTokens[i],
-                        abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amountsIn[i])
-                    );
-                }
-            }
-        }
-        if (_isAmount) {
-            _codes[_j] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _amountsIn, uint256(0))
-            );
-        }
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for a certain quantity of each underlying token
-     */
-    function _getWithdraw1Code(
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _amount
-    ) internal view returns (bytes[] memory _codes) {
-        if (_amount > 0) {
-            address _curveRegistry = _getCurveRegistry();
-            address _swapPool = _getSwapPool(_liquidityPool);
-            uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-            address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-            uint256 i = 0;
-            for (uint256 j = 0; j < _nCoins; j++) {
-                if (_underlyingTokens[j] == _underlyingToken) {
-                    i = j;
-                }
-            }
-            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature(
-                    "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
-                    _amount,
-                    i,
-                    uint256(0),
-                    true
-                )
-            );
-        }
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for a certain quantity of each underlying token
-     */
-    function _getWithdraw2Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        if (_amount > 0) {
-            uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
-            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
-            );
-        }
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for a certain quantity of each underlying token
-     */
-    function _getWithdraw3Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        if (_amount > 0) {
-            uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
-            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
-            );
-        }
-    }
-
-    /**
-     * @dev Swaps _amount of _liquidityPoolToken for a certain quantity of each underlying token
-     */
-    function _getWithdraw4Code(address _liquidityPool, uint256 _amount) internal view returns (bytes[] memory _codes) {
-        if (_amount > 0) {
-            uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
-            address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _liquidityPoolToken,
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
-            );
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut)
-            );
-        }
-    }
-
     function _getDepositAmountPct(
         address _underlyingToken,
         address _liquidityPool,
@@ -1078,72 +853,6 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
         } else {
             return _amount;
         }
-    }
-
-    function _getDeposit2Amount(address _liquidityPool, uint256[] memory _amounts)
-        internal
-        view
-        returns (uint256[] memory)
-    {
-        uint256[2] memory _maxDepositAmounts;
-        uint256[] memory _depositAmounts = new uint256[](2);
-        for (uint256 i = 0; i < 2; i++) {
-            if (maxDeposit2Amount[_liquidityPool][i] == uint256(0)) {
-                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
-            } else {
-                _maxDepositAmounts[i] = maxDeposit2Amount[_liquidityPool][i];
-            }
-            if (_maxDepositAmounts[i] > _amounts[i]) {
-                _depositAmounts[i] = _amounts[i];
-            } else {
-                _depositAmounts[i] = _maxDepositAmounts[i];
-            }
-        }
-        return _depositAmounts;
-    }
-
-    function _getDeposit3Amount(address _liquidityPool, uint256[] memory _amounts)
-        internal
-        view
-        returns (uint256[] memory)
-    {
-        uint256[3] memory _maxDepositAmounts;
-        uint256[] memory _depositAmounts = new uint256[](3);
-        for (uint256 i = 0; i < 3; i++) {
-            if ((maxDeposit3Amount[_liquidityPool])[i] == uint256(0)) {
-                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
-            } else {
-                _maxDepositAmounts[i] = maxDeposit3Amount[_liquidityPool][i];
-            }
-            if (_maxDepositAmounts[i] > _amounts[i]) {
-                _depositAmounts[i] = _amounts[i];
-            } else {
-                _depositAmounts[i] = _maxDepositAmounts[i];
-            }
-        }
-        return _depositAmounts;
-    }
-
-    function _getDeposit4Amount(address _liquidityPool, uint256[] memory _amounts)
-        internal
-        view
-        returns (uint256[] memory)
-    {
-        uint256[4] memory _maxDepositAmounts;
-        uint256[] memory _depositAmounts = new uint256[](4);
-        for (uint256 i = 0; i < 4; i++) {
-            if ((maxDeposit4Amount[_liquidityPool])[i] == uint256(0)) {
-                _maxDepositAmounts[i] = maxDepositAmountDefault[i];
-            } else {
-                _maxDepositAmounts[i] = maxDeposit4Amount[_liquidityPool][i];
-            }
-            if (_maxDepositAmounts[i] > _amounts[i]) {
-                _depositAmounts[i] = _amounts[i];
-            } else {
-                _depositAmounts[i] = _maxDepositAmounts[i];
-            }
-        }
-        return _depositAmounts;
     }
 
     function _getUnderlyingTokens(address _swapPool, address _curveRegistry)
@@ -1176,5 +885,34 @@ contract CurvePoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, M
 
     function _getNCoins(address _swapPool, address _curveRegistry) internal view returns (uint256 _nCoins) {
         _nCoins = ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
+    }
+
+    function _getDepositAmounts(address _liquidityPool, uint256[] memory _amounts)
+        internal
+        view
+        returns (uint256[] memory _depositAmounts)
+    {
+        _depositAmounts = maxExposureType == DataTypes.MaxExposure.Pct
+            ? _amounts
+            : _getMaxDepositAmounts(_liquidityPool, _amounts);
+    }
+
+    function _getMaxDepositAmounts(address _liquidityPool, uint256[] memory _amounts)
+        internal
+        view
+        returns (uint256[] memory _depositAmounts)
+    {
+        _depositAmounts = new uint256[](_amounts.length);
+        for (uint256 i = 0; i < _amounts.length; i++) {
+            if ((maxDepositAmount[_liquidityPool].length > 0) && _amounts[i] > (maxDepositAmount[_liquidityPool])[i]) {
+                _depositAmounts[i] = maxDepositAmount[_liquidityPool][i];
+            } else {
+                if (maxDepositAmountDefault.length > 0 && _amounts[i] > maxDepositAmountDefault[i]) {
+                    _depositAmounts[i] = maxDepositAmountDefault[i];
+                } else {
+                    _depositAmounts[i] = _amounts[i];
+                }
+            }
+        }
     }
 }
