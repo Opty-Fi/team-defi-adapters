@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.12;
 
-library CurveSwapPool {
+library CurveSwapPoolAddresses {
     address public constant COMPOUND_SWAP_POOL = address(0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56);
     address public constant USDT_SWAP_POOL = address(0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C);
     address public constant PAX_SWAP_POOL = address(0x06364f10B501e868329afBc005b3492902d6C763);

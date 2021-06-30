@@ -7,7 +7,7 @@ pragma experimental ABIEncoderV2;
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { PlainTokens } from "./PlainTokens.sol";
 import { CurveDepositPool } from "./CurveDepositPool.sol";
-import { CurveSwapPool } from "./CurveSwapPool.sol";
+import { CurveSwapPoolAddresses } from "./CurveSwapPoolAddresses.sol";
 import { CurveGaugePool } from "./CurveGaugePool.sol";
 
 /**
@@ -28,14 +28,14 @@ contract CurveRegistry is Modifiers {
         _compoundUnderlyingTokens[0] = PlainTokens.DAI;
         _compoundUnderlyingTokens[1] = PlainTokens.USDC;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.COMPOUND_DEPOSIT_POOL, _compoundUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveSwapPool.COMPOUND_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.COMPOUND_DEPOSIT_POOL, CurveSwapPoolAddresses.COMPOUND_SWAP_POOL);
 
         address[] memory _usdtUnderlyingTokens = new address[](3);
         _usdtUnderlyingTokens[0] = PlainTokens.DAI;
         _usdtUnderlyingTokens[1] = PlainTokens.USDC;
         _usdtUnderlyingTokens[2] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDT_DEPOSIT_POOL, _usdtUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.USDT_DEPOSIT_POOL, CurveSwapPool.USDT_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.USDT_DEPOSIT_POOL, CurveSwapPoolAddresses.USDT_SWAP_POOL);
 
         address[] memory _paxUnderlyingTokens = new address[](4);
         _paxUnderlyingTokens[0] = PlainTokens.DAI;
@@ -43,7 +43,7 @@ contract CurveRegistry is Modifiers {
         _paxUnderlyingTokens[2] = PlainTokens.USDT;
         _paxUnderlyingTokens[3] = PlainTokens.PAX;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.PAX_DEPOSIT_POOL, _paxUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.PAX_DEPOSIT_POOL, CurveSwapPool.PAX_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.PAX_DEPOSIT_POOL, CurveSwapPoolAddresses.PAX_SWAP_POOL);
 
         address[] memory _yUnderlyingTokens = new address[](4);
         _yUnderlyingTokens[0] = PlainTokens.DAI;
@@ -51,7 +51,7 @@ contract CurveRegistry is Modifiers {
         _yUnderlyingTokens[2] = PlainTokens.USDT;
         _yUnderlyingTokens[3] = PlainTokens.TUSD;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.Y_DEPOSIT_POOL, _yUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.Y_DEPOSIT_POOL, CurveSwapPool.Y_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.Y_DEPOSIT_POOL, CurveSwapPoolAddresses.Y_SWAP_POOL);
 
         address[] memory _busdUnderlyingTokens = new address[](4);
         _busdUnderlyingTokens[0] = PlainTokens.DAI;
@@ -59,7 +59,7 @@ contract CurveRegistry is Modifiers {
         _busdUnderlyingTokens[2] = PlainTokens.USDT;
         _busdUnderlyingTokens[3] = PlainTokens.BUSD;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.BUSD_DEPOSIT_POOL, _busdUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveSwapPool.BUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.BUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.BUSD_SWAP_POOL);
 
         address[] memory _susdUnderlyingTokens = new address[](4);
         _susdUnderlyingTokens[0] = PlainTokens.DAI;
@@ -67,7 +67,7 @@ contract CurveRegistry is Modifiers {
         _susdUnderlyingTokens[2] = PlainTokens.USDT;
         _susdUnderlyingTokens[3] = PlainTokens.SUSD;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.SUSD_DEPOSIT_POOL, _susdUnderlyingTokens);
-        setLiquidityPoolToSwap(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveSwapPool.SUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.SUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.SUSD_SWAP_POOL);
 
         /* solhint-disable max-line-length */
         address[] memory _gusdUnderlyingTokens = new address[](4);
@@ -76,7 +76,7 @@ contract CurveRegistry is Modifiers {
         _gusdUnderlyingTokens[2] = PlainTokens.USDC;
         _gusdUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.GUSD_DEPOSIT_POOL, _gusdUnderlyingTokens); // GUSD,DAI,USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveSwapPool.GUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.GUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.GUSD_SWAP_POOL);
 
         address[] memory _husdUnderlyingTokens = new address[](4);
         _gusdUnderlyingTokens[0] = PlainTokens.HUSD;
@@ -84,7 +84,7 @@ contract CurveRegistry is Modifiers {
         _gusdUnderlyingTokens[2] = PlainTokens.USDC;
         _gusdUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.HUSD_DEPOSIT_POOL, _husdUnderlyingTokens); // HUSD, DAI,USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveSwapPool.HUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.HUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.HUSD_SWAP_POOL);
 
         address[] memory _usdkUnderlyingTokens = new address[](4);
         _usdkUnderlyingTokens[0] = PlainTokens.USDK;
@@ -92,7 +92,7 @@ contract CurveRegistry is Modifiers {
         _usdkUnderlyingTokens[2] = PlainTokens.USDC;
         _usdkUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDK_DEPOSIT_POOL, _usdkUnderlyingTokens); // USDK, DAI.USDC,USDT
-        setLiquidityPoolToSwap(CurveDepositPool.USDK_DEPOSIT_POOL, CurveSwapPool.USDK_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.USDK_DEPOSIT_POOL, CurveSwapPoolAddresses.USDK_SWAP_POOL);
 
         address[] memory _usdnUnderlyingTokens = new address[](4);
         _usdnUnderlyingTokens[0] = PlainTokens.USDN;
@@ -100,7 +100,7 @@ contract CurveRegistry is Modifiers {
         _usdnUnderlyingTokens[2] = PlainTokens.USDC;
         _usdnUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.USDN_DEPOSIT_POOL, _usdnUnderlyingTokens); // USDN, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.USDN_DEPOSIT_POOL, CurveSwapPool.USDN_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.USDN_DEPOSIT_POOL, CurveSwapPoolAddresses.USDN_SWAP_POOL);
 
         address[] memory _linkusdUnderlyingTokens = new address[](4);
         _linkusdUnderlyingTokens[0] = PlainTokens.LINKUSD;
@@ -108,7 +108,7 @@ contract CurveRegistry is Modifiers {
         _linkusdUnderlyingTokens[2] = PlainTokens.USDC;
         _linkusdUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.LINKUSD_DEPOSIT_POOL, _linkusdUnderlyingTokens); // LINKUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.LINKUSD_DEPOSIT_POOL, CurveSwapPool.LINKUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.LINKUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.LINKUSD_SWAP_POOL);
 
         address[] memory _musdUnderlyingTokens = new address[](4);
         _musdUnderlyingTokens[0] = PlainTokens.MUSD;
@@ -116,7 +116,7 @@ contract CurveRegistry is Modifiers {
         _musdUnderlyingTokens[2] = PlainTokens.USDC;
         _musdUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.MUSD_DEPOSIT_POOL, _musdUnderlyingTokens); // MUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveSwapPool.MUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.MUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.MUSD_SWAP_POOL);
 
         address[] memory _rsvUnderlyingTokens = new address[](4);
         _rsvUnderlyingTokens[0] = PlainTokens.RSV;
@@ -124,7 +124,7 @@ contract CurveRegistry is Modifiers {
         _rsvUnderlyingTokens[2] = PlainTokens.USDC;
         _rsvUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.RSV_DEPOSIT_POOL, _rsvUnderlyingTokens); // RSV, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.RSV_DEPOSIT_POOL, CurveSwapPool.RSV_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.RSV_DEPOSIT_POOL, CurveSwapPoolAddresses.RSV_SWAP_POOL);
 
         address[] memory _tbtcUnderlyingTokens = new address[](4);
         _tbtcUnderlyingTokens[0] = PlainTokens.TBTC;
@@ -132,7 +132,7 @@ contract CurveRegistry is Modifiers {
         _tbtcUnderlyingTokens[2] = PlainTokens.USDC;
         _tbtcUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.TBTC_DEPOSIT_POOL, _tbtcUnderlyingTokens); // TBTC, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveSwapPool.TBTC_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.TBTC_DEPOSIT_POOL, CurveSwapPoolAddresses.TBTC_SWAP_POOL);
 
         address[] memory _dusdUnderlyingTokens = new address[](4);
         _dusdUnderlyingTokens[0] = PlainTokens.DUSD;
@@ -140,7 +140,7 @@ contract CurveRegistry is Modifiers {
         _dusdUnderlyingTokens[2] = PlainTokens.USDC;
         _dusdUnderlyingTokens[3] = PlainTokens.USDT;
         setLiquidityPoolToUnderlyingTokens(CurveDepositPool.DUSD_DEPOSIT_POOL, _dusdUnderlyingTokens); // DUSD, DAI, USDC, USDT
-        setLiquidityPoolToSwap(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveSwapPool.DUSD_SWAP_POOL);
+        setLiquidityPoolToSwap(CurveDepositPool.DUSD_DEPOSIT_POOL, CurveSwapPoolAddresses.DUSD_SWAP_POOL);
         /* solhint-disable max-line-length */
 
         // set liquidity pool to gauges

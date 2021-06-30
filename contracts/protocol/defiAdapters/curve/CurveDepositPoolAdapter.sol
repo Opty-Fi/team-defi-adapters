@@ -7,10 +7,11 @@ pragma experimental ABIEncoderV2;
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { CurveSwapPoolAddresses } from "./CurveSwapPoolAddresses.sol";
 
 //  helper contracts
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // interfaces
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -20,10 +21,9 @@ import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
 import { ICurveAddressProvider } from "../../../interfaces/curve/ICurveAddressProvider.sol";
 import { ICurveRegistry } from "../../../interfaces/curve/ICurveRegistry.sol";
+import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
-import { IPriceOracle } from "../../../interfaces/opty/IPriceOracle.sol";
 
 /**
  * @title Adapter for Curve Deposit pools
@@ -31,44 +31,50 @@ import { IPriceOracle } from "../../../interfaces/opty/IPriceOracle.sol";
  * @dev Abstraction layer to Curve's deposit pools
  */
 contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
-    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    /** @notice  Curve Registry Address Provider */
     address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
+
+    /** @notice HBTC token contract address */
+    address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+
+    /** @notice max deposit's default value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
+
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxExposureType;
 
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
 
     /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
-    mapping(address => uint256[]) public maxDepositAmount;
+    mapping(address => uint256) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct;
-
-    /** @notice HBTC token contract address */
-    address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
-
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
-
-    /** @notice list of max deposit's default values in number */
-    uint256[4] public maxDepositAmountDefault;
 
     /**
      * @dev map coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
-        isOldDepositZap[0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06] = true; // curve-compound
-        isOldDepositZap[0xac795D2c97e60DF6a99ff1c814727302fD747a80] = true; // curve-usdt
-        isOldDepositZap[0xA50cCc70b6a011CffDdf45057E39679379187287] = true; // curve-pax
-        isOldDepositZap[0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3] = true; // curve-y
-        isOldDepositZap[0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB] = true; // curve-busd
-        isOldDepositZap[0xFCBa3E75865d2d561BE8D220616520c171F12851] = true; // curve-susd
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
+        setIsOldDepositZap(address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06), true); // curve-compound
+        setIsOldDepositZap(address(0xac795D2c97e60DF6a99ff1c814727302fD747a80), true); // curve-usdt
+        setIsOldDepositZap(address(0xA50cCc70b6a011CffDdf45057E39679379187287), true); // curve-pax
+        setIsOldDepositZap(address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3), true); // curve-y
+        setIsOldDepositZap(address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB), true); // curve-busd
+        setIsOldDepositZap(address(0xFCBa3E75865d2d561BE8D220616520c171F12851), true); // curve-susd
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+    }
+
+    /**
+     * @dev Maps true to a liquidity pool if it uses old deposit zap API
+     * @param _liquidityPool liquidity pool address
+     * @param _isOld set true if the liquidity pool uses old deposit zap's API
+     */
+    function setIsOldDepositZap(address _liquidityPool, bool _isOld) public onlyGovernance {
+        isOldDepositZap[_liquidityPool] = _isOld;
     }
 
     /**
@@ -81,29 +87,21 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     }
 
     /**
-     * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
-     * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount Array of Pool's max deposit value in number to be set for the given liquidity pool
+     * @notice Sets the absolute max deposit value in USD/BTC based liquidity pool type (USD or BTC)
+     * @param _liquidityPool liquidity pool address
+     * @param _maxDepositAmount the amount is in USD for USD pools and BTC for BTC pools
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @notice Sets the default absolute max deposit value in underlying
-     * @param _maxDepositAmountDefault array of 4 absolute max deposit values in underlying to be set as default value
-     */
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
-    }
-
-    /**
      * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * @param _maxDepositProtocolPct Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
      * to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -124,8 +122,16 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         revert("!empty");
     }
 
-    function getPoolValue(address, address) external view override returns (uint256) {
-        revert("!empty");
+    /**
+     * @inheritdoc IAdapter
+     */
+    function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
+        address _swapPool = _getSwapPool(_liquidityPool);
+        uint256 _virtualPrice = ICurveSwap(_swapPool).get_virtual_price();
+        uint256 _totalSupply = ERC20(getLiquidityPoolToken(address(0), _liquidityPool)).totalSupply();
+        // the pool value will be in USD for US dollar stablecoin pools
+        // the pool value will be in BTC for BTC pools
+        return (_virtualPrice.mul(_totalSupply)).div(10**36);
     }
 
     /**
@@ -133,81 +139,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory,
+        address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        address _curveRegistry = _getCurveRegistry();
-        address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        uint256[] memory _amounts = new uint256[](_nCoins);
-        for (uint256 _i = 0; _i < _nCoins; _i++) {
-            _amounts[_i] = IERC20(_underlyingTokens[_i]).balanceOf(_vault);
-        }
-        _codes = _getDepositCode(_underlyingTokens, _nCoins, _liquidityPool, _amounts);
-    }
-
-    function _getDepositCode(
-        address[8] memory _underlyingTokens,
-        uint256 _nCoins,
-        address _liquidityPool,
-        uint256[] memory _amounts
-    ) internal view returns (bytes[] memory _codes) {
-        // _nCoins equals length of _amounts array
-        uint256 _codeLength = 1;
-        for (uint256 i = 0; i < _nCoins; i++) {
-            if (_amounts[i] > 0) {
-                if (_underlyingTokens[i] == HBTC) {
-                    _codeLength++;
-                } else {
-                    _codeLength += 2;
-                }
-            }
-        }
-
-        if (_codeLength > 1) {
-            _amounts = _getDepositAmounts(_liquidityPool, _amounts);
-            _codes = new bytes[](_codeLength);
-            uint256 _j = 0;
-            for (uint256 i = 0; i < _nCoins; i++) {
-                if (_amounts[i] > 0) {
-                    if (_underlyingTokens[i] == HBTC) {
-                        _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
-                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
-                        );
-                    } else {
-                        _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
-                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
-                        );
-                        _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
-                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
-                        );
-                    }
-                }
-            }
-            if (_nCoins == uint256(2)) {
-                uint256[2] memory _depositAmounts = [_amounts[0], _amounts[1]];
-                _codes[_j] = abi.encode(
-                    _liquidityPool,
-                    abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
-                );
-            } else if (_nCoins == uint256(3)) {
-                uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
-                _codes[_j] = abi.encode(
-                    _liquidityPool,
-                    abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
-                );
-            } else if (_nCoins == uint256(4)) {
-                uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
-                _codes[_j] = abi.encode(
-                    _liquidityPool,
-                    abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, uint256(0))
-                );
-            }
-        }
+        uint256 _amount = ERC20(_underlyingTokens[0]).balanceOf(_vault);
+        _codes = _getDepositCode(_underlyingTokens[0], _liquidityPool, _amount);
     }
 
     /**
@@ -217,7 +153,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _amount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amount);
     }
@@ -309,7 +245,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
+        uint256 _rewardTokenAmount = ERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
         return getHarvestSomeCodes(_vault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
@@ -394,15 +330,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function getDepositSomeCodes(
         address payable,
-        address[] memory,
+        address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        address _curveRegistry = _getCurveRegistry();
-        address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        _codes = _getDepositCode(_underlyingTokens, _nCoins, _liquidityPool, _amounts);
+        _codes = _getDepositCode(_underlyingTokens[0], _liquidityPool, _amounts[0]);
     }
 
     /**
@@ -499,7 +431,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_vault);
+        return ERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).balanceOf(_vault);
     }
 
     /**
@@ -693,88 +625,218 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         return ICurveGauge(_gauge).minter();
     }
 
-    function _getDepositAmountPct(
+    /**
+     * @dev This functions composes the function calls to deposit asset into deposit pool
+     * @param _underlyingToken address of the underlying asset
+     * @param _liquidityPool liquidity pool address
+     * @param _amount the amount in underlying token
+     * @return _codes bytes array of function calls to be executed from vault
+     * */
+    function _getDepositCode(
         address _underlyingToken,
         address _liquidityPool,
-        uint256 _poolValue,
         uint256 _amount
-    ) internal view returns (uint256) {
-        uint256 _maxDepositPct;
-        if (maxDepositPoolPct[_liquidityPool] == uint256(0)) {
-            _maxDepositPct = maxDepositPoolPctDefault;
-        } else if (maxDepositPoolPct[_liquidityPool] == uint256(-1)) {
-            return _amount;
-        } else {
-            _maxDepositPct = maxDepositPoolPct[_liquidityPool];
+    ) internal view returns (bytes[] memory _codes) {
+        (uint256 _nCoins, address[8] memory _underlyingTokens, uint256[] memory _amounts, uint256 _codeLength) =
+            _getDepositCodeConfig(_underlyingToken, _liquidityPool, _amount);
+
+        if (_codeLength > 1) {
+            _codes = new bytes[](_codeLength);
+            uint256 _j = 0;
+            for (uint256 i = 0; i < _nCoins; i++) {
+                if (_amounts[i] > 0) {
+                    if (_underlyingTokens[i] == HBTC) {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    } else {
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+                        );
+                        _codes[_j++] = abi.encode(
+                            _underlyingTokens[i],
+                            abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[i])
+                        );
+                    }
+                }
+            }
+            if (_nCoins == uint256(2)) {
+                uint256[2] memory _depositAmounts = [_amounts[0], _amounts[1]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
+                );
+            } else if (_nCoins == uint256(3)) {
+                uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
+                );
+            } else if (_nCoins == uint256(4)) {
+                uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
+                _codes[_j] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, uint256(0))
+                );
+            }
         }
-        IPriceOracle _priceOracleContract = IPriceOracle(registryContract.getAprOracle());
-        uint256 _amountInUSD = _priceOracleContract.getUnderlyingTokenAmountInUSD(_amount, _underlyingToken);
-        uint256 _maxAmountInUSD = _poolValue.mul(_maxDepositPct).div(uint256(10000));
-        if (_amountInUSD > _maxAmountInUSD) {
-            return _priceOracleContract.getUSDAmountInUnderlyingToken(_maxAmountInUSD, _underlyingToken);
-        } else {
-            return _amount;
-        }
     }
 
-    function _getUnderlyingTokens(address _swapPool, address _curveRegistry)
+    /**
+     * @dev This function composes the configuration required to construct fuction calls
+     * @param _underlyingToken address of the underlying asset
+     * @param _liquidityPool liquidity pool address
+     * @param _amount amount in underlying token
+     * @return _nCoins number of underlying tokens in liquidity pool
+     * @return _underlyingTokens underlying tokens in a liquidity pool
+     * @return _amounts value in an underlying token for each underlying token
+     * @return _codeLength number of function call required for deposit
+     */
+    function _getDepositCodeConfig(
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _amount
+    )
         internal
         view
-        returns (address[8] memory _underlyingTokens)
+        returns (
+            uint256 _nCoins,
+            address[8] memory _underlyingTokens,
+            uint256[] memory _amounts,
+            uint256 _codeLength
+        )
     {
-        _underlyingTokens = ICurveRegistry(_curveRegistry).get_underlying_coins(_swapPool);
-    }
-
-    function _getLiquidityGauge(address _liquidityPool, address _curveRegistry)
-        internal
-        view
-        returns (address _liquidityGauge)
-    {
-        (address[10] memory _liquidityGauges, ) =
-            ICurveRegistry(_curveRegistry).get_gauges(_getSwapPool(_liquidityPool));
-        _liquidityGauge = _liquidityGauges[0];
-    }
-
-    function _getSwapPool(address _liquidityPool) internal view returns (address _swapPool) {
-        _swapPool = isOldDepositZap[_liquidityPool]
-            ? ICurveDeposit(_liquidityPool).curve()
-            : ICurveDeposit(_liquidityPool).pool();
-    }
-
-    function _getCurveRegistry() internal view returns (address _curveRegistry) {
-        _curveRegistry = ICurveAddressProvider(ADDRESS_PROVIDER).get_registry();
-    }
-
-    function _getNCoins(address _swapPool, address _curveRegistry) internal view returns (uint256 _nCoins) {
-        _nCoins = ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
-    }
-
-    function _getDepositAmounts(address _liquidityPool, uint256[] memory _amounts)
-        internal
-        view
-        returns (uint256[] memory _depositAmounts)
-    {
-        _depositAmounts = maxExposureType == DataTypes.MaxExposure.Pct
-            ? _amounts
-            : _getMaxDepositAmounts(_liquidityPool, _amounts);
-    }
-
-    function _getMaxDepositAmounts(address _liquidityPool, uint256[] memory _amounts)
-        internal
-        view
-        returns (uint256[] memory _depositAmounts)
-    {
-        _depositAmounts = new uint256[](_amounts.length);
-        for (uint256 i = 0; i < _amounts.length; i++) {
-            if ((maxDepositAmount[_liquidityPool].length > 0) && _amounts[i] > (maxDepositAmount[_liquidityPool])[i]) {
-                _depositAmounts[i] = maxDepositAmount[_liquidityPool][i];
-            } else {
-                if (maxDepositAmountDefault.length > 0 && _amounts[i] > maxDepositAmountDefault[i]) {
-                    _depositAmounts[i] = maxDepositAmountDefault[i];
-                } else {
-                    _depositAmounts[i] = _amounts[i];
+        address _curveRegistry = _getCurveRegistry();
+        address _swapPool = _getSwapPool(_liquidityPool);
+        _nCoins = _getNCoins(_swapPool, _curveRegistry);
+        _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+        _amounts = new uint256[](_nCoins);
+        _codeLength = 1;
+        for (uint256 _i = 0; _i < _nCoins; _i++) {
+            if (_underlyingTokens[_i] == _underlyingToken) {
+                _amounts[_i] = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
+                if (_amounts[_i] > 0) {
+                    if (_underlyingTokens[_i] == HBTC) {
+                        _codeLength++;
+                    } else {
+                        _codeLength += 2;
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * @dev Get the underlying tokens within a liquidity pool
+     * @param _swapPool the swap pool address
+     * @param _curveRegistry the address of the Curve registry
+     * @return list of underlying token addresses
+     */
+    function _getUnderlyingTokens(address _swapPool, address _curveRegistry) internal view returns (address[8] memory) {
+        return ICurveRegistry(_curveRegistry).get_underlying_coins(_swapPool);
+    }
+
+    /**
+     * @dev Get a liquidity gauge address associated with a liquidity pool
+     * @param _liquidityPool the liquidity pool address
+     * @param _curveRegistry the Curve registry's address
+     * @return gauge address
+     */
+    function _getLiquidityGauge(address _liquidityPool, address _curveRegistry) internal view returns (address) {
+        (address[10] memory _liquidityGauges, ) =
+            ICurveRegistry(_curveRegistry).get_gauges(_getSwapPool(_liquidityPool));
+        return _liquidityGauges[0];
+    }
+
+    /**
+     * @dev Get the address of swap pool associated with the liquidity pool
+     * @param _liquidityPool liquidity pool address
+     * @return  Address of the swap pool
+     */
+    function _getSwapPool(address _liquidityPool) internal view returns (address) {
+        return
+            isOldDepositZap[_liquidityPool]
+                ? ICurveDeposit(_liquidityPool).curve()
+                : ICurveDeposit(_liquidityPool).pool();
+    }
+
+    /**
+     * @dev Get the address of the main registry contract
+     * @return Address of the main registry contract
+     */
+    function _getCurveRegistry() internal view returns (address) {
+        return ICurveAddressProvider(ADDRESS_PROVIDER).get_registry();
+    }
+
+    /**
+     * @dev Get number of underlying tokens in a liquidity pool
+     * @param _swapPool swap pool address associated with liquidity pool
+     * @param _curveRegistry address of the main registry contract
+     * @return  Number of underlying tokens
+     */
+    function _getNCoins(address _swapPool, address _curveRegistry) internal view returns (uint256) {
+        return ICurveRegistry(_curveRegistry).get_n_coins(_swapPool)[1];
+    }
+
+    /**
+     * @dev Get the final value of amount in underlying token to be deposited
+     * @param _liquidityPool liquidity pool address
+     * @param _underlyingToken underlying token address
+     * @param _amount amount in underlying token
+     * @return amount in underlying token to be deposited affected by investment limitation
+     */
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256) {
+        return
+            maxExposureType == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountPct(_liquidityPool, _underlyingToken, _amount)
+                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
+    }
+
+    /**
+     * @dev Gets the maximum amount in underlying token limited by percentage
+     * @param _liquidityPool liquidity pool address
+     * @param _underlyingToken underlying token address
+     * @param _amount amount in underlying token
+     * @return  amount in underlying token to be deposited affected by
+     *          investment limit in percentage
+     */
+    function _getMaxDepositAmountPct(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256) {
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
+        uint256 _actualAmount = _amount.div(10**_decimals);
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
+        return _actualAmount > _limit ? _limit.mul(10**_decimals) : _amount;
+    }
+
+    /**
+     * @dev Gets the maximum amount in underlying token affected by investment
+     *      limit set for liquidity pool in amount
+     * @param _liquidityPool liquidity pool address
+     * @param _underlyingToken underlying token address
+     * @param _amount amount in underlying token
+     * @return amount in underlying token to be deposited affected by
+     *         investment limit set for liquidity pool in amount
+     */
+    function _getMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256) {
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _actualAmount = _amount.div(10**_decimals);
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool];
+        return _actualAmount > _maxAmount ? _maxAmount.mul(10**_decimals) : _amount;
     }
 }
