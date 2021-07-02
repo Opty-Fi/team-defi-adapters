@@ -83,16 +83,13 @@ contract HarvestAdapter is
     HarvestCodeProvider public harvestCodeProviderContract;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Harvest.finance's reward token address */
     address public rewardToken;
 
     /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
-
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
+    uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
@@ -112,8 +109,8 @@ contract HarvestAdapter is
         setLiquidityPoolToStakingVault(F_USDN_THREE_CRV_DEPOSIT_POOL, F_USDN_THREE_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(F_YDAI_YUSDC_YUSDT_YBUSD_DEPOSIT_POOL, F_YDAI_YUSDC_YUSDT_YBUSD_STAKE_VAULT);
 
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -121,17 +118,6 @@ contract HarvestAdapter is
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -175,15 +161,15 @@ contract HarvestAdapter is
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
+        maxDepositProtocolMode = _type;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -604,7 +590,7 @@ contract HarvestAdapter is
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
                 : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > _limit) {
@@ -621,7 +607,7 @@ contract HarvestAdapter is
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
         uint256 maxPct = maxDepositPoolPct[_liquidityPool];
         if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
+            maxPct = maxDepositProtocolPct;
         }
         uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
         if (_depositAmount > _limit) {
@@ -636,9 +622,6 @@ contract HarvestAdapter is
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
         if (_depositAmount > maxDeposit) {
             _depositAmount = maxDeposit;
         }
