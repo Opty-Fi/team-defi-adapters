@@ -84,13 +84,13 @@ describe("CurveDepositPoolAdapter", () => {
                   if (amount) {
                     codes = await adapter[action.action](
                       ZERO_ADDRESS,
-                      [ZERO_ADDRESS],
+                      [nCoins[0]], // DAI
                       strategy.strategy[0].contract,
                       depositAmount,
                     );
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [ZERO_ADDRESS], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, [nCoins[0]], strategy.strategy[0].contract);
                 }
                 if (codes.length > 0) {
                   for (let i = 0; i < codes.length - 1; i = i + 2) {
@@ -121,9 +121,7 @@ describe("CurveDepositPoolAdapter", () => {
                   const value = inter.decodeFunctionData("add_liquidity", abiCode);
                   if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
                     expect(value[0].length).to.equal(depositAmount.length);
-                    for (let i = 0; i < depositAmount.length; i++) {
-                      expect(value[0][i]).to.equal(depositAmount[i]);
-                    }
+                    expect(value[0][0]).to.equal(depositAmount[0]);
                   }
                   expect(value[1]).to.equal(0);
                 }
