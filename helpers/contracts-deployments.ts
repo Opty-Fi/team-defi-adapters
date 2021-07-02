@@ -121,7 +121,7 @@ export async function deployEssentialContracts(
     100000000000000,
   ]);
 
-  const optyMinter = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER, isDeployedOnce, owner, [
+  const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER, isDeployedOnce, owner, [
     registry.address,
     opty.address,
     1700000000,
@@ -188,11 +188,11 @@ export async function deployEssentialContracts(
     [registry.address, opty.address, 15552000, "180D"],
   );
 
-  await executeFunc(registry, owner, "setOPTYMinter(address)", [optyMinter.address]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
+  await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
   await executeFunc(optyStakingRateBalancer, owner, "initialize(address,address,address,address)", [
     optyStakingVault1D.address,
     optyStakingVault30D.address,
@@ -228,7 +228,7 @@ export async function deployEssentialContracts(
     vaultStepInvestStrategyDefinitionRegistry,
     strategyProvider,
     strategyManager,
-    optyMinter,
+    optyDistributor,
     opty,
     riskManager,
     harvestCodeProvider,
@@ -299,7 +299,7 @@ export async function deployVaults(
   registry: string,
   riskManager: string,
   strategyManager: string,
-  optyMinter: string,
+  optyDistributor: string,
   owner: Signer,
   admin: Signer,
   isDeployedOnce: boolean,
@@ -317,7 +317,7 @@ export async function deployVaults(
         registry,
         riskManager,
         strategyManager,
-        optyMinter,
+        optyDistributor,
         TOKENS[token],
         owner,
         admin,
@@ -336,7 +336,7 @@ export async function deployVault(
   registry: string,
   riskManager: string,
   strategyManager: string,
-  optyMinter: string,
+  optyDistributor: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -386,7 +386,7 @@ export async function deployVaultsWithHash(
   registry: string,
   riskManager: string,
   strategyManager: string,
-  optyMinter: string,
+  optyDistributor: string,
   owner: Signer,
   admin: Signer,
 ): Promise<CONTRACTS_WITH_HASH> {
@@ -400,7 +400,7 @@ export async function deployVaultsWithHash(
         registry,
         riskManager,
         strategyManager,
-        optyMinter,
+        optyDistributor,
         TOKENS[token],
         owner,
         admin,
@@ -419,7 +419,7 @@ export async function deployVaultWithHash(
   registry: string,
   riskManager: string,
   strategyManager: string,
-  optyMinter: string,
+  optyDistributor: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -455,7 +455,7 @@ export async function deployVaultWithHash(
       riskManager,
       underlyingToken,
       strategyManager,
-      optyMinter,
+      optyDistributor,
       underlyingTokenName,
       underlyingTokenSymbol,
       riskProfile,

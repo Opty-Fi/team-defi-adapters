@@ -32,10 +32,10 @@ abstract contract ModifiersController is IModifiersController, RegistryStorage {
     /**
      * @inheritdoc IModifiersController
      */
-    function setOPTYMinter(address _minter) public override onlyGovernance {
+    function setOPTYDistributor(address _minter) public override onlyGovernance {
         require(_minter != address(0), "!address(0)");
         minter = _minter;
-        emit TransferOPTYMinter(minter, msg.sender);
+        emit TransferOPTYDistributor(minter, msg.sender);
     }
 
     /**

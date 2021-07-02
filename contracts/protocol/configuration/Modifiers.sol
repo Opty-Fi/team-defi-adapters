@@ -63,7 +63,7 @@ abstract contract Modifiers is IModifiers {
      * @notice Modifier to check caller is minter or not
      */
     modifier onlyMinter() {
-        require(msg.sender == registryContract.getOptyMinter(), "!minter");
+        require(msg.sender == registryContract.getOPTYDistributor(), "!minter");
         _;
     }
 

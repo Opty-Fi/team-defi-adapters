@@ -107,7 +107,7 @@ describe(scenario.title, () => {
             0,
           ]);
 
-          const optyMinter = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_MINTER, false, users[0], [
+          const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_MINTER, false, users[0], [
             essentialContracts["registry"].address,
             opty.address,
             await getBlockTimestamp(hre),
@@ -118,7 +118,7 @@ describe(scenario.title, () => {
             essentialContracts.registry.address,
             essentialContracts.riskManager.address,
             essentialContracts.strategyManager.address,
-            optyMinter.address,
+            optyDistributor.address,
             TOKENS[TOKEN_STRATEGY.token],
             users[0],
             users[1],

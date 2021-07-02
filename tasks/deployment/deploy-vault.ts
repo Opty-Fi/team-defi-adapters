@@ -10,11 +10,14 @@ task("deploy-vault", "Deploy Vault")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("riskmanager", "the address of riskManager", "", types.string)
   .addParam("strategymanager", "the address of strategyManager", "", types.string)
-  .addParam("optyminter", "the address of opty Minter", "", types.string)
+  .addParam("optydistributor", "the address of opty Distributor", "", types.string)
   .addParam("unpause", "unpause vault", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(
-    async ({ token, riskprofile, registry, riskmanager, strategymanager, optyminter, insertindb, unpause }, hre) => {
+    async (
+      { token, riskprofile, registry, riskmanager, strategymanager, optydistributor, insertindb, unpause },
+      hre,
+    ) => {
       const [owner, admin] = await hre.ethers.getSigners();
 
       if (token === "") {
@@ -57,12 +60,12 @@ task("deploy-vault", "Deploy Vault")
         throw new Error("strategymanager address is invalid");
       }
 
-      if (optyminter === "") {
-        throw new Error("optyminter cannot be empty");
+      if (optydistributor === "") {
+        throw new Error("optydistributor cannot be empty");
       }
 
-      if (!isAddress(optyminter)) {
-        throw new Error("optyminter address is invalid");
+      if (!isAddress(optydistributor)) {
+        throw new Error("optydistributor address is invalid");
       }
 
       const { name, symbol } = await getTokenInforWithAddress(hre, token);
@@ -72,7 +75,7 @@ task("deploy-vault", "Deploy Vault")
         registry,
         riskmanager,
         strategymanager,
-        optyminter,
+        optydistributor,
         token,
         owner,
         admin,

@@ -50,7 +50,7 @@ contract RegistryAdminStorage {
     /**
      * @notice Change minter of protocol
      */
-    event TransferOPTYMinter(address indexed minter, address indexed caller);
+    event TransferOPTYDistributor(address indexed minter, address indexed caller);
 }
 
 /**

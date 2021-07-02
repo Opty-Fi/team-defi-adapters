@@ -79,7 +79,7 @@ describe(scenario.title, () => {
           essentialContracts.registry.address,
           essentialContracts.riskManager.address,
           essentialContracts.strategyManager.address,
-          essentialContracts.optyMinter.address,
+          essentialContracts.optyDistributor.address,
           TOKENS[token],
           owner,
           admin,

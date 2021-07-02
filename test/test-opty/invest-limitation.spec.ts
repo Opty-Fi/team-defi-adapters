@@ -115,7 +115,7 @@ describe(scenarios.title, () => {
                   essentialContracts.registry.address,
                   essentialContracts.riskManager.address,
                   essentialContracts.strategyManager.address,
-                  essentialContracts.optyMinter.address,
+                  essentialContracts.optyDistributor.address,
                   token,
                   users["owner"],
                   users["admin"],

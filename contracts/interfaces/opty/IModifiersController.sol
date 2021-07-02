@@ -18,5 +18,5 @@ interface IModifiersController {
      * @notice Transfers minter to a new account (`_minter`)
      * @param _minter address of minter's account
      */
-    function setOPTYMinter(address _minter) external;
+    function setOPTYDistributor(address _minter) external;
 }
