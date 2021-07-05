@@ -35,6 +35,7 @@ type EXPECTED_ARGUMENTS = {
 };
 
 describe(scenario.title, () => {
+  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
