@@ -16,6 +16,7 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
+import exchange from "../../helpers/data/exchange.json";
 import scenarios from "./scenarios/invest-limitation.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -95,7 +96,15 @@ describe(scenarios.title, () => {
                   timestamp,
                 );
 
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                let ERC20Instance;
+                if (strategy.token === "SLP") {
+                  await adapter
+                    .connect(users["owner"])
+                    ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[strategy.token], "1");
+                  ERC20Instance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TOKENS[strategy.token]);
+                } else {
+                  ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                }
 
                 contracts["adapter"] = adapter;
 
@@ -233,7 +242,11 @@ describe(scenarios.title, () => {
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
-                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      if (
+                        adapterName.includes("Aave") ||
+                        adapterName === "DyDxAdapter" ||
+                        adapterName === "SushiswapAdapter"
+                      ) {
                         currentPoolValue = await contracts["adapter"].getPoolValue(
                           strategy.strategy[0].contract,
                           token,
@@ -283,7 +296,11 @@ describe(scenarios.title, () => {
                     case "getPoolValue(address,address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
                       let value: BigNumber;
-                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      if (
+                        adapterName.includes("Aave") ||
+                        adapterName === "DyDxAdapter" ||
+                        adapterName === "SushiswapAdapter"
+                      ) {
                         value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
                       } else {
                         value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);

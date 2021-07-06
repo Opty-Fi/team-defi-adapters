@@ -26,6 +26,21 @@ interface IHarvestCodeProvider {
     ) external view returns (bytes[] memory _codes);
 
     /**
+     * @dev Get the codes for harvesting the tokens using uniswap router
+     * @param _vault Address of Vault Contract
+     * @param _rewardToken Reward token address
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @param _rewardTokenAmount reward token amount to harvest
+     * @return _codes List of harvest codes for harvesting reward tokens
+     */
+    function getHarvestLPTokenSushiCodes(
+        address payable _vault,
+        address _rewardToken,
+        address _underlyingToken,
+        uint256 _rewardTokenAmount
+    ) external view returns (bytes[] memory _codes);
+
+    /**
      * @dev Get the optimal amount for the token while borrow
      * @param _borrowToken Address of token which has to be borrowed
      * @param _underlyingToken Token address acting as underlying Asset for the vault contract
@@ -46,6 +61,19 @@ interface IHarvestCodeProvider {
      * @return equivalent reward token balance in Underlying token value
      */
     function rewardBalanceInUnderlyingTokens(
+        address _rewardToken,
+        address _underlyingToken,
+        uint256 _amount
+    ) external view returns (uint256);
+
+    /**
+     * @dev Get the LP (liquidity pool) token amount equivalent to reward token amount on Sushiswap
+     * @param _rewardToken Reward token address
+     * @param _underlyingToken LP Token address acting as underlying Asset for the vault contract
+     * @param _amount reward token balance amount
+     * @return equivalent reward token balance in LP token value
+     */
+    function rewardBalanceInLPTokensSushi(
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount

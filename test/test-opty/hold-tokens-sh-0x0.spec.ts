@@ -16,6 +16,7 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
+import exchange from "../../helpers/data/exchange.json";
 import scenarios from "./scenarios/hold-tokens-sh-0x0.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -28,6 +29,7 @@ describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
     USDT: BigNumber.from("1000000000"),
+    SLP: BigNumber.from("1000000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -107,7 +109,15 @@ describe(scenarios.title, () => {
                   timestamp,
                 );
 
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                let ERC20Instance;
+                if (strategy.token === "SLP") {
+                  await adapter
+                    .connect(users["owner"])
+                    ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[strategy.token], "1");
+                  ERC20Instance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TOKENS[strategy.token]);
+                } else {
+                  ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                }
 
                 contracts["strategyProvider"] = essentialContracts.strategyProvider;
                 contracts["adapter"] = adapter;

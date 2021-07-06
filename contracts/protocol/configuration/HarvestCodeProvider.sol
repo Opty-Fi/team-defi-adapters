@@ -12,6 +12,7 @@ import { Modifiers } from "./Modifiers.sol";
 
 // interfaces
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 
@@ -29,6 +30,11 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
      * @notice Uniswap V2 router contract address
      */
     IUniswapV2Router02 public uniswapV2Router02 = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+
+    /**
+     * @notice Uniswap V2 router contract address
+     */
+    IUniswapV2Router02 public sushiswapRouter = IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
@@ -88,6 +94,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     /**
      * @inheritdoc IHarvestCodeProvider
      */
+    function getHarvestLPTokenSushiCodes(
+        address payable _vault,
+        address _rewardToken,
+        address _underlyingToken,
+        uint256 _rewardTokenAmount
+    ) public view override returns (bytes[] memory _codes) {}
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
     function getOptimalTokenAmount(
         address _borrowToken,
         address _underlyingToken,
@@ -135,6 +151,37 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         path[2] = _underlyingToken;
         amounts = uniswapV2Router02.getAmountsOut(_amount, path);
         return amounts[2];
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function rewardBalanceInLPTokensSushi(
+        address _rewardToken,
+        address _underlyingToken,
+        uint256 _amount
+    ) public view override returns (uint256) {
+        address _weth = sushiswapRouter.WETH();
+        uint256 amount;
+        uint256[] memory amountsA = new uint256[](3);
+        uint256[] memory amountsB = new uint256[](3);
+        address[] memory path = new address[](3);
+        address tokenA = IUniswapV2Pair(_underlyingToken).token0();
+        address tokenB = IUniswapV2Pair(_underlyingToken).token1();
+        path[0] = _rewardToken;
+        path[1] = _weth;
+        path[2] = tokenA;
+        amountsA = sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), path);
+        path[2] = tokenB;
+        amountsB = sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), path);
+        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
+        uint256 quoteAmount = sushiswapRouter.quote(amountsA[2], reserve0, reserve1);
+        if (quoteAmount >= amountsB[2]) {
+            amount = amountsB[2].mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
+        } else {
+            amount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
+        }
+        return amount;
     }
 
     /**

@@ -150,19 +150,48 @@ export async function fundWalletToken(
   deadlineTimestamp: number,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
-  const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-  const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
-    gasLimit: 6721975,
-  };
-  const address = await wallet.getAddress();
-  await uniswapInstance.swapETHForExactTokens(
-    amount,
-    [TypedTokens["WETH"], tokenAddress],
-    address,
-    deadlineTimestamp,
-    ETH_VALUE_GAS_OVERIDE_OPTIONS,
-  );
+  if (tokenAddress === "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0") {
+    const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
+    const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
+    const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("50")),
+      gasLimit: 6721975,
+    };
+    const address = await wallet.getAddress();
+    await sushiswapInstance.swapExactETHForTokens(
+      1,
+      [TypedTokens["WETH"], TypedTokens["USDC"]],
+      address,
+      deadlineTimestamp,
+      ETH_VALUE_GAS_OVERIDE_OPTIONS,
+    );
+    await USDCInstance.approve(exchange.sushiswap.address, await USDCInstance.balanceOf(address));
+    await sushiswapInstance.addLiquidityETH(
+      TypedTokens["USDC"],
+      await USDCInstance.balanceOf(address),
+      0,
+      0,
+      address,
+      deadlineTimestamp,
+      ETH_VALUE_GAS_OVERIDE_OPTIONS,
+    );
+    const SLPInstance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TypedTokens["SLP"]);
+    await SLPInstance.balanceOf(address);
+  } else {
+    const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+    const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
+      gasLimit: 6721975,
+    };
+    const address = await wallet.getAddress();
+    await uniswapInstance.swapETHForExactTokens(
+      amount,
+      [TypedTokens["WETH"], tokenAddress],
+      address,
+      deadlineTimestamp,
+      ETH_VALUE_GAS_OVERIDE_OPTIONS,
+    );
+  }
 }
 
 export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise<number> {
@@ -175,6 +204,13 @@ export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise
 export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "Maker";
+  } else if (tokenName.toLowerCase() == "slp") {
+    const ERC20Instance = await hre.ethers.getContractAt(
+      exchange.uniswap_pair.abi,
+      TypedTokens[tokenName.toUpperCase()],
+    );
+    const name: string = await ERC20Instance.name();
+    return name;
   } else {
     const ERC20Instance = await hre.ethers.getContractAt("ERC20", TypedTokens[tokenName.toUpperCase()]);
     const name: string = await ERC20Instance.name();
@@ -185,6 +221,13 @@ export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: st
 export async function getTokenSymbol(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "MKR";
+  } else if (tokenName.toLowerCase() == "slp") {
+    const ERC20Instance = await hre.ethers.getContractAt(
+      exchange.uniswap_pair.abi,
+      TypedTokens[tokenName.toUpperCase()],
+    );
+    const name: string = await ERC20Instance.symbol();
+    return name;
   } else {
     const ERC20Instance = await hre.ethers.getContractAt("ERC20", TypedTokens[tokenName.toUpperCase()]);
     const symbol = await ERC20Instance.symbol();
