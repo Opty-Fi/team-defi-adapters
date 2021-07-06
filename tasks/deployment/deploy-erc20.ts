@@ -11,7 +11,7 @@ task("deploy-erc20", "Deploy ERC20")
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ name, symbol, total, decimal, deployedonce, insertindb }, hre) => {
     const [owner] = await hre.ethers.getSigners();
-    
+
     if (name === "") {
       throw new Error("name cannot be empty");
     }

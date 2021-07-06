@@ -383,16 +383,7 @@ export async function deployVaultsWithHash(
     const name = await getTokenName(hre, token);
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVaultWithHash(
-        hre,
-        registry,
-        TOKENS[token],
-        owner,
-        admin,
-        name,
-        symbol,
-        riskProfile,
-      );
+      const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
       vaults[`${symbol}-${riskProfile}`] = vault;
     }
   }
@@ -432,13 +423,7 @@ export async function deployVaultWithHash(
     vaultProxy.contract,
     owner,
     "initialize(address,address,address,address,address,string,string,string)",
-    [
-      registry,
-      underlyingToken,
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      riskProfile,
-    ],
+    [registry, underlyingToken, underlyingTokenName, underlyingTokenSymbol, riskProfile],
   );
   return vaultProxy;
 }
