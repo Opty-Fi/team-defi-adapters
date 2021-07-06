@@ -174,26 +174,6 @@ describe(scenario.title, () => {
                     assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                     break;
                   }
-                  case "setMaxDepositAmountDefault(uint256[4])": {
-                    const { defaultAmount }: ARGUMENTS = action.args;
-                    try {
-                      if (defaultAmount) {
-                        await contracts[action.contract]
-                          .connect(users[action.executer])
-                          [action.action]([defaultAmount, defaultAmount, defaultAmount, defaultAmount]);
-                      }
-                    } catch (error) {
-                      if (action.expect === "success") {
-                        assert.isUndefined(error);
-                      } else {
-                        expect(error.message).to.equal(
-                          `VM Exception while processing transaction: revert ${action.message}`,
-                        );
-                      }
-                    }
-                    assert.isDefined(defaultAmount, `args is wrong in ${action.action} testcase`);
-                    break;
-                  }
                   case "approve(address,uint256)": {
                     const { addressName, amount }: ARGUMENTS = action.args;
                     try {
@@ -236,9 +216,6 @@ describe(scenario.title, () => {
                     break;
                   }
                   case "getPricePerFullShareWrite()": {
-                    const time = 1625057489;
-                    await hre.ethers.provider.send("evm_setNextBlockTimestamp", [time]);
-                    await hre.ethers.provider.send("evm_mine", []);
                     try {
                       const pricePerShare = await contracts[action.contract]
                         .connect(users[action.executer])

@@ -19,7 +19,7 @@ interface IVault {
     /**
      * @notice Calculate the value of a vault share in underlying token
      * @dev It should only be called if the current strategy's last step is Curve
-     * @return uint256 the underlying token worth a vault share is
+     * @return the underlying token worth a vault share is
      */
     function getPricePerFullShareWrite() external returns (uint256);
 

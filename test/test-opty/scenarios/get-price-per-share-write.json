@@ -25,16 +25,6 @@
               "message": ""
             },
             {
-              "contract": "adapter",
-              "action": "setMaxDepositAmountDefault(uint256[4])",
-              "args": {
-                "defaultAmount": "30000000000000000000"
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            },
-            {
               "contract": "tokenErc20",
               "action": "approve(address,uint256)",
               "args": {

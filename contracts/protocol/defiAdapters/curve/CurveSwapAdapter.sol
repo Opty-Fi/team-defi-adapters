@@ -102,6 +102,33 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
+    function getAllAmountInTokenStakeWrite(
+        address payable _optyVault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) external override returns (uint256) {
+        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        int128 tokenIndex = 0;
+        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+            if (_underlyingTokens[i] == _underlyingToken) {
+                tokenIndex = i;
+            }
+        }
+        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
+        uint256 _b = 0;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+        }
+        _b = _b.add(
+            harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
+            )
+        );
+        return _b;
+    }
+
     /**
      * @notice Sets the type of investment limit
      *                  1. Percentage of pool value
@@ -359,33 +386,6 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     ) public view override returns (bytes[] memory _codes) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
-    }
-
-    function getAllAmountInTokenStakeWrite(
-        address payable _optyVault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) public override returns (uint256) {
-        address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        int128 tokenIndex = 0;
-        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
-        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_optyVault, _liquidityPool);
-        uint256 _b = 0;
-        if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
-        }
-        _b = _b.add(
-            harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                getRewardToken(_liquidityPool),
-                _underlyingToken,
-                _getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
-            )
-        );
-        return _b;
     }
 
     /**

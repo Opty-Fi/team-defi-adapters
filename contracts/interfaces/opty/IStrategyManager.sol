@@ -15,13 +15,13 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 interface IStrategyManager {
     /**
      * @notice Get the balance of vault in underlyingToken provided
-     * @param _optyVault Vault contract address
+     * @param _vault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
      * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @return _balance Returns the balance of vault in underlyingToken provided
      */
     function getBalanceInUnderlyingTokenWrite(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         bytes32 _investStrategyHash
     ) external returns (uint256 _balance);
