@@ -30,33 +30,41 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
 
     /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
+
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
-    mapping(address => uint256) public maxDepositAmount;
 
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+
+    /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxExposureType;
+
     /** @notice Cream's Comptroller contract address */
     address public comptroller;
+
     /** @notice Cream's Reward token address */
     address public rewardToken;
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositPoolPctDefault; // basis points
-    /** @notice max deposit's default value in number */
-    uint256 public maxDepositAmountDefault;
+
+    /** @notice max deposit's default value in number for a specific token */
+    mapping(address => uint256) public maxDepositAmountDefault;
 
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setComptroller(address(0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258));
         setRewardToken(address(0x2ba592F78dB6436527729929AAf6c908497cB200));
         setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Number);
+        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
+        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
@@ -65,15 +73,23 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmountDefault(uint256 _maxDepositAmountDefault) external override onlyGovernance {
-        maxDepositAmountDefault = _maxDepositAmountDefault;
+    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
+        external
+        override
+        onlyGovernance
+    {
+        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _maxDepositAmount
+    ) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
     /**
@@ -106,7 +122,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     }
 
     /**
-     * @inheritdoc IAdapter
+     * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
@@ -233,8 +249,8 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        if (_amounts[0] > 0) {
-            uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
+        if (_depositAmount > 0) {
             if (_underlyingTokens[0] == HBTC) {
                 _codes = new bytes[](2);
                 _codes[0] = abi.encode(
@@ -376,13 +392,17 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
             );
     }
 
-    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 _limit =
             maxExposureType == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _amount);
-        if (_limit != 0 && _depositAmount > _limit) {
+                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
+        if (_depositAmount > _limit) {
             _depositAmount = _limit;
         }
     }
@@ -404,15 +424,15 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         }
     }
 
-    function _getMaxDepositAmount(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
+    function _getMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool];
+        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
         if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault;
+            maxDeposit = maxDepositAmountDefault[_underlyingToken];
         }
         if (_depositAmount > maxDeposit) {
             _depositAmount = maxDeposit;

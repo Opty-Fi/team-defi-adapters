@@ -9,7 +9,7 @@ import {
   approveTokens,
   fundWalletToken,
   getBlockTimestamp,
-  insertDataCurveDeposit,
+  insertDataCurveSwap,
 } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
@@ -17,8 +17,8 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CurvePoolAdapter", () => {
-  const ADAPTER_NAME = "CurvePoolAdapter";
+describe("CurveSwapAdapter", () => {
+  const ADAPTER_NAME = "CurveSwapAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
@@ -43,7 +43,7 @@ describe("CurvePoolAdapter", () => {
         essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await insertDataCurveDeposit(owner, adapter);
+      await insertDataCurveSwap(owner, adapter);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
