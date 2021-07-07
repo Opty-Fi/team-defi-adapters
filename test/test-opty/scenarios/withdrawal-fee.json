@@ -7,6 +7,57 @@
       "profile": "RP1",
       "stories": [
         {
+          "description": "Non-FinanceOperator shouldn't be able to set withdrawal fee ",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "fee": "60"
+                  },
+                  "executer": "user1",
+                  "expect": "fail",
+                  "message": "caller is not the finance operator"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "FinanceOperator should be able to set withdrawal fee ",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "fee": "60"
+                  },
+                  "executer": "owner",
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "registry",
+                  "action": "vaultToVaultConfiguration(address)",
+                  "args": {
+                    "addressName": "vault"
+                  },
+                  "expectedValue": "60"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "description": "User have to pay withdrawal fee and it will be given to 1 treasury account when they do userWithdrawRebalance",
           "activities": [
             {
@@ -997,7 +1048,7 @@
                   },
                   "executer": "user1",
                   "expect": "fail",
-                  "message": "caller is not having governance"
+                  "message": "caller is not the finance operator"
                 }
               ],
               "getActions": []
@@ -1214,7 +1265,7 @@
                   },
                   "executer": "user1",
                   "expect": "fail",
-                  "message": "caller is not having governance"
+                  "message": "caller is not the finance operator"
                 }
               ],
               "getActions": []
@@ -1286,7 +1337,7 @@
                   },
                   "executer": "user1",
                   "expect": "fail",
-                  "message": "caller is not having governance"
+                  "message": "caller is not the finance operator"
                 }
               ],
               "getActions": []
