@@ -59,7 +59,6 @@ describe("SushiswapAdapter", () => {
                 let codes;
                 let depositAmount;
                 if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                  console.log(adapter);
                   codes = await adapter[action.action](ownerAddress, [token], masterChef, ["2000000"]);
                   depositAmount = "2000000";
                 } else {
