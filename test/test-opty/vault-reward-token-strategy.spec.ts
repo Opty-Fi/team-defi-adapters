@@ -17,6 +17,7 @@ import {
   approveVaultRewardTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
+import exchange from "../../helpers/data/exchange.json";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
 import { getContractInstance } from "../../helpers/helpers";
 
@@ -125,7 +126,18 @@ describe(scenario.title, () => {
                 profile,
               );
 
-              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              let Token_ERC20Instance: Contract;
+              if (TOKENS[TOKEN_STRATEGY.token] === "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0") {
+                await adapter
+                  .connect(users["owner"])
+                  ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[TOKEN_STRATEGY.token], "1");
+                Token_ERC20Instance = await hre.ethers.getContractAt(
+                  exchange.uniswap_pair.abi,
+                  TOKENS[TOKEN_STRATEGY.token],
+                );
+              } else {
+                Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              }
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;
               contracts["tokenErc20"] = Token_ERC20Instance;

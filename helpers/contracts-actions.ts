@@ -154,10 +154,11 @@ export async function fundWalletToken(
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
     const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("50")),
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("100")),
       gasLimit: 6721975,
     };
     const address = await wallet.getAddress();
+
     await sushiswapInstance.swapExactETHForTokens(
       1,
       [TypedTokens["WETH"], TypedTokens["USDC"]],
@@ -165,7 +166,7 @@ export async function fundWalletToken(
       deadlineTimestamp,
       ETH_VALUE_GAS_OVERIDE_OPTIONS,
     );
-    await USDCInstance.approve(exchange.sushiswap.address, await USDCInstance.balanceOf(address));
+    await USDCInstance.connect(wallet).approve(exchange.sushiswap.address, await USDCInstance.balanceOf(address));
     await sushiswapInstance.addLiquidityETH(
       TypedTokens["USDC"],
       await USDCInstance.balanceOf(address),
@@ -175,12 +176,10 @@ export async function fundWalletToken(
       deadlineTimestamp,
       ETH_VALUE_GAS_OVERIDE_OPTIONS,
     );
-    const SLPInstance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TypedTokens["SLP"]);
-    await SLPInstance.balanceOf(address);
   } else {
     const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
     const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("900")),
       gasLimit: 6721975,
     };
     const address = await wallet.getAddress();

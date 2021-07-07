@@ -31,6 +31,7 @@ describe(scenarios.title, () => {
     DAI: BigNumber.from("20000000000000000000"),
     USDC: BigNumber.from("20000000"),
     USDT: BigNumber.from("20000000"),
+    SLP: BigNumber.from("200000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;

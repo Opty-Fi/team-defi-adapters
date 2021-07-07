@@ -198,4 +198,18 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256[] memory _amounts = uniswapV2Router02.getAmountsOut(_amount, _path);
         return _amounts[1];
     }
+
+    function _getPath(address _underlyingToken, address _rewardToken) internal view returns (address[] memory _path) {
+        address _weth = uniswapV2Router02.WETH();
+        if (_underlyingToken == _weth) {
+            _path = new address[](2);
+            _path[0] = _rewardToken;
+            _path[1] = _weth;
+        } else {
+            _path = new address[](3);
+            _path[0] = _rewardToken;
+            _path[1] = _weth;
+            _path[2] = _underlyingToken;
+        }
+    }
 }
