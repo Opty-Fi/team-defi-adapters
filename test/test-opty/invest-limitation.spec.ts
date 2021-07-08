@@ -225,21 +225,10 @@ describe(scenarios.title, () => {
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
-                      if (
-                        adapterName.includes("Aave") ||
-                        adapterName === "DyDxAdapter" ||
-                        adapterName === "SushiswapAdapter"
-                      ) {
-                        currentPoolValue = await contracts["adapter"].getPoolValue(
-                          strategy.strategy[0].contract,
-                          token,
-                        );
-                      } else {
-                        currentPoolValue = await contracts["adapter"].getPoolValue(
-                          strategy.strategy[0].contract,
-                          ADDRESS_ZERO,
-                        );
-                      }
+                      currentPoolValue = await contracts["adapter"].getPoolValue(
+                        strategy.strategy[0].contract,
+                        token,
+                      );
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
                           .connect(users[setAction.executer])
@@ -278,16 +267,7 @@ describe(scenarios.title, () => {
                     }
                     case "getPoolValue(address,address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      let value: BigNumber;
-                      if (
-                        adapterName.includes("Aave") ||
-                        adapterName === "DyDxAdapter" ||
-                        adapterName === "SushiswapAdapter"
-                      ) {
-                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
-                      } else {
-                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
-                      }
+                      const value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
                       if (expectedValue[strategy.token] === "<") {
                         expect(value.sub(currentPoolValue)).to.lt(0);
                       } else if (expectedValue[strategy.token] === "=") {
