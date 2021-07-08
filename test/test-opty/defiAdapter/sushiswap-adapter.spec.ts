@@ -8,6 +8,10 @@ import { deployAdapter, deployEssentialContracts } from "../../../helpers/contra
 import { approveTokens } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
+type ARGUMENTS = {
+  amount?: { [key: string]: string };
+};
+
 describe("SushiswapAdapter", () => {
   const ADAPTER_NAME = "SushiswapAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
@@ -54,8 +58,11 @@ describe("SushiswapAdapter", () => {
                 let codes;
                 let depositAmount;
                 if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
-                  codes = await adapter[action.action](ownerAddress, [token], masterChef, ["2000000"]);
-                  depositAmount = "2000000";
+                  const { amount }: ARGUMENTS = action.args;
+                  if (amount) {
+                    codes = await adapter[action.action](ownerAddress, [token], masterChef, [amount[strategy.token]]);
+                    depositAmount = amount[strategy.token];
+                  }
                 } else {
                   codes = await adapter[action.action](ownerAddress, [token], masterChef);
                 }
@@ -87,8 +94,11 @@ describe("SushiswapAdapter", () => {
                 let codes;
                 let withdrawAmount;
                 if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
-                  codes = await adapter[action.action](ownerAddress, [token], masterChef, "2000000");
-                  withdrawAmount = "2000000";
+                  const { amount }: ARGUMENTS = action.args;
+                  if (amount) {
+                    codes = await adapter[action.action](ownerAddress, [token], masterChef, amount[strategy.token]);
+                    withdrawAmount = amount[strategy.token];
+                  }
                 } else {
                   codes = await adapter[action.action](ownerAddress, [token], masterChef);
                 }
