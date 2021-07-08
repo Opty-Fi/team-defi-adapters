@@ -150,13 +150,13 @@ export async function fundWalletToken(
   deadlineTimestamp: number,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
+  const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
+    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("500")),
+    gasLimit: 6721975,
+  };
   if (tokenAddress === TypedTokens["SLP_WETH_USDC"]) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
-    const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("100")),
-      gasLimit: 6721975,
-    };
     const address = await wallet.getAddress();
 
     await sushiswapInstance.swapExactETHForTokens(
@@ -178,10 +178,6 @@ export async function fundWalletToken(
     );
   } else {
     const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-    const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("900")),
-      gasLimit: 6721975,
-    };
     const address = await wallet.getAddress();
     await uniswapInstance.swapETHForExactTokens(
       amount,
@@ -203,13 +199,6 @@ export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise
 export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "Maker";
-  } else if (tokenName.toLowerCase() == "slp_weth_usdc") {
-    const ERC20Instance = await hre.ethers.getContractAt(
-      exchange.uniswap_pair.abi,
-      TypedTokens[tokenName.toUpperCase()],
-    );
-    const name: string = await ERC20Instance.name();
-    return name;
   } else {
     const ERC20Instance = await hre.ethers.getContractAt("ERC20", TypedTokens[tokenName.toUpperCase()]);
     const name: string = await ERC20Instance.name();
@@ -220,13 +209,6 @@ export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: st
 export async function getTokenSymbol(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "MKR";
-  } else if (tokenName.toLowerCase() == "slp_weth_usdc") {
-    const ERC20Instance = await hre.ethers.getContractAt(
-      exchange.uniswap_pair.abi,
-      TypedTokens[tokenName.toUpperCase()],
-    );
-    const name: string = await ERC20Instance.symbol();
-    return name;
   } else {
     const ERC20Instance = await hre.ethers.getContractAt("ERC20", TypedTokens[tokenName.toUpperCase()]);
     const symbol = await ERC20Instance.symbol();

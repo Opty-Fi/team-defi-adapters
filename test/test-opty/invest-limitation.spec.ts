@@ -16,7 +16,6 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import exchange from "../../helpers/data/exchange.json";
 import scenarios from "./scenarios/invest-limitation.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -97,12 +96,7 @@ describe(scenarios.title, () => {
                   timestamp,
                 );
 
-                let ERC20Instance;
-                if (strategy.token === "SLP_WETH_USDC") {
-                  ERC20Instance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TOKENS[strategy.token]);
-                } else {
-                  ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
-                }
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
 
                 contracts["adapter"] = adapter;
 

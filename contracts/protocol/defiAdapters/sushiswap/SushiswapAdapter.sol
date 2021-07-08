@@ -75,7 +75,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      * @param _pid pool ID to be linked with pair address
      */
     function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
-        require(_underlyingToken != address(0), "Invalid address");
+        require(_underlyingToken != address(0), "!address(0)");
         require(underlyingTokenToPid[_underlyingToken] == uint256(0), "_underlyingTokenToPid already set");
         underlyingTokenToPid[_underlyingToken] = _pid;
     }
