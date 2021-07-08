@@ -4,11 +4,7 @@ import { Contract, Signer } from "ethers";
 import { deployAdapters, deployRegistry } from "../../helpers/contracts-deployments";
 import { CONTRACTS } from "../../helpers/type";
 import { deployContract } from "../../helpers/helpers";
-import {
-  ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
-  TESTING_CONTRACTS,
-  TESTING_DEPLOYMENT_ONCE,
-} from "../../helpers/constants";
+import { TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import scenario from "./scenarios/registry.json";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 
@@ -17,10 +13,6 @@ type ARGUMENTS = {
 };
 describe(scenario.title, () => {
   let registryContract: Contract;
-  let harvestCodeProvider: Contract;
-  let priceOracle: Contract;
-  // let vaultStepInvestStrategyDefinitionRegistry: Contract;
-  // let aprOracle: Contract;
   let adapters: CONTRACTS;
   let owner: Signer;
   let financeOperator: Signer;
@@ -28,13 +20,33 @@ describe(scenario.title, () => {
   let strategyOperator: Signer;
   let operator: Signer;
   let optyMinter: Signer;
-  let users: Signer[];
-  // let caller: string;
-  // let operatorCaller: string;
-
+  let user0: Signer;
+  let user1: Signer;
   let signers: any;
   const contracts: CONTRACTS = {};
   const callers: { [key: string]: string } = {};
+  const contractNames = [
+    "vaultStepInvestStrategyDefinitionRegistry",
+    "aprOracle",
+    "strategyProvider",
+    "riskManager",
+    "harvestCodeProvider",
+    "strategyManager",
+    "opty",
+    "priceOracle",
+    "optyStakingRateBalancer",
+    "odefiVaultBooster",
+  ];
+  const callerNames = [
+    "owner",
+    "financeOperator",
+    "riskOperator",
+    "strategyOperator",
+    "operator",
+    "optyMinter",
+    "user0",
+    "user1",
+  ];
   beforeEach(async () => {
     try {
       [
@@ -44,45 +56,12 @@ describe(scenario.title, () => {
         strategyOperator,
         operator,
         optyMinter,
-        ...users
+        user0,
+        user1,
       ] = await hre.ethers.getSigners();
-      // console.log("Owner address before: ", await owner.getAddress())
-      // console.log("User0 address before: ", await users[0].getAddress())
-      // console.log("User1 address before: ", await users[1].getAddress())
-      // console.log("User2 address before: ", await users[2].getAddress())
-      // console.log("User3 address before: ", await users[3].getAddress())
-      // signers = { owner, financeOperator, riskOperator, strategyOperator, operator, ...users };
-      signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyMinter };
-      signers["user0"] = users[0];
-      signers["user1"] = users[0];
-      // console.log("User0 Address: ", await signers["user0"].getAddress())
-      // console.log("keys: ", Object.keys(signers))
-      // console.log("Owner address: ", await signers["owner"].getAddress())
-      // console.log("User0 address: ", await signers["users"][0].getAddress())
-      // console.log("User1 address: ", await signers["users"][1].getAddress())
-      // console.log("User2 address: ", await signers["users"][2].getAddress())
-      // console.log("User3 address: ", await signers["users"][3].getAddress())
-      // console.log("User1 address: ", await signers['1'].getAddress())
-      // process.exit(1)
+      signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyMinter, user0, user1 };
+
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      harvestCodeProvider = await deployContract(
-        hre,
-        ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
-        TESTING_DEPLOYMENT_ONCE,
-        owner,
-        [registryContract.address],
-      );
-      priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, TESTING_DEPLOYMENT_ONCE, owner, [
-        registryContract.address,
-      ]);
-      adapters = await deployAdapters(
-        hre,
-        owner,
-        registryContract.address,
-        harvestCodeProvider.address,
-        priceOracle.address,
-        TESTING_DEPLOYMENT_ONCE,
-      );
       const DUMMY_EMPTY_CONTRACT = await deployContract(
         hre,
         TESTING_CONTRACTS.TEST_SETTER_FUNCTIONS_VISIBILITY,
@@ -90,87 +69,41 @@ describe(scenario.title, () => {
         owner,
         [],
       );
-
-      contracts["vaultStepInvestStrategyDefinitionRegistry"] = DUMMY_EMPTY_CONTRACT;
-      contracts["aprOracle"] = DUMMY_EMPTY_CONTRACT;
-      contracts["strategyProvider"] = DUMMY_EMPTY_CONTRACT;
-      contracts["riskManager"] = DUMMY_EMPTY_CONTRACT;
-      contracts["harvestCodeProvider"] = DUMMY_EMPTY_CONTRACT;
-      contracts["strategyManager"] = DUMMY_EMPTY_CONTRACT;
-      contracts["opty"] = DUMMY_EMPTY_CONTRACT;
-      contracts["priceOracle"] = DUMMY_EMPTY_CONTRACT;
-      contracts["optyStakingRateBalancer"] = DUMMY_EMPTY_CONTRACT;
-      contracts["odefiVaultBooster"] = DUMMY_EMPTY_CONTRACT;
-      // contracts[""] = DUMMY_EMPTY_CONTRACT;
-      // contracts[""] = DUMMY_EMPTY_CONTRACT;
-      // contracts[""] = DUMMY_EMPTY_CONTRACT;
-      // vaultStepInvestStrategyDefinitionRegistry = await deployContract(
-      //   hre,
-      //   ESSENTIAL_CONTRACTS_DATA.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-      //   TESTING_DEPLOYMENT_ONCE,
-      //   owner,
-      //   [registryContract.address],
-      // );
-      // aprOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.APR_ORACLE, TESTING_DEPLOYMENT_ONCE, owner, [registryContract.address])
-      // console.log("Apr oracle address: ", aprOracle.address)
-      // process.exit(1)
-      // caller = await owner.getAddress();
+      adapters = await deployAdapters(
+        hre,
+        owner,
+        registryContract.address,
+        DUMMY_EMPTY_CONTRACT.address,
+        DUMMY_EMPTY_CONTRACT.address,
+        TESTING_DEPLOYMENT_ONCE,
+      );
+      contractNames.forEach(contractName => {
+        contracts[contractName] = DUMMY_EMPTY_CONTRACT;
+        assert.isDefined(
+          contracts[contractName],
+          `${contractName.slice(0, 1).toUpperCase().concat(contractName.slice(1))} contract not deployed`,
+        );
+      });
       assert.isDefined(registryContract, "Registry contract not deployed");
-      assert.isDefined(harvestCodeProvider, "HarvestCodeProvider not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-      // await registryContract["setFinanceOperator(address)"](await financeOperator.getAddress());
-      // const test_financeOperator = await registryContract.financeOperator();
-      // console.log("Original finance operator: ", await financeOperator.getAddress())
-      // console.log("Test finance operator: ", test_financeOperator);
-      // await registryContract["setRiskOperator(address)"](await riskOperator.getAddress());
-      // await registryContract["setStrategyOperator(address)"](await strategyOperator.getAddress());
+
       await registryContract["setOperator(address)"](await operator.getAddress());
       await registryContract["setRiskOperator(address)"](await riskOperator.getAddress());
-      // operatorCaller = await registryContract.operator();
-      callers["owner"] = await owner.getAddress();
-      callers["financeOperator"] = await financeOperator.getAddress();
-      callers["operator"] = await operator.getAddress();
-      callers["riskOperator"] = await riskOperator.getAddress();
-      callers["strategyOperator"] = await strategyOperator.getAddress();
-      callers["optyMinter"] = await optyMinter.getAddress();
-      // console.log("Operator address from reg contract: ", await registryContract.operator());
+
+      for (let i = 0; i < callerNames.length; i++) {
+        callers[callerNames[i]] = await signers[callerNames[i]].getAddress();
+      }
     } catch (error) {
       console.log(error);
     }
   });
 
-  console.log("Stories length: ", scenario.stories.length);
-  // for (let i = 0; i < 18; i++) {
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(story.description, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
         switch (action.action) {
-          // case "setVaultStepInvestStrategyDefinitionRegistry(address)": {
-          //   const { contractName }: ARGUMENTS = action.args;
-          //   // const executor = action.executor
-          //   // const userAddr = await users[userIndex].getAddress();
-          //   // console.log("Executor: ", action.executor);
-          //   // console.log("Executor address: ", await signers[action.executor].getAddress());
-          //   if (contractName) {
-          //     if (action.expect === "success") {
-          //       console.log("Success: vaultstepdefination contract");
-          //       // await registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address);
-          //       await registryContract
-          //         .connect(signers[action.executor])
-          //         [action.action](contracts[contractName].address);
-          //     } else {
-          //       console.log("fail: vaultstepdefination contract");
-          //       // await expect(registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address)).to.be.revertedWith(action.message);
-          //       await expect(
-          //         registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
-          //       ).to.be.revertedWith(action.message);
-          //     }
-          //   }
-          //   assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
-          //   break;
-          // }
           case "setVaultStepInvestStrategyDefinitionRegistry(address)":
           case "setAPROracle(address)":
           case "setStrategyProvider(address)":
@@ -182,15 +115,12 @@ describe(scenario.title, () => {
           case "setOPTYStakingRateBalancer(address)":
           case "setODEFIVaultBooster(address)": {
             const { contractName }: ARGUMENTS = action.args;
-            console.log("ContractName: ", contractName);
             if (contractName) {
               if (action.expect === "success") {
-                console.log(`Success: ${contractName} contract`);
                 await registryContract
                   .connect(signers[action.executor])
                   [action.action](contracts[contractName].address);
               } else {
-                console.log(`fail: ${contractName} contract`);
                 await expect(
                   registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
                 ).to.be.revertedWith(action.message);
@@ -399,11 +329,6 @@ describe(scenario.title, () => {
               if (action.expect === "success") {
                 await registryContract.connect(signers[action.executor])[action.action](args);
               } else {
-                // (await userIndex)
-                //   ? await expect(registryContract.connect(users[userIndex])[action.action](args)).to.be.revertedWith(
-                //       action.message,
-                //     )
-                //   :
                 await expect(
                   registryContract.connect(signers[action.executor])[action.action](args),
                 ).to.be.revertedWith(action.message);
@@ -428,13 +353,6 @@ describe(scenario.title, () => {
                     callers[action.executor],
                   );
               } else {
-                // (await userIndex)
-                //   ? await expect(
-                //       registryContract
-                //         .connect(users[userIndex])
-                //         [action.action](lqs.liquidityPool, adapters[lqs.adapterName].address),
-                //     ).to.be.revertedWith(action.message)
-                //   :
                 await expect(
                   registryContract
                     .connect(signers[action.executor])
@@ -612,18 +530,6 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.getActions.length; i++) {
         const action = story.getActions[i];
         switch (action.action) {
-          // case "getVaultStepInvestStrategyDefinitionRegistry()": {
-          //   const { contractName }: ARGUMENTS = action.args;
-          //   if (contractName) {
-          //     console.log("GetAction: contract name: ", contractName);
-          //     const value = await registryContract[action.action]();
-          //     // console.log("Value: ", value)
-          //     expect(value).to.be.equal(contracts[contractName].address);
-          //     // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
-          //   }
-          //   assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
-          //   break;
-          // }
           case "getVaultStepInvestStrategyDefinitionRegistry()":
           case "getAprOracle()":
           case "getStrategyProvider()":
@@ -636,11 +542,8 @@ describe(scenario.title, () => {
           case "getODEFIVaultBooster()": {
             const { contractName } = <any>action.expectedValue;
             if (contractName) {
-              console.log("GetAction: contract name: ", contractName);
               const value = await registryContract[action.action]();
-              // console.log("Value: ", value)
               expect(value).to.be.equal(contracts[contractName].address);
-              // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -652,12 +555,8 @@ describe(scenario.title, () => {
           case "getOperator()": {
             const { addressName } = <any>action.expectedValue;
             if (addressName) {
-              console.log("GetAction: Address name: ", addressName);
               const value = await registryContract[action.action]();
-              console.log("Address Value: ", value);
-              console.log("Address from callers: ", callers[addressName]);
               expect(value).to.be.equal(callers[addressName]);
-              // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;
