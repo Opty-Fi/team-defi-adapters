@@ -424,12 +424,11 @@ contract DForceAdapter is
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         return IDForceStake(liquidityPoolToStakingVault[_liquidityPool]).earned(_vault);
     }
 
@@ -507,7 +506,7 @@ contract DForceAdapter is
                 1e18
             );
         }
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(

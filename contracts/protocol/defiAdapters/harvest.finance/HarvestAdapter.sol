@@ -460,12 +460,11 @@ contract HarvestAdapter is
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         return IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).earned(_vault);
     }
 
@@ -541,7 +540,7 @@ contract HarvestAdapter is
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(1e18);
         }
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(

@@ -306,7 +306,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
                 _liquidityPool,
                 getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool)
             );
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
@@ -356,7 +356,11 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address,
+        address
+    ) public view override returns (uint256) {
         return ICream(comptroller).compAccrued(_vault);
     }
 

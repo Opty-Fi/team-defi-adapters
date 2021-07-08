@@ -578,12 +578,11 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         if (liquidityPoolToGauges[_liquidityPool] != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
             return uint256(1000000000000000000);
@@ -675,7 +674,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
             harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmount(_vault, _liquidityPool)
+                getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken)
             )
         );
         return _b;
