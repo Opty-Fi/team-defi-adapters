@@ -108,6 +108,15 @@
           "executer": "owner",
           "expectedValue": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "withdrawAll(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {

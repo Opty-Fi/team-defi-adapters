@@ -7,6 +7,7 @@ import { CONTRACTS } from "../../helpers/type";
 import { TypedDefiPools } from "../../helpers/data";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import { expect } from "chai";
+import { formatUnits } from "ethers/lib/utils";
 
 type ARGUMENTS = {
   maxDepositProtocolPct?: string;
@@ -21,8 +22,6 @@ describe(scenario.title, () => {
   const adapterNames = Object.keys(TypedDefiPools);
   let testDeFiAdapter: Contract;
   let adapters: CONTRACTS;
-  const defaultFundAmount: BigNumber = BigNumber.from("10");
-  let maxFundAmount: BigNumber;
 
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
@@ -40,17 +39,22 @@ describe(scenario.title, () => {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of scenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
+              let defaultFundAmount: BigNumber = BigNumber.from("200000");
+              let limit: BigNumber;
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const underlyingTokenAddress = TypedDefiPools[adapterName][pool].tokens[0];
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
               const adapterAddress = adapters[adapterName].address;
+              let underlyingBalanceBefore: BigNumber;
+              let limitInUnderlyingToken: BigNumber;
+              // Note: The pool value for curve pools will be in USD or BTC
+              const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
+                liquidityPool,
+                underlyingTokenAddress,
+              );
               for (const action of story.setActions) {
-                const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
-                  liquidityPool,
-                  underlyingTokenAddress,
-                );
                 switch (action.action) {
                   case "setMaxDepositPoolType(uint8)": {
                     const { mode }: ARGUMENTS = action.args;
@@ -66,25 +70,32 @@ describe(scenario.title, () => {
                     if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                       await adapters[adapterName][action.action](maxDepositProtocolPct);
                     }
-                    maxFundAmount = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    maxFundAmount = defaultFundAmount.lte(maxFundAmount) ? defaultFundAmount : maxFundAmount;
+                    limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                    limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     break;
                   }
                   case "fundTestDeFiAdapterContract": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    if (underlyingBalance.lt(maxFundAmount)) {
-                      await fundWalletToken(
-                        hre,
-                        underlyingTokenAddress,
-                        users["owner"],
-                        maxFundAmount.mul(BigNumber.from(10).pow(decimals)),
-                        timestamp,
-                        testDeFiAdapter.address,
-                      );
+                    if (underlyingBalance.lt(defaultFundAmount)) {
+                      try {
+                        await fundWalletToken(
+                          hre,
+                          underlyingTokenAddress,
+                          users["owner"],
+                          defaultFundAmount,
+                          timestamp,
+                          testDeFiAdapter.address,
+                        );
+                      } catch (error) {
+                        console.log("Error", pool, formatUnits(defaultFundAmount, decimals));
+                      }
                     }
                     break;
                   }
                   case "depositAll(address,address,address)": {
+                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter.depositAll(underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
@@ -101,9 +112,21 @@ describe(scenario.title, () => {
                     expect(lpTokenBalance).to.be.gt(0);
                     break;
                   }
-                  case "balanceOf(address": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    expect(underlyingBalance).to.be.eq(0);
+                  case "balanceOf(address)": {
+                    try {
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
+                        testDeFiAdapter.address,
+                      );
+                      if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
+                        expect(underlyingBalanceAfter).to.be.eq(0);
+                      } else {
+                        console.log(`${pool}`);
+                        expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
+                      }
+                    } catch (error) {
+                      console.log("err", error);
+                    }
+                    break;
                   }
                 }
               }
