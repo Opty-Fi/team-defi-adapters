@@ -3,6 +3,201 @@
   "description": "Test cases for Registry contract",
   "stories": [
     {
+      "description": "Governance should be able to set OPTYMinter's address",
+      "setActions": [
+        {
+          "action": "setOPTYMinter(address)",
+          "args": {
+            "newOptyMinter": "optyMinter"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getOptyMinter()",
+          "args": {},
+          "expectedValue": {
+            "addressName": "optyMinter"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set OPTYMinter's address",
+      "setActions": [
+        {
+          "action": "setOPTYMinter(address)",
+          "args": {
+            "newOptyMinter": "optyMinter"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Governance should be able to set FinanceOperator's address",
+      "setActions": [
+        {
+          "action": "setFinanceOperator(address)",
+          "args": {
+            "newFinanceOperator": "financeOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "financeOperator()",
+          "args": {},
+          "expectedValue": {
+            "addressName": "financeOperator"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set FinanceOperator's address",
+      "setActions": [
+        {
+          "action": "setFinanceOperator(address)",
+          "args": {
+            "newFinanceOperator": "financeOperator"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Governance should be able to set StrategyOperator's address",
+      "setActions": [
+        {
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "strategyOperator()",
+          "args": {},
+          "expectedValue": {
+            "addressName": "strategyOperator"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set StrategyOperator's address",
+      "setActions": [
+        {
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Governance should be able to set RiskOperator's address",
+      "setActions": [
+        {
+          "action": "setRiskOperator(address)",
+          "args": {
+            "newRiskOperator": "riskOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "riskOperator()",
+          "args": {},
+          "expectedValue": {
+            "addressName": "riskOperator"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set RiskOperator's address",
+      "setActions": [
+        {
+          "action": "setRiskOperator(address)",
+          "args": {
+            "newRiskOperator": "riskOperator"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Governance should be able to set Operator's address",
+      "setActions": [
+        {
+          "action": "setOperator(address)",
+          "args": {
+            "newOperator": "operator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getOperator()",
+          "args": {},
+          "expectedValue": {
+            "addressName": "operator"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set Operator's address",
+      "setActions": [
+        {
+          "action": "setOperator(address)",
+          "args": {
+            "newOperator": "operator"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
       "description": "Operator should be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
       "setActions": [
         {
@@ -18,10 +213,10 @@
       "getActions": [
         {
           "action": "getVaultStepInvestStrategyDefinitionRegistry()",
-          "args": {
+          "args": {},
+          "expectedValue": {
             "contractName": "vaultStepInvestStrategyDefinitionRegistry"
           },
-          "expectedValue": true,
           "expectedMultiValues": {}
         }
       ]
@@ -33,6 +228,357 @@
           "action": "setVaultStepInvestStrategyDefinitionRegistry(address)",
           "args": {
             "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set APROracle Contract address",
+      "setActions": [
+        {
+          "action": "setAPROracle(address)",
+          "args": {
+            "contractName": "aprOracle"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getAprOracle()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "aprOracle"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set APROracle Contract address",
+      "setActions": [
+        {
+          "action": "setAPROracle(address)",
+          "args": {
+            "contractName": "aprOracle"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set StrategyProvider Contract address",
+      "setActions": [
+        {
+          "action": "setStrategyProvider(address)",
+          "args": {
+            "contractName": "strategyProvider"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getStrategyProvider()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "strategyProvider"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set StrategyProvider Contract address",
+      "setActions": [
+        {
+          "action": "setStrategyProvider(address)",
+          "args": {
+            "contractName": "strategyProvider"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set RiskManager Contract address",
+      "setActions": [
+        {
+          "action": "setRiskManager(address)",
+          "args": {
+            "contractName": "riskManager"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getRiskManager()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "riskManager"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set RiskManager Contract address",
+      "setActions": [
+        {
+          "action": "setRiskManager(address)",
+          "args": {
+            "contractName": "riskManager"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set HarvestCodeProvider Contract address",
+      "setActions": [
+        {
+          "action": "setHarvestCodeProvider(address)",
+          "args": {
+            "contractName": "harvestCodeProvider"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getHarvestCodeProvider()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "harvestCodeProvider"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set HarvestCodeProvider Contract address",
+      "setActions": [
+        {
+          "action": "setHarvestCodeProvider(address)",
+          "args": {
+            "contractName": "harvestCodeProvider"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set StrategyManager Contract address",
+      "setActions": [
+        {
+          "action": "setStrategyManager(address)",
+          "args": {
+            "contractName": "strategyManager"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getStrategyManager()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "strategyManager"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set StrategyManager Contract address",
+      "setActions": [
+        {
+          "action": "setStrategyManager(address)",
+          "args": {
+            "contractName": "strategyManager"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set OPTY Contract address",
+      "setActions": [
+        {
+          "action": "setOPTY(address)",
+          "args": {
+            "contractName": "opty"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "opty()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "opty"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set OPTY Contract address",
+      "setActions": [
+        {
+          "action": "setOPTY(address)",
+          "args": {
+            "contractName": "opty"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set PriceOracle Contract address",
+      "setActions": [
+        {
+          "action": "setPriceOracle(address)",
+          "args": {
+            "contractName": "priceOracle"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "priceOracle()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "priceOracle"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set PriceOracle Contract address",
+      "setActions": [
+        {
+          "action": "setPriceOracle(address)",
+          "args": {
+            "contractName": "priceOracle"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set OPTYStakingRateBalancer Contract address",
+      "setActions": [
+        {
+          "action": "setOPTYStakingRateBalancer(address)",
+          "args": {
+            "contractName": "optyStakingRateBalancer"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getOPTYStakingRateBalancer()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "optyStakingRateBalancer"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set OPTYStakingRateBalancer Contract address",
+      "setActions": [
+        {
+          "action": "setOPTYStakingRateBalancer(address)",
+          "args": {
+            "contractName": "optyStakingRateBalancer"
+          },
+          "executor": "user0",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator should be able to set ODEFIVaultBooster Contract address",
+      "setActions": [
+        {
+          "action": "setODEFIVaultBooster(address)",
+          "args": {
+            "contractName": "odefiVaultBooster"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "getODEFIVaultBooster()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "odefiVaultBooster"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Non-Operator shouldn't be able to set ODEFIVaultBooster Contract address",
+      "setActions": [
+        {
+          "action": "setODEFIVaultBooster(address)",
+          "args": {
+            "contractName": "odefiVaultBooster"
           },
           "executor": "user0",
           "expect": "fail",
@@ -1495,6 +2041,30 @@
           "expectedValue": ""
         }
       ]
+    },
+    {
+      "description": "Old-Operator shouldn't be able to execute function allowing only operator",
+      "setActions": [
+        {
+          "action": "setOperator(address)",
+          "args": {
+            "newOperator": "user1"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "setVaultStepInvestStrategyDefinitionRegistry(address)",
+          "args": {
+            "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+          },
+          "executor": "operator",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
     },
     {
       "description": "Old-RiskOperator shouldn't be able to execute function allowing only riskOperator",

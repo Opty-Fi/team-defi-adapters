@@ -7,57 +7,6 @@
       "profile": "RP1",
       "stories": [
         {
-          "description": "Non-FinanceOperator shouldn't be able to set withdrawal fee ",
-          "activities": [
-            {
-              "setActions": [
-                {
-                  "contract": "registry",
-                  "action": "setWithdrawalFee(address,uint256)",
-                  "args": {
-                    "addressName": "vault",
-                    "fee": "60"
-                  },
-                  "executer": "user1",
-                  "expect": "fail",
-                  "message": "caller is not the finance operator"
-                }
-              ],
-              "getActions": []
-            }
-          ]
-        },
-        {
-          "description": "FinanceOperator should be able to set withdrawal fee ",
-          "activities": [
-            {
-              "setActions": [
-                {
-                  "contract": "registry",
-                  "action": "setWithdrawalFee(address,uint256)",
-                  "args": {
-                    "addressName": "vault",
-                    "fee": "60"
-                  },
-                  "executer": "owner",
-                  "expect": "success",
-                  "message": ""
-                }
-              ],
-              "getActions": [
-                {
-                  "contract": "registry",
-                  "action": "vaultToVaultConfiguration(address)",
-                  "args": {
-                    "addressName": "vault"
-                  },
-                  "expectedValue": "60"
-                }
-              ]
-            }
-          ]
-        },
-        {
           "description": "User have to pay withdrawal fee and it will be given to 1 treasury account when they do userWithdrawRebalance",
           "activities": [
             {
@@ -942,7 +891,7 @@
           ]
         },
         {
-          "description": "Governance should be able to set withdrawal fee ",
+          "description": "FinanceOperator should be able to set withdrawal fee ",
           "activities": [
             {
               "setActions": [
@@ -972,7 +921,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set withdrawal fee out of basis range (0-10000)",
+          "description": "FinanceOperator shouldn't be able to set withdrawal fee out of basis range (0-10000)",
           "activities": [
             {
               "setActions": [
@@ -993,7 +942,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set withdrawal fee for vault contract with 0x0 address",
+          "description": "FinanceOperator shouldn't be able to set withdrawal fee for vault contract with 0x0 address",
           "activities": [
             {
               "setActions": [
@@ -1014,7 +963,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set withdrawal fee for vault contract with EOA address",
+          "description": "FinanceOperator shouldn't be able to set withdrawal fee for vault contract with EOA address",
           "activities": [
             {
               "setActions": [
@@ -1035,7 +984,7 @@
           ]
         },
         {
-          "description": "Non-Governance shouldn't be able to set withdrawal fee ",
+          "description": "Non-FinanceOperator shouldn't be able to set withdrawal fee ",
           "activities": [
             {
               "setActions": [
@@ -1190,7 +1139,7 @@
         },
 
         {
-          "description": "Governance shouldn't be able to set empty treasury accounts array",
+          "description": "FinanceOperator shouldn't be able to set empty treasury accounts array",
           "activities": [
             {
               "setActions": [
@@ -1211,7 +1160,7 @@
           ]
         },
         {
-          "description": "Governance should be able to set 1 treasury account",
+          "description": "FinanceOperator should be able to set 1 treasury account",
           "activities": [
             {
               "setActions": [
@@ -1252,7 +1201,7 @@
           ]
         },
         {
-          "description": "Non-Governance shouldn't be able to set 1 treasury",
+          "description": "Non-FinanceOperator shouldn't be able to set 1 treasury",
           "activities": [
             {
               "setActions": [
@@ -1272,9 +1221,8 @@
             }
           ]
         },
-
         {
-          "description": "Governance should be able to set 2 treasury accounts",
+          "description": "FinanceOperator should be able to set 2 treasury accounts",
           "activities": [
             {
               "setActions": [
@@ -1321,7 +1269,7 @@
           ]
         },
         {
-          "description": "Non-Governance shouldn't be able to set 2 treasury accounts",
+          "description": "Non-FinanceOperator shouldn't be able to set 2 treasury accounts",
           "activities": [
             {
               "setActions": [
@@ -1345,7 +1293,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set treasury with address(0)",
+          "description": "FinanceOperator shouldn't be able to set treasury with address(0)",
           "activities": [
             {
               "setActions": [
@@ -1366,7 +1314,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set any 1 treasury address among multiple treasury addresses with address(0)",
+          "description": "FinanceOperator shouldn't be able to set any 1 treasury address among multiple treasury addresses with address(0)",
           "activities": [
             {
               "setActions": [
@@ -1390,7 +1338,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set treasury account fee shares not equal to withdrawal fee share",
+          "description": "FinanceOperator shouldn't be able to set treasury account fee shares not equal to withdrawal fee share",
           "activities": [
             {
               "setActions": [
@@ -1425,7 +1373,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set treasury share for vault contract with 0x0 address",
+          "description": "FinanceOperator shouldn't be able to set treasury share for vault contract with 0x0 address",
           "activities": [
             {
               "setActions": [
@@ -1446,7 +1394,7 @@
           ]
         },
         {
-          "description": "Governance shouldn't be able to set treasury share for vault contract with EOA address",
+          "description": "FinanceOperator shouldn't be able to set treasury share for vault contract with EOA address",
           "activities": [
             {
               "setActions": [
@@ -1460,6 +1408,68 @@
                   "executer": "owner",
                   "expect": "fail",
                   "message": "!isContract"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Old-FinanceOperator shouldn't be able to set the withdrawal fee",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setFinanceOperator(address)",
+                  "args": {
+                    "newFinanceOperator": "user1"
+                  },
+                  "executer": "owner",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "fee": "60"
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "caller is not the finance operator"
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "Old-FinanceOperator shouldn't be able to set the treasury shares",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setFinanceOperator(address)",
+                  "args": {
+                    "newFinanceOperator": "user1"
+                  },
+                  "executer": "owner",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "registry",
+                  "action": "setTreasuryShares(address,(address,uint256)[])",
+                  "args": {
+                    "addressName": "vault",
+                    "treasuryAccountsWithShares": [["0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b", 500]]
+                  },
+                  "executer": "owner",
+                  "expect": "fail",
+                  "message": "caller is not the finance operator"
                 }
               ],
               "getActions": []

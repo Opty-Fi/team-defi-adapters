@@ -27,6 +27,7 @@ describe(scenario.title, () => {
   let riskOperator: Signer;
   let strategyOperator: Signer;
   let operator: Signer;
+  let optyMinter: Signer;
   let users: Signer[];
   // let caller: string;
   // let operatorCaller: string;
@@ -36,14 +37,22 @@ describe(scenario.title, () => {
   const callers: { [key: string]: string } = {};
   beforeEach(async () => {
     try {
-      [owner, financeOperator, riskOperator, strategyOperator, operator, ...users] = await hre.ethers.getSigners();
+      [
+        owner,
+        financeOperator,
+        riskOperator,
+        strategyOperator,
+        operator,
+        optyMinter,
+        ...users
+      ] = await hre.ethers.getSigners();
       // console.log("Owner address before: ", await owner.getAddress())
       // console.log("User0 address before: ", await users[0].getAddress())
       // console.log("User1 address before: ", await users[1].getAddress())
       // console.log("User2 address before: ", await users[2].getAddress())
       // console.log("User3 address before: ", await users[3].getAddress())
       // signers = { owner, financeOperator, riskOperator, strategyOperator, operator, ...users };
-      signers = { owner, financeOperator, riskOperator, strategyOperator, operator };
+      signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyMinter };
       signers["user0"] = users[0];
       signers["user1"] = users[0];
       // console.log("User0 Address: ", await signers["user0"].getAddress())
@@ -83,6 +92,18 @@ describe(scenario.title, () => {
       );
 
       contracts["vaultStepInvestStrategyDefinitionRegistry"] = DUMMY_EMPTY_CONTRACT;
+      contracts["aprOracle"] = DUMMY_EMPTY_CONTRACT;
+      contracts["strategyProvider"] = DUMMY_EMPTY_CONTRACT;
+      contracts["riskManager"] = DUMMY_EMPTY_CONTRACT;
+      contracts["harvestCodeProvider"] = DUMMY_EMPTY_CONTRACT;
+      contracts["strategyManager"] = DUMMY_EMPTY_CONTRACT;
+      contracts["opty"] = DUMMY_EMPTY_CONTRACT;
+      contracts["priceOracle"] = DUMMY_EMPTY_CONTRACT;
+      contracts["optyStakingRateBalancer"] = DUMMY_EMPTY_CONTRACT;
+      contracts["odefiVaultBooster"] = DUMMY_EMPTY_CONTRACT;
+      // contracts[""] = DUMMY_EMPTY_CONTRACT;
+      // contracts[""] = DUMMY_EMPTY_CONTRACT;
+      // contracts[""] = DUMMY_EMPTY_CONTRACT;
       // vaultStepInvestStrategyDefinitionRegistry = await deployContract(
       //   hre,
       //   ESSENTIAL_CONTRACTS_DATA.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
@@ -110,6 +131,8 @@ describe(scenario.title, () => {
       callers["financeOperator"] = await financeOperator.getAddress();
       callers["operator"] = await operator.getAddress();
       callers["riskOperator"] = await riskOperator.getAddress();
+      callers["strategyOperator"] = await strategyOperator.getAddress();
+      callers["optyMinter"] = await optyMinter.getAddress();
       // console.log("Operator address from reg contract: ", await registryContract.operator());
     } catch (error) {
       console.log(error);
@@ -117,35 +140,108 @@ describe(scenario.title, () => {
   });
 
   console.log("Stories length: ", scenario.stories.length);
-  for (let i = 0; i < 54; i++) {
-    // for (let i = 0; i < scenario.stories.length; i++) {
+  // for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(story.description, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
         switch (action.action) {
-          case "setVaultStepInvestStrategyDefinitionRegistry(address)": {
+          // case "setVaultStepInvestStrategyDefinitionRegistry(address)": {
+          //   const { contractName }: ARGUMENTS = action.args;
+          //   // const executor = action.executor
+          //   // const userAddr = await users[userIndex].getAddress();
+          //   // console.log("Executor: ", action.executor);
+          //   // console.log("Executor address: ", await signers[action.executor].getAddress());
+          //   if (contractName) {
+          //     if (action.expect === "success") {
+          //       console.log("Success: vaultstepdefination contract");
+          //       // await registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address);
+          //       await registryContract
+          //         .connect(signers[action.executor])
+          //         [action.action](contracts[contractName].address);
+          //     } else {
+          //       console.log("fail: vaultstepdefination contract");
+          //       // await expect(registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address)).to.be.revertedWith(action.message);
+          //       await expect(
+          //         registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
+          //       ).to.be.revertedWith(action.message);
+          //     }
+          //   }
+          //   assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+          //   break;
+          // }
+          case "setVaultStepInvestStrategyDefinitionRegistry(address)":
+          case "setAPROracle(address)":
+          case "setStrategyProvider(address)":
+          case "setRiskManager(address)":
+          case "setHarvestCodeProvider(address)":
+          case "setStrategyManager(address)":
+          case "setOPTY(address)":
+          case "setPriceOracle(address)":
+          case "setOPTYStakingRateBalancer(address)":
+          case "setODEFIVaultBooster(address)": {
             const { contractName }: ARGUMENTS = action.args;
-            // const executor = action.executor
-            // const userAddr = await users[userIndex].getAddress();
-            // console.log("Executor: ", action.executor);
-            // console.log("Executor address: ", await signers[action.executor].getAddress());
+            console.log("ContractName: ", contractName);
             if (contractName) {
               if (action.expect === "success") {
-                console.log("Success: vaultstepdefination contract");
-                // await registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address);
+                console.log(`Success: ${contractName} contract`);
                 await registryContract
                   .connect(signers[action.executor])
                   [action.action](contracts[contractName].address);
               } else {
-                console.log("fail: vaultstepdefination contract");
-                // await expect(registryContract.connect(signers[action.executor])[action.action](vaultStepInvestStrategyDefinitionRegistry.address)).to.be.revertedWith(action.message);
+                console.log(`fail: ${contractName} contract`);
                 await expect(
                   registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "setFinanceOperator(address)": {
+            const { newFinanceOperator }: ARGUMENTS = action.args;
+            const tempNewFinanceOperatorrAddr = await signers[newFinanceOperator].getAddress();
+            if (newFinanceOperator) {
+              if (action.expect === "success") {
+                await registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorrAddr);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorrAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newFinanceOperator, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "setRiskOperator(address)": {
+            const { newRiskOperator }: ARGUMENTS = action.args;
+            const tempNewOperatorrAddr = await signers[newRiskOperator].getAddress();
+            if (newRiskOperator) {
+              if (action.expect === "success") {
+                await registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newRiskOperator, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "setStrategyOperator(address)": {
+            const { newStrategyOperator }: ARGUMENTS = action.args;
+            const tempNewStrategyOperatorrAddr = await signers[newStrategyOperator].getAddress();
+            if (newStrategyOperator) {
+              if (action.expect === "success") {
+                await registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newStrategyOperator, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setOperator(address)": {
@@ -163,19 +259,19 @@ describe(scenario.title, () => {
             assert.isDefined(newOperator, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "setRiskOperator(address)": {
-            const { newRiskOperator }: ARGUMENTS = action.args;
-            const tempNewOperatorrAddr = await signers[newRiskOperator].getAddress();
-            if (newRiskOperator) {
+          case "setOPTYMinter(address)": {
+            const { newOptyMinter }: ARGUMENTS = action.args;
+            const tempNewOptyMinterAddr = await signers[newOptyMinter].getAddress();
+            if (newOptyMinter) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr);
+                await registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr);
               } else {
                 await expect(
-                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr),
+                  registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr),
                 ).to.be.revertedWith(action.message);
               }
             }
-            assert.isDefined(newRiskOperator, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(newOptyMinter, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "approveToken(address[])":
@@ -516,8 +612,29 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.getActions.length; i++) {
         const action = story.getActions[i];
         switch (action.action) {
-          case "getVaultStepInvestStrategyDefinitionRegistry()": {
-            const { contractName }: ARGUMENTS = action.args;
+          // case "getVaultStepInvestStrategyDefinitionRegistry()": {
+          //   const { contractName }: ARGUMENTS = action.args;
+          //   if (contractName) {
+          //     console.log("GetAction: contract name: ", contractName);
+          //     const value = await registryContract[action.action]();
+          //     // console.log("Value: ", value)
+          //     expect(value).to.be.equal(contracts[contractName].address);
+          //     // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
+          //   }
+          //   assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+          //   break;
+          // }
+          case "getVaultStepInvestStrategyDefinitionRegistry()":
+          case "getAprOracle()":
+          case "getStrategyProvider()":
+          case "getRiskManager()":
+          case "getHarvestCodeProvider()":
+          case "getStrategyManager()":
+          case "opty()":
+          case "priceOracle()":
+          case "getOPTYStakingRateBalancer()":
+          case "getODEFIVaultBooster()": {
+            const { contractName } = <any>action.expectedValue;
             if (contractName) {
               console.log("GetAction: contract name: ", contractName);
               const value = await registryContract[action.action]();
@@ -526,6 +643,23 @@ describe(scenario.title, () => {
               // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "getOptyMinter()":
+          case "financeOperator()":
+          case "riskOperator()":
+          case "strategyOperator()":
+          case "getOperator()": {
+            const { addressName } = <any>action.expectedValue;
+            if (addressName) {
+              console.log("GetAction: Address name: ", addressName);
+              const value = await registryContract[action.action]();
+              console.log("Address Value: ", value);
+              console.log("Address from callers: ", callers[addressName]);
+              expect(value).to.be.equal(callers[addressName]);
+              // expect(value).to.be.equal(vaultStepInvestStrategyDefinitionRegistry.address);
+            }
+            assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "tokens(address)": {
