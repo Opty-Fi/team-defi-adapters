@@ -64,7 +64,7 @@ describe(scenario.title, () => {
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
       const DUMMY_EMPTY_CONTRACT = await deployContract(
         hre,
-        TESTING_CONTRACTS.TEST_SETTER_FUNCTIONS_VISIBILITY,
+        TESTING_CONTRACTS.TEST_DUMMY_EMPTY_CONTRACT,
         TESTING_DEPLOYMENT_ONCE,
         owner,
         [],

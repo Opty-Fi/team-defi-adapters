@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.12;
 
-contract TestSetterFunctionsVisibility {
+contract TestDummyEmptyContract {
     /* solhint-disable no-empty-blocks */
     constructor() public {}
 }
