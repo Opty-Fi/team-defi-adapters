@@ -14,13 +14,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
  */
 interface IAdapterInvestLimit {
     /**
-     * @notice Sets the default absolute max deposit value in underlying
-     * @param _underlyingToken address of underlying token
-     * @param _maxDepositAmountDefault absolute max deposit value in underlying to be set as default value
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault) external;
-
-    /**
      * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
      * @param _underlyingToken address of underlying token
@@ -40,11 +33,10 @@ interface IAdapterInvestLimit {
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external;
 
     /**
-     * @notice Sets the default percentage of max deposit pool value
-     * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
-     * to be set as default value
+     * @notice Sets the percentage of max deposit protocol value
+     * @param _maxDepositProtocolPct protocol's max deposit percentage (in basis points, For eg: 50% means 5000)
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) external;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) external;
 
     /**
      * @notice Sets the type of investment limit
@@ -53,5 +45,5 @@ interface IAdapterInvestLimit {
      * @dev Types (can be number or percentage) supported for the maxDeposit value
      * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) external;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) external;
 }

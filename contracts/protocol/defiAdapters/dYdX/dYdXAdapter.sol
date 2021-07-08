@@ -53,13 +53,10 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
-
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
         address[] memory _dYdXUnderlyingTokens = new address[](4);
@@ -72,8 +69,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         addMarket(SAI, 1);
         addMarket(USDC, 2);
         addMarket(DAI, 3);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -81,17 +78,6 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -126,15 +112,15 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
+        maxDepositProtocolMode = _type;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -376,7 +362,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
                 : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > _limit) {
@@ -393,7 +379,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
         uint256 maxPct = maxDepositPoolPct[_liquidityPool];
         if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
+            maxPct = maxDepositProtocolPct;
         }
         uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
         if (_depositAmount > _limit) {
@@ -408,9 +394,6 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
         if (_depositAmount > maxDeposit) {
             _depositAmount = maxDeposit;
         }
