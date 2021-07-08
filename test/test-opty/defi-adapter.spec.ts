@@ -7,7 +7,6 @@ import { CONTRACTS } from "../../helpers/type";
 import { TypedDefiPools } from "../../helpers/data";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import { expect } from "chai";
-import { formatUnits } from "ethers/lib/utils";
 
 type ARGUMENTS = {
   maxDepositProtocolPct?: string;
@@ -79,18 +78,14 @@ describe(scenario.title, () => {
                   case "fundTestDeFiAdapterContract": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     if (underlyingBalance.lt(defaultFundAmount)) {
-                      try {
-                        await fundWalletToken(
-                          hre,
-                          underlyingTokenAddress,
-                          users["owner"],
-                          defaultFundAmount,
-                          timestamp,
-                          testDeFiAdapter.address,
-                        );
-                      } catch (error) {
-                        console.log("Error", pool, formatUnits(defaultFundAmount, decimals));
-                      }
+                      await fundWalletToken(
+                        hre,
+                        underlyingTokenAddress,
+                        users["owner"],
+                        defaultFundAmount,
+                        timestamp,
+                        testDeFiAdapter.address,
+                      );
                     }
                     break;
                   }
