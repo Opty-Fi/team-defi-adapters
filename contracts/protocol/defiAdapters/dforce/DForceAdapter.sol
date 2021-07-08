@@ -69,9 +69,6 @@ contract DForceAdapter is
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
-
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));

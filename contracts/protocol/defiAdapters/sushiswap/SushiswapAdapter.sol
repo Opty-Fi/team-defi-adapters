@@ -3,35 +3,61 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+// libraries
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+
+// helper contracts
+import { Modifiers } from "../../configuration/Modifiers.sol";
+import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+
+// interfaces
 import { ISushiswapMasterChef } from "../../../interfaces/sushiswap/ISushiswapMasterChef.sol";
-import { IERC20, SafeMath } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
-import { Modifiers } from "../../configuration/Modifiers.sol";
-import { DataTypes } from "../../../libraries/types/DataTypes.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
- * @dev Abstraction layer to Sushiswap's pools
+ * @title Adapter for Sushiswap protocol
+ * @author Opty.fi
+ * @dev Abstraction layer to Sushiswap's MasterChef contract
  */
 
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
-    mapping(address => uint256) public maxDepositAmountDefault;
+
+    /** @notice  Maps underlyingToken to the ID of its pool */
     mapping(address => uint256) public underlyingTokenToPid;
 
+    /** @notice  MasterChef V1 contract address */
     address public constant MASTERCHEFV1 = address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
+
+    /** @notice  SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
+
+    /** @notice  WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
+    /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
-    DataTypes.MaxExposure public maxExposureType;
+
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
+    /** @notice Sushiswap's reward token address */
     address public rewardToken;
+
+    /** @notice Sushiswap's MasterChef contract instance */
     ISushiswapMasterChef public masterChef;
+
+    /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
@@ -43,12 +69,20 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         setUnderlyingTokenToPid(SUSHI_WETH_USDC, uint256(1));
     }
 
+    /**
+     * @notice Map underlyingToken to its pool ID
+     * @param _underlyingToken pair contract address to be mapped with pool ID
+     * @param _pid pool ID to be linked with pair address
+     */
     function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
         require(_underlyingToken != address(0), "Invalid address");
         require(underlyingTokenToPid[_underlyingToken] == uint256(0), "_underlyingTokenToPid already set");
         underlyingTokenToPid[_underlyingToken] = _pid;
     }
 
+    /**
+     * @inheritdoc IAdapterInvestLimit
+     */
     function setMaxDepositPoolPct(address _underlyingToken, uint256 _maxDepositPoolPct)
         external
         override
@@ -57,6 +91,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         maxDepositPoolPct[_underlyingToken] = _maxDepositPoolPct;
     }
 
+    /**
+     * @inheritdoc IAdapterInvestLimit
+     */
     function setMaxDepositAmount(
         address,
         address _underlyingToken,
@@ -65,6 +102,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         maxDepositAmount[address(masterChef)][_underlyingToken] = _maxDepositAmount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositAllCodes(
         address payable _vault,
         address[] memory _underlyingTokens,
@@ -75,6 +115,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return getDepositSomeCodes(_vault, _underlyingTokens, address(masterChef), _amounts);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawAllCodes(
         address payable _vault,
         address[] memory _underlyingTokens,
@@ -84,10 +127,16 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return getWithdrawSomeCodes(_vault, _underlyingTokens, address(masterChef), _redeemAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getUnderlyingTokens(address, address) external view override returns (address[] memory) {
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getSomeAmountInToken(
         address,
         address,
@@ -96,6 +145,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateAmountInLPToken(
         address,
         address,
@@ -104,6 +156,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function calculateRedeemableLPTokenAmount(
         address payable _vault,
         address,
@@ -114,6 +169,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         _amount = masterChef.userInfo(_pid, _vault).amount;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function isRedeemableAmountSufficient(
         address payable _vault,
         address _underlyingToken,
@@ -125,10 +183,17 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     }
 
     /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {}
 
     /* solhint-enable no-empty-blocks */
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
     function getHarvestAllCodes(
         address payable _vault,
         address _underlyingToken,
@@ -138,28 +203,48 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return getHarvestSomeCodes(_vault, _underlyingToken, address(masterChef), _rewardTokenAmount);
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function canStake(address) external view override returns (bool) {
         return false;
     }
 
+    /**
+     * @notice Sets the Sushiswap's MasterChef V1 contract address
+     * @param _masterChef Sushiswap's MasterChef V1 contract address
+     */
     function setMasterChef(address _masterChef) public onlyOperator {
         require(_masterChef != address(0), "Invalid address");
         masterChef = ISushiswapMasterChef(_masterChef);
     }
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
     function setRewardToken(address _rewardToken) public override onlyOperator {
         rewardToken = _rewardToken;
     }
 
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
+    /**
+     * @inheritdoc IAdapterInvestLimit
+     */
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
+    /**
+     * @inheritdoc IAdapterInvestLimit
+     */
     function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
         maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /* solhint-disable no-unused-vars */
+
+    /**
+     * @inheritdoc IAdapter
+     */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -188,6 +273,10 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /* solhint-enable no-unused-vars */
 
     /* solhint-disable no-unused-vars */
+
+    /**
+     * @inheritdoc IAdapter
+     */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -206,14 +295,23 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
 
     /* solhint-enable no-unused-vars */
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getPoolValue(address, address _underlyingToken) public view override returns (uint256) {
         return IERC20(_underlyingToken).balanceOf(address(masterChef));
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolToken(address _underlyingToken, address) public view override returns (address) {
         return _underlyingToken;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getAllAmountInToken(
         address payable _vault,
         address _underlyingToken,
@@ -234,6 +332,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return _balance;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getLiquidityPoolTokenBalance(
         address payable _vault,
         address _underlyingToken,
@@ -244,10 +345,16 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return _lpTokenBalance;
     }
 
+    /**
+     * @inheritdoc IAdapter
+     */
     function getRewardToken(address) public view override returns (address) {
         return rewardToken;
     }
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
     function getUnclaimedRewardTokenAmount(address payable _vault, address _underlyingToken)
         public
         view
@@ -258,6 +365,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         return ISushiswapMasterChef(_underlyingToken).pendingSushi(_pid, _vault);
     }
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
     function getHarvestSomeCodes(
         address payable _vault,
         address _underlyingToken,
@@ -280,7 +390,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_underlyingToken, _amount)
                 : _getMaxDepositAmount(address(masterChef), _underlyingToken, _amount);
         if (_depositAmount > _limit) {
