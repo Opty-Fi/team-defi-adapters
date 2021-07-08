@@ -70,17 +70,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     }
 
     /**
-     * @notice Map underlyingToken to its pool ID
-     * @param _underlyingToken pair contract address to be mapped with pool ID
-     * @param _pid pool ID to be linked with pair address
-     */
-    function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
-        require(_underlyingToken != address(0), "!address(0)");
-        require(underlyingTokenToPid[_underlyingToken] == uint256(0), "_underlyingTokenToPid already set");
-        underlyingTokenToPid[_underlyingToken] = _pid;
-    }
-
-    /**
      * @inheritdoc IAdapterInvestLimit
      */
     function setMaxDepositPoolPct(address _underlyingToken, uint256 _maxDepositPoolPct)
@@ -208,6 +197,17 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function canStake(address) external view override returns (bool) {
         return false;
+    }
+
+    /**
+     * @notice Map underlyingToken to its pool ID
+     * @param _underlyingToken pair contract address to be mapped with pool ID
+     * @param _pid pool ID to be linked with pair address
+     */
+    function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
+        require(_underlyingToken != address(0), "!address(0)");
+        require(underlyingTokenToPid[_underlyingToken] == uint256(0), "_underlyingTokenToPid already set");
+        underlyingTokenToPid[_underlyingToken] = _pid;
     }
 
     /**
