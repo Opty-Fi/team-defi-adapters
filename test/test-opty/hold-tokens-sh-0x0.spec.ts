@@ -29,7 +29,7 @@ describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
     USDT: BigNumber.from("1000000000"),
-    SLP: BigNumber.from("1000000000000000"),
+    SLP_WETH_USDC: BigNumber.from("1000000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -110,7 +110,7 @@ describe(scenarios.title, () => {
                 );
 
                 let ERC20Instance;
-                if (strategy.token === "SLP") {
+                if (strategy.token === "SLP_WETH_USDC") {
                   await adapter
                     .connect(users["owner"])
                     ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[strategy.token], "1");

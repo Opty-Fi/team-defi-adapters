@@ -150,7 +150,7 @@ export async function fundWalletToken(
   deadlineTimestamp: number,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
-  if (tokenAddress === "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0") {
+  if (tokenAddress === TypedTokens["SLP_WETH_USDC"]) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
     const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
@@ -203,7 +203,7 @@ export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise
 export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "Maker";
-  } else if (tokenName.toLowerCase() == "slp") {
+  } else if (tokenName.toLowerCase() == "slp_weth_usdc") {
     const ERC20Instance = await hre.ethers.getContractAt(
       exchange.uniswap_pair.abi,
       TypedTokens[tokenName.toUpperCase()],
@@ -220,7 +220,7 @@ export async function getTokenName(hre: HardhatRuntimeEnvironment, tokenName: st
 export async function getTokenSymbol(hre: HardhatRuntimeEnvironment, tokenName: string): Promise<string> {
   if (tokenName.toLowerCase() == "mkr") {
     return "MKR";
-  } else if (tokenName.toLowerCase() == "slp") {
+  } else if (tokenName.toLowerCase() == "slp_weth_usdc") {
     const ERC20Instance = await hre.ethers.getContractAt(
       exchange.uniswap_pair.abi,
       TypedTokens[tokenName.toUpperCase()],

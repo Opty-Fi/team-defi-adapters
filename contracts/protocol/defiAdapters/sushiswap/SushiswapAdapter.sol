@@ -1,4 +1,3 @@
-// solhint-disable no-unused-vars
 // SPDX-License-Identifier:MIT
 
 pragma solidity ^0.6.12;
@@ -14,7 +13,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 /**
- * @dev Abstraction layer to DForce's pools
+ * @dev Abstraction layer to Sushiswap's pools
  */
 
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
@@ -25,21 +24,26 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     mapping(address => uint256) public maxDepositAmountDefault;
     mapping(address => uint256) public underlyingTokenToPid;
 
+    address public constant MASTERCHEFV1 = address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
+    address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
+    address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
+
     HarvestCodeProvider public harvestCodeProviderContract;
     DataTypes.MaxExposure public maxExposureType;
     address public rewardToken;
     ISushiswapMasterChef public masterChef;
-    uint256 public maxDepositPoolPctDefault; // basis points
+    uint256 public maxDepositProtocolPct; // basis points
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
-        setMasterChef(address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd));
-        setRewardToken(address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2));
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100%
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+    constructor(address _registry) public Modifiers(_registry) {
+        harvestCodeProviderContract = HarvestCodeProvider(registryContract.getHarvestCodeProvider());
+        setMasterChef(MASTERCHEFV1);
+        setRewardToken(SUSHI);
+        setMaxDepositProtocolPct(uint256(10000)); // 100%
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setUnderlyingTokenToPid(SUSHI_WETH_USDC, uint256(1));
     }
 
-    function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) external onlyOperator {
+    function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
         require(_underlyingToken != address(0), "Invalid address");
         require(underlyingTokenToPid[_underlyingToken] == uint256(0), "_underlyingTokenToPid already set");
         underlyingTokenToPid[_underlyingToken] = _pid;
@@ -51,14 +55,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         onlyGovernance
     {
         maxDepositPoolPct[_underlyingToken] = _maxDepositPoolPct;
-    }
-
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     function setMaxDepositAmount(
@@ -73,19 +69,19 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address payable _vault,
         address[] memory _underlyingTokens,
         address
-    ) external view override returns (bytes[] memory _codes) {
+    ) external view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, address(masterChef), _amounts);
     }
 
     function getWithdrawAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address
-    ) external view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_optyVault, _underlyingTokens[0], address(masterChef));
-        return getWithdrawSomeCodes(_optyVault, _underlyingTokens, address(masterChef), _redeemAmount);
+    ) external view override returns (bytes[] memory) {
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], address(masterChef));
+        return getWithdrawSomeCodes(_vault, _underlyingTokens, address(masterChef), _redeemAmount);
     }
 
     function getUnderlyingTokens(address, address) external view override returns (address[] memory) {
@@ -109,37 +105,37 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     }
 
     function calculateRedeemableLPTokenAmount(
-        address payable _optyVault,
+        address payable _vault,
         address,
         address _liquidityPool,
         uint256
     ) external view override returns (uint256 _amount) {
         uint256 _pid = underlyingTokenToPid[_liquidityPool];
-        _amount = masterChef.userInfo(_pid, _optyVault).amount;
+        _amount = masterChef.userInfo(_pid, _vault).amount;
     }
 
     function isRedeemableAmountSufficient(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address,
         uint256 _redeemAmount
     ) external view override returns (bool) {
-        uint256 _balanceInToken = getAllAmountInToken(_optyVault, _underlyingToken, address(masterChef));
+        uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, address(masterChef));
         return _balanceInToken >= _redeemAmount;
     }
 
     /* solhint-disable no-empty-blocks */
     function getClaimRewardTokenCode(address payable, address) external view override returns (bytes[] memory) {}
 
-    /* solhint-disable no-empty-blocks */
+    /* solhint-enable no-empty-blocks */
 
     function getHarvestAllCodes(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address
-    ) external view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(address(masterChef))).balanceOf(_optyVault);
-        return getHarvestSomeCodes(_optyVault, _underlyingToken, address(masterChef), _rewardTokenAmount);
+    ) external view override returns (bytes[] memory) {
+        uint256 _rewardTokenAmount = IERC20(getRewardToken(address(masterChef))).balanceOf(_vault);
+        return getHarvestSomeCodes(_vault, _underlyingToken, address(masterChef), _rewardTokenAmount);
     }
 
     function canStake(address) external view override returns (bool) {
@@ -151,22 +147,19 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         masterChef = ISushiswapMasterChef(_masterChef);
     }
 
-    function setHarvestCodeProvider(address _harvestCodeProvider) public onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
-    }
-
     function setRewardToken(address _rewardToken) public override onlyOperator {
         rewardToken = _rewardToken;
     }
 
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
         maxExposureType = _type;
     }
 
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
+    /* solhint-disable no-unused-vars */
     function getDepositSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -192,6 +185,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         }
     }
 
+    /* solhint-enable no-unused-vars */
+
+    /* solhint-disable no-unused-vars */
     function getWithdrawSomeCodes(
         address payable,
         address[] memory _underlyingTokens,
@@ -207,6 +203,8 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
             );
         }
     }
+
+    /* solhint-enable no-unused-vars */
 
     function getPoolValue(address, address _underlyingToken) public view override returns (uint256) {
         return IERC20(_underlyingToken).balanceOf(address(masterChef));
@@ -237,12 +235,12 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     }
 
     function getLiquidityPoolTokenBalance(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address
     ) public view override returns (uint256) {
         uint256 _pid = underlyingTokenToPid[_underlyingToken];
-        uint256 _lpTokenBalance = masterChef.userInfo(_pid, _optyVault).amount;
+        uint256 _lpTokenBalance = masterChef.userInfo(_pid, _vault).amount;
         return _lpTokenBalance;
     }
 
@@ -265,7 +263,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address,
         uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         return
             harvestCodeProviderContract.getHarvestLPTokenSushiCodes(
                 _vault,
@@ -299,7 +297,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _poolValue = getPoolValue(address(0), _underlyingToken);
         uint256 maxPct = maxDepositPoolPct[_underlyingToken];
         if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
+            maxPct = maxDepositProtocolPct;
         }
         uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
         if (_depositAmount > _limit) {
@@ -314,9 +312,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     ) internal view returns (uint256 _depositAmount) {
         _depositAmount = _amount;
         uint256 maxDeposit = maxDepositAmount[address(masterChef)][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
         if (_depositAmount > maxDeposit) {
             _depositAmount = maxDeposit;
         }

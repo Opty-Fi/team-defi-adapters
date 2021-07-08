@@ -31,7 +31,7 @@ describe(scenarios.title, () => {
     DAI: BigNumber.from("20000000000000000000"),
     USDC: BigNumber.from("20000000"),
     USDT: BigNumber.from("20000000"),
-    SLP: BigNumber.from("200000000000000"),
+    SLP_WETH_USDC: BigNumber.from("200000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -98,10 +98,7 @@ describe(scenarios.title, () => {
                 );
 
                 let ERC20Instance;
-                if (strategy.token === "SLP") {
-                  await adapter
-                    .connect(users["owner"])
-                    ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[strategy.token], "1");
+                if (strategy.token === "SLP_WETH_USDC") {
                   ERC20Instance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TOKENS[strategy.token]);
                 } else {
                   ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);

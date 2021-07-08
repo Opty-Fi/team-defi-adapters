@@ -17,7 +17,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -32,7 +32,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -49,7 +49,7 @@
                 "DAI": "0",
                 "USDC": "0",
                 "USDT": "0",
-                "SLP": "0"
+                "SLP_WETH_USDC": "0"
               }
             },
             {
@@ -60,7 +60,7 @@
                 "DAI": ">",
                 "USDC": ">",
                 "USDT": ">",
-                "SLP": ">"
+                "SLP_WETH_USDC": ">"
               }
             }
           ]
@@ -76,7 +76,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -91,7 +91,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -106,7 +106,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -123,7 +123,7 @@
                 "DAI": "0",
                 "USDC": "0",
                 "USDT": "0",
-                "SLP": "0"
+                "SLP_WETH_USDC": "0"
               }
             },
             {
@@ -134,7 +134,7 @@
                 "DAI": "<",
                 "USDC": "<",
                 "USDT": "<",
-                "SLP": "<"
+                "SLP_WETH_USDC": "<"
               }
             }
           ]
@@ -150,7 +150,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -165,7 +165,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -182,7 +182,7 @@
                 "DAI": "0",
                 "USDC": "0",
                 "USDT": "0",
-                "SLP": "0"
+                "SLP_WETH_USDC": "0"
               }
             },
             {
@@ -193,7 +193,7 @@
                 "DAI": ">",
                 "USDC": ">",
                 "USDT": ">",
-                "SLP": ">"
+                "SLP_WETH_USDC": ">"
               }
             }
           ]
@@ -219,7 +219,7 @@
                   "DAI": "500000000000000000",
                   "USDC": "500000",
                   "USDT": "500000",
-                  "SLP": "5000000000000"
+                  "SLP_WETH_USDC": "5000000000000"
                 }
               },
               "executer": "owner",
@@ -234,7 +234,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -249,7 +249,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -266,7 +266,7 @@
                 "DAI": "1500000000000000000",
                 "USDC": "1500000",
                 "USDT": "1500000",
-                "SLP": "15000000000000"
+                "SLP_WETH_USDC": "15000000000000"
               }
             },
             {
@@ -277,7 +277,7 @@
                 "DAI": ">",
                 "USDC": ">",
                 "USDT": ">",
-                "SLP": ">"
+                "SLP_WETH_USDC": ">"
               }
             }
           ]
@@ -303,7 +303,7 @@
                   "DAI": "0",
                   "USDC": "0",
                   "USDT": "0",
-                  "SLP": "0"
+                  "SLP_WETH_USDC": "0"
                 }
               },
               "executer": "owner",
@@ -318,7 +318,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -333,7 +333,7 @@
                   "DAI": "2000000000000000000",
                   "USDC": "2000000",
                   "USDT": "2000000",
-                  "SLP": "20000000000000"
+                  "SLP_WETH_USDC": "20000000000000"
                 }
               },
               "executer": "owner",
@@ -350,7 +350,7 @@
                 "DAI": "2000000000000000000",
                 "USDC": "2000000",
                 "USDT": "2000000",
-                "SLP": "20000000000000"
+                "SLP_WETH_USDC": "20000000000000"
               }
             }
           ]
@@ -378,7 +378,7 @@
               "contract": "adapter",
               "action": "setMaxDepositAmount(address,address,uint256)",
               "args": {
-                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP": "0" }
+                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP_WETH_USDC": "0" }
               },
               "executer": "admin",
               "expect": "fail",
@@ -394,7 +394,7 @@
               "contract": "adapter",
               "action": "setMaxDepositPoolPct(address,uint256)",
               "args": {
-                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP": "0" }
+                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP_WETH_USDC": "0" }
               },
               "executer": "admin",
               "expect": "fail",
@@ -410,7 +410,7 @@
               "contract": "adapter",
               "action": "setMaxDepositProtocolPct(uint256)",
               "args": {
-                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP": "0" }
+                "amount": { "DAI": "0", "USDC": "0", "USDT": "0", "SLP_WETH_USDC": "0" }
               },
               "executer": "admin",
               "expect": "fail",

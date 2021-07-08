@@ -6,7 +6,6 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
 import { approveTokens } from "../../../helpers/contracts-actions";
-import { executeFunc } from "../../../helpers/helpers";
 import scenarios from "../scenarios/adapters.json";
 
 describe("SushiswapAdapter", () => {
@@ -31,10 +30,6 @@ describe("SushiswapAdapter", () => {
         essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await executeFunc(adapter, owner, "setUnderlyingTokenToPid(address,uint256)", [
-        "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0",
-        "1",
-      ]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {

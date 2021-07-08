@@ -253,7 +253,7 @@ export async function deployAdapter(
   isDeployedOnce: boolean,
 ): Promise<Contract> {
   let contract: Contract;
-  if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter"].includes(adapterName)) {
+  if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter", "SushiswapAdapter"].includes(adapterName)) {
     contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
   } else if (adapterName === "CurvePoolAdapter") {
     contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
