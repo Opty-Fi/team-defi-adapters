@@ -225,10 +225,7 @@ describe(scenarios.title, () => {
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
-                      currentPoolValue = await contracts["adapter"].getPoolValue(
-                        strategy.strategy[0].contract,
-                        token,
-                      );
+                      currentPoolValue = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
                           .connect(users[setAction.executer])
