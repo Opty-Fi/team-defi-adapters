@@ -111,9 +111,6 @@ describe(scenarios.title, () => {
 
                 let ERC20Instance;
                 if (strategy.token === "SLP_WETH_USDC") {
-                  await adapter
-                    .connect(users["owner"])
-                    ["setUnderlyingTokenToPid(address,uint256)"](TOKENS[strategy.token], "1");
                   ERC20Instance = await hre.ethers.getContractAt(exchange.uniswap_pair.abi, TOKENS[strategy.token]);
                 } else {
                   ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
