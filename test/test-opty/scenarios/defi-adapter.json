@@ -134,14 +134,13 @@
           "contract": "adapter",
           "action": "setMaxDepositPoolPct(address,uint256)",
           "args": {
-            "maxDepositPoolPct": "1"
+            "maxDepositPoolPct": "9"
           },
           "executer": "owner"
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
           "expect": "success",
           "message": ""
         },
@@ -166,6 +165,15 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "withdrawAll(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
         }
       ]
     },

@@ -38,7 +38,7 @@ describe(scenario.title, () => {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of scenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
-              let defaultFundAmount: BigNumber = BigNumber.from("200000");
+              let defaultFundAmount: BigNumber = BigNumber.from("20000");
               let limit: BigNumber;
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const underlyingTokenAddress = TypedDefiPools[adapterName][pool].tokens[0];
@@ -64,12 +64,28 @@ describe(scenario.title, () => {
                     break;
                   }
                   case "setMaxDepositProtocolPct(uint256)": {
+                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                    if (!existingPoolPct.eq(BigNumber.from(0))) {
+                      await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
+                    }
                     const { maxDepositProtocolPct }: ARGUMENTS = action.args;
                     const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
                     if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                       await adapters[adapterName][action.action](maxDepositProtocolPct);
                     }
                     limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                    limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                    break;
+                  }
+                  case "setMaxDepositPoolPct(address,uint256)": {
+                    const { maxDepositPoolPct }: ARGUMENTS = action.args;
+                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                    if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
+                      await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
+                    }
+                    limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                     limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
@@ -108,18 +124,23 @@ describe(scenario.title, () => {
                     break;
                   }
                   case "balanceOf(address)": {
-                    try {
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                        testDeFiAdapter.address,
-                      );
-                      if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                        expect(underlyingBalanceAfter).to.be.eq(0);
-                      } else {
-                        console.log(`${pool}`);
-                        expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
+                    const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
+                      testDeFiAdapter.address,
+                    );
+                    if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
+                      if (!underlyingBalanceAfter.eq(0)) {
+                        console.log(`0 ~~ ${pool}`, underlyingBalanceAfter.toString());
                       }
-                    } catch (error) {
-                      console.log("err", error);
+                      expect(underlyingBalanceAfter).to.be.eq(0);
+                    } else {
+                      if (!underlyingBalanceAfter.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken))) {
+                        console.log(
+                          `~~ ${pool}`,
+                          underlyingBalanceAfter.toString(),
+                          underlyingBalanceBefore.sub(limitInUnderlyingToken).toString(),
+                        );
+                      }
+                      expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
                     }
                     break;
                   }
