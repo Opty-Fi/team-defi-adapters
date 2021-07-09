@@ -5,11 +5,11 @@ Core smart contract of OptyFi's Earn protocol
 ## Prerequisite
 
 To run the project :
+
 - <a href="https://nodejs.org/en/" target="_blank">Node.js</a> - >v8
 - <a href="https://yarnpkg.com/lang/en/docs/install/" target="_blank">Yarn</a>
 - Local env variables following [format](.env.example)
 - API keys from Ethereum node Providers like <a href="https://chainstack.com" target="_blank">chainstack.com</a>
-
 
 ## Installation
 
@@ -62,6 +62,3 @@ For deploying infrastructure contracts in Optyfi protocol.
 ```
 
 [View more tasks](cli.md)
-
-
-
