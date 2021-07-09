@@ -3,7 +3,7 @@
   "description": "Test cases for DeFi adapters.",
   "stories": [
     {
-      "description": "depositAll() with 100% protocol investment limit (mode=pct)",
+      "description": "getDepositAllCodes() with 100% protocol investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -31,8 +31,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "depositAll(address,address,address)",
-
+          "action": "testGetDepositAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -54,7 +53,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "withdrawAll(address,address,address)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -62,7 +61,7 @@
       ]
     },
     {
-      "description": "depositAll() with protocol investment limit (mode=pct)",
+      "description": "getDepositAllCodes() with protocol investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -89,7 +88,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "depositAll(address,address,address)",
+          "action": "testGetDepositAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -112,7 +111,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "withdrawAll(address,address,address)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -120,7 +119,7 @@
       ]
     },
     {
-      "description": "depositAll() with pool investment limit (mode=pct)",
+      "description": "getDepositAllCodes() with pool investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -146,8 +145,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "depositAll(address,address,address)",
-
+          "action": "testGetDepositAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -170,7 +168,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "withdrawAll(address,address,address)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -178,7 +176,7 @@
       ]
     },
     {
-      "description": "depositAll() with 0 investment limit (mode=number)",
+      "description": "testGetDepositAllCodes() with 0 investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -204,7 +202,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "depositAll(address,address,address)",
+          "action": "testGetDepositAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -227,7 +225,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "withdrawAll(address,address,address)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -235,7 +233,7 @@
       ]
     },
     {
-      "description": "depositAll() with investment limit (mode=number)",
+      "description": "testGetDepositAllCodes() with investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -261,8 +259,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "depositAll(address,address,address)",
-
+          "action": "testGetDepositAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -285,7 +282,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "withdrawAll(address,address,address)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""

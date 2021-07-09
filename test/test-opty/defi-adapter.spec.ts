@@ -121,9 +121,9 @@ describe(scenario.title, () => {
                     }
                     break;
                   }
-                  case "depositAll(address,address,address)": {
+                  case "testGetDepositAllCodes(address,address,address)": {
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter.depositAll(underlyingTokenAddress, liquidityPool, adapterAddress);
+                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
                 }
@@ -172,8 +172,8 @@ describe(scenario.title, () => {
               }
               for (const action of story.cleanActions) {
                 switch (action.action) {
-                  case "withdrawAll(address,address,address)": {
-                    await testDeFiAdapter.withdrawAll(underlyingTokenAddress, liquidityPool, adapterAddress);
+                  case "testGetWithdrawAllCodes(address,address,address)": {
+                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
                 }
