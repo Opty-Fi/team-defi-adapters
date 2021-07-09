@@ -8,7 +8,7 @@ import { IAdapterFull } from "../../interfaces/opty/defiAdapters/IAdapterFull.so
 import { MultiCall } from "../../utils/MultiCall.sol";
 
 contract TestDeFiAdapter is MultiCall {
-    function depositAll(
+    function testGetDepositAllCodes(
         address _underlyingToken,
         address _liquidityPool,
         address _adapter
@@ -21,7 +21,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function depositSome(
+    function testGetDepositSomeCodes(
         address _underlyingToken,
         uint256 _amount,
         address _liquidityPool,
@@ -42,7 +42,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function borrowAll(
+    function testGetBorrowAllCodes(
         address _liquidityPool,
         address _underlyingToken,
         address _outputToken,
@@ -61,7 +61,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function stakeAll(
+    function testGetStakeAllCodes(
         address _liquidityPool,
         address _underlyingToken,
         address _adapter
@@ -74,7 +74,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function stakeSome(
+    function testGetStakeSomeCodes(
         address _liquidityPool,
         uint256 _stakeAmount,
         address _adapter
@@ -89,7 +89,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function harvestAllReward(
+    function testGetHarvestAllCodes(
         address _liquidityPool,
         address _underlyingToken,
         address _adapter
@@ -100,7 +100,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function harvestSomeReward(
+    function testGetHarvestSomeReward(
         address _liquidityPool,
         address _underlyingToken,
         uint256 _rewardTokenAmount,
@@ -117,28 +117,19 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function unstakeAll(
-        address _liquidityPool,
-        address _underlyingToken,
-        address _adapter
-    ) external {
-        address[] memory _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = _underlyingToken;
-        executeCodes(
-            IAdapterFull(_adapter).getStakeAllCodes(payable(address(this)), _underlyingTokens, _liquidityPool),
-            "unstakeAll"
-        );
+    function testGetUnstakeAllCodes(address _liquidityPool, address _adapter) external {
+        executeCodes(IAdapterFull(_adapter).getUnstakeAllCodes(payable(address(this)), _liquidityPool), "unstakeAll");
     }
 
-    function unstakeSome(
+    function testGetUnstakeSomeCodes(
         address _liquidityPool,
         uint256 _stakeAmount,
         address _adapter
     ) external {
-        executeCodes(IAdapterFull(_adapter).getStakeSomeCodes(_liquidityPool, _stakeAmount), "unstakeAll");
+        executeCodes(IAdapterFull(_adapter).getUnstakeSomeCodes(_liquidityPool, _stakeAmount), "unstakeAll");
     }
 
-    function withdrawAll(
+    function testGetWithdrawAllCodes(
         address _underlyingToken,
         address _liquidityPool,
         address _adapter
@@ -151,7 +142,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function withdrawSome(
+    function testGetWithdrawSome(
         address _underlyingToken,
         address _liquidityPool,
         address _adapter,
@@ -170,7 +161,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function repayAndWithdrawAll(
+    function testGetRepayAndWithdrawAllCodes(
         address _liquidityPool,
         address _underlyingToken,
         address _outputToken,
@@ -189,7 +180,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function unstakeAndWithdrawAll(
+    function testGetUnstakeAndWithdrawAllCodes(
         address _liquidityPool,
         address _underlyingToken,
         address _adapter
@@ -206,7 +197,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function unstakeAndWithdrawSome(
+    function testGetUnstakeAndWithdrawSomeCodes(
         address _liquidityPool,
         address _underlyingToken,
         uint256 _redeemAmount,
