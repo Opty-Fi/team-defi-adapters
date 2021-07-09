@@ -38,6 +38,24 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
+    /** @notice Curve's compound zap deposit contract address */
+    address public constant COMPOUND_DEPOSIT_POOL = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
+
+    /** @notice Curve's usdt zap deposit contract address */
+    address public constant USDT_DEPOSIT_POOL = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
+
+    /** @notice Curve's pax zap deposit contract address */
+    address public constant PAX_DEPOSIT_POOL = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
+
+    /** @notice Curve's y zap deposit contract address */
+    address public constant Y_DEPOSIT_POOL = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
+
+    /** @notice Curve's busd zap deposit contract address */
+    address public constant BUSD_DEPOSIT_POOL = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
+
+    /** @notice Curve's susd zap deposit contract address */
+    address public constant SUSD_DEPOSIT_POOL = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
@@ -57,23 +75,14 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      * @dev Configures the CurveDeposit pools according old and new API
      */
     constructor(address _registry) public Modifiers(_registry) {
-        setIsOldDepositZap(address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06), true); // curve-compound
-        setIsOldDepositZap(address(0xac795D2c97e60DF6a99ff1c814727302fD747a80), true); // curve-usdt
-        setIsOldDepositZap(address(0xA50cCc70b6a011CffDdf45057E39679379187287), true); // curve-pax
-        setIsOldDepositZap(address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3), true); // curve-y
-        setIsOldDepositZap(address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB), true); // curve-busd
-        setIsOldDepositZap(address(0xFCBa3E75865d2d561BE8D220616520c171F12851), true); // curve-susd
+        setIsOldDepositZap(COMPOUND_DEPOSIT_POOL, true); // curve-compound
+        setIsOldDepositZap(USDT_DEPOSIT_POOL, true); // curve-usdt
+        setIsOldDepositZap(PAX_DEPOSIT_POOL, true); // curve-pax
+        setIsOldDepositZap(Y_DEPOSIT_POOL, true); // curve-y
+        setIsOldDepositZap(BUSD_DEPOSIT_POOL, true); // curve-busd
+        setIsOldDepositZap(SUSD_DEPOSIT_POOL, true); // curve-susd
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
-    }
-
-    /**
-     * @dev Maps true to a liquidity pool if it uses old deposit zap API
-     * @param _liquidityPool liquidity pool address
-     * @param _isOld set true if the liquidity pool uses old deposit zap's API
-     */
-    function setIsOldDepositZap(address _liquidityPool, bool _isOld) public onlyGovernance {
-        isOldDepositZap[_liquidityPool] = _isOld;
     }
 
     /**
@@ -95,6 +104,22 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     }
 
     /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function setRewardToken(address) external override onlyOperator {
+        revert("!empty");
+    }
+
+    /**
+     * @dev Maps true to a liquidity pool if it uses old deposit zap API
+     * @param _liquidityPool liquidity pool address
+     * @param _isOld set true if the liquidity pool uses old deposit zap's API
+     */
+    function setIsOldDepositZap(address _liquidityPool, bool _isOld) public onlyGovernance {
+        isOldDepositZap[_liquidityPool] = _isOld;
+    }
+
+    /**
      * @notice Sets the default percentage of max deposit pool value
      * @param _maxDepositProtocolPct Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
      * to be set as default value
@@ -112,13 +137,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
         maxExposureType = _type;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address) external override onlyOperator {
-        revert("!empty");
     }
 
     /**
