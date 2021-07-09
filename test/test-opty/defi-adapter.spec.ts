@@ -91,6 +91,22 @@ describe(scenario.title, () => {
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     break;
                   }
+                  case "setMaxDepositAmount(address,uint256)": {
+                    // Note: for curve maxDepositAmount will be in USD or BTC
+                    const { maxDepositAmount }: ARGUMENTS = action.args;
+                    const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                      liquidityPool,
+                    );
+                    if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
+                      await adapters[adapterName][action.action](liquidityPool, maxDepositAmount);
+                    }
+                    limitInUnderlyingToken = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
+                      ? defaultFundAmount
+                      : limitInUnderlyingToken;
+                    break;
+                  }
                   case "fundTestDeFiAdapterContract": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     if (underlyingBalance.lt(defaultFundAmount)) {
@@ -120,7 +136,25 @@ describe(scenario.title, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    expect(lpTokenBalance).to.be.gt(0);
+                    const existingMode = await adapters[adapterName].maxExposureType();
+                    if (existingMode == 0) {
+                      const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                        liquidityPool,
+                      );
+                      if (existingDepositAmount.eq(0)) {
+                        expect(lpTokenBalance).to.be.eq(0);
+                      } else {
+                        expect(lpTokenBalance).to.be.gt(0);
+                      }
+                    } else {
+                      const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                      const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
+                      if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
+                        expect(lpTokenBalance).to.be.eq(0);
+                      } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
+                        expect(lpTokenBalance).to.be.gt(0);
+                      }
+                    }
                     break;
                   }
                   case "balanceOf(address)": {
@@ -128,18 +162,8 @@ describe(scenario.title, () => {
                       testDeFiAdapter.address,
                     );
                     if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                      if (!underlyingBalanceAfter.eq(0)) {
-                        console.log(`0 ~~ ${pool}`, underlyingBalanceAfter.toString());
-                      }
                       expect(underlyingBalanceAfter).to.be.eq(0);
                     } else {
-                      if (!underlyingBalanceAfter.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken))) {
-                        console.log(
-                          `~~ ${pool}`,
-                          underlyingBalanceAfter.toString(),
-                          underlyingBalanceBefore.sub(limitInUnderlyingToken).toString(),
-                        );
-                      }
                       expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
                     }
                     break;

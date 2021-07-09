@@ -199,14 +199,12 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "depositAll(address,address,address)",
-
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -224,6 +222,15 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "withdrawAll(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -249,7 +256,6 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
           "expect": "success",
           "message": ""
         },
@@ -275,8 +281,19 @@
           "executer": "owner",
           "expectedValue": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "withdrawAll(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
       ]
-    },
+    }
+  ],
+  "_pendingStories": [
     {
       "description": "depositSome() with 100% protocol investment limit (mode=pct)",
       "setActions": [
