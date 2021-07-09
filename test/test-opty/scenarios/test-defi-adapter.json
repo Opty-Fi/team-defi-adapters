@@ -1,5 +1,5 @@
 {
-  "title": "DeFi Adapter",
+  "title": "Test DeFi Adapter",
   "description": "Test cases for DeFi adapters.",
   "stories": [
     {
@@ -176,7 +176,7 @@
       ]
     },
     {
-      "description": "testGetDepositAllCodes() with 0 investment limit (mode=number)",
+      "description": "getDepositAllCodes() with 0 investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -233,7 +233,7 @@
       ]
     },
     {
-      "description": "testGetDepositAllCodes() with investment limit (mode=number)",
+      "description": "getDepositAllCodes() with investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -292,7 +292,7 @@
   ],
   "_pendingStories": [
     {
-      "description": "depositSome() with 100% protocol investment limit (mode=pct)",
+      "description": "getDepositSomeCodes() with 100% protocol investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -340,7 +340,7 @@
       ]
     },
     {
-      "description": "depositSome() with pool investment limit (mode=pct)",
+      "description": "getDepositSomeCodes() with pool investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -398,7 +398,7 @@
       ]
     },
     {
-      "description": "depositSome() with 0 investment limit (mode=number)",
+      "description": "getDepositSomeCodes() with 0 investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -447,7 +447,7 @@
       ]
     },
     {
-      "description": "depositSome() with investment limit (mode=number)",
+      "description": "getDepositSomeCodes() with investment limit (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
