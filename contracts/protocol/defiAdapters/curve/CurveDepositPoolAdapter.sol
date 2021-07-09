@@ -47,7 +47,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
 
-    /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
+    /** @notice Maps liquidityPool to absolute max deposit values in underlying */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
