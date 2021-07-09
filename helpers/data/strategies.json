@@ -94,7 +94,7 @@
         "isBorrow": false
       }
     ]
-  }, 
+  },
   {
     "strategyName": "WETH-USDC-deposit-SUSHISWAP-SLP",
     "token": "SLP_WETH_USDC",
