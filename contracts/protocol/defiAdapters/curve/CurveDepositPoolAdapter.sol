@@ -54,7 +54,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     mapping(address => uint256) public maxDepositPoolPct;
 
     /**
-     * @dev map coins and tokens to curve deposit pool
+     * @dev Configures the CurveDeposit pools according old and new API
      */
     constructor(address _registry) public Modifiers(_registry) {
         setIsOldDepositZap(address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06), true); // curve-compound
