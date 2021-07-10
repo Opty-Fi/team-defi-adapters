@@ -57,7 +57,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         string memory _riskProfile,
         bytes32 _tokenHash,
         bytes32 _strategyHash
-    ) external override onlyOperator {
+    ) external override onlyStrategyOperator {
         DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
         uint256 _index = registryContract.getTokensHashIndexByHash(_tokenHash);
@@ -72,7 +72,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
         string memory _riskProfile,
         bytes32 _tokenHash,
         bytes32 _strategyHash
-    ) external override onlyOperator {
+    ) external override onlyStrategyOperator {
         DataTypes.RiskProfile memory _riskProfileStruct = registryContract.getRiskProfile(_riskProfile);
         require(_riskProfileStruct.exists, "!Rp_Exists");
         uint256 _index = registryContract.getTokensHashIndexByHash(_tokenHash);
@@ -86,7 +86,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
     function setVaultRewardStrategy(
         bytes32 _vaultRewardTokenHash,
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
-    ) external override onlyOperator returns (DataTypes.VaultRewardStrategy memory) {
+    ) external override onlyStrategyOperator returns (DataTypes.VaultRewardStrategy memory) {
         require(_vaultRewardTokenHash != Constants.ZERO_BYTES32, "!bytes32(0)");
         uint256 _index = registryContract.getTokensHashIndexByHash(_vaultRewardTokenHash);
         require(registryContract.getTokensHashByIndex(_index) == _vaultRewardTokenHash, "!VaultRewardTokenHashExists");
@@ -107,7 +107,7 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
     function setDefaultStrategyState(DataTypes.DefaultStrategyState _defaultStrategyState)
         public
         override
-        onlyGovernance
+        onlyStrategyOperator
     {
         defaultStrategyState = _defaultStrategyState;
     }
