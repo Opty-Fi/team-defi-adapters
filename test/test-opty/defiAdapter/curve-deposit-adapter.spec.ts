@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import {
   deployAdapter,
   deployEssentialContracts,
@@ -14,6 +14,7 @@ import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../help
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract } from "../../../helpers/helpers";
+import { formatUnits, getAddress } from "ethers/lib/utils";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -204,18 +205,28 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
     adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
   });
 
+  const ValidatedBtcTokens = TypedBtcTokens.map(t => getAddress(t));
   for (const adapterName of adapterNames) {
     // TODO: In future it can be leverage across all the adapters
     if (adapterName == "CurveDepositPoolAdapter") {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
-        if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
+        const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
+        // ToDo: Get USDK from Uniswap exchange
+        if (
+          TypedDefiPools[adapterName][pool].tokens.length == 1 &&
+          getAddress(underlyingTokenAddress) != getAddress(TypedTokens.USDK) &&
+          getAddress(underlyingTokenAddress) != getAddress(TypedTokens.LINKUSD)
+        ) {
           for (const story of testDeFiAdapterScenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
-              let defaultFundAmount: BigNumber = BigNumber.from("20000");
+              let defaultFundAmount: BigNumber = ValidatedBtcTokens.includes(underlyingTokenAddress)
+                ? BigNumber.from("2")
+                : BigNumber.from("20000");
+              defaultFundAmount =
+                underlyingTokenAddress == getAddress(TypedTokens.DUSD) ? BigNumber.from("2000") : defaultFundAmount;
               let limit: BigNumber;
               const timestamp = (await getBlockTimestamp(hre)) * 2;
-              const underlyingTokenAddress = TypedDefiPools[adapterName][pool].tokens[0];
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
@@ -282,16 +293,20 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     break;
                   }
                   case "fundTestDeFiAdapterContract": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    if (underlyingBalance.lt(defaultFundAmount)) {
-                      await fundWalletToken(
-                        hre,
-                        underlyingTokenAddress,
-                        users["owner"],
-                        defaultFundAmount,
-                        timestamp,
-                        testDeFiAdapter.address,
-                      );
+                    try {
+                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      if (underlyingBalance.lt(defaultFundAmount)) {
+                        await fundWalletToken(
+                          hre,
+                          underlyingTokenAddress,
+                          users["owner"],
+                          defaultFundAmount,
+                          timestamp,
+                          testDeFiAdapter.address,
+                        );
+                      }
+                    } catch (error) {
+                      console.log(`${pool} ${formatUnits(defaultFundAmount, decimals)}`, error);
                     }
                     break;
                   }
