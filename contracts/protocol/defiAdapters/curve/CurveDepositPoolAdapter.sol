@@ -4,6 +4,8 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "hardhat/console.sol";
+
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
@@ -638,7 +640,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) internal view returns (bytes[] memory _codes) {
         (uint256 _nCoins, address[8] memory _underlyingTokens, uint256[] memory _amounts, uint256 _codeLength) =
             _getDepositCodeConfig(_underlyingToken, _liquidityPool, _amount);
-
         if (_codeLength > 1) {
             _codes = new bytes[](_codeLength);
             uint256 _j = 0;
@@ -810,13 +811,19 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _decimals = ERC20(_underlyingToken).decimals();
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 _actualAmount = _amount.div(10**_decimals);
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
-        uint256 _limit =
+        if (_poolPct == 0 && maxDepositProtocolPct == 0) {
+            return 0;
+        }
+        uint256 _scaledLimit =
             _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
-        return _actualAmount > _limit ? _limit.mul(10**_decimals) : _amount;
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _limit = _scaledLimit.mul(10**_decimals);
+        console.log("_scaledLimit", _scaledLimit);
+        console.log("_limit", _limit);
+        console.log("_amount", _amount);
+        return _amount > _limit ? _limit : _amount;
     }
 
     /**
@@ -833,9 +840,12 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
+        uint256 _scaledMaxAmount = maxDepositAmount[_liquidityPool];
+        if (_scaledMaxAmount == 0) {
+            return 0;
+        }
         uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _actualAmount = _amount.div(10**_decimals);
-        uint256 _maxAmount = maxDepositAmount[_liquidityPool];
-        return _actualAmount > _maxAmount ? _maxAmount.mul(10**_decimals) : _amount;
+        uint256 _maxAmount = _scaledMaxAmount.mul(10**_decimals);
+        return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }

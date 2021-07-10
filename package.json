@@ -75,7 +75,7 @@
     "watch:ci": "hardhat watch ci",
     "test": "env SKIP_LOAD=true hardhat test test/test-opty/**/*.spec.ts test/test-opty/*.spec.ts",
     "test-clean": "yarn clean && yarn test",
-    "test-fast": "env SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 hardhat test test/test-opty/*.spec.ts test/test-opty/**/*.spec.ts",
+    "test-fast": "env SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 hardhat test test/test-opty/defiAdapter/curve-deposit-adapter.spec.ts",
     "watch:test": "hardhat watch test",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"",
     "typechain": "hardhat typechain",

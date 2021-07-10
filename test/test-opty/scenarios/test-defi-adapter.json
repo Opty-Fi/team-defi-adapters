@@ -75,7 +75,7 @@
           "contract": "adapter",
           "action": "setMaxDepositProtocolPct(uint256)",
           "args": {
-            "maxDepositProtocolPct": "1"
+            "maxDepositProtocolPct": "10"
           },
           "expect": "success",
           "message": ""
@@ -133,7 +133,7 @@
           "contract": "adapter",
           "action": "setMaxDepositPoolPct(address,uint256)",
           "args": {
-            "maxDepositPoolPct": "9"
+            "maxDepositPoolPct": "90"
           },
           "executer": "owner"
         },

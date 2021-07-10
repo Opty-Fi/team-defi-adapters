@@ -212,11 +212,12 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
         const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
-        // ToDo: Get USDK from Uniswap exchange
+        // TODO: Get USDK,LINKUSD,SBTC from DEX
         if (
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
           getAddress(underlyingTokenAddress) != getAddress(TypedTokens.USDK) &&
-          getAddress(underlyingTokenAddress) != getAddress(TypedTokens.LINKUSD)
+          getAddress(underlyingTokenAddress) != getAddress(TypedTokens.LINKUSD) &&
+          getAddress(underlyingTokenAddress) != getAddress(TypedTokens.SBTC)
         ) {
           for (const story of testDeFiAdapterScenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
@@ -238,6 +239,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                 liquidityPool,
                 underlyingTokenAddress,
               );
+              console.log(`${pool}`, poolValue.toString());
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositPoolType(uint8)": {
@@ -259,6 +261,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                       await adapters[adapterName][action.action](maxDepositProtocolPct);
                     }
                     limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                    console.log(`limit ${maxDepositProtocolPct} ${pool} ${limit.toString()}`);
                     limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
@@ -311,8 +314,20 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     break;
                   }
                   case "testGetDepositAllCodes(address,address,address)": {
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                    try {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      console.log(
+                        `deposit ${pool} ${story.description}`,
+                        await adapters[adapterName].getLiquidityPoolTokenBalance(
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        ),
+                      );
+                    } catch (error) {
+                      console.log(`${pool} deposit`, error);
+                    }
                     break;
                   }
                 }
@@ -362,7 +377,19 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               for (const action of story.cleanActions) {
                 switch (action.action) {
                   case "testGetWithdrawAllCodes(address,address,address)": {
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                    try {
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      console.log(
+                        `withdraw ${pool} ${story.description}`,
+                        await adapters[adapterName].getLiquidityPoolTokenBalance(
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        ),
+                      );
+                    } catch (error) {
+                      console.log(`${pool} withdraw`, error);
+                    }
                     break;
                   }
                 }

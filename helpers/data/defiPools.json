@@ -660,6 +660,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ]
+    },
+    "tbtc_renbtc+wbtc+sbtc+tbtc": {
+      "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
+      "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "tokens": ["0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa"]
+    },
+    "renbtc_renbtc+wbtc+sbtc+tbtc": {
+      "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
+      "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"]
+    },
+    "wbtc_renbtc+wbtc+sbtc+tbtc": {
+      "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
+      "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+    },
+    "sbtc_renbtc+wbtc+sbtc+tbtc": {
+      "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
+      "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "tokens": ["0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"]
+    },
+    "renbtc+wbtc+sbtc+tbtc": {
+      "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
+      "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "tokens": [
+        "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",
+        "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"
+      ]
     }
   },
   "CurveSwapPoolAdapter": {
