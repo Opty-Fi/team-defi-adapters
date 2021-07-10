@@ -225,7 +225,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                 ? BigNumber.from("2")
                 : BigNumber.from("20000");
               defaultFundAmount =
-                underlyingTokenAddress == getAddress(TypedTokens.DUSD) ? BigNumber.from("2000") : defaultFundAmount;
+                underlyingTokenAddress == getAddress(TypedTokens.DUSD) || underlyingTokenAddress == getAddress(TypedTokens.HUSD) || underlyingTokenAddress == getAddress(TypedTokens.MUSD)  ? BigNumber.from("2000") : defaultFundAmount;
               let limit: BigNumber;
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
