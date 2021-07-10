@@ -4,8 +4,6 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "hardhat/console.sol";
-
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
@@ -820,9 +818,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
             _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
         uint256 _decimals = ERC20(_underlyingToken).decimals();
         uint256 _limit = _scaledLimit.mul(10**_decimals);
-        console.log("_scaledLimit", _scaledLimit);
-        console.log("_limit", _limit);
-        console.log("_amount", _amount);
         return _amount > _limit ? _limit : _amount;
     }
 
