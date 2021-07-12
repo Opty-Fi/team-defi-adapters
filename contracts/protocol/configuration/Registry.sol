@@ -38,6 +38,16 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
+    function setTreasury(address _treasury) external override onlyGovernance returns (bool) {
+        require(_treasury != address(0), "!address(0)");
+        require(_treasury.isContract(), "!isContract");
+        treasury = _treasury;
+        return true;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
     function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
         external
         override

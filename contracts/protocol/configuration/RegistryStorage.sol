@@ -41,6 +41,11 @@ contract RegistryAdminStorage {
     address public operator;
 
     /**
+     * @notice Treasury Contract of optyfi's earn protocol
+     */
+    address public treasury;
+
+    /**
      * @notice Minter for OPTY token
      */
     address public minter;
