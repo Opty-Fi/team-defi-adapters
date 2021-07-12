@@ -10,9 +10,9 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {
     IdYdX,
     AccountInfo,
@@ -37,8 +37,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    mapping(address => uint256) public maxDepositAmount;
 
     /** @notice Maps underlyingToken address to its market index in dYdX protocol */
     mapping(address => uint256) public marketToIndexes;
@@ -83,12 +83,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _maxDepositAmount
-    ) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
@@ -112,8 +108,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxDepositProtocolMode = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
@@ -134,7 +130,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
         for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
-                _amounts[i] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
+                _amounts[i] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
             }
         }
         return getDepositSomeCodes(_vault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
@@ -374,28 +370,23 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositProtocolPct;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _amount > _limit ? _limit : _amount;
     }
 
     function _getMaxDepositAmount(
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+    ) internal view returns (uint256) {
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool].mul(10**_decimals);
+        return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }

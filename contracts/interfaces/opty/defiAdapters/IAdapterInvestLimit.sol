@@ -16,14 +16,9 @@ interface IAdapterInvestLimit {
     /**
      * @notice Sets the absolute max deposit value in underlying for the given liquidity pool
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
-     * @param _underlyingToken address of underlying token
      * @param _maxDepositAmount absolute max deposit amount in underlying to be set for given liquidity pool
      */
-    function setMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _maxDepositAmount
-    ) external;
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external;
 
     /**
      * @notice Sets the percentage of max deposit value for the given liquidity pool
@@ -43,7 +38,7 @@ interface IAdapterInvestLimit {
      *                  1. Percentage of pool value
      *                  2. Amount in underlying token
      * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
+     * @param _mode Mode of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) external;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) external;
 }

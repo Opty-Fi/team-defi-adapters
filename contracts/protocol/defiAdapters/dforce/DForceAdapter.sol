@@ -11,11 +11,11 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
 import { IDForceStake } from "../../../interfaces/dforce/IDForceStake.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
@@ -44,8 +44,8 @@ contract DForceAdapter is
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+    /** @notice  Maps liquidityPool to max deposit value in absolute value */
+    mapping(address => uint256) public maxDepositAmount;
 
     // deposit pools
     address public constant USDT_DEPOSIT_POOL = address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8);
@@ -69,9 +69,6 @@ contract DForceAdapter is
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
-
     constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
         setHarvestCodeProvider(_harvestCodeProvider);
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
@@ -92,12 +89,8 @@ contract DForceAdapter is
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _maxDepositAmount
-    ) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
+    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
@@ -130,8 +123,8 @@ contract DForceAdapter is
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxDepositProtocolMode = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
@@ -150,7 +143,7 @@ contract DForceAdapter is
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
+        _amounts[0] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
@@ -259,7 +252,7 @@ contract DForceAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
+        uint256 _rewardTokenAmount = ERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
         return getHarvestSomeCodes(_vault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
 
@@ -305,7 +298,7 @@ contract DForceAdapter is
         uint256 _redeemAmount
     ) public view override returns (uint256 _amount) {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
-        uint256 _liquidityPoolTokenBalance = IERC20(_stakingVault).balanceOf(_vault);
+        uint256 _liquidityPoolTokenBalance = ERC20(_stakingVault).balanceOf(_vault);
         uint256 _balanceInTokenStake = getAllAmountInTokenStake(_vault, address(0), _liquidityPool);
         // can have unintentional rounding errors
         _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStake).add(1);
@@ -414,7 +407,7 @@ contract DForceAdapter is
         address,
         address _liquidityPool
     ) public view override returns (uint256) {
-        return IERC20(_liquidityPool).balanceOf(_vault);
+        return ERC20(_liquidityPool).balanceOf(_vault);
     }
 
     /**
@@ -504,7 +497,7 @@ contract DForceAdapter is
         address _liquidityPool
     ) public view override returns (uint256) {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
-        uint256 b = IERC20(_stakingVault).balanceOf(_vault);
+        uint256 b = ERC20(_stakingVault).balanceOf(_vault);
         if (b > 0) {
             b = b.mul(IDForceDeposit(getLiquidityPoolToken(_underlyingToken, _liquidityPool)).getExchangeRate()).div(
                 1e18
@@ -533,7 +526,7 @@ contract DForceAdapter is
         returns (uint256)
     {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
-        return IERC20(_stakingVault).balanceOf(_vault);
+        return ERC20(_stakingVault).balanceOf(_vault);
     }
 
     /**
@@ -567,32 +560,23 @@ contract DForceAdapter is
         }
     }
 
-    function _getMaxDepositAmountByPct(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool, uint256 _amount) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositProtocolPct;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _amount > _limit ? _limit : _amount;
     }
 
     function _getMaxDepositAmount(
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+    ) internal view returns (uint256) {
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool].mul(10**_decimals);
+        return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }
