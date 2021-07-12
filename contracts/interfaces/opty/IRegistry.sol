@@ -24,6 +24,13 @@ interface IRegistry {
         returns (bool);
 
     /**
+     * @notice Set the treasury contract address to hold the OPTY tokens
+     * @param _treasury Treasury contract address
+     * @return Returns a boolean value indicating whether the operation succeeded
+     */
+    function setTreasury(address _treasury) external returns (bool);
+
+    /**
      * @notice Set the VaultStepInvestStrategyDefinitionRegistry contract address
      * @param _vaultStepInvestStrategyDefinitionRegistry VaultStepInvestStrategyDefinitionRegistry contract address
      * @return A boolean value indicating whether the operation succeeded
