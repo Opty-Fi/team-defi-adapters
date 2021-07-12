@@ -16,6 +16,7 @@ type ARGUMENTS = {
   tokens?: string[];
   score?: number;
   defaultStrategyState?: number;
+  pools?: (string | number)[][];
 };
 
 describe(scenario.title, () => {
@@ -110,6 +111,18 @@ describe(scenario.title, () => {
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             break;
           }
+          case "approveLiquidityPool(address[])": {
+            const { tokens }: ARGUMENTS = action.args;
+            if (tokens) {
+              if (action.expect === "success") {
+                await contracts[action.contract][action.action](tokens);
+              } else {
+                await expect(contracts[action.contract][action.action](tokens)).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "rateLiquidityPool(address,uint8)": {
             const { token, score }: ARGUMENTS = action.args;
             if (token && score) {
@@ -123,6 +136,18 @@ describe(scenario.title, () => {
             }
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             assert.isDefined(score, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "rateLiquidityPool((address,uint8)[])": {
+            const { pools }: ARGUMENTS = action.args;
+            if (pools) {
+              if (action.expect === "success") {
+                await contracts[action.contract][action.action](pools);
+              } else {
+                await expect(contracts[action.contract][action.action](pools)).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(pools, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setTokensHashToTokens(address[])": {

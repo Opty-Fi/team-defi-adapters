@@ -127,14 +127,23 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
             IVaultStepInvestStrategyDefinitionRegistry(_strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry)
                 .getStrategy(_strategyHash);
 
-        DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[0].pool);
+        bool isStrategyQualified = true;
+
+        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
+            DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[_i].pool);
+            if (
+                uint8(_strategySteps.length) > _riskProfileStruct.steps ||
+                !_liquidityPool.isLiquidityPool ||
+                !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
+                    _liquidityPool.rating <= _riskProfileStruct.upperLimit)
+            ) {
+                isStrategyQualified = false;
+                break;
+            }
+        }
         // validate strategy profile
-        if (
-            uint8(_strategySteps.length) > _riskProfileStruct.steps ||
-            !_liquidityPool.isLiquidityPool ||
-            !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
-                _liquidityPool.rating <= _riskProfileStruct.upperLimit)
-        ) {
+
+        if (!isStrategyQualified) {
             if (
                 IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
                     _riskProfile,
