@@ -377,6 +377,18 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
             );
     }
 
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable _vault, address _underlyingToken)
+        public
+        view
+        override
+        returns (bytes[] memory)
+    {
+        return harvestCodeProviderContract.getAddLiquiditySushiCodes(_vault, _underlyingToken);
+    }
+
     function _getDepositAmount(
         address _masterChef,
         address _underlyingToken,

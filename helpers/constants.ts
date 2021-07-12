@@ -66,6 +66,11 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
     distributionActive: false,
   },
+  SushiswapAdapter: {
+    tokenName: "SUSHI",
+    tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    distributionActive: true,
+  },
 };
 
 export const TESTING_CONTRACTS: DATA_OBJECT = {

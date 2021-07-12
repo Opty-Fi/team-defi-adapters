@@ -140,6 +140,17 @@ contract StrategyManager is IStrategyManager, Modifiers {
     /**
      * @inheritdoc IStrategyManager
      */
+    function getAddLiquidityCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) public view override returns (bytes[] memory _codes) {
+        _codes = _getAddLiquidityCodes(_vault, _underlyingToken, _investStrategyHash);
+    }
+
+    /**
+     * @inheritdoc IStrategyManager
+     */
     function getSplitPaymentCode(
         DataTypes.TreasuryShare[] memory _treasuryShares,
         address _account,
@@ -360,6 +371,15 @@ contract StrategyManager is IStrategyManager, Modifiers {
             _liquidityPool,
             _harvestableRewardTokens
         );
+    }
+
+    function _getAddLiquidityCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) internal view returns (bytes[] memory _codes) {
+        (, address _adapter, ) = _getLastStepLiquidityPool(_investStrategyHash);
+        _codes = IAdapterFull(_adapter).getAddLiquidityCodes(_vault, _underlyingToken);
     }
 
     function _getPoolClaimAllRewardCodes(address payable _vault, bytes32 _investStrategyhash)

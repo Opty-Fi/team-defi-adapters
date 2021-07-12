@@ -374,6 +374,15 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
             );
     }
 
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
+
     function _getDepositAmount(
         address _liquidityPool,
         address _underlyingToken,

@@ -41,6 +41,17 @@ interface IHarvestCodeProvider {
     ) external view returns (bytes[] memory _codes);
 
     /**
+     * @dev Get the codes for adding liquidity using sushiswap router
+     * @param _vault Address of Vault Contract
+     * @param _underlyingToken Token address acting as underlying Asset for the vault contract
+     * @return _codes List of harvest codes for harvesting reward tokens
+     */
+    function getAddLiquiditySushiCodes(address payable _vault, address _underlyingToken)
+        external
+        view
+        returns (bytes[] memory _codes);
+
+    /**
      * @dev Get the optimal amount for the token while borrow
      * @param _borrowToken Address of token which has to be borrowed
      * @param _underlyingToken Token address acting as underlying Asset for the vault contract

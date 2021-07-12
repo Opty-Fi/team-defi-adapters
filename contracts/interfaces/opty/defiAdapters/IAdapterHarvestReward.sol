@@ -53,6 +53,17 @@ interface IAdapterHarvestReward {
     ) external view returns (bytes[] memory _codes);
 
     /**
+     * @dev Get batch of function calls for adding liquidity in a DEX like Uniswap
+     * @param _vault Vault contract address
+     * @param _underlyingToken Pair token's contract address where the vault is going to provide liquidity
+     * @return _codes Returns an array of bytes in sequence that can be executed by vault
+     */
+    function getAddLiquidityCodes(address payable _vault, address _underlyingToken)
+        external
+        view
+        returns (bytes[] memory _codes);
+
+    /**
      * @dev Get batch of function calls for swapping full balance of rewards in vault to underlying tokens
      * via DEX like Uniswap
      * @param _vault Vault contract address

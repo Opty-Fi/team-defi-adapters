@@ -99,7 +99,106 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {}
+    ) public view override returns (bytes[] memory _codes) {
+        address _token0 = IUniswapV2Pair(_underlyingToken).token0();
+        address _token1 = IUniswapV2Pair(_underlyingToken).token1();
+        if (_rewardTokenAmount > 0) {
+            uint256[] memory _amounts0 =
+                sushiswapRouter.getAmountsOut(_rewardTokenAmount.div(uint256(2)), _getPath(_token0, _rewardToken));
+            uint256[] memory _amounts1 =
+                sushiswapRouter.getAmountsOut(
+                    _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
+                    _getPath(_token1, _rewardToken)
+                );
+            if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
+                _codes = new bytes[](4);
+                _codes[0] = abi.encode(
+                    _rewardToken,
+                    abi.encodeWithSignature("approve(address,uint256)", address(sushiswapRouter), uint256(0))
+                );
+                _codes[1] = abi.encode(
+                    _rewardToken,
+                    abi.encodeWithSignature("approve(address,uint256)", address(sushiswapRouter), _rewardTokenAmount)
+                );
+                _codes[2] = abi.encode(
+                    address(sushiswapRouter),
+                    abi.encodeWithSignature(
+                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+                        _rewardTokenAmount.div(uint256(2)),
+                        uint256(0),
+                        _getPath(_token0, _rewardToken),
+                        _vault,
+                        uint256(-1)
+                    )
+                );
+                _codes[3] = abi.encode(
+                    address(sushiswapRouter),
+                    abi.encodeWithSignature(
+                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+                        _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
+                        uint256(0),
+                        _getPath(_token1, _rewardToken),
+                        _vault,
+                        uint256(-1)
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function getAddLiquiditySushiCodes(address payable _vault, address _underlyingToken)
+        public
+        view
+        override
+        returns (bytes[] memory _codes)
+    {
+        address _token0 = IUniswapV2Pair(_underlyingToken).token0();
+        address _token1 = IUniswapV2Pair(_underlyingToken).token1();
+        if (IERC20(_token0).balanceOf(_vault) > 0 && IERC20(_token1).balanceOf(_vault) > 0) {
+            _codes = new bytes[](5);
+            _codes[0] = abi.encode(
+                _token0,
+                abi.encodeWithSignature("approve(address,uint256)", address(sushiswapRouter), uint256(0))
+            );
+            _codes[1] = abi.encode(
+                _token0,
+                abi.encodeWithSignature(
+                    "approve(address,uint256)",
+                    address(sushiswapRouter),
+                    IERC20(_token0).balanceOf(_vault)
+                )
+            );
+            _codes[2] = abi.encode(
+                _token1,
+                abi.encodeWithSignature("approve(address,uint256)", address(sushiswapRouter), uint256(0))
+            );
+            _codes[3] = abi.encode(
+                _token1,
+                abi.encodeWithSignature(
+                    "approve(address,uint256)",
+                    address(sushiswapRouter),
+                    IERC20(_token1).balanceOf(_vault)
+                )
+            );
+            _codes[4] = abi.encode(
+                address(sushiswapRouter),
+                abi.encodeWithSignature(
+                    "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)",
+                    _token0,
+                    _token1,
+                    IERC20(_token0).balanceOf(_vault),
+                    IERC20(_token1).balanceOf(_vault),
+                    uint256(0),
+                    uint256(0),
+                    _vault,
+                    uint256(-1)
+                )
+            );
+        }
+    }
 
     /**
      * @inheritdoc IHarvestCodeProvider
