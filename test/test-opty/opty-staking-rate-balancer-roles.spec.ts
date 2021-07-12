@@ -41,7 +41,6 @@ describe(scenario.title, () => {
     }
   });
 
-  // for (let i = 0; i < 4; i++) {
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(`${story.description}`, async () => {
@@ -50,12 +49,8 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "setFinanceOperator(address)": {
             const { addressName }: ARGUMENTS = action.args;
-            console.log("Set Action: ", action.action);
-            console.log("AddressName: ", addressName);
-            // console.log("Mulitplier: ", multiplier);
             if (addressName) {
               const newFinanceOperatorAddress = await signers[addressName].getAddress();
-              // console.log("Dummy contract address: ", contracts[addressName].address);
               if (action.expect === "success") {
                 await contracts[action.contract]
                   .connect(signers[action.executor])
@@ -69,16 +64,11 @@ describe(scenario.title, () => {
               }
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-            // assert.isDefined(multiplier, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setStakingVaultMultipliers(address,uint256)": {
             const { addressName, multiplier }: ARGUMENTS = action.args;
-            console.log("Set Action: ", action.action);
-            console.log("AddressName: ", addressName);
-            console.log("Mulitplier: ", multiplier);
             if (addressName && multiplier) {
-              console.log("Dummy contract address: ", contracts[addressName].address);
               if (action.expect === "success") {
                 await contracts[action.contract]
                   .connect(signers[action.executor])
@@ -97,10 +87,6 @@ describe(scenario.title, () => {
           }
           case "setStakingVaultOPTYAllocation(uint256)": {
             const { stakingVaultOPTYAllocation }: ARGUMENTS = action.args;
-            console.log("Set Action: ", action.action);
-            console.log("StakingVaultOPTYAllocation: ", stakingVaultOPTYAllocation);
-            // console.log("Mulitplier: ", multiplier)
-            // console.log("Dummy contract address: ", contracts[addressName].address)
             if (stakingVaultOPTYAllocation) {
               if (action.expect === "success") {
                 await contracts[action.contract]
@@ -115,7 +101,6 @@ describe(scenario.title, () => {
               }
             }
             assert.isDefined(stakingVaultOPTYAllocation, `args is wrong in ${action.action} testcase`);
-            // assert.isDefined(multiplier, `args is wrong in ${action.action} testcase`);
             break;
           }
         }
@@ -125,30 +110,16 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "stakingVaultMultipliers(address)": {
             const { addressName }: ARGUMENTS = action.args;
-            console.log("Get Action: ", action.action);
-            console.log("AddressName: ", addressName);
             if (addressName) {
-              console.log("Dummy contract address: ", contracts[addressName].address);
               const value = await contracts[action.contract][action.action](contracts[addressName].address);
-              console.log("Value: ", +value);
               expect(+value).to.be.equal(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-            // assert.isDefined(tokenHash, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "stakingVaultOPTYAllocation()": {
-            // const { addressName }: any = action.args;
-            // console.log("Get Action: ", action.action)
-            // console.log("AddressName: ", addressName)
-            // console.log("Dummy contract address: ", contracts[addressName].address)
-            // if (addressName) {
             const value = await contracts[action.contract][action.action]();
-            console.log("Value: ", +value);
             expect(+value).to.be.equal(+action.expectedValue);
-            // }
-            // assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-            // assert.isDefined(tokenHash, `args is wrong in ${action.action} testcase`);
             break;
           }
         }
