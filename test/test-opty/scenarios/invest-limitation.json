@@ -427,7 +427,7 @@
           ]
         },
         {
-          "description": "Non governance cannot set max deposit type",
+          "description": "Non RiskOperator cannot set max deposit type",
           "setActions": [
             {
               "contract": "adapter",
@@ -437,13 +437,13 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit amount",
+          "description": "Non RiskOperator cannot set max deposit amount",
           "setActions": [
             {
               "contract": "adapter",
@@ -453,13 +453,13 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit amount default",
+          "description": "Non RiskOperator cannot set max deposit amount default",
           "setActions": [
             {
               "contract": "adapter",
@@ -469,13 +469,13 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit percentage",
+          "description": "Non RiskOperator cannot set max deposit percentage",
           "setActions": [
             {
               "contract": "adapter",
@@ -485,13 +485,13 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit percentage default",
+          "description": "Non RiskOperator cannot set max deposit percentage default",
           "setActions": [
             {
               "contract": "adapter",
@@ -501,7 +501,7 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
