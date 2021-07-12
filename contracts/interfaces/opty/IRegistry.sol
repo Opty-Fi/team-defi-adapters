@@ -408,6 +408,12 @@ interface IRegistry {
     function getGovernance() external view returns (address);
 
     /**
+     * @notice Get the FinanceOperator address
+     * @return Returns the FinanceOperator address
+     */
+    function getFinanceOperator() external view returns (address);
+
+    /**
      * @notice Get the StrategyOperator address
      * @return Returns the StrategyOperator address
      */

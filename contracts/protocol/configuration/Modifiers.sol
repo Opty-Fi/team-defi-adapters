@@ -52,6 +52,14 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
+     * @notice Modifier to check caller is financeOperator or not
+     */
+    modifier onlyFinanceOperator() {
+        require(msg.sender == registryContract.getFinanceOperator(), "caller is not the financeOperator");
+        _;
+    }
+
+    /**
      * @notice Modifier to check caller is operator or not
      */
     modifier onlyStrategyOperator() {
