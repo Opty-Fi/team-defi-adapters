@@ -60,6 +60,14 @@ abstract contract Modifiers is IModifiers {
     }
 
     /**
+     * @notice Modifier to check caller is riskOperator or not
+     */
+    modifier onlyRiskOperator() {
+        require(msg.sender == registryContract.getRiskOperator(), "caller is not the riskOperator");
+        _;
+    }
+
+    /**
      * @notice Modifier to check caller is operator or not
      */
     modifier onlyStrategyOperator() {

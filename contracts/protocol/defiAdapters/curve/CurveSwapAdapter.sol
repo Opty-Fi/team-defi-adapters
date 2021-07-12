@@ -81,7 +81,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @param _liquidityPool liquidity pool address
      * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyRiskOperator {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
@@ -90,7 +90,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @param _liquidityPool liquidity pool address for which to set max deposit value (in absolute value)
      * @param _maxDepositAmount Array of Pool's max deposit value in number to be set for the given liquidity pool
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(address _liquidityPool, uint256[] memory _maxDepositAmount) external onlyRiskOperator {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -98,7 +98,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @notice Sets the default absolute max deposit value in underlying
      * @param _maxDepositAmountDefault array of 4 absolute max deposit values in underlying to be set as default value
      */
-    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyGovernance {
+    function setMaxDepositAmountDefault(uint256[4] memory _maxDepositAmountDefault) external onlyRiskOperator {
         maxDepositAmountDefault = _maxDepositAmountDefault;
     }
 
@@ -109,7 +109,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @dev Types (can be number or percentage) supported for the maxDeposit value
      * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyRiskOperator {
         maxExposureType = _type;
     }
 
@@ -171,7 +171,7 @@ contract CurveSwapAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @param _maxDepositPoolPctDefault Pool's max deposit percentage (in basis points, For eg: 50% means 5000)
      * to be set as default value
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public onlyRiskOperator {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 

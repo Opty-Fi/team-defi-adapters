@@ -66,7 +66,11 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct)
+        external
+        override
+        onlyRiskOperator
+    {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
@@ -76,7 +80,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
         external
         override
-        onlyGovernance
+        onlyRiskOperator
     {
         maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
@@ -88,7 +92,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         address _liquidityPool,
         address _underlyingToken,
         uint256 _maxDepositAmount
-    ) external override onlyGovernance {
+    ) external override onlyRiskOperator {
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
@@ -117,14 +121,14 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
+    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyRiskOperator {
         maxExposureType = _type;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
+    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyRiskOperator {
         maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
     }
 
