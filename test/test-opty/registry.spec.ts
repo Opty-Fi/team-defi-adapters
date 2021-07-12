@@ -25,7 +25,9 @@ describe(scenario.title, () => {
   let signers: any;
   const contracts: CONTRACTS = {};
   const callers: { [key: string]: string } = {};
+  const EOA = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
   const contractNames = [
+    "treasury",
     "vaultStepInvestStrategyDefinitionRegistry",
     "aprOracle",
     "strategyProvider",
@@ -104,6 +106,24 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
         switch (action.action) {
+          case "setTreasury(address)": {
+            const { contractName }: ARGUMENTS = action.args;
+            if (contractName) {
+              if (action.expect === "success") {
+                await registryContract
+                  .connect(signers[action.executor])
+                  [action.action](contracts[contractName].address);
+              } else {
+                await expect(
+                  registryContract
+                    .connect(signers[action.executor])
+                    [action.action](contractName.toLowerCase() == "eoa" ? EOA : contracts[contractName].address),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "setVaultStepInvestStrategyDefinitionRegistry(address)":
           case "setAPROracle(address)":
           case "setStrategyProvider(address)":
@@ -530,6 +550,7 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.getActions.length; i++) {
         const action = story.getActions[i];
         switch (action.action) {
+          case "treasury()":
           case "getVaultStepInvestStrategyDefinitionRegistry()":
           case "getAprOracle()":
           case "getStrategyProvider()":

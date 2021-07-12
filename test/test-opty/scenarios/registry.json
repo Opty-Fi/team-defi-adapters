@@ -198,6 +198,60 @@
       "getActions": []
     },
     {
+      "description": "Governance should be able to set Treasury's Contract address",
+      "setActions": [
+        {
+          "action": "setTreasury(address)",
+          "args": {
+            "contractName": "treasury"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "treasury()",
+          "args": {},
+          "expectedValue": {
+            "contractName": "treasury"
+          },
+          "expectedMultiValues": {}
+        }
+      ]
+    },
+    {
+      "description": "Governance shouldn't be able to set EOA as Treasury's Contract address",
+      "setActions": [
+        {
+          "action": "setTreasury(address)",
+          "args": {
+            "contractName": "EOA"
+          },
+          "executor": "owner",
+          "expect": "fail",
+          "message": "!isContract"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Non-Governance shouldn't be able to set Treasury's Contract address",
+      "setActions": [
+        {
+          "action": "setTreasury(address)",
+          "args": {
+            "contractName": "treasury"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not having governance"
+        }
+      ],
+      "getActions": []
+    },
+    {
       "description": "Operator should be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
       "setActions": [
         {
