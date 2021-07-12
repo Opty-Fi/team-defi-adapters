@@ -1,6 +1,6 @@
 {
   "title": "Opty Distributor",
-  "description": "Test cases for Distributor Minter contract",
+  "description": "Test cases for OptyDistributor contract",
   "stories": [
     {
       "description": "Operator can add opty vault",
@@ -514,7 +514,7 @@
       ]
     },
     {
-      "description": "User cannot mint opty if the user is not minter",
+      "description": "User cannot mint opty if the user is not optyDistributor",
       "setActions": [
         {
           "contract": "opty",
@@ -525,7 +525,7 @@
           },
           "executer": "admin",
           "expect": "fail",
-          "message": "!minter"
+          "message": "!optyDistributor"
         },
         {
           "contract": "optyDistributor",
@@ -767,7 +767,7 @@
       ]
     },
     {
-      "description": "User shouldn't able to claim opty token if optyDistributor address is not set as Minter in Registry",
+      "description": "User shouldn't able to claim opty token if optyDistributor address is not set as OptyDistributor in Registry",
       "setActions": [
         {
           "contract": "optyDistributor",
@@ -830,7 +830,7 @@
           },
           "executer": "owner",
           "expect": "fail",
-          "message": "!minter"
+          "message": "!optyDistributor"
         }
       ],
       "getActions": []

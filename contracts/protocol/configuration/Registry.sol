@@ -605,7 +605,7 @@ contract Registry is IRegistry, ModifiersController {
      * @inheritdoc IRegistry
      */
     function getOPTYDistributor() public view override returns (address) {
-        return minter;
+        return optyDistributor;
     }
 
     /**
@@ -680,7 +680,7 @@ contract Registry is IRegistry, ModifiersController {
     {
         _vaultStrategyConfiguration.strategyManager = strategyManager;
         _vaultStrategyConfiguration.riskManager = riskManager;
-        _vaultStrategyConfiguration.optyDistributor = minter;
+        _vaultStrategyConfiguration.optyDistributor = optyDistributor;
         _vaultStrategyConfiguration.odefiVaultBooster = odefiVaultBooster;
         _vaultStrategyConfiguration.operator = operator;
     }

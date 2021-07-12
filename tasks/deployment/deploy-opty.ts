@@ -21,7 +21,7 @@ task("deploy-opty", "Deploy Opty")
 
     const opty = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY, deployedonce, owner, [registry, 100000000000000]);
 
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_MINTER, deployedonce, owner, [
+    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, deployedonce, owner, [
       registry,
       opty.address,
     ]);

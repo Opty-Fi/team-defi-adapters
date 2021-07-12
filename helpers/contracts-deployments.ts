@@ -121,7 +121,7 @@ export async function deployEssentialContracts(
     100000000000000,
   ]);
 
-  const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER, isDeployedOnce, owner, [
+  const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_DISTRIBUTOR, isDeployedOnce, owner, [
     registry.address,
     opty.address,
     1700000000,

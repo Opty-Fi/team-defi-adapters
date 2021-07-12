@@ -68,7 +68,7 @@ describe(scenario.title, () => {
         0,
       ]);
 
-      const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_MINTER, false, operator, [
+      const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, false, operator, [
         essentialContracts["registry"].address,
         opty.address,
         await getBlockTimestamp(hre),
