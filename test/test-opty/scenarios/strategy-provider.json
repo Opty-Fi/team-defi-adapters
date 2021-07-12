@@ -61,6 +61,40 @@
       "getActions": []
     },
     {
+      "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best strategy",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "user1"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "strategyProvider",
+          "action": "setBestStrategy(string,bytes32,bytes32)",
+          "args": {
+            "strategy": [
+              {
+                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "isBorrow": false
+              }
+            ],
+            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "riskProfile": "RP1"
+          },
+          "executor": "strategyOperator",
+          "expect": "fail",
+          "message": "caller is not the strategyOperator"
+        }
+      ],
+      "getActions": []
+    },
+    {
       "description": "[setBestDefaultStrategy] - StrategyOperator should be able to set best default strategy",
       "setActions": [
         {
@@ -119,6 +153,40 @@
       "getActions": []
     },
     {
+      "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best default strategy",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "user1"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "strategyProvider",
+          "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
+          "args": {
+            "strategy": [
+              {
+                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
+                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+                "isBorrow": false
+              }
+            ],
+            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "riskProfile": "RP1"
+          },
+          "executor": "strategyOperator",
+          "expect": "fail",
+          "message": "caller is not the strategyOperator"
+        }
+      ],
+      "getActions": []
+    },
+    {
       "description": "[setVaultRewardStrategy] - StrategyOperator should be able to set best Vault Reward strategy",
       "setActions": [
         {
@@ -158,6 +226,32 @@
       "getActions": []
     },
     {
+      "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "user1"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "strategyProvider",
+          "action": "setVaultRewardStrategy(bytes32,(uint256,uint256))",
+          "args": {
+            "vaultRewardStrategy": [5000, 5000]
+          },
+          "executor": "strategyOperator",
+          "expect": "fail",
+          "message": "caller is not the strategyOperator"
+        }
+      ],
+      "getActions": []
+    },
+    {
       "description": "[setDefaultStrategyState] StrategyOperator should be able to set Default Strategy state",
       "setActions": [
         {
@@ -190,6 +284,32 @@
             "defaultStrategyState": 1
           },
           "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the strategyOperator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "user1"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "strategyProvider",
+          "action": "setDefaultStrategyState(uint8)",
+          "args": {
+            "defaultStrategyState": 1
+          },
+          "executor": "strategyOperator",
           "expect": "fail",
           "message": "caller is not the strategyOperator"
         }

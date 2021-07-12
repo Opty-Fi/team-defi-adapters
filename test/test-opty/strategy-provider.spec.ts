@@ -16,6 +16,7 @@ type ARGUMENTS = {
   tokenHash?: string;
   defaultStrategyState?: number;
   vaultRewardStrategy?: number[];
+  newStrategyOperator?: string;
 };
 
 describe(scenario.title, () => {
@@ -59,13 +60,31 @@ describe(scenario.title, () => {
     }
   });
 
-  // for (let i = 0; i < 2; i++) {
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(`${story.description}`, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
         switch (action.action) {
+          case "setStrategyOperator(address)": {
+            const { newStrategyOperator }: ARGUMENTS = action.args;
+            const tempNewStrategyOperatorrAddr = await signers[<any>newStrategyOperator].getAddress();
+            if (newStrategyOperator) {
+              if (action.expect === "success") {
+                await contracts[action.contract]
+                  .connect(signers[action.executor])
+                  [action.action](tempNewStrategyOperatorrAddr);
+              } else {
+                await expect(
+                  contracts[action.contract]
+                    .connect(signers[action.executor])
+                    [action.action](tempNewStrategyOperatorrAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newStrategyOperator, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
             const { vaultRewardStrategy }: ARGUMENTS = action.args;
             if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
