@@ -30,7 +30,7 @@
           "action": "rpToTokenToBestStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "token": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+            "tokenHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
           },
           "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
         }
@@ -88,7 +88,7 @@
           "action": "rpToTokenToDefaultStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "token": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+            "tokenHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
           },
           "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
         }
