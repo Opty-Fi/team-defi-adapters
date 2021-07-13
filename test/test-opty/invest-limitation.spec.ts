@@ -23,7 +23,7 @@ type ARGUMENTS = {
   userName?: string;
 };
 type EXPECTED_ARGUMENTS = {
-  [key: string]: string;
+  [key: string]: string | number;
 };
 describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -38,7 +38,8 @@ describe(scenarios.title, () => {
   before(async () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
-      users = { owner, admin };
+      const riskOperator = owner;
+      users = { owner, admin, riskOperator };
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
@@ -130,6 +131,7 @@ describe(scenarios.title, () => {
                 console.error(error);
               }
             });
+            // for (let i = 0; i < 1; i++) {
             for (let i = 0; i < stories.length; i++) {
               it(stories[i].description, async () => {
                 const story = stories[i];
@@ -264,6 +266,96 @@ describe(scenarios.title, () => {
                 for (let i = 0; i < story.getActions.length; i++) {
                   const getAction = story.getActions[i];
                   switch (getAction.action) {
+                    case "maxDepositPoolPctDefault()": {
+                      console.log("GetAction: ", getAction.action);
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      // let value: BigNumber;
+                      // if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      //   value = await contracts["adapter"].maxDepositPoolPctDefault();
+                      // } else {
+                      console.log(`AdapterName: ${adapterName} and address: ${contracts["adapter"].address}`);
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
+                      console.log("Value in BI: ", value);
+                      console.log("Value Normal: ", +value);
+                      // }
+                      console.log("If-condition completed..");
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositAmount(address,address)": {
+                      console.log("GetAction: ", getAction.action);
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      // let value: BigNumber;
+                      // if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      //   value = await contracts["adapter"].maxDepositPoolPct(strategy.strategy[0].contract);
+                      // } else {
+                      console.log(`AdapterName: ${adapterName} and address: ${contracts["adapter"].address}`);
+                      console.log(`UnderlyingToken Name: ${strategy.token} and address: ${TOKENS[strategy.token]}`);
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
+                        strategy.strategy[0].contract,
+                        TOKENS[strategy.token],
+                      );
+                      console.log("Value in BI: ", value);
+                      console.log("Value Normal: ", +value);
+                      // }
+                      console.log("If-condition completed..");
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositAmountDefault(address)": {
+                      console.log("GetAction: ", getAction.action);
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      // let value: BigNumber;
+                      // if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      //   value = await contracts["adapter"].maxDepositPoolPct(strategy.strategy[0].contract);
+                      // } else {
+                      console.log(`AdapterName: ${adapterName} and address: ${contracts["adapter"].address}`);
+                      console.log(`UnderlyingToken Name: ${strategy.token} and address: ${TOKENS[strategy.token]}`);
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
+                        TOKENS[strategy.token],
+                      );
+                      console.log("Value in BI: ", value);
+                      console.log("Value Normal: ", +value);
+                      // }
+                      console.log("If-condition completed..");
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositPoolPct(address)": {
+                      console.log("GetAction: ", getAction.action);
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      // let value: BigNumber;
+                      // if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      //   value = await contracts["adapter"].maxDepositPoolPct(strategy.strategy[0].contract);
+                      // } else {
+                      console.log(`AdapterName: ${adapterName} and address: ${contracts["adapter"].address}`);
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
+                        strategy.strategy[0].contract,
+                      );
+                      console.log("Value in BI: ", value);
+                      console.log("Value Normal: ", +value);
+                      // }
+                      console.log("If-condition completed..");
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxExposureType()": {
+                      console.log("GetAction: ", getAction.action);
+                      const expectedValue: any = getAction.expectedValue;
+                      console.log("Expected value: ", expectedValue.type);
+                      // let value: BigNumber;
+                      // if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                      //   value = await contracts["adapter"].maxDepositPoolPct(strategy.strategy[0].contract);
+                      // } else {
+                      console.log(`AdapterName: ${adapterName} and address: ${contracts["adapter"].address}`);
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
+                      console.log("Value in BI: ", value);
+                      console.log("Value Normal: ", +value);
+                      // }
+                      console.log("If-condition completed..");
+                      expect(+value).to.equal(+expectedValue.type);
+                      break;
+                    }
                     case "balanceOf(address)": {
                       const { userName }: ARGUMENTS = getAction.args;
                       if (userName) {
