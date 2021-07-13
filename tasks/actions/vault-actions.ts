@@ -6,18 +6,18 @@ task("vault-actions", "perform actions in Vault")
   .addParam("vault", "the address of vault", "", types.string)
   .addParam("action", "deposit, withdraw or rebalance", "", types.string)
   .addParam("withrebalance", "do action with rebalance", false, types.boolean)
-  .addParam("useAll", "decide to deposit or withdraw all available token", false, types.boolean)
+  .addParam("useall", "decide to deposit or withdraw all available token", false, types.boolean)
   .addParam("amount", "amount of token", 0, types.int)
-  .setAction(async ({ vault, action, withrebalance, amount, useAll }, hre) => {
+  .setAction(async ({ vault, action, withrebalance, amount, useall }, hre) => {
     const [owner] = await hre.ethers.getSigners();
 
     const ACTIONS = ["DEPOSIT", "WITHDRAW", "REBALANCE"];
     if (vault === "") {
-      throw new Error("registry cannot be empty");
+      throw new Error("vault cannot be empty");
     }
 
     if (!isAddress(vault)) {
-      throw new Error("registry address is invalid");
+      throw new Error("vault address is invalid");
     }
 
     if (!ACTIONS.includes(action.toUpperCase())) {
@@ -37,7 +37,7 @@ task("vault-actions", "perform actions in Vault")
     switch (action.toUpperCase()) {
       case "DEPOSIT": {
         let checkedAmount = amount;
-        if (useAll) {
+        if (useall) {
           const userAddress = await owner.getAddress();
           checkedAmount = await tokenContract.balanceOf(userAddress);
         }
@@ -49,7 +49,7 @@ task("vault-actions", "perform actions in Vault")
             console.log("Deposit with rebalance successfully");
           } else {
             await vaultContract.userDeposit(checkedAmount.toString());
-            console.log("Deposit successfully");
+            console.log("Deposit without rebalance successfully");
           }
         } catch (error) {
           console.log(`Got error when depositing : ${error}`);
@@ -59,7 +59,7 @@ task("vault-actions", "perform actions in Vault")
       }
       case "WITHDRAW": {
         let checkedAmount = amount;
-        if (useAll) {
+        if (useall) {
           const userAddress = await owner.getAddress();
           checkedAmount = await vaultContract.balanceOf(userAddress);
         }

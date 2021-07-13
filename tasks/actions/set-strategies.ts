@@ -7,6 +7,38 @@ import { TypedStrategies } from "../../helpers/data";
 import { STRATEGY } from "../../helpers/type";
 import fs from "fs";
 
+/**
+ * strategy.json structure
+ * [
+ *   {
+      "strategyName": string,
+      "token": string,
+      "strategy": [ 
+        {
+          "contract": address,
+          "outputTokenSymbol": string,
+          "outputToken": address,
+          "isBorrow": boolean
+        }
+      ]
+      }
+    ]
+  Ex: 
+    [  
+      {
+        "strategyName": "DAI-deposit-COMPOUND-cDAI",
+        "token": "DAI",
+        "strategy": [ 
+          {
+            "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "outputTokenSymbol": "cDAI",
+            "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+            "isBorrow": false
+          }
+        ]
+      }
+    ]
+ */
 task("set-strategies", "Set strategies")
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
   .addParam("fromfile", "the url of file", "", types.string)

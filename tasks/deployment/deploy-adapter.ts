@@ -19,7 +19,7 @@ task("deploy-adapter", "Deploy Adapter contract")
       throw new Error("name cannot be empty");
     }
 
-    if (!ADAPTER.includes(name)) {
+    if (!ADAPTER.map(adapter => adapter.toUpperCase()).includes(name.toUpperCase())) {
       throw new Error("adapter does not exist");
     }
 
