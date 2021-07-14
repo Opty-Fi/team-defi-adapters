@@ -4,10 +4,11 @@ import { Contract } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
 import { generateStrategyHash, deployContract } from "../../helpers/helpers";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, REWARD_TOKENS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { approveVaultRewardTokens } from "../../helpers/contracts-actions";
+import { TypedTokens } from "../../helpers/data";
 
 type ARGUMENTS = {
   riskProfile?: string;
@@ -38,7 +39,7 @@ describe(scenario.title, () => {
         owner,
         [],
       );
-      const DAI_TOKEN = "0x6b175474e89094c44da98b954eedeac495271d0f";
+      const DAI_TOKEN = TypedTokens["DAI"];
       await registry["addRiskProfile(string,uint8,(uint8,uint8))"]("RP1", 1, [0, 10]);
       await registry["approveToken(address)"](DAI_TOKEN);
       await registry["setTokensHashToTokens(address[])"]([DAI_TOKEN]);
@@ -51,7 +52,7 @@ describe(scenario.title, () => {
         [registry.address],
       );
 
-      const COMP_TOKEN = "0xc00e94Cb662C3520282E6f5717214004A7f26888";
+      const COMP_TOKEN = <string>REWARD_TOKENS["CompoundAdapter"].tokenAddress;
       vaultRewardTokenHash = getSoliditySHA3Hash(["address[]"], [[DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]]);
       await approveVaultRewardTokens(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
       contracts = { registry, strategyProvider };
