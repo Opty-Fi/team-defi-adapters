@@ -4,7 +4,12 @@ import { Contract } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
 import { generateStrategyHash, deployContract } from "../../helpers/helpers";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, REWARD_TOKENS } from "../../helpers/constants";
+import {
+  TESTING_DEPLOYMENT_ONCE,
+  ESSENTIAL_CONTRACTS,
+  TESTING_CONTRACTS,
+  REWARD_TOKENS,
+} from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { approveVaultRewardTokens } from "../../helpers/contracts-actions";
