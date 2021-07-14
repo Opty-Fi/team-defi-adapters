@@ -86,7 +86,7 @@ contract RegistryAdminStorage {
     event TransferOperator(address indexed operator, address indexed caller);
 
     /**
-     * @notice notify when transfer operation of operator occurs
+     * @notice notify when transfer operation of treasury occurs
      */
     event TransferTreasury(address indexed treasury, address indexed caller);
 
