@@ -41,7 +41,7 @@ contract RegistryAdminStorage {
     address public operator;
 
     /**
-     * @notice Treasury Contract of optyfi's earn protocol
+     * @notice Treasury of optyfi's earn protocol
      */
     address public treasury;
 
@@ -66,27 +66,32 @@ contract RegistryAdminStorage {
     address public pendingRegistryImplementation;
 
     /**
-     * @notice when transfer operation of financeOperator occurs
+     * @notice notify when transfer operation of financeOperator occurs
      */
     event TransferFinanceOperator(address indexed financeOperator, address indexed caller);
 
     /**
-     * @notice when transfer operation of riskOperator occurs
+     * @notice notify when transfer operation of riskOperator occurs
      */
     event TransferRiskOperator(address indexed riskOperator, address indexed caller);
 
     /**
-     * @notice when transfer operation of strategyOperator occurs
+     * @notice notify when transfer operation of strategyOperator occurs
      */
     event TransferStrategyOperator(address indexed strategyOperator, address indexed caller);
 
     /**
-     * @notice when transfer operation of operator occurs
+     * @notice notify when transfer operation of operator occurs
      */
     event TransferOperator(address indexed operator, address indexed caller);
 
     /**
-     * @notice Change minter of protocol
+     * @notice notify when transfer operation of trasury occurs
+     */
+    event TransferTreasury(address indexed treasury, address indexed caller);
+
+    /**
+     * @notice notify when Change minter of protocol
      */
     event TransferOPTYMinter(address indexed minter, address indexed caller);
 }
