@@ -24,8 +24,8 @@ interface IRegistry {
         returns (bool);
 
     /**
-     * @notice Set the treasury contract address to hold the OPTY tokens
-     * @param _treasury Treasury contract address
+     * @notice Set the treasury's address for optyfi's earn protocol
+     * @param _treasury Treasury's address
      * @return Returns a boolean value indicating whether the operation succeeded
      */
     function setTreasury(address _treasury) external returns (bool);
@@ -366,79 +366,79 @@ interface IRegistry {
     function getRiskProfileList() external view returns (string[] memory);
 
     /**
-     * @notice Get the StrategyManager contract address
+     * @notice Retrieve the StrategyManager contract address
      * @return Returns the StrategyManager contract address
      */
     function getStrategyManager() external view returns (address);
 
     /**
-     * @notice Get the StrategyProvider contract address
+     * @notice Retrieve the StrategyProvider contract address
      * @return Returns the StrategyProvider contract address
      */
     function getStrategyProvider() external view returns (address);
 
     /**
-     * @notice Get the VaultStepInvestStrategyDefinitionRegistry contract address
+     * @notice Retrieve the VaultStepInvestStrategyDefinitionRegistry contract address
      * @return Returns the VaultStepInvestStrategyDefinitionRegistry contract address
      */
     function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
 
     /**
-     * @notice Get the RiskManager contract address
+     * @notice Retrieve the RiskManager contract address
      * @return Returns the RiskManager contract address
      */
     function getRiskManager() external view returns (address);
 
     /**
-     * @notice Get the OptyMinter contract address
+     * @notice Retrieve the OptyMinter contract address
      * @return Returns the OptyMinter contract address
      */
     function getOptyMinter() external view returns (address);
 
     /**
-     * @notice Get the ODEFIVaultBooster contract address
+     * @notice Retrieve the ODEFIVaultBooster contract address
      * @return Returns the ODEFIVaultBooster contract address
      */
     function getODEFIVaultBooster() external view returns (address);
 
     /**
-     * @notice Get the Governance address
+     * @notice Retrieve the Governance address
      * @return Returns the Governance address
      */
     function getGovernance() external view returns (address);
 
     /**
-     * @notice Get the FinanceOperator address
+     * @notice Retrieve the FinanceOperator address
      * @return Returns the FinanceOperator address
      */
     function getFinanceOperator() external view returns (address);
 
     /**
-     * @notice Get the StrategyOperator address
+     * @notice Retrieve the StrategyOperator address
      * @return Returns the StrategyOperator address
      */
     function getStrategyOperator() external view returns (address);
 
     /**
-     * @notice Get the Operator address
+     * @notice Retrieve the Operator address
      * @return Returns the Operator address
      */
     function getOperator() external view returns (address);
 
     /**
-     * @notice Get the HarvestCodeProvider contract address
+     * @notice Retrieve the HarvestCodeProvider contract address
      * @return Returns the HarvestCodeProvider contract address
      */
     function getHarvestCodeProvider() external view returns (address);
 
     /**
-     * @notice Get the AprOracle contract address
+     * @notice Retrieve the AprOracle contract address
      * @return Returns the AprOracle contract address
      */
     function getAprOracle() external view returns (address);
 
     /**
-     * @notice Get the OPTYStakingRateBalancer contract address
+     * @notice Retrieve the OPTYStakingRateBalancer contract address
      * @return Returns the OPTYStakingRateBalancer contract address
      */
     function getOPTYStakingRateBalancer() external view returns (address);
