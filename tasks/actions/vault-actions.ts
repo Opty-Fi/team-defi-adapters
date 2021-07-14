@@ -41,7 +41,6 @@ task("vault-actions", "perform actions in Vault")
           const userAddress = await owner.getAddress();
           checkedAmount = await tokenContract.balanceOf(userAddress);
         }
-        console.log(amount);
         try {
           await tokenContract.approve(vault, checkedAmount.toString());
           if (withrebalance) {

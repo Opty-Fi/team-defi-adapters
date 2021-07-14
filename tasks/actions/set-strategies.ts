@@ -69,11 +69,11 @@ task("set-strategies", "Set strategies")
 
     for (let i = 0; i < strategies.length; i++) {
       try {
-        const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TypedStrategies[i].token]]]);
-        await setStrategy(TypedStrategies[i].strategy, tokensHash, strategyRegistryContract);
-        console.log(`Set successfully strategy : ${TypedStrategies[i].strategyName}`);
+        const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategies[i].token]]]);
+        await setStrategy(strategies[i].strategy, tokensHash, strategyRegistryContract);
+        console.log(`Set successfully strategy : ${strategies[i].strategyName}`);
       } catch (error) {
-        console.error(`Got error with ${TypedStrategies[i].strategyName} : `, error.message);
+        console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }
     }
   });
