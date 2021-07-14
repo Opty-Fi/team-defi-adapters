@@ -4,7 +4,7 @@ import { CONTRACTS } from "../../helpers/type";
 import { deployContract } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, TESTING_CONTRACTS } from "../../helpers/constants";
 import { deployOptyStakingRateBalancer, deployRegistry } from "../../helpers/contracts-deployments";
-import scenario from "./scenarios/opty-staking-rate-balancer-roles.json";
+import scenario from "./scenarios/opty-staking-rate-balancer.json";
 
 type ARGUMENTS = {
   addressName?: string;
