@@ -25,7 +25,9 @@ describe(scenario.title, () => {
   let signers: any;
   const contracts: CONTRACTS = {};
   const callers: { [key: string]: string } = {};
+  const EOA = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
   const contractNames = [
+    "treasury",
     "vaultStepInvestStrategyDefinitionRegistry",
     "aprOracle",
     "strategyProvider",
@@ -104,6 +106,26 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
         switch (action.action) {
+          case "setTreasury(address)": {
+            const { contractName }: ARGUMENTS = action.args;
+            if (contractName) {
+              if (action.expect === "success") {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
+                )
+                  .to.emit(registryContract, "TransferTreasury")
+                  .withArgs(contracts[contractName].address, callers[action.executor]);
+              } else {
+                await expect(
+                  registryContract
+                    .connect(signers[action.executor])
+                    [action.action](contractName.toLowerCase() == "eoa" ? EOA : contracts[contractName].address),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "setVaultStepInvestStrategyDefinitionRegistry(address)":
           case "setAPROracle(address)":
           case "setStrategyProvider(address)":
@@ -131,13 +153,17 @@ describe(scenario.title, () => {
           }
           case "setFinanceOperator(address)": {
             const { newFinanceOperator }: ARGUMENTS = action.args;
-            const tempNewFinanceOperatorrAddr = await signers[newFinanceOperator].getAddress();
+            const tempNewFinanceOperatorAddr = await signers[newFinanceOperator].getAddress();
             if (newFinanceOperator) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorrAddr);
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorAddr),
+                )
+                  .to.emit(registryContract, "TransferFinanceOperator")
+                  .withArgs(tempNewFinanceOperatorAddr, callers[action.executor]);
               } else {
                 await expect(
-                  registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorrAddr),
+                  registryContract.connect(signers[action.executor])[action.action](tempNewFinanceOperatorAddr),
                 ).to.be.revertedWith(action.message);
               }
             }
@@ -146,13 +172,15 @@ describe(scenario.title, () => {
           }
           case "setRiskOperator(address)": {
             const { newRiskOperator }: ARGUMENTS = action.args;
-            const tempNewOperatorrAddr = await signers[newRiskOperator].getAddress();
+            const tempNewOperatorAddr = await signers[newRiskOperator].getAddress();
             if (newRiskOperator) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr);
+                await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOperatorAddr))
+                  .to.emit(registryContract, "TransferRiskOperator")
+                  .withArgs(tempNewOperatorAddr, callers[action.executor]);
               } else {
                 await expect(
-                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr),
+                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorAddr),
                 ).to.be.revertedWith(action.message);
               }
             }
@@ -161,13 +189,17 @@ describe(scenario.title, () => {
           }
           case "setStrategyOperator(address)": {
             const { newStrategyOperator }: ARGUMENTS = action.args;
-            const tempNewStrategyOperatorrAddr = await signers[newStrategyOperator].getAddress();
+            const tempNewStrategyOperatorAddr = await signers[newStrategyOperator].getAddress();
             if (newStrategyOperator) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr);
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorAddr),
+                )
+                  .to.emit(registryContract, "TransferStrategyOperator")
+                  .withArgs(tempNewStrategyOperatorAddr, callers[action.executor]);
               } else {
                 await expect(
-                  registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr),
+                  registryContract.connect(signers[action.executor])[action.action](tempNewStrategyOperatorAddr),
                 ).to.be.revertedWith(action.message);
               }
             }
@@ -179,7 +211,9 @@ describe(scenario.title, () => {
             const tempNewOperatorrAddr = await signers[newOperator].getAddress();
             if (newOperator) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr);
+                await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr))
+                  .to.emit(registryContract, "TransferOperator")
+                  .withArgs(tempNewOperatorrAddr, callers[action.executor]);
               } else {
                 await expect(
                   registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr),
@@ -194,7 +228,9 @@ describe(scenario.title, () => {
             const tempNewOptyMinterAddr = await signers[newOptyMinter].getAddress();
             if (newOptyMinter) {
               if (action.expect === "success") {
-                await registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr);
+                await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr))
+                  .to.emit(registryContract, "TransferOPTYMinter")
+                  .withArgs(tempNewOptyMinterAddr, callers[action.executor]);
               } else {
                 await expect(
                   registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr),
@@ -530,6 +566,7 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.getActions.length; i++) {
         const action = story.getActions[i];
         switch (action.action) {
+          case "treasury()":
           case "getVaultStepInvestStrategyDefinitionRegistry()":
           case "getAprOracle()":
           case "getStrategyProvider()":
