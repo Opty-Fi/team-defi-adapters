@@ -40,8 +40,8 @@ contract Registry is IRegistry, ModifiersController {
      */
     function setTreasury(address _treasury) external override onlyGovernance returns (bool) {
         require(_treasury != address(0), "!address(0)");
-        require(_treasury.isContract(), "!isContract");
         treasury = _treasury;
+        emit TransferTreasury(treasury, msg.sender);
         return true;
     }
 
