@@ -9,9 +9,9 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 //  helper contracts
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
 import { IAaveV1PriceOracle } from "../../../interfaces/aave/v1/IAaveV1PriceOracle.sol";
@@ -480,39 +480,26 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
+                : maxDepositAmount[_liquidityPool];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256) {
+    function _getMaxDepositAmountByPct(address _liquidityPool, address _underlyingToken)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
         uint256 _limit =
             _poolPct == 0
                 ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
                 : _poolValue.mul(_poolPct).div(uint256(10000));
-        return _amount > _limit ? _limit : _amount;
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256) {
-        uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _maxAmount = maxDepositAmount[_liquidityPool].mul(10**_decimals);
-        return _amount > _maxAmount ? _maxAmount : _amount;
+        return _limit;
     }
 
     function _getLendingPool(address _lendingPoolAddressProvider) internal view returns (address) {

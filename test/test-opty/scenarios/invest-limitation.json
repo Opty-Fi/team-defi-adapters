@@ -203,9 +203,9 @@
               "action": "setMaxDepositAmount(address,uint256)",
               "args": {
                 "amount": {
-                  "DAI": "1",
-                  "USDC": "1",
-                  "USDT": "1"
+                  "DAI": "500000000000000000",
+                  "USDC": "500000",
+                  "USDT": "500000"
                 }
               },
               "executer": "owner",
@@ -247,9 +247,9 @@
               "action": "balance()",
               "args": {},
               "expectedValue": {
-                "DAI": "1000000000000000000",
-                "USDC": "1000000",
-                "USDT": "1000000"
+                "DAI": "1500000000000000000",
+                "USDC": "1500000",
+                "USDT": "1500000"
               }
             },
             {
