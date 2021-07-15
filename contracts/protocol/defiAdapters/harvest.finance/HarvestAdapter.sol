@@ -146,17 +146,6 @@ contract HarvestAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterStaking
-     */
-    function getAllAmountInTokenStakeWrite(
-        address payable,
-        address,
-        address
-    ) external override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
      * @inheritdoc IAdapterProtocolConfig
      */
     function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyGovernance {

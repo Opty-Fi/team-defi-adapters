@@ -112,17 +112,6 @@ contract DForceAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterStaking
-     */
-    function getAllAmountInTokenStakeWrite(
-        address payable,
-        address,
-        address
-    ) external override returns (uint256) {
-        revert("!empty");
-    }
-
-    /**
      * @notice Map the liquidity pool to its Staking vault address
      * @param _liquidityPool liquidity pool address to be mapped with staking vault
      * @param _stakingVault staking vault address to be linked with liquidity pool
