@@ -65,7 +65,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
 
-    /** @notice Maps liquidityPool to list of absolute max deposit values in underlying */
+    /** @notice Maps liquidityPool to list of absolute max deposit value in underlying */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -86,15 +86,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     }
 
     /**
-     * @dev Maps true to a liquidity pool if it uses old deposit zap API
-     * @param _liquidityPool liquidity pool address
-     * @param _isOld set true if the liquidity pool uses old deposit zap's API
-     */
-    function setIsOldDepositZap(address _liquidityPool, bool _isOld) public onlyGovernance {
-        isOldDepositZap[_liquidityPool] = _isOld;
-    }
-
-    /**
      * @notice Sets the percentage of max deposit value for the given liquidity pool
      * @param _liquidityPool liquidity pool address
      * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
@@ -110,6 +101,15 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    /**
+     * @dev Maps true to a liquidity pool if it uses old deposit zap API
+     * @param _liquidityPool liquidity pool address
+     * @param _isOld set true if the liquidity pool uses old deposit zap's API
+     */
+    function setIsOldDepositZap(address _liquidityPool, bool _isOld) public onlyGovernance {
+        isOldDepositZap[_liquidityPool] = _isOld;
     }
 
     /**
