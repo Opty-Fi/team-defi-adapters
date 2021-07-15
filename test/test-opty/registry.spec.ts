@@ -50,7 +50,6 @@ describe(scenario.title, () => {
     "user1",
   ];
   before(async () => {
-    // beforeEach(async () => {
     try {
       [
         owner,
