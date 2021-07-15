@@ -1,6 +1,6 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
-import { Contract, Signer, BigNumber, utils } from "ethers";
+import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools, TypedTokens } from "../../../helpers/data";
@@ -236,8 +236,8 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
               const adapterAddress = adapters[adapterName].address;
-              let underlyingBalanceBefore: BigNumber;
-              let limitInUnderlyingToken: BigNumber;
+              let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
+              let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
               // Note: The pool value for curve pools will be in USD or BTC
               const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
                 liquidityPool,

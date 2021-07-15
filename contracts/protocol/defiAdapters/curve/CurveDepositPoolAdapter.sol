@@ -38,6 +38,24 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
+    /** @notice Curve compound zap deposit contract address */
+    address public constant CURVE_COMPOUND_DEPOSIT_ZAP = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
+
+    /** @notice Curve USDT zap deposit contract address */
+    address public constant CURVE_USDT_DEPOSIT_ZAP = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
+
+    /** @notice Curve PAX zap deposit contract address */
+    address public constant CURVE_PAX_DEPOSIT_ZAP = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
+
+    /** @notice Curve Y zap deposit contract address */
+    address public constant CURVE_Y_DEPOSIT_ZAP = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
+
+    /** @notice Curve BUSD zap deposit contract address */
+    address public constant CURVE_BUSD_DEPOSIT_ZAP = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
+
+    /** @notice Curve SUSD zap deposit contract address */
+    address public constant CURVE_SUSD_DEPOSIT_ZAP = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
+
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
@@ -57,12 +75,12 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      * @dev map coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
-        setIsOldDepositZap(address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06), true); // curve-compound
-        setIsOldDepositZap(address(0xac795D2c97e60DF6a99ff1c814727302fD747a80), true); // curve-usdt
-        setIsOldDepositZap(address(0xA50cCc70b6a011CffDdf45057E39679379187287), true); // curve-pax
-        setIsOldDepositZap(address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3), true); // curve-y
-        setIsOldDepositZap(address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB), true); // curve-busd
-        setIsOldDepositZap(address(0xFCBa3E75865d2d561BE8D220616520c171F12851), true); // curve-susd
+        setIsOldDepositZap(CURVE_COMPOUND_DEPOSIT_ZAP, true); // curve-compound
+        setIsOldDepositZap(CURVE_USDT_DEPOSIT_ZAP, true); // curve-usdt
+        setIsOldDepositZap(CURVE_PAX_DEPOSIT_ZAP, true); // curve-pax
+        setIsOldDepositZap(CURVE_Y_DEPOSIT_ZAP, true); // curve-y
+        setIsOldDepositZap(CURVE_BUSD_DEPOSIT_ZAP, true); // curve-busd
+        setIsOldDepositZap(CURVE_SUSD_DEPOSIT_ZAP, true); // curve-susd
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
