@@ -25,7 +25,6 @@ describe(scenario.title, () => {
   let signers: any;
   const contracts: CONTRACTS = {};
   const callers: { [key: string]: string } = {};
-  const EOA = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
   const contractNames = [
     "treasury",
     "vaultStepInvestStrategyDefinitionRegistry",
@@ -49,7 +48,8 @@ describe(scenario.title, () => {
     "user0",
     "user1",
   ];
-  beforeEach(async () => {
+  before(async () => {
+    // beforeEach(async () => {
     try {
       [
         owner,
@@ -100,7 +100,8 @@ describe(scenario.title, () => {
     }
   });
 
-  for (let i = 0; i < scenario.stories.length; i++) {
+  for (let i = 0; i < 1; i++) {
+    // for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(story.description, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
@@ -117,9 +118,7 @@ describe(scenario.title, () => {
                   .withArgs(contracts[contractName].address, callers[action.executor]);
               } else {
                 await expect(
-                  registryContract
-                    .connect(signers[action.executor])
-                    [action.action](contractName.toLowerCase() == "eoa" ? EOA : contracts[contractName].address),
+                  registryContract.connect(signers[action.executor])[action.action](contracts[contractName].address),
                 ).to.be.revertedWith(action.message);
               }
             }
@@ -242,6 +241,27 @@ describe(scenario.title, () => {
           }
           case "approveToken(address[])":
           case "approveToken(address)": {
+            const { tokens }: ARGUMENTS = action.args;
+            if (tokens) {
+              if (action.expect === "success") {
+                if (action.action == "approveToken(address)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](tokens))
+                    .to.emit(registryContract, "LogToken")
+                    .withArgs(hre.ethers.utils.getAddress(tokens), true, callers[action.executor]);
+                } else {
+                  await registryContract.connect(signers[action.executor])[action.action](tokens);
+                }
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tokens),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "revokeToken(address[])":
+          case "revokeToken(address)": {
             const { tokens }: ARGUMENTS = action.args;
             if (tokens) {
               if (action.expect === "success") {
@@ -446,13 +466,16 @@ describe(scenario.title, () => {
                   .connect(signers[action.executor])
                   [action.action](riskProfile, noOfSteps, poolRatingRange);
                 const addRiskProfileTx = await _addRiskProfileTx.wait(1);
+                const { index } = await registryContract.riskProfiles(riskProfile);
+                console.log("Index while add: ", +index);
                 expect(addRiskProfileTx.events[0].event).to.equal("LogRiskProfile");
-                expect(addRiskProfileTx.events[0].args[0]).to.equal(0);
+                expect(addRiskProfileTx.events[0].args[0]).to.equal(+index);
+                console.log("Output exists: ", addRiskProfileTx.events[0].args[1]);
                 expect(addRiskProfileTx.events[0].args[1]).to.equal(true);
                 expect(addRiskProfileTx.events[0].args[2]).to.equal(noOfSteps);
                 expect(addRiskProfileTx.events[0].args[3]).to.equal(callers[action.executor]);
                 expect(addRiskProfileTx.events[1].event).to.equal("LogRPPoolRatings");
-                expect(addRiskProfileTx.events[1].args[0]).to.equal(0);
+                expect(addRiskProfileTx.events[1].args[0]).to.equal(+index);
                 expect(addRiskProfileTx.events[1].args[1]).to.equal(poolRatingRange[0]);
                 expect(addRiskProfileTx.events[1].args[2]).to.equal(poolRatingRange[1]);
                 expect(addRiskProfileTx.events[1].args[3]).to.equal(callers[action.executor]);
@@ -511,6 +534,7 @@ describe(scenario.title, () => {
               riskProfileSteps = steps;
             }
             if (action.expect === "success") {
+              console.log("Remove Risk profile");
               await expect(
                 registryContract.connect(signers[action.executor])[action.action](index ? index : riskProfileIndex),
               )
@@ -664,6 +688,138 @@ describe(scenario.title, () => {
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
           }
+          default:
+            break;
+        }
+      }
+
+      for (let i = 0; i < story.cleanActions.length; i++) {
+        const action: any = story.cleanActions[i];
+        console.log("Coming in clean actions");
+        switch (action.action) {
+          case "setRiskOperator(address)": {
+            const { newRiskOperator }: ARGUMENTS = action.args;
+            const tempNewOperatorAddr = await signers[newRiskOperator].getAddress();
+            if (newRiskOperator) {
+              if (action.expect === "success") {
+                await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOperatorAddr))
+                  .to.emit(registryContract, "TransferRiskOperator")
+                  .withArgs(tempNewOperatorAddr, callers[action.executor]);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newRiskOperator, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "setOperator(address)": {
+            const { newOperator }: ARGUMENTS = action.args;
+            const tempNewOperatorrAddr = await signers[newOperator].getAddress();
+            if (newOperator) {
+              if (action.expect === "success") {
+                await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr))
+                  .to.emit(registryContract, "TransferOperator")
+                  .withArgs(tempNewOperatorrAddr, callers[action.executor]);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tempNewOperatorrAddr),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(newOperator, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "revokeToken(address[])":
+          case "revokeToken(address)": {
+            const { tokens }: ARGUMENTS = action.args;
+            if (tokens) {
+              if (action.expect === "success") {
+                if (action.action == "approveToken(address)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](tokens))
+                    .to.emit(registryContract, "LogToken")
+                    .withArgs(hre.ethers.utils.getAddress(tokens), true, callers[action.executor]);
+                } else {
+                  await registryContract.connect(signers[action.executor])[action.action](tokens);
+                }
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](tokens),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "rateLiquidityPool((address,uint8)[])":
+          case "rateCreditPool((address,uint8)[])": {
+            const { lqRate }: ARGUMENTS = action.args;
+            if (lqRate) {
+              if (action.expect === "success") {
+                await registryContract.connect(signers[action.executor])[action.action](lqRate);
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](lqRate),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(lqRate, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "rateLiquidityPool(address,uint8)":
+          case "rateCreditPool(address,uint8)": {
+            const { lqRate }: ARGUMENTS = action.args;
+            if (lqRate) {
+              if (action.expect === "success") {
+                if (action.action == "rateLiquidityPool(address,uint8)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](lqRate[0], lqRate[1]))
+                    .to.emit(registryContract, "LogRateLiquidityPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqRate[0]), lqRate[1], callers[action.executor]);
+                } else if (action.action == "rateCreditPool(address,uint8)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](lqRate[0], lqRate[1]))
+                    .to.emit(registryContract, "LogRateCreditPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqRate[0]), lqRate[1], callers[action.executor]);
+                } else {
+                  await registryContract.connect(signers[action.executor])[action.action](lqRate[0], lqRate[1]);
+                }
+              } else {
+                await expect(
+                  registryContract.connect(signers[action.executor])[action.action](lqRate[0], lqRate[1]),
+                ).to.be.revertedWith(action.message);
+              }
+            }
+            assert.isDefined(lqRate, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "revokeLiquidityPool(address[])":
+          case "revokeCreditPool(address[])":
+          case "revokeLiquidityPool(address)":
+          case "revokeCreditPool(address)": {
+            const { lqs }: ARGUMENTS = action.args;
+            if (lqs) {
+              if (action.expect === "success") {
+                if (action.action == "revokeLiquidityPool(address)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](lqs))
+                    .to.emit(registryContract, "LogLiquidityPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqs), false, callers[action.executor]);
+                } else if (action.action == "revokeCreditPool(address)") {
+                  await expect(registryContract.connect(signers[action.executor])[action.action](lqs))
+                    .to.emit(registryContract, "LogCreditPool")
+                    .withArgs(hre.ethers.utils.getAddress(lqs), false, callers[action.executor]);
+                } else {
+                  await registryContract.connect(signers[action.executor])[action.action](lqs);
+                }
+              } else {
+                await expect(registryContract.connect(signers[action.executor])[action.action](lqs)).to.be.revertedWith(
+                  action.message,
+                );
+              }
+            }
+            assert.isDefined(lqs, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+
           default:
             break;
         }
