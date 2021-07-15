@@ -3,12 +3,12 @@
   "description": "Test cases for Registry contract",
   "stories": [
     {
-      "description": "Governance should be able to set OPTYMinter's address",
+      "description": "Governance should be able to set OPTYDistributor's address",
       "setActions": [
         {
-          "action": "setOPTYMinter(address)",
+          "action": "setOPTYDistributor(address)",
           "args": {
-            "newOptyMinter": "optyMinter"
+            "newOptyDistributor": "optyDistributor"
           },
           "executor": "owner",
           "expect": "success",
@@ -17,10 +17,10 @@
       ],
       "getActions": [
         {
-          "action": "getOptyMinter()",
+          "action": "getOPTYDistributor()",
           "args": {},
           "expectedValue": {
-            "addressName": "optyMinter"
+            "addressName": "optyDistributor"
           },
           "expectedMultiValues": {}
         }
@@ -28,12 +28,12 @@
       "cleanActions": []
     },
     {
-      "description": "Non-Governance shouldn't be able to set OPTYMinter's address",
+      "description": "Non-Governance shouldn't be able to set OPTYDistributor's address",
       "setActions": [
         {
-          "action": "setOPTYMinter(address)",
+          "action": "setOPTYDistributor(address)",
           "args": {
-            "newOptyMinter": "optyMinter"
+            "newOptyDistributor": "optyDistributor"
           },
           "executor": "user1",
           "expect": "fail",

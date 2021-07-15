@@ -20,7 +20,7 @@ describe(scenario.title, () => {
   let riskOperator: Signer;
   let strategyOperator: Signer;
   let operator: Signer;
-  let optyMinter: Signer;
+  let optyDistributor: Signer;
   let user0: Signer;
   let user1: Signer;
   let signers: any;
@@ -45,7 +45,7 @@ describe(scenario.title, () => {
     "riskOperator",
     "strategyOperator",
     "operator",
-    "optyMinter",
+    "optyDistributor",
     "user0",
     "user1",
   ];
@@ -58,11 +58,11 @@ describe(scenario.title, () => {
         riskOperator,
         strategyOperator,
         operator,
-        optyMinter,
+        optyDistributor,
         user0,
         user1,
       ] = await hre.ethers.getSigners();
-      signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyMinter, user0, user1 };
+      signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyDistributor, user0, user1 };
 
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
       const DUMMY_EMPTY_CONTRACT = await deployContract(
@@ -131,7 +131,7 @@ describe(scenario.title, () => {
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "getOptyMinter()":
+          case "getOPTYDistributor()":
           case "financeOperator()":
           case "riskOperator()":
           case "strategyOperator()":
@@ -334,21 +334,21 @@ describe(scenario.title, () => {
         assert.isDefined(newOperator, `args is wrong in ${action.action} testcase`);
         break;
       }
-      case "setOPTYMinter(address)": {
-        const { newOptyMinter }: ARGUMENTS = action.args;
-        const tempNewOptyMinterAddr = await signers[newOptyMinter].getAddress();
-        if (newOptyMinter) {
+      case "setOPTYDistributor(address)": {
+        const { newOptyDistributor }: ARGUMENTS = action.args;
+        const tempNewOptyDistributorAddr = await signers[newOptyDistributor].getAddress();
+        if (newOptyDistributor) {
           if (action.expect === "success") {
-            await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr))
-              .to.emit(registryContract, "TransferOPTYMinter")
-              .withArgs(tempNewOptyMinterAddr, callers[action.executor]);
+            await expect(registryContract.connect(signers[action.executor])[action.action](tempNewOptyDistributorAddr))
+              .to.emit(registryContract, "TransferOPTYDistributor")
+              .withArgs(tempNewOptyDistributorAddr, callers[action.executor]);
           } else {
             await expect(
-              registryContract.connect(signers[action.executor])[action.action](tempNewOptyMinterAddr),
+              registryContract.connect(signers[action.executor])[action.action](tempNewOptyDistributorAddr),
             ).to.be.revertedWith(action.message);
           }
         }
-        assert.isDefined(newOptyMinter, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(newOptyDistributor, `args is wrong in ${action.action} testcase`);
         break;
       }
       case "approveToken(address[])":
