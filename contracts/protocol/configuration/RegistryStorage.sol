@@ -46,9 +46,9 @@ contract RegistryAdminStorage {
     address public treasury;
 
     /**
-     * @notice Minter for OPTY token
+     * @notice Distributor for OPTY token
      */
-    address public minter;
+    address public optyDistributor;
 
     /**
      * @notice Pending governance for optyfi's earn protocol
@@ -91,9 +91,9 @@ contract RegistryAdminStorage {
     event TransferTreasury(address indexed treasury, address indexed caller);
 
     /**
-     * @notice notify when change minter of protocol
+     * @notice notify when transfer operation of optyDistributor occurs
      */
-    event TransferOPTYMinter(address indexed minter, address indexed caller);
+    event TransferOPTYDistributor(address indexed optyDistributor, address indexed caller);
 }
 
 /**

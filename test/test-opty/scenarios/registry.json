@@ -3,12 +3,12 @@
   "description": "Test cases for Registry contract",
   "stories": [
     {
-      "description": "Governance should be able to set OPTYMinter's address",
+      "description": "Governance should be able to set OPTYDistributor's address",
       "setActions": [
         {
-          "action": "setOPTYMinter(address)",
+          "action": "setOPTYDistributor(address)",
           "args": {
-            "newOptyMinter": "optyMinter"
+            "newOptyDistributor": "optyDistributor"
           },
           "executor": "owner",
           "expect": "success",
@@ -17,29 +17,31 @@
       ],
       "getActions": [
         {
-          "action": "getOptyMinter()",
+          "action": "getOPTYDistributor()",
           "args": {},
           "expectedValue": {
-            "addressName": "optyMinter"
+            "addressName": "optyDistributor"
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
-      "description": "Non-Governance shouldn't be able to set OPTYMinter's address",
+      "description": "Non-Governance shouldn't be able to set OPTYDistributor's address",
       "setActions": [
         {
-          "action": "setOPTYMinter(address)",
+          "action": "setOPTYDistributor(address)",
           "args": {
-            "newOptyMinter": "optyMinter"
+            "newOptyDistributor": "optyDistributor"
           },
           "executor": "user1",
           "expect": "fail",
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Governance should be able to set FinanceOperator's address",
@@ -63,7 +65,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Governance shouldn't be able to set FinanceOperator's address",
@@ -78,7 +81,8 @@
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Governance should be able to set StrategyOperator's address",
@@ -102,7 +106,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Governance shouldn't be able to set StrategyOperator's address",
@@ -117,7 +122,8 @@
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Governance should be able to set RiskOperator's address",
@@ -141,7 +147,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Governance shouldn't be able to set RiskOperator's address",
@@ -156,7 +163,8 @@
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Governance should be able to set Operator's address",
@@ -180,7 +188,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Governance shouldn't be able to set Operator's address",
@@ -195,10 +204,11 @@
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Governance should be able to set Treasury's Contract address",
+      "description": "Governance should be able to set Treasury's address",
       "setActions": [
         {
           "action": "setTreasury(address)",
@@ -219,10 +229,11 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
-      "description": "Non-Governance shouldn't be able to set Treasury's Contract address",
+      "description": "Non-Governance shouldn't be able to set Treasury's address",
       "setActions": [
         {
           "action": "setTreasury(address)",
@@ -234,7 +245,8 @@
           "message": "caller is not having governance"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
@@ -258,7 +270,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
@@ -273,7 +286,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set APROracle Contract address",
@@ -297,7 +311,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set APROracle Contract address",
@@ -312,7 +327,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set StrategyProvider Contract address",
@@ -336,7 +352,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set StrategyProvider Contract address",
@@ -351,7 +368,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set RiskManager Contract address",
@@ -375,7 +393,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set RiskManager Contract address",
@@ -390,7 +409,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set HarvestCodeProvider Contract address",
@@ -414,7 +434,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set HarvestCodeProvider Contract address",
@@ -429,7 +450,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set StrategyManager Contract address",
@@ -453,7 +475,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set StrategyManager Contract address",
@@ -468,7 +491,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set OPTY Contract address",
@@ -492,7 +516,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set OPTY Contract address",
@@ -507,7 +532,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set PriceOracle Contract address",
@@ -531,7 +557,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set PriceOracle Contract address",
@@ -546,7 +573,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set OPTYStakingRateBalancer Contract address",
@@ -570,7 +598,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set OPTYStakingRateBalancer Contract address",
@@ -585,7 +614,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set ODEFIVaultBooster Contract address",
@@ -609,7 +639,8 @@
           },
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set ODEFIVaultBooster Contract address",
@@ -624,7 +655,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to approve a token",
@@ -647,6 +679,17 @@
           },
           "expectedValue": true,
           "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address)",
+          "args": {
+            "tokens": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -692,6 +735,21 @@
           "expectedValue": true,
           "expectedMultiValues": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address[])",
+          "args": {
+            "tokens": [
+              "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            ]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -724,7 +782,22 @@
           "message": "!tokens"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address[])",
+          "args": {
+            "tokens": [
+              "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            ]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "Operator shouldn't be able to approve non-contract address",
@@ -757,7 +830,8 @@
           "message": "!isContract"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to approve a liquidity pool",
@@ -781,6 +855,17 @@
           "expectedValue": [0, true],
           "expectedMultiValues": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -796,7 +881,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to approve a list of liquidity pools",
@@ -828,6 +914,17 @@
           "expectedValue": [0, true],
           "expectedMultiValues": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -852,10 +949,21 @@
           "message": "!liquidityPools"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "revokeLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
-      "description": "Operator should be able to rate a liquidity pool",
+      "description": "RiskOperator should be able to rate a liquidity pool",
       "setActions": [
         {
           "action": "approveLiquidityPool(address)",
@@ -885,20 +993,31 @@
           "expectedValue": [2, true],
           "expectedMultiValues": {}
         }
-      ]
-    },
-    {
-      "description": "Non-Operator should be able to rate a liquidity pool",
-      "setActions": [
+      ],
+      "cleanActions": [
         {
-          "action": "approveLiquidityPool(address)",
+          "action": "rateLiquidityPool(address,uint8)",
+          "args": {
+            "lqRate": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 0]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeLiquidityPool(address)",
           "args": {
             "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
           },
           "executor": "operator",
           "expect": "success",
           "message": ""
-        },
+        }
+      ]
+    },
+    {
+      "description": "Non-RiskOperator should be able to rate a liquidity pool",
+      "setActions": [
         {
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
@@ -909,10 +1028,11 @@
           "message": "caller is not the risk operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Operator should be able to rate a list of liquidity pools",
+      "description": "Risk Operator should be able to rate a list of liquidity pools",
       "setActions": [
         {
           "action": "approveLiquidityPool(address[])",
@@ -953,20 +1073,34 @@
           "expectedValue": [3, true],
           "expectedMultiValues": {}
         }
-      ]
-    },
-    {
-      "description": "Non-Operator shouldn't be able to rate a list of liquidity pools",
-      "setActions": [
+      ],
+      "cleanActions": [
         {
-          "action": "approveLiquidityPool(address[])",
+          "action": "rateLiquidityPool((address,uint8)[])",
+          "args": {
+            "lqRate": [
+              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 0],
+              ["0x24a42fD28C976A61Df5D00D0599C34c4f90748c8", 0]
+            ]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeLiquidityPool(address[])",
           "args": {
             "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
           },
           "executor": "operator",
           "expect": "success",
           "message": ""
-        },
+        }
+      ]
+    },
+    {
+      "description": "Non-RiskOperator shouldn't be able to rate a list of liquidity pools",
+      "setActions": [
         {
           "action": "rateLiquidityPool((address,uint8)[])",
           "args": {
@@ -980,10 +1114,11 @@
           "message": "caller is not the risk operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Operator shouldn't be able to rate non-approved liquidity pools",
+      "description": "Risk Operator shouldn't be able to rate non-approved liquidity pools",
       "setActions": [
         {
           "action": "rateLiquidityPool((address,uint8)[])",
@@ -995,7 +1130,8 @@
           "message": "!liquidityPools"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to revoke a liquidity pool",
@@ -1028,7 +1164,8 @@
           "expectedValue": [0, false],
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to revoke a list of liquidity pools",
@@ -1069,20 +1206,12 @@
           "expectedValue": [0, false],
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
-      "description": "Non-Operator should be able to revoke a liquidity pool",
+      "description": "Non-Operator shouldn't be able to revoke a liquidity pool",
       "setActions": [
-        {
-          "action": "approveLiquidityPool(address)",
-          "args": {
-            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
-          },
-          "executor": "operator",
-          "expect": "success",
-          "message": ""
-        },
         {
           "action": "revokeLiquidityPool(address)",
           "args": {
@@ -1093,20 +1222,12 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Non-Operator should be able to revoke a list of liquidity pools",
+      "description": "Non-Operator shouldn't be able to revoke a list of liquidity pools",
       "setActions": [
-        {
-          "action": "approveLiquidityPool(address[])",
-          "args": {
-            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
-          },
-          "executor": "operator",
-          "expect": "success",
-          "message": ""
-        },
         {
           "action": "revokeLiquidityPool(address[])",
           "args": {
@@ -1117,7 +1238,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to approve a credit pool",
@@ -1140,6 +1262,17 @@
           },
           "expectedValue": [0, true],
           "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -1173,10 +1306,21 @@
           "expectedValue": [0, true],
           "expectedMultiValues": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
-      "description": "Non-Operator should be able to approve a credit pool",
+      "description": "Non-Operator shouldn't be able to approve a credit pool",
       "setActions": [
         {
           "action": "approveCreditPool(address)",
@@ -1188,10 +1332,11 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Non-Operator should be able to approve a list of credit pools",
+      "description": "Non-Operator shouldn't be able to approve a list of credit pools",
       "setActions": [
         {
           "action": "approveCreditPool(address[])",
@@ -1203,7 +1348,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator shouldn't be able to approve a credit pool multiple times",
@@ -1227,7 +1373,18 @@
           "message": "!creditPools"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "revokeCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "RiskOperator should be able to rate a credit pool",
@@ -1259,6 +1416,26 @@
           },
           "expectedValue": [2, true],
           "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "action": "rateCreditPool(address,uint8)",
+          "args": {
+            "lqRate": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 0]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeCreditPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -1304,20 +1481,34 @@
           "expectedValue": [3, true],
           "expectedMultiValues": {}
         }
-      ]
-    },
-    {
-      "description": "Non-RiskOperator should be able to rate a credit pool",
-      "setActions": [
+      ],
+      "cleanActions": [
         {
-          "action": "approveCreditPool(address)",
+          "action": "rateCreditPool((address,uint8)[])",
           "args": {
-            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "lqRate": [
+              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", 0],
+              ["0x24a42fD28C976A61Df5D00D0599C34c4f90748c8", 0]
+            ]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "revokeCreditPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
           },
           "executor": "operator",
           "expect": "success",
           "message": ""
-        },
+        }
+      ]
+    },
+    {
+      "description": "Non-RiskOperator shouldn't be able to rate a credit pool",
+      "setActions": [
         {
           "action": "rateCreditPool(address,uint8)",
           "args": {
@@ -1328,20 +1519,12 @@
           "message": "caller is not the risk operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Non-RiskOperator should be able to rate a list of credit pools",
+      "description": "Non-RiskOperator shouldn't be able to rate a list of credit pools",
       "setActions": [
-        {
-          "action": "approveCreditPool(address[])",
-          "args": {
-            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
-          },
-          "executor": "operator",
-          "expect": "success",
-          "message": ""
-        },
         {
           "action": "rateCreditPool((address,uint8)[])",
           "args": {
@@ -1355,7 +1538,8 @@
           "message": "caller is not the risk operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator shouldn't be able to rate non-approved liquidity pools",
@@ -1370,7 +1554,8 @@
           "message": "!liquidityPools"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to revoke a credit pool",
@@ -1403,7 +1588,8 @@
           "expectedValue": [0, false],
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to revoke a list of credit pools",
@@ -1444,7 +1630,8 @@
           "expectedValue": [0, false],
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set liquidity pool to adapter",
@@ -1480,6 +1667,17 @@
           "expectedMultiValues": {},
           "expectedValue": "CompoundAdapter"
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeLiquidityPool(address)",
+          "args": {
+            "lqs": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -1498,10 +1696,11 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "Operator should be able to set mutiple liquidity pools to adapters",
+      "description": "Operator should be able to set multiple liquidity pools to adapters",
       "setActions": [
         {
           "action": "approveLiquidityPool(address[])",
@@ -1548,6 +1747,17 @@
           "expectedMultiValues": {},
           "expectedValue": "AaveV1Adapter"
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeLiquidityPool(address[])",
+          "args": {
+            "lqs": ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -1572,7 +1782,8 @@
           "message": "!liquidityPools"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Non-Operator shouldn't be able to set multiple liquidity pools to adapters",
@@ -1596,7 +1807,8 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to set token hash to token",
@@ -1629,6 +1841,17 @@
           "expectedValue": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
           "expectedMultiValues": {}
         }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address)",
+          "args": {
+            "tokens": "0x6b175474e89094c44da98b954eedeac495271d0f"
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -1660,7 +1883,7 @@
         {
           "action": "tokensHashIndexes(uint256)",
           "args": {
-            "index": "0"
+            "index": "1"
           },
           "expectedValue": "0x8bb515c59c8ed89250b9316105ba225d5aebd720e87e69f2ba78fad8fab9ea7d",
           "expectedMultiValues": {}
@@ -1668,10 +1891,21 @@
         {
           "action": "tokensHashIndexes(uint256)",
           "args": {
-            "index": "1"
+            "index": "2"
           },
           "expectedValue": "0x358484c2a974d5a47260a9016e4e8bb7e9d5f88f41b8fdc74351bba825e62b4c",
           "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address[])",
+          "args": {
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -1704,10 +1938,21 @@
           "message": "!tokens"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "revokeToken(address[])",
+          "args": {
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
+          },
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
-      "description": "Operator should be able to set token hash to tokens",
+      "description": "Operator shouldn't be able to set existing token hash to tokens",
       "setActions": [
         {
           "action": "approveToken(address[])",
@@ -1727,26 +1972,20 @@
             ]
           },
           "executor": "operator",
-          "expect": "success",
-          "message": ""
+          "expect": "fail",
+          "message": "!_isNewTokensHash"
         }
       ],
-      "getActions": [
+      "getActions": [],
+      "cleanActions": [
         {
-          "action": "tokensHashIndexes(uint256)",
+          "action": "revokeToken(address[])",
           "args": {
-            "index": "0"
+            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]
           },
-          "expectedValue": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
-          "expectedMultiValues": {}
-        },
-        {
-          "action": "tokensHashIndexes(uint256)",
-          "args": {
-            "index": "1"
-          },
-          "expectedValue": "0x987a96a91381a62e90a58f1c68177b52aa669f3bd7798e321819de5f870d4ddd",
-          "expectedMultiValues": {}
+          "executor": "operator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -1766,7 +2005,8 @@
           "message": "!tokens"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator should be able to add a Risk Profile",
@@ -1798,7 +2038,8 @@
           },
           "expectedValue": ""
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator shouldn't be able to add the existing Risk Profile",
@@ -1806,7 +2047,7 @@
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP2",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -1817,7 +2058,7 @@
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP2",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -1826,7 +2067,8 @@
           "message": "RP_already_exists"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator shouldn't be able to add the empty Risk Profile",
@@ -1843,7 +2085,8 @@
           "message": "RP_Empty!"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to update no. of steps for Risk Profile",
@@ -1851,7 +2094,7 @@
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP3",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -1862,7 +2105,7 @@
         {
           "action": "updateRiskProfileSteps(string,uint8)",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP3",
             "noOfSteps": 2
           },
           "executor": "operator",
@@ -1875,7 +2118,7 @@
           "action": "riskProfiles(string)",
 
           "args": {
-            "riskProfile": "RP1"
+            "riskProfile": "RP3"
           },
           "expectedMultiValues": {
             "noOfSteps": 2,
@@ -1885,7 +2128,8 @@
           },
           "expectedValue": ""
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Operator shouldn't be able to update no. of steps for non-existing Risk Profile",
@@ -1901,7 +2145,8 @@
           "message": "!Rp_Exists"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "Operator should be able to update pool ratings for Risk Profile",
@@ -1909,7 +2154,7 @@
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP4",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -1920,7 +2165,7 @@
         {
           "action": "updateRPPoolRatings(string,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP4",
             "poolRatingRange": [0, 20]
           },
           "executor": "operator",
@@ -1933,7 +2178,7 @@
           "action": "riskProfiles(string)",
 
           "args": {
-            "riskProfile": "RP1"
+            "riskProfile": "RP4"
           },
           "expectedMultiValues": {
             "noOfSteps": 1,
@@ -1943,7 +2188,8 @@
           },
           "expectedValue": ""
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Operator shouldn't be able to update pool ratings for non-existing Risk Profile",
@@ -1959,7 +2205,8 @@
           "message": "!Rp_Exists"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator should be able to remove the Risk Profile",
@@ -1967,7 +2214,7 @@
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP5",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -1978,7 +2225,7 @@
         {
           "action": "removeRiskProfile(uint256)",
           "args": {
-            "riskProfile": "RP1"
+            "riskProfile": "RP5"
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -1990,7 +2237,7 @@
           "action": "riskProfiles(string)",
 
           "args": {
-            "riskProfile": "RP1"
+            "riskProfile": "RP5"
           },
           "expectedMultiValues": {
             "noOfSteps": 0,
@@ -2000,7 +2247,8 @@
           },
           "expectedValue": ""
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "RiskOperator shouldn't be able to remove the Risk Profile from invalid index",
@@ -2015,15 +2263,16 @@
           "message": "Invalid_Rp_index"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
-      "description": "RiskOperator should be able to set a single Risk Profile",
+      "description": "RiskOperator should be able to set a multiple Risk Profiles",
       "setActions": [
         {
           "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
           "args": {
-            "riskProfile": ["RP1", "RP2", "RP3"],
+            "riskProfile": ["RP6", "RP7", "RP8"],
             "noOfSteps": [1, 2, 3],
             "poolRatingsRange": [
               [0, 20],
@@ -2039,9 +2288,8 @@
       "getActions": [
         {
           "action": "riskProfiles(string)",
-
           "args": {
-            "riskProfile": "RP1"
+            "riskProfile": "RP6"
           },
           "expectedMultiValues": {
             "noOfSteps": 1,
@@ -2053,9 +2301,8 @@
         },
         {
           "action": "riskProfiles(string)",
-
           "args": {
-            "riskProfile": "RP2"
+            "riskProfile": "RP7"
           },
           "expectedMultiValues": {
             "noOfSteps": 2,
@@ -2067,9 +2314,8 @@
         },
         {
           "action": "riskProfiles(string)",
-
           "args": {
-            "riskProfile": "RP3"
+            "riskProfile": "RP8"
           },
           "expectedMultiValues": {
             "noOfSteps": 3,
@@ -2079,7 +2325,8 @@
           },
           "expectedValue": ""
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "Old-Operator shouldn't be able to execute function allowing only operator",
@@ -2103,7 +2350,18 @@
           "message": "caller is not the operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "setOperator(address)",
+          "args": {
+            "newOperator": "operator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "Old-RiskOperator shouldn't be able to execute function allowing only riskOperator",
@@ -2133,15 +2391,26 @@
           "message": "caller is not the risk operator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "action": "setRiskOperator(address)",
+          "args": {
+            "newRiskOperator": "riskOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
-      "description": "Operator should be able to map tokens and riskProfile to Vault address",
+      "description": "Operator should be able to map token and riskProfile to Vault address",
       "setActions": [
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP9",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -2153,7 +2422,7 @@
           "action": "setUnderlyingAssetHashToRPToVaults(address[],string,address)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP1",
+            "riskProfile": "RP9",
             "vault": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
           },
           "executor": "operator",
@@ -2166,20 +2435,21 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP1"
+            "riskProfile": "RP9"
           },
           "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
-      "description": "Operator should be able to map tokens and riskProfile to Vault address",
+      "description": "Operator should be able to map mulitple tokens and riskProfile to Vault addresses",
       "setActions": [
         {
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
+            "riskProfile": "RP10",
             "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
@@ -2194,7 +2464,7 @@
               ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
               ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
             ],
-            "riskProfiles": ["RP1"],
+            "riskProfiles": ["RP10"],
             "vaults": [["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x797AAB1ce7c01eB727ab980762bA88e7133d2157"]]
           },
           "executor": "operator",
@@ -2207,7 +2477,7 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP1"
+            "riskProfile": "RP10"
           },
           "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
           "expectedMultiValues": {}
@@ -2216,12 +2486,13 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-            "riskProfile": "RP1"
+            "riskProfile": "RP10"
           },
           "expectedValue": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
           "expectedMultiValues": {}
         }
-      ]
+      ],
+      "cleanActions": []
     }
   ]
 }
