@@ -43,9 +43,9 @@ describe(scenario.title, () => {
   let users: { [key: string]: Signer };
   before(async () => {
     try {
-      const [owner, admin, user1]: Signer[] = await hre.ethers.getSigners();
+      const [owner, admin, user1] = await hre.ethers.getSigners();
       users = { owner, admin, user1 };
-      [essentialContracts, adapters] = await setUp(owner);
+      [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
     } catch (error) {
