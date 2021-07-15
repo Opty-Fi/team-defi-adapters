@@ -299,9 +299,6 @@ export async function deployAdapters(
 export async function deployVaults(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   owner: Signer,
   admin: Signer,
   isDeployedOnce: boolean,
@@ -317,9 +314,6 @@ export async function deployVaults(
       const vault = await deployVault(
         hre,
         registry,
-        riskManager,
-        strategyManager,
-        optyMinter,
         TOKENS[token],
         owner,
         admin,
@@ -336,9 +330,6 @@ export async function deployVaults(
 export async function deployVault(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -386,9 +377,6 @@ export async function deployVault(
 export async function deployVaultsWithHash(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   owner: Signer,
   admin: Signer,
 ): Promise<CONTRACTS_WITH_HASH> {
@@ -397,19 +385,7 @@ export async function deployVaultsWithHash(
     const name = await getTokenName(hre, token);
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVaultWithHash(
-        hre,
-        registry,
-        riskManager,
-        strategyManager,
-        optyMinter,
-        TOKENS[token],
-        owner,
-        admin,
-        name,
-        symbol,
-        riskProfile,
-      );
+      const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
       vaults[`${symbol}-${riskProfile}`] = vault;
     }
   }
@@ -419,9 +395,6 @@ export async function deployVaultsWithHash(
 export async function deployVaultWithHash(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -452,16 +425,7 @@ export async function deployVaultWithHash(
     vaultProxy.contract,
     owner,
     "initialize(address,address,address,address,address,string,string,string)",
-    [
-      registry,
-      riskManager,
-      underlyingToken,
-      strategyManager,
-      optyMinter,
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      riskProfile,
-    ],
+    [registry, underlyingToken, underlyingTokenName, underlyingTokenSymbol, riskProfile],
   );
   return vaultProxy;
 }
