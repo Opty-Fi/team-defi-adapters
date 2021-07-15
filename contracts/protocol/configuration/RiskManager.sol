@@ -90,60 +90,30 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
                 _tokensHash
             );
 
-        // fallback to default strategy if best strategy is not available
-        if (_strategyHash == Constants.ZERO_BYTES32) {
+        if (
+            _strategyHash == Constants.ZERO_BYTES32 ||
+            !_isValidStrategy(
+                _strategyHash,
+                _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
+                _riskProfileStruct
+            )
+        ) {
             _strategyHash = IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
                 _riskProfile,
                 _tokensHash
             );
-            if (
-                _strategyHash == Constants.ZERO_BYTES32 &&
-                IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
-                DataTypes.DefaultStrategyState.Zero
-            ) {
-                return Constants.ZERO_BYTES32;
-            } else if (
-                _strategyHash == Constants.ZERO_BYTES32 &&
-                IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
-                DataTypes.DefaultStrategyState.CompoundOrAave
-            ) {
-                _strategyHash = IAPROracle(_strategyConfiguration.aprOracle).getBestAPR(_tokensHash);
-                (uint256 _strategyIndex, ) =
-                    IVaultStepInvestStrategyDefinitionRegistry(
-                        _strategyConfiguration
-                            .vaultStepInvestStrategyDefinitionRegistry
-                    )
-                        .getStrategy(_strategyHash);
-                if (_strategyIndex == uint256(0)) {
-                    return Constants.ZERO_BYTES32;
-                } else {
-                    return _strategyHash;
-                }
-            }
+        } else {
+            return _strategyHash;
         }
-        require(_strategyHash != Constants.ZERO_BYTES32, "!bestStrategyHash");
 
-        (, DataTypes.StrategyStep[] memory _strategySteps) =
-            IVaultStepInvestStrategyDefinitionRegistry(_strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry)
-                .getStrategy(_strategyHash);
-
-        bool isStrategyQualified = true;
-
-        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
-            DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[_i].pool);
-            if (
-                uint8(_strategySteps.length) > _riskProfileStruct.steps ||
-                !_liquidityPool.isLiquidityPool ||
-                !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
-                    _liquidityPool.rating <= _riskProfileStruct.upperLimit)
-            ) {
-                isStrategyQualified = false;
-                break;
-            }
-        }
-        // validate strategy profile
-
-        if (!isStrategyQualified) {
+        if (
+            _strategyHash == Constants.ZERO_BYTES32 ||
+            !_isValidStrategy(
+                _strategyHash,
+                _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
+                _riskProfileStruct
+            )
+        ) {
             if (
                 IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
                     _riskProfile,
@@ -177,7 +147,32 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
                 }
             }
         }
-
         return _strategyHash;
+    }
+
+    function _isValidStrategy(
+        bytes32 _strategyHash,
+        address _strategyRegistry,
+        DataTypes.RiskProfile memory _riskProfileStruct
+    ) internal view returns (bool) {
+        (, DataTypes.StrategyStep[] memory _strategySteps) =
+            IVaultStepInvestStrategyDefinitionRegistry(_strategyRegistry).getStrategy(_strategyHash);
+
+        bool _isStrategyQualified = true;
+
+        for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
+            DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[_i].pool);
+            if (
+                uint8(_strategySteps.length) > _riskProfileStruct.steps ||
+                !_liquidityPool.isLiquidityPool ||
+                !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
+                    _liquidityPool.rating <= _riskProfileStruct.upperLimit)
+            ) {
+                _isStrategyQualified = false;
+                break;
+            }
+        }
+
+        return _isStrategyQualified;
     }
 }

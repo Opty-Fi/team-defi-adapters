@@ -9,8 +9,6 @@
           "contract": "registry",
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -19,80 +17,42 @@
         {
           "contract": "registry",
           "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
           "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
-          "action": "approveLiquidityPool(address)",
-          "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
-          },
+          "action": "approveLiquidityPool(address[])",
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
-          "action": "rateLiquidityPool(address,uint8)",
-          "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            "score": 2
-          },
+          "action": "rateLiquidityPool((address,uint8)[])",
+          "args": { "score": [2, 2, 2] },
           "expect": "success",
           "message": ""
         },
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              },
-              {
-                "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                "isBorrow": false
-              },
-              {
-                "contract": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "outputToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         }
@@ -101,11 +61,8 @@
         {
           "contract": "riskManager",
           "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
+          "args": {},
+          "expectedValue": ""
         }
       ]
     },
@@ -116,8 +73,6 @@
           "contract": "registry",
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -126,68 +81,35 @@
         {
           "contract": "registry",
           "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
           "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": { "score": [2, 2, 2] },
           "expect": "success",
           "message": ""
         }
@@ -196,11 +118,8 @@
         {
           "contract": "riskManager",
           "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
+          "args": {},
+          "expectedValue": ""
         }
       ]
     },
@@ -211,9 +130,7 @@
           "contract": "registry",
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
-            "noOfSteps": 1,
-            "poolRatingRange": [2, 10]
+            "poolRatingRange": [4, 10]
           },
           "expect": "success",
           "message": ""
@@ -221,87 +138,49 @@
         {
           "contract": "registry",
           "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
           "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
-          "action": "approveLiquidityPool(address)",
-          "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
-          },
+          "action": "approveLiquidityPool(address[])",
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
-          "action": "rateLiquidityPool(address,uint8)",
-          "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            "score": 0
-          },
+          "action": "rateLiquidityPool((address,uint8)[])",
+          "args": { "score": [2, 2, 2] },
           "expect": "success",
           "message": ""
         },
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": { "score": [5, 5, 5] },
           "expect": "success",
           "message": ""
         }
@@ -310,11 +189,8 @@
         {
           "contract": "riskManager",
           "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
+          "args": {},
+          "expectedValue": ""
         }
       ]
     },
@@ -334,8 +210,6 @@
           "contract": "registry",
           "action": "addRiskProfile(string,uint8,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -344,51 +218,28 @@
         {
           "contract": "registry",
           "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "registry",
           "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "expect": "success",
           "message": ""
         }
@@ -397,228 +248,7 @@
         {
           "contract": "riskManager",
           "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
-      ]
-    },
-    {
-      "description": "[Multi-step strategy] GetBestStrategy should return the best strategy in StrategyProvider if all steps are qualified",
-      "setActions": [
-        {
-          "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
-          "args": {
-            "riskProfile": "RP2",
-            "noOfSteps": 2,
-            "poolRatingRange": [0, 10]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveLiquidityPool(address[])",
-          "args": {
-            "tokens": ["0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5"]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "rateLiquidityPool((address,uint8)[])",
-          "args": {
-            "pools": [
-              ["0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", 2],
-              ["0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5", 2]
-            ]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                "isBorrow": false
-              },
-              {
-                "contract": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "outputToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "strategyProvider",
-          "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                "isBorrow": false
-              },
-              {
-                "contract": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "outputToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP2"
-          },
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "riskManager",
-          "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP2",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expectedValue": "0x680de03bc39b6b526671d7a0cbb083a37afbc0955a32582495326f8850baabcf"
-        }
-      ]
-    },
-    {
-      "description": "[Multi-step strategy] GetBestStrategy should return an empty strategy in StrategyProvider if one of steps is not qualified",
-      "setActions": [
-        {
-          "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
-          "args": {
-            "riskProfile": "RP2",
-            "noOfSteps": 2,
-            "poolRatingRange": [3, 10]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveToken(address)",
-          "args": {
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
-          "args": {
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveLiquidityPool(address[])",
-          "args": {
-            "tokens": ["0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5"]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "rateLiquidityPool((address,uint8)[])",
-          "args": {
-            "pools": [
-              ["0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", 2],
-              ["0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5", 2]
-            ]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                "isBorrow": false
-              },
-              {
-                "contract": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "outputToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f"
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "strategyProvider",
-          "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
-                "outputToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
-                "isBorrow": false
-              },
-              {
-                "contract": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "outputToken": "0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "riskProfile": "RP2"
-          },
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "riskManager",
-          "action": "getBestStrategy(string,address[])",
-          "args": {
-            "riskProfile": "RP2",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
-          },
+          "args": {},
           "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
         }
       ]
