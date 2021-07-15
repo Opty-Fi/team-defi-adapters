@@ -205,7 +205,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
     adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
   });
 
-  const ValidatedBtcTokens = TypedBtcTokens.map(t => getAddress(t));
+  const ValidatedBtcTokens = Object.values(TypedBtcTokens).map(t => getAddress(t));
   for (const adapterName of adapterNames) {
     // TODO: In future it can be leverage across all the adapters
     if (adapterName == "CurveDepositPoolAdapter") {
