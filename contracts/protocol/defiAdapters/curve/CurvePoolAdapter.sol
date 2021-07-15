@@ -19,6 +19,7 @@ import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "../../../interfaces/opty/defiAdapters/IAdapterStakingCurve.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -30,7 +31,14 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward, IAdapterStaking, Modifiers {
+contract CurvePoolAdapter is
+    IAdapter,
+    IAdapterProtocolConfig,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterStakingCurve,
+    Modifiers
+{
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -115,6 +123,9 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
         revert("!empty");
     }
 
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
     function getAllAmountInTokenStakeWrite(
         address payable _optyVault,
         address _underlyingToken,
@@ -754,7 +765,7 @@ contract CurvePoolAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRe
      * @param _vault Address of the OptyFi's vault contract
      * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
      *
-     * @return uint256 Returns the amount of accrued reward tokens
+     * @return Returns the amount of accrued reward tokens
      */
     function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
         internal

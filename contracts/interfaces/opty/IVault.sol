@@ -136,13 +136,13 @@ interface IVault {
 
     /**
      * @notice Retrieve underlying token balance in the vault
-     * @return uint256 the balance of underlying token in the vault
+     * @return The balance of underlying token in the vault
      */
     function balance() external view returns (uint256);
 
     /**
      * @notice Calculate the value of a vault share in underlying token
-     * @return uint256 the underlying token worth a vault share is
+     * @return The underlying token worth a vault share is
      */
     function getPricePerFullShare() external view returns (uint256);
 

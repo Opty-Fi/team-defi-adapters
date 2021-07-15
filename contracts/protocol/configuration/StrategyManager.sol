@@ -203,6 +203,57 @@ contract StrategyManager is IStrategyManager, Modifiers {
         (, , _rewardToken) = _getLastStepLiquidityPool(_investStrategyHash);
     }
 
+    function _getBalanceInUnderlyingTokenWrite(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyhash
+    ) internal returns (uint256 _balance) {
+        uint256 _steps = _getStrategySteps(_investStrategyhash).length;
+        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
+        _balance = 0;
+        uint256 _outputTokenAmount = _balance;
+        for (uint256 _i = 0; _i < _steps; _i++) {
+            uint256 _iterator = _steps - 1 - _i;
+            address _liquidityPool = _strategySteps[_iterator].pool;
+            address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
+            address _inputToken = _underlyingToken;
+            if (_iterator != 0) {
+                _inputToken = _strategySteps[_iterator - 1].outputToken;
+            }
+            if (!_strategySteps[_iterator].isBorrow) {
+                if (_iterator == (_steps - 1)) {
+                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
+                        _balance = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
+                            _vault,
+                            _inputToken,
+                            _liquidityPool
+                        );
+                    } else {
+                        _balance = IAdapterFull(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
+                    }
+                } else {
+                    _balance = IAdapterFull(_adapter).getSomeAmountInToken(
+                        _inputToken,
+                        _liquidityPool,
+                        _outputTokenAmount
+                    );
+                }
+            }
+            // deposit
+            else {
+                address _borrowToken = _strategySteps[_iterator].outputToken;
+                _balance = IAdapterFull(_adapter).getAllAmountInTokenBorrow(
+                    _vault,
+                    _inputToken,
+                    _liquidityPool,
+                    _borrowToken,
+                    _outputTokenAmount
+                );
+            } // borrow
+            _outputTokenAmount = _balance;
+        }
+    }
+
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
         IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
             IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
@@ -429,57 +480,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
         }
     }
 
-    function _getBalanceInUnderlyingTokenWrite(
-        address payable _vault,
-        address _underlyingToken,
-        bytes32 _investStrategyhash
-    ) internal returns (uint256 _balance) {
-        uint256 _steps = _getStrategySteps(_investStrategyhash).length;
-        DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
-        _balance = 0;
-        uint256 _outputTokenAmount = _balance;
-        for (uint256 _i = 0; _i < _steps; _i++) {
-            uint256 _iterator = _steps - 1 - _i;
-            address _liquidityPool = _strategySteps[_iterator].pool;
-            address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-            address _inputToken = _underlyingToken;
-            if (_iterator != 0) {
-                _inputToken = _strategySteps[_iterator - 1].outputToken;
-            }
-            if (!_strategySteps[_iterator].isBorrow) {
-                if (_iterator == (_steps - 1)) {
-                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
-                        _balance = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
-                            _vault,
-                            _inputToken,
-                            _liquidityPool
-                        );
-                    } else {
-                        _balance = IAdapterFull(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);
-                    }
-                } else {
-                    _balance = IAdapterFull(_adapter).getSomeAmountInToken(
-                        _inputToken,
-                        _liquidityPool,
-                        _outputTokenAmount
-                    );
-                }
-            }
-            // deposit
-            else {
-                address _borrowToken = _strategySteps[_iterator].outputToken;
-                _balance = IAdapterFull(_adapter).getAllAmountInTokenBorrow(
-                    _vault,
-                    _inputToken,
-                    _liquidityPool,
-                    _borrowToken,
-                    _outputTokenAmount
-                );
-            } // borrow
-            _outputTokenAmount = _balance;
-        }
-    }
-
     function _getHarvestRewardStepsCount(bytes32 _hash) internal view returns (uint8) {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_hash);
         uint256 _lastStepIndex = uint8(_strategySteps.length) - 1;
@@ -534,41 +534,6 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
         }
         return _steps;
-    }
-
-    function _getSplitPaymentCode(
-        DataTypes.TreasuryShare[] memory _treasuryShares,
-        address _account,
-        address _underlyingToken,
-        uint256 _redeemAmountInToken
-    ) internal pure returns (bytes[] memory _treasuryCodes) {
-        uint256 _fee = 0;
-        if (_redeemAmountInToken > 0) {
-            uint256 _i;
-            uint256 _treasurySharesLength = _treasuryShares.length;
-            _treasuryCodes = new bytes[](_treasurySharesLength.add(1));
-            if (_treasurySharesLength > 0) {
-                for (_i = 0; _i < _treasurySharesLength; _i++) {
-                    if (_treasuryShares[_i].treasury != address(0)) {
-                        uint256 _share = _treasuryShares[_i].share;
-                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
-                        _treasuryCodes[_i] = abi.encode(
-                            _underlyingToken,
-                            abi.encodeWithSignature(
-                                "transfer(address,uint256)",
-                                _treasuryShares[_i].treasury,
-                                _treasuryAccountFee
-                            )
-                        );
-                        _fee = _fee.add(_treasuryAccountFee);
-                    }
-                }
-            }
-            _treasuryCodes[_i] = abi.encode(
-                _underlyingToken,
-                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
-            );
-        }
     }
 
     function _getUpdateUserRewardsCodes(address _vault, address _from) internal view returns (bytes[] memory _codes) {
@@ -632,5 +597,40 @@ contract StrategyManager is IStrategyManager, Modifiers {
         _liquidityPool = _strategySteps[_strategySteps.length - 1].pool;
         _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
         _rewardToken = IAdapterFull(_adapter).getRewardToken(_liquidityPool);
+    }
+
+    function _getSplitPaymentCode(
+        DataTypes.TreasuryShare[] memory _treasuryShares,
+        address _account,
+        address _underlyingToken,
+        uint256 _redeemAmountInToken
+    ) internal pure returns (bytes[] memory _treasuryCodes) {
+        uint256 _fee = 0;
+        if (_redeemAmountInToken > 0) {
+            uint256 _i;
+            uint256 _treasurySharesLength = _treasuryShares.length;
+            _treasuryCodes = new bytes[](_treasurySharesLength.add(1));
+            if (_treasurySharesLength > 0) {
+                for (_i = 0; _i < _treasurySharesLength; _i++) {
+                    if (_treasuryShares[_i].treasury != address(0)) {
+                        uint256 _share = _treasuryShares[_i].share;
+                        uint256 _treasuryAccountFee = ((_redeemAmountInToken).mul(_share)).div(10000);
+                        _treasuryCodes[_i] = abi.encode(
+                            _underlyingToken,
+                            abi.encodeWithSignature(
+                                "transfer(address,uint256)",
+                                _treasuryShares[_i].treasury,
+                                _treasuryAccountFee
+                            )
+                        );
+                        _fee = _fee.add(_treasuryAccountFee);
+                    }
+                }
+            }
+            _treasuryCodes[_i] = abi.encode(
+                _underlyingToken,
+                abi.encodeWithSignature("transfer(address,uint256)", _account, _redeemAmountInToken.sub(_fee))
+            );
+        }
     }
 }

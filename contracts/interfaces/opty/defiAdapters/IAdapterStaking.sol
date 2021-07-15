@@ -14,20 +14,6 @@ pragma experimental ABIEncoderV2;
  */
 interface IAdapterStaking {
     /**
-     * @notice Returns the balance in underlying for staked liquidityPoolToken balance of holder
-     * @dev It should only be implemented in Curve adapters
-     * @param _vault Vault contract address
-     * @param _underlyingToken Underlying token address for the given liquidity pool
-     * @param _liquidityPool Liquidity pool's contract address where the vault has deposited and which is associated
-     * to a staking pool where to stake all lpTokens
-     */
-    function getAllAmountInTokenStakeWrite(
-        address payable _vault,
-        address _underlyingToken,
-        address _liquidityPool
-    ) external returns (uint256);
-
-    /**
      * @notice Get batch of function calls for staking specified amount of lpToken held in a vault
      * @param _liquidityPool Liquidity pool's contract address where the vault has deposited and which is associated
      * to a staking pool where to stake some lpTokens

@@ -15,6 +15,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 interface IStrategyManager {
     /**
      * @notice Get the balance of vault in underlyingToken provided
+     * @dev This is write function because of CurvePools
      * @param _vault Vault contract address
      * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
      * @param _investStrategyHash Hash of the strategy being used in vault contract
