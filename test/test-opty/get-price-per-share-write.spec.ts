@@ -4,6 +4,7 @@ import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
+import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -58,20 +59,7 @@ describe(scenario.title, () => {
       const vault = scenario.vaults[i];
       const profile = vault.profile;
       const ADAPTER_NAME = "CurvePoolAdapter";
-      const strategies = [
-        {
-          strategyName: "DAI-deposit-CURVE-cDAI+cUSDC",
-          token: "DAI",
-          strategy: [
-            {
-              contract: "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
-              outputTokenSymbol: "cDAI+cUSDC",
-              outputToken: "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
-              isBorrow: false,
-            },
-          ],
-        },
-      ];
+      const strategies = TypedAdapterStrategies[ADAPTER_NAME];
       for (let i = 0; i < strategies.length; i++) {
         describe(`${strategies[i].strategyName}`, async () => {
           const TOKEN_STRATEGY = strategies[i];
