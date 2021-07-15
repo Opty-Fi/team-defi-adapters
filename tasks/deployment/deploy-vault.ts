@@ -82,6 +82,8 @@ task("deploy-vault", "Deploy Vault")
         false,
       );
 
+      console.log(`Finished deploying vault ${symbol}-${riskprofile}`);
+
       console.log(`Contract ${symbol}-${riskprofile}: ${vault.address}`);
 
       const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);

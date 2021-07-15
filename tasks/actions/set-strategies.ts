@@ -76,4 +76,5 @@ task("set-strategies", "Set strategies")
         console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }
     }
+    console.log("Finished setting strategies");
   });

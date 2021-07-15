@@ -26,6 +26,8 @@ task("deploy-opty", "Deploy Opty")
       opty.address,
     ]);
 
+    console.log("Finished deploying OPTY and OPTYMinter");
+
     console.log(`Contract opty : ${opty.address}`);
     console.log(`Contract optyMinter : ${optyMinter.address}`);
 

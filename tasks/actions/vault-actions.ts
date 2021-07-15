@@ -81,4 +81,5 @@ task("vault-actions", "perform actions in Vault")
         break;
       }
     }
+    console.log("Finished executing Vault actions");
   });

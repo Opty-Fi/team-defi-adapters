@@ -26,6 +26,7 @@ task("deploy-erc20", "Deploy ERC20")
       decimal,
       total,
     ]);
+    console.log("Finished deploying erc20");
 
     console.log(`Contract ${name} token : ${erc20Contract.address}`);
 

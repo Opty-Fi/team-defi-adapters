@@ -89,4 +89,5 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       unpause: true,
       insertindb: insertindb,
     });
+    console.log("Finished setup task");
   });

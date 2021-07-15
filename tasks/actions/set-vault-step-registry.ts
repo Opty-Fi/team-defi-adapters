@@ -34,4 +34,5 @@ task("set-vault-step-registry", "Set vaultStepInvestStrategyDefinitionRegistry")
     } catch (error) {
       console.log("Got error", error);
     }
+    console.log("Finished setting VaultStepInvestStrategyDefinitionRegistry");
   });

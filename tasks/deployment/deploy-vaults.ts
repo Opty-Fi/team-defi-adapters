@@ -59,4 +59,6 @@ task("deploy-vaults", "Deploy Core Vaults")
         });
       }
     }
+
+    console.log("Finished deploying vaults");
   });

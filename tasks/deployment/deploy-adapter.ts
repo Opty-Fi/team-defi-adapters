@@ -57,6 +57,7 @@ task("deploy-adapter", "Deploy Adapter contract")
       deployedonce,
     );
 
+    console.log("Finished deploying adapter");
     console.log(`${name} address : ${adaptersContract.address}`);
 
     if (insertindb) {
