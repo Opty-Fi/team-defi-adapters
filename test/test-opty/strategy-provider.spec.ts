@@ -1,15 +1,10 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract } from "ethers";
-import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
+import { CONTRACTS } from "../../helpers/type";
 import { generateStrategyHash, deployContract } from "../../helpers/helpers";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import {
-  TESTING_DEPLOYMENT_ONCE,
-  ESSENTIAL_CONTRACTS,
-  TESTING_CONTRACTS,
-  REWARD_TOKENS,
-} from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { setAndApproveVaultRewardToken } from "../../helpers/contracts-actions";
@@ -57,7 +52,7 @@ describe(scenario.title, () => {
         [registry.address],
       );
 
-      const COMP_TOKEN = <string>REWARD_TOKENS["CompoundAdapter"].tokenAddress;
+      const COMP_TOKEN = TypedTokens["COMP"];
       vaultRewardTokenHash = getSoliditySHA3Hash(["address[]"], [[DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]]);
       await setAndApproveVaultRewardToken(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
       contracts = { registry, strategyProvider };
@@ -84,7 +79,12 @@ describe(scenario.title, () => {
                 riskProfile,
                 TypedTokenHashes[tokenHashName],
               );
-              expect(value).to.be.equal(action.expectedValue);
+              const expectedStrategyHash = generateStrategyHash(
+                TypedStrategies.filter(strategy => strategy.strategyName == action.expectedValue.strategyName)[0]
+                  .strategy,
+                TypedTokens[action.expectedValue.tokenName],
+              );
+              expect(value).to.be.equal(expectedStrategyHash);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             assert.isDefined(tokenHashName, `args is wrong in ${action.action} testcase`);
@@ -92,12 +92,12 @@ describe(scenario.title, () => {
           }
           case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
             const value = await contracts[action.contract][action.action](vaultRewardTokenHash);
-            expect([+value[0]._hex, +value[1]._hex]).to.have.members(action.expectedValue);
+            expect([+value[0]._hex, +value[1]._hex]).to.have.members(action.expectedValue.vaultRewardStrategy);
             break;
           }
           case "defaultStrategyState()": {
             const value = await contracts[action.contract][action.action]();
-            expect(value).to.be.equal(action.expectedValue);
+            expect(value).to.be.equal(action.expectedValue.defaultStrategyState);
             break;
           }
         }

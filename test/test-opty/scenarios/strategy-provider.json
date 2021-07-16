@@ -26,7 +26,10 @@
             "riskProfile": "RP1",
             "tokenHashName": "DAI"
           },
-          "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
+          "expectedValue": {
+            "tokenName": "DAI",
+            "strategyName": "DAI-deposit-COMPOUND-cDAI"
+          }
         }
       ],
       "cleanActions": []
@@ -114,7 +117,10 @@
             "riskProfile": "RP1",
             "tokenHashName": "DAI"
           },
-          "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
+          "expectedValue": {
+            "tokenName": "DAI",
+            "strategyName": "DAI-deposit-AAVE-aDAI"
+          }
         }
       ],
       "cleanActions": []
@@ -197,7 +203,9 @@
           "contract": "strategyProvider",
           "action": "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)",
           "args": {},
-          "expectedValue": [5000, 5000]
+          "expectedValue": {
+            "vaultRewardStrategy": [5000, 5000]
+          }
         }
       ],
       "cleanActions": []
@@ -276,7 +284,9 @@
           "contract": "strategyProvider",
           "action": "defaultStrategyState()",
           "args": {},
-          "expectedValue": 1
+          "expectedValue": {
+            "defaultStrategyState": 1
+          }
         }
       ],
       "cleanActions": [
