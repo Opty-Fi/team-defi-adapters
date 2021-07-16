@@ -39,6 +39,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /** @notice  SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
+    /** @notice  Sushiswap router contract address */
+    address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+
     /** @notice  WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
@@ -317,7 +320,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _masterChef, _underlyingToken);
         if (_unclaimedReward > 0) {
             _balance = _balance.add(
-                harvestCodeProviderContract.rewardBalanceInLPTokensSushi(
+                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -369,7 +372,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory) {
         return
-            harvestCodeProviderContract.getHarvestLPTokenSushiCodes(
+            harvestCodeProviderContract.getHarvestCodes(
                 _vault,
                 getRewardToken(_masterChef),
                 _underlyingToken,
@@ -386,7 +389,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         override
         returns (bytes[] memory)
     {
-        return harvestCodeProviderContract.getAddLiquiditySushiCodes(_vault, _underlyingToken);
+        return harvestCodeProviderContract.getAddLiquidityCodes(SUSHISWAP_ROUTER, _vault, _underlyingToken);
     }
 
     function _getDepositAmount(
