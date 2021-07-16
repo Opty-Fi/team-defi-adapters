@@ -27,22 +27,22 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    /** @notice Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    /** @notice Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
-    /** @notice  Maps underlyingToken to the ID of its pool */
+    /** @notice Maps underlyingToken to the ID of its pool */
     mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
 
-    /** @notice  SUSHI token contract address */
+    /** @notice SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
-    /** @notice  Sushiswap router contract address */
+    /** @notice Sushiswap router contract address */
     address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    /** @notice  WETH-USDC pair contract address */
+    /** @notice Sushiswap WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
     /** @notice HarvestCodeProvider contract instance */
