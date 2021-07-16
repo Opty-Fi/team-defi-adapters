@@ -31,7 +31,8 @@ describe(scenario.title, () => {
   let DUMMY_VAULT_EMPTY_CONTRACT: Contract;
   let vaultRewardTokenHash: string;
 
-  beforeEach(async () => {
+  before(async () => {
+    // beforeEach(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       const strategyOperator = owner;
@@ -71,81 +72,7 @@ describe(scenario.title, () => {
     it(`${story.description}`, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
-        switch (action.action) {
-          case "setStrategyOperator(address)": {
-            const { newStrategyOperator }: ARGUMENTS = action.args;
-            const tempNewStrategyOperatorrAddr = await signers[<any>newStrategyOperator].getAddress();
-            if (newStrategyOperator) {
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](tempNewStrategyOperatorrAddr);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](tempNewStrategyOperatorrAddr),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(newStrategyOperator, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
-            const { vaultRewardStrategy }: ARGUMENTS = action.args;
-            if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](vaultRewardTokenHash, vaultRewardStrategy);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](vaultRewardTokenHash, vaultRewardStrategy),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(vaultRewardStrategy, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setBestStrategy(string,bytes32,bytes32)":
-          case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-            const { strategy, token, riskProfile }: ARGUMENTS = action.args;
-            if (strategy && token && riskProfile) {
-              const strategyHash = generateStrategyHash(strategy, token);
-              const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](riskProfile, tokenHash, strategyHash);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](riskProfile, tokenHash, strategyHash),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(token, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setDefaultStrategyState(uint8)": {
-            const { defaultStrategyState }: ARGUMENTS = action.args;
-            if (action.expect === "success") {
-              await contracts[action.contract].connect(signers[action.executor])[action.action](defaultStrategyState);
-            } else {
-              await expect(
-                contracts[action.contract].connect(signers[action.executor])[action.action](defaultStrategyState),
-              ).to.be.revertedWith(action.message);
-            }
-            assert.isDefined(defaultStrategyState, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-        }
+        await setAndCleanActions(action);
       }
       for (let i = 0; i < story.getActions.length; i++) {
         const action: any = story.getActions[i];
@@ -173,6 +100,87 @@ describe(scenario.title, () => {
           }
         }
       }
+      for (let i = 0; i < story.cleanActions.length; i++) {
+        const action: any = story.cleanActions[i];
+        console.log("Coming in clean actions");
+        await setAndCleanActions(action);
+      }
     });
+  }
+
+  async function setAndCleanActions(action: any) {
+    switch (action.action) {
+      case "setStrategyOperator(address)": {
+        const { newStrategyOperator }: ARGUMENTS = action.args;
+        const tempNewStrategyOperatorrAddr = await signers[<any>newStrategyOperator].getAddress();
+        if (newStrategyOperator) {
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](tempNewStrategyOperatorrAddr);
+          } else {
+            await expect(
+              contracts[action.contract].connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(newStrategyOperator, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+      case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
+        const { vaultRewardStrategy }: ARGUMENTS = action.args;
+        if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](vaultRewardTokenHash, vaultRewardStrategy);
+          } else {
+            await expect(
+              contracts[action.contract]
+                .connect(signers[action.executor])
+                [action.action](vaultRewardTokenHash, vaultRewardStrategy),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(vaultRewardStrategy, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+      case "setBestStrategy(string,bytes32,bytes32)":
+      case "setBestDefaultStrategy(string,bytes32,bytes32)": {
+        const { strategy, token, riskProfile }: ARGUMENTS = action.args;
+        if (strategy && token && riskProfile) {
+          const strategyHash = generateStrategyHash(strategy, token);
+          const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](riskProfile, tokenHash, strategyHash);
+          } else {
+            await expect(
+              contracts[action.contract]
+                .connect(signers[action.executor])
+                [action.action](riskProfile, tokenHash, strategyHash),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(token, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+      case "setDefaultStrategyState(uint8)": {
+        const { defaultStrategyState }: ARGUMENTS = action.args;
+        if (action.expect === "success") {
+          await contracts[action.contract].connect(signers[action.executor])[action.action](defaultStrategyState);
+        } else {
+          await expect(
+            contracts[action.contract].connect(signers[action.executor])[action.action](defaultStrategyState),
+          ).to.be.revertedWith(action.message);
+        }
+        assert.isDefined(defaultStrategyState, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+    }
   }
 });

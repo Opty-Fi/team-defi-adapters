@@ -34,7 +34,8 @@
           },
           "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Non-StrategyOperator shouldn't be able to set best strategy",
@@ -58,7 +59,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best strategy",
@@ -92,7 +94,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setBestDefaultStrategy] - StrategyOperator should be able to set best default strategy",
@@ -126,7 +140,8 @@
           },
           "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[setBestDefaultStrategy] - Non-StrategyOperator shouldn't be able to set best default strategy",
@@ -150,7 +165,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best default strategy",
@@ -184,7 +200,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setVaultRewardStrategy] - StrategyOperator should be able to set best Vault Reward strategy",
@@ -207,7 +235,8 @@
           "args": {},
           "expectedValue": [5000, 5000]
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[setVaultRewardStrategy] - Non-StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -223,7 +252,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -249,7 +279,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setDefaultStrategyState] StrategyOperator should be able to set Default Strategy state",
@@ -272,7 +314,8 @@
           "args": {},
           "expectedValue": 1
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[setDefaultStrategyState] Non-StrategyOperator shouldn't be able to set Default Strategy state",
@@ -288,7 +331,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -314,7 +358,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     }
   ]
 }
