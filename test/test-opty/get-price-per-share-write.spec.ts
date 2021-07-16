@@ -30,11 +30,6 @@ type ARGUMENTS = {
   vaultRewardTokenInvalidHash?: string;
 };
 
-type EXPECTED_ARGUMENTS = {
-  balance?: string;
-  vaultRewardStrategy?: number[];
-};
-
 describe(scenario.title, () => {
   // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   let essentialContracts: CONTRACTS;
