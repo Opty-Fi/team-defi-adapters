@@ -9,14 +9,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "strategyOperator",
@@ -30,11 +24,15 @@
           "action": "rpToTokenToBestStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "tokenHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+            "tokenHashName": "DAI"
           },
-          "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
+          "expectedValue": {
+            "tokenName": "DAI",
+            "strategyName": "DAI-deposit-COMPOUND-cDAI"
+          }
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Non-StrategyOperator shouldn't be able to set best strategy",
@@ -43,14 +41,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "user1",
@@ -58,7 +50,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best strategy",
@@ -77,14 +70,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "strategyOperator",
@@ -92,7 +79,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setBestDefaultStrategy] - StrategyOperator should be able to set best default strategy",
@@ -101,14 +100,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "strategyOperator",
@@ -122,11 +115,15 @@
           "action": "rpToTokenToDefaultStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "tokenHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"
+            "tokenHashName": "DAI"
           },
-          "expectedValue": "0x96c4bb18025d9dc8a66aee1e9c88d3a896852ff155498bd92a62815c26aad9e6"
+          "expectedValue": {
+            "tokenName": "DAI",
+            "strategyName": "DAI-deposit-AAVE-aDAI"
+          }
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[setBestDefaultStrategy] - Non-StrategyOperator shouldn't be able to set best default strategy",
@@ -135,14 +132,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "user1",
@@ -150,7 +141,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best default strategy",
@@ -169,14 +161,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x24a42fD28C976A61Df5D00D0599C34c4f90748c8",
-                "outputToken": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "tokenName": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "strategyOperator",
@@ -184,7 +170,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setVaultRewardStrategy] - StrategyOperator should be able to set best Vault Reward strategy",
@@ -205,9 +203,12 @@
           "contract": "strategyProvider",
           "action": "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)",
           "args": {},
-          "expectedValue": [5000, 5000]
+          "expectedValue": {
+            "vaultRewardStrategy": [5000, 5000]
+          }
         }
-      ]
+      ],
+      "cleanActions": []
     },
     {
       "description": "[setVaultRewardStrategy] - Non-StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -223,7 +224,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -249,7 +251,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[setDefaultStrategyState] StrategyOperator should be able to set Default Strategy state",
@@ -270,7 +284,21 @@
           "contract": "strategyProvider",
           "action": "defaultStrategyState()",
           "args": {},
-          "expectedValue": 1
+          "expectedValue": {
+            "defaultStrategyState": 1
+          }
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "strategyProvider",
+          "action": "setDefaultStrategyState(uint8)",
+          "args": {
+            "defaultStrategyState": 0
+          },
+          "executor": "strategyOperator",
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -288,7 +316,8 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetBestStrategy] - Old StrategyOperator shouldn't be able to set best Vault Reward strategy",
@@ -314,7 +343,19 @@
           "message": "caller is not the strategyOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setStrategyOperator(address)",
+          "args": {
+            "newStrategyOperator": "strategyOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     }
   ]
 }

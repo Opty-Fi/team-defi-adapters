@@ -84,7 +84,7 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
   }
 }
 
-export async function approveVaultRewardTokens(
+export async function setAndApproveVaultRewardToken(
   owner: Signer,
   vaultContractAddress: string,
   rewardTokenAddress: string,
