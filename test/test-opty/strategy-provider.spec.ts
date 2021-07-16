@@ -13,13 +13,13 @@ import {
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { approveVaultRewardTokens } from "../../helpers/contracts-actions";
-import { TypedTokens } from "../../helpers/data";
+import { TypedStrategies, TypedTokenHashes, TypedTokens } from "../../helpers/data";
 
 type ARGUMENTS = {
   riskProfile?: string;
-  strategy?: STRATEGY_DATA[];
-  token?: string;
-  tokenHash?: string;
+  strategyName?: string;
+  tokenName?: string;
+  tokenHashName?: string;
   defaultStrategyState?: number;
   vaultRewardStrategy?: number[];
   newStrategyOperator?: string;
@@ -32,7 +32,6 @@ describe(scenario.title, () => {
   let vaultRewardTokenHash: string;
 
   before(async () => {
-    // beforeEach(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       const strategyOperator = owner;
@@ -79,13 +78,16 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "rpToTokenToDefaultStrategy(string,bytes32)":
           case "rpToTokenToBestStrategy(string,bytes32)": {
-            const { riskProfile, tokenHash }: ARGUMENTS = action.args;
-            if (riskProfile && tokenHash) {
-              const value = await contracts[action.contract][action.action](riskProfile, tokenHash);
+            const { riskProfile, tokenHashName }: ARGUMENTS = action.args;
+            if (riskProfile && tokenHashName) {
+              const value = await contracts[action.contract][action.action](
+                riskProfile,
+                TypedTokenHashes[tokenHashName],
+              );
               expect(value).to.be.equal(action.expectedValue);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(tokenHash, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(tokenHashName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
@@ -102,7 +104,6 @@ describe(scenario.title, () => {
       }
       for (let i = 0; i < story.cleanActions.length; i++) {
         const action: any = story.cleanActions[i];
-        console.log("Coming in clean actions");
         await setAndCleanActions(action);
       }
     });
@@ -147,10 +148,13 @@ describe(scenario.title, () => {
       }
       case "setBestStrategy(string,bytes32,bytes32)":
       case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-        const { strategy, token, riskProfile }: ARGUMENTS = action.args;
-        if (strategy && token && riskProfile) {
-          const strategyHash = generateStrategyHash(strategy, token);
-          const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+        const { strategyName, tokenName, riskProfile }: ARGUMENTS = action.args;
+        if (strategyName && tokenName && riskProfile) {
+          const strategyHash = generateStrategyHash(
+            TypedStrategies.filter(strategy => strategy.strategyName == strategyName)[0].strategy,
+            TypedTokens[tokenName],
+          );
+          const tokenHash = getSoliditySHA3Hash(["address[]"], [[TypedTokens[tokenName]]]);
 
           if (action.expect === "success") {
             await contracts[action.contract]
@@ -164,8 +168,8 @@ describe(scenario.title, () => {
             ).to.be.revertedWith(action.message);
           }
         }
-        assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
-        assert.isDefined(token, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(strategyName, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(tokenName, `args is wrong in ${action.action} testcase`);
         assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
         break;
       }
