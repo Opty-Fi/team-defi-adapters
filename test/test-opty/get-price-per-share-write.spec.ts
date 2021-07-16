@@ -71,7 +71,7 @@ describe(scenario.title, () => {
           let underlyingTokenSymbol: string;
           let RewardToken_ERC20Instance: any;
 
-          beforeEach(async () => {
+          before(async () => {
             underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
             underlyingTokenSymbol = await getTokenSymbol(hre, TOKEN_STRATEGY.token);
             const adapter = adapters[ADAPTER_NAME];
