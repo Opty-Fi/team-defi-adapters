@@ -64,7 +64,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
         setUnderlyingTokenToMasterChefToPid(
             SUSHI_WETH_USDC,
-            address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd),
+            address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd), // MasterChef V1 contract address
             uint256(1)
         );
     }
