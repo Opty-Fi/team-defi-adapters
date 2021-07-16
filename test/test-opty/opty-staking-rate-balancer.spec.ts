@@ -16,7 +16,8 @@ describe(scenario.title, () => {
   let contracts: CONTRACTS = {};
   let signers: any;
 
-  beforeEach(async () => {
+  before(async () => {
+    // beforeEach(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       const financeOperator = owner;
@@ -46,64 +47,7 @@ describe(scenario.title, () => {
     it(`${story.description}`, async () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action: any = story.setActions[i];
-        switch (action.action) {
-          case "setFinanceOperator(address)": {
-            const { addressName }: ARGUMENTS = action.args;
-            if (addressName) {
-              const newFinanceOperatorAddress = await signers[addressName].getAddress();
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](newFinanceOperatorAddress);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](newFinanceOperatorAddress),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setStakingVaultMultipliers(address,uint256)": {
-            const { addressName, multiplier }: ARGUMENTS = action.args;
-            if (addressName && multiplier) {
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](contracts[addressName].address, multiplier);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](contracts[addressName].address, multiplier),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(multiplier, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setStakingVaultOPTYAllocation(uint256)": {
-            const { stakingVaultOPTYAllocation }: ARGUMENTS = action.args;
-            if (stakingVaultOPTYAllocation) {
-              if (action.expect === "success") {
-                await contracts[action.contract]
-                  .connect(signers[action.executor])
-                  [action.action](stakingVaultOPTYAllocation);
-              } else {
-                await expect(
-                  contracts[action.contract]
-                    .connect(signers[action.executor])
-                    [action.action](stakingVaultOPTYAllocation),
-                ).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(stakingVaultOPTYAllocation, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-        }
+        await setAndCleanActions(action);
       }
       for (let i = 0; i < story.getActions.length; i++) {
         const action: any = story.getActions[i];
@@ -124,6 +68,67 @@ describe(scenario.title, () => {
           }
         }
       }
+      for (let i = 0; i < story.cleanActions.length; i++) {
+        const action: any = story.cleanActions[i];
+        await setAndCleanActions(action);
+      }
     });
+  }
+
+  async function setAndCleanActions(action: any) {
+    switch (action.action) {
+      case "setFinanceOperator(address)": {
+        const { addressName }: ARGUMENTS = action.args;
+        if (addressName) {
+          const newFinanceOperatorAddress = await signers[addressName].getAddress();
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](newFinanceOperatorAddress);
+          } else {
+            await expect(
+              contracts[action.contract].connect(signers[action.executor])[action.action](newFinanceOperatorAddress),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+      case "setStakingVaultMultipliers(address,uint256)": {
+        const { addressName, multiplier }: ARGUMENTS = action.args;
+        if (addressName && multiplier) {
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](contracts[addressName].address, multiplier);
+          } else {
+            await expect(
+              contracts[action.contract]
+                .connect(signers[action.executor])
+                [action.action](contracts[addressName].address, multiplier),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+        assert.isDefined(multiplier, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+      case "setStakingVaultOPTYAllocation(uint256)": {
+        const { stakingVaultOPTYAllocation }: ARGUMENTS = action.args;
+        if (stakingVaultOPTYAllocation) {
+          if (action.expect === "success") {
+            await contracts[action.contract]
+              .connect(signers[action.executor])
+              [action.action](stakingVaultOPTYAllocation);
+          } else {
+            await expect(
+              contracts[action.contract].connect(signers[action.executor])[action.action](stakingVaultOPTYAllocation),
+            ).to.be.revertedWith(action.message);
+          }
+        }
+        assert.isDefined(stakingVaultOPTYAllocation, `args is wrong in ${action.action} testcase`);
+        break;
+      }
+    }
   }
 });
