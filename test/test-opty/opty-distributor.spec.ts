@@ -18,7 +18,7 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import scenario from "./scenarios/opty-minter.json";
+import scenario from "./scenarios/opty-distributor.json";
 type ARGUMENTS = {
   contractName?: string;
   addressName?: string;
@@ -72,7 +72,7 @@ describe(scenario.title, () => {
       0,
     ]);
 
-    const optyMinter = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_MINTER, false, users["owner"], [
+    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, false, users["owner"], [
       essentialContracts["registry"].address,
       opty.address,
       await getBlockTimestamp(hre),
@@ -81,9 +81,6 @@ describe(scenario.title, () => {
     const Vault = await deployVault(
       hre,
       essentialContracts.registry.address,
-      essentialContracts.riskManager.address,
-      essentialContracts.strategyManager.address,
-      optyMinter.address,
       tokenAddr,
       users["owner"],
       users["admin"],
@@ -97,9 +94,6 @@ describe(scenario.title, () => {
     const Vault2 = await deployVault(
       hre,
       essentialContracts.registry.address,
-      essentialContracts.riskManager.address,
-      essentialContracts.strategyManager.address,
-      optyMinter.address,
       tokenAddr,
       users["owner"],
       users["admin"],
@@ -114,7 +108,7 @@ describe(scenario.title, () => {
 
     contracts["registry"] = essentialContracts.registry;
 
-    contracts["optyMinter"] = optyMinter;
+    contracts["optyDistributor"] = optyDistributor;
 
     contracts["vault"] = Vault;
 
@@ -131,7 +125,7 @@ describe(scenario.title, () => {
         const action = story.setActions[i];
         switch (action.action) {
           case "addOptyVault(address)":
-          case "setOPTYMinter(address)": {
+          case "setOPTYDistributor(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
               if (action.expect === "success") {
@@ -227,7 +221,7 @@ describe(scenario.title, () => {
               }
               if (action.contract === "vault") {
                 await moveToNextBlock(hre);
-                currentOpty = await contracts["optyMinter"]["claimableOpty(address)"](fromAddr);
+                currentOpty = await contracts["optyDistributor"]["claimableOpty(address)"](fromAddr);
               }
             }
             assert.isDefined(amount, `args is wrong in ${action.action} testcase`);

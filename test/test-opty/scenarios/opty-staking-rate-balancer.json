@@ -26,6 +26,19 @@
           },
           "expectedValue": 10000
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "optyStakingRateBalancer",
+          "action": "setStakingVaultMultipliers(address,uint256)",
+          "args": {
+            "addressName": "dummyOptyStakingVaultEmptyContract",
+            "multiplier": 0
+          },
+          "executor": "financeOperator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -43,7 +56,8 @@
           "message": "caller is not the financeOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetStakingVaultMultipliers] - Old FinanceOperator shouldn't be able to set staking vault multipliers",
@@ -70,7 +84,19 @@
           "message": "caller is not the financeOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setFinanceOperator(address)",
+          "args": {
+            "addressName": "financeOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     },
     {
       "description": "[SetStakingVaultOPTYAllocation] - FinanceOperator should be able to set staking vault OPTY allocation",
@@ -93,6 +119,18 @@
           "args": {},
           "expectedValue": 10000000000
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "optyStakingRateBalancer",
+          "action": "setStakingVaultOPTYAllocation(uint256)",
+          "args": {
+            "stakingVaultOPTYAllocation": 0
+          },
+          "executor": "financeOperator",
+          "expect": "success",
+          "message": ""
+        }
       ]
     },
     {
@@ -109,7 +147,8 @@
           "message": "caller is not the financeOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": []
     },
     {
       "description": "[SetStakingVaultOPTYAllocation] - Old FinanceOperator shouldn't be able to set staking vault OPTY allocation",
@@ -135,7 +174,19 @@
           "message": "caller is not the financeOperator"
         }
       ],
-      "getActions": []
+      "getActions": [],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "setFinanceOperator(address)",
+          "args": {
+            "addressName": "financeOperator"
+          },
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
     }
   ]
 }

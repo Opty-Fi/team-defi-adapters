@@ -39,9 +39,6 @@ contract StrategyProvider is IStrategyProvider, Modifiers {
      */
     mapping(bytes32 => DataTypes.VaultRewardStrategy) public vaultRewardTokenHashToVaultRewardTokenStrategy;
 
-    /** @notice Zero value constant of bytes32 datatype */
-    bytes32 public constant ZERO_BYTES32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
-
     /** @notice Stores the default strategy state (zero or compound or aave) */
     DataTypes.DefaultStrategyState public defaultStrategyState;
 

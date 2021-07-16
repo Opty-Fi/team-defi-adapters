@@ -16,14 +16,14 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import scenarios from "./scenarios/invest-limitation.json";
+import scenarios from "./scenarios/curve-deposit-invest-limitation.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   type?: number;
   userName?: string;
 };
 type EXPECTED_ARGUMENTS = {
-  [key: string]: string | number;
+  [key: string]: string;
 };
 describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -38,8 +38,7 @@ describe(scenarios.title, () => {
   before(async () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
-      const riskOperator = owner;
-      users = { owner, admin, riskOperator };
+      users = { owner, admin };
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
@@ -53,10 +52,8 @@ describe(scenarios.title, () => {
       const vault = scenarios.vaults[i];
       const stories = vault.stories;
       const profile = vault.profile;
-      // For all adapters except CurvePool and CurveSwap
-      // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
-      const adaptersName = Object.keys(TypedAdapterStrategies).filter(
-        strategy => !["CurvePoolAdapter", "CurveSwapAdapter"].includes(strategy),
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(strategy =>
+        ["CurveDepositPoolAdapter"].includes(strategy),
       );
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
@@ -128,7 +125,6 @@ describe(scenarios.title, () => {
                 console.error(error);
               }
             });
-
             for (let i = 0; i < stories.length; i++) {
               it(stories[i].description, async () => {
                 const story = stories[i];
@@ -263,43 +259,6 @@ describe(scenarios.title, () => {
                 for (let i = 0; i < story.getActions.length; i++) {
                   const getAction = story.getActions[i];
                   switch (getAction.action) {
-                    case "maxDepositPoolPct(address)": {
-                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
-                      break;
-                    }
-                    case "maxDepositPoolPctDefault()": {
-                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
-                      break;
-                    }
-                    case "maxDepositAmount(address,address)": {
-                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                        TOKENS[strategy.token],
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
-                      break;
-                    }
-                    case "maxDepositAmountDefault(address)": {
-                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        TOKENS[strategy.token],
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
-                      break;
-                    }
-                    case "maxExposureType()": {
-                      const expectedValue: any = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue.type);
-                      break;
-                    }
                     case "balanceOf(address)": {
                       const { userName }: ARGUMENTS = getAction.args;
                       if (userName) {
