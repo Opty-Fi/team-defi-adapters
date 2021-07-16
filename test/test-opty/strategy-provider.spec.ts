@@ -12,7 +12,7 @@ import {
 } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
-import { approveVaultRewardTokens } from "../../helpers/contracts-actions";
+import { setAndApproveVaultRewardToken } from "../../helpers/contracts-actions";
 import { TypedStrategies, TypedTokenHashes, TypedTokens } from "../../helpers/data";
 
 type ARGUMENTS = {
@@ -59,7 +59,7 @@ describe(scenario.title, () => {
 
       const COMP_TOKEN = <string>REWARD_TOKENS["CompoundAdapter"].tokenAddress;
       vaultRewardTokenHash = getSoliditySHA3Hash(["address[]"], [[DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]]);
-      await approveVaultRewardTokens(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
+      await setAndApproveVaultRewardToken(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
       contracts = { registry, strategyProvider };
     } catch (error) {
       console.log(error);
