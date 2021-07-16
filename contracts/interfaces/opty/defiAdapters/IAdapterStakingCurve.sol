@@ -4,11 +4,11 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface for staking feature for DeFi adapters
+ * @title Interface for staking feature for Curve adapters
  * @author Opty.fi
- * @notice Interface of the DeFi protocol adapter for staking functionality
- * @dev Abstraction layer to different DeFi protocols like Harvest.finance, DForce etc.
- * It is used as a layer for adding any new staking functions being used in DeFi adapters.
+ * @notice Interface of CurveDeposit and CurveSwap adapters for staking functionality
+ * @dev Abstraction layer to Curve.fi adapters
+ * It is used as a layer for adding any new staking functions being used in Curve adapters.
  * Conventions used:
  *  - lpToken: liquidity pool token
  */
