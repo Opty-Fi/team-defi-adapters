@@ -1,7 +1,6 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { getContractInstance, isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TOKENS } from "../../helpers/constants";
 import { TypedStrategies } from "../../helpers/data";
 
@@ -24,7 +23,7 @@ task("set-strategies", "Set strategies")
 
     for (let i = 0; i < TypedStrategies.length; i++) {
       try {
-        const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TypedStrategies[i].token]]]);
+        const tokensHash = generateTokenHash([TOKENS[TypedStrategies[i].token]]);
         await setStrategy(TypedStrategies[i].strategy, tokensHash, strategyRegistryContract);
         console.log(`Set successfully strategy : ${TypedStrategies[i].strategyName}`);
       } catch (error) {
