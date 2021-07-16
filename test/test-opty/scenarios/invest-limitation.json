@@ -200,7 +200,7 @@
             },
             {
               "contract": "adapter",
-              "action": "setMaxDepositAmount(address,uint256)",
+              "action": "setMaxDepositAmount(address,address,uint256)",
               "args": {
                 "amount": {
                   "DAI": "500000000000000000",
@@ -279,7 +279,7 @@
             },
             {
               "contract": "adapter",
-              "action": "setMaxDepositAmount(address,uint256)",
+              "action": "setMaxDepositAmount(address,address,uint256)",
               "args": {
                 "amount": {
                   "DAI": "0",
@@ -354,7 +354,7 @@
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositAmount(address,uint256)",
+              "action": "setMaxDepositAmount(address,address,uint256)",
               "args": {
                 "amount": { "DAI": "0", "USDC": "0", "USDT": "0" }
               },

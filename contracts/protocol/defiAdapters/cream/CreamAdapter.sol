@@ -34,8 +34,8 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
-    mapping(address => uint256) public maxDepositAmount;
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
@@ -70,8 +70,12 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _maxDepositAmount
+    ) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
     /**
@@ -231,7 +235,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
         if (_depositAmount > 0) {
             if (_underlyingTokens[0] == HBTC) {
                 _codes = new bytes[](2);
@@ -374,11 +378,15 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
             );
     }
 
-    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256) {
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
-                : maxDepositAmount[_liquidityPool];
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 

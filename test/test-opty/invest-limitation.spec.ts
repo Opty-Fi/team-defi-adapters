@@ -147,17 +147,25 @@ describe(scenarios.title, () => {
                       }
                       break;
                     }
-                    case "setMaxDepositAmount(address,uint256)": {
+                    case "setMaxDepositAmount(address,address,uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
                           .connect(users[setAction.executer])
-                          [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0");
+                          [setAction.action](
+                            strategy.strategy[0].contract,
+                            token,
+                            amount ? amount[strategy.token] : "0",
+                          );
                       } else {
                         await expect(
                           contracts[setAction.contract]
                             .connect(users[setAction.executer])
-                            [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0"),
+                            [setAction.action](
+                              strategy.strategy[0].contract,
+                              token,
+                              amount ? amount[strategy.token] : "0",
+                            ),
                         ).to.be.revertedWith(setAction.message);
                       }
                       break;

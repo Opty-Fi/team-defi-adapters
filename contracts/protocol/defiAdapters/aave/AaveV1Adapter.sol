@@ -43,8 +43,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
-    mapping(address => uint256) public maxDepositAmount;
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice HarvestCodeProvider contract instance */
     HarvestCodeProvider public harvestCodeProviderContract;
@@ -86,8 +86,12 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _maxDepositAmount
+    ) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
     /**
@@ -484,7 +488,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
-                : maxDepositAmount[_liquidityPool];
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 

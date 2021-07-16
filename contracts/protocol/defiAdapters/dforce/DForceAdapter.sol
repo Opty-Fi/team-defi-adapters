@@ -44,8 +44,8 @@ contract DForceAdapter is
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value */
-    mapping(address => uint256) public maxDepositAmount;
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     // deposit pools
     address public constant USDT_DEPOSIT_POOL = address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8);
@@ -89,8 +89,12 @@ contract DForceAdapter is
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external override onlyGovernance {
-        maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _maxDepositAmount
+    ) external override onlyGovernance {
+        maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
     }
 
     /**
@@ -338,7 +342,7 @@ contract DForceAdapter is
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _amounts[0]);
+        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
         if (_depositAmount > 0) {
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
@@ -545,11 +549,15 @@ contract DForceAdapter is
         }
     }
 
-    function _getDepositAmount(address _liquidityPool, uint256 _amount) internal view returns (uint256 _depositAmount) {
+    function _getDepositAmount(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _amount
+    ) internal view returns (uint256 _depositAmount) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
-                : maxDepositAmount[_liquidityPool];
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 
