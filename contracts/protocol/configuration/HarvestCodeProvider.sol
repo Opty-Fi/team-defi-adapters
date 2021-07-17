@@ -65,11 +65,11 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                 address _token0 = IUniswapV2Pair(_underlyingToken).token0();
                 address _token1 = IUniswapV2Pair(_underlyingToken).token1();
                 uint256[] memory _amounts0 =
-                    sushiswapRouter.getAmountsOut(_rewardTokenAmount.div(uint256(2)), _getPath(_token0, _rewardToken));
+                    sushiswapRouter.getAmountsOut(_rewardTokenAmount.div(uint256(2)), _getPath(_rewardToken, _token0));
                 uint256[] memory _amounts1 =
                     sushiswapRouter.getAmountsOut(
                         _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                        _getPath(_token1, _rewardToken)
+                        _getPath(_rewardToken, _token1)
                     );
                 if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
                     _codes = new bytes[](4);
@@ -91,7 +91,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount.div(uint256(2)),
                             uint256(0),
-                            _getPath(_token0, _rewardToken),
+                            _getPath(_rewardToken, _token0),
                             _vault,
                             uint256(-1)
                         )
@@ -102,7 +102,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
                             uint256(0),
-                            _getPath(_token1, _rewardToken),
+                            _getPath(_rewardToken, _token1),
                             _vault,
                             uint256(-1)
                         )
@@ -114,12 +114,12 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                 uint256[] memory _amounts0 =
                     uniswapV2Router02.getAmountsOut(
                         _rewardTokenAmount.div(uint256(2)),
-                        _getPath(_token0, _rewardToken)
+                        _getPath(_rewardToken, _token0)
                     );
                 uint256[] memory _amounts1 =
                     uniswapV2Router02.getAmountsOut(
                         _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                        _getPath(_token1, _rewardToken)
+                        _getPath(_rewardToken, _token1)
                     );
                 if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
                     _codes = new bytes[](4);
@@ -141,7 +141,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount.div(uint256(2)),
                             uint256(0),
-                            _getPath(_token0, _rewardToken),
+                            _getPath(_rewardToken, _token0),
                             _vault,
                             uint256(-1)
                         )
@@ -152,7 +152,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
                             uint256(0),
-                            _getPath(_token1, _rewardToken),
+                            _getPath(_rewardToken, _token1),
                             _vault,
                             uint256(-1)
                         )
@@ -160,7 +160,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                 }
             } else {
                 uint256[] memory _amounts =
-                    uniswapV2Router02.getAmountsOut(_rewardTokenAmount, _getPath(_underlyingToken, _rewardToken));
+                    uniswapV2Router02.getAmountsOut(_rewardTokenAmount, _getPath(_rewardToken, _underlyingToken));
                 if (_amounts[_amounts.length - 1] > 0) {
                     _codes = new bytes[](3);
                     _codes[0] = abi.encode(
@@ -181,7 +181,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount,
                             uint256(0),
-                            _getPath(_underlyingToken, _rewardToken),
+                            _getPath(_rewardToken, _underlyingToken),
                             _vault,
                             uint256(-1)
                         )
@@ -296,7 +296,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     ) public view override returns (uint256) {
         if (_borrowTokenAmount > 0) {
             uint256[] memory _amounts;
-            _amounts = uniswapV2Router02.getAmountsOut(_borrowTokenAmount, _getPath(_underlyingToken, _borrowToken));
+            _amounts = uniswapV2Router02.getAmountsOut(_borrowTokenAmount, _getPath(_borrowToken, _underlyingToken));
             return _amounts[_amounts.length - 1];
         }
         return uint256(0);
@@ -315,9 +315,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
             uint256 _finalAmount;
             address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
             address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
-            _amountsA = sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), _getPath(_underlyingToken, _tokenA));
+            _amountsA = sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA));
             uint256[] memory _amountsB =
-                sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), _getPath(_underlyingToken, _tokenB));
+                sushiswapRouter.getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB));
             (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
             uint256 quoteAmount = sushiswapRouter.quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
             if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
@@ -332,9 +332,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
             uint256 _finalAmount;
             address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
             address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
-            _amountsA = uniswapV2Router02.getAmountsOut(_amount.div(uint256(2)), _getPath(_underlyingToken, _tokenA));
+            _amountsA = uniswapV2Router02.getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA));
             uint256[] memory _amountsB =
-                uniswapV2Router02.getAmountsOut(_amount.div(uint256(2)), _getPath(_underlyingToken, _tokenB));
+                uniswapV2Router02.getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB));
             (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
             uint256 quoteAmount = uniswapV2Router02.quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
             if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
@@ -346,7 +346,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
             }
             return _finalAmount;
         } else {
-            _amountsA = uniswapV2Router02.getAmountsOut(_amount, _getPath(_underlyingToken, _rewardToken));
+            _amountsA = uniswapV2Router02.getAmountsOut(_amount, _getPath(_rewardToken, _underlyingToken));
             return _amountsA[_amountsA.length - 1];
         }
     }
@@ -359,18 +359,17 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         if (_underlyingToken == _weth) {
             return _amount;
         }
-        uint256[] memory _amounts = uniswapV2Router02.getAmountsOut(_amount, _getPath(_underlyingToken, _weth));
+        uint256[] memory _amounts = uniswapV2Router02.getAmountsOut(_amount, _getPath(_weth, _underlyingToken));
         return _amounts[1];
     }
 
-    function _getPath(address _finalToken, address _initialToken) internal view returns (address[] memory _path) {
+    function _getPath(address _initialToken, address _finalToken) internal view returns (address[] memory _path) {
         address _weth = uniswapV2Router02.WETH();
         if (_finalToken == _weth) {
             _path = new address[](2);
             _path[0] = _initialToken;
             _path[1] = _weth;
-        }
-        if (_initialToken == _weth) {
+        } else if (_initialToken == _weth) {
             _path = new address[](2);
             _path[0] = _weth;
             _path[1] = _finalToken;
