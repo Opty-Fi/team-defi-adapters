@@ -4,11 +4,11 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-//  libraries
+// libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
-//  helper contracts
+// helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -148,7 +148,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         uint256 _totalSupply = ERC20(getLiquidityPoolToken(address(0), _liquidityPool)).totalSupply();
         // the pool value will be in USD for US dollar stablecoin pools
         // the pool value will be in BTC for BTC pools
-        return (_virtualPrice.mul(_totalSupply)).div(10**36);
+        return (_virtualPrice.mul(_totalSupply)).div(10**18);
     }
 
     /**
@@ -830,11 +830,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) internal view returns (uint256) {
         uint256 _decimals = ERC20(_underlyingToken).decimals();
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 _actualAmount = _amount.div(10**_decimals);
+        uint256 _actualAmount = _amount.mul(10**(uint256(18).sub(_decimals)));
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
         uint256 _limit =
             _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
-        return _actualAmount > _limit ? _limit.mul(10**_decimals) : _amount;
+        return _actualAmount > _limit ? _limit.div(10**(uint256(18).sub(_decimals))) : _amount;
     }
 
     /**
@@ -852,8 +852,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _actualAmount = _amount.div(10**_decimals);
-        uint256 _maxAmount = maxDepositAmount[_liquidityPool];
-        return _actualAmount > _maxAmount ? _maxAmount.mul(10**_decimals) : _amount;
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool].mul(_decimals);
+        return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }
