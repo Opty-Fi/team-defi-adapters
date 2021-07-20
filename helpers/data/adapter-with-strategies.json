@@ -1,5 +1,5 @@
 {
-  "CurveSwapAdapter": [
+  "CurveSwapPoolAdapter": [
     {
       "strategyName": "DAI-deposit-CURVE-3Crv",
       "token": "DAI",
@@ -13,7 +13,7 @@
       ]
     }
   ],
-  "CurvePoolAdapter": [
+  "CurveDepositPoolAdapter": [
     {
       "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
       "token": "DAI",
@@ -134,6 +134,20 @@
           "contract": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
           "outputTokenSymbol": "yDAI",
           "outputToken": "0xACd43E627e64355f1861cEC6d3a6688B31a6F952",
+          "isBorrow": false
+        }
+      ]
+    }
+  ],
+  "FulcrumAdapter": [
+    {
+      "strategyName": "DAI-deposit-FULCRUM-iDAI",
+      "token": "DAI",
+      "strategy": [
+        {
+          "contract": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+          "outputTokenSymbol": "iDAI",
+          "outputToken": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
           "isBorrow": false
         }
       ]
