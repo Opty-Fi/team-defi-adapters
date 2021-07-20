@@ -4,11 +4,11 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-//  libraries
+// libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
-//  helper contracts
+// helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -38,23 +38,23 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
-    /** @notice Curve compound zap deposit contract address */
-    address public constant CURVE_COMPOUND_DEPOSIT_ZAP = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
+    /** @notice Curve's compound zap deposit contract address */
+    address public constant COMPOUND_DEPOSIT_POOL = address(0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06);
 
-    /** @notice Curve USDT zap deposit contract address */
-    address public constant CURVE_USDT_DEPOSIT_ZAP = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
+    /** @notice Curve's usdt zap deposit contract address */
+    address public constant USDT_DEPOSIT_POOL = address(0xac795D2c97e60DF6a99ff1c814727302fD747a80);
 
-    /** @notice Curve PAX zap deposit contract address */
-    address public constant CURVE_PAX_DEPOSIT_ZAP = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
+    /** @notice Curve's pax zap deposit contract address */
+    address public constant PAX_DEPOSIT_POOL = address(0xA50cCc70b6a011CffDdf45057E39679379187287);
 
-    /** @notice Curve Y zap deposit contract address */
-    address public constant CURVE_Y_DEPOSIT_ZAP = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
+    /** @notice Curve's y zap deposit contract address */
+    address public constant Y_DEPOSIT_POOL = address(0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3);
 
-    /** @notice Curve BUSD zap deposit contract address */
-    address public constant CURVE_BUSD_DEPOSIT_ZAP = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
+    /** @notice Curve's busd zap deposit contract address */
+    address public constant BUSD_DEPOSIT_POOL = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB);
 
-    /** @notice Curve SUSD zap deposit contract address */
-    address public constant CURVE_SUSD_DEPOSIT_ZAP = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
+    /** @notice Curve's susd zap deposit contract address */
+    address public constant SUSD_DEPOSIT_POOL = address(0xFCBa3E75865d2d561BE8D220616520c171F12851);
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -65,22 +65,22 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
 
-    /** @notice Maps liquidityPool to absolute max deposit value in underlying */
+    /** @notice Maps liquidityPool to absolute max deposit values in underlying */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct;
 
     /**
-     * @dev map coins and tokens to curve deposit pool
+     * @dev Configures the CurveDeposit pools according old and new API
      */
     constructor(address _registry) public Modifiers(_registry) {
-        setIsOldDepositZap(CURVE_COMPOUND_DEPOSIT_ZAP, true); // curve-compound
-        setIsOldDepositZap(CURVE_USDT_DEPOSIT_ZAP, true); // curve-usdt
-        setIsOldDepositZap(CURVE_PAX_DEPOSIT_ZAP, true); // curve-pax
-        setIsOldDepositZap(CURVE_Y_DEPOSIT_ZAP, true); // curve-y
-        setIsOldDepositZap(CURVE_BUSD_DEPOSIT_ZAP, true); // curve-busd
-        setIsOldDepositZap(CURVE_SUSD_DEPOSIT_ZAP, true); // curve-susd
+        setIsOldDepositZap(COMPOUND_DEPOSIT_POOL, true); // curve-compound
+        setIsOldDepositZap(USDT_DEPOSIT_POOL, true); // curve-usdt
+        setIsOldDepositZap(PAX_DEPOSIT_POOL, true); // curve-pax
+        setIsOldDepositZap(Y_DEPOSIT_POOL, true); // curve-y
+        setIsOldDepositZap(BUSD_DEPOSIT_POOL, true); // curve-busd
+        setIsOldDepositZap(SUSD_DEPOSIT_POOL, true); // curve-susd
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
     }
@@ -100,7 +100,15 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      * @param _maxDepositAmount the amount is in USD for USD pools and BTC for BTC pools
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+        // Note: We are using 18 as decimals for USD and BTC
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+    }
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function setRewardToken(address) external override onlyOperator {
+        revert("!empty");
     }
 
     /**
@@ -133,13 +141,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     }
 
     /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address) external override onlyOperator {
-        revert("!empty");
-    }
-
-    /**
      * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
@@ -148,7 +149,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         uint256 _totalSupply = ERC20(getLiquidityPoolToken(address(0), _liquidityPool)).totalSupply();
         // the pool value will be in USD for US dollar stablecoin pools
         // the pool value will be in BTC for BTC pools
-        return (_virtualPrice.mul(_totalSupply)).div(10**36);
+        return (_virtualPrice.mul(_totalSupply)).div(10**18);
     }
 
     /**
@@ -829,14 +830,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
-        if (_poolPct == 0 && maxDepositProtocolPct == 0) {
-            return 0;
-        }
-        uint256 _scaledLimit =
-            _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
         uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _limit = _scaledLimit.mul(10**_decimals);
-        return _amount > _limit ? _limit : _amount;
+        uint256 _actualAmount = _amount.mul(10**(uint256(18).sub(_decimals)));
+        uint256 _limit =
+            _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
+        return _actualAmount > _limit ? _limit.div(10**(uint256(18).sub(_decimals))) : _amount;
     }
 
     /**
@@ -853,12 +851,8 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _scaledMaxAmount = maxDepositAmount[_liquidityPool];
-        if (_scaledMaxAmount == 0) {
-            return 0;
-        }
         uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _maxAmount = _scaledMaxAmount.mul(10**_decimals);
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool].div(10**(uint256(18).sub(_decimals)));
         return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }

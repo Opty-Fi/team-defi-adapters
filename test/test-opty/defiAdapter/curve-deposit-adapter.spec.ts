@@ -20,12 +20,12 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  maxDepositProtocolPct?: string;
-  maxDepositPoolPct?: string;
-  maxDepositAmount?: string;
-  mode?: string;
-};
+interface TEST_DEFI_ADAPTER_ARGUMENTS {
+  maxDepositProtocolPct?: string | null;
+  maxDepositPoolPct?: string | null;
+  maxDepositAmount?: string | null;
+  mode?: string | null;
+}
 
 describe("CurveDepositPoolAdapter", () => {
   const ADAPTER_NAME = "CurveDepositPoolAdapter";
@@ -238,11 +238,6 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               const adapterAddress = adapters[adapterName].address;
               let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
               let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
-              // Note: The pool value for curve pools will be in USD or BTC
-              const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
-                liquidityPool,
-                underlyingTokenAddress,
-              );
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositPoolType(uint8)": {
@@ -263,10 +258,17 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                       await adapters[adapterName][action.action](maxDepositProtocolPct);
                     }
+                    // Note: The pool value for curve pools will be in USD or BTC
+                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
+                      liquidityPool,
+                      underlyingTokenAddress,
+                    );
                     limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                    limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
+                      ? defaultFundAmount
+                      : limitInUnderlyingToken;
                     break;
                   }
                   case "setMaxDepositPoolPct(address,uint256)": {
@@ -275,10 +277,17 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                       await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
                     }
+                    // Note: The pool value for curve pools will be in USD or BTC
+                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
+                      liquidityPool,
+                      underlyingTokenAddress,
+                    );
                     limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                    limitInUnderlyingToken = limit.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                    limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                    defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
+                      ? defaultFundAmount
+                      : limitInUnderlyingToken;
                     break;
                   }
                   case "setMaxDepositAmount(address,uint256)": {
@@ -287,10 +296,20 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
                       liquidityPool,
                     );
-                    if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
-                      await adapters[adapterName][action.action](liquidityPool, maxDepositAmount);
+                    if (
+                      !existingDepositAmount.eq(
+                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+                      )
+                    ) {
+                      await adapters[adapterName][action.action](
+                        liquidityPool,
+                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+                      );
                     }
-                    limitInUnderlyingToken = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
+                    const updatedDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(liquidityPool);
+                    limitInUnderlyingToken = BigNumber.from(updatedDepositAmount).div(
+                      BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)),
+                    );
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                       ? defaultFundAmount
@@ -354,7 +373,11 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                       expect(underlyingBalanceAfter).to.be.eq(0);
                     } else {
-                      expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
+                      expect(underlyingBalanceAfter.div(BigNumber.from(10).pow(BigNumber.from(decimals)))).to.be.eq(
+                        underlyingBalanceBefore
+                          .sub(limitInUnderlyingToken)
+                          .div(BigNumber.from(10).pow(BigNumber.from(decimals))),
+                      );
                     }
                     break;
                   }
