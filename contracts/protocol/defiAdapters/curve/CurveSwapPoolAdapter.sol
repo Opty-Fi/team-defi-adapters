@@ -28,7 +28,9 @@ import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
  * @title Adapter for Curve Swap pools
  * @author Opty.fi
  * @dev Abstraction layer to Curve's swap pools
- *      Note: In this adapter, a liquidity pool is actually swap pool
+ *      Note 1 : In this adapter, a liquidity pool is actually swap pool
+ *      Note 2 : In this adapter, a swap pool is defined as a single-sided liquidity pool
+ *      Note 3 : In this adapter, lp token can be redemeed into more than one underlying token
  */
 contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
     using SafeMath for uint256;
@@ -340,17 +342,37 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
                 _liquidityPoolToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
             );
-
-            _codes[2] = abi.encode(
-                _liquidityPool,
-                // solhint-disable-next-line max-line-length
-                abi.encodeWithSignature(
-                    "remove_liquidity_one_coin(uint256,int128,uint256)",
-                    _amount,
-                    _getTokenIndex(_liquidityPool, _underlyingTokens[0]),
-                    uint256(0)
-                )
-            );
+            uint256 _numOfTokens = _underlyingTokens.length;
+            if (_numOfTokens == 1) {
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    // solhint-disable-next-line max-line-length
+                    abi.encodeWithSignature(
+                        "remove_liquidity_one_coin(uint256,int128,uint256)",
+                        _amount,
+                        _getTokenIndex(_liquidityPool, _underlyingTokens[0]),
+                        uint256(0)
+                    )
+                );
+            } else if (_numOfTokens == uint256(2)) {
+                uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
+                );
+            } else if (_numOfTokens == uint256(3)) {
+                uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
+                );
+            } else if (_numOfTokens == uint256(4)) {
+                uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
+                _codes[2] = abi.encode(
+                    _liquidityPool,
+                    abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut)
+                );
+            }
         }
     }
 
