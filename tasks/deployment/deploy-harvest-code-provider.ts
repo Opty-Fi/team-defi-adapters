@@ -27,6 +27,8 @@ task("deploy-harvest-code-provider", "Deploy Harvest Code Provider")
       [registry],
     );
 
+    console.log("Finished deploying harvestCodeProvider");
+
     console.log(`Contract harvestCodeProvider : ${harvestCodeProvider.address}`);
 
     if (insertindb) {

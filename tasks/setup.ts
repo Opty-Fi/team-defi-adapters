@@ -2,8 +2,10 @@ import { task, types } from "hardhat/config";
 
 import { CONTRACTS } from "../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../helpers/contracts-deployments";
-import { approveLiquidityPoolAndMapAdapters, approveTokens } from "../helpers/contracts-actions";
+import { approveLiquidityPoolAndMapAdapters, approveTokens, approveToken } from "../helpers/contracts-actions";
 import { insertContractIntoDB } from "../helpers/db";
+import { TESTING_CONTRACTS } from "../helpers/constants";
+import { deployContract } from "../helpers/helpers";
 
 task("setup", "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
@@ -67,4 +69,25 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       unpause: true,
       insertindb: insertindb,
     });
+
+    const erc20Contract = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
+      "BAL-ODEFI-USDC",
+      "BAL-ODEFI-USDC",
+      18,
+      0,
+    ]);
+    console.log(`BAL-ODEFI-USDC address : ${erc20Contract.address}`);
+    await approveToken(owner, essentialContracts["registry"], [erc20Contract.address]);
+
+    await hre.run("deploy-vault", {
+      token: erc20Contract.address,
+      riskprofile: "RP0",
+      registry: essentialContracts["registry"].address,
+      riskmanager: essentialContracts["riskManager"].address,
+      strategymanager: essentialContracts["strategyManager"].address,
+      optyminter: essentialContracts["optyMinter"].address,
+      unpause: true,
+      insertindb: insertindb,
+    });
+    console.log("Finished setup task");
   });
