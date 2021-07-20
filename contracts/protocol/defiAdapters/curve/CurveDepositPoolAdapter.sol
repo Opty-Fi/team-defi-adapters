@@ -100,6 +100,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      * @param _maxDepositAmount the amount is in USD for USD pools and BTC for BTC pools
      */
     function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+        // Note: We are using 18 as decimals for USD and BTC
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
@@ -828,10 +829,10 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _decimals = ERC20(_underlyingToken).decimals();
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 _actualAmount = _amount.mul(10**(uint256(18).sub(_decimals)));
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _decimals = ERC20(_underlyingToken).decimals();
+        uint256 _actualAmount = _amount.mul(10**(uint256(18).sub(_decimals)));
         uint256 _limit =
             _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
         return _actualAmount > _limit ? _limit.div(10**(uint256(18).sub(_decimals))) : _amount;
@@ -852,7 +853,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _decimals = ERC20(_underlyingToken).decimals();
-        uint256 _maxAmount = maxDepositAmount[_liquidityPool].mul(_decimals);
+        uint256 _maxAmount = maxDepositAmount[_liquidityPool].div(10**(uint256(18).sub(_decimals)));
         return _amount > _maxAmount ? _maxAmount : _amount;
     }
 }
