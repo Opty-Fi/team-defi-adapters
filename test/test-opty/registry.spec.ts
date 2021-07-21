@@ -71,14 +71,7 @@ describe(scenario.title, () => {
         owner,
         [],
       );
-      adapters = await deployAdapters(
-        hre,
-        owner,
-        registryContract.address,
-        DUMMY_EMPTY_CONTRACT.address,
-        DUMMY_EMPTY_CONTRACT.address,
-        TESTING_DEPLOYMENT_ONCE,
-      );
+      adapters = await deployAdapters(hre, owner, registryContract.address, TESTING_DEPLOYMENT_ONCE);
       contractNames.forEach(contractName => {
         contracts[contractName] = DUMMY_EMPTY_CONTRACT;
         assert.isDefined(
