@@ -53,4 +53,5 @@ task("set-best-strategy", "Set best strategy")
     } catch (error) {
       console.log(`Got error : `, error.message);
     }
+    console.log("Finished setting best strategy");
   });

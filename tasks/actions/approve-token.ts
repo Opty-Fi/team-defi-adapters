@@ -29,4 +29,5 @@ task("approve-token", "Approve Token")
 
     await approveToken(owner, registryContract, [token]);
     await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[token]]);
+    console.log(`Finished approving token`);
   });
