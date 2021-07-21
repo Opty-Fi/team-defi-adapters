@@ -20,7 +20,7 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-interface TEST_DEFI_ADAPTER_ARGUMENTS {
+type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositProtocolPct?: string | null;
   maxDepositPoolPct?: string | null;
   maxDepositAmount?: string | null;
@@ -240,9 +240,9 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
               for (const action of story.setActions) {
                 switch (action.action) {
-                  case "setMaxDepositPoolType(uint8)": {
-                    const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingMode = await adapters[adapterName].maxExposureType();
+                  case "setMaxDepositProtocolMode(uint8)": {
+                    const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
                     if (existingMode != mode) {
                       await adapters[adapterName][action.action](mode);
                     }
@@ -253,7 +253,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     if (!existingPoolPct.eq(BigNumber.from(0))) {
                       await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
                     }
-                    const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
+                    const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                     const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
                     if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                       await adapters[adapterName][action.action](maxDepositProtocolPct);
@@ -272,7 +272,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     break;
                   }
                   case "setMaxDepositPoolPct(address,uint256)": {
-                    const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
+                    const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                     const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
                     if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                       await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
@@ -290,9 +290,9 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                       : limitInUnderlyingToken;
                     break;
                   }
-                  case "setMaxDepositAmount(address,uint256)": {
+                  case "setMaxDepositAmount(address,address,uint256)": {
                     // Note: for curve maxDepositAmount will be in USD or BTC
-                    const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
+                    const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                     const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
                       liquidityPool,
                     );
@@ -303,6 +303,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     ) {
                       await adapters[adapterName][action.action](
                         liquidityPool,
+                        underlyingTokenAddress,
                         BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
                       );
                     }
@@ -345,7 +346,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    const existingMode = await adapters[adapterName].maxExposureType();
+                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
                     if (existingMode == 0) {
                       const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
                         liquidityPool,
