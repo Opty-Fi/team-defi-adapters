@@ -103,10 +103,10 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
      *                  1. Percentage of pool value
      *                  2. Amount in underlying token
      * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
+     * @param _mode Type of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public onlyGovernance {
-        maxExposureType = _type;
+    function setMaxDepositPoolType(DataTypes.MaxExposure _mode) public onlyGovernance {
+        maxExposureType = _mode;
     }
 
     /**
