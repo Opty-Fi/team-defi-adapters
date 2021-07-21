@@ -19,4 +19,6 @@ task("approve-tokens", "Approve Tokens")
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await approveTokens(owner, registryContract);
+
+    console.log(`Finished approving tokens`);
   });
