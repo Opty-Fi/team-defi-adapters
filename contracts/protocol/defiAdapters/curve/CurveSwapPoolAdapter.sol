@@ -110,7 +110,7 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
         uint256 _totalSupply = ERC20(getLiquidityPoolToken(address(0), _liquidityPool)).totalSupply();
         // the pool value will be in USD for US dollar stablecoin pools
         // the pool value will be in BTC for BTC pools
-        return (_virtualPrice.mul(_totalSupply)).div(10**16);
+        return (_virtualPrice.mul(_totalSupply)).div(10**18);
     }
 
     /**

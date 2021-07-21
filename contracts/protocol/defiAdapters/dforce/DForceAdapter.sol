@@ -10,7 +10,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
