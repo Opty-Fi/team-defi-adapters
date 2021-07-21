@@ -190,7 +190,7 @@
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolType(uint8)",
+              "action": "setMaxDepositProtocolMode(uint8)",
               "args": {
                 "type": 0
               },
@@ -269,7 +269,7 @@
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolType(uint8)",
+              "action": "setMaxDepositProtocolMode(uint8)",
               "args": {
                 "type": 0
               },
@@ -334,105 +334,11 @@
           ]
         },
         {
-          "description": "User shouldn't be able to deposit more than max deposit amount default when max deposit amount is set to 0",
+          "description": "RiskOperator should be able to set max deposit mode",
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolType(uint8)",
-              "args": {
-                "type": 0
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            },
-            {
-              "contract": "adapter",
-              "action": "setMaxDepositAmount(address,address,uint256)",
-              "args": {
-                "amount": {
-                  "DAI": "0",
-                  "USDC": "0",
-                  "USDT": "0"
-                }
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            },
-            {
-              "contract": "adapter",
-              "action": "setMaxDepositAmountDefault(address,uint256)",
-              "args": {
-                "amount": {
-                  "DAI": "500000000000000000",
-                  "USDC": "500000",
-                  "USDT": "500000"
-                }
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            },
-            {
-              "contract": "erc20",
-              "action": "approve(address,uint256)",
-              "args": {
-                "amount": {
-                  "DAI": "2000000000000000000",
-                  "USDC": "2000000",
-                  "USDT": "2000000"
-                }
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            },
-            {
-              "contract": "vault",
-              "action": "userDepositRebalance(uint256)",
-              "args": {
-                "amount": {
-                  "DAI": "2000000000000000000",
-                  "USDC": "2000000",
-                  "USDT": "2000000"
-                }
-              },
-              "executer": "owner",
-              "expect": "success",
-              "message": ""
-            }
-          ],
-          "getActions": [
-            {
-              "contract": "vault",
-              "action": "balance()",
-              "args": {},
-              "expectedValue": {
-                "DAI": "1500000000000000000",
-                "USDC": "1500000",
-                "USDT": "1500000"
-              }
-            },
-            {
-              "contract": "adapter",
-              "action": "getPoolValue(address,address)",
-              "args": {},
-              "expectedValue": {
-                "DAI": ">",
-                "USDC": ">",
-                "USDT": ">"
-              }
-            }
-          ]
-        },
-
-        {
-          "description": "RiskOperator should be able to set max deposit type",
-          "setActions": [
-            {
-              "contract": "adapter",
-              "action": "setMaxDepositPoolType(uint8)",
+              "action": "setMaxDepositProtocolMode(uint8)",
               "args": {
                 "type": 0
               },
@@ -444,7 +350,7 @@
           "getActions": [
             {
               "contract": "adapter",
-              "action": "maxExposureType()",
+              "action": "maxDepositProtocolMode()",
               "args": {},
               "expectedValue": {
                 "type": 0
@@ -452,13 +358,12 @@
             }
           ]
         },
-
         {
-          "description": "Non RiskOperator cannot set max deposit type",
+          "description": "Non RiskOperator cannot set max deposit mode",
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolType(uint8)",
+              "action": "setMaxDepositProtocolMode(uint8)",
               "args": {
                 "type": 0
               },
@@ -515,54 +420,7 @@
           "getActions": []
         },
         {
-          "description": "RiskOperator should be able to set max deposit amount default",
-          "setActions": [
-            {
-              "contract": "adapter",
-              "action": "setMaxDepositAmountDefault(address,uint256)",
-              "args": {
-                "amount": {
-                  "DAI": "500000000000000000",
-                  "USDC": "500000",
-                  "USDT": "500000"
-                }
-              },
-              "executer": "riskOperator",
-              "expect": "success",
-              "message": ""
-            }
-          ],
-          "getActions": [
-            {
-              "contract": "adapter",
-              "action": "maxDepositAmountDefault(address)",
-              "args": {},
-              "expectedValue": {
-                "DAI": "500000000000000000",
-                "USDC": "500000",
-                "USDT": "500000"
-              }
-            }
-          ]
-        },
-        {
-          "description": "Non RiskOperator cannot set max deposit amount default",
-          "setActions": [
-            {
-              "contract": "adapter",
-              "action": "setMaxDepositAmountDefault(address,uint256)",
-              "args": {
-                "amount": { "DAI": "0", "USDC": "0", "USDT": "0" }
-              },
-              "executer": "admin",
-              "expect": "fail",
-              "message": "caller is not the riskOperator"
-            }
-          ],
-          "getActions": []
-        },
-        {
-          "description": "RiskOperator should be able to set max deposit percentage",
+          "description": "RiskOperator should be able to set max deposit pool percentage",
           "setActions": [
             {
               "contract": "adapter",
@@ -589,7 +447,7 @@
           ]
         },
         {
-          "description": "Non RiskOperator cannot set max deposit percentage",
+          "description": "Non RiskOperator cannot set max deposit pool percentage",
           "setActions": [
             {
               "contract": "adapter",
@@ -605,11 +463,11 @@
           "getActions": []
         },
         {
-          "description": "RiskOperator should be able to set max deposit percentage default",
+          "description": "RiskOperator should be able to set max deposit protocol percentage",
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolPctDefault(uint256)",
+              "action": "setMaxDepositProtocolPct(uint256)",
               "args": {
                 "amount": { "DAI": "5", "USDC": "5", "USDT": "5" }
               },
@@ -621,7 +479,7 @@
           "getActions": [
             {
               "contract": "adapter",
-              "action": "maxDepositPoolPctDefault()",
+              "action": "maxDepositProtocolPct()",
               "args": {},
               "expectedValue": {
                 "DAI": "5",
@@ -632,11 +490,11 @@
           ]
         },
         {
-          "description": "Non RiskOperator cannot set max deposit percentage default",
+          "description": "Non RiskOperator cannot set max deposit protocol percentage",
           "setActions": [
             {
               "contract": "adapter",
-              "action": "setMaxDepositPoolPctDefault(uint256)",
+              "action": "setMaxDepositProtocolPct(uint256)",
               "args": {
                 "amount": { "DAI": "0", "USDC": "0", "USDT": "0" }
               },

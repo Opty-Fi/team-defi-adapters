@@ -23,6 +23,8 @@ task("deploy-strategy-provider", "Deploy Strategy Provider")
       registry,
     ]);
 
+    console.log("Finished deploying strategyProvider");
+
     console.log(`Contract strategyProvider : ${strategyProvider.address}`);
 
     if (insertindb) {

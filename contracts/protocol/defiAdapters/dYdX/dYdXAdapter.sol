@@ -10,9 +10,9 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {
     IdYdX,
     AccountInfo,
@@ -53,13 +53,10 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
-
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
         address[] memory _dYdXUnderlyingTokens = new address[](4);
@@ -72,8 +69,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         addMarket(SAI, 1);
         addMarket(USDC, 2);
         addMarket(DAI, 3);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -85,17 +82,6 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         onlyRiskOperator
     {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyRiskOperator
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -130,15 +116,15 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyRiskOperator {
-        maxExposureType = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyRiskOperator {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -152,7 +138,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
         for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
-                _amounts[i] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
+                _amounts[i] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
             }
         }
         return getDepositSomeCodes(_vault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
@@ -378,45 +364,24 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool, address _underlyingToken)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 }

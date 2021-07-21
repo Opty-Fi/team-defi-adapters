@@ -41,4 +41,5 @@ task("get-strategies", "Get all available strategies for specific token")
       }
       console.log("-------");
     }
+    console.log("Finished getting all strategies");
   });
