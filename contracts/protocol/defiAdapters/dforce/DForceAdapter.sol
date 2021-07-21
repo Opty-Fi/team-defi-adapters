@@ -10,14 +10,13 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
 import { IDForceStake } from "../../../interfaces/dforce/IDForceStake.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
@@ -28,14 +27,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to DForce's pools
  */
 
-contract DForceAdapter is
-    IAdapter,
-    IAdapterProtocolConfig,
-    IAdapterHarvestReward,
-    IAdapterStaking,
-    IAdapterInvestLimit,
-    Modifiers
-{
+contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to staking vault */
@@ -57,9 +49,6 @@ contract DForceAdapter is
     address public constant USDC_STAKING_VAULT = address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5);
     address public constant DAI_STAKING_VAULT = address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B);
 
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
-
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
@@ -69,8 +58,7 @@ contract DForceAdapter is
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
         setLiquidityPoolToStakingVault(USDT_DEPOSIT_POOL, USDT_STAKING_VAULT);
         setLiquidityPoolToStakingVault(USDC_DEPOSIT_POOL, USDC_STAKING_VAULT);
@@ -108,13 +96,6 @@ contract DForceAdapter is
             "liquidityPoolToStakingVault already set"
         );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @inheritdoc IAdapterProtocolConfig
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     /**
@@ -443,7 +424,7 @@ contract DForceAdapter is
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -510,7 +491,7 @@ contract DForceAdapter is
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward

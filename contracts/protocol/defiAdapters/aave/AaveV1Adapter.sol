@@ -10,7 +10,6 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
@@ -26,9 +25,9 @@ import {
     UserAccountData
 } from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
@@ -37,7 +36,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 
  * @dev Abstraction layer to AaveV1's pools
  */
-contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAdapterInvestLimit, Modifiers {
+contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -45,9 +44,6 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
 
     /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
@@ -70,8 +66,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
+    constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
@@ -92,13 +87,6 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         uint256 _maxDepositAmount
     ) external override onlyGovernance {
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
-    }
-
-    /**
-     * @inheritdoc IAdapterProtocolConfig
-     */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
     }
 
     /**
@@ -471,7 +459,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         } else {
             return
                 _aTokenAmount.add(
-                    harvestCodeProviderContract.getOptimalTokenAmount(
+                    IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getOptimalTokenAmount(
                         _borrowToken,
                         _underlyingToken,
                         _borrowAmount.sub(_outputTokenRepayable)
