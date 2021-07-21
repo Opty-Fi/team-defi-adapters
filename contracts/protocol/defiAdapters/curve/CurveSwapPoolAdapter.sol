@@ -16,6 +16,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -32,7 +33,7 @@ import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
  *      Note 2 : In this adapter, a swap pool is defined as a single-sided liquidity pool
  *      Note 3 : In this adapter, lp token can be redemeed into more than one underlying token
  */
-contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, Modifiers {
+contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Curve Registry Address Provider */
@@ -51,44 +52,40 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /**
      * @dev mapp coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
-     * @notice Sets the percentage of max deposit value for the given liquidity pool
-     * @param _liquidityPool liquidity pool address
-     * @param _maxDepositPoolPct liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
     }
 
     /**
-     * @notice Sets the absolute max deposit value in underlying for the given swap pool
-     * @param _liquidityPool swap pool address for which to set max deposit value (in absolute value)
-     * @param _maxDepositAmount max deposit value in wei to be set for the given liquidity pool
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositAmount(address _liquidityPool, uint256 _maxDepositAmount) external onlyGovernance {
+    function setMaxDepositAmount(
+        address _liquidityPool,
+        address,
+        uint256 _maxDepositAmount
+    ) external override onlyGovernance {
         // Note : We are using 18 as decimals for USD and BTC
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
     }
 
     /**
-     * @notice Sets the type of investment limit
-     *                  1. Percentage of pool value
-     *                  2. Amount in underlying token
-     * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _mode Type of maxDeposit to be set (can be absolute value or percentage)
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolMode(DataTypes.MaxExposure _mode) public onlyGovernance {
-        maxExposureType = _mode;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
@@ -99,11 +96,9 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
     }
 
     /**
-     * @notice Sets the max percentage deposit of protocol
-     * @param _maxDepositProtocolPct Protocol's max deposit percentage (in basis points, For eg: 50% means 5000)
-     * to be set as default value
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public onlyGovernance {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
         maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
@@ -750,7 +745,7 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
         uint256 _amount
     ) internal view returns (uint256) {
         return
-            maxExposureType == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountPct(_swapPool, _underlyingToken, _amount)
                 : _getMaxDepositAmount(_swapPool, _underlyingToken, _amount);
     }
