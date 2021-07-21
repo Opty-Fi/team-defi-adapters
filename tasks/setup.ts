@@ -34,8 +34,6 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       hre,
       owner,
       essentialContracts["registry"].address,
-      essentialContracts["harvestCodeProvider"].address,
-      essentialContracts["priceOracle"].address,
       deployedonce,
     );
     const adapterContractNames = Object.keys(adaptersContracts);

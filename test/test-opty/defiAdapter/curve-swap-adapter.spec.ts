@@ -17,8 +17,8 @@ type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CurveSwapAdapter", () => {
-  const ADAPTER_NAME = "CurveSwapAdapter";
+describe("CurveSwapPoolAdapter", () => {
+  const ADAPTER_NAME = "CurveSwapPoolAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
