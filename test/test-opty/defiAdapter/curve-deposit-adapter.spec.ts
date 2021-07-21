@@ -25,7 +25,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositPoolPct?: string | null;
   maxDepositAmount?: string | null;
   mode?: string | null;
-}
+};
 
 describe("CurveDepositPoolAdapter", () => {
   const ADAPTER_NAME = "CurveDepositPoolAdapter";
