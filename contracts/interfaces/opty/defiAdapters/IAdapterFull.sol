@@ -8,7 +8,6 @@ import { IAdapterBorrow } from "./IAdapterBorrow.sol";
 import { IAdapterHarvestReward } from "./IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "./IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "./IAdapterInvestLimit.sol";
-import { IAdapterProtocolConfig } from "./IAdapterProtocolConfig.sol";
 
 /**
  * @title Interface containing all functions from different DeFi adapter interfaces
@@ -18,14 +17,9 @@ import { IAdapterProtocolConfig } from "./IAdapterProtocolConfig.sol";
  * It can also be used as an interface layer for any new DeFi protocol. It contains all the
  * functions being used in all the DeFi adapters from different interfaces
  */
+
 /* solhint-disable no-empty-blocks */
-interface IAdapterFull is
-    IAdapter,
-    IAdapterBorrow,
-    IAdapterHarvestReward,
-    IAdapterStaking,
-    IAdapterInvestLimit,
-    IAdapterProtocolConfig
-{
+interface IAdapterFull is IAdapter, IAdapterBorrow, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit {
 
 }
+/* solhint-disable no-empty-blocks */
