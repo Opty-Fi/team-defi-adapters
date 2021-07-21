@@ -27,4 +27,5 @@ task("deploy-adapters", "Deploy Adapter contracts")
         console.log(adapter, error);
       }
     }
+    console.log("Finished deploying adapters");
   });

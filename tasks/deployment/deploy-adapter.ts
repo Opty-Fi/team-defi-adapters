@@ -17,7 +17,7 @@ task("deploy-adapter", "Deploy Adapter contract")
       throw new Error("name cannot be empty");
     }
 
-    if (!ADAPTER.includes(name)) {
+    if (!ADAPTER.map(adapter => adapter.toUpperCase()).includes(name.toUpperCase())) {
       throw new Error("adapter does not exist");
     }
 
@@ -37,6 +37,7 @@ task("deploy-adapter", "Deploy Adapter contract")
       deployedonce,
     );
 
+    console.log("Finished deploying adapter");
     console.log(`${name} address : ${adaptersContract.address}`);
 
     if (insertindb) {

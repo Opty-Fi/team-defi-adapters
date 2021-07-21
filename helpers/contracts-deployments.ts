@@ -275,7 +275,18 @@ export async function deployAdapter(
   registryAddr: string,
   isDeployedOnce: boolean,
 ): Promise<Contract> {
-  const contract: Contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
+  let contract: Contract;
+  if (["DYDXADAPTER", "FULCRUMADAPTER", "YVAULTADAPTER"].includes(adapterName.toUpperCase())) {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
+  } else if (adapterName.toUpperCase() === "CURVEPOOLADAPTER") {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
+      registryAddr,
+      harvestAddr,
+      priceOracleAddr,
+    ]);
+  } else {
+    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr, harvestAddr]);
+  }
   return contract;
 }
 
