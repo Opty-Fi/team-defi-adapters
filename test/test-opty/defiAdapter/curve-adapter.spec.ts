@@ -5,20 +5,15 @@ import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import {
-  approveTokens,
-  fundWalletToken,
-  getBlockTimestamp,
-  insertDataCurveDeposit,
-} from "../../../helpers/contracts-actions";
+import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("CurvePoolAdapter", () => {
-  const ADAPTER_NAME = "CurvePoolAdapter";
+describe("CurveDepositPoolAdapter", () => {
+  const ADAPTER_NAME = "CurveDepositPoolAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
@@ -39,11 +34,8 @@ describe("CurvePoolAdapter", () => {
         owner,
         ADAPTER_NAME,
         essentialContracts["registry"].address,
-        essentialContracts["harvestCodeProvider"].address,
-        essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await insertDataCurveDeposit(owner, adapter);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
@@ -92,13 +84,13 @@ describe("CurvePoolAdapter", () => {
                   if (amount) {
                     codes = await adapter[action.action](
                       ZERO_ADDRESS,
-                      [ZERO_ADDRESS],
+                      [nCoins[0]], // DAI
                       strategy.strategy[0].contract,
                       depositAmount,
                     );
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [ZERO_ADDRESS], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, [nCoins[0]], strategy.strategy[0].contract);
                 }
                 if (codes.length > 0) {
                   for (let i = 0; i < codes.length - 1; i = i + 2) {
@@ -129,9 +121,7 @@ describe("CurvePoolAdapter", () => {
                   const value = inter.decodeFunctionData("add_liquidity", abiCode);
                   if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
                     expect(value[0].length).to.equal(depositAmount.length);
-                    for (let i = 0; i < depositAmount.length; i++) {
-                      expect(value[0][i]).to.equal(depositAmount[i]);
-                    }
+                    expect(value[0][0]).to.equal(depositAmount[0]);
                   }
                   expect(value[1]).to.equal(0);
                 }

@@ -56,7 +56,7 @@ describe(scenarios.title, () => {
       // For all adapters except CurvePool and CurveSwap
       // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
       const adaptersName = Object.keys(TypedAdapterStrategies).filter(
-        strategy => !["CurvePoolAdapter", "CurveSwapAdapter"].includes(strategy),
+        strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
       );
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];

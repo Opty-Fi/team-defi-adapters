@@ -258,22 +258,9 @@ export async function deployAdapter(
   owner: Signer,
   adapterName: string,
   registryAddr: string,
-  harvestAddr: string,
-  priceOracleAddr: string,
   isDeployedOnce: boolean,
 ): Promise<Contract> {
-  let contract: Contract;
-  if (["DYDXADAPTER", "FULCRUMADAPTER", "YVAULTADAPTER"].includes(adapterName.toUpperCase())) {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
-  } else if (adapterName.toUpperCase() === "CURVEPOOLADAPTER") {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
-      registryAddr,
-      harvestAddr,
-      priceOracleAddr,
-    ]);
-  } else {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr, harvestAddr]);
-  }
+  const contract: Contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
   return contract;
 }
 
@@ -281,22 +268,12 @@ export async function deployAdapters(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
   registryAddr: string,
-  harvestAddr: string,
-  priceOracleAddr: string,
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
   for (const adapter of ADAPTER) {
     try {
-      data[adapter] = await deployAdapter(
-        hre,
-        owner,
-        adapter,
-        registryAddr,
-        harvestAddr,
-        priceOracleAddr,
-        isDeployedOnce,
-      );
+      data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
     } catch (error) {
       console.log(adapter, error);
     }
