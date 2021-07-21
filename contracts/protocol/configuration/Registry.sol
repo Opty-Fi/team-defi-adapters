@@ -439,43 +439,31 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function addRiskProfile(
-        string memory _riskProfile,
-        uint8 _noOfSteps,
-        DataTypes.PoolRatingsRange memory _poolRatingRange
-    ) external override onlyOperator returns (bool) {
-        _addRiskProfile(_riskProfile, _noOfSteps, _poolRatingRange);
-        return true;
-    }
-
-    /**
-     * @inheritdoc IRegistry
-     */
-    function addRiskProfile(
-        string[] memory _riskProfiles,
-        uint8[] memory _noOfSteps,
-        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
-    ) external override onlyOperator returns (bool) {
-        require(_riskProfiles.length > 0, "!length>0");
-        require(_riskProfiles.length == _noOfSteps.length, "!Stepslength");
-        require(_riskProfiles.length == _poolRatingRanges.length, "!PoolRatingsLength");
-
-        for (uint256 _i = 0; _i < _riskProfiles.length; _i++) {
-            _addRiskProfile(_riskProfiles[_i], _noOfSteps[_i], _poolRatingRanges[_i]);
-        }
-        return true;
-    }
-
-    /**
-     * @inheritdoc IRegistry
-     */
-    function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps)
+    function addRiskProfile(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
         external
         override
         onlyOperator
         returns (bool)
     {
-        _updateRiskProfileSteps(_riskProfile, _noOfSteps);
+        _addRiskProfile(_riskProfile, _poolRatingRange);
+        return true;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
+    function addRiskProfile(string[] memory _riskProfiles, DataTypes.PoolRatingsRange[] memory _poolRatingRanges)
+        external
+        override
+        onlyOperator
+        returns (bool)
+    {
+        require(_riskProfiles.length > 0, "!length>0");
+        require(_riskProfiles.length == _poolRatingRanges.length, "!PoolRatingsLength");
+
+        for (uint256 _i = 0; _i < _riskProfiles.length; _i++) {
+            _addRiskProfile(_riskProfiles[_i], _poolRatingRanges[_i]);
+        }
         return true;
     }
 
@@ -799,43 +787,24 @@ contract Registry is IRegistry, ModifiersController {
         return true;
     }
 
-    function _addRiskProfile(
-        string memory _riskProfile,
-        uint8 _noOfSteps,
-        DataTypes.PoolRatingsRange memory _poolRatingRange
-    ) internal returns (bool) {
+    function _addRiskProfile(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
+        internal
+        returns (bool)
+    {
         require(bytes(_riskProfile).length > 0, "RP_Empty!");
         require(!riskProfiles[_riskProfile].exists, "RP_already_exists");
 
         riskProfilesArray.push(_riskProfile);
-        riskProfiles[_riskProfile].steps = _noOfSteps;
         riskProfiles[_riskProfile].lowerLimit = _poolRatingRange.lowerLimit;
         riskProfiles[_riskProfile].upperLimit = _poolRatingRange.upperLimit;
         riskProfiles[_riskProfile].index = riskProfilesArray.length - 1;
         riskProfiles[_riskProfile].exists = true;
 
-        emit LogRiskProfile(
-            riskProfiles[_riskProfile].index,
-            riskProfiles[_riskProfile].exists,
-            riskProfiles[_riskProfile].steps,
-            msg.sender
-        );
+        emit LogRiskProfile(riskProfiles[_riskProfile].index, riskProfiles[_riskProfile].exists, msg.sender);
         emit LogRPPoolRatings(
             riskProfiles[_riskProfile].index,
             riskProfiles[_riskProfile].lowerLimit,
             riskProfiles[_riskProfile].upperLimit,
-            msg.sender
-        );
-        return true;
-    }
-
-    function _updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) internal returns (bool) {
-        require(riskProfiles[_riskProfile].exists, "!Rp_Exists");
-        riskProfiles[_riskProfile].steps = _noOfSteps;
-        emit LogRiskProfile(
-            riskProfiles[_riskProfile].index,
-            riskProfiles[_riskProfile].exists,
-            riskProfiles[_riskProfile].steps,
             msg.sender
         );
         return true;
@@ -862,7 +831,7 @@ contract Registry is IRegistry, ModifiersController {
         string memory _riskProfile = riskProfilesArray[_index];
         require(riskProfiles[_riskProfile].exists, "!Rp_Exists");
         riskProfiles[_riskProfile].exists = false;
-        emit LogRiskProfile(_index, riskProfiles[_riskProfile].exists, riskProfiles[_riskProfile].steps, msg.sender);
+        emit LogRiskProfile(_index, riskProfiles[_riskProfile].exists, msg.sender);
         return true;
     }
 

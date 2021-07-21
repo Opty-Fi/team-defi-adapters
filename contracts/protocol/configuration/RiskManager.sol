@@ -130,7 +130,6 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[0].pool);
         // validate strategy profile
         if (
-            uint8(_strategySteps.length) > _riskProfileStruct.steps ||
             !_liquidityPool.isLiquidityPool ||
             !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
                 _liquidityPool.rating <= _riskProfileStruct.upperLimit)

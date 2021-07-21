@@ -292,36 +292,22 @@ interface IRegistry {
     /**
      * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfile Risk Profile to add in Registry Storage
-     * @param _noOfSteps No. of permitted corresponding to risk profile provided
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(
-        string memory _riskProfile,
-        uint8 _noOfSteps,
-        DataTypes.PoolRatingsRange memory _poolRatingRange
-    ) external returns (bool);
+    function addRiskProfile(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
+        external
+        returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
      * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _noOfSteps List of No. of permitted strategy steps for a given risk profile
      * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(
-        string[] memory _riskProfiles,
-        uint8[] memory _noOfSteps,
-        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
-    ) external returns (bool);
-
-    /**
-     * @notice Update the no. of strategy steps allowed for existing risk profile
-     * @param _riskProfile Risk Profile to update with strategy steps
-     * @param _noOfSteps No. of strategy steps allowed for a given risk profile
-     * @return A boolean value indicating whether the operation succeeded
-     */
-    function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) external returns (bool);
+    function addRiskProfile(string[] memory _riskProfiles, DataTypes.PoolRatingsRange[] memory _poolRatingRanges)
+        external
+        returns (bool);
 
     /**
      * @notice Update the pool ratings for existing risk profile

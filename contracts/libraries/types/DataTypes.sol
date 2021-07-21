@@ -100,14 +100,12 @@ library DataTypes {
     /**
      * @notice Container for containing risk Profile's configuration
      * @param index Index at which risk profile is stored
-     * @param steps No. of strategy steps allowed for particular risk profile
      * @param lowerLimit lower limit for pool's rating for particular risk profile
      * @param upperLimit upper limit for pool's rating for particular risk profile
      * @param exists if risk profile exists or not
      */
     struct RiskProfile {
         uint256 index;
-        uint8 steps;
         uint8 lowerLimit;
         uint8 upperLimit;
         bool exists;
