@@ -148,21 +148,34 @@ export async function fundWalletToken(
   wallet: Signer,
   fundAmount: BigNumber,
   deadlineTimestamp: number,
+  toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
-  const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-  const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
-    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
-    gasLimit: 6721975,
-  };
-  const address = await wallet.getAddress();
-  await uniswapInstance.swapETHForExactTokens(
-    amount,
-    [TypedTokens["WETH"], tokenAddress],
-    address,
-    deadlineTimestamp,
-    ETH_VALUE_GAS_OVERIDE_OPTIONS,
-  );
+  if (tokenAddress === TypedTokens["WETH"]) {
+    fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
+    console.log("Fund amount to string: ", fundAmount.toString());
+    const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther(fundAmount.toString())),
+      gasLimit: 6721975,
+    };
+    const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], exchange.weth.abi, wallet);
+    await wethInstance.connect(wallet).deposit(ETH_VALUE_GAS_OVERRIDE_OPTIONS);
+    await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount));
+  } else {
+    const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+    const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
+      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
+      gasLimit: 6721975,
+    };
+    const address = toAddress == null ? await wallet.getAddress() : toAddress;
+    await uniswapInstance.swapETHForExactTokens(
+      amount,
+      [TypedTokens["WETH"], tokenAddress],
+      address,
+      deadlineTimestamp,
+      ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+    );
+  }
 }
 
 export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise<number> {
