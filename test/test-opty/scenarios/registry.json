@@ -906,10 +906,9 @@
       "description": "Operator should be able to add a Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -937,20 +936,18 @@
       "description": "Operator shouldn't be able to add the existing Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
           "message": ""
         },
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "fail",
@@ -963,10 +960,9 @@
       "description": "Operator shouldn't be able to add the empty Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "fail",
@@ -979,10 +975,9 @@
       "description": "Operator should be able to update no. of steps for Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -1034,10 +1029,9 @@
       "description": "Operator should be able to update pool ratings for Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -1089,10 +1083,9 @@
       "description": "Operator should be able to remove the Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -1142,10 +1135,9 @@
       "description": "Operator should be able to set a single Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "action": "addRiskProfile(string[],(uint8,uint8)[])",
           "args": {
             "riskProfile": ["RP1", "RP2", "RP3"],
-            "noOfSteps": [1, 2, 3],
             "poolRatingsRange": [
               [0, 20],
               [0, 40],
@@ -1213,10 +1205,9 @@
           "message": ""
         },
         {
-          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "action": "addRiskProfile(string[],(uint8,uint8)[])",
           "args": {
             "riskProfile": ["RP1", "RP2", "RP3"],
-            "noOfSteps": [1, 2, 3],
             "poolRatingsRange": [
               [0, 20],
               [0, 40],
@@ -1233,10 +1224,9 @@
       "description": "Operator should be able to map tokens and riskProfile to Vault address",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",
@@ -1269,10 +1259,9 @@
       "description": "Operator should be able to map tokens and riskProfile to Vault address",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
             "poolRatingRange": [0, 10]
           },
           "expect": "success",

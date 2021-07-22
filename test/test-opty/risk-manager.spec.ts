@@ -81,19 +81,18 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addRiskProfile(string,uint8,(uint8,uint8))": {
-            const { riskProfile, noOfSteps, poolRatingRange }: ARGUMENTS = action.args;
-            if (riskProfile && noOfSteps && poolRatingRange) {
+          case "addRiskProfile(string,(uint8,uint8))": {
+            const { riskProfile, poolRatingRange }: ARGUMENTS = action.args;
+            if (riskProfile && poolRatingRange) {
               if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, noOfSteps, poolRatingRange);
+                await contracts[action.contract][action.action](riskProfile, poolRatingRange);
               } else {
                 await expect(
-                  contracts[action.contract][action.action](riskProfile, noOfSteps, poolRatingRange),
+                  contracts[action.contract][action.action](riskProfile, poolRatingRange),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(noOfSteps, `args is wrong in ${action.action} testcase`);
             assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
             break;
           }
