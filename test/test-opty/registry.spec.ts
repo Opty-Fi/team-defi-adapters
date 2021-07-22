@@ -214,22 +214,22 @@ describe(scenario.title, () => {
             assert.isDefined(tokensHash, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "addRiskProfile(string[],(uint8,uint8)[])": {
-            const { riskProfile, poolRatingsRange }: ARGUMENTS = action.args;
+          case "addRiskProfile(string[],bool[],(uint8,uint8)[])": {
+            const { riskProfile, canBorrow, poolRatingsRange }: ARGUMENTS = action.args;
             if (riskProfile) {
               if (action.expect === "success") {
-                await registryContract[action.action](riskProfile, poolRatingsRange);
+                await registryContract[action.action](riskProfile, canBorrow, poolRatingsRange);
               } else {
-                await expect(registryContract[action.action](riskProfile, poolRatingsRange)).to.be.revertedWith(
-                  action.message,
-                );
+                await expect(
+                  registryContract[action.action](riskProfile, canBorrow, poolRatingsRange),
+                ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "addRiskProfile(string,(uint8,uint8))": {
-            const { riskProfile, poolRatingRange }: ARGUMENTS = action.args;
+          case "addRiskProfile(string,bool,(uint8,uint8))": {
+            const { riskProfile, canBorrow, poolRatingRange }: ARGUMENTS = action.args;
             if (riskProfile) {
               if (action.expect === "success") {
                 const _addRiskProfileTx = await registryContract[action.action](riskProfile, poolRatingRange);
@@ -237,7 +237,8 @@ describe(scenario.title, () => {
                 expect(addRiskProfileTx.events[0].event).to.equal("LogRiskProfile");
                 expect(addRiskProfileTx.events[0].args[0]).to.equal(0);
                 expect(addRiskProfileTx.events[0].args[1]).to.equal(true);
-                expect(addRiskProfileTx.events[0].args[2]).to.equal(caller);
+                expect(addRiskProfileTx.events[0].args[2]).to.equal(canBorrow);
+                expect(addRiskProfileTx.events[0].args[3]).to.equal(caller);
                 expect(addRiskProfileTx.events[1].event).to.equal("LogRPPoolRatings");
                 expect(addRiskProfileTx.events[1].args[0]).to.equal(0);
                 expect(addRiskProfileTx.events[1].args[1]).to.equal(poolRatingRange[0]);

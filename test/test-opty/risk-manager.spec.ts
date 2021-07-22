@@ -9,6 +9,7 @@ import scenario from "./scenarios/risk-manager.json";
 
 type ARGUMENTS = {
   riskProfile?: string;
+  canBorrow?: boolean;
   noOfSteps?: number;
   poolRatingRange?: number[];
   strategy?: STRATEGY_DATA[];
@@ -81,18 +82,19 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addRiskProfile(string,(uint8,uint8))": {
-            const { riskProfile, poolRatingRange }: ARGUMENTS = action.args;
-            if (riskProfile && poolRatingRange) {
+          case "addRiskProfile(string,bool,(uint8,uint8))": {
+            const { riskProfile, canBorrow, poolRatingRange }: ARGUMENTS = action.args;
+            if (riskProfile && canBorrow && poolRatingRange) {
               if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, poolRatingRange);
+                await contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange);
               } else {
                 await expect(
-                  contracts[action.contract][action.action](riskProfile, poolRatingRange),
+                  contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(canBorrow, `args is wrong in ${action.action} testcase`);
             assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
             break;
           }

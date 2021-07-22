@@ -91,9 +91,9 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(bytes32 => mapping(string => address)) public underlyingAssetHashToRPToVaults;
 
     /**
-     * @notice riskProfile mapped to its struct `RiskProfile`
+     * @dev riskProfile mapped to its struct `RiskProfile`
      */
-    mapping(string => DataTypes.RiskProfile) public riskProfiles;
+    mapping(string => DataTypes.RiskProfile) internal riskProfiles;
 
     /**
      * @notice vault contract address mapped to VaultConfiguration
@@ -223,7 +223,7 @@ contract RegistryStorage is RegistryAdminStorage {
     /**
      * @notice Emitted when RiskProfile is added
      */
-    event LogRiskProfile(uint256 indexed index, bool indexed exists, address indexed caller);
+    event LogRiskProfile(uint256 indexed index, bool indexed exists, bool indexed canBorrow, address caller);
 
     /**
      * @notice Emitted when Risk profile is set

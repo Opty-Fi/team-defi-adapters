@@ -100,14 +100,14 @@ library DataTypes {
     /**
      * @notice Container for containing risk Profile's configuration
      * @param index Index at which risk profile is stored
-     * @param lowerLimit lower limit for pool's rating for particular risk profile
-     * @param upperLimit upper limit for pool's rating for particular risk profile
+     * @param canBorrow True if borrow is allowed for the risk profile
+     * @param poolRatingsRange Container for having limit range for the pools
      * @param exists if risk profile exists or not
      */
     struct RiskProfile {
         uint256 index;
-        uint8 lowerLimit;
-        uint8 upperLimit;
+        bool canBorrow;
+        PoolRatingsRange poolRatingsRange;
         bool exists;
     }
 

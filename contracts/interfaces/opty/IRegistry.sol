@@ -292,22 +292,29 @@ interface IRegistry {
     /**
      * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfile Risk Profile to add in Registry Storage
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
-        external
-        returns (bool);
+    function addRiskProfile(
+        string memory _riskProfile,
+        bool _canBorrow,
+        DataTypes.PoolRatingsRange memory _poolRatingRange
+    ) external returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
+     * @dev All parameters must be in the same order.
      * @param _riskProfiles List of Risk Profiles to add in Registry Storage
+     * @param _canBorrow List of boolean values indicating whether the riskProfile allows borrow step
      * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(string[] memory _riskProfiles, DataTypes.PoolRatingsRange[] memory _poolRatingRanges)
-        external
-        returns (bool);
+    function addRiskProfile(
+        string[] memory _riskProfiles,
+        bool[] memory _canBorrow,
+        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
+    ) external returns (bool);
 
     /**
      * @notice Update the pool ratings for existing risk profile

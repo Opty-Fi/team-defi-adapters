@@ -57,8 +57,9 @@ export async function deployEssentialContracts(
     try {
       const profile = await registry.riskProfiles(RISK_PROFILES[profiles[i]].name);
       if (!profile.exists) {
-        await executeFunc(registry, owner, "addRiskProfile(string,(uint8,uint8))", [
+        await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
           RISK_PROFILES[profiles[i]].name,
+          RISK_PROFILES[profiles[i]].canBorrow,
           RISK_PROFILES[profiles[i]].poolRating,
         ]);
       }

@@ -7,9 +7,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -54,9 +55,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -101,9 +103,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -230,9 +233,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -393,9 +397,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [2, 10]
           },
           "executor": "",
@@ -577,9 +582,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -771,9 +777,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -965,9 +972,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1159,9 +1167,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1353,9 +1362,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1541,9 +1551,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
