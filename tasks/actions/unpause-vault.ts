@@ -28,4 +28,6 @@ task("unpause-vault", "Unpause Vault")
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await unpauseVault(owner, registryContract, vault, true);
+
+    console.log("Finished unpausing Vault");
   });
