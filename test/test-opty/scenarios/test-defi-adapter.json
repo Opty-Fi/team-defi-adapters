@@ -7,11 +7,13 @@
       "setActions": [
         {
           "contract": "adapter",
-          "action": "setMaxDepositPoolType(uint8)",
+          "action": "setMaxDepositProtocolMode(uint8)",
           "args": {
             "mode": "1"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "adapter",
@@ -19,19 +21,22 @@
           "args": {
             "maxDepositProtocolPct": "10000"
           },
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -65,11 +70,13 @@
       "setActions": [
         {
           "contract": "adapter",
-          "action": "setMaxDepositPoolType(uint8)",
+          "action": "setMaxDepositProtocolMode(uint8)",
           "args": {
             "mode": "1"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "adapter",
@@ -77,18 +84,22 @@
           "args": {
             "maxDepositProtocolPct": "10"
           },
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
+          "args": {},
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -123,11 +134,13 @@
       "setActions": [
         {
           "contract": "adapter",
-          "action": "setMaxDepositPoolType(uint8)",
+          "action": "setMaxDepositProtocolMode(uint8)",
           "args": {
             "mode": "1"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "adapter",
@@ -135,17 +148,22 @@
           "args": {
             "maxDepositPoolPct": "90"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
+          "args": {},
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -180,29 +198,36 @@
       "setActions": [
         {
           "contract": "adapter",
-          "action": "setMaxDepositPoolType(uint8)",
+          "action": "setMaxDepositProtocolMode(uint8)",
           "args": {
             "mode": "0"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
         },
         {
           "contract": "adapter",
-          "action": "setMaxDepositAmount(address,uint256)",
+          "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
             "maxDepositAmount": "0"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
+          "args": {},
+          "executer": "owner",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -237,29 +262,36 @@
       "setActions": [
         {
           "contract": "adapter",
-          "action": "setMaxDepositPoolType(uint8)",
+          "action": "setMaxDepositProtocolMode(uint8)",
           "args": {
             "mode": "0"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "adapter",
-          "action": "setMaxDepositAmount(address,uint256)",
+          "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
             "maxDepositAmount": "10"
           },
-          "executer": "owner"
+          "executer": "owner",
+          "expect": "",
+          "message": ""
         },
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
+          "args": {},
+          "executer": "",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""

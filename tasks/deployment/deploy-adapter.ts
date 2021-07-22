@@ -29,17 +29,7 @@ task("deploy-adapter", "Deploy Adapter contract")
       throw new Error("registry address is invalid");
     }
 
-<<<<<<< HEAD
-    const adaptersContract: Contract = await deployAdapter(
-      hre,
-      owner,
-      name,
-      registry,
-      deployedonce,
-    );
-=======
     const adaptersContract: Contract = await deployAdapter(hre, owner, name, registry, deployedonce);
->>>>>>> master
 
     console.log("Finished deploying adapter");
     console.log(`${name} address : ${adaptersContract.address}`);
