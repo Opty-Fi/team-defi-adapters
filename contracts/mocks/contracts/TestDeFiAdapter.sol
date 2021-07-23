@@ -7,7 +7,6 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapterFull } from "../../interfaces/opty/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import "hardhat/console.sol";
 
 contract TestDeFiAdapter is MultiCall {
     using Address for address;
@@ -19,19 +18,10 @@ contract TestDeFiAdapter is MultiCall {
     ) external {
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = _underlyingToken;
-        // console.log("Underlying token address: ", _underlyingTokens[0]);
         executeCodes(
             IAdapterFull(_adapter).getDepositAllCodes(payable(address(this)), _underlyingTokens, _liquidityPool),
             "depositAll"
         );
-    }
-
-    function testGetPoolValue(address _liquidityPool) public view returns (bool) {
-        // console.log("Coming in getPoolValue");
-        // console.log("Liquidity pool-2: ", _liquidityPool);
-        // console.log("Is Contract: ", _liquidityPool.isContract());
-        return _liquidityPool.isContract();
-        // return ICompound(address(_liquidityPool)).getCash();
     }
 
     function testGetDepositSomeCodes(
