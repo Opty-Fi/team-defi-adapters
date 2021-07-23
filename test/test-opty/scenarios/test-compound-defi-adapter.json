@@ -25,13 +25,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -84,13 +85,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -143,13 +145,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -202,13 +205,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -261,13 +265,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -320,13 +325,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -379,13 +385,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -438,13 +445,14 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
+          "args": {},
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -452,6 +460,7 @@
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetWithdrawAllCodes(address,address,address)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
