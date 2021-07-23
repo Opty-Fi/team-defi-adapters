@@ -50,10 +50,10 @@ contract CompoundETHGateway is ICompoundETHGateway, Modifiers {
         address _liquidityPool,
         uint256 _amount
     ) external override {
-        ICompound(_liquidityPool).transferFrom(_vault, address(this), _amount);
+        IERC20(_liquidityPool).transferFrom(_vault, address(this), _amount);
         ICompound(_liquidityPool).redeem(_amount);
         WETH.deposit{ value: address(this).balance }();
-        IERC20(WETH).transfer(_vault, IERC20(WETH).balanceOf(address(this)));
+        IERC20(address(WETH)).transfer(_vault, IERC20(address(WETH)).balanceOf(address(this)));
     }
 
     /**
@@ -63,17 +63,14 @@ contract CompoundETHGateway is ICompoundETHGateway, Modifiers {
         address _token,
         address _to,
         uint256 _amount
-    ) external onlyOperator {
+    ) external override onlyOperator {
         IERC20(_token).transfer(_to, _amount);
     }
 
     /**
-     * @dev transfer native Ether from the utility contract, for native Ether recovery in case of stuck Ether
-     * due selfdestructs or transfer ether to pre-computated contract address before deployment.
-     * @param to recipient of the transfer
-     * @param amount amount to send
+     * @inheritdoc ICompoundETHGateway
      */
-    function emergencyEtherTransfer(address to, uint256 amount) external onlyOperator {
+    function emergencyEtherTransfer(address to, uint256 amount) external override onlyOperator {
         _safeTransferETH(to, amount);
     }
 

@@ -26,7 +26,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to Compound's pools
  */
 
-contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit {
+contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -52,16 +52,16 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
      * @dev It is required to cover edge case of depositing
      *      ETH to Compound's ETH liquidity pool contract
      */
-    address public constant CETH = address(0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5);
+    address public constant CETH = address(0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5);
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
     /** @dev ETH gateway contract for compound adapter */
-    address internal immutable compoundETHGatewayContract;
+    address public immutable compoundETHGatewayContract;
 
     constructor(address _registry) public Modifiers(_registry) {
-        compoundETHGatewayContract = new CompoundETHGateway(WETH, _registry);
+        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry));
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -266,7 +266,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
      * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
-        address payable,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
@@ -280,7 +280,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
                 );
                 _codes[1] = abi.encode(
                     _underlyingTokens[0],
-                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, _depositAmount)
+                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(_amount))
                 );
                 _codes[2] = abi.encode(
                     compoundETHGatewayContract,
@@ -288,7 +288,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
                         "withdrawETH(address,address,uint256)",
                         _vault,
                         _liquidityPool,
-                        uint256(_depositAmount)
+                        uint256(_amount)
                     )
                 );
             } else {
