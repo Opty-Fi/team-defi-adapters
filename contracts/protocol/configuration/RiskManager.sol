@@ -130,10 +130,9 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
             !_liquidityPool.isLiquidityPool ||
                 !(_liquidityPool.rating >= _riskProfileStruct.poolRatingsRange.lowerLimit &&
                     _liquidityPool.rating <= _riskProfileStruct.poolRatingsRange.upperLimit);
-        if (!_riskProfileStruct.canBorrow && !_isStrategyInvalid) {
-            // do not allow borrow step
-            _isStrategyInvalid = _isStrategyInvalid || _strategySteps[0].isBorrow;
-        }
+        _isStrategyInvalid = !_riskProfileStruct.canBorrow && !_isStrategyInvalid
+            ? _strategySteps[0].isBorrow
+            : _isStrategyInvalid;
         if (_isStrategyInvalid) {
             if (
                 IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
