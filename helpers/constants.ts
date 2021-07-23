@@ -18,6 +18,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
   APR_ORACLE: "APROracle",
   ODEFI_VAULT_BOOSTER: "ODEFIVaultBooster",
+  ERC20: "ERC20",
 };
 
 export const ADAPTER = [
@@ -25,8 +26,8 @@ export const ADAPTER = [
   "AaveV2Adapter",
   "CompoundAdapter",
   "CreamAdapter",
-  "CurvePoolAdapter",
-  "CurveSwapAdapter",
+  "CurveDepositPoolAdapter",
+  "CurveSwapPoolAdapter",
   "DyDxAdapter",
   "DForceAdapter",
   "FulcrumAdapter",
