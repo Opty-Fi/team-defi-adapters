@@ -86,7 +86,8 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "addRiskProfile(string,bool,(uint8,uint8))": {
             const { riskProfile, canBorrow, poolRatingRange }: ARGUMENTS = action.args;
-            if (riskProfile && canBorrow && poolRatingRange) {
+            const borrowArgExists = canBorrow == true || canBorrow == false;
+            if (riskProfile && borrowArgExists && poolRatingRange) {
               if (action.expect === "success") {
                 await contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange);
               } else {
