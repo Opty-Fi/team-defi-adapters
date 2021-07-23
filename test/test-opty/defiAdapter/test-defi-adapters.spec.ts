@@ -81,7 +81,7 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
         //  @reason: ETH: For this, CompoundAdapter has to be updated as cETH and other cTokens have different ABI.
         if (
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
-          // (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)) &&
+          //   (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)) &&
           //   (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WBTC)) &&
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.SAI)) &&
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.REP)) &&
@@ -94,7 +94,7 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
         ) {
           process.env.ADAPTER_DEBUG == "true" && console.log("Underlying token address:", underlyingTokenAddress);
 
-          for (let i = 0; i < 2; i++) {
+          for (let i = 0; i < 13; i++) {
             // for (let i = 0; i < testDeFiAdapterScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdapterScenario.stories[i].description}`, async () => {
               process.env.ADAPTER_DEBUG == "true" && console.log("Pool token name: ", pool);
@@ -119,7 +119,7 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
                 underlyingTokenAddress == getAddress(TypedTokens.MUSD)
                   ? BigNumber.from("200")
                   : defaultFundAmount;
-              let limit: BigNumber;
+              let limit: BigNumber = ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               // const ERC20Instance = await hre.ethers.getContractAt("ERC20", "0x6B175474E89094C44Da98b954EedeAC495271d0F");  //  Temp. DAI ERC20 for ETH testing
@@ -164,7 +164,10 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
                   case "setMaxDepositProtocolPct(uint256)": {
                     process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
                     const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Existing Pool Pct: ", existingPoolPct);
                     if (!existingPoolPct.eq(BigNumber.from(0))) {
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Coming in setting pool pct in setProtocolPct Action");
                       await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
                     }
                     // const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
@@ -198,21 +201,47 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     break;
                   }
-                  case "setMaxDepositAmount(address,uint256)": {
+                  case "setMaxDepositAmount(address,address,uint256)": {
                     // Note: for curve maxDepositAmount will be in USD or BTC
                     // const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const { maxDepositAmount }: any = action.args;
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
+                    let { maxDepositAmount }: any = action.args;
+                    maxDepositAmount = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying token address: ", underlyingTokenAddress);
                     const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
                       liquidityPool,
+                      underlyingTokenAddress,
                     );
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Existing MaxDepositAmount: ", +existingDepositAmount);
                     if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
-                      await adapters[adapterName][action.action](liquidityPool, maxDepositAmount);
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Coming in. setting MaxDepositAmt if not matches the existing one");
+                      await adapters[adapterName][action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        maxDepositAmount,
+                      );
                     }
-                    limitInUnderlyingToken = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
+                    limit = BigNumber.from(maxDepositAmount);
+                    // limitInUnderlyingToken = limit;
+                    // limitInUnderlyingToken = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
-                      ? defaultFundAmount
-                      : limitInUnderlyingToken;
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("default fund amount before comparison: ", +defaultFundAmount);
+
+                    // defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
+                    //   ? defaultFundAmount
+                    //   : limitInUnderlyingToken;
+
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Limit: ", +limit);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Limit in underlying token: ", +limitInUnderlyingToken);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("default fund amount normal: ", +defaultFundAmount);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("default fund amount in string: ", defaultFundAmount.toString());
                     break;
                   }
                   case "fundTestDeFiAdapterContract": {
@@ -286,10 +315,11 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
                     if (existingMode == 0) {
                       const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
                         liquidityPool,
+                        underlyingTokenAddress,
                       );
                       process.env.ADAPTER_DEBUG == "true" &&
                         console.log("Existing Deposit amount: ", +existingDepositAmount);
-                      if (existingDepositAmount.eq(0)) {
+                      if (existingDepositAmount.eq(0) || expectedValue == "=0") {
                         expect(lpTokenBalance).to.be.eq(0);
                       } else {
                         expect(lpTokenBalance).to.be.gt(0);
@@ -323,17 +353,31 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
                       testDeFiAdapter.address,
                     );
                     process.env.ADAPTER_DEBUG == "true" && console.log("Balance after: ", +underlyingBalanceAfter);
-                    console.log("Underlying token bal before: ", +underlyingBalanceBefore);
-                    console.log("Limit in underlying: ", +limitInUnderlyingToken);
-                    console.log("Underlying Bal. after: ", +underlyingBalanceAfter);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying token bal before: ", +underlyingBalanceBefore);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Limit in underlying: ", +limitInUnderlyingToken);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying Bal. after: ", +underlyingBalanceAfter);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Default fund amount: ", +defaultFundAmount);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Limit: ", +limit);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Diff: ", +defaultFundAmount.sub(limit));
                     // if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                     //   expect(underlyingBalanceAfter).to.be.eq(0);
                     // } else {
                     //   expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limitInUnderlyingToken));
                     // }
+
+                    //----------------------------//
+                    // defaultFundAmount.lte(limit) ? defaultFundAmount : limit
                     expectedValue == ">0"
-                      ? expect(underlyingBalanceAfter).to.be.gt(0)
-                      : expect(underlyingBalanceAfter).to.be.eq(0);
+                      ? defaultFundAmount.lte(limit)
+                        ? expect(underlyingBalanceAfter).to.be.gte(defaultFundAmount)
+                        : expect(underlyingBalanceAfter).to.be.gte(limit)
+                      : defaultFundAmount.lte(limit)
+                      ? expect(underlyingBalanceAfter).to.be.eq(0)
+                      : expect(underlyingBalanceAfter).to.be.gte(defaultFundAmount.sub(limit));
+                    //   defaultFundAmount.lte(limit) ? expect(underlyingBalanceAfter).to.be.eq(0) : expect(underlyingBalanceAfter).to.be.lte(defaultFundAmount.sub(limit));
                     break;
                   }
                 }
