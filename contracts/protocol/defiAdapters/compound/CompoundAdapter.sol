@@ -10,6 +10,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { CompoundETHGateway } from "./CompoundETHGateway.sol";
 
 //  interfaces
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
@@ -25,7 +26,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to Compound's pools
  */
 
-contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
+contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
@@ -46,10 +47,21 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     /** @notice Compound's reward token (COMP) address */
     address public rewardToken;
 
+    /**
+     * @notice Compound's ETH liquidity pool contract address
+     * @dev It is required to cover edge case of depositing
+     *      ETH to Compound's ETH liquidity pool contract
+     */
+    address public constant CETH = address(0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5);
+
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
+    /** @dev ETH gateway contract for compound adapter */
+    address internal immutable compoundETHGatewayContract;
+
     constructor(address _registry) public Modifiers(_registry) {
+        compoundETHGatewayContract = new CompoundETHGateway(WETH, _registry);
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -219,22 +231,33 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
      * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
-        address payable,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
-        if (_depositAmount > 0) {
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+        address _lendingPool = _liquidityPool == CETH ? compoundETHGatewayContract : _liquidityPool;
+        _codes = new bytes[](3);
+        _codes[0] = abi.encode(
+            _underlyingTokens[0],
+            abi.encodeWithSignature("approve(address,uint256)", _lendingPool, uint256(0))
+        );
+        _codes[1] = abi.encode(
+            _underlyingTokens[0],
+            abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _depositAmount)
+        );
+        if (_liquidityPool == CETH) {
+            _codes[2] = abi.encode(
+                compoundETHGatewayContract,
+                abi.encodeWithSignature(
+                    "depositETH(address,address,uint256)",
+                    _vault,
+                    _liquidityPool,
+                    uint256(_depositAmount)
+                )
             );
-            _codes[1] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
-            );
+        } else {
             _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", uint256(_depositAmount)));
         }
     }
@@ -249,11 +272,32 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
-            _codes = new bytes[](1);
-            _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-                abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
-            );
+            if (_liquidityPool == CETH) {
+                _codes = new bytes[](3);
+                _codes[0] = abi.encode(
+                    _underlyingTokens[0],
+                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(0))
+                );
+                _codes[1] = abi.encode(
+                    _underlyingTokens[0],
+                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, _depositAmount)
+                );
+                _codes[2] = abi.encode(
+                    compoundETHGatewayContract,
+                    abi.encodeWithSignature(
+                        "withdrawETH(address,address,uint256)",
+                        _vault,
+                        _liquidityPool,
+                        uint256(_depositAmount)
+                    )
+                );
+            } else {
+                _codes = new bytes[](1);
+                _codes[0] = abi.encode(
+                    getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                    abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
+                );
+            }
         }
     }
 
