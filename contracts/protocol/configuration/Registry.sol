@@ -439,6 +439,19 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
+    function updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow)
+        external
+        override
+        onlyOperator
+        returns (bool)
+    {
+        _updateRiskProfileBorrow(_riskProfile, _canBorrow);
+        return true;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
     function addRiskProfile(
         string memory _riskProfile,
         bool _canBorrow,
@@ -810,6 +823,18 @@ contract Registry is IRegistry, ModifiersController {
             riskProfiles[_riskProfile].index,
             riskProfiles[_riskProfile].poolRatingsRange.lowerLimit,
             riskProfiles[_riskProfile].poolRatingsRange.upperLimit,
+            msg.sender
+        );
+        return true;
+    }
+
+    function _updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow) internal returns (bool) {
+        require(riskProfiles[_riskProfile].exists, "!Rp_Exists");
+        riskProfiles[_riskProfile].canBorrow = _canBorrow;
+        emit LogRiskProfile(
+            riskProfiles[_riskProfile].index,
+            riskProfiles[_riskProfile].exists,
+            riskProfiles[_riskProfile].canBorrow,
             msg.sender
         );
         return true;

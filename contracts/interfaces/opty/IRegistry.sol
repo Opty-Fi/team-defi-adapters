@@ -317,6 +317,14 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
+     * @notice CHange the borrow allowance for existing risk profile
+     * @param _riskProfile Risk Profile to update with strategy steps
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
+     * @return A boolean value indicating whether the operation succeeded
+     */
+    function updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow) external returns (bool);
+
+    /**
      * @notice Update the pool ratings for existing risk profile
      * @param _riskProfile Risk profile to update with pool rating range
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) to update for given risk profile

@@ -257,6 +257,20 @@ describe(scenario.title, () => {
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
           }
+          case "updateRiskProfileBorrow(string,bool)": {
+            const { riskProfile, canBorrow }: ARGUMENTS = action.args;
+            if (riskProfile) {
+              if (action.expect === "success") {
+                await registryContract[action.action](riskProfile, canBorrow);
+              } else {
+                await expect(registryContract[action.action](riskProfile, canBorrow)).to.be.revertedWith(
+                  action.message,
+                );
+              }
+            }
+            assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "updateRPPoolRatings(string,(uint8,uint8))": {
             const { riskProfile, poolRatingRange }: ARGUMENTS = action.args;
             if (riskProfile) {

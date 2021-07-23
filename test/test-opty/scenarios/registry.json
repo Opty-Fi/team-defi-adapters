@@ -976,7 +976,7 @@
       "getActions": []
     },
     {
-      "description": "Operator should be able to update no. of steps for Risk Profile",
+      "description": "Operator should be able to change borrow for Risk Profile",
       "setActions": [
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
@@ -989,7 +989,7 @@
           "message": ""
         },
         {
-          "action": "updateRiskProfileSteps(string,uint8)",
+          "action": "updateRiskProfileBorrow(string,bool)",
           "args": {
             "riskProfile": "RP1",
             "canBorrow": false
@@ -1016,13 +1016,12 @@
       ]
     },
     {
-      "description": "Operator shouldn't be able to update no. of steps for non-existing Risk Profile",
+      "description": "Operator shouldn't be able to change borrow for non-existing Risk Profile",
       "setActions": [
         {
-          "action": "updateRiskProfileSteps(string,uint8)",
+          "action": "updateRiskProfileBorrow(string,bool)",
           "args": {
-            "riskProfile": "Non-Existing-RP",
-            "noOfSteps": 2
+            "riskProfile": "Non-Existing-RP"
           },
           "expect": "fail",
           "message": "!Rp_Exists"

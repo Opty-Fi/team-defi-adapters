@@ -10,7 +10,6 @@ import scenario from "./scenarios/risk-manager.json";
 type ARGUMENTS = {
   riskProfile?: string;
   canBorrow?: boolean;
-  noOfSteps?: number;
   poolRatingRange?: number[];
   strategy?: STRATEGY_DATA[];
   token?: string;
