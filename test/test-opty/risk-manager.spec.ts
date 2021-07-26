@@ -1,7 +1,7 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { TypedStrategies, TypedTokens, TypedDefaultStrategies } from "../../helpers/data";
+import { TypedStrategies, TypedTokens } from "../../helpers/data";
 import {
   generateStrategyHash,
   generateStrategyStep,
@@ -16,10 +16,13 @@ import scenario from "./scenarios/risk-manager.json";
 type ARGUMENTS = {
   poolRatingRange?: number[];
   score?: number[];
+  defaultStrategyState?: number;
 };
 
 describe(scenario.title, () => {
   let contracts: CONTRACTS = {};
+  const daiStrategies = TypedStrategies.filter(strategy => strategy.token === "DAI");
+  const defaultStrategy = daiStrategies[0];
   beforeEach(async () => {
     try {
       const [owner] = await hre.ethers.getSigners();
@@ -75,9 +78,8 @@ describe(scenario.title, () => {
     }
   });
 
-  for (let i = 0; i < TypedStrategies.length; i++) {
-    const strategy = TypedStrategies[i];
-    const defaultStrategy = TypedDefaultStrategies[strategy.token];
+  for (let i = 1; i < daiStrategies.length; i++) {
+    const strategy = daiStrategies[i];
     const riskProfile = "RP1";
     const noOfSteps = strategy.strategy.length;
     const tokenHash = generateTokenHash([TypedTokens[strategy.token]]);
