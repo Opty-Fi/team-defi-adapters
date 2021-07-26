@@ -1761,7 +1761,7 @@
       ]
     },
     {
-      "description": "Operator shouldn't be able to set multiple non-approved liquidity pools to adapters",
+      "description": "Operator shouldn't be able to set mutiple non-approved liquidity pools to adapters",
       "setActions": [
         {
           "action": "setLiquidityPoolToAdapter((address,address)[])",
@@ -2047,9 +2047,9 @@
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP10",
+            "riskProfile": "RP2",
             "canBorrow": false,
-            "poolRatingRange": [100, 200]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2058,13 +2058,13 @@
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP10",
+            "riskProfile": "RP2",
             "canBorrow": false,
-            "poolRatingRange": [100, 200]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "fail",
-          "message": "revert RP_already_exists"
+          "message": "RP_already_exists"
         }
       ],
       "getActions": [],
@@ -2107,23 +2107,23 @@
       "cleanActions": []
     },
     {
-      "description": "RiskOperator should be able to change borrow for Risk Profile",
+      "description": "RiskOperator should be able to update borrow for Risk Profile",
       "setActions": [
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP111",
+            "riskProfile": "RP3",
             "canBorrow": false,
-            "poolRatingRange": [50, 60]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
           "message": ""
         },
         {
-          "action": "updateRiskProfileBorrow(string,bool)",
+          "action": "updateRiskProfileSteps(string,bool)",
           "args": {
-            "riskProfile": "RP111",
+            "riskProfile": "RP3",
             "canBorrow": true
           },
           "executor": "riskOperator",
@@ -2136,12 +2136,12 @@
           "action": "getRiskProfile(string)",
 
           "args": {
-            "riskProfile": "RP11"
+            "riskProfile": "RP3"
           },
           "expectedMultiValues": {
             "canBorrow": true,
-            "lowerLimit": 50,
-            "upperLimit": 60,
+            "lowerLimit": 0,
+            "upperLimit": 10,
             "exists": true
           },
           "expectedValue": ""
@@ -2150,16 +2150,45 @@
       "cleanActions": []
     },
     {
-      "description": "Operator shouldn't be able to change borrow for non-existing Risk Profile",
+      "description": "RiskOperator shouldn't be able to update borrow for non-existing Risk Profile",
       "setActions": [
         {
-          "action": "updateRiskProfileBorrow(string,bool)",
+          "action": "updateRiskProfileSteps(string,bool)",
           "args": {
-            "riskProfile": "Non-Existing-RP"
+            "riskProfile": "Non-Existing-RP",
+            "canBorrow": true
           },
           "executor": "riskOperator",
           "expect": "fail",
           "message": "!Rp_Exists"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "Non-RiskOperator shouldn't be able to update borrow for Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP4",
+            "canBorrow": false,
+            "poolRatingRange": [0, 10]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "updateRiskProfileSteps(string,bool)",
+          "args": {
+            "riskProfile": "RP4",
+            "canBorrow": true
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the risk operator"
         }
       ],
       "getActions": [],
@@ -2171,19 +2200,19 @@
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP16",
+            "riskProfile": "RP5",
             "canBorrow": false,
-            "poolRatingRange": [15, 25]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
           "message": ""
         },
         {
-          "action": "updateRiskProfileSteps(string,uint8)",
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP16",
-            "poolRatingRange": [25, 35]
+            "riskProfile": "RP5",
+            "poolRatingRange": [0, 20]
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2193,14 +2222,13 @@
       "getActions": [
         {
           "action": "getRiskProfile(string)",
-
           "args": {
-            "riskProfile": "RP16"
+            "riskProfile": "RP5"
           },
           "expectedMultiValues": {
             "canBorrow": false,
-            "lowerLimit": 25,
-            "upperLimit": 35,
+            "lowerLimit": 0,
+            "upperLimit": 20,
             "exists": true
           },
           "expectedValue": ""
@@ -2229,10 +2257,10 @@
       "description": "Non-RiskOperator shouldn't be able to update pool ratings for Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP6",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
@@ -2259,9 +2287,9 @@
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP001",
+            "riskProfile": "RP7",
             "canBorrow": false,
-            "poolRatingRange": [23, 34]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2270,7 +2298,7 @@
         {
           "action": "removeRiskProfile(uint256)",
           "args": {
-            "riskProfile": "RP001"
+            "riskProfile": "RP7"
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2282,7 +2310,7 @@
           "action": "getRiskProfile(string)",
 
           "args": {
-            "riskProfile": "RP001"
+            "riskProfile": "RP7"
           },
           "expectedMultiValues": {
             "canBorrow": false,
@@ -2315,10 +2343,10 @@
       "description": "Non-RiskOperator should be able to remove the Risk Profile",
       "setActions": [
         {
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP8",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
@@ -2344,12 +2372,12 @@
         {
           "action": "addRiskProfile(string[],bool[],(uint8,uint8)[])",
           "args": {
-            "riskProfile": ["RP21", "RP22", "RP23"],
+            "riskProfile": ["RP9", "RP10", "RP11"],
             "canBorrow": [false, true, true],
             "poolRatingsRange": [
-              [120, 220],
-              [230, 240],
-              [150, 160]
+              [0, 20],
+              [0, 40],
+              [0, 60]
             ]
           },
           "executor": "riskOperator",
@@ -2360,42 +2388,39 @@
       "getActions": [
         {
           "action": "getRiskProfile(string)",
-
           "args": {
-            "riskProfile": "RP21"
+            "riskProfile": "RP9"
           },
           "expectedMultiValues": {
             "canBorrow": false,
-            "lowerLimit": 120,
-            "upperLimit": 220,
+            "lowerLimit": 0,
+            "upperLimit": 20,
             "exists": true
           },
           "expectedValue": ""
         },
         {
           "action": "getRiskProfile(string)",
-
           "args": {
-            "riskProfile": "RP22"
+            "riskProfile": "RP10"
           },
           "expectedMultiValues": {
-            "canBorrow": false,
-            "lowerLimit": 230,
-            "upperLimit": 240,
+            "canBorrow": true,
+            "lowerLimit": 0,
+            "upperLimit": 40,
             "exists": true
           },
           "expectedValue": ""
         },
         {
           "action": "getRiskProfile(string)",
-
           "args": {
-            "riskProfile": "RP23"
+            "riskProfile": "RP11"
           },
           "expectedMultiValues": {
-            "canBorrow": false,
-            "lowerLimit": 150,
-            "upperLimit": 160,
+            "canBorrow": true,
+            "lowerLimit": 0,
+            "upperLimit": 60,
             "exists": true
           },
           "expectedValue": ""
@@ -2407,10 +2432,10 @@
       "description": "Non-RiskOperator shouldn't be able to set a multiple Risk Profiles",
       "setActions": [
         {
-          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "action": "addRiskProfile(string[],bool[],(uint8,uint8)[])",
           "args": {
             "riskProfile": ["RP1", "RP2", "RP3"],
-            "noOfSteps": [1, 2, 3],
+            "canBorrow": [false, true, true],
             "poolRatingsRange": [
               [0, 20],
               [0, 40],
@@ -2502,14 +2527,14 @@
       ]
     },
     {
-      "description": "RiskOperator should be able to map token and riskProfile to Vault address",
+      "description": "Operator should be able to map token and riskProfile to Vault address",
       "setActions": [
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP002",
+            "riskProfile": "RP12",
             "canBorrow": false,
-            "poolRatingRange": [45, 55]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2519,7 +2544,7 @@
           "action": "setUnderlyingAssetHashToRPToVaults(address[],string,address)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP002",
+            "riskProfile": "RP12",
             "vault": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
           },
           "executor": "operator",
@@ -2532,7 +2557,7 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP002"
+            "riskProfile": "RP12"
           },
           "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
           "expectedMultiValues": {}
@@ -2541,14 +2566,14 @@
       "cleanActions": []
     },
     {
-      "description": "Operator should be able to map multiple tokens and riskProfile to Vault addresses",
+      "description": "Operator should be able to map mulitple tokens and riskProfile to Vault addresses",
       "setActions": [
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
-            "riskProfile": "RP134",
+            "riskProfile": "RP13",
             "canBorrow": false,
-            "poolRatingRange": [66, 76]
+            "poolRatingRange": [0, 10]
           },
           "executor": "riskOperator",
           "expect": "success",
@@ -2561,7 +2586,7 @@
               ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
               ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
             ],
-            "riskProfiles": ["RP134"],
+            "riskProfiles": ["RP13"],
             "vaults": [["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x797AAB1ce7c01eB727ab980762bA88e7133d2157"]]
           },
           "executor": "operator",
@@ -2574,7 +2599,7 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-            "riskProfile": "RP134"
+            "riskProfile": "RP13"
           },
           "expectedValue": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
           "expectedMultiValues": {}
@@ -2583,7 +2608,7 @@
           "action": "underlyingAssetHashToRPToVaults(bytes32,string)",
           "args": {
             "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-            "riskProfile": "RP134"
+            "riskProfile": "RP13"
           },
           "expectedValue": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
           "expectedMultiValues": {}
