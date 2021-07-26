@@ -12,8 +12,8 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 
 //  interfaces
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IFulcrum } from "../../../interfaces/fulcrum/IFulcrum.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
@@ -62,8 +62,8 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxDepositProtocolMode = _type;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
@@ -269,43 +269,21 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+                ? _getMaxDepositAmountByPct(_liquidityPool)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositProtocolPct;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 }

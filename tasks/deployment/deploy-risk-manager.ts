@@ -20,6 +20,8 @@ task("deploy-risk-manager", "Deploy Risk Manager")
 
     const riskManagerContract = await deployRiskManager(hre, owner, deployedonce, registry);
 
+    console.log("Finished deploying riskManager");
+
     console.log(`Contract riskManager : ${riskManagerContract.address}`);
 
     if (insertindb) {

@@ -66,6 +66,9 @@ export async function approveLiquidityPoolAndMapAdapters(
 export async function approveToken(owner: Signer, registryContract: Contract, tokenAddresses: string[]): Promise<void> {
   if (tokenAddresses.length > 0) {
     await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
+    await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
+      tokenAddresses.map(addr => [addr]),
+    ]);
   }
 }
 
@@ -76,9 +79,6 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
   }
   try {
     await approveToken(owner, registryContract, tokenAddresses);
-    await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
-      tokenAddresses.map(addr => [addr]),
-    ]);
   } catch (error) {
     console.log(`Got error when executing approveTokens : ${error}`);
   }
@@ -148,6 +148,7 @@ export async function fundWalletToken(
   wallet: Signer,
   fundAmount: BigNumber,
   deadlineTimestamp: number,
+  toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const ETH_VALUE_GAS_OVERIDE_OPTIONS = {

@@ -43,7 +43,7 @@ interface IAdapterInvestLimit {
      *                  1. Percentage of pool value
      *                  2. Amount in underlying token
      * @dev Types (can be number or percentage) supported for the maxDeposit value
-     * @param _type Type of maxDeposit to be set (can be absolute value or percentage)
+     * @param _mode Mode of maxDeposit to be set (can be absolute value or percentage)
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _type) external;
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) external;
 }

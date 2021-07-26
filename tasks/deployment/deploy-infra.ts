@@ -25,4 +25,5 @@ task("deploy-infra", "Deploy infrastructure contracts")
         }
       }
     }
+    console.log("Finished deploying infrastructure contracts");
   });

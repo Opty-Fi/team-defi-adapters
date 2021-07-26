@@ -106,5 +106,17 @@
         "isBorrow": false
       }
     ]
+  },
+  {
+    "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC",
+    "token": "DAI",
+    "strategy": [
+      {
+        "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+        "outputTokenSymbol": "cDAI+cUSDC",
+        "outputToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+        "isBorrow": false
+      }
+    ]
   }
 ]
