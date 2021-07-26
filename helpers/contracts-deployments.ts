@@ -253,6 +253,31 @@ export async function deployEssentialContracts(
   return essentialContracts;
 }
 
+export async function deployAdapterPrerequisites(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  isDeployedOnce: boolean,
+): Promise<CONTRACTS> {
+  const registry = await deployRegistry(hre, owner, isDeployedOnce);
+
+  const harvestCodeProvider = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
+    isDeployedOnce,
+    owner,
+    [registry.address],
+  );
+
+  await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
+
+  const adapterPrerequisites: CONTRACTS = {
+    registry,
+    harvestCodeProvider,
+  };
+
+  return adapterPrerequisites;
+}
+
 export async function deployAdapter(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
