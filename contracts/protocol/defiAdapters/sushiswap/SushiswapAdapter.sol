@@ -9,11 +9,11 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 // interfaces
 import { ISushiswapMasterChef } from "../../../interfaces/sushiswap/ISushiswapMasterChef.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
@@ -27,23 +27,23 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    /** @notice Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    /** @notice Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
-    /** @notice  Maps underlyingToken to the ID of its pool */
+    /** @notice Maps underlyingToken to the ID of its pool */
     mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
 
-    /** @notice  SUSHI token contract address */
+    /** @notice SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
-    /** @notice  WETH-USDC pair contract address */
-    address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
+    /** @notice Sushiswap router contract address */
+    address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
+    /** @notice Sushiswap WETH-USDC pair contract address */
+    address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
@@ -55,13 +55,12 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
-        harvestCodeProviderContract = HarvestCodeProvider(registryContract.getHarvestCodeProvider());
         setRewardToken(SUSHI);
         setMaxDepositProtocolPct(uint256(10000)); // 100%
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
         setUnderlyingTokenToMasterChefToPid(
             SUSHI_WETH_USDC,
-            address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd),
+            address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd), // MasterChef V1 contract address
             uint256(1)
         );
     }
@@ -317,7 +316,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _masterChef, _underlyingToken);
         if (_unclaimedReward > 0) {
             _balance = _balance.add(
-                harvestCodeProviderContract.rewardBalanceInLPTokensSushi(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -369,7 +368,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory) {
         return
-            harvestCodeProviderContract.getHarvestLPTokenSushiCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
                 getRewardToken(_masterChef),
                 _underlyingToken,
