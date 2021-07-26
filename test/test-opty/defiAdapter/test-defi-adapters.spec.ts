@@ -6,7 +6,7 @@ import { TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
 import { TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapters, deployRegistry } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-import testDeFiAdapterScenario from "../scenarios/test-compound-defi-adapter.json";
+import testAllDeFiAdaptersScenario from "../scenarios/test-all-defi-adapters.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
@@ -21,7 +21,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositAmount?: string;
 };
 
-describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
+describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
   let registry: Contract;
   let users: { [key: string]: Signer };
   const adapterNames = Object.keys(TypedDefiPools);
@@ -61,9 +61,9 @@ describe(`${testDeFiAdapterScenario.title} - CompoundAdapter`, () => {
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.LINKUSD)) &&
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.SBTC))
         ) {
-          for (let i = 0; i < testDeFiAdapterScenario.stories.length; i++) {
-            it(`${pool} - ${testDeFiAdapterScenario.stories[i].description}`, async () => {
-              const story = testDeFiAdapterScenario.stories[i];
+          for (let i = 0; i < testAllDeFiAdaptersScenario.stories.length; i++) {
+            it(`${pool} - ${testAllDeFiAdaptersScenario.stories[i].description}`, async () => {
+              const story = testAllDeFiAdaptersScenario.stories[i];
 
               let defaultFundAmount: BigNumber = BigNumber.from("20000");
               defaultFundAmount =
