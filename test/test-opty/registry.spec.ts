@@ -71,13 +71,13 @@ describe(scenario.title, () => {
         owner,
         [],
       );
+      assert.isDefined(
+        DUMMY_EMPTY_CONTRACT,
+        `Dummy contract (to be used for testing Contract setter functions) not deployed`,
+      );
       adapters = await deployAdapters(hre, owner, registryContract.address, TESTING_DEPLOYMENT_ONCE);
       contractNames.forEach(contractName => {
         contracts[contractName] = DUMMY_EMPTY_CONTRACT;
-        assert.isDefined(
-          contracts[contractName],
-          `${contractName.slice(0, 1).toUpperCase().concat(contractName.slice(1))} contract not deployed`,
-        );
       });
       assert.isDefined(registryContract, "Registry contract not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
