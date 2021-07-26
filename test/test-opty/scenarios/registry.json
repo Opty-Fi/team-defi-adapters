@@ -2088,7 +2088,8 @@
       "getActions": [],
       "cleanActions": []
     },
-    {"description": "Non-RiskOperator shouldn't be able to add a Risk Profile",
+    {
+      "description": "Non-RiskOperator shouldn't be able to add a Risk Profile",
       "setActions": [
         {
           "action": "addRiskProfile(string,bool,(uint8,uint8))",
