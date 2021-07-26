@@ -121,7 +121,7 @@ export async function deployEssentialContracts(
     100000000000000,
   ]);
 
-  const optyMinter = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_MINTER, isDeployedOnce, owner, [
+  const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY_DISTRIBUTOR, isDeployedOnce, owner, [
     registry.address,
     opty.address,
     1700000000,
@@ -188,11 +188,11 @@ export async function deployEssentialContracts(
     [registry.address, opty.address, 15552000, "180D"],
   );
 
-  await executeFunc(registry, owner, "setOPTYMinter(address)", [optyMinter.address]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
-  await executeFunc(optyMinter, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
+  await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
+  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
   await executeFunc(optyStakingRateBalancer, owner, "initialize(address,address,address,address)", [
     optyStakingVault1D.address,
     optyStakingVault30D.address,
@@ -228,7 +228,7 @@ export async function deployEssentialContracts(
     vaultStepInvestStrategyDefinitionRegistry,
     strategyProvider,
     strategyManager,
-    optyMinter,
+    optyDistributor,
     opty,
     riskManager,
     harvestCodeProvider,
@@ -243,27 +243,39 @@ export async function deployEssentialContracts(
   return essentialContracts;
 }
 
+export async function deployAdapterPrerequisites(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  isDeployedOnce: boolean,
+): Promise<CONTRACTS> {
+  const registry = await deployRegistry(hre, owner, isDeployedOnce);
+
+  const harvestCodeProvider = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
+    isDeployedOnce,
+    owner,
+    [registry.address],
+  );
+
+  await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
+
+  const adapterPrerequisites: CONTRACTS = {
+    registry,
+    harvestCodeProvider,
+  };
+
+  return adapterPrerequisites;
+}
+
 export async function deployAdapter(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
   adapterName: string,
   registryAddr: string,
-  harvestAddr: string,
-  priceOracleAddr: string,
   isDeployedOnce: boolean,
 ): Promise<Contract> {
-  let contract: Contract;
-  if (["DyDxAdapter", "FulcrumAdapter", "YVaultAdapter", "SushiswapAdapter"].includes(adapterName)) {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
-  } else if (adapterName === "CurvePoolAdapter") {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
-      registryAddr,
-      harvestAddr,
-      priceOracleAddr,
-    ]);
-  } else {
-    contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr, harvestAddr]);
-  }
+  const contract: Contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [registryAddr]);
   return contract;
 }
 
@@ -271,22 +283,12 @@ export async function deployAdapters(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
   registryAddr: string,
-  harvestAddr: string,
-  priceOracleAddr: string,
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
   for (const adapter of ADAPTER) {
     try {
-      data[adapter] = await deployAdapter(
-        hre,
-        owner,
-        adapter,
-        registryAddr,
-        harvestAddr,
-        priceOracleAddr,
-        isDeployedOnce,
-      );
+      data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
     } catch (error) {
       console.log(adapter, error);
     }
@@ -297,9 +299,6 @@ export async function deployAdapters(
 export async function deployVaults(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   owner: Signer,
   admin: Signer,
   isDeployedOnce: boolean,
@@ -315,9 +314,6 @@ export async function deployVaults(
       const vault = await deployVault(
         hre,
         registry,
-        riskManager,
-        strategyManager,
-        optyMinter,
         TOKENS[token],
         owner,
         admin,
@@ -334,9 +330,6 @@ export async function deployVaults(
 export async function deployVault(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -384,9 +377,6 @@ export async function deployVault(
 export async function deployVaultsWithHash(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   owner: Signer,
   admin: Signer,
 ): Promise<CONTRACTS_WITH_HASH> {
@@ -395,19 +385,7 @@ export async function deployVaultsWithHash(
     const name = await getTokenName(hre, token);
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVaultWithHash(
-        hre,
-        registry,
-        riskManager,
-        strategyManager,
-        optyMinter,
-        TOKENS[token],
-        owner,
-        admin,
-        name,
-        symbol,
-        riskProfile,
-      );
+      const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
       vaults[`${symbol}-${riskProfile}`] = vault;
     }
   }
@@ -417,9 +395,6 @@ export async function deployVaultsWithHash(
 export async function deployVaultWithHash(
   hre: HardhatRuntimeEnvironment,
   registry: string,
-  riskManager: string,
-  strategyManager: string,
-  optyMinter: string,
   underlyingToken: string,
   owner: Signer,
   admin: Signer,
@@ -450,16 +425,7 @@ export async function deployVaultWithHash(
     vaultProxy.contract,
     owner,
     "initialize(address,address,address,address,address,string,string,string)",
-    [
-      registry,
-      riskManager,
-      underlyingToken,
-      strategyManager,
-      optyMinter,
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      riskProfile,
-    ],
+    [registry, underlyingToken, underlyingTokenName, underlyingTokenSymbol, riskProfile],
   );
   return vaultProxy;
 }

@@ -16,7 +16,7 @@ import {
   getTokenSymbol,
   unpauseVault,
 } from "../../helpers/contracts-actions";
-import scenarios from "./scenarios/invest-limitation.json";
+import scenarios from "./scenarios/curve-deposit-invest-limitation.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   type?: number;
@@ -30,7 +30,6 @@ describe(scenarios.title, () => {
     DAI: BigNumber.from("20000000000000000000"),
     USDC: BigNumber.from("20000000"),
     USDT: BigNumber.from("20000000"),
-    SLP_WETH_USDC: BigNumber.from("200000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -53,10 +52,8 @@ describe(scenarios.title, () => {
       const vault = scenarios.vaults[i];
       const stories = vault.stories;
       const profile = vault.profile;
-      // For all adapters except CurvePool and CurveSwap
-      // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
-      const adaptersName = Object.keys(TypedAdapterStrategies).filter(
-        strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(strategy =>
+        ["CurveDepositPoolAdapter"].includes(strategy),
       );
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
@@ -134,7 +131,7 @@ describe(scenarios.title, () => {
                 for (let i = 0; i < story.setActions.length; i++) {
                   const setAction = story.setActions[i];
                   switch (setAction.action) {
-                    case "setMaxDepositProtocolMode(uint8)": {
+                    case "setMaxDepositPoolType(uint8)": {
                       const { type }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type);
@@ -152,7 +149,7 @@ describe(scenarios.title, () => {
                           .connect(users[setAction.executer])
                           [setAction.action](
                             strategy.strategy[0].contract,
-                            token,
+                            TOKENS[strategy.token],
                             amount ? amount[strategy.token] : "0",
                           );
                       } else {
@@ -161,7 +158,7 @@ describe(scenarios.title, () => {
                             .connect(users[setAction.executer])
                             [setAction.action](
                               strategy.strategy[0].contract,
-                              token,
+                              TOKENS[strategy.token],
                               amount ? amount[strategy.token] : "0",
                             ),
                         ).to.be.revertedWith(setAction.message);
@@ -183,7 +180,22 @@ describe(scenarios.title, () => {
                       }
                       break;
                     }
-                    case "maxDepositProtocolPct(uint256)": {
+                    case "setMaxDepositAmountDefault(address,uint256)": {
+                      const { amount }: ARGUMENTS = setAction.args;
+                      if (setAction.expect === "success") {
+                        await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](TOKENS[strategy.token], amount ? amount[strategy.token] : "0");
+                      } else {
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](TOKENS[strategy.token], amount ? amount[strategy.token] : "0"),
+                        ).to.be.revertedWith(setAction.message);
+                      }
+                      break;
+                    }
+                    case "setMaxDepositPoolPctDefault(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
@@ -216,7 +228,17 @@ describe(scenarios.title, () => {
                     case "userDepositRebalance(uint256)":
                     case "userWithdrawRebalance(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
-                      currentPoolValue = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
+                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                        currentPoolValue = await contracts["adapter"].getPoolValue(
+                          strategy.strategy[0].contract,
+                          token,
+                        );
+                      } else {
+                        currentPoolValue = await contracts["adapter"].getPoolValue(
+                          strategy.strategy[0].contract,
+                          ADDRESS_ZERO,
+                        );
+                      }
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
                           .connect(users[setAction.executer])
@@ -255,7 +277,12 @@ describe(scenarios.title, () => {
                     }
                     case "getPoolValue(address,address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
+                      let value: BigNumber;
+                      if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
+                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
+                      } else {
+                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
+                      }
                       if (expectedValue[strategy.token] === "<") {
                         expect(value.sub(currentPoolValue)).to.lt(0);
                       } else if (expectedValue[strategy.token] === "=") {

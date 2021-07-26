@@ -5,7 +5,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY: "VaultStepInvestStrategyDefinitionRegistry",
   STRATEGY_MANAGER: "StrategyManager",
   OPTY: "OPTY",
-  OPTY_MINTER: "OPTYMinter",
+  OPTY_DISTRIBUTOR: "OPTYDistributor",
   RISK_MANAGER: "RiskManager",
   STRATEGY_PROVIDER: "StrategyProvider",
   HARVEST_CODE_PROVIDER: "HarvestCodeProvider",
@@ -18,6 +18,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
   APR_ORACLE: "APROracle",
   ODEFI_VAULT_BOOSTER: "ODEFIVaultBooster",
+  ERC20: "ERC20",
 };
 
 export const ADAPTER = [
@@ -25,8 +26,8 @@ export const ADAPTER = [
   "AaveV2Adapter",
   "CompoundAdapter",
   "CreamAdapter",
-  "CurvePoolAdapter",
-  "CurveSwapAdapter",
+  "CurveDepositPoolAdapter",
+  "CurveSwapPoolAdapter",
   "DyDxAdapter",
   "DForceAdapter",
   "FulcrumAdapter",
@@ -77,6 +78,7 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
   TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
+  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";

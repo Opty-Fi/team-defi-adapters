@@ -29,4 +29,10 @@ interface ICurveDeposit {
     function calc_withdraw_one_coin(uint256 _balance, int128 _tokenIndex) external view returns (uint256);
 
     function token() external view returns (address);
+
+    /// @dev returns swap contract from old curve deposit zap
+    function curve() external view returns (address);
+
+    /// @dev returns swap contract from new curve deposit zap
+    function pool() external view returns (address);
 }

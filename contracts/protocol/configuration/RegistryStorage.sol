@@ -18,14 +18,37 @@ contract RegistryAdminStorage {
     address public governance;
 
     /**
+     * @notice Finance operator of optyfi's earn protocol
+     * @dev Handle functions having withdrawal fee, treasury and finance related logic
+     */
+    address public financeOperator;
+
+    /**
+     * @notice Risk operator of optyfi's earn protocol
+     * @dev Handle functions for maintaining the risk profiles and rating of liquidity/credit pools
+     */
+    address public riskOperator;
+
+    /**
+     * @notice Strategy operator of optyfi's earn protocol
+     * @dev Handle functions related to strategies/vault strategies to be used
+     */
+    address public strategyOperator;
+
+    /**
      * @notice Operator of optyfi's earn protocol
      */
     address public operator;
 
     /**
-     * @notice Minter for OPTY token
+     * @notice Treasury of optyfi's earn protocol
      */
-    address public minter;
+    address public treasury;
+
+    /**
+     * @notice Distributor for OPTY token
+     */
+    address public optyDistributor;
 
     /**
      * @notice Pending governance for optyfi's earn protocol
@@ -43,14 +66,34 @@ contract RegistryAdminStorage {
     address public pendingRegistryImplementation;
 
     /**
-     * @notice when transfer operation of protocol occurs
+     * @notice notify when transfer operation of financeOperator occurs
+     */
+    event TransferFinanceOperator(address indexed financeOperator, address indexed caller);
+
+    /**
+     * @notice notify when transfer operation of riskOperator occurs
+     */
+    event TransferRiskOperator(address indexed riskOperator, address indexed caller);
+
+    /**
+     * @notice notify when transfer operation of strategyOperator occurs
+     */
+    event TransferStrategyOperator(address indexed strategyOperator, address indexed caller);
+
+    /**
+     * @notice notify when transfer operation of operator occurs
      */
     event TransferOperator(address indexed operator, address indexed caller);
 
     /**
-     * @notice Change minter of protocol
+     * @notice notify when transfer operation of treasury occurs
      */
-    event TransferOPTYMinter(address indexed minter, address indexed caller);
+    event TransferTreasury(address indexed treasury, address indexed caller);
+
+    /**
+     * @notice notify when transfer operation of optyDistributor occurs
+     */
+    event TransferOPTYDistributor(address indexed optyDistributor, address indexed caller);
 }
 
 /**

@@ -83,9 +83,6 @@ describe(scenario.title, () => {
               Vault = await deployVault(
                 hre,
                 essentialContracts.registry.address,
-                essentialContracts.riskManager.address,
-                essentialContracts.strategyManager.address,
-                essentialContracts.optyMinter.address,
                 TOKENS[TOKEN_STRATEGY.token],
                 users["owner"],
                 users["admin"],
@@ -125,7 +122,7 @@ describe(scenario.title, () => {
                 profile,
               );
 
-              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;

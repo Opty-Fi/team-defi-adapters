@@ -5,7 +5,7 @@ import { TESTING_CONTRACTS } from "../../helpers/constants";
 task("deploy-erc20", "Deploy ERC20")
   .addParam("name", "the name of token", "", types.string)
   .addParam("symbol", "the symbol of token", "", types.string)
-  .addParam("total", "the totalSupply of token", 0, types.int)
+  .addParam("total", "the totalSupply of token", "0", types.string)
   .addParam("decimal", "the decimal of token", 18, types.int)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
@@ -26,6 +26,7 @@ task("deploy-erc20", "Deploy ERC20")
       decimal,
       total,
     ]);
+    console.log("Finished deploying erc20");
 
     console.log(`Contract ${name} token : ${erc20Contract.address}`);
 

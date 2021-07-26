@@ -2,11 +2,13 @@ import { task, types } from "hardhat/config";
 
 import { CONTRACTS } from "../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../helpers/contracts-deployments";
-import { approveLiquidityPoolAndMapAdapters, approveTokens } from "../helpers/contracts-actions";
+import { approveLiquidityPoolAndMapAdapters, approveTokens, approveToken } from "../helpers/contracts-actions";
 import { insertContractIntoDB } from "../helpers/db";
+import { TESTING_CONTRACTS } from "../helpers/constants";
+import { deployContract } from "../helpers/helpers";
 
 task("setup", "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
-  .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
+  .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {
     console.log(`\tDeploying Infrastructure contracts ...`);
@@ -32,8 +34,6 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       hre,
       owner,
       essentialContracts["registry"].address,
-      essentialContracts["harvestCodeProvider"].address,
-      essentialContracts["priceOracle"].address,
       deployedonce,
     );
     const adapterContractNames = Object.keys(adaptersContracts);
@@ -63,8 +63,30 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       registry: essentialContracts["registry"].address,
       riskmanager: essentialContracts["riskManager"].address,
       strategymanager: essentialContracts["strategyManager"].address,
-      optyminter: essentialContracts["optyMinter"].address,
+      optydistributor: essentialContracts["optyDistributor"].address,
       unpause: true,
       insertindb: insertindb,
     });
+
+    const erc20Contract = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
+      "BAL-ODEFI-USDC",
+      "BAL-ODEFI-USDC",
+      18,
+      0,
+    ]);
+    console.log(`BAL-ODEFI-USDC address : ${erc20Contract.address}`);
+    await approveToken(owner, essentialContracts["registry"], [erc20Contract.address]);
+
+    await hre.run("deploy-vault", {
+      token: erc20Contract.address,
+      riskprofile: "RP0",
+      registry: essentialContracts["registry"].address,
+      riskmanager: essentialContracts["riskManager"].address,
+      strategymanager: essentialContracts["strategyManager"].address,
+      optydistributor: essentialContracts["optyDistributor"].address,
+      unpause: true,
+      insertindb: insertindb,
+    });
+
+    console.log("Finished setup task");
   });
