@@ -2088,6 +2088,23 @@
       "getActions": [],
       "cleanActions": []
     },
+    {"description": "Non-RiskOperator shouldn't be able to add a Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP1",
+            "canBorrow": false,
+            "poolRatingRange": [0, 10]
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the risk operator"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
     {
       "description": "RiskOperator should be able to change borrow for Risk Profile",
       "setActions": [
@@ -2162,7 +2179,7 @@
           "message": ""
         },
         {
-          "action": "updateRPPoolRatings(string,(uint8,uint8))",
+          "action": "updateRiskProfileSteps(string,uint8)",
           "args": {
             "riskProfile": "RP16",
             "poolRatingRange": [25, 35]
@@ -2191,7 +2208,7 @@
       "cleanActions": []
     },
     {
-      "description": "Operator shouldn't be able to update pool ratings for non-existing Risk Profile",
+      "description": "RiskOperator shouldn't be able to update pool ratings for non-existing Risk Profile",
       "setActions": [
         {
           "action": "updateRPPoolRatings(string,(uint8,uint8))",
@@ -2202,6 +2219,34 @@
           "executor": "riskOperator",
           "expect": "fail",
           "message": "!Rp_Exists"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "Non-RiskOperator shouldn't be able to update pool ratings for Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP6",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP6",
+            "poolRatingRange": [0, 20]
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the risk operator"
         }
       ],
       "getActions": [],
@@ -2260,6 +2305,33 @@
           "executor": "riskOperator",
           "expect": "fail",
           "message": "Invalid_Rp_index"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "Non-RiskOperator should be able to remove the Risk Profile",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "args": {
+            "riskProfile": "RP8",
+            "noOfSteps": 1,
+            "poolRatingRange": [0, 10]
+          },
+          "executor": "riskOperator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "removeRiskProfile(uint256)",
+          "args": {
+            "riskProfile": "RP8"
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the risk operator"
         }
       ],
       "getActions": [],
@@ -2328,6 +2400,28 @@
           "expectedValue": ""
         }
       ],
+      "cleanActions": []
+    },
+    {
+      "description": "Non-RiskOperator shouldn't be able to set a multiple Risk Profiles",
+      "setActions": [
+        {
+          "action": "addRiskProfile(string[],uint8[],(uint8,uint8)[])",
+          "args": {
+            "riskProfile": ["RP1", "RP2", "RP3"],
+            "noOfSteps": [1, 2, 3],
+            "poolRatingsRange": [
+              [0, 20],
+              [0, 40],
+              [0, 60]
+            ]
+          },
+          "executor": "user1",
+          "expect": "fail",
+          "message": "caller is not the risk operator"
+        }
+      ],
+      "getActions": [],
       "cleanActions": []
     },
     {
