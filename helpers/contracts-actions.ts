@@ -1,4 +1,4 @@
-import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA } from "./constants";
+import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA, UNISWAPV2ROUTER01_ADDRESS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import {
@@ -11,7 +11,7 @@ import {
 import { executeFunc } from "./helpers";
 import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import exchange from "./data/exchange.json";
+import UniswapV2Router01 from "@uniswap/v2-periphery/build/UniswapV2Router01.json";
 import { expect } from "chai";
 
 export async function approveLiquidityPoolAndMapAdapter(
@@ -151,7 +151,7 @@ export async function fundWalletToken(
   toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
-  const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+  const uniswapInstance = new hre.ethers.Contract(UNISWAPV2ROUTER01_ADDRESS, UniswapV2Router01.abi, wallet);
   const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
     value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
     gasLimit: 6721975,
