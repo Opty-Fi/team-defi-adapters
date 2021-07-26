@@ -362,18 +362,12 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      * @inheritdoc IAdapterHarvestReward
      */
     function getHarvestSomeCodes(
-        address payable _vault,
-        address _underlyingToken,
-        address _masterChef,
-        uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory) {
-        return
-            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
-                _vault,
-                getRewardToken(_masterChef),
-                _underlyingToken,
-                _rewardTokenAmount
-            );
+        address payable,
+        address,
+        address,
+        uint256
+    ) public view override returns (bytes[] memory _codes) {
+        return _codes;
     }
 
     function _getDepositAmount(
