@@ -486,7 +486,7 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
+    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool, address)
         public
         view
         override
