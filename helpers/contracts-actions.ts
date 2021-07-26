@@ -148,20 +148,21 @@ export async function fundWalletToken(
   wallet: Signer,
   fundAmount: BigNumber,
   deadlineTimestamp: number,
+  toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-  const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
+  const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
     value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("9500")),
     gasLimit: 6721975,
   };
-  const address = await wallet.getAddress();
+  const address = toAddress == null ? await wallet.getAddress() : toAddress;
   await uniswapInstance.swapETHForExactTokens(
     amount,
     [TypedTokens["WETH"], tokenAddress],
     address,
     deadlineTimestamp,
-    ETH_VALUE_GAS_OVERIDE_OPTIONS,
+    ETH_VALUE_GAS_OVERRIDE_OPTIONS,
   );
 }
 
