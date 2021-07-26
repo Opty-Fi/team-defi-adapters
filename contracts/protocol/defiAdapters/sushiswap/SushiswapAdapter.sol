@@ -9,11 +9,11 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 // interfaces
 import { ISushiswapMasterChef } from "../../../interfaces/sushiswap/ISushiswapMasterChef.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
@@ -45,9 +45,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /** @notice Sushiswap WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
-
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
@@ -58,7 +55,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
-        harvestCodeProviderContract = HarvestCodeProvider(registryContract.getHarvestCodeProvider());
         setRewardToken(SUSHI);
         setMaxDepositProtocolPct(uint256(10000)); // 100%
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
@@ -320,7 +316,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _masterChef, _underlyingToken);
         if (_unclaimedReward > 0) {
             _balance = _balance.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -372,7 +368,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
                 getRewardToken(_masterChef),
                 _underlyingToken,
@@ -389,7 +385,12 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         override
         returns (bytes[] memory)
     {
-        return harvestCodeProviderContract.getAddLiquidityCodes(SUSHISWAP_ROUTER, _vault, _underlyingToken);
+        return
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getAddLiquidityCodes(
+                SUSHISWAP_ROUTER,
+                _vault,
+                _underlyingToken
+            );
     }
 
     function _getDepositAmount(
