@@ -3,7 +3,6 @@ import hre from "hardhat";
 import { Contract, Signer } from "ethers";
 import { deployAdapters, deployRegistry } from "../../helpers/contracts-deployments";
 import { CONTRACTS } from "../../helpers/type";
-import { deployContract } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import scenario from "./scenarios/registry.json";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
@@ -13,8 +12,6 @@ type ARGUMENTS = {
 };
 describe(scenario.title, () => {
   let registryContract: Contract;
-  let harvestCodeProvider: Contract;
-  let priceOracle;
   let adapters: CONTRACTS;
   let owner: Signer;
   let users: Signer[];
@@ -23,27 +20,9 @@ describe(scenario.title, () => {
     try {
       [owner, ...users] = await hre.ethers.getSigners();
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      harvestCodeProvider = await deployContract(
-        hre,
-        ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
-        TESTING_DEPLOYMENT_ONCE,
-        owner,
-        [registryContract.address],
-      );
-      priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, TESTING_DEPLOYMENT_ONCE, owner, [
-        registryContract.address,
-      ]);
-      adapters = await deployAdapters(
-        hre,
-        owner,
-        registryContract.address,
-        harvestCodeProvider.address,
-        priceOracle.address,
-        TESTING_DEPLOYMENT_ONCE,
-      );
+      adapters = await deployAdapters(hre, owner, registryContract.address, TESTING_DEPLOYMENT_ONCE);
       caller = await owner.getAddress();
       assert.isDefined(registryContract, "Registry contract not deployed");
-      assert.isDefined(harvestCodeProvider, "HarvestCodeProvider not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
     } catch (error) {
       console.log(error);

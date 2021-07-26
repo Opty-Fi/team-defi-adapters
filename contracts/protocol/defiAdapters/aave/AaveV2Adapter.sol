@@ -11,7 +11,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
 import { IAaveV2PriceOracle } from "../../../interfaces/aave/v2/IAaveV2PriceOracle.sol";
@@ -29,10 +28,8 @@ import {
     ReserveDataProtocol,
     ReserveConfigurationData
 } from "../../../interfaces/aave/v2/IAaveV2ProtocolDataProvider.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
@@ -42,11 +39,8 @@ import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBo
  * @author Opty.fi
  * @dev Abstraction layer to AaveV2's pools
  */
-contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAdapterInvestLimit, Modifiers {
+contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
-
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
@@ -55,7 +49,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice AaveV2's Data provider id */
     bytes32 public constant PROTOCOL_DATA_PROVIDER_ID =
@@ -76,16 +70,12 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     /** @notice Max percentage value i.e. 100% */
     uint256 public max = 100;
 
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
-
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
-        setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+    constructor(address _registry) public Modifiers(_registry) {
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -93,17 +83,6 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -118,24 +97,17 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
     }
 
     /**
-     * @inheritdoc IAdapterProtocolConfig
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -147,7 +119,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (bytes[] memory _codes) {
         uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
+        _amounts[0] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _amounts);
     }
 
@@ -231,7 +203,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
             getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
 
         // borrow token amount
-        uint256 _borrowAmount = IERC20(_outputToken).balanceOf(_vault);
+        uint256 _borrowAmount = ERC20(_outputToken).balanceOf(_vault);
 
         uint256 _aTokenAmount =
             _maxWithdrawal(
@@ -435,7 +407,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         address _underlyingToken,
         address _liquidityPoolAddressProviderRegistry
     ) public view override returns (uint256) {
-        return IERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(_vault);
+        return ERC20(getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProviderRegistry)).balanceOf(_vault);
     }
 
     /**
@@ -459,7 +431,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         } else {
             return
                 _aTokenAmount.add(
-                    harvestCodeProviderContract.getOptimalTokenAmount(
+                    IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getOptimalTokenAmount(
                         _borrowToken,
                         _underlyingToken,
                         _borrowAmount.sub(_outputTokenRepayable)
@@ -560,47 +532,26 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterProtocolConfig, IAda
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool, address _underlyingToken)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 
     function _maxSafeETH(address _vault, address _liquidityPoolAddressProviderRegistry)

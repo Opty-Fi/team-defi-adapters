@@ -10,13 +10,12 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
 
 //  interfaces
 import { ICream } from "../../../interfaces/cream/ICream.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
@@ -25,11 +24,8 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to Cream's pools
  */
-contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
+contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
-
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
@@ -41,7 +37,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Cream's Comptroller contract address */
     address public comptroller;
@@ -49,18 +45,14 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     /** @notice Cream's Reward token address */
     address public rewardToken;
 
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
-
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
+    constructor(address _registry) public Modifiers(_registry) {
         setComptroller(address(0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258));
         setRewardToken(address(0x2ba592F78dB6436527729929AAf6c908497cB200));
-        setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -68,17 +60,6 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -108,24 +89,17 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
     }
 
     /**
-     * @inheritdoc IAdapterProtocolConfig
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -323,7 +297,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -384,7 +358,7 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -396,46 +370,21 @@ contract CreamAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 }
