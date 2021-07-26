@@ -148,7 +148,6 @@ export async function fundWalletToken(
   wallet: Signer,
   fundAmount: BigNumber,
   deadlineTimestamp: number,
-  toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
