@@ -317,7 +317,7 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
-     * @notice CHange the borrow allowance for existing risk profile
+     * @notice Change the borrow permission for existing risk profile
      * @param _riskProfile Risk Profile to update with strategy steps
      * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @return A boolean value indicating whether the operation succeeded
