@@ -174,16 +174,16 @@ describe(scenario.title, () => {
             assert.isDefined(index, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "riskProfiles(string)": {
+          case "getRiskProfile(string)": {
             const { riskProfile }: ARGUMENTS = action.args;
-            const { exists, noOfSteps, lowerLimit, upperLimit }: ARGUMENTS = action.expectedMultiValues;
+            const { exists, canBorrow, lowerLimit, upperLimit }: ARGUMENTS = action.expectedMultiValues;
 
             if (riskProfile) {
               const value = await registryContract[action.action](riskProfile);
               if (exists) {
-                expect(value.steps).to.be.equal(noOfSteps);
-                expect(value.lowerLimit).to.equal(lowerLimit);
-                expect(value.upperLimit).to.equal(upperLimit);
+                expect(value.canBorrow).to.be.equal(canBorrow);
+                expect(value.poolRatingsRange.lowerLimit).to.equal(lowerLimit);
+                expect(value.poolRatingsRange.upperLimit).to.equal(upperLimit);
                 expect(value.exists).to.be.equal(exists);
               } else {
                 expect(value.exists).to.be.equal(exists);

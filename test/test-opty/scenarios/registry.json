@@ -2121,7 +2121,7 @@
           "message": ""
         },
         {
-          "action": "updateRiskProfileSteps(string,bool)",
+          "action": "updateRiskProfileBorrow(string,bool)",
           "args": {
             "riskProfile": "RP3",
             "canBorrow": true
@@ -2153,7 +2153,7 @@
       "description": "RiskOperator shouldn't be able to update borrow for non-existing Risk Profile",
       "setActions": [
         {
-          "action": "updateRiskProfileSteps(string,bool)",
+          "action": "updateRiskProfileBorrow(string,bool)",
           "args": {
             "riskProfile": "Non-Existing-RP",
             "canBorrow": true
@@ -2181,7 +2181,7 @@
           "message": ""
         },
         {
-          "action": "updateRiskProfileSteps(string,bool)",
+          "action": "updateRiskProfileBorrow(string,bool)",
           "args": {
             "riskProfile": "RP4",
             "canBorrow": true
