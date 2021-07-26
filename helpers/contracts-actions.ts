@@ -148,6 +148,7 @@ export async function fundWalletToken(
   wallet: Signer,
   fundAmount: BigNumber,
   deadlineTimestamp: number,
+  toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const ETH_VALUE_GAS_OVERIDE_OPTIONS = {
@@ -157,8 +158,7 @@ export async function fundWalletToken(
   if (tokenAddress === TypedTokens["SLP_WETH_USDC"]) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
-    const address = await wallet.getAddress();
-
+    const address = toAddress == null ? await wallet.getAddress() : toAddress;
     await sushiswapInstance.swapExactETHForTokens(
       1,
       [TypedTokens["WETH"], TypedTokens["USDC"]],
@@ -178,7 +178,7 @@ export async function fundWalletToken(
     );
   } else {
     const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-    const address = await wallet.getAddress();
+    const address = toAddress == null ? await wallet.getAddress() : toAddress;
     await uniswapInstance.swapETHForExactTokens(
       amount,
       [TypedTokens["WETH"], tokenAddress],
