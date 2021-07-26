@@ -39,8 +39,6 @@ describe("CurveSwapPoolAdapter", () => {
         owner,
         ADAPTER_NAME,
         essentialContracts["registry"].address,
-        essentialContracts["harvestCodeProvider"].address,
-        essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
       await insertDataCurveSwap(owner, adapter);
