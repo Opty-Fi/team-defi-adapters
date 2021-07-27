@@ -26,9 +26,9 @@ contract TestDeFiAdapter is MultiCall {
 
     function testGetDepositSomeCodes(
         address _underlyingToken,
-        uint256 _amount,
         address _liquidityPool,
-        address _adapter
+        address _adapter,
+        uint256 _amount
     ) external {
         address[] memory _underlyingTokens = new address[](1);
         uint256[] memory _amounts = new uint256[](1);
@@ -145,7 +145,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function testGetWithdrawSome(
+    function testGetWithdrawSomeCodes(
         address _underlyingToken,
         address _liquidityPool,
         address _adapter,

@@ -61,10 +61,13 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.LINKUSD)) &&
           !(getAddress(underlyingTokenAddress) == getAddress(TypedTokens.SBTC))
         ) {
-          for (let i = 0; i < testAllDeFiAdaptersScenario.stories.length; i++) {
+          for (let i = 0; i < 10; i++) {
+            // for (let i = 0; i < testAllDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testAllDeFiAdaptersScenario.stories[i].description}`, async () => {
+              process.env.ADAPTER_DEBUG == "true" && console.log("Pool token name: ", pool);
               const story = testAllDeFiAdaptersScenario.stories[i];
 
+              let underlyingBalanceBefore = BigNumber.from("0");
               let defaultFundAmount: BigNumber = BigNumber.from("20000");
               defaultFundAmount =
                 underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
@@ -161,8 +164,56 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
+                  case "testGetDepositSomeCodes(address,address,address,uint256)": {
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
+                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("TDC Underlying balance before deposit: ", +underlyingBalanceBefore);
+
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying balance String: ", BigNumber.from(underlyingBalanceBefore).toString());
+                    await testDeFiAdapter[action.action](
+                      underlyingTokenAddress,
+                      liquidityPool,
+                      adapterAddress,
+                      underlyingBalanceBefore,
+                    );
+                    break;
+                  }
                   case "testGetWithdrawAllCodes(address,address,address)": {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                    break;
+                  }
+                  case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
+
+                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("TDC Withdraw Underlying balance before deposit: ", +underlyingBalanceBefore);
+
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log(
+                        "Withdraw Underlying balance String: ",
+                        BigNumber.from(underlyingBalanceBefore).toString(),
+                      );
+                    const lpTokenBalance = await adapters[adapterName].getLiquidityPoolTokenBalance(
+                      testDeFiAdapter.address,
+                      underlyingTokenAddress,
+                      liquidityPool,
+                    );
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("LpToken Withdraw balance before normal: ", +lpTokenBalance);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log(
+                        "LpToken Withdraw balance before in string: ",
+                        BigNumber.from(lpTokenBalance).toString(),
+                      );
+                    await testDeFiAdapter[action.action](
+                      underlyingTokenAddress,
+                      liquidityPool,
+                      adapterAddress,
+                      lpTokenBalance,
+                    );
                     break;
                   }
                 }
@@ -205,6 +256,40 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                       testDeFiAdapter.address,
                     );
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Balance after: ", +underlyingBalanceAfter);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying token bal before: ", +underlyingBalanceBefore);
+                    // process.env.ADAPTER_DEBUG == "true" &&
+                    //   console.log("Limit in underlying: ", +limitInUnderlyingToken);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying Bal. after: ", +underlyingBalanceAfter);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("underlyingTokenBalance before: ", +underlyingBalanceBefore);
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("UnderlyingBalBefore - limit: ", +underlyingBalanceBefore.sub(limit));
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Default fund amount: ", +defaultFundAmount);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Limit: ", +limit);
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Diff: ", +defaultFundAmount.sub(limit));
+
+                    // if (stories.type) {
+                    //   process.env.ADAPTER_DEBUG == "true" && console.log("Conditions check in balanceOf if")
+                    //   expectedValue == ">0"
+                    //   ? defaultFundAmount.lte(limit)
+                    //     ? expect(underlyingBalanceAfter).to.be.gte(underlyingBalanceBefore)
+                    //     : expect(underlyingBalanceAfter).to.be.gte(limit)
+                    //   : defaultFundAmount.lte(limit)
+                    //   ? expect(underlyingBalanceAfter).to.be.eq(0)
+                    //   : expect(underlyingBalanceAfter).to.be.gte(underlyingBalanceBefore.sub(limit));
+                    // } else {
+                    //   expectedValue == ">0"
+                    //   ? defaultFundAmount.lte(limit)
+                    //     ? expect(underlyingBalanceAfter).to.be.gte(defaultFundAmount)
+                    //     : expect(underlyingBalanceAfter).to.be.gte(limit)
+                    //   : defaultFundAmount.lte(limit)
+                    //   ? expect(underlyingBalanceAfter).to.be.eq(0)
+                    //   : expect(underlyingBalanceAfter).to.be.gte(defaultFundAmount.sub(limit));
+                    // }
+
                     expectedValue == ">0"
                       ? defaultFundAmount.lte(limit)
                         ? expect(underlyingBalanceAfter).to.be.gte(defaultFundAmount)
