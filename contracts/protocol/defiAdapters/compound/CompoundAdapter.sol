@@ -10,13 +10,13 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { HarvestCodeProvider } from "../../configuration/HarvestCodeProvider.sol";
+import { CompoundETHGateway } from "./CompoundETHGateway.sol";
 
 //  interfaces
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterProtocolConfig } from "../../../interfaces/opty/defiAdapters/IAdapterProtocolConfig.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
@@ -26,11 +26,8 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to Compound's pools
  */
 
-contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
+contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
-
-    /** @notice HarvestCodeProvider contract instance */
-    HarvestCodeProvider public harvestCodeProviderContract;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
@@ -42,7 +39,7 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxExposureType;
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Compound's comptroller contract address */
     address public comptroller;
@@ -50,18 +47,25 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
     /** @notice Compound's reward token (COMP) address */
     address public rewardToken;
 
-    /** @notice max deposit's default value in percentage */
-    uint256 public maxDepositPoolPctDefault; // basis points
+    /**
+     * @notice Compound's ETH liquidity pool contract address
+     * @dev It is required to cover edge case of depositing
+     *      ETH to Compound's ETH liquidity pool contract
+     */
+    address public constant CETH = address(0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5);
 
-    /** @notice max deposit's default value in number for a specific token */
-    mapping(address => uint256) public maxDepositAmountDefault;
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
-    constructor(address _registry, address _harvestCodeProvider) public Modifiers(_registry) {
+    /** @dev ETH gateway contract for compound adapter */
+    address public immutable compoundETHGatewayContract;
+
+    constructor(address _registry) public Modifiers(_registry) {
+        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry));
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
-        setHarvestCodeProvider(_harvestCodeProvider);
-        setMaxDepositPoolPctDefault(uint256(10000)); // 100% (basis points)
-        setMaxDepositPoolType(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
 
     /**
@@ -69,17 +73,6 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
      */
     function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositAmountDefault(address _underlyingToken, uint256 _maxDepositAmountDefault)
-        external
-        override
-        onlyGovernance
-    {
-        maxDepositAmountDefault[_underlyingToken] = _maxDepositAmountDefault;
     }
 
     /**
@@ -109,24 +102,17 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
     }
 
     /**
-     * @inheritdoc IAdapterProtocolConfig
+     * @inheritdoc IAdapterInvestLimit
      */
-    function setHarvestCodeProvider(address _harvestCodeProvider) public override onlyOperator {
-        harvestCodeProviderContract = HarvestCodeProvider(_harvestCodeProvider);
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+        maxDepositProtocolMode = _mode;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolType(DataTypes.MaxExposure _type) public override onlyGovernance {
-        maxExposureType = _type;
-    }
-
-    /**
-     * @inheritdoc IAdapterInvestLimit
-     */
-    function setMaxDepositPoolPctDefault(uint256 _maxDepositPoolPctDefault) public override onlyGovernance {
-        maxDepositPoolPctDefault = _maxDepositPoolPctDefault;
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+        maxDepositProtocolPct = _maxDepositProtocolPct;
     }
 
     /**
@@ -245,22 +231,33 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
      * @inheritdoc IAdapter
      */
     function getDepositSomeCodes(
-        address payable,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256[] memory _amounts
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
-        if (_depositAmount > 0) {
-            _codes = new bytes[](3);
-            _codes[0] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
+        address _lendingPool = _liquidityPool == CETH ? compoundETHGatewayContract : _liquidityPool;
+        _codes = new bytes[](3);
+        _codes[0] = abi.encode(
+            _underlyingTokens[0],
+            abi.encodeWithSignature("approve(address,uint256)", _lendingPool, uint256(0))
+        );
+        _codes[1] = abi.encode(
+            _underlyingTokens[0],
+            abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _depositAmount)
+        );
+        if (_liquidityPool == CETH) {
+            _codes[2] = abi.encode(
+                compoundETHGatewayContract,
+                abi.encodeWithSignature(
+                    "depositETH(address,address,uint256)",
+                    _vault,
+                    _liquidityPool,
+                    uint256(_depositAmount)
+                )
             );
-            _codes[1] = abi.encode(
-                _underlyingTokens[0],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
-            );
+        } else {
             _codes[2] = abi.encode(_liquidityPool, abi.encodeWithSignature("mint(uint256)", uint256(_depositAmount)));
         }
     }
@@ -269,17 +266,38 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
      * @inheritdoc IAdapter
      */
     function getWithdrawSomeCodes(
-        address payable,
+        address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
-            _codes = new bytes[](1);
-            _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
-                abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
-            );
+            if (_liquidityPool == CETH) {
+                _codes = new bytes[](3);
+                _codes[0] = abi.encode(
+                    _underlyingTokens[0],
+                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(0))
+                );
+                _codes[1] = abi.encode(
+                    _underlyingTokens[0],
+                    abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(_amount))
+                );
+                _codes[2] = abi.encode(
+                    compoundETHGatewayContract,
+                    abi.encodeWithSignature(
+                        "withdrawETH(address,address,uint256)",
+                        _vault,
+                        _liquidityPool,
+                        uint256(_amount)
+                    )
+                );
+            } else {
+                _codes = new bytes[](1);
+                _codes[0] = abi.encode(
+                    getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                    abi.encodeWithSignature("redeem(uint256)", uint256(_amount))
+                );
+            }
         }
     }
 
@@ -315,7 +333,7 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
         if (_unclaimedReward > 0) {
             b = b.add(
-                harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                     rewardToken,
                     _underlyingToken,
                     _unclaimedReward
@@ -376,7 +394,7 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         return
-            harvestCodeProviderContract.getHarvestCodes(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
@@ -388,46 +406,21 @@ contract CompoundAdapter is IAdapter, IAdapterProtocolConfig, IAdapterHarvestRew
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
-            maxExposureType == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool, _amount)
-                : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(address _liquidityPool, uint256 _amount)
-        internal
-        view
-        returns (uint256 _depositAmount)
-    {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _liquidityPool) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
-        uint256 maxPct = maxDepositPoolPct[_liquidityPool];
-        if (maxPct == 0) {
-            maxPct = maxDepositPoolPctDefault;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _liquidityPool,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_liquidityPool][_underlyingToken];
-        if (maxDeposit == 0) {
-            maxDeposit = maxDepositAmountDefault[_underlyingToken];
-        }
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 }

@@ -100,6 +100,9 @@ const buidlerConfig: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
       blockGasLimit: 0x1fffffffffffff,
       chainId: chainIds.hardhat,
+      accounts: {
+        accountsBalance: "100000000000000000000000",
+      },
     },
   },
   paths: {

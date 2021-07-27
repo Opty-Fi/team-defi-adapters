@@ -10,6 +10,8 @@ task("deploy-registry", "Deploy Registry")
 
     const registry = await deployRegistry(hre, owner, deployedonce);
 
+    console.log("Finished deploying registry");
+
     console.log(`Contract registry : ${registry.address}`);
 
     if (insertindb) {
