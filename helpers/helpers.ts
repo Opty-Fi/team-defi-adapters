@@ -2,6 +2,7 @@ import { Contract, Signer, ContractFactory, utils } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
+
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
@@ -20,11 +21,7 @@ export async function deployContract(
   return contract;
 }
 
-export async function _deployContract(
-  contractFactory: ContractFactory,
-  args: any[],
-  owner?: Signer,
-): Promise<Contract> {
+async function _deployContract(contractFactory: ContractFactory, args: any[], owner?: Signer): Promise<Contract> {
   let contract: Contract;
   if (owner) {
     contract = await contractFactory.connect(owner).deploy(...args);
@@ -35,7 +32,7 @@ export async function _deployContract(
   return contract;
 }
 
-export async function _deployContractOnce(
+async function _deployContractOnce(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
   args: any[],
@@ -47,22 +44,6 @@ export async function _deployContractOnce(
   });
   const contract = await hre.ethers.getContractAt(result.abi, result.address);
   return contract;
-}
-
-export async function deployContractWithHash(
-  contractFactory: ContractFactory,
-  args: any[],
-  owner?: Signer,
-): Promise<{ contract: Contract; hash: string }> {
-  let contract: Contract;
-  if (owner) {
-    contract = await contractFactory.connect(owner).deploy(...args);
-  } else {
-    contract = await contractFactory.deploy(...args);
-  }
-  const hash = contract.deployTransaction.hash;
-  await contract.deployTransaction.wait();
-  return { contract, hash };
 }
 
 export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
@@ -82,24 +63,6 @@ export async function getExistingContractAddress(
     address = "";
   }
   return address;
-}
-
-export async function getContract(
-  hre: HardhatRuntimeEnvironment,
-  contractName: string,
-  address: string,
-  contractProxy?: string,
-): Promise<Contract | undefined> {
-  let contract: Contract | undefined;
-  if (address === "") {
-    address = await getExistingContractAddress(hre, contractProxy ? contractProxy : contractName);
-  }
-  if (address !== "") {
-    contract = await getContractInstance(hre, contractName, address);
-  } else {
-    contract = undefined;
-  }
-  return contract;
 }
 
 export async function getContractInstance(
