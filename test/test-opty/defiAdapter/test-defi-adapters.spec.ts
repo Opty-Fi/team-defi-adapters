@@ -162,9 +162,10 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     break;
                   }
                   case "testGetDepositAllCodes(address,address,address)": {
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action)
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Underlying bal before: ", +underlyingBalanceBefore)
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying bal before: ", +underlyingBalanceBefore);
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
@@ -185,9 +186,10 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     break;
                   }
                   case "testGetWithdrawAllCodes(address,address,address)": {
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action)
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    process.env.ADAPTER_DEBUG == "true" &&  console.log("Underlying bal. before: ", +underlyingBalanceBefore)
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Underlying bal. before: ", +underlyingBalanceBefore);
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
@@ -223,8 +225,8 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     );
                     break;
                   }
-                  default: 
-                    throw new Error(`TestDefiAdapters - SetAction: ${action.action} is not defined`)
+                  default:
+                    throw new Error(`TestDefiAdapters - SetAction: ${action.action} is not defined`);
                 }
               }
               for (const action of story.getActions) {
@@ -261,7 +263,7 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     break;
                   }
                   case "balanceOf(address)": {
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action)
+                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
                     const expectedValue = action.expectedValue;
                     const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                       testDeFiAdapter.address,
@@ -273,15 +275,17 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     //   console.log("Limit in underlying: ", +limitInUnderlyingToken);
                     process.env.ADAPTER_DEBUG == "true" && console.log("Default fund amount: ", +defaultFundAmount);
                     process.env.ADAPTER_DEBUG == "true" && console.log("Limit: ", +limit);
-                    
+
                     process.env.ADAPTER_DEBUG == "true" &&
                       console.log("Underlying Bal. after: ", +underlyingBalanceAfter);
                     // process.env.ADAPTER_DEBUG == "true" &&
                     //   console.log("underlyingTokenBalance before: ", +underlyingBalanceBefore);
                     process.env.ADAPTER_DEBUG == "true" &&
                       console.log("Diff of UnderlyingBalBefore - limit: ", +underlyingBalanceBefore.sub(limit));
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Expect condition Diff: ", +defaultFundAmount.sub(limit));
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Expect condition Diff: ", +underlyingBalanceBefore.sub(limit));
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Expect condition Diff: ", +defaultFundAmount.sub(limit));
+                    process.env.ADAPTER_DEBUG == "true" &&
+                      console.log("Expect condition Diff: ", +underlyingBalanceBefore.sub(limit));
 
                     // if (stories.type) {
                     //   process.env.ADAPTER_DEBUG == "true" && console.log("Conditions check in balanceOf if")
@@ -320,8 +324,8 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
 
                     break;
                   }
-                  default: 
-                    throw new Error(`TestDefiAdapters - GetAction: ${action.action} is not defined`)
+                  default:
+                    throw new Error(`TestDefiAdapters - GetAction: ${action.action} is not defined`);
                 }
               }
               for (const action of story.cleanActions) {
@@ -330,8 +334,8 @@ describe(`${testAllDeFiAdaptersScenario.title} - CompoundAdapter`, () => {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
-                  default: 
-                    throw new Error(`TestDefiAdapters - CleanAction: ${action.action} is not defined`)
+                  default:
+                    throw new Error(`TestDefiAdapters - CleanAction: ${action.action} is not defined`);
                 }
               }
             });
