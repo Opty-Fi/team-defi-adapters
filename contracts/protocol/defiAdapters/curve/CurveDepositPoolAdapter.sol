@@ -124,7 +124,7 @@ contract CurveDepositPoolAdapter is
      * @inheritdoc IAdapterStakingCurve
      */
     function getAllAmountInTokenStakeWrite(
-        address payable _optyVault,
+        address payable _vault,
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
@@ -135,7 +135,7 @@ contract CurveDepositPoolAdapter is
             address _curveRegistry = _getCurveRegistry();
             _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
             address _gauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
-            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_optyVault);
+            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
         }
         int128 tokenIndex = 0;
         for (uint8 i = 0; i < _underlyingTokens.length; i++) {
@@ -151,7 +151,7 @@ contract CurveDepositPoolAdapter is
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                _getUnclaimedRewardTokenAmountWrite(_optyVault, _liquidityPool)
+                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
             )
         );
         return _b;
