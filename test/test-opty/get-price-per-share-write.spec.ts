@@ -53,7 +53,7 @@ describe(scenario.title, () => {
       let Vault: Contract;
       const vault = scenario.vaults[i];
       const profile = vault.profile;
-      const ADAPTER_NAME = "CurvePoolAdapter";
+      const ADAPTER_NAME = "CurveDepositPoolAdapter";
       const strategies = TypedAdapterStrategies[ADAPTER_NAME];
       for (let i = 0; i < strategies.length; i++) {
         describe(`${strategies[i].strategyName}`, async () => {

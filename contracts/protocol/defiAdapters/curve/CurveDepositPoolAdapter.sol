@@ -31,7 +31,7 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurvePoolAdapter is
+contract CurveDepositPoolAdapter is
     IAdapter,
     IAdapterHarvestReward,
     IAdapterStaking,

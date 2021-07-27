@@ -28,13 +28,7 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @author Opty.fi
  * @dev Abstraction layer to Curve's swap pools
  */
-contract CurveSwapAdapter is
-    IAdapter,
-    IAdapterHarvestReward,
-    IAdapterStaking,
-    IAdapterStakingCurve,
-    Modifiers
-{
+contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterStakingCurve, Modifiers {
     using SafeMath for uint256;
 
     /** @notice Mapping  of swapPool to the underlyingTokens */
