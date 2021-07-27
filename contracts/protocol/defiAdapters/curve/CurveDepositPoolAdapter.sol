@@ -128,17 +128,21 @@ contract CurvePoolAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
-        address _swapPool = _getSwapPool(_liquidityPool);
-        address _curveRegistry = _getCurveRegistry();
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+        address[8] memory _underlyingTokens;
+        uint256 _liquidityPoolTokenAmount;
+        {
+            address _swapPool = _getSwapPool(_liquidityPool);
+            address _curveRegistry = _getCurveRegistry();
+            _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+            address _gauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
+            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_optyVault);
+        }
         int128 tokenIndex = 0;
         for (uint8 i = 0; i < _underlyingTokens.length; i++) {
             if (_underlyingTokens[i] == _underlyingToken) {
                 tokenIndex = i;
             }
         }
-        address _gauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
-        uint256 _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_optyVault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
