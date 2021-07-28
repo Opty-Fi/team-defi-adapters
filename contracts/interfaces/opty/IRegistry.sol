@@ -299,36 +299,37 @@ interface IRegistry {
     /**
      * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfile Risk Profile to add in Registry Storage
-     * @param _noOfSteps No. of permitted corresponding to risk profile provided
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string memory _riskProfile,
-        uint8 _noOfSteps,
+        bool _canBorrow,
         DataTypes.PoolRatingsRange memory _poolRatingRange
     ) external returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
+     * @dev All parameters must be in the same order.
      * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _noOfSteps List of No. of permitted strategy steps for a given risk profile
+     * @param _canBorrow List of boolean values indicating whether the riskProfile allows borrow step
      * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
      * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string[] memory _riskProfiles,
-        uint8[] memory _noOfSteps,
+        bool[] memory _canBorrow,
         DataTypes.PoolRatingsRange[] memory _poolRatingRanges
     ) external returns (bool);
 
     /**
-     * @notice Update the no. of strategy steps allowed for existing risk profile
+     * @notice Change the borrow permission for existing risk profile
      * @param _riskProfile Risk Profile to update with strategy steps
-     * @param _noOfSteps No. of strategy steps allowed for a given risk profile
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @return A boolean value indicating whether the operation succeeded
      */
-    function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) external returns (bool);
+    function updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow) external returns (bool);
 
     /**
      * @notice Update the pool ratings for existing risk profile

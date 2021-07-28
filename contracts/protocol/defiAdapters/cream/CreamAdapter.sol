@@ -294,7 +294,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
                 _liquidityPool,
                 getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool)
             );
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
@@ -344,7 +344,11 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address,
+        address
+    ) public view override returns (uint256) {
         return ICream(comptroller).compAccrued(_vault);
     }
 
@@ -365,6 +369,15 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     function _getDepositAmount(
         address _liquidityPool,

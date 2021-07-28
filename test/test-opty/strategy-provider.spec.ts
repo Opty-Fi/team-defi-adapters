@@ -2,19 +2,17 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import { generateStrategyHash, deployContract } from "../../helpers/helpers";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
+import { generateStrategyHash, deployContract, generateTokenHash } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { setAndApproveVaultRewardToken } from "../../helpers/contracts-actions";
-import { TypedStrategies, TypedTokenHashes, TypedTokens } from "../../helpers/data";
+import { TypedStrategies, TypedTokens } from "../../helpers/data";
 
 type ARGUMENTS = {
   riskProfile?: string;
   strategyName?: string;
   tokenName?: string;
-  tokenHashName?: string;
   defaultStrategyState?: number;
   vaultRewardStrategy?: number[];
   newStrategyOperator?: string;
@@ -40,7 +38,7 @@ describe(scenario.title, () => {
         [],
       );
       const DAI_TOKEN = TypedTokens["DAI"];
-      await registry["addRiskProfile(string,uint8,(uint8,uint8))"]("RP1", 1, [0, 10]);
+      await registry["addRiskProfile(string,bool,(uint8,uint8))"]("RP1", false, [0, 10]);
       await registry["approveToken(address)"](DAI_TOKEN);
       await registry["setTokensHashToTokens(address[])"]([DAI_TOKEN]);
 
@@ -53,7 +51,7 @@ describe(scenario.title, () => {
       );
 
       const COMP_TOKEN = TypedTokens["COMP"];
-      vaultRewardTokenHash = getSoliditySHA3Hash(["address[]"], [[DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]]);
+      vaultRewardTokenHash = generateTokenHash([DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]);
       await setAndApproveVaultRewardToken(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
       contracts = { registry, strategyProvider };
     } catch (error) {
@@ -73,11 +71,11 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "rpToTokenToDefaultStrategy(string,bytes32)":
           case "rpToTokenToBestStrategy(string,bytes32)": {
-            const { riskProfile, tokenHashName }: ARGUMENTS = action.args;
-            if (riskProfile && tokenHashName) {
+            const { riskProfile, tokenName }: ARGUMENTS = action.args;
+            if (riskProfile && tokenName) {
               const value = await contracts[action.contract][action.action](
                 riskProfile,
-                TypedTokenHashes[tokenHashName],
+                generateTokenHash([TypedTokens[tokenName]]),
               );
               const expectedStrategyHash = generateStrategyHash(
                 TypedStrategies.filter(strategy => strategy.strategyName == action.expectedValue.strategyName)[0]
@@ -87,7 +85,7 @@ describe(scenario.title, () => {
               expect(value).to.be.equal(expectedStrategyHash);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(tokenHashName, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(tokenName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
@@ -148,13 +146,13 @@ describe(scenario.title, () => {
       }
       case "setBestStrategy(string,bytes32,bytes32)":
       case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-        const { strategyName, tokenName, riskProfile }: ARGUMENTS = action.args;
-        if (strategyName && tokenName && riskProfile) {
+        const { riskProfile, tokenName, strategyName }: ARGUMENTS = action.args;
+        if (riskProfile && tokenName && strategyName) {
           const strategyHash = generateStrategyHash(
             TypedStrategies.filter(strategy => strategy.strategyName == strategyName)[0].strategy,
             TypedTokens[tokenName],
           );
-          const tokenHash = getSoliditySHA3Hash(["address[]"], [[TypedTokens[tokenName]]]);
+          const tokenHash = generateTokenHash([TypedTokens[tokenName]]);
 
           if (action.expect === "success") {
             await contracts[action.contract]

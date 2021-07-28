@@ -9,9 +9,9 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-COMPOUND-cDAI"
           },
           "executor": "strategyOperator",
           "expect": "success",
@@ -24,7 +24,7 @@
           "action": "rpToTokenToBestStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "tokenHashName": "DAI"
+            "tokenName": "DAI"
           },
           "expectedValue": {
             "tokenName": "DAI",
@@ -41,9 +41,9 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-COMPOUND-cDAI"
           },
           "executor": "user1",
           "expect": "fail",
@@ -70,9 +70,9 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-COMPOUND-cDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-COMPOUND-cDAI"
           },
           "executor": "strategyOperator",
           "expect": "fail",
@@ -100,9 +100,9 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-AAVE-aDAI"
           },
           "executor": "strategyOperator",
           "expect": "success",
@@ -115,7 +115,7 @@
           "action": "rpToTokenToDefaultStrategy(string,bytes32)",
           "args": {
             "riskProfile": "RP1",
-            "tokenHashName": "DAI"
+            "tokenName": "DAI"
           },
           "expectedValue": {
             "tokenName": "DAI",
@@ -132,9 +132,9 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-AAVE-aDAI"
           },
           "executor": "user1",
           "expect": "fail",
@@ -161,9 +161,9 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategyName": "DAI-deposit-AAVE-aDAI",
+            "riskProfile": "RP1",
             "tokenName": "DAI",
-            "riskProfile": "RP1"
+            "strategyName": "DAI-deposit-AAVE-aDAI"
           },
           "executor": "strategyOperator",
           "expect": "fail",
