@@ -33,6 +33,7 @@ export const ADAPTER = [
   "FulcrumAdapter",
   "HarvestAdapter",
   "YVaultAdapter",
+  "SushiswapAdapter",
 ];
 
 export const TOKENS: DATA_OBJECT = {
@@ -42,6 +43,7 @@ export const TOKENS: DATA_OBJECT = {
   WBTC: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   CHI: "0x0000000000004946c0e9F43F4Dee607b0eF1fA1c",
+  SLP_WETH_USDC: "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0",
 };
 
 export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
@@ -64,6 +66,11 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenName: "CREAM",
     tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
     distributionActive: false,
+  },
+  SushiswapAdapter: {
+    tokenName: "SUSHI",
+    tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    distributionActive: true,
   },
 };
 

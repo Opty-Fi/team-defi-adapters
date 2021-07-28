@@ -129,6 +129,19 @@ interface IStrategyManager {
     ) external view returns (bytes[] memory _codes);
 
     /**
+     * @dev Get codes for adding liquidity into a DEX pool for the given strategy hash
+     * @param _vault Vault contract address
+     * @param _underlyingToken Underlying token (eg: SUSHI-WETH-USDC) address
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
+     * @return _codes Returns codes for adding liquidity for the given strategy hash
+     */
+    function getAddLiquidityCodes(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) external view returns (bytes[] memory _codes);
+
+    /**
      * @dev Get the codes for spliting the withdraw fee shares between the treasury accounts
      * @dev Get the code for the the remaining amount to be transferred to the caller (user or msg.sender)
      * @param _treasuryShares Shares (in basis percent) for corresponding treasury account address

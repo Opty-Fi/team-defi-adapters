@@ -405,6 +405,14 @@ contract Vault is
                 ),
                 "!harvest"
             );
+            executeCodes(
+                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getAddLiquidityCodes(
+                    payable(address(this)),
+                    underlyingToken,
+                    _investStrategyHash
+                ),
+                "!harvest"
+            );
         }
     }
 

@@ -561,12 +561,11 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         /* solhint-disable no-empty-blocks */
         if (swapPoolToGauges[_liquidityPool] != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
@@ -592,6 +591,15 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -654,7 +662,7 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmount(_vault, _liquidityPool)
+                getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken)
             )
         );
         return _b;
