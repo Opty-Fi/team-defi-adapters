@@ -445,12 +445,11 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         return IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).earned(_vault);
     }
 
@@ -471,6 +470,15 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -526,7 +534,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         if (b > 0) {
             b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(1e18);
         }
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
