@@ -361,9 +361,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address _swapPool = _getSwapPool(_liquidityPool);
-            address _curveRegistry = _getCurveRegistry();
-            address[8] memory _tokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-            uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
 
             _codes = new bytes[](3);
@@ -375,38 +372,31 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
                 _liquidityPoolToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
             );
-
-            if (_nCoins == 1) {
-                uint256 _i;
-                for (uint256 _j = 0; _j < _nCoins; _j++) {
-                    if (_tokens[_j] == _underlyingTokens[0]) {
-                        _i = _j;
-                    }
-                }
+            uint256 _numOfTokens = _underlyingTokens.length;
+            if (_numOfTokens == 1) {
                 _codes[2] = abi.encode(
                     _liquidityPool,
                     abi.encodeWithSignature(
-                        "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
+                        "remove_liquidity_one_coin(uint256,int128,uint256)",
                         _amount,
-                        _i,
-                        uint256(0),
-                        true
+                        _getTokenIndex(_swapPool, _underlyingTokens[0]),
+                        uint256(0)
                     )
                 );
             } else {
-                if (_nCoins == uint256(2)) {
+                if (_numOfTokens == uint256(2)) {
                     uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
                         abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
                     );
-                } else if (_nCoins == uint256(3)) {
+                } else if (_numOfTokens == uint256(3)) {
                     uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
                         abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
                     );
-                } else if (_nCoins == uint256(4)) {
+                } else if (_numOfTokens == uint256(4)) {
                     uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
@@ -455,18 +445,14 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _liquidityPool,
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
-        address _curveRegistry = _getCurveRegistry();
         address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _nCoins; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
+
         if (_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
+            return
+                ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                    _liquidityPoolTokenAmount,
+                    _getTokenIndex(_swapPool, _underlyingToken)
+                );
         }
         return 0;
     }
@@ -571,19 +557,15 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) public view override returns (uint256) {
         address _curveRegistry = _getCurveRegistry();
         address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _nCoins; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
+
         uint256 _liquidityPoolTokenAmount =
             ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(_vault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                _liquidityPoolTokenAmount,
+                _getTokenIndex(_swapPool, _underlyingToken)
+            );
         }
         IHarvestCodeProvider _harvesCodeProviderContract =
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
@@ -636,6 +618,22 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
+    }
+
+    /**
+     * @dev This functions returns the token index for a underlying token
+     * @param _underlyingToken address of the underlying asset
+     * @param _swapPool swap pool address
+     * @return _tokenIndex index of coin in swap pool
+     */
+    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128 _tokenIndex) {
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
+        for (uint256 _i = 0; _i < _underlyingTokens.length; _i++) {
+            if (_underlyingTokens[_i] == _underlyingToken) {
+                _tokenIndex = int128(_i);
+                break;
+            }
+        }
     }
 
     /**
