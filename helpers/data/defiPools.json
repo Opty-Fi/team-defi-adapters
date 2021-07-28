@@ -54,6 +54,21 @@
       "pool": "0xccf4429db6322d5c611ee964527d42e5d685dd6a",
       "lpToken": "0xccf4429db6322d5c611ee964527d42e5d685dd6a",
       "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+    },
+    "wbtc": {
+      "pool": "0xC11b1268C1A384e55C48c2391d8d480264A3A7F4",
+      "lpToken": "0xC11b1268C1A384e55C48c2391d8d480264A3A7F4",
+      "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"]
+    },
+    "rep": {
+      "pool": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+      "lpToken": "0x158079Ee67Fce2f58472A96584A73C7Ab9AC95c1",
+      "tokens": ["0x1985365e9f78359a9b6ad760e32412f4a445e862"]
+    },
+    "sai": {
+      "pool": "0xf5dce57282a584d2746faf1593d3121fcac444dc",
+      "lpToken": "0xf5dce57282a584d2746faf1593d3121fcac444dc",
+      "tokens": ["0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359"]
     }
   },
   "AaveV1Adapter": {
