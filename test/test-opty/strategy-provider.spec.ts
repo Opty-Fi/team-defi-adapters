@@ -40,7 +40,7 @@ describe(scenario.title, () => {
         [],
       );
       const DAI_TOKEN = TypedTokens["DAI"];
-      await registry["addRiskProfile(string,uint8,(uint8,uint8))"]("RP1", 1, [0, 10]);
+      await registry["addRiskProfile(string,bool,(uint8,uint8))"]("RP1", false, [0, 10]);
       await registry["approveToken(address)"](DAI_TOKEN);
       await registry["setTokensHashToTokens(address[])"]([DAI_TOKEN]);
 

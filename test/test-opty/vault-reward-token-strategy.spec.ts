@@ -123,6 +123,7 @@ describe(scenario.title, () => {
               );
 
               const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;
               contracts["tokenErc20"] = Token_ERC20Instance;

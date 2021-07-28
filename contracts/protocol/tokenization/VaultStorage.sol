@@ -59,6 +59,11 @@ contract VaultStorage {
     string public profile;
 
     /**
+     * @dev The pricePerShare of the vault
+     */
+    uint256 public pricePerShareWrite;
+
+    /**
      * @notice Log an event when user calls user deposit underlying asset without rebalance
      * @dev the shares are not minted until next rebalance
      * @param sender the account address of the user
