@@ -36,8 +36,6 @@ describe("AaveV2Adapter", () => {
         owner,
         ADAPTER_NAME,
         essentialContracts["registry"].address,
-        essentialContracts["harvestCodeProvider"].address,
-        essentialContracts["priceOracle"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
