@@ -52,6 +52,11 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
     distributionActive: true,
   },
+  CurveAdapter: {
+    tokenName: "CRV",
+    tokenAddress: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    distributionActive: true,
+  },
   DForceAdapter: {
     tokenName: "DF",
     tokenAddress: "0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0",

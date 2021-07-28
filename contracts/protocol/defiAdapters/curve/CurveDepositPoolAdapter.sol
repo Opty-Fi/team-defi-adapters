@@ -16,6 +16,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "../../../interfaces/opty/defiAdapters/IAdapterStakingCurve.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -30,7 +31,14 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
  */
-contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
+contract CurveDepositPoolAdapter is
+    IAdapter,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterStakingCurve,
+    IAdapterInvestLimit,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice  Curve Registry Address Provider */
@@ -110,6 +118,43 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function setRewardToken(address) external override onlyOperator {
         revert("!empty");
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function getAllAmountInTokenStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) external override returns (uint256) {
+        address[8] memory _underlyingTokens;
+        uint256 _liquidityPoolTokenAmount;
+        {
+            address _swapPool = _getSwapPool(_liquidityPool);
+            address _curveRegistry = _getCurveRegistry();
+            _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+            address _gauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
+            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
+        }
+        int128 tokenIndex;
+        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+            if (_underlyingTokens[i] == _underlyingToken) {
+                tokenIndex = i;
+            }
+        }
+        uint256 _b;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+        }
+        _b = _b.add(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
+            )
+        );
+        return _b;
     }
 
     /**
@@ -644,6 +689,25 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
+    }
+
+    /**
+     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
+     *
+     * @param _vault Address of the OptyFi's vault contract
+     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
+     *
+     * @return Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        internal
+        returns (uint256)
+    {
+        address _curveRegistry = _getCurveRegistry();
+        if (_getLiquidityGauge(_liquidityPool, _curveRegistry) != address(0)) {
+            return ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).claimable_tokens(_vault);
+        }
+        return uint256(0);
     }
 
     /**
