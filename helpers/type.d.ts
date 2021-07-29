@@ -27,7 +27,7 @@ export type DATA_OBJECT = {
 export type RISK_PROFILE_DATA = {
   [key: string]: {
     name: string;
-    steps: number;
+    canBorrow: boolean;
     poolRating: number[];
   };
 };

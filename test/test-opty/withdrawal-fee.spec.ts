@@ -100,6 +100,25 @@ describe(scenario.title, () => {
             for (let k = 0; k < activities.setActions.length; k++) {
               const action = activities.setActions[k];
               switch (action.action) {
+                case "setFinanceOperator(address)": {
+                  const { newFinanceOperator } = <any>action.args;
+                  const tempNewFinanceOperatorrAddr = await users[newFinanceOperator].getAddress();
+                  if (newFinanceOperator) {
+                    if (action.expect === "success") {
+                      await contracts[action.contract]
+                        .connect(users[action.executer])
+                        [action.action](tempNewFinanceOperatorrAddr);
+                    } else {
+                      await expect(
+                        contracts[action.contract]
+                          .connect(users[action.executer])
+                          [action.action](tempNewFinanceOperatorrAddr),
+                      ).to.be.revertedWith(action.message);
+                    }
+                  }
+                  assert.isDefined(newFinanceOperator, `args is wrong in ${action.action} testcase`);
+                  break;
+                }
                 case "fundWallet": {
                   const { addressName, amount } = <any>action.args;
                   try {

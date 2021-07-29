@@ -28,6 +28,7 @@ describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
     USDT: BigNumber.from("1000000000"),
+    SLP_WETH_USDC: BigNumber.from("1000000000000000"),
   };
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
