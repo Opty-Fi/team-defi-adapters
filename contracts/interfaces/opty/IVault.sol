@@ -17,6 +17,13 @@ interface IVault {
     function setMaxVaultValueJump(uint256 _maxVaultValueJump) external returns (bool);
 
     /**
+     * @notice Calculate the value of a vault share in underlying token
+     * @dev It should only be called if the current strategy's last step is Curve
+     * @return the underlying token worth a vault share is
+     */
+    function getPricePerFullShareWrite() external returns (uint256);
+
+    /**
      * @notice Withdraw the underying asset of vault from previous strategy if any,
      *         claims and swaps the reward tokens for the underlying token
      *         performs batch minting of shares for users deposited previously without rebalance,
@@ -129,13 +136,13 @@ interface IVault {
 
     /**
      * @notice Retrieve underlying token balance in the vault
-     * @return uint256 the balance of underlying token in the vault
+     * @return The balance of underlying token in the vault
      */
     function balance() external view returns (uint256);
 
     /**
      * @notice Calculate the value of a vault share in underlying token
-     * @return uint256 the underlying token worth a vault share is
+     * @return The underlying token worth a vault share is
      */
     function getPricePerFullShare() external view returns (uint256);
 

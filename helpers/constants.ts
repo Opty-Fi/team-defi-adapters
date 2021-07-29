@@ -33,6 +33,7 @@ export const ADAPTER = [
   "FulcrumAdapter",
   "HarvestAdapter",
   "YVaultAdapter",
+  "SushiswapAdapter",
 ];
 
 export const TOKENS: DATA_OBJECT = {
@@ -42,12 +43,18 @@ export const TOKENS: DATA_OBJECT = {
   WBTC: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   CHI: "0x0000000000004946c0e9F43F4Dee607b0eF1fA1c",
+  SLP_WETH_USDC: "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0",
 };
 
 export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   CompoundAdapter: {
     tokenName: "COMP",
     tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+    distributionActive: true,
+  },
+  CurveAdapter: {
+    tokenName: "CRV",
+    tokenAddress: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     distributionActive: true,
   },
   DForceAdapter: {
@@ -65,12 +72,18 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
     distributionActive: false,
   },
+  SushiswapAdapter: {
+    tokenName: "SUSHI",
+    tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    distributionActive: true,
+  },
 };
 
 export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
   TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
+  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -78,22 +91,22 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
   RP0: {
     name: "RP0",
-    steps: 0,
+    canBorrow: false,
     poolRating: [0, 0],
   },
   RP1: {
     name: "RP1",
-    steps: 1,
+    canBorrow: false,
     poolRating: [0, 10],
   },
   RP2: {
     name: "RP2",
-    steps: 2,
+    canBorrow: true,
     poolRating: [0, 20],
   },
   RP3: {
     name: "RP3",
-    steps: 3,
+    canBorrow: true,
     poolRating: [0, 30],
   },
 };
