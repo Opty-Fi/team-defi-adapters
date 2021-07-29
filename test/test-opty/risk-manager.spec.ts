@@ -204,6 +204,7 @@ describe(scenario.title, () => {
                     ? defaultStrategyHash
                     : strategyHash,
                 );
+                break;
               }
             }
           }
