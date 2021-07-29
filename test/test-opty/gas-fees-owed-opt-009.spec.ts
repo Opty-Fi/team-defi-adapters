@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -67,6 +67,19 @@ describe(scenario.title, () => {
       underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
       underlyingTokenSymbol = await getTokenSymbol(hre, TOKEN_STRATEGY.token);
 
+      Vault = await deployVault(
+        hre,
+        essentialContracts.registry.address,
+        TOKENS[TOKEN_STRATEGY.token],
+        operator,
+        admin,
+        underlyingTokenName,
+        underlyingTokenSymbol,
+        "RP1",
+        TESTING_DEPLOYMENT_ONCE,
+      );
+      await unpauseVault(operator, essentialContracts.registry, Vault.address, true);
+
       const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
       contracts["erc20"] = Token_ERC20Instance;
@@ -81,20 +94,7 @@ describe(scenario.title, () => {
         essentialContracts.vaultStepInvestStrategyDefinitionRegistry;
 
       contracts["strategyProvider"] = essentialContracts.strategyProvider;
-    });
-    beforeEach(async () => {
-      Vault = await deployVault(
-        hre,
-        essentialContracts.registry.address,
-        TOKENS[TOKEN_STRATEGY.token],
-        operator,
-        admin,
-        underlyingTokenName,
-        underlyingTokenSymbol,
-        "RP1",
-        TESTING_DEPLOYMENT_ONCE,
-      );
-      await unpauseVault(operator, essentialContracts.registry, Vault.address, true);
+
       contracts["vault"] = Vault;
     });
     for (let i = 0; i < scenario.stories.length; i++) {

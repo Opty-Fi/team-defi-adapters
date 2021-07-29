@@ -8,6 +8,36 @@
       "maxJump": 100,
       "stories": [
         {
+          "description": "[Deposit and withdraw in one block] Should pass when the pool value doesn't deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 10000
+              },
+              "expect": "success",
+              "message": ""
+            }
+          ]
+        },
+        {
+          "description": "[Deposit and withdraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
+          "actions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
+              "args": {
+                "max_amount": 10000,
+                "min_amount": 1
+              },
+              "expect": "fail",
+              "message": "!maxVaultValueJump"
+            }
+          ]
+        },
+        {
           "description": "[Double deposit in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
           "actions": [
             {
@@ -109,36 +139,6 @@
               "args": {
                 "max_amount": 10000,
                 "min_amount": 1000
-              },
-              "expect": "fail",
-              "message": "!maxVaultValueJump"
-            }
-          ]
-        },
-        {
-          "description": "[Deposit and withdraw in one block] Should pass when the pool value doesn't deviates from 1%, maxJumpAllowed=1%",
-          "actions": [
-            {
-              "contract": "testEmergencyBrake",
-              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
-              "args": {
-                "max_amount": 10000,
-                "min_amount": 10000
-              },
-              "expect": "success",
-              "message": ""
-            }
-          ]
-        },
-        {
-          "description": "[Deposit and withdraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
-          "actions": [
-            {
-              "contract": "testEmergencyBrake",
-              "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
-              "args": {
-                "max_amount": 10000,
-                "min_amount": 1
               },
               "expect": "fail",
               "message": "!maxVaultValueJump"
