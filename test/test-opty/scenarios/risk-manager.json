@@ -3,28 +3,51 @@
   "description": "Test cases for RiskManager and StrategyProvider contract",
   "stories": [
     {
-      "description": "GetBestStrategy should return the best strategy in StrategyProvider if strategy is qualified",
+      "description": "GetBestStrategy should return empty in StrategyProvider if strategy is not qualified, defaultStrategy is not set and defaultStrategyState is Zero ",
       "setActions": [
         {
-          "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "contract": "strategyProvider",
+          "action": "setDefaultStrategyState(uint8)",
           "args": {
-            "poolRatingRange": [0, 10]
+            "defaultStrategyState": 0
           },
           "expect": "success",
           "message": ""
         },
         {
-          "contract": "registry",
-          "action": "approveToken(address)",
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "setStrategy(bytes32,(address,address,bool)[])",
           "args": {},
           "expect": "success",
           "message": ""
         },
         {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
+          "contract": "strategyProvider",
+          "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {},
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "riskManager",
+          "action": "getBestStrategy(string,address[])",
+          "args": {},
+          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "GetBestStrategy should return the best strategy in StrategyProvider if strategy is qualified",
+      "setActions": [
+        {
+          "contract": "registry",
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
+          "args": {
+            "poolRatingRange": [0, 10]
+          },
           "expect": "success",
           "message": ""
         },
@@ -64,41 +87,17 @@
           "args": {},
           "expectedValue": ""
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "revokeLiquidityPool(address[])"
+        }
       ]
     },
     {
       "description": "GetBestStrategy should return the default strategy in StrategyProvider if strategy is not qualified (liquidityPool is not approved)",
       "setActions": [
-        {
-          "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
-          "args": {
-            "poolRatingRange": [0, 10]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveToken(address)",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
@@ -121,6 +120,12 @@
           "args": {},
           "expectedValue": ""
         }
+      ],
+      "cleanActions": [
+        {
+          "contract": "registry",
+          "action": "revokeLiquidityPool(address[])"
+        }
       ]
     },
     {
@@ -128,24 +133,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "updateRPPoolRatings(string,(uint8,uint8))",
           "args": {
-            "poolRatingRange": [4, 10]
+            "poolRatingRange": [3, 10]
           },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveToken(address)",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
-          "args": {},
           "expect": "success",
           "message": ""
         },
@@ -159,7 +150,7 @@
         {
           "contract": "registry",
           "action": "rateLiquidityPool((address,uint8)[])",
-          "args": { "score": [2, 2, 2] },
+          "args": { "score": [1, 1, 1] },
           "expect": "success",
           "message": ""
         },
@@ -192,64 +183,11 @@
           "args": {},
           "expectedValue": ""
         }
-      ]
-    },
-    {
-      "description": "GetBestStrategy should return empty in StrategyProvider if strategy is not qualified, defaultStrategy is not set and defaultStrategyState is Zero ",
-      "setActions": [
-        {
-          "contract": "strategyProvider",
-          "action": "setDefaultStrategyState(uint8)",
-          "args": {
-            "defaultStrategyState": 0
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
-          "args": {
-            "poolRatingRange": [0, 10]
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "approveToken(address)",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "registry",
-          "action": "setTokensHashToTokens(address[])",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "strategyProvider",
-          "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {},
-          "expect": "success",
-          "message": ""
-        }
       ],
-      "getActions": [
+      "cleanActions": [
         {
-          "contract": "riskManager",
-          "action": "getBestStrategy(string,address[])",
-          "args": {},
-          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          "contract": "registry",
+          "action": "revokeLiquidityPool(address[])"
         }
       ]
     }

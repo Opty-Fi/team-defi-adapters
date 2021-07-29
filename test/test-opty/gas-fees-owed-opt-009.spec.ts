@@ -27,7 +27,6 @@ type ARGUMENTS = {
   strategy?: STRATEGY_DATA[];
   amount?: string;
   riskProfile?: string;
-  noOfSteps?: number;
   poolRatingRange?: number[];
   score?: number;
 };

@@ -92,7 +92,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
 
         if (
             _strategyHash == Constants.ZERO_BYTES32 ||
-            !_isValidStrategy(
+            _isInValidStrategy(
                 _strategyHash,
                 _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
                 _riskProfileStruct
@@ -108,49 +108,32 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
 
         if (
             _strategyHash == Constants.ZERO_BYTES32 ||
-            !_isValidStrategy(
+            _isInValidStrategy(
                 _strategyHash,
                 _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
                 _riskProfileStruct
             )
         ) {
             if (
-                IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
-                    _riskProfile,
-                    _tokensHash
-                ) != Constants.ZERO_BYTES32
+                IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
+                DataTypes.DefaultStrategyState.CompoundOrAave
             ) {
-                return
-                    IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
-                        _riskProfile,
-                        _tokensHash
-                    );
+                _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
+                (, DataTypes.StrategyStep[] memory _strategySteps_) =
+                    IVaultStepInvestStrategyDefinitionRegistry(
+                        _strategyConfiguration
+                            .vaultStepInvestStrategyDefinitionRegistry
+                    )
+                        .getStrategy(_strategyHash);
+                return _strategySteps_.length > 0 ? _strategyHash : Constants.ZERO_BYTES32;
             } else {
-                if (
-                    IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
-                    DataTypes.DefaultStrategyState.CompoundOrAave
-                ) {
-                    _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
-                    (uint256 _strategyIndex, ) =
-                        IVaultStepInvestStrategyDefinitionRegistry(
-                            _strategyConfiguration
-                                .vaultStepInvestStrategyDefinitionRegistry
-                        )
-                            .getStrategy(_strategyHash);
-                    if (_strategyIndex != uint256(0)) {
-                        return _strategyHash;
-                    } else {
-                        return Constants.ZERO_BYTES32;
-                    }
-                } else {
-                    return Constants.ZERO_BYTES32;
-                }
+                return Constants.ZERO_BYTES32;
             }
         }
         return _strategyHash;
     }
 
-    function _isValidStrategy(
+    function _isInValidStrategy(
         bytes32 _strategyHash,
         address _strategyRegistry,
         DataTypes.RiskProfile memory _riskProfileStruct
@@ -158,21 +141,22 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         (, DataTypes.StrategyStep[] memory _strategySteps) =
             IVaultStepInvestStrategyDefinitionRegistry(_strategyRegistry).getStrategy(_strategyHash);
 
-        bool _isStrategyQualified = true;
-
         for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
             DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[_i].pool);
-            if (
-                uint8(_strategySteps.length) > _riskProfileStruct.steps ||
+            bool _isStrategyInvalid =
                 !_liquidityPool.isLiquidityPool ||
-                !(_liquidityPool.rating >= _riskProfileStruct.lowerLimit &&
-                    _liquidityPool.rating <= _riskProfileStruct.upperLimit)
-            ) {
-                _isStrategyQualified = false;
-                break;
+                    !(_liquidityPool.rating >= _riskProfileStruct.poolRatingsRange.lowerLimit &&
+                        _liquidityPool.rating <= _riskProfileStruct.poolRatingsRange.upperLimit);
+
+            _isStrategyInvalid = !_riskProfileStruct.canBorrow && !_isStrategyInvalid
+                ? _strategySteps[_i].isBorrow
+                : _isStrategyInvalid;
+
+            if (_isStrategyInvalid) {
+                return _isStrategyInvalid;
             }
         }
 
-        return _isStrategyQualified;
+        return false;
     }
 }
