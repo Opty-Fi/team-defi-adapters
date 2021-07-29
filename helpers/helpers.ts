@@ -76,7 +76,7 @@ export async function getContractInstance(
 
 export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: string): string {
   const strategyStepsHash: string[] = [];
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddress]]);
+  const tokensHash = generateTokenHash([tokenAddress]);
   for (let index = 0; index < strategy.length; index++) {
     strategyStepsHash[index] = getSoliditySHA3Hash(
       ["address", "address", "bool"],
@@ -84,6 +84,23 @@ export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: st
     );
   }
   return getSoliditySHA3Hash(["bytes32", "bytes32[]"], [tokensHash, strategyStepsHash]);
+}
+
+export function generateStrategyStep(strategy: STRATEGY_DATA[]): [string, string, boolean][] {
+  const strategySteps: [string, string, boolean][] = [];
+  for (let index = 0; index < strategy.length; index++) {
+    const tempArr: [string, string, boolean] = [
+      strategy[index].contract,
+      strategy[index].outputToken,
+      strategy[index].isBorrow,
+    ];
+    strategySteps.push(tempArr);
+  }
+  return strategySteps;
+}
+
+export function generateTokenHash(addresses: string[]): string {
+  return getSoliditySHA3Hash(["address[]"], [addresses]);
 }
 
 export function isAddress(address: string): boolean {

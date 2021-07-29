@@ -66,7 +66,6 @@ describe(scenario.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
@@ -116,7 +115,7 @@ describe(scenario.title, () => {
 
               investStrategyHash = await setBestBasicStrategy(
                 TOKEN_STRATEGY.strategy,
-                tokensHash,
+                [TOKENS[TOKEN_STRATEGY.token]],
                 essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                 essentialContracts.strategyProvider,
                 profile,

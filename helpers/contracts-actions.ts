@@ -8,7 +8,7 @@ import {
   TypedCurveDepositPoolGauges,
   TypedCurveSwapPools,
 } from "./data";
-import { executeFunc } from "./helpers";
+import { executeFunc, generateStrategyStep, generateTokenHash } from "./helpers";
 import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import UniswapV2Router01 from "@uniswap/v2-periphery/build/UniswapV2Router01.json";
@@ -106,20 +106,11 @@ export async function approveVaultRewardTokens(
 
 export async function setStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
 ): Promise<string> {
-  const strategySteps: [string, string, boolean][] = [];
-
-  for (let index = 0; index < strategy.length; index++) {
-    const tempArr: [string, string, boolean] = [
-      strategy[index].contract,
-      strategy[index].outputToken,
-      strategy[index].isBorrow,
-    ];
-    strategySteps.push(tempArr);
-  }
-
+  const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
+  const tokensHash = generateTokenHash(tokens);
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
     strategySteps,
@@ -130,12 +121,13 @@ export async function setStrategy(
 
 export async function setBestBasicStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
   strategyProvider: Contract,
   riskProfile: string,
 ): Promise<string> {
-  const strategyHash = await setStrategy(strategy, tokensHash, vaultStepInvestStrategyDefinitionRegistry);
+  const tokensHash = generateTokenHash(tokens);
+  const strategyHash = await setStrategy(strategy, tokens, vaultStepInvestStrategyDefinitionRegistry);
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
   expect(strategyProviderStrategy).to.equal(strategyHash);

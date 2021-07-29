@@ -5,7 +5,7 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestBasicStrategy,
@@ -61,7 +61,6 @@ describe(scenario.title, () => {
       const strategies = TypedAdapterStrategies[adaptersName[0]];
       for (let i = 0; i < strategies.length; i++) {
         const TOKEN_STRATEGY = strategies[i];
-        const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
         const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
           rewardTokenAdapterName.toLowerCase(),
         );
@@ -81,7 +80,7 @@ describe(scenario.title, () => {
 
           await setBestBasicStrategy(
             TOKEN_STRATEGY.strategy,
-            tokensHash,
+            [TOKENS[TOKEN_STRATEGY.token]],
             essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
             essentialContracts.strategyProvider,
             profile,

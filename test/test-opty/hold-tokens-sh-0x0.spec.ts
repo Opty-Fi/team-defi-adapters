@@ -5,7 +5,6 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestBasicStrategy,
@@ -17,6 +16,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/hold-tokens-sh-0x0.json";
+import { generateTokenHash } from "../../helpers/helpers";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   riskProfile?: string;
@@ -60,7 +60,7 @@ describe(scenarios.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);
+            const tokensHash = generateTokenHash([TOKENS[strategy.token]]);
             let bestStrategyHash: string;
             let vaultRiskProfile: string;
             const contracts: CONTRACTS = {};
@@ -90,7 +90,7 @@ describe(scenarios.title, () => {
                 vaultRiskProfile = await Vault.profile();
                 bestStrategyHash = await setBestBasicStrategy(
                   strategy.strategy,
-                  tokensHash,
+                  [TOKENS[strategy.token]],
                   essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                   essentialContracts.strategyProvider,
                   vaultRiskProfile,

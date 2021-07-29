@@ -1,4 +1,4 @@
-import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
+import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA, OPTY_STAKING_VAULT } from "./type";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -97,6 +97,33 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
     poolRating: [0, 30],
   },
 };
+
+export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
+  {
+    name: "optyStakingVault1D",
+    numberOfDays: "1D",
+    lockTime: 86400,
+    multiplier: 10000,
+  },
+  {
+    name: "optyStakingVault30D",
+    numberOfDays: "30D",
+    lockTime: 2592000,
+    multiplier: 12000,
+  },
+  {
+    name: "optyStakingVault60D",
+    numberOfDays: "60D",
+    lockTime: 5184000,
+    multiplier: 15000,
+  },
+  {
+    name: "optyStakingVault180D",
+    numberOfDays: "180D",
+    lockTime: 15552000,
+    multiplier: 20000,
+  },
+];
 
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
