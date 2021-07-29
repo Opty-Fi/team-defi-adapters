@@ -17,6 +17,7 @@ import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapterStakingCurve } from "../../../interfaces/opty/defiAdapters/IAdapterStakingCurve.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveSwap } from "../../../interfaces/curve/ICurveSwap.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -33,7 +34,14 @@ import { ITokenMinter } from "../../../interfaces/curve/ITokenMinter.sol";
  *      Note 2 : In this adapter, a swap pool is defined as a single-sided liquidity pool
  *      Note 3 : In this adapter, lp token can be redemeed into more than one underlying token
  */
-contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
+contract CurveSwapPoolAdapter is
+    IAdapter,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterInvestLimit,
+    IAdapterStakingCurve,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice  Curve Registry Address Provider */
@@ -100,6 +108,39 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
      */
     function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function getAllAmountInTokenStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) external override returns (uint256) {
+        // address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
+        // int128 tokenIndex;
+        // for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+        //     if (_underlyingTokens[i] == _underlyingToken) {
+        //         tokenIndex = i;
+        //     }
+        // }
+        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _b;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                _liquidityPoolTokenAmount,
+                _getTokenIndex(_liquidityPool, _underlyingToken)
+            );
+        }
+        _b = _b.add(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
+            )
+        );
+        return _b;
     }
 
     /**
@@ -434,12 +475,11 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         /* solhint-disable no-empty-blocks */
         if (_getLiquidityGauge(_liquidityPool, _getCurveRegistry()) != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
@@ -465,6 +505,15 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -529,7 +578,7 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                getUnclaimedRewardTokenAmount(_vault, _liquidityPool)
+                getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken)
             )
         );
         return _b;
@@ -631,6 +680,19 @@ contract CurveSwapPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStakin
                 break;
             }
         }
+    }
+
+    /**
+     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
+     * @param _vault Address of the OptyFi's vault contract
+     * @param _swapPool Address of the swap pool contract
+     * @return Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _swapPool) internal returns (uint256) {
+        if (_getLiquidityGauge(_swapPool, _getCurveRegistry()) != address(0)) {
+            return ICurveGauge(_swapPool).claimable_tokens(_vault);
+        }
+        return uint256(0);
     }
 
     /**
