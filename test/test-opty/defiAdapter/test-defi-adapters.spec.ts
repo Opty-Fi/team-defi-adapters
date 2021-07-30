@@ -2,19 +2,13 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
 import { TypedDefiPools } from "../../../helpers/data";
-import { deployAdapters, deployRegistry } from "../../../helpers/contracts-deployments";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-// import testDeFiAdaptersScenario from "../scenarios/test-all-defi-adapters.json";
 import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract, edgeCaseTokens, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
-
-import { config as dotenvConfig } from "dotenv";
-import { resolve } from "path";
-dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
   mode?: string;
@@ -24,7 +18,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
 };
 
 describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
-  let registry: Contract;
+  let adapterPrerequisites: CONTRACTS;
   let users: { [key: string]: Signer };
   const adapterNames = Object.keys(TypedDefiPools);
   let testDeFiAdapter: Contract;
@@ -33,9 +27,16 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
-    registry = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
+    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    adapters = await deployAdapters(hre, owner, registry.address, true);
+    const CompoundAdapter = await deployAdapter(
+      hre,
+      owner,
+      "CompoundAdapter",
+      adapterPrerequisites.registry.address,
+      true,
+    );
+    adapters = { CompoundAdapter };
   });
 
   for (const adapterName of adapterNames) {
@@ -48,19 +49,17 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
           !edgeCaseTokens(adapterName, underlyingTokenAddress)
         ) {
-          // for (let i = 0; i < 1; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async () => {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[adapterName][pool].pool));
-
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
-
                 let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
                 let limit: BigNumber = ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[adapterName][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 const decimals = await ERC20Instance.decimals();
                 const adapterAddress = adapters[adapterName].address;
@@ -77,6 +76,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       const existingMode = await adapters[adapterName].maxDepositProtocolMode();
                       if (existingMode != mode) {
                         await adapters[adapterName][action.action](mode);
+                        const modeSet = await adapters[adapterName].maxDepositProtocolMode();
+                        expect(+modeSet).to.be.eq(+mode!);
                       }
                       break;
                     }
@@ -84,11 +85,15 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
                         await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
+                        const maxDepositPoolPctSetToZero = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                        expect(+maxDepositPoolPctSetToZero).to.be.eq(0);
                       }
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                         await adapters[adapterName][action.action](maxDepositProtocolPct);
+                        const maxDepositProtocolPctSet = await adapters[adapterName].maxDepositProtocolPct();
+                        expect(+maxDepositProtocolPctSet).to.be.eq(+maxDepositProtocolPct!);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -100,6 +105,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                         await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
+                        const maxDepositPoolPctSet = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                        expect(+maxDepositPoolPctSet).to.be.eq(+maxDepositPoolPct!);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -119,13 +126,18 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                           underlyingTokenAddress,
                           maxDepositAmount,
                         );
+                        const maxDepositAmountSet = await adapters[adapterName].maxDepositAmount(
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        );
+                        expect(+maxDepositAmountSet).to.be.eq(+maxDepositAmount);
                       }
                       limit = BigNumber.from(maxDepositAmount);
                       defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       break;
                     }
                     case "fundTestDeFiAdapterContract": {
-                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      let underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalance.lt(defaultFundAmount)) {
                         await fundWalletToken(
                           hre,
@@ -135,6 +147,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                           timestamp,
                           testDeFiAdapter.address,
                         );
+                        underlyingBalance = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                        expect(+underlyingBalance).to.be.gte(+defaultFundAmount);
                       }
                       break;
                     }
@@ -144,7 +158,6 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       break;
                     }
                     case "testGetWithdrawAllCodes(address,address,address)": {
-                      console.log("Action: ", action.action);
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
@@ -154,14 +167,14 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      console.log("Action: ", action.action);
                       const expectedValue = action.expectedValue;
-                      // const expectedValue = await LpTokenERC20Instance.balanceOf(testDeFiAdapter.address)
+                      const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalance = await adapters[adapterName][action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
+                      expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
                       const existingMode = await adapters[adapterName].maxDepositProtocolMode();
                       if (existingMode == 0) {
                         const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
@@ -191,7 +204,6 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                         testDeFiAdapter.address,
                       );
-
                       if (underlyingBalanceBefore.lt(limit)) {
                         expectedValue == ">0"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
@@ -199,7 +211,6 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       } else {
                         expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                       }
-
                       break;
                     }
                   }
