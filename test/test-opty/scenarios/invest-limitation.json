@@ -404,7 +404,12 @@
               "contract": "adapter",
               "action": "setMaxDepositAmount(address,address,uint256)",
               "args": {
-                "amount": { "DAI": "500000000000000000", "USDC": "500000", "USDT": "500000" }
+                "amount": {
+                  "DAI": "500000000000000000",
+                  "USDC": "500000",
+                  "USDT": "500000",
+                  "SLP_WETH_USDC": "5000000000000"
+                }
               },
               "executer": "riskOperator",
               "expect": "success",
@@ -419,7 +424,8 @@
               "expectedValue": {
                 "DAI": "500000000000000000",
                 "USDC": "500000",
-                "USDT": "500000"
+                "USDT": "500000",
+                "SLP_WETH_USDC": "5000000000000"
               }
             }
           ]
@@ -448,7 +454,7 @@
               "contract": "adapter",
               "action": "setMaxDepositPoolPct(address,uint256)",
               "args": {
-                "amount": { "DAI": "5", "USDC": "5", "USDT": "5" }
+                "amount": { "DAI": "5", "USDC": "5", "USDT": "5", "SLP_WETH_USDC": "5" }
               },
               "executer": "riskOperator",
               "expect": "success",
@@ -463,7 +469,8 @@
               "expectedValue": {
                 "DAI": "5",
                 "USDC": "5",
-                "USDT": "5"
+                "USDT": "5",
+                "SLP_WETH_USDC": "5"
               }
             }
           ]
@@ -491,7 +498,7 @@
               "contract": "adapter",
               "action": "setMaxDepositProtocolPct(uint256)",
               "args": {
-                "amount": { "DAI": "5", "USDC": "5", "USDT": "5" }
+                "amount": { "DAI": "5", "USDC": "5", "USDT": "5", "SLP_WETH_USDC": "5" }
               },
               "executer": "riskOperator",
               "expect": "success",
@@ -506,7 +513,8 @@
               "expectedValue": {
                 "DAI": "5",
                 "USDC": "5",
-                "USDT": "5"
+                "USDT": "5",
+                "SLP_WETH_USDC": "5"
               }
             }
           ]
