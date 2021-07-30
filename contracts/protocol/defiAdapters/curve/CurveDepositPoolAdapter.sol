@@ -30,6 +30,8 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @title Adapter for Curve Deposit pools
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
+ *      Note 1 : In this adapter, a liquidity pool is defined as a single sided liquidity pool
+ *      Note 2 : In this adapter, lp token can be redemeed into more than one underlying token
  */
 contract CurveDepositPoolAdapter is
     IAdapter,
