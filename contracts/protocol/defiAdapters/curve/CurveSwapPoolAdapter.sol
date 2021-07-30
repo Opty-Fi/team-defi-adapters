@@ -118,13 +118,6 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
-        // address[] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool);
-        // int128 tokenIndex;
-        // for (uint8 i = 0; i < _underlyingTokens.length; i++) {
-        //     if (_underlyingTokens[i] == _underlyingToken) {
-        //         tokenIndex = i;
-        //     }
-        // }
         uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         uint256 _b;
         if (_liquidityPoolTokenAmount > 0) {

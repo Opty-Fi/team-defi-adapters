@@ -227,7 +227,8 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               defaultFundAmount =
                 underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
                 underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-                underlyingTokenAddress == getAddress(TypedTokens.MUSD)
+                underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
+                underlyingTokenAddress == getAddress(TypedTokens.BUSD)
                   ? BigNumber.from("2000")
                   : defaultFundAmount;
               let limit: BigNumber;
