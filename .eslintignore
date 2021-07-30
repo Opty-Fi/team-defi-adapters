@@ -8,6 +8,7 @@ lib/
 node_modules/
 typechain/
 specification_docs/
+deployments/
 
 # files
 .solcover.js
