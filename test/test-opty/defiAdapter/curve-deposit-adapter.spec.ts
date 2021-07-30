@@ -403,6 +403,23 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                   }
                 }
               }
+              for (const action of story.getActions) {
+                switch (action.action) {
+                  case "getLiquidityPoolTokenBalance(address,address,address)": {
+                    const lpTokenBalance = await adapters[adapterName][action.action](
+                      testDeFiAdapter.address,
+                      underlyingTokenAddress,
+                      liquidityPool,
+                    );
+                    expect(lpTokenBalance).to.be.eq(0);
+                    break;
+                  }
+                  case "balanceOf(address": {
+                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                    expect(underlyingBalance).to.be.gt(0);
+                  }
+                }
+              }
             });
           }
         }
