@@ -227,7 +227,9 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
               defaultFundAmount =
                 underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
                 underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-                underlyingTokenAddress == getAddress(TypedTokens.MUSD)
+                underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
+                underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
+                underlyingTokenAddress == getAddress(TypedTokens.RSV)
                   ? BigNumber.from("2000")
                   : defaultFundAmount;
               let limit: BigNumber;
@@ -336,11 +338,17 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
+                  case "testGetWithdrawAllCodes(address,address,address)": {
+                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                    break;
+                  }
                 }
               }
               for (const action of story.getActions) {
                 switch (action.action) {
                   case "getLiquidityPoolTokenBalance(address,address,address)": {
+                    const expectedValue = action.expectedValue;
                     const lpTokenBalance = await adapters[adapterName][action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -362,17 +370,20 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                       if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
                         expect(lpTokenBalance).to.be.eq(0);
                       } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
-                        expect(lpTokenBalance).to.be.gt(0);
+                        expectedValue == "=0" ? expect(lpTokenBalance).to.be.eq(0) : expect(lpTokenBalance).to.be.gt(0);
                       }
                     }
                     break;
                   }
                   case "balanceOf(address)": {
+                    const expectedValue = action.expectedValue;
                     const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                       testDeFiAdapter.address,
                     );
                     if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                      expect(underlyingBalanceAfter).to.be.eq(0);
+                      expectedValue == ">0"
+                        ? expect(+underlyingBalanceAfter).to.be.gte(+underlyingBalanceBefore)
+                        : expect(underlyingBalanceAfter).to.be.eq(0);
                     } else {
                       expect(underlyingBalanceAfter.div(BigNumber.from(10).pow(BigNumber.from(decimals)))).to.be.eq(
                         underlyingBalanceBefore

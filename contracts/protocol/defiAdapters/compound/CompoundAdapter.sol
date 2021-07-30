@@ -61,7 +61,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     address public immutable compoundETHGatewayContract;
 
     constructor(address _registry) public Modifiers(_registry) {
-        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry));
+        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -275,11 +275,11 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
             if (_liquidityPool == CETH) {
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(0))
                 );
                 _codes[1] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(_amount))
                 );
                 _codes[2] = abi.encode(
@@ -330,7 +330,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
                 _liquidityPool,
                 getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool)
             );
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
@@ -380,7 +380,11 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address) public view override returns (uint256) {
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address,
+        address
+    ) public view override returns (uint256) {
         return ICompound(comptroller).compAccrued(_vault);
     }
 
@@ -401,6 +405,15 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     function _getDepositAmount(
         address _liquidityPool,
