@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
-import "hardhat-deploy-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-watcher";
