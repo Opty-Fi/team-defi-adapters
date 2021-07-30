@@ -169,3 +169,11 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
       : defaultFundAmount;
   return defaultFundAmount;
 }
+
+export function getEthValueGasOverrideOptions(hre: HardhatRuntimeEnvironment, parseEthAmount: string) {
+  const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
+    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther(parseEthAmount)),
+    gasLimit: 6721975,
+  };
+  return ETH_VALUE_GAS_OVERRIDE_OPTIONS;
+}
