@@ -9,156 +9,244 @@ yarn hardhat `name` --network `network` --flagName `flagValue`
 ```
 
 ## Deployment Tasks
-
 To deploy OptyFi's contracts.
 
-### deploy-adapter
 
-- Description: deploy specific adapter contract
-- Prerequisite Contracts : Registry, HarvestCodeProvider, Priceoracle.
-- Required Flags : registry, harvestcodeprovider, priceoracle, name.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+### deploy-adapter
+```
+Usage: deploy specific adapter contract
+
+Options :
+  --registry      required  <address> the address of registry
+  --name          required  <string>  the name of adapter
+  --deployedonce  optional  <bool>    allow checking whether contracts were deployed previously (default: true)
+  --insertindb    optional  <bool>    insert the deployed contract addresses in DB  (default: false)
+  --network       optional  <string>  name of the network provider (default: hardhat)
+```
+* Example:
+```
   yarn hardhat deploy-adapter \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --harvestcodeprovider 0x0000000000000000000000000000000000000000 \
-  --priceoracle 0x0000000000000000000000000000000000000000 \
   --name AaveV1Adapter
+  --deployedonce false
+  --network localhost
+```
 
 ### deploy-adapters
+```
+Usage: deploy all available adapter contracts
 
-- Description: deploy all available adapter contracts
-- Prerequisite Contracts : Registry, HarvestCodeProvider, Priceoracle.
-- Required Flags : registry, harvestcodeprovider, priceoracle.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+--registry     required  <address> the address of registry
+--deployedonce optional  <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional  <bool>    insert the deployed contract addresses in DB (default: false)
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-adapters \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --harvestcodeprovider 0x0000000000000000000000000000000000000000 \
-  --priceoracle 0x0000000000000000000000000000000000000000
+  --deployedonce false
+  --network localhost
+```
 
 ### deploy-harvest-code-provider
+```
+Usage : deploy HarvestCodeProvider contract
 
-- Description: deploy HarvestCodeProvider contract
-- Prerequisite Contracts : Registry
-- Required Flags : registry
-- Optional Flags : deployedonce, insertindb.
-- Example:
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool> allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool> allow inserting to database (default: false)
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-harvest-code-provider \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000
-
+  --deployedonce false
+  --network localhost
+```
 ### deploy-opty
 
-- Description: deploy OPTY and OPTYDistributor contracts
-- Prerequisite Contracts : Registry.
-- Required Flags : registry.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+```
+Usage: deploy OPTY and OPTYDistributor contracts
+
+Options :
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database (default: false)
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-opty \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000
-
+  --deployedonce false
+  --network hardhat
+```
 ### deploy-registry
 
-- Description: deploy Registry contract
-- Prerequisite Contracts : N/A.
-- Required Flags : N/A.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+```
+Usage: deploy Registry contract
+
+Options:
+--deployedonce optional <bool> allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool> allow inserting to database(default: false)
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+* Example:
+```
   yarn hardhat deploy-registry \
+  --deployedonce false \
   --network localhost
+```
 
 ### deploy-vault-step-registry
 
-- Description: deploy VaultStepInvestStrategyDefinitionRegistry contract
-- Prerequisite Contracts : Registry.
-- Required Flags : registry.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+```
+Usage: deploy VaultStepInvestStrategyDefinitionRegistry contract
+
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-vault-step-registry \
-  --network localhost \
-  --registry 0x0000000000000000000000000000000000000000
+  --registry 0x0000000000000000000000000000000000000000 \
+  --deployedonce false
+  --network hardhat
+```
 
 ### deploy-risk-manager
 
-- Description: deploy RiskManager contract
-- Prerequisite Contracts : Registry.
-- Required Flags : registry.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+```
+Usage: deploy RiskManager contract
+
+Options:
+--registry     required <string>
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat) (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-risk-manager \
-  --network localhost \
-  --registry 0x0000000000000000000000000000000000000000
+  --registry 0x0000000000000000000000000000000000000000 \
+  --deployedonce false \
+  --network localhost
+```
 
 ### deploy-strategy-manager
+```
+Usage: deploy StrategyManager contract
 
-- Description: deploy StrategyManager contract
-- Prerequisite Contracts : Registry, HarvestCodeProvider.
-- Required Flags : registry, harvestcodeprovider.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+Options:
+
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-strategy-manager \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --harvestcodeprovider 0x0000000000000000000000000000000000000000
+```
 
 ### deploy-strategy-provider
 
-- Description: deploy StrategyProvider contract
-- Prerequisite Contracts : Registry.
-- Required Flags : registry.
-- Optional Flags : deployedonce, insertindb.
-- Example:
+```
+Usage: deploy StrategyProvider contract
+
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+
+* Example:
+```
   yarn hardhat deploy-strategy-provider \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000
+```
 
 ### deploy-vault
+```
+Usage: deploy Vault contract
 
-- Description: deploy specific vault contract
-- Prerequisite Contracts : Registry, RiskManager, StrategyManager, OPTYDistributor.
-- Required Flags : token, riskprofile, registry, riskmanager, strategymanager, optydistributor.
-- Optional Flags : insertindb.
-- Example:
+Options:
+--registry     required <address> the address of registry
+--token        required <address> the address of underlying token
+--riskprofile  required <string>  the name of Vault's risk profile
+--insertindb   optional <bool>    allow inserting to database
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+* Example:
+```
   yarn hardhat deploy-vault \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --riskmanager 0x0000000000000000000000000000000000000000 \
-  --strategymanager 0x0000000000000000000000000000000000000000 \
-  --optydistributor 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000 \
   --riskprofile RP1
-
+```
 ### deploy-vaults
 
-- Description: deploy all designated vault contracts
-- Prerequisite Contracts : Registry, RiskManager, StrategyManager, OPTYDistributor.
-- Required Flags : registry, riskmanager, strategymanager, optydistributor.
-- Optional Flags : insertindb.
-- Example:
-  yarn hardhat deploy-vaults \
+```
+Usage: deploy all designated Vault contract
+
+Options:
+--registry     required <address> the address of registry
+--insertindb   optional <bool>    allow inserting to database
+--network      optional  <string>  name of the network provider (default: hardhat)
+```
+* Example:
+```
+  yarn hardhat deploy-vault \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --riskmanager 0x0000000000000000000000000000000000000000 \
-  --strategymanager 0x0000000000000000000000000000000000000000 \
-  --optydistributor 0x0000000000000000000000000000000000000000
+```
 
 ### deploy-erc20
+```
+Usage: deploy erc20 contract
 
-- Description: deploy erc20 contract
-- Prerequisite Contracts : N/A
-- Required Flags : name, symbol, total, decimal.
-- Optional Flags : deployonce, insertindb.
-- Example:
+Options:
+--name         name
+--symbol       symbol
+--total        required
+--decimal      required
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat)
+
+```
+
+* Example:
+```
   yarn hardhat deploy-erc20 \
   --network localhost \
   --name ERC20 \
   --symbol ERC20 \
   --total 0 \
   --decimal 18
+```
 
 ## Action Tasks
 

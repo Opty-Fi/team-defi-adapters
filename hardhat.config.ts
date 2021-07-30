@@ -98,9 +98,13 @@ const buidlerConfig: HardhatUserConfig = {
       },
       allowUnlimitedContractSize: true,
       blockGasLimit: 0x1fffffffffffff,
-      chainId: chainIds.hardhat,
+      chainId: chainIds.ganache,
       accounts: {
-        accountsBalance: "100000000000000000000000",
+        mnemonic,
+        path: MNEMONIC_PATH,
+        initialIndex: 0,
+        count: 20,
+        accountsBalance: "100000000000000000000000"
       },
     },
   },
