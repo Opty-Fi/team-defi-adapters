@@ -13,6 +13,7 @@ import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
+import { getAddress } from "ethers/lib/utils";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -157,13 +158,27 @@ export async function fundWalletToken(
     gasLimit: 6721975,
   };
   const address = toAddress == null ? await wallet.getAddress() : toAddress;
-  await uniswapInstance.swapETHForExactTokens(
-    amount,
-    [TypedTokens["WETH"], tokenAddress],
-    address,
-    deadlineTimestamp,
-    ETH_VALUE_GAS_OVERRIDE_OPTIONS,
-  );
+
+  if (getAddress(tokenAddress) == getAddress(TypedTokens.WETH)) {
+    const wEthInstance = await hre.ethers.getContractAt(exchange.weth.abi, exchange.weth.address);
+    // console.log("Weth instance addresS: ", wEthInstance.address)
+    //  Funding user's wallet with WETH tokens
+    await wEthInstance.deposit({ value: amount });
+    await wEthInstance.transfer(toAddress, amount);
+  } else {
+    await uniswapInstance.swapETHForExactTokens(
+      amount,
+      [TypedTokens["WETH"], tokenAddress],
+      address,
+      deadlineTimestamp,
+      ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+    );
+  }
+}
+
+//  sleep function
+export async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise<number> {
