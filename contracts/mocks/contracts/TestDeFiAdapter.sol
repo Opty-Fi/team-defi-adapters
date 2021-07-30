@@ -6,11 +6,8 @@ pragma experimental ABIEncoderV2;
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapterFull } from "../../interfaces/opty/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
-import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 contract TestDeFiAdapter is MultiCall {
-    using Address for address;
-
     function testGetDepositAllCodes(
         address _underlyingToken,
         address _liquidityPool,
