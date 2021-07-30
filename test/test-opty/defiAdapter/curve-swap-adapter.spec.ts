@@ -5,12 +5,7 @@ import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import {
-  approveTokens,
-  fundWalletToken,
-  getBlockTimestamp,
-  insertDataCurveSwap,
-} from "../../../helpers/contracts-actions";
+import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 
 type ARGUMENTS = {
@@ -41,7 +36,6 @@ describe("CurveSwapPoolAdapter", () => {
         essentialContracts["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await insertDataCurveSwap(owner, adapter);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
@@ -96,7 +90,11 @@ describe("CurveSwapPoolAdapter", () => {
                     );
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [ZERO_ADDRESS], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](
+                    ownerAddress,
+                    [nCoins[0]], // DAI
+                    strategy.strategy[0].contract,
+                  );
                 }
                 if (codes.length > 0) {
                   for (let i = 0; i < codes.length - 1; i = i + 2) {
