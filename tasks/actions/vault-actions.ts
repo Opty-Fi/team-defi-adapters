@@ -4,10 +4,10 @@ import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("vault-actions", "perform actions in Vault")
   .addParam("vault", "the address of vault", "", types.string)
-  .addParam("action", "deposit, withdraw or rebalance", "", types.string)
-  .addParam("withrebalance", "do action with rebalance", false, types.boolean)
-  .addParam("useall", "decide to deposit or withdraw all available token", false, types.boolean)
-  .addParam("amount", "amount of token", 0, types.int)
+  .addParam("action", "deposit, withdraw or rebalance", "DEPOSIT" || "WITHDRAW" || "REBALANCE", types.string)
+  .addOptionalParam("withrebalance", "do action with rebalance", true, types.boolean)
+  .addOptionalParam("useall", "use whole balance", false, types.boolean)
+  .addOptionalParam("amount", "amount of token", 0, types.int)
   .setAction(async ({ vault, action, withrebalance, amount, useall }, hre) => {
     const [owner] = await hre.ethers.getSigners();
 

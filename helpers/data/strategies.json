@@ -122,6 +122,7 @@
   [
     {
       "strategyName": "DAI-deposit-CURVE-cDAI+cUSDC-deposit-HARVEST-fcDAI+cUSDC",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
@@ -139,6 +140,7 @@
     },
     {
       "strategyName": "DAI-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-CREAM-crYCRV",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -156,6 +158,7 @@
     },
     {
       "strategyName": "DAI-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-HARVEST-fYCRV",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -173,6 +176,7 @@
     },
     {
       "strategyName": "DAI-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD-deposit-HARVEST-fyDAI+yUSDC+yUSDT+yBUSD",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
@@ -190,6 +194,7 @@
     },
     {
       "strategyName": "DAI-deposit-CURVE-3Crv-deposit-HARVEST-f3CRV",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
@@ -207,6 +212,7 @@
     },
     {
       "strategyName": "USDC-deposit-CURVE-cDAI+cUSDC-deposit-HARVEST-fcDAI+cUSDC",
+      "token": "DAI",
       "strategy": [
         {
           "contract": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
@@ -224,6 +230,7 @@
     },
     {
       "strategyName": "USDC-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-CREAM-crYCRV",
+      "token": "USDC",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -241,6 +248,7 @@
     },
     {
       "strategyName": "USDC-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-HARVEST-fYCRV",
+      "token": "USDC",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -258,6 +266,7 @@
     },
     {
       "strategyName": "USDC-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD-deposit-HARVEST-fyDAI+yUSDC+yUSDT+yBUSD",
+      "token": "USDC",
       "strategy": [
         {
           "contract": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
@@ -275,6 +284,7 @@
     },
     {
       "strategyName": "USDC-deposit-CURVE-3Crv-deposit-HARVEST-f3CRV",
+      "token": "USDC",
       "strategy": [
         {
           "contract": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
@@ -292,6 +302,7 @@
     },
     {
       "strategyName": "USDT-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-CREAM-crYCRV",
+      "token": "USDT",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -309,6 +320,7 @@
     },
     {
       "strategyName": "USDT-deposit-CURVE-yDAI+yUSDC+yUSDT+yBUSD-deposit-HARVEST-fyDAI+yUSDC+yUSDT+yBUSD",
+      "token": "USDT",
       "strategy": [
         {
           "contract": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
@@ -326,6 +338,7 @@
     },
     {
       "strategyName": "WBTC-deposit-CURVE-crvRenWBTC-deposit-HARVEST-fcrvRenWBTC",
+      "token": "WBTC",
       "strategy": [
         {
           "contract": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
@@ -343,6 +356,7 @@
     },
     {
       "strategyName": "TUSD-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-CREAM-crYCRV",
+      "token": "TUSD",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -360,6 +374,7 @@
     },
     {
       "strategyName": "TUSD-deposit-CURVE-yDAI+yUSDC+yUSDT+yTUSD-deposit-HARVEST-fYCRV",
+      "token": "TUSD",
       "strategy": [
         {
           "contract": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -377,6 +392,7 @@
     },
     {
       "strategyName": "WETH-deposit-YEARN-yWETH-deposit-CREAM-crYETH",
+      "token": "WETH",
       "strategy": [
         {
           "contract": "0xe1237aA7f535b0CC33Fd973D66cBf830354D16c7",
@@ -394,6 +410,7 @@
     },
     {
       "strategyName": "3Crv-deposit-CURVE-usdn3CRV-deposit-HARVEST-fusdn3CRV",
+      "token": "THREE_CRV",
       "strategy": [
         {
           "contract": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",

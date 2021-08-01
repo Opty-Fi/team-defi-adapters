@@ -1,5 +1,5 @@
 import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
-import {TypedTokens} from "./data";
+import { TypedTokens } from "./data";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -38,7 +38,7 @@ export const ADAPTER = [
 ];
 
 export const TOKENS: DATA_OBJECT = {
-  DAI:  TypedTokens["DAI"],
+  DAI: TypedTokens["DAI"],
   USDC: TypedTokens["USDC"],
   USDT: TypedTokens["USDT"],
   WBTC: TypedTokens["WBTC"],
