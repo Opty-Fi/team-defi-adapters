@@ -1,4 +1,4 @@
-## Getting started
+## dai-3Crv-f3Crv recipe
 
 - Install Node JS
 - Open a terminal and run following commands
@@ -21,13 +21,11 @@ $ cd ./earn-protocol
 $ yarn node
 ```
 
-* Using the first terminal:
+### Using the first terminal:
 
-```
-yarn setup-local
-```
-Sample output
 ```console
+$ yarn setup-local
+
         Deploying Infrastructure contracts ...
 REGISTRY address : 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51
 VAULTSTEPINVESTSTRATEGYDEFINITIONREGISTRY address : 0xa0D61133044ACB8Fb72Bc5a0378Fe13786538Dd0
@@ -56,6 +54,7 @@ FULCRUMADAPTER address : 0x537aDE23f3c8aC52DB4845fcB213206672c219B5
 HARVESTADAPTER address : 0x1084641297453a0749865d0143E33F19Bf58D0f1
 YVAULTADAPTER address : 0xfb66B3FCCc886E754a0002f1e84d85a6b2b7aC82
 SUSHISWAPADAPTER address : 0xd70CF3AAB8C2DD7983474E3932f616D1D6ce7Fb2
+Started setting strategies
 -----------------
 Invest step strategy Name : DAI-deposit-COMPOUND-cDAI
 Invest step strategy Hash : 0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845
@@ -194,4 +193,65 @@ Finished deploying vaults
 BAL-ODEFI-USDC address : 0x0Ab3a795edE4f5e3E78936B1C04191e731B82723
 Contract BAL-ODEFI-USDC-RP0: 0x6C6492204Ba23C9c3dAC86386EEaaa0d409EfDE7
 Finished setup task
+```
+
+- approve and map Curve3Crv liquidity pool to CurveSwapPoolAdapter
+
+```
+ yarn hardhat map-liquiditypool-adapter \
+ --network localhost \
+ --registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
+ --liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
+ --adapter 0x1084641297453a0749865d0143E33F19Bf58D0f1
+```
+
+- approve and map f3Crv liquidity pool to HarvestAdapter
+
+```
+yarn hardhat map-liquiditypool-adapter \
+--network localhost \
+--registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
+--liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
+--adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
+```
+
+- approve f3Crv token
+
+```
+yarn hardhat approve-token \
+--token 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5  \
+--registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51 \
+--network localhost
+```
+
+- approve 3Crv token
+
+```
+yarn hardhat approve-token \
+--token 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490 \
+--registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51 \
+--network localhost
+```
+
+- set default strategy for DAI token
+
+```
+yarn hardhat set-best-strategy \
+--token 0x6B175474E89094C44Da98b954EedeAC495271d0F \
+--riskprofile RP1 \
+--strategyhash 0x680de03bc39b6b526671d7a0cbb083a37afbc0955a32582495326f8850baabcf \
+--strategyprovider 0x04Ef8a8d3B198749582896F3Bb133ACCc989bD78 \
+--isdefault true \
+--network localhost
+```
+
+- Verify that the above strategy is the default
+
+```
+yarn hardhat get-best-strategy \
+--token 0x6B175474E89094C44Da98b954EedeAC495271d0F \
+--riskprofile RP1 \
+--strategyprovider 0x04Ef8a8d3B198749582896F3Bb133ACCc989bD78 \
+--isdefault true \
+--network localhos
 ```
