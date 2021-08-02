@@ -210,7 +210,7 @@
     ]
   },
   {
-  "strategyName": "USDC-deposit-CURVE-cDAI+cUSDC-deposit-HARVEST-fcDAI+cUSDC",
+    "strategyName": "USDC-deposit-CURVE-cDAI+cUSDC-deposit-HARVEST-fcDAI+cUSDC",
     "token": "USDC",
     "strategy": [
       {

@@ -364,7 +364,7 @@ Options:
 --token            required <address> the address of token
 --riskprofile      required <string>  risk profile
 --strategyprovider required <address> the address of strategyProvider
---isdefault        required <bool>    whether set best default strategy or not
+--isdefault        required <bool>    get default strategy or not
 --network          optional <string>  name of the network provider (default: hardhat)
 ```
 
@@ -456,6 +456,7 @@ Options:
 --withrebalance optional <bool>    do action with rebalance (default: true)
 --useall        optional <bool>    use whole balance (default: false)
 --amount        optional <number>  amount of token (default: 0)
+--network       optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Example:
@@ -468,4 +469,26 @@ Options:
   --withrebalance true \
   --useall false \
   --amount 500000
+```
+
+### map-liquiditypool-adapter
+
+```
+Usage: approve and map liquidity pool to adapter
+
+Options:
+--registry      required <address> the address of registry
+--liquiditypool required <address> the address of liquidity
+--adapter       required <address> the address of defi adapter
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example
+
+```
+yarn hardhat map-liquiditypool-adapter \
+--network localhost \
+--registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
+--liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
+--adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
 ```

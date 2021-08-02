@@ -23,9 +23,9 @@ $ yarn node
 
 ### Using the first terminal:
 
-```console
-$ yarn setup-local
+- run `yarn setup-local`. Following is sample output
 
+```console
         Deploying Infrastructure contracts ...
 REGISTRY address : 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51
 VAULTSTEPINVESTSTRATEGYDEFINITIONREGISTRY address : 0xa0D61133044ACB8Fb72Bc5a0378Fe13786538Dd0
@@ -253,5 +253,56 @@ yarn hardhat get-best-strategy \
 --riskprofile RP1 \
 --strategyprovider 0x04Ef8a8d3B198749582896F3Bb133ACCc989bD78 \
 --isdefault true \
---network localhos
+--network localhost
+```
+
+- Invest 300 DAI to DAI Vault
+
+```
+yarn hardhat vault-actions \
+--vault 0x6eBcb8E158cc127D5Ac9d94142989899F592b73F \
+--action DEPOSIT \
+--user 0x541dA4c3E9B46b813794239a04130345D8d74FB2 \
+--withrebalance true \
+--useall false \
+--amount "300000000000000000000" \
+--network localhost
+```
+
+Following is the sample output
+
+```console
+Funding user with underlying token...
+Underlying token : 503.00000005 DAI
+Allowance : 500.0 DAI
+Invest strategy : 0x0000000000000000000000000000000000000000000000000000000000000000
+depositing with rebalance..
+Invest strategy : 0x680de03bc39b6b526671d7a0cbb083a37afbc0955a32582495326f8850baabcf
+Vault Shares : 800.212844233211992691 opDAIRP1Vault
+Underlying token : 3.00000005 DAI
+Finished executing Vault actions
+```
+
+- Redeem 500 opDAIRP1Vault
+
+```
+yarn hardhat vault-actions \
+--vault 0x6eBcb8E158cc127D5Ac9d94142989899F592b73F \
+--action WITHDRAW \
+--user 0x541dA4c3E9B46b813794239a04130345D8d74FB2 \
+--withrebalance true \
+--useall false \
+--amount "500000000000000000000" \
+--network localhost
+```
+
+Following is the sample output
+
+```console
+Invest strategy : 0x680de03bc39b6b526671d7a0cbb083a37afbc0955a32582495326f8850baabcf
+withdrawing with rebalance..
+Invest strategy : 0x680de03bc39b6b526671d7a0cbb083a37afbc0955a32582495326f8850baabcf
+Vault Shares : 300.212844233211992691 opDAIRP1Vault
+Underlying token : 502.575209381099187996 DAI
+Finished executing Vault actions
 ```
