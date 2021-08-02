@@ -1,4 +1,5 @@
 import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
+import { TypedTokens } from "./data";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -37,44 +38,44 @@ export const ADAPTER = [
 ];
 
 export const TOKENS: DATA_OBJECT = {
-  DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-  USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-  USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-  WBTC: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-  CHI: "0x0000000000004946c0e9F43F4Dee607b0eF1fA1c",
-  SLP_WETH_USDC: "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0",
+  DAI: TypedTokens["DAI"],
+  USDC: TypedTokens["USDC"],
+  USDT: TypedTokens["USDT"],
+  WBTC: TypedTokens["WBTC"],
+  WETH: TypedTokens["WETH"],
+  CHI: TypedTokens["CHI"],
+  SLP_WETH_USDC: TypedTokens["SLP_WETH_USDC"],
 };
 
 export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   CompoundAdapter: {
     tokenName: "COMP",
-    tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+    tokenAddress: TypedTokens["COMP"],
     distributionActive: true,
   },
   CurveAdapter: {
     tokenName: "CRV",
-    tokenAddress: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    tokenAddress: TypedTokens["CRV"],
     distributionActive: true,
   },
   DForceAdapter: {
     tokenName: "DF",
-    tokenAddress: "0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0",
+    tokenAddress: TypedTokens["DF"],
     distributionActive: true,
   },
   HarvestAdapter: {
     tokenName: "FARM",
-    tokenAddress: "0xa0246c9032bC3A600820415aE600c6388619A14D",
+    tokenAddress: TypedTokens["FARM"],
     distributionActive: true,
   },
   CreamAdapter: {
     tokenName: "CREAM",
-    tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
+    tokenAddress: TypedTokens["CREAM"],
     distributionActive: false,
   },
   SushiswapAdapter: {
     tokenName: "SUSHI",
-    tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    tokenAddress: TypedTokens["SUSHI"],
     distributionActive: true,
   },
 };
