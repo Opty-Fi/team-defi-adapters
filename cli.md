@@ -452,6 +452,7 @@ Usage: perform actions in the vault contract
 
 Options:
 --vault         required <address> the address of vault
+--user          required <address> account address of the user
 --action        required <string>  "DEPOSIT" || "WITHDRAW" || "REBALANCE"
 --withrebalance optional <bool>    do action with rebalance (default: true)
 --useall        optional <bool>    use whole balance (default: false)
@@ -465,6 +466,7 @@ Options:
   yarn hardhat vault-actions \
   --network localhost \
   --vault 0x0000000000000000000000000000000000000000 \
+  --user 0x0000000000000000000000000000000000000000 \
   --action deposit \
   --withrebalance true \
   --useall false \
