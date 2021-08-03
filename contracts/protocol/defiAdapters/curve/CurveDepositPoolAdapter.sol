@@ -16,6 +16,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "../../../interfaces/opty/defiAdapters/IAdapterStakingCurve.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { ICurveDeposit } from "../../../interfaces/curve/ICurveDeposit.sol";
 import { ICurveGauge } from "../../../interfaces/curve/ICurveGauge.sol";
@@ -29,8 +30,17 @@ import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvi
  * @title Adapter for Curve Deposit pools
  * @author Opty.fi
  * @dev Abstraction layer to Curve's deposit pools
+ *      Note 1 : In this adapter, a liquidity pool is defined as a single sided liquidity pool
+ *      Note 2 : In this adapter, lp token can be redemeed into more than one underlying token
  */
-contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
+contract CurveDepositPoolAdapter is
+    IAdapter,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterStakingCurve,
+    IAdapterInvestLimit,
+    Modifiers
+{
     using SafeMath for uint256;
 
     /** @notice  Curve Registry Address Provider */
@@ -110,6 +120,43 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function setRewardToken(address) external override onlyOperator {
         revert("!empty");
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function getAllAmountInTokenStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) external override returns (uint256) {
+        address[8] memory _underlyingTokens;
+        uint256 _liquidityPoolTokenAmount;
+        {
+            address _swapPool = _getSwapPool(_liquidityPool);
+            address _curveRegistry = _getCurveRegistry();
+            _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
+            address _gauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
+            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
+        }
+        int128 tokenIndex;
+        for (uint8 i = 0; i < _underlyingTokens.length; i++) {
+            if (_underlyingTokens[i] == _underlyingToken) {
+                tokenIndex = i;
+            }
+        }
+        uint256 _b;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, tokenIndex);
+        }
+        _b = _b.add(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
+            )
+        );
+        return _b;
     }
 
     /**
@@ -361,9 +408,6 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
             address _swapPool = _getSwapPool(_liquidityPool);
-            address _curveRegistry = _getCurveRegistry();
-            address[8] memory _tokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-            uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
             address _liquidityPoolToken = getLiquidityPoolToken(address(0), _liquidityPool);
 
             _codes = new bytes[](3);
@@ -375,38 +419,31 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
                 _liquidityPoolToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
             );
-
-            if (_nCoins == 1) {
-                uint256 _i;
-                for (uint256 _j = 0; _j < _nCoins; _j++) {
-                    if (_tokens[_j] == _underlyingTokens[0]) {
-                        _i = _j;
-                    }
-                }
+            uint256 _numOfTokens = _underlyingTokens.length;
+            if (_numOfTokens == 1) {
                 _codes[2] = abi.encode(
                     _liquidityPool,
                     abi.encodeWithSignature(
-                        "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
+                        "remove_liquidity_one_coin(uint256,int128,uint256)",
                         _amount,
-                        _i,
-                        uint256(0),
-                        true
+                        _getTokenIndex(_swapPool, _underlyingTokens[0]),
+                        uint256(0)
                     )
                 );
             } else {
-                if (_nCoins == uint256(2)) {
+                if (_numOfTokens == uint256(2)) {
                     uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
                         abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
                     );
-                } else if (_nCoins == uint256(3)) {
+                } else if (_numOfTokens == uint256(3)) {
                     uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
                         abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
                     );
-                } else if (_nCoins == uint256(4)) {
+                } else if (_numOfTokens == uint256(4)) {
                     uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
                     _codes[2] = abi.encode(
                         _liquidityPool,
@@ -455,18 +492,14 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
         address _liquidityPool,
         uint256 _liquidityPoolTokenAmount
     ) public view override returns (uint256) {
-        address _curveRegistry = _getCurveRegistry();
         address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _nCoins; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
+
         if (_liquidityPoolTokenAmount > 0) {
-            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
+            return
+                ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                    _liquidityPoolTokenAmount,
+                    _getTokenIndex(_swapPool, _underlyingToken)
+                );
         }
         return 0;
     }
@@ -486,12 +519,11 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getUnclaimedRewardTokenAmount(address payable, address _liquidityPool)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnclaimedRewardTokenAmount(
+        address payable,
+        address _liquidityPool,
+        address
+    ) public view override returns (uint256) {
         address _curveRegistry = _getCurveRegistry();
         if (_getLiquidityGauge(_liquidityPool, _curveRegistry) != address(0)) {
             // TODO : get the amount of unclaimed CRV tokens
@@ -517,6 +549,15 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
                 _rewardTokenAmount
             );
     }
+
+    /* solhint-disable no-empty-blocks */
+
+    /**
+     * @inheritdoc IAdapterHarvestReward
+     */
+    function getAddLiquidityCodes(address payable, address) public view override returns (bytes[] memory) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -571,23 +612,19 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
     ) public view override returns (uint256) {
         address _curveRegistry = _getCurveRegistry();
         address _swapPool = _getSwapPool(_liquidityPool);
-        uint256 _nCoins = _getNCoins(_swapPool, _curveRegistry);
-        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-        uint256 tokenIndex = 0;
-        for (uint256 i = 0; i < _nCoins; i++) {
-            if (_underlyingTokens[i] == _underlyingToken) {
-                tokenIndex = i;
-            }
-        }
+
         uint256 _liquidityPoolTokenAmount =
             ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(_vault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_liquidityPoolTokenAmount, int128(tokenIndex));
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                _liquidityPoolTokenAmount,
+                _getTokenIndex(_swapPool, _underlyingToken)
+            );
         }
         IHarvestCodeProvider _harvesCodeProviderContract =
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
-        uint256 _unclaimedRewwardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool);
+        uint256 _unclaimedRewwardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         _b = _b.add(
             _harvesCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
@@ -636,6 +673,39 @@ contract CurveDepositPoolAdapter is IAdapter, IAdapterHarvestReward, IAdapterSta
      */
     function getMinter(address _gauge) public view returns (address) {
         return ICurveGauge(_gauge).minter();
+    }
+
+    /**
+     * @dev This functions returns the token index for a underlying token
+     * @param _underlyingToken address of the underlying asset
+     * @param _swapPool swap pool address
+     * @return _tokenIndex index of coin in swap pool
+     */
+    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128 _tokenIndex) {
+        address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
+        for (uint256 _i = 0; _i < _underlyingTokens.length; _i++) {
+            if (_underlyingTokens[_i] == _underlyingToken) {
+                _tokenIndex = int128(_i);
+                break;
+            }
+        }
+    }
+
+    /*
+     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
+     * @param _vault Address of the OptyFi's vault contract
+     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
+     * @return Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        internal
+        returns (uint256)
+    {
+        address _curveRegistry = _getCurveRegistry();
+        if (_getLiquidityGauge(_liquidityPool, _curveRegistry) != address(0)) {
+            return ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).claimable_tokens(_vault);
+        }
+        return uint256(0);
     }
 
     /**

@@ -55,11 +55,11 @@ export async function deployEssentialContracts(
   const profiles = Object.keys(RISK_PROFILES);
   for (let i = 0; i < profiles.length; i++) {
     try {
-      const profile = await registry.riskProfiles(RISK_PROFILES[profiles[i]].name);
+      const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
       if (!profile.exists) {
-        await executeFunc(registry, owner, "addRiskProfile(string,uint8,(uint8,uint8))", [
+        await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
           RISK_PROFILES[profiles[i]].name,
-          RISK_PROFILES[profiles[i]].steps,
+          RISK_PROFILES[profiles[i]].canBorrow,
           RISK_PROFILES[profiles[i]].poolRating,
         ]);
       }
@@ -241,6 +241,31 @@ export async function deployEssentialContracts(
   };
 
   return essentialContracts;
+}
+
+export async function deployAdapterPrerequisites(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  isDeployedOnce: boolean,
+): Promise<CONTRACTS> {
+  const registry = await deployRegistry(hre, owner, isDeployedOnce);
+
+  const harvestCodeProvider = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
+    isDeployedOnce,
+    owner,
+    [registry.address],
+  );
+
+  await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
+
+  const adapterPrerequisites: CONTRACTS = {
+    registry,
+    harvestCodeProvider,
+  };
+
+  return adapterPrerequisites;
 }
 
 export async function deployAdapter(

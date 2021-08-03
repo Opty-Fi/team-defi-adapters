@@ -16,12 +16,14 @@ interface IAdapterHarvestReward {
      * @notice Returns the amount of accrued reward tokens
      * @param _vault Vault contract address
      * @param _liquidityPool Liquidity pool's contract address from where to claim reward tokens
+     * @param _underlyingToken Underlying token's contract address for which to claim reward tokens
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
-    function getUnclaimedRewardTokenAmount(address payable _vault, address _liquidityPool)
-        external
-        view
-        returns (uint256 _codes);
+    function getUnclaimedRewardTokenAmount(
+        address payable _vault,
+        address _liquidityPool,
+        address _underlyingToken
+    ) external view returns (uint256 _codes);
 
     /**
      * @notice Get batch of function calls for claiming the reward tokens (eg: COMP etc.)
@@ -49,6 +51,17 @@ interface IAdapterHarvestReward {
         address _liquidityPool,
         uint256 _rewardTokenAmount
     ) external view returns (bytes[] memory _codes);
+
+    /**
+     * @dev Get batch of function calls for adding liquidity in a DEX like Uniswap
+     * @param _vault Vault contract address
+     * @param _underlyingToken Pair token's contract address where the vault is going to provide liquidity
+     * @return _codes Returns an array of bytes in sequence that can be executed by vault
+     */
+    function getAddLiquidityCodes(address payable _vault, address _underlyingToken)
+        external
+        view
+        returns (bytes[] memory _codes);
 
     /**
      * @dev Get batch of function calls for swapping full balance of rewards in vault to underlying tokens
