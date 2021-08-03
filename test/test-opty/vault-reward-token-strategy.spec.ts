@@ -69,11 +69,11 @@ describe(scenario.title, () => {
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
-            let investStrategyHash: any;
+            let investStrategyHash: string;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
-            let RewardToken_ERC20Instance: any;
+            let RewardToken_ERC20Instance: Contract;
 
             before(async () => {
               underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
