@@ -19,7 +19,6 @@ import {
 import scenario from "./scenarios/withdrawal-fee.json";
 
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
   const MAX_AMOUNT = "2000000000000000000";
   let essentialContracts: CONTRACTS;

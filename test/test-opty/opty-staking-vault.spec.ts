@@ -1,10 +1,11 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import scenario from "./scenarios/opty-staking-vault.json";
+import { deployEssentialContracts } from "../../helpers/contracts-deployments";
 import { getBlockTimestamp, unpauseVault } from "../../helpers/contracts-actions";
+import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 
 type ARGUMENTS = {
   token?: string;
@@ -23,7 +24,7 @@ describe(scenario.title, () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       users = { owner, user1 };
-      [essentialContracts] = await setUp(owner);
+      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       contracts["stakingVault1D"] = essentialContracts.optyStakingVault1D;
       contracts["stakingVault30D"] = essentialContracts.optyStakingVault30D;

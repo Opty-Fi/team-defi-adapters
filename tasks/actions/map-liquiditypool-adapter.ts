@@ -1,7 +1,6 @@
 import { task, types } from "hardhat/config";
-import { isAddress, executeFunc, getContract } from "../../helpers/helpers";
+import { isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { Contract } from "ethers";
 
 task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
@@ -34,12 +33,12 @@ task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
       throw new Error("adapter address is invalid");
     }
 
-    const registryContract = (await getContract(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry)) as Contract;
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     const { isLiquidityPool } = await registryContract.getLiquidityPool(liquiditypool);
 
     if (!isLiquidityPool) {
-      await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [liquiditypool]);
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address)", [liquiditypool]);
 
       try {
         console.log(`Liquidity pool ${liquiditypool} approved`);
