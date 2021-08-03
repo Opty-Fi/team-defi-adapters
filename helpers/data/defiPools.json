@@ -222,7 +222,7 @@
       "tokens": ["0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"]
     }
   },
-  "HarvestV1Adapter": {
+  "HarvestAdapter": {
     "weth": {
       "pool": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",
       "lpToken": "0xFE09e53A81Fe2808bc493ea64319109B5bAa573e",

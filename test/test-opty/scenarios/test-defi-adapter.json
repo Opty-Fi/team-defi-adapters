@@ -25,7 +25,6 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
           "expect": "success",
           "message": ""
         },
