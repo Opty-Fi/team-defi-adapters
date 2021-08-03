@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import {
   deployAdapter,
@@ -16,6 +16,10 @@ import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract, edgeCaseTokens, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
+
+import { config as dotenvConfig } from "dotenv";
+import { resolve } from "path";
+dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -183,8 +187,10 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
         const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
         if (
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
+          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI) &&
           !edgeCaseTokens(adapterName, underlyingTokenAddress)
         ) {
+          // for (let i = 0; i < 8; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async () => {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[adapterName][pool].pool));
@@ -293,9 +299,57 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
                     }
+                    case "testGetDepositSomeCodes(address,address,address,uint256)": {
+                      process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("TDC Underlying balance before deposit: ", +underlyingBalanceBefore);
+
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Underlying balance String: ", BigNumber.from(underlyingBalanceBefore).toString());
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        underlyingBalanceBefore,
+                      );
+                      break;
+                    }
                     case "testGetWithdrawAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
+                    }
+                    case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                      process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
+
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("TDC Withdraw Underlying balance before deposit: ", +underlyingBalanceBefore);
+
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log(
+                          "Withdraw Underlying balance String: ",
+                          BigNumber.from(underlyingBalanceBefore).toString(),
+                        );
+                      const lpTokenBalance = await adapters[adapterName].getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("LpToken Withdraw balance before normal: ", +lpTokenBalance);
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log(
+                          "LpToken Withdraw balance before in string: ",
+                          BigNumber.from(lpTokenBalance).toString(),
+                        );
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        lpTokenBalance,
+                      );
                       break;
                     }
                   }
@@ -340,6 +394,25 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                         testDeFiAdapter.address,
                       );
+
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Underlying token bal before: ", +underlyingBalanceBefore);
+                      // process.env.ADAPTER_DEBUG == "true" &&
+                      //   console.log("Limit in underlying: ", +limitInUnderlyingToken);
+                      process.env.ADAPTER_DEBUG == "true" && console.log("Default fund amount: ", +defaultFundAmount);
+                      process.env.ADAPTER_DEBUG == "true" && console.log("Limit: ", +limit);
+
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Underlying Bal. after: ", +underlyingBalanceAfter);
+                      // process.env.ADAPTER_DEBUG == "true" &&
+                      //   console.log("underlyingTokenBalance before: ", +underlyingBalanceBefore);
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Diff of UnderlyingBalBefore - limit: ", +underlyingBalanceBefore.sub(limit));
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Expect condition Diff: ", +defaultFundAmount.sub(limit));
+                      process.env.ADAPTER_DEBUG == "true" &&
+                        console.log("Expect condition Diff: ", +underlyingBalanceBefore.sub(limit));
+
                       if (underlyingBalanceBefore.lt(limit)) {
                         expectedValue == ">0"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
