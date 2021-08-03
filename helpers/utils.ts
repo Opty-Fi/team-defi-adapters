@@ -15,3 +15,13 @@ export function amountInHex(fundAmount: BigNumber): string {
 export function delay(ms: number): Promise<unknown> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function removeDuplicateFromStringArray(list: string[]): string[] {
+  const listNoDuplicates = list.reduce((accumulator: string[], currentValue: string) => {
+    if (accumulator.indexOf(currentValue) === -1) {
+      accumulator.push(currentValue);
+    }
+    return accumulator;
+  }, []);
+  return listNoDuplicates;
+}
