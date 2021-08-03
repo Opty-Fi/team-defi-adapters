@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
-import "hardhat-deploy-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-watcher";
@@ -99,8 +98,12 @@ const buidlerConfig: HardhatUserConfig = {
       },
       allowUnlimitedContractSize: true,
       blockGasLimit: 0x1fffffffffffff,
-      chainId: chainIds.hardhat,
+      chainId: chainIds.ganache,
       accounts: {
+        mnemonic,
+        path: MNEMONIC_PATH,
+        initialIndex: 0,
+        count: 20,
         accountsBalance: "100000000000000000000000",
       },
     },

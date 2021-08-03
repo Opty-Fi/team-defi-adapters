@@ -40,7 +40,7 @@ import fs from "fs";
  */
 task("set-strategies", "Set strategies")
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
-  .addParam("fromfile", "the url of file", "", types.string)
+  .addParam("fromfile", "path to strategies json file", "", types.string)
   .setAction(async ({ strategyregistry, fromfile }, hre) => {
     if (strategyregistry === "") {
       throw new Error("strategyregistry cannot be empty");
@@ -65,11 +65,14 @@ task("set-strategies", "Set strategies")
     if (!strategies.length) {
       throw new Error("strategies file is in wrong format");
     }
-
+    console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {
-        await setStrategy(strategies[i].strategy, [TOKENS[strategies[i].token]], strategyRegistryContract);
-        console.log(`Set successfully strategy : ${strategies[i].strategyName}`);
+        const hash = await setStrategy(strategies[i].strategy, [TOKENS[strategies[i].token]], strategyRegistryContract);
+        console.log("-----------------");
+        console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
+        console.log(`Invest step strategy Hash : ${hash}`);
+        console.log("-----------------");
       } catch (error) {
         console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }

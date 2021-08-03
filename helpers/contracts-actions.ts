@@ -9,7 +9,7 @@ import {
   TypedCurveSwapPools,
 } from "./data";
 import { executeFunc, generateStrategyStep, generateTokenHash } from "./helpers";
-import { amountInHex } from "./utils";
+import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
@@ -48,7 +48,9 @@ export async function approveLiquidityPoolAndMapAdapters(
   }
   try {
     if (liquidityPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [liquidityPools]);
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [
+        removeDuplicateFromStringArray(liquidityPools),
+      ]);
     }
     if (liquidityPoolsMapToAdapters.length > 0) {
       await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [
@@ -148,10 +150,10 @@ export async function fundWalletToken(
 
     gasLimit: 6721975,
   };
+  const address = toAddress == null ? await wallet.getAddress() : toAddress;
   if (tokenAddress === TypedTokens["SLP_WETH_USDC"]) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
-    const address = toAddress == null ? await wallet.getAddress() : toAddress;
     await sushiswapInstance.swapExactETHForTokens(
       1,
       [TypedTokens["WETH"], TypedTokens["USDC"]],
@@ -171,7 +173,6 @@ export async function fundWalletToken(
     );
   } else {
     const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-    const address = toAddress == null ? await wallet.getAddress() : toAddress;
     await uniswapInstance.swapETHForExactTokens(
       amount,
       [TypedTokens["WETH"], tokenAddress],

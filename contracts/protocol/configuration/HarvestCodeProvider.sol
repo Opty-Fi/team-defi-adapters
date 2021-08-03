@@ -285,7 +285,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         return _finalAmount;
     }
 
-    function _getPath(address _initialToken, address _finalToken) internal view returns (address[] memory _path) {
+    function _getPath(address _initialToken, address _finalToken) internal pure returns (address[] memory _path) {
         address _weth = IUniswapV2Router02(uniswapV2Router02).WETH();
         if (_finalToken == _weth) {
             _path = new address[](2);

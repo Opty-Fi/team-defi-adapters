@@ -7,7 +7,7 @@ task("get-best-strategy", "Get best strategy")
   .addParam("token", "the address of token", "", types.string)
   .addParam("riskprofile", "risk profile", "", types.string)
   .addParam("strategyprovider", "the address of strategyProvider", "", types.string)
-  .addParam("isdefault", "whether set best default strategy or not", false, types.boolean)
+  .addParam("isdefault", "get default strategy or not", false, types.boolean)
   .setAction(async ({ token, riskprofile, strategyprovider, isdefault }, hre) => {
     if (strategyprovider === "") {
       throw new Error("strategyprovider cannot be empty");
