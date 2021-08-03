@@ -80,4 +80,4 @@ export type CURVE_TOKEN_DATA = {
     swap?: boolean;
     old?: boolean;
   };
-}
+};

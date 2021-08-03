@@ -167,8 +167,12 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
     adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
   });
 
-  const ValidatedPairTokens = Object.values(TypedPairTokens).map(({address}) => address).map(t => getAddress(t));
-  const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({address}) => address).map(t => getAddress(t));
+  const ValidatedPairTokens = Object.values(TypedPairTokens)
+    .map(({ address }) => address)
+    .map(t => getAddress(t));
+  const ValidatedCurveTokens = Object.values(TypedCurveTokens)
+    .map(({ address }) => address)
+    .map(t => getAddress(t));
   for (const adapterName of adapterNames) {
     // TODO: In future it can be leverage across all the adapters
     if (adapterName == "HarvestAdapter") {
