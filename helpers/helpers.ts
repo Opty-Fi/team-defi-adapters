@@ -162,3 +162,8 @@ export function getEthValueGasOverrideOptions(hre: HardhatRuntimeEnvironment, pa
   };
   return ETH_VALUE_GAS_OVERRIDE_OPTIONS;
 }
+
+//  function to generate the token/list of tokens's hash
+export function generateTokenHash(addresses: string[]): string {
+  return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
