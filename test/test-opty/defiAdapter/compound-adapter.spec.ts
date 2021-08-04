@@ -186,7 +186,7 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
           !edgeCaseTokens(adapterName, underlyingTokenAddress)
         ) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
-            it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async () => {
+            it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[adapterName][pool].pool));
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
@@ -359,6 +359,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                     }
                   }
                 }
+              } else {
+                return this.skip();
               }
             });
           }
