@@ -134,3 +134,8 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
   await hre.network.provider.send("evm_mine");
 }
+
+//  function to generate the token/list of tokens's hash
+export function generateTokenHash(addresses: string[]): string {
+  return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
