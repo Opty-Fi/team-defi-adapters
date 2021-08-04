@@ -6,10 +6,9 @@ import { isAddress } from "../../helpers/helpers";
 
 task("deploy-strategy-manager", "Deploy Strategy Manager")
   .addParam("registry", "the address of registry", "", types.string)
-  .addParam("harvestcodeprovider", "the address of harvestCodeProvider", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
-  .setAction(async ({ deployedonce, insertindb, registry, harvestcodeprovider }, hre) => {
+  .setAction(async ({ deployedonce, insertindb, registry }, hre) => {
     const [owner] = await hre.ethers.getSigners();
 
     if (registry === "") {
@@ -20,20 +19,12 @@ task("deploy-strategy-manager", "Deploy Strategy Manager")
       throw new Error("registry address is invalid");
     }
 
-    if (harvestcodeprovider === "") {
-      throw new Error("harvestcodeprovider cannot be empty");
-    }
-
-    if (!isAddress(harvestcodeprovider)) {
-      throw new Error("harvestcodeprovider address is invalid");
-    }
-
     const strategyManagerContract = await deployContract(
       hre,
       ESSENTIAL_CONTRACTS.STRATEGY_MANAGER,
       deployedonce,
       owner,
-      [registry, harvestcodeprovider],
+      [registry],
     );
 
     console.log(`Contract strategyManager : ${strategyManagerContract.address}`);
