@@ -6,7 +6,7 @@ import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
 task("set-best-strategy", "Set best strategy")
   .addParam("token", "the address of token", "", types.string)
   .addParam("riskprofile", "risk profile", "", types.string)
-  .addParam("strategyhash", "the hash of strategy", "", types.string)
+  .addParam("strategyhash", "the keccak256 hash of strategy", "", types.string)
   .addParam("strategyprovider", "the address of strategyProvider", "", types.string)
   .addParam("isdefault", "whether set best default strategy or not", false, types.boolean)
   .setAction(async ({ token, riskprofile, strategyhash, strategyprovider, isdefault }, hre) => {

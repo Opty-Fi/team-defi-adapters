@@ -68,9 +68,10 @@ export async function deployContractWithHash(
   return { contract, hash };
 }
 
-export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
+export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<any> {
   const tx = await contract.connect(executer)[funcAbi](...args);
   await tx.wait();
+  return tx;
 }
 
 export async function getExistingContractAddress(
@@ -108,9 +109,9 @@ export async function getContract(
 export async function getContractInstance(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  tokenAddress: string,
+  contractAddress: string,
 ): Promise<Contract> {
-  const contract = await hre.ethers.getContractAt(contractName, tokenAddress);
+  const contract = await hre.ethers.getContractAt(contractName, contractAddress);
   return contract;
 }
 

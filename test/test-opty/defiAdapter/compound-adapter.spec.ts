@@ -163,14 +163,14 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
-    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
-    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
+    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
     const CompoundAdapter = await deployAdapter(
       hre,
       owner,
       "CompoundAdapter",
       adapterPrerequisites.registry.address,
-      true,
+      TESTING_DEPLOYMENT_ONCE,
     );
     adapters = { CompoundAdapter };
   });
