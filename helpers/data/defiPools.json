@@ -40,11 +40,6 @@
       "lpToken": "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5",
       "tokens": ["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"]
     },
-    "weth": {
-      "pool": "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5",
-      "lpToken": "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5",
-      "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
-    },
     "link": {
       "pool": "0xFAce851a4921ce59e912d19329929CE6da6EB0c7",
       "lpToken": "0xFAce851a4921ce59e912d19329929CE6da6EB0c7",

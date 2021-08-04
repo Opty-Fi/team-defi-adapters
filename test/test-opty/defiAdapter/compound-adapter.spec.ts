@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
-import { TypedAdapterStrategies } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import {
   deployAdapter,
   deployEssentialContracts,
@@ -180,7 +180,11 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
     if (adapterName == "CompoundAdapter") {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
-        const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
+        //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
+        const underlyingTokenAddress =
+          getAddress(TypedDefiPools[adapterName][pool].tokens[0]) == getAddress(TypedTokens.ETH)
+            ? getAddress(TypedTokens.WETH)
+            : getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
         if (
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
           !edgeCaseTokens(adapterName, underlyingTokenAddress)
