@@ -215,7 +215,6 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
         // TODO: Get USDK,LINKUSD,SBTC from DEX
         if (
           TypedDefiPools[adapterName][pool].tokens.length == 1 &&
-          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI) &&
           getAddress(underlyingTokenAddress) != getAddress(TypedTokens.USDK) &&
           getAddress(underlyingTokenAddress) != getAddress(TypedTokens.LINKUSD) &&
           getAddress(underlyingTokenAddress) != getAddress(TypedTokens.SBTC)
@@ -340,13 +339,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     break;
                   }
                   case "testGetDepositSomeCodes(address,address,address,uint256)": {
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log("TDC Underlying balance before deposit: ", +underlyingBalanceBefore);
-
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log("Underlying balance String: ", BigNumber.from(underlyingBalanceBefore).toString());
                     await testDeFiAdapter[action.action](
                       underlyingTokenAddress,
                       liquidityPool,
@@ -361,29 +354,12 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                     break;
                   }
                   case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
-                    process.env.ADAPTER_DEBUG == "true" && console.log("Action: ", action.action);
-
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log("TDC Withdraw Underlying balance before deposit: ", +underlyingBalanceBefore);
-
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log(
-                        "Withdraw Underlying balance String: ",
-                        BigNumber.from(underlyingBalanceBefore).toString(),
-                      );
                     const lpTokenBalance = await adapters[adapterName].getLiquidityPoolTokenBalance(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log("LpToken before Withdraw balance normal: ", +lpTokenBalance);
-                    process.env.ADAPTER_DEBUG == "true" &&
-                      console.log(
-                        "LpToken before Withdraw balance in string: ",
-                        BigNumber.from(lpTokenBalance).toString(),
-                      );
                     await testDeFiAdapter[action.action](
                       underlyingTokenAddress,
                       liquidityPool,
