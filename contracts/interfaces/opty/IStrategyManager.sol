@@ -14,6 +14,20 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
  */
 interface IStrategyManager {
     /**
+     * @notice Get the balance of vault in underlyingToken provided
+     * @dev This is write function because of CurvePools
+     * @param _vault Vault contract address
+     * @param _underlyingToken Underlying token (eg: DAI, USDC etc.) address
+     * @param _investStrategyHash Hash of the strategy being used in vault contract
+     * @return _balance Returns the balance of vault in underlyingToken provided
+     */
+    function getBalanceInUnderlyingTokenWrite(
+        address payable _vault,
+        address _underlyingToken,
+        bytes32 _investStrategyHash
+    ) external returns (uint256 _balance);
+
+    /**
      * @dev Get the withdrawal codes step's count for the given stretagy hash
      * @param _investStrategyHash Hash of the strategy being used in vault contract
      * @return Returns the withdrawal codes steps count for the given stretagy hash
@@ -33,13 +47,6 @@ interface IStrategyManager {
      * @return Returns the claim reward token codes steps count for the given stretagy hash
      */
     function getClaimRewardStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
-
-    /**
-     * @dev Get the harvest reward token codes steps count for the given stretagy hash
-     * @param _investStrategyHash Hash of the strategy being used in vault contract
-     * @return Returns the harvest reward token codes steps count for the given stretagy hash
-     */
-    function getHarvestRewardStepsCount(bytes32 _investStrategyHash) external view returns (uint8);
 
     /**
      * @notice Get the balance of vault in underlyingToken provided
