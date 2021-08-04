@@ -143,10 +143,7 @@ export function edgeCaseTokens(adapterName: string, token: string): boolean {
   //  @reason: TUSD: PoolValue comes `0` with existing blockNumber in hardhat config. However, it works fine with
   //  the latest blockNumber
   //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
-  if (
-    (adapterName.toLowerCase() == "compoundadapter" && getAddress(token) == getAddress(TypedTokens.LINK)) ||
-    getAddress(token) == getAddress(TypedTokens.TUSD)
-  ) {
+  if (adapterName.toLowerCase() == "compoundadapter" && getAddress(token) == getAddress(TypedTokens.LINK)) {
     return true;
   }
   return false;
