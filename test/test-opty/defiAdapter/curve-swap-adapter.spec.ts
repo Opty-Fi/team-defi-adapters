@@ -21,10 +21,10 @@ type ARGUMENTS = {
 };
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  maxDepositProtocolPct?: string | null;
-  maxDepositPoolPct?: string | null;
-  maxDepositAmount?: string | null;
-  mode?: string | null;
+  maxDepositProtocolPct?: string;
+  maxDepositPoolPct?: string;
+  maxDepositAmount?: string;
+  mode?: string;
 };
 
 describe("CurveSwapPoolAdapter", () => {
