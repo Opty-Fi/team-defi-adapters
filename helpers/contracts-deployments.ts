@@ -1,4 +1,4 @@
-import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, RISK_PROFILES, ADAPTER } from "./constants";
+import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, RISK_PROFILES, ADAPTERS } from "./constants";
 import { Contract, Signer } from "ethers";
 import { CONTRACTS } from "./type";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -287,7 +287,7 @@ export async function deployAdapters(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
-  for (const adapter of ADAPTER) {
+  for (const adapter of ADAPTERS) {
     try {
       data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
     } catch (error) {

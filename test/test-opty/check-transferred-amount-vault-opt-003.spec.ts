@@ -16,7 +16,6 @@ type ARGUMENTS = {
 };
 
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   let essentialContracts: CONTRACTS;
   const contracts: CONTRACTS = {};
   let admin: Signer;

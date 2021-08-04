@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { ADAPTER } from "../../helpers/constants";
+import { ADAPTERS } from "../../helpers/constants";
 import { isAddress } from "../../helpers/helpers";
 
 task("deploy-adapters", "Deploy Adapter contracts")
@@ -15,7 +15,7 @@ task("deploy-adapters", "Deploy Adapter contracts")
       throw new Error("registry address is invalid");
     }
 
-    for (const adapter of ADAPTER) {
+    for (const adapter of ADAPTERS) {
       try {
         await hre.run("deploy-adapter", {
           registry: registry,

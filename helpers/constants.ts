@@ -23,7 +23,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   ERC20: "ERC20",
 };
 
-export const ADAPTER = [
+export const ADAPTERS = [
   "AaveV1Adapter",
   "AaveV2Adapter",
   "CompoundAdapter",
