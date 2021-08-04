@@ -54,6 +54,14 @@ abstract contract Modifiers is IModifiers {
     /**
      * @notice Modifier to check caller is operator or not
      */
+    modifier onlyStrategyOperator() {
+        require(msg.sender == registryContract.getStrategyOperator(), "caller is not the strategyOperator");
+        _;
+    }
+
+    /**
+     * @notice Modifier to check caller is operator or not
+     */
     modifier onlyOperator() {
         require(msg.sender == registryContract.getOperator(), "caller is not the operator");
         _;
