@@ -72,7 +72,10 @@ describe("CurveAdapters-getCodes()", () => {
         before(async () => {
           try {
             const timestamp = (await getBlockTimestamp(hre)) * 2;
-            nCoins = await curveAdapters[curveAdapterName].getUnderlyingTokens(strategy.strategy[0].contract, ZERO_ADDRESS);
+            nCoins = await curveAdapters[curveAdapterName].getUnderlyingTokens(
+              strategy.strategy[0].contract,
+              ZERO_ADDRESS,
+            );
             for (let i = 0; i < nCoins.length; i++) {
               if (nCoins[i] === TOKENS["DAI"]) {
                 await fundWalletToken(hre, nCoins[i], users["owner"], MAX_AMOUNT["DAI"], timestamp);
@@ -84,7 +87,10 @@ describe("CurveAdapters-getCodes()", () => {
                 depositAmount.push("0");
               }
             }
-            lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(ZERO_ADDRESS, strategy.strategy[0].contract);
+            lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
+              ZERO_ADDRESS,
+              strategy.strategy[0].contract,
+            );
           } catch (error) {
             console.error(error);
           }
@@ -110,7 +116,11 @@ describe("CurveAdapters-getCodes()", () => {
                       );
                     }
                   } else {
-                    codes = await curveAdapters[curveAdapterName][action.action](ownerAddress, [nCoins[0]], strategy.strategy[0].contract);
+                    codes = await curveAdapters[curveAdapterName][action.action](
+                      ownerAddress,
+                      [nCoins[0]],
+                      strategy.strategy[0].contract,
+                    );
                   }
                   if (codes.length > 0) {
                     for (let i = 0; i < codes.length - 1; i = i + 2) {
@@ -163,7 +173,11 @@ describe("CurveAdapters-getCodes()", () => {
                       );
                     }
                   } else {
-                    codes = await curveAdapters[curveAdapterName][action.action](ownerAddress, nCoins, strategy.strategy[0].contract);
+                    codes = await curveAdapters[curveAdapterName][action.action](
+                      ownerAddress,
+                      nCoins,
+                      strategy.strategy[0].contract,
+                    );
                   }
                   for (let i = 0; i < codes.length; i++) {
                     if (i < 2) {
@@ -176,7 +190,9 @@ describe("CurveAdapters-getCodes()", () => {
                         expect(value[1]).to.equal(i == 0 ? 0 : withdrawalAmount);
                       }
                     } else {
-                      const inter = new utils.Interface([`function remove_liquidity(uint256,uint256[${nCoins.length}])`]);
+                      const inter = new utils.Interface([
+                        `function remove_liquidity(uint256,uint256[${nCoins.length}])`,
+                      ]);
                       const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                       expect(address).to.equal(strategy.strategy[0].contract);
                       const value = inter.decodeFunctionData("remove_liquidity", abiCode);
@@ -225,9 +241,9 @@ describe("CurveAdapters-getCodes()", () => {
                   : BigNumber.from("20000");
                 defaultFundAmount =
                   underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
-                    underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-                    underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
-                    underlyingTokenAddress == getAddress(TypedTokens.BUSD)
+                  underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
+                  underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
+                  underlyingTokenAddress == getAddress(TypedTokens.BUSD)
                     ? BigNumber.from("2000")
                     : defaultFundAmount;
                 let limit: BigNumber;
@@ -249,17 +265,24 @@ describe("CurveAdapters-getCodes()", () => {
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(liquidityPool);
+                      const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
+                        liquidityPool,
+                      );
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
                         await curveAdapters[curveAdapterName].setMaxDepositPoolPct(liquidityPool, 0);
                       }
                       const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                      const existingProtocolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositProtocolPct();
+                      const existingProtocolPct: BigNumber = await curveAdapters[
+                        curveAdapterName
+                      ].maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                         await curveAdapters[curveAdapterName][action.action](maxDepositProtocolPct);
                       }
                       // Note: The pool value for curve pools will be in USD or BTC
-                      const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(liquidityPool, underlyingTokenAddress);
+                      const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
                       defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
@@ -270,12 +293,17 @@ describe("CurveAdapters-getCodes()", () => {
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
                       const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                      const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(liquidityPool);
+                      const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
+                        liquidityPool,
+                      );
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                         await curveAdapters[curveAdapterName][action.action](liquidityPool, maxDepositPoolPct);
                       }
                       // Note: The pool value for curve pools will be in USD or BTC
-                      const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(liquidityPool, underlyingTokenAddress);
+                      const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
                       defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
@@ -287,7 +315,9 @@ describe("CurveAdapters-getCodes()", () => {
                     case "setMaxDepositAmount(address,address,uint256)": {
                       // Note: for curve maxDepositAmount will be in USD or BTC
                       const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                      const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(liquidityPool);
+                      const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
+                        liquidityPool,
+                      );
                       if (
                         !existingDepositAmount.eq(
                           BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
@@ -299,7 +329,9 @@ describe("CurveAdapters-getCodes()", () => {
                           BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
                         );
                       }
-                      const updatedDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(liquidityPool);
+                      const updatedDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
+                        liquidityPool,
+                      );
                       limitInUnderlyingToken = BigNumber.from(updatedDepositAmount).div(
                         BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)),
                       );
@@ -340,15 +372,21 @@ describe("CurveAdapters-getCodes()", () => {
                       );
                       const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
                       if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(liquidityPool);
+                        const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
+                          liquidityPool,
+                        );
                         if (existingDepositAmount.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else {
                           expect(lpTokenBalance).to.be.gt(0);
                         }
                       } else {
-                        const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(liquidityPool);
-                        const existingProtocolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositProtocolPct();
+                        const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
+                          liquidityPool,
+                        );
+                        const existingProtocolPct: BigNumber = await curveAdapters[
+                          curveAdapterName
+                        ].maxDepositProtocolPct();
                         if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
@@ -358,7 +396,9 @@ describe("CurveAdapters-getCodes()", () => {
                       break;
                     }
                     case "balanceOf(address)": {
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](testDeFiAdapter.address);
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
+                        testDeFiAdapter.address,
+                      );
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                         expect(underlyingBalanceAfter).to.be.eq(0);
                       } else {
@@ -401,7 +441,7 @@ describe("CurveAdapters-getCodes()", () => {
             }
           }
         }
-      })
+      });
     }
   });
 });
