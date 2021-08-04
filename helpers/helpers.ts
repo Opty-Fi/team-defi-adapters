@@ -137,18 +137,6 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   await hre.network.provider.send("evm_mine");
 }
 
-export function edgeCaseTokens(adapterName: string, token: string): boolean {
-  //  @reason: LINK: CLink's address not detectable as Contract with the blockNumber being used in Hardhat config.
-  //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
-  //  @reason: TUSD: PoolValue comes `0` with existing blockNumber in hardhat config. However, it works fine with
-  //  the latest blockNumber
-  //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
-  if (adapterName.toLowerCase() == "compoundadapter" && getAddress(token) == getAddress(TypedTokens.LINK)) {
-    return true;
-  }
-  return false;
-}
-
 export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
