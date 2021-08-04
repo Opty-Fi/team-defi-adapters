@@ -68,9 +68,10 @@ export async function deployContractWithHash(
   return { contract, hash };
 }
 
-export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
+export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<any> {
   const tx = await contract.connect(executer)[funcAbi](...args);
   await tx.wait();
+  return tx;
 }
 
 export async function getExistingContractAddress(
@@ -108,9 +109,9 @@ export async function getContract(
 export async function getContractInstance(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  tokenAddress: string,
+  contractAddress: string,
 ): Promise<Contract> {
-  const contract = await hre.ethers.getContractAt(contractName, tokenAddress);
+  const contract = await hre.ethers.getContractAt(contractName, contractAddress);
   return contract;
 }
 
@@ -135,22 +136,6 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   const block = await hre.ethers.provider.getBlock(blockNumber);
   await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
   await hre.network.provider.send("evm_mine");
-}
-
-export function edgeCaseTokens(adapterName: string, token: string): boolean {
-  //  @reason: LINK: CLink's address not detectable as Contract with the blockNumber being used in Hardhat config.
-  //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
-  //  @reason: TUSD: PoolValue comes `0` with existing blockNumber in hardhat config. However, it works fine with
-  //  the latest blockNumber
-  //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
-  if (
-    (adapterName.toLowerCase() == "compoundadapter" && getAddress(token) == getAddress(TypedTokens.LINK)) ||
-    getAddress(token) == getAddress(TypedTokens.ETH) ||
-    getAddress(token) == getAddress(TypedTokens.TUSD)
-  ) {
-    return true;
-  }
-  return false;
 }
 
 export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {

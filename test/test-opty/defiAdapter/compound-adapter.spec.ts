@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
-import { TypedAdapterStrategies } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import {
   deployAdapter,
   deployEssentialContracts,
@@ -13,7 +13,7 @@ import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../help
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract, edgeCaseTokens, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 
@@ -167,14 +167,14 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
-    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
-    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
+    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
     const CompoundAdapter = await deployAdapter(
       hre,
       owner,
       "CompoundAdapter",
       adapterPrerequisites.registry.address,
-      true,
+      TESTING_DEPLOYMENT_ONCE,
     );
     adapters = { CompoundAdapter };
   });
@@ -184,15 +184,14 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
     if (adapterName == "CompoundAdapter") {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
-        const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
-        if (
-          TypedDefiPools[adapterName][pool].tokens.length == 1 &&
-          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI) &&
-          !edgeCaseTokens(adapterName, underlyingTokenAddress)
-        ) {
-          // for (let i = 0; i < 8; i++) {
+        //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
+        const underlyingTokenAddress =
+          getAddress(TypedDefiPools[adapterName][pool].tokens[0]) == getAddress(TypedTokens.ETH)
+            ? getAddress(TypedTokens.WETH)
+            : getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
+        if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
-            it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async () => {
+            it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[adapterName][pool].pool));
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
@@ -202,6 +201,12 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                 const liquidityPool = TypedDefiPools[adapterName][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
+                //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
+                //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
+                const getCode = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
+                if (getCode === "0x") {
+                  this.skip();
+                }
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 const decimals = await ERC20Instance.decimals();
                 const adapterAddress = adapters[adapterName].address;
@@ -210,6 +215,11 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                   liquidityPool,
                   underlyingTokenAddress,
                 );
+                //  @reason: Exception when PoolValue comes `0` with existing blockNumber in hardhat config. Eg: TUSD token. However, it works fine with
+                //  the latest blockNumber for TUSD
+                if (+poolValue == 0) {
+                  this.skip();
+                }
 
                 for (const action of story.setActions) {
                   switch (action.action) {
@@ -432,6 +442,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                     }
                   }
                 }
+              } else {
+                return this.skip();
               }
             });
           }

@@ -9,7 +9,7 @@ import {
   TypedCurveSwapPools,
 } from "./data";
 import { executeFunc, getEthValueGasOverrideOptions } from "./helpers";
-import { amountInHex } from "./utils";
+import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
@@ -49,7 +49,9 @@ export async function approveLiquidityPoolAndMapAdapters(
   }
   try {
     if (liquidityPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [liquidityPools]);
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [
+        removeDuplicateFromStringArray(liquidityPools),
+      ]);
     }
     if (liquidityPoolsMapToAdapters.length > 0) {
       await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [
