@@ -17,7 +17,6 @@ describe(scenario.title, () => {
   let signers: any;
 
   before(async () => {
-    // beforeEach(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       const financeOperator = owner;
