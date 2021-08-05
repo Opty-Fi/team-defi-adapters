@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, AAVE_V1_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
@@ -12,9 +12,8 @@ type ARGUMENTS = {
   type?: number;
   userName?: string;
 };
-describe("AaveV1Adapter Unit test", () => {
-  const ADAPTER_NAME = "AaveV1Adapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
+describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[AAVE_V1_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   const BORROW_AMOUNT = BigNumber.from("200000000000000000");
   const SNTToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
@@ -30,7 +29,7 @@ describe("AaveV1Adapter Unit test", () => {
       adapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
+        AAVE_V1_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );

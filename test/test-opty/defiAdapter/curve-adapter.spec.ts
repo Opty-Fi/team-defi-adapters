@@ -56,7 +56,7 @@ describe("CurveAdapters Unit test", () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites not deployed");
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       assert.isDefined(curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
       assert.isDefined(curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
     } catch (error) {
@@ -67,7 +67,7 @@ describe("CurveAdapters Unit test", () => {
   for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
     const strategies = TypedAdapterStrategies[curveAdapterName];
     for (let i = 0; i < strategies.length; i++) {
-      describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
+      describe(`${curveAdapterName} - test getCodes() for ${strategies[i].strategyName}`, async () => {
         const strategy = strategies[i];
         let lpToken: string;
         let nCoins: string[];
