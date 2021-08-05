@@ -10,8 +10,8 @@ import {
   CURVE_SWAP_POOL_ADAPTER_NAME,
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools, TypedTokens } from "../../../helpers/data";
-import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract } from "../../../helpers/helpers";
@@ -33,7 +33,7 @@ describe("CurveAdapters Unit test", () => {
     DAI: BigNumber.from("1000000000000000000000"),
     USDC: BigNumber.from("1000000000"),
   };
-  let essentialContracts: CONTRACTS;
+  let adapterPrerequisites: CONTRACTS;
   let ownerAddress: string;
   let users: { [key: string]: Signer };
   before(async () => {
@@ -41,23 +41,22 @@ describe("CurveAdapters Unit test", () => {
       const [owner, admin, user1] = await hre.ethers.getSigners();
       users = { owner, admin, user1 };
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
       curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
         CURVE_DEPOSIT_POOL_ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
       curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
         CURVE_SWAP_POOL_ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites not deployed");
       assert.isDefined(curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
       assert.isDefined(curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
     } catch (error) {
