@@ -415,6 +415,12 @@ interface IRegistry {
     function getFinanceOperator() external view returns (address);
 
     /**
+     * @notice Retrieve the RiskOperator address
+     * @return Returns the RiskOperator address
+     */
+    function getRiskOperator() external view returns (address);
+
+    /**
      * @notice Retrieve the StrategyOperator address
      * @return Returns the StrategyOperator address
      */
