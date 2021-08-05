@@ -61,7 +61,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     address public immutable compoundETHGatewayContract;
 
     constructor(address _registry) public Modifiers(_registry) {
-        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry));
+        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -279,11 +279,11 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
             if (_liquidityPool == CETH) {
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(0))
                 );
                 _codes[1] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(_amount))
                 );
                 _codes[2] = abi.encode(

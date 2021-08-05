@@ -20,12 +20,20 @@ contract CompoundETHGateway is ICompoundETHGateway, Modifiers {
     // solhint-disable-next-line var-name-mixedcase
     IWETH internal immutable WETH;
 
+    // solhint-disable-next-line var-name-mixedcase
+    address public immutable CETH;
+
     /**
      * @dev Sets the WETH address.
      * @param weth Address of the Wrapped Ether contract
      **/
-    constructor(address weth, address _registry) public Modifiers(_registry) {
+    constructor(
+        address weth,
+        address _registry,
+        address _ceth
+    ) public Modifiers(_registry) {
         WETH = IWETH(weth);
+        CETH = _ceth;
     }
 
     /**
@@ -93,10 +101,11 @@ contract CompoundETHGateway is ICompoundETHGateway, Modifiers {
     }
 
     /**
-     * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
+     * @dev Only WETH and CETH contracts are allowed to transfer ETH here. Prevent other addresses
+     *      to send Ether to this contract.
      */
     receive() external payable {
-        require(msg.sender == address(WETH), "Receive not allowed");
+        require(msg.sender == address(WETH) || msg.sender == address(CETH), "Receive not allowed");
     }
 
     /**
