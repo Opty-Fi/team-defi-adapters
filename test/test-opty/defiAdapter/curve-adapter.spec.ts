@@ -2,7 +2,13 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../../helpers/constants";
+import {
+  TOKENS,
+  TESTING_DEPLOYMENT_ONCE,
+  ZERO_ADDRESS,
+  CURVE_DEPOSIT_POOL_ADAPTER_NAME,
+  CURVE_SWAP_POOL_ADAPTER_NAME,
+} from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
@@ -21,10 +27,8 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositAmount?: string;
   mode?: string;
 };
-const CURVE_DEPOSIT_ADAPTER_NAME = "CurveDepositPoolAdapter";
-const CURVE_SWAP_ADAPTER_NAME = "CurveSwapPoolAdapter";
 const curveAdapters: CONTRACTS = {};
-describe("CurveAdapters-getCodes()", () => {
+describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
     USDC: BigNumber.from("1000000000"),
@@ -39,32 +43,32 @@ describe("CurveAdapters-getCodes()", () => {
       ownerAddress = await owner.getAddress();
       essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
       await approveTokens(owner, essentialContracts["registry"]);
-      curveAdapters[CURVE_DEPOSIT_ADAPTER_NAME] = await deployAdapter(
+      curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
-        CURVE_DEPOSIT_ADAPTER_NAME,
+        CURVE_DEPOSIT_POOL_ADAPTER_NAME,
         essentialContracts["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      curveAdapters[CURVE_SWAP_ADAPTER_NAME] = await deployAdapter(
+      curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
-        CURVE_SWAP_ADAPTER_NAME,
+        CURVE_SWAP_POOL_ADAPTER_NAME,
         essentialContracts["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
-      assert.isDefined(curveAdapters[CURVE_DEPOSIT_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
-      assert.isDefined(curveAdapters[CURVE_SWAP_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
+      assert.isDefined(curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
+      assert.isDefined(curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
     } catch (error) {
       console.log(error);
     }
   });
 
-  for (const curveAdapterName of [CURVE_DEPOSIT_ADAPTER_NAME, CURVE_SWAP_ADAPTER_NAME]) {
+  for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
     const strategies = TypedAdapterStrategies[curveAdapterName];
     for (let i = 0; i < strategies.length; i++) {
-      describe(`${strategies[i].strategyName}`, async () => {
+      describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
         const strategy = strategies[i];
         let lpToken: string;
         let nCoins: string[];
@@ -211,7 +215,7 @@ describe("CurveAdapters-getCodes()", () => {
     }
   }
 
-  describe("CurveAdapters", () => {
+  describe("CurveAdapters pools test", () => {
     let testDeFiAdapter: Contract;
 
     before(async () => {
@@ -220,7 +224,7 @@ describe("CurveAdapters-getCodes()", () => {
 
     const ValidatedBtcTokens = Object.values(TypedBtcTokens).map(t => getAddress(t));
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_ADAPTER_NAME, CURVE_SWAP_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
@@ -250,6 +254,11 @@ describe("CurveAdapters-getCodes()", () => {
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
                 const decimals = await ERC20Instance.decimals();
                 const adapterAddress = curveAdapters[curveAdapterName].address;
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
@@ -360,16 +369,24 @@ describe("CurveAdapters-getCodes()", () => {
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
                     }
+                    case "testGetWithdrawAllCodes(address,address,address)": {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
+                    }
                   }
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
+                      const expectedValue = action.expectedValue;
+                      const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalance = await curveAdapters[curveAdapterName][action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
+                      expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
                       const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
                       if (existingMode == 0) {
                         const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
@@ -390,17 +407,22 @@ describe("CurveAdapters-getCodes()", () => {
                         if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
-                          expect(lpTokenBalance).to.be.gt(0);
+                          expectedValue == "=0"
+                            ? expect(lpTokenBalance).to.be.eq(0)
+                            : expect(lpTokenBalance).to.be.gt(0);
                         }
                       }
                       break;
                     }
                     case "balanceOf(address)": {
+                      const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                         testDeFiAdapter.address,
                       );
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                        expect(underlyingBalanceAfter).to.be.eq(0);
+                        expectedValue == ">0"
+                          ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                          : expect(underlyingBalanceAfter).to.be.eq(0);
                       } else {
                         expect(underlyingBalanceAfter.div(BigNumber.from(10).pow(BigNumber.from(decimals)))).to.be.eq(
                           underlyingBalanceBefore
