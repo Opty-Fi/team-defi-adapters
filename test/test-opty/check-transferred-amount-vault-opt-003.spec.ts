@@ -1,10 +1,9 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { BigNumber, Signer } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, TESTING_CONTRACTS } from "../../helpers/constants";
-import { deployVault } from "../../helpers/contracts-deployments";
+import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import { unpauseVault } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/check-transferred-amount-vault-opt-003.json";
 import { deployContract, executeFunc } from "../../helpers/helpers";
@@ -23,7 +22,7 @@ describe(scenario.title, () => {
   before(async () => {
     try {
       [operator, admin] = await hre.ethers.getSigners();
-      [essentialContracts] = await setUp(operator);
+      essentialContracts = await deployEssentialContracts(hre, operator, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
 
       const dummyToken = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN_TRANSFER_FEE, false, operator, [

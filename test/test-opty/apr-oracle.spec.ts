@@ -2,6 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
+import { TypedTokens } from "../../helpers/data";
 import {
   generateStrategyHash,
   deployContract,
@@ -13,7 +14,7 @@ import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
 import { approveToken } from "../../helpers/contracts-actions";
-
+import defiPools from "../../helpers/data/defiPools.json";
 import scenario from "./scenarios/apr-oracle.json";
 
 type ARGUMENTS = {
@@ -27,48 +28,48 @@ type ARGUMENTS = {
   defaultStrategyState?: number;
 };
 
-const USED_TOKENS = ["0x6b175474e89094c44da98b954eedeac495271d0f", "0x973e52691176d36453868D9d86572788d27041A9"];
+const USED_TOKENS = [TypedTokens["DAI"], TypedTokens["DX"]];
 
 const USED_STRATEGIES = [
   {
     strategy: [
       {
-        contract: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-        outputToken: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+        contract: defiPools["CompoundAdapter"]["dai"].pool,
+        outputToken: defiPools["CompoundAdapter"]["dai"].lpToken,
         isBorrow: false,
       },
     ],
-    token: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    token: defiPools["CompoundAdapter"]["dai"].tokens[0],
   },
   {
     strategy: [
       {
-        contract: "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-        outputToken: "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
+        contract: defiPools["AaveV1Adapter"]["dai"].pool,
+        outputToken: defiPools["AaveV1Adapter"]["dai"].lpToken,
         isBorrow: false,
       },
     ],
-    token: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    token: defiPools["AaveV1Adapter"]["dai"].tokens[0],
   },
   {
     strategy: [
       {
-        contract: "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-        outputToken: "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
+        contract: defiPools["AaveV2Adapter"]["dai"].pool,
+        outputToken: defiPools["AaveV2Adapter"]["dai"].lpToken,
         isBorrow: false,
       },
     ],
-    token: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    token: defiPools["AaveV2Adapter"]["dai"].tokens[0],
   },
   {
     strategy: [
       {
-        contract: "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-        outputToken: "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+        contract: defiPools["HarvestV1Adapter"]["dai"].pool,
+        outputToken: defiPools["HarvestV1Adapter"]["dai"].lpToken,
         isBorrow: false,
       },
     ],
-    token: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    token: defiPools["HarvestV1Adapter"]["dai"].tokens[0],
   },
 ];
 
