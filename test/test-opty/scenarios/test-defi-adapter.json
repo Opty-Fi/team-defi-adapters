@@ -494,7 +494,6 @@
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositSomeCodes(address,address,address,uint256)",
-          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""

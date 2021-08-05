@@ -200,9 +200,9 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
-    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
-    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
+    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
+    adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, TESTING_DEPLOYMENT_ONCE);
   });
 
   const ValidatedBtcTokens = Object.values(TypedBtcTokens).map(t => getAddress(t));
@@ -442,6 +442,7 @@ describe(`${testDeFiAdapterScenario.title} - CurveDepositPoolAdapter`, () => {
                   case "balanceOf(address": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     expect(underlyingBalance).to.be.gt(0);
+                    break;
                   }
                 }
               }
