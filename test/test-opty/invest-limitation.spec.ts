@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -17,6 +17,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/invest-limitation.json";
+
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   type?: number;
@@ -35,12 +36,16 @@ describe(scenarios.title, () => {
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
   let users: { [key: string]: Signer };
+  const userAddresses: { [key: string]: string } = {};
 
   before(async () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
       const riskOperator = owner;
       users = { owner, admin, riskOperator };
+      userAddresses["owner"] = await users.owner.getAddress();
+      userAddresses["admin"] = await users.admin.getAddress();
+      userAddresses["riskOperator"] = await users.riskOperator.getAddress();
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
@@ -56,9 +61,10 @@ describe(scenarios.title, () => {
       const profile = vault.profile;
       // For all adapters except CurvePool and CurveSwap
       // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
-      const adaptersName = Object.keys(TypedAdapterStrategies).filter(
-        strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
-      );
+      // const adaptersName = Object.keys(TypedAdapterStrategies).filter(
+      //   strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
+      // );
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(strategy => ["AaveV1Adapter"].includes(strategy));
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
@@ -137,9 +143,21 @@ describe(scenarios.title, () => {
                   const setAction = story.setActions[i];
                   switch (setAction.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
+                      console.log("Action: ", setAction.action);
                       const { type }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
-                        await contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type);
+                        const _setMaxDepositProtocolModeTx = await contracts[setAction.contract]
+                          .connect(users[setAction.executer])
+                          [setAction.action](type);
+                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
+                        expectInvestLimitEvents(
+                          setMaxDepositProtocolModeTx,
+                          "LogMaxDepositProtocolMode",
+                          "LogMaxDepositProtocolMode(address,uint8,address)",
+                          contracts[setAction.contract].address,
+                          userAddresses[setAction.executer],
+                          type!,
+                        );
                       } else {
                         await expect(
                           contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
@@ -148,54 +166,79 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
+                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
+                      const maxDepositAmount = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        await contracts[setAction.contract]
+                        const _setMaxDepositAmountTx = await contracts[setAction.contract]
                           .connect(users[setAction.executer])
-                          [setAction.action](
-                            strategy.strategy[0].contract,
-                            token,
-                            amount ? amount[strategy.token] : "0",
-                          );
+                          [setAction.action](strategy.strategy[0].contract, token, maxDepositAmount);
+                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
+                        expectInvestLimitEvents(
+                          setMaxDepositAmountTx,
+                          "LogMaxDepositAmount",
+                          "LogMaxDepositAmount(address,uint256,address)",
+                          contracts[setAction.contract].address,
+                          userAddresses[setAction.executer],
+                          maxDepositAmount,
+                        );
                       } else {
                         await expect(
                           contracts[setAction.contract]
                             .connect(users[setAction.executer])
-                            [setAction.action](
-                              strategy.strategy[0].contract,
-                              token,
-                              amount ? amount[strategy.token] : "0",
-                            ),
+                            [setAction.action](strategy.strategy[0].contract, token, maxDepositAmount),
                         ).to.be.revertedWith(setAction.message);
                       }
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
+                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
+                      const maxDepositPoolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        await contracts[setAction.contract]
+                        const _setMaxDepositPoolPctTx = await contracts[setAction.contract]
                           .connect(users[setAction.executer])
-                          [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0");
+                          [setAction.action](strategy.strategy[0].contract, maxDepositPoolPct);
+                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait(1);
+                        expectInvestLimitEvents(
+                          setMaxDepositPoolPctTx,
+                          "LogMaxDepositPoolPct",
+                          "LogMaxDepositPoolPct(address,uint256,address)",
+                          contracts[setAction.contract].address,
+                          userAddresses[setAction.executer],
+                          maxDepositPoolPct,
+                        );
                       } else {
                         await expect(
                           contracts[setAction.contract]
                             .connect(users[setAction.executer])
-                            [setAction.action](strategy.strategy[0].contract, amount ? amount[strategy.token] : "0"),
+                            [setAction.action](strategy.strategy[0].contract, maxDepositPoolPct),
                         ).to.be.revertedWith(setAction.message);
                       }
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
+                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
+                      const maxDepositProtocolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        await contracts[setAction.contract]
+                        const _setMaxDepositProtocolPctTx = await contracts[setAction.contract]
                           .connect(users[setAction.executer])
-                          [setAction.action](amount ? amount[strategy.token] : "0");
+                          [setAction.action](maxDepositProtocolPct);
+                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait(1);
+                        expectInvestLimitEvents(
+                          setMaxDepositProtocolPctTx,
+                          "LogMaxDepositProtocolPct",
+                          "LogMaxDepositProtocolPct(address,uint256,address)",
+                          contracts[setAction.contract].address,
+                          userAddresses[setAction.executer],
+                          maxDepositProtocolPct,
+                        );
                       } else {
                         await expect(
                           contracts[setAction.contract]
                             .connect(users[setAction.executer])
-                            [setAction.action](amount ? amount[strategy.token] : "0"),
+                            [setAction.action](maxDepositProtocolPct),
                         ).to.be.revertedWith(setAction.message);
                       }
                       break;
@@ -306,3 +349,22 @@ describe(scenarios.title, () => {
     });
   }
 });
+
+//  function to test max deposit invest limitation events
+function expectInvestLimitEvents(
+  transaction: any,
+  expectedEventName: string,
+  expectedEventSignature: string,
+  expectedAdapterAddress: string,
+  expectedCallerAddress: string,
+  expectedMaxDepositTypeOrPctOrAmt: string | number,
+) {
+  // console.log("coming in expection for events")
+  // console.log("Transaction event: ", transaction.events[0])
+  // expect("something").to.equal("something")
+  expect(transaction.events[0].event).to.equal(expectedEventName);
+  expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
+  expect(transaction.events[0].args[0]).to.equal(expectedAdapterAddress);
+  expect(+transaction.events[0].args[1]).to.equal(+expectedMaxDepositTypeOrPctOrAmt);
+  expect(transaction.events[0].args[2]).to.equal(expectedCallerAddress);
+}
