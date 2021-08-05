@@ -634,6 +634,27 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
+    function getFinanceOperator() public view override returns (address) {
+        return financeOperator;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
+    function getRiskOperator() public view override returns (address) {
+        return riskOperator;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
+    function getStrategyOperator() public view override returns (address) {
+        return strategyOperator;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
     function getOperator() public view override returns (address) {
         return operator;
     }

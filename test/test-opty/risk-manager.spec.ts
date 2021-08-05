@@ -214,6 +214,7 @@ describe(scenario.title, () => {
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            break;
           }
         }
       }

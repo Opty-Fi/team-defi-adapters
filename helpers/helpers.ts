@@ -1,7 +1,10 @@
-import { Contract, Signer, ContractFactory, utils } from "ethers";
+import { Contract, Signer, ContractFactory, utils, BigNumber } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
+import { getAddress } from "ethers/lib/utils";
+import { TypedTokens } from "./data";
+
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
@@ -65,9 +68,10 @@ export async function deployContractWithHash(
   return { contract, hash };
 }
 
-export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
+export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<any> {
   const tx = await contract.connect(executer)[funcAbi](...args);
   await tx.wait();
+  return tx;
 }
 
 export async function getExistingContractAddress(
@@ -105,9 +109,9 @@ export async function getContract(
 export async function getContractInstance(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  tokenAddress: string,
+  contractAddress: string,
 ): Promise<Contract> {
-  const contract = await hre.ethers.getContractAt(contractName, tokenAddress);
+  const contract = await hre.ethers.getContractAt(contractName, contractAddress);
   return contract;
 }
 
@@ -132,4 +136,34 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   const block = await hre.ethers.provider.getBlock(blockNumber);
   await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
   await hre.network.provider.send("evm_mine");
+}
+
+export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
+  let defaultFundAmount: BigNumber = BigNumber.from("20000");
+  defaultFundAmount =
+    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.COMP) ||
+    underlyingTokenAddress == getAddress(TypedTokens.SAI) ||
+    underlyingTokenAddress == getAddress(TypedTokens.REP) ||
+    underlyingTokenAddress == getAddress(TypedTokens.ETH) ||
+    underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
+    underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.MUSD)
+      ? BigNumber.from("200")
+      : defaultFundAmount;
+  return defaultFundAmount;
+}
+
+export function getEthValueGasOverrideOptions(hre: HardhatRuntimeEnvironment, parseEthAmount: string) {
+  const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
+    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther(parseEthAmount)),
+    gasLimit: 6721975,
+  };
+  return ETH_VALUE_GAS_OVERRIDE_OPTIONS;
+}
+
+//  function to generate the token/list of tokens's hash
+export function generateTokenHash(addresses: string[]): string {
+  return getSoliditySHA3Hash(["address[]"], [addresses]);
 }
