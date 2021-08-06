@@ -195,7 +195,7 @@ describe(scenarios.title, () => {
                         const _setMaxDepositPoolPctTx = await contracts[setAction.contract]
                           .connect(users[setAction.executer])
                           [setAction.action](strategy.strategy[0].contract, maxDepositPoolPct);
-                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait(1);
+                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
                         expectInvestLimitEvents(
                           setMaxDepositPoolPctTx,
                           "LogMaxDepositPoolPct",
@@ -220,7 +220,7 @@ describe(scenarios.title, () => {
                         const _setMaxDepositProtocolPctTx = await contracts[setAction.contract]
                           .connect(users[setAction.executer])
                           [setAction.action](maxDepositProtocolPct);
-                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait(1);
+                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
                         expectInvestLimitEvents(
                           setMaxDepositProtocolPctTx,
                           "LogMaxDepositProtocolPct",
