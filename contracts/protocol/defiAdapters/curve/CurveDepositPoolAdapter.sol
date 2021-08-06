@@ -11,7 +11,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 // interfaces
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -40,8 +39,7 @@ contract CurveDepositPoolAdapter is
     IAdapterStaking,
     IAdapterStakingCurve,
     IAdapterInvestLimit,
-    Modifiers,
-    DefiAdaptersStorage
+    Modifiers
 {
     using SafeMath for uint256;
 

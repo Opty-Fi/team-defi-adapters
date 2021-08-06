@@ -10,7 +10,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import { IHarvestDeposit } from "../../../interfaces/harvest.finance/IHarvestDeposit.sol";
@@ -28,14 +27,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to harvest finance's pools
  */
 
-contract HarvestAdapter is
-    IAdapter,
-    IAdapterHarvestReward,
-    IAdapterStaking,
-    IAdapterInvestLimit,
-    Modifiers,
-    DefiAdaptersStorage
-{
+contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to staking vault */

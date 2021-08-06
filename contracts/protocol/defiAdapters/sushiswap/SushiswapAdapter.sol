@@ -9,7 +9,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 // interfaces
 import { ISushiswapMasterChef } from "../../../interfaces/sushiswap/ISushiswapMasterChef.sol";
@@ -25,7 +24,7 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
  * @dev Abstraction layer to Sushiswap's MasterChef contract
  */
 
-contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers, DefiAdaptersStorage {
+contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to max deposit value in percentage */

@@ -11,7 +11,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { CompoundETHGateway } from "./CompoundETHGateway.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
@@ -27,7 +26,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to Compound's pools
  */
 
-contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers, DefiAdaptersStorage {
+contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */

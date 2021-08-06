@@ -11,7 +11,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import {
@@ -32,7 +31,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to dYdX's pools
  */
-contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers, DefiAdaptersStorage {
+contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */

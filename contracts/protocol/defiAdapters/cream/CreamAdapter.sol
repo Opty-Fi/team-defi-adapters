@@ -10,7 +10,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import { ICream } from "../../../interfaces/cream/ICream.sol";
@@ -25,7 +24,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @author Opty.fi
  * @dev Abstraction layer to Cream's pools
  */
-contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers, DefiAdaptersStorage {
+contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */

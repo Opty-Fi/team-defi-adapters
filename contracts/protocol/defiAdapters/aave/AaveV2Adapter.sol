@@ -11,7 +11,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import { IAaveV2PriceOracle } from "../../../interfaces/aave/v2/IAaveV2PriceOracle.sol";
@@ -40,7 +39,7 @@ import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBo
  * @author Opty.fi
  * @dev Abstraction layer to AaveV2's pools
  */
-contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifiers, DefiAdaptersStorage {
+contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
