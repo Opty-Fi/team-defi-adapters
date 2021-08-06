@@ -704,7 +704,7 @@ contract CurveDepositPoolAdapter is
     /*
      * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
      * @param _vault Address of the OptyFi's vault contract
-     * @param _liquidityPool Address of the pool deposit (or swap, in some cases) contract
+     * @param _liquidityPool Address of the pool deposit contract
      * @return Returns the amount of accrued reward tokens
      */
     function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
