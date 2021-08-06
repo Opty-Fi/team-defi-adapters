@@ -23,7 +23,7 @@ type ARGUMENTS = {
   userName?: string;
 };
 type EXPECTED_ARGUMENTS = {
-  [key: string]: string;
+  [key: string]: string | number;
 };
 describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -39,7 +39,8 @@ describe(scenarios.title, () => {
   before(async () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
-      users = { owner, admin };
+      const riskOperator = owner;
+      users = { owner, admin, riskOperator };
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
@@ -128,6 +129,7 @@ describe(scenarios.title, () => {
                 console.error(error);
               }
             });
+
             for (let i = 0; i < stories.length; i++) {
               it(stories[i].description, async () => {
                 const story = stories[i];
@@ -183,7 +185,7 @@ describe(scenarios.title, () => {
                       }
                       break;
                     }
-                    case "maxDepositProtocolPct(uint256)": {
+                    case "setMaxDepositProtocolPct(uint256)": {
                       const { amount }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
                         await contracts[setAction.contract]
@@ -237,6 +239,35 @@ describe(scenarios.title, () => {
                 for (let i = 0; i < story.getActions.length; i++) {
                   const getAction = story.getActions[i];
                   switch (getAction.action) {
+                    case "maxDepositPoolPct(address)": {
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
+                        strategy.strategy[0].contract,
+                      );
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositProtocolPct()": {
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositAmount(address,address)": {
+                      const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
+                        strategy.strategy[0].contract,
+                        TOKENS[strategy.token],
+                      );
+                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      break;
+                    }
+                    case "maxDepositProtocolMode()": {
+                      const expectedValue: any = getAction.expectedValue;
+                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
+                      expect(+value).to.equal(+expectedValue.type);
+                      break;
+                    }
                     case "balanceOf(address)": {
                       const { userName }: ARGUMENTS = getAction.args;
                       if (userName) {

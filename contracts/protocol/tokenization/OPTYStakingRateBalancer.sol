@@ -74,7 +74,7 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
     function setStakingVaultMultipliers(address _stakingVault, uint256 _multiplier)
         external
         override
-        onlyGovernance
+        onlyFinanceOperator
         returns (bool _success)
     {
         stakingVaultMultipliers[_stakingVault] = _multiplier;
@@ -87,7 +87,7 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
     function setStakingVaultOPTYAllocation(uint256 _stakingVaultOPTYAllocation)
         external
         override
-        onlyGovernance
+        onlyFinanceOperator
         returns (bool _success)
     {
         stakingVaultOPTYAllocation = _stakingVaultOPTYAllocation;
