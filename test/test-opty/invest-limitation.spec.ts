@@ -17,6 +17,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/invest-limitation.json";
+import { expectInvestLimitEvents } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -344,19 +345,3 @@ describe(scenarios.title, () => {
     });
   }
 });
-
-//  function to test max deposit invest limitation events
-function expectInvestLimitEvents(
-  transaction: any,
-  expectedEventName: string,
-  expectedEventSignature: string,
-  expectedAdapterAddress: string,
-  expectedCallerAddress: string,
-  expectedMaxDepositTypeOrPctOrAmt: string | number,
-) {
-  expect(transaction.events[0].event).to.equal(expectedEventName);
-  expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
-  expect(transaction.events[0].args[0]).to.equal(expectedAdapterAddress);
-  expect(+transaction.events[0].args[1]).to.equal(+expectedMaxDepositTypeOrPctOrAmt);
-  expect(transaction.events[0].args[2]).to.equal(expectedCallerAddress);
-}
