@@ -149,8 +149,15 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
     underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
     underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
     underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.MUSD)
+    underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.TBTC)
       ? BigNumber.from("200")
+      : defaultFundAmount;
+  defaultFundAmount =
+    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) || underlyingTokenAddress == getAddress(TypedTokens.TBTC)
+      ? BigNumber.from("2")
       : defaultFundAmount;
   return defaultFundAmount;
 }
