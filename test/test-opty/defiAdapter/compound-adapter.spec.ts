@@ -292,7 +292,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await adapters[adapterName].getLiquidityPoolTokenBalance(
+                      const lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
@@ -369,7 +369,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const lpTokenBalance = await adapters[adapterName][action.action](
+                      const lpTokenBalance = await compoundAdapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
