@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import {
   deployAdapter,
@@ -12,7 +12,8 @@ import {
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
-import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
+//  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
+import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
@@ -197,6 +198,11 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                 const liquidityPool = TypedDefiPools[adapterName][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
+                const rewardTokenAddress = await adapters[adapterName].getRewardToken(ADDRESS_ZERO);
+                let RewardTokenERC20Instance: Contract;
+                if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                  RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
+                }
                 //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
                 //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
                 const getCode = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
@@ -298,6 +304,24 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                         underlyingBalance = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                         expect(+underlyingBalance).to.be.gte(+defaultFundAmount);
                       }
+
+                      if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                        let compUnderlyingBalance: BigNumber = await RewardTokenERC20Instance!.balanceOf(
+                          testDeFiAdapter.address,
+                        );
+                        if (+compUnderlyingBalance.lte(+0)) {
+                          await fundWalletToken(
+                            hre,
+                            RewardTokenERC20Instance!.address,
+                            users["owner"],
+                            getDefaultFundAmount(rewardTokenAddress).mul(BigNumber.from(10).pow(18)),
+                            timestamp,
+                            testDeFiAdapter.address,
+                          );
+                          compUnderlyingBalance = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                          expect(+compUnderlyingBalance).to.be.gt(+0);
+                        }
+                      }
                       break;
                     }
                     case "testGetDepositAllCodes(address,address,address)": {
@@ -332,6 +356,30 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                         liquidityPool,
                         adapterAddress,
                         lpTokenBalance,
+                      );
+                      break;
+                    }
+                    case "testGetHarvestAllCodes(address,address,address)": {
+                      //  TODO: This condition has to be added in the contract (OPTY-339)
+                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.COMP)) {
+                        this.skip();
+                      }
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
+                      break;
+                    }
+                    case "testGetHarvestSomeCodes(address,address,address,uint256)": {
+                      //  TODO: This condition has to be added in the contract (OPTY-339)
+                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.COMP)) {
+                        this.skip();
+                      }
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const rewardTokenBalance = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        adapterAddress,
+                        rewardTokenBalance,
                       );
                       break;
                     }
@@ -382,7 +430,9 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
                           : expect(underlyingBalanceAfter).to.be.eq(0);
                       } else {
-                        expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
+                        expectedValue == ">0"
+                          ? expect(+underlyingBalanceAfter).to.be.gt(+limit)
+                          : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                       }
                       break;
                     }
