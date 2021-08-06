@@ -2,14 +2,10 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
-import {
-  deployAdapter,
-  deployEssentialContracts,
-  deployAdapterPrerequisites,
-} from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
@@ -28,44 +24,43 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositAmount?: string;
 };
 
-describe("CompoundAdapter", () => {
-  const ADAPTER_NAME = "CompoundAdapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
+describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[COMPOUND_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  let essentialContracts: CONTRACTS;
-  let adapter: Contract;
+  let adapterPrerequisites: CONTRACTS;
+  let compoundAdapter: Contract;
   let ownerAddress: string;
-  let owner: Signer;
+  let users: { [key: string]: Signer };
   before(async () => {
     try {
-      [owner] = await hre.ethers.getSigners();
+      const [owner, admin, user1] = await hre.ethers.getSigners();
+      users = { owner, admin, user1 };
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
-      adapter = await deployAdapter(
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
+      compoundAdapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        COMPOUND_ADAPTER_NAME,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
-      assert.isDefined(adapter, "Adapter not deployed");
+      assert.isDefined(compoundAdapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
     }
   });
 
   for (let i = 0; i < strategies.length; i++) {
-    describe(`${strategies[i].strategyName}`, async () => {
+    describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
       let lpToken: string;
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
-          lpToken = await adapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
+          await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
+          lpToken = await compoundAdapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
         } catch (error) {
           console.error(error);
         }
@@ -84,13 +79,13 @@ describe("CompoundAdapter", () => {
                 if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, [
+                    codes = await compoundAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, [
                       amount[strategy.token],
                     ]);
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await compoundAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -121,7 +116,7 @@ describe("CompoundAdapter", () => {
                 if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](
+                    codes = await compoundAdapter[action.action](
                       ownerAddress,
                       [token],
                       strategy.strategy[0].contract,
@@ -130,7 +125,7 @@ describe("CompoundAdapter", () => {
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await compoundAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -151,50 +146,32 @@ describe("CompoundAdapter", () => {
       }
     });
   }
-});
+  describe(`CompoundAdapter pools test`, async () => {
+    let testDeFiAdapter: Contract;
 
-describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
-  let adapterPrerequisites: CONTRACTS;
-  let users: { [key: string]: Signer };
-  const adapterNames = Object.keys(TypedDefiPools);
-  let testDeFiAdapter: Contract;
-  let adapters: CONTRACTS;
+    before(async () => {
+      testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
+    });
 
-  before(async () => {
-    const [owner, admin, user1] = await hre.ethers.getSigners();
-    users = { owner, admin, user1 };
-    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
-    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
-    const CompoundAdapter = await deployAdapter(
-      hre,
-      owner,
-      "CompoundAdapter",
-      adapterPrerequisites.registry.address,
-      TESTING_DEPLOYMENT_ONCE,
-    );
-    adapters = { CompoundAdapter };
-  });
-
-  for (const adapterName of adapterNames) {
     // TODO: In future it can be leverage across all the adapters
-    if (adapterName == "CompoundAdapter") {
-      const pools = Object.keys(TypedDefiPools[adapterName]);
+    const pools = Object.keys(TypedDefiPools[COMPOUND_ADAPTER_NAME]);
+    describe(`Test-${COMPOUND_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
         //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
         const underlyingTokenAddress =
-          getAddress(TypedDefiPools[adapterName][pool].tokens[0]) == getAddress(TypedTokens.ETH)
+          getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
-            : getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
-        if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
+            : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
+        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
-              const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[adapterName][pool].pool));
+              const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
                 let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
                 let limit: BigNumber = ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
-                const liquidityPool = TypedDefiPools[adapterName][pool].pool;
+                const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
                 //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
@@ -205,12 +182,9 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                 }
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 const decimals = await ERC20Instance.decimals();
-                const adapterAddress = adapters[adapterName].address;
+                const adapterAddress = compoundAdapter.address;
 
-                const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
-                  liquidityPool,
-                  underlyingTokenAddress,
-                );
+                const poolValue: BigNumber = await compoundAdapter.getPoolValue(liquidityPool, underlyingTokenAddress);
                 //  @reason: Exception when PoolValue comes `0` with existing blockNumber in hardhat config. Eg: TUSD token. However, it works fine with
                 //  the latest blockNumber for TUSD
                 if (+poolValue == 0) {
@@ -221,26 +195,26 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
                       const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingMode = await adapters[adapterName].maxDepositProtocolMode();
+                      const existingMode = await compoundAdapter.maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        await adapters[adapterName][action.action](mode);
-                        const modeSet = await adapters[adapterName].maxDepositProtocolMode();
+                        await compoundAdapter[action.action](mode);
+                        const modeSet = await compoundAdapter.maxDepositProtocolMode();
                         expect(+modeSet).to.be.eq(+mode!);
                       }
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                      const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
-                        await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
-                        const maxDepositPoolPctSetToZero = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                        await compoundAdapter.setMaxDepositPoolPct(liquidityPool, 0);
+                        const maxDepositPoolPctSetToZero = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                         expect(+maxDepositPoolPctSetToZero).to.be.eq(0);
                       }
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
+                      const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        await adapters[adapterName][action.action](maxDepositProtocolPct);
-                        const maxDepositProtocolPctSet = await adapters[adapterName].maxDepositProtocolPct();
+                        await compoundAdapter[action.action](maxDepositProtocolPct);
+                        const maxDepositProtocolPctSet = await compoundAdapter.maxDepositProtocolPct();
                         expect(+maxDepositProtocolPctSet).to.be.eq(+maxDepositProtocolPct!);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
@@ -250,10 +224,10 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
                       const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                      const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
-                        const maxDepositPoolPctSet = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                        await compoundAdapter[action.action](liquidityPool, maxDepositPoolPct);
+                        const maxDepositPoolPctSet = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                         expect(+maxDepositPoolPctSet).to.be.eq(+maxDepositPoolPct!);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
@@ -264,17 +238,13 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                     case "setMaxDepositAmount(address,address,uint256)": {
                       let { maxDepositAmount }: any = action.args;
                       maxDepositAmount = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
-                      const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                      const existingDepositAmount: BigNumber = await compoundAdapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
-                        await adapters[adapterName][action.action](
-                          liquidityPool,
-                          underlyingTokenAddress,
-                          maxDepositAmount,
-                        );
-                        const maxDepositAmountSet = await adapters[adapterName].maxDepositAmount(
+                        await compoundAdapter[action.action](liquidityPool, underlyingTokenAddress, maxDepositAmount);
+                        const maxDepositAmountSet = await compoundAdapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress,
                         );
@@ -342,15 +312,15 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const expectedValue = action.expectedValue;
                       const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await adapters[adapterName][action.action](
+                      const lpTokenBalance = await compoundAdapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
                       expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
-                      const existingMode = await adapters[adapterName].maxDepositProtocolMode();
+                      const existingMode = await compoundAdapter.maxDepositProtocolMode();
                       if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                        const existingDepositAmount: BigNumber = await compoundAdapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress,
                         );
@@ -360,8 +330,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
                           expect(lpTokenBalance).to.be.gt(0);
                         }
                       } else {
-                        const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
-                        const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
+                        const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
+                        const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
                         if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
@@ -421,8 +391,8 @@ describe(`${testDeFiAdaptersScenario.title} - CompoundAdapter`, async () => {
           }
         }
       }
-    }
-  }
+    });
+  });
 });
 
 //  Function to check if cToken Pool is paused or not.
