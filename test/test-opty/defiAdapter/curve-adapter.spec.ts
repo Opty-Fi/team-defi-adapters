@@ -9,12 +9,12 @@ import {
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
   CURVE_SWAP_POOL_ADAPTER_NAME,
 } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools, TypedTokens } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
 type ARGUMENTS = {
@@ -42,6 +42,7 @@ describe("CurveAdapters Unit test", () => {
       users = { owner, admin, user1 };
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
@@ -49,6 +50,7 @@ describe("CurveAdapters Unit test", () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
+      assert.isDefined(curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
       curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME] = await deployAdapter(
         hre,
         owner,
@@ -56,8 +58,6 @@ describe("CurveAdapters Unit test", () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
-      assert.isDefined(curveAdapters[CURVE_DEPOSIT_POOL_ADAPTER_NAME], "CurveDepositPoolAdapter not deployed");
       assert.isDefined(curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
     } catch (error) {
       console.log(error);
@@ -221,8 +221,6 @@ describe("CurveAdapters Unit test", () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
     });
 
-    const ValidatedBtcTokens = Object.values(TypedBtcTokens).map(t => getAddress(t));
-
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
@@ -239,16 +237,7 @@ describe("CurveAdapters Unit test", () => {
           ) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
-                let defaultFundAmount: BigNumber = ValidatedBtcTokens.includes(underlyingTokenAddress)
-                  ? BigNumber.from("2")
-                  : BigNumber.from("20000");
-                defaultFundAmount =
-                  underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
-                  underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-                  underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
-                  underlyingTokenAddress == getAddress(TypedTokens.BUSD)
-                    ? BigNumber.from("2000")
-                    : defaultFundAmount;
+                let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
                 let limit: BigNumber;
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
@@ -455,6 +444,7 @@ describe("CurveAdapters Unit test", () => {
                     case "balanceOf(address": {
                       const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       expect(underlyingBalance).to.be.gt(0);
+                      break;
                     }
                   }
                 }

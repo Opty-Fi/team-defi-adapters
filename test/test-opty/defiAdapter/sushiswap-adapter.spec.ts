@@ -22,6 +22,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
@@ -29,7 +30,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -108,7 +108,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     expect(value[1]).to.equal(withdrawAmount);
                   }
                 }
-
                 break;
               }
             }

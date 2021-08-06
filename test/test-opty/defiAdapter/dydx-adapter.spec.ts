@@ -24,6 +24,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Essential contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
@@ -31,7 +32,6 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapterPrerequisites, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);

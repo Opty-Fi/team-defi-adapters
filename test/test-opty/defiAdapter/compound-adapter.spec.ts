@@ -37,6 +37,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
       users = { owner, admin, user1 };
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       compoundAdapter = await deployAdapter(
         hre,
         owner,
@@ -44,7 +45,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       assert.isDefined(compoundAdapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
