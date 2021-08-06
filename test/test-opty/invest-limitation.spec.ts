@@ -61,10 +61,9 @@ describe(scenarios.title, () => {
       const profile = vault.profile;
       // For all adapters except CurvePool and CurveSwap
       // @reason : CurvePool and CurveSwap don't follow the same approach for invest limitation compared to other adapters.
-      // const adaptersName = Object.keys(TypedAdapterStrategies).filter(
-      //   strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
-      // );
-      const adaptersName = Object.keys(TypedAdapterStrategies).filter(strategy => ["AaveV1Adapter"].includes(strategy));
+      const adaptersName = Object.keys(TypedAdapterStrategies).filter(
+        strategy => !["CurveDepositPoolAdapter", "CurveSwapPoolAdapter"].includes(strategy),
+      );
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
@@ -143,7 +142,6 @@ describe(scenarios.title, () => {
                   const setAction = story.setActions[i];
                   switch (setAction.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
-                      console.log("Action: ", setAction.action);
                       const { type }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
                         const _setMaxDepositProtocolModeTx = await contracts[setAction.contract]
@@ -166,7 +164,6 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
-                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositAmount = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
@@ -192,7 +189,6 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
-                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositPoolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
@@ -218,7 +214,6 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      console.log("Action: ", setAction.action);
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositProtocolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
@@ -359,9 +354,6 @@ function expectInvestLimitEvents(
   expectedCallerAddress: string,
   expectedMaxDepositTypeOrPctOrAmt: string | number,
 ) {
-  // console.log("coming in expection for events")
-  // console.log("Transaction event: ", transaction.events[0])
-  // expect("something").to.equal("something")
   expect(transaction.events[0].event).to.equal(expectedEventName);
   expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
   expect(transaction.events[0].args[0]).to.equal(expectedAdapterAddress);

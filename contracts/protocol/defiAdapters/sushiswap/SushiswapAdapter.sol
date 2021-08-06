@@ -9,6 +9,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 // interfaces
 import { ISushiswapMasterChef } from "../../../interfaces/sushiswap/ISushiswapMasterChef.sol";
@@ -24,7 +25,7 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
  * @dev Abstraction layer to Sushiswap's MasterChef contract
  */
 
-contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
+contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers, DefiAdaptersStorage {
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to max deposit value in percentage */
@@ -74,6 +75,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         onlyRiskOperator
     {
         maxDepositPoolPct[_underlyingToken] = _maxDepositPoolPct;
+        emit LogMaxDepositPoolPct(address(this), maxDepositPoolPct[_underlyingToken], msg.sender);
     }
 
     /**
@@ -85,6 +87,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
         maxDepositAmount[_masterChef][_underlyingToken] = _maxDepositAmount;
+        emit LogMaxDepositAmount(address(this), maxDepositAmount[_masterChef][_underlyingToken], msg.sender);
     }
 
     /**
@@ -225,6 +228,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
+        emit LogMaxDepositProtocolMode(address(this), maxDepositProtocolMode, msg.sender);
     }
 
     /**
@@ -232,6 +236,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+        emit LogMaxDepositProtocolPct(address(this), maxDepositProtocolPct, msg.sender);
     }
 
     /* solhint-disable no-unused-vars */

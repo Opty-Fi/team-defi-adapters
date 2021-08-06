@@ -10,6 +10,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
+import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 //  interfaces
 import { IDForceDeposit } from "../../../interfaces/dforce/IDForceDeposit.sol";
@@ -27,7 +28,14 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  * @dev Abstraction layer to DForce's pools
  */
 
-contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
+contract DForceAdapter is
+    IAdapter,
+    IAdapterHarvestReward,
+    IAdapterStaking,
+    IAdapterInvestLimit,
+    Modifiers,
+    DefiAdaptersStorage
+{
     using SafeMath for uint256;
 
     /** @notice Maps liquidityPool to staking vault */
@@ -76,6 +84,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         onlyRiskOperator
     {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+        emit LogMaxDepositPoolPct(address(this), maxDepositPoolPct[_liquidityPool], msg.sender);
     }
 
     /**
@@ -87,6 +96,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
+        emit LogMaxDepositAmount(address(this), maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
 
     /**
@@ -114,6 +124,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
+        emit LogMaxDepositProtocolMode(address(this), maxDepositProtocolMode, msg.sender);
     }
 
     /**
@@ -121,6 +132,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+        emit LogMaxDepositProtocolPct(address(this), maxDepositProtocolPct, msg.sender);
     }
 
     /**

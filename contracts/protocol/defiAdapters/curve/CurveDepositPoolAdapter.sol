@@ -11,6 +11,7 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 // helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { DefiAdaptersStorage } from "../DefiAdaptersStorage.sol";
 
 // interfaces
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -39,7 +40,8 @@ contract CurveDepositPoolAdapter is
     IAdapterStaking,
     IAdapterStakingCurve,
     IAdapterInvestLimit,
-    Modifiers
+    Modifiers,
+    DefiAdaptersStorage
 {
     using SafeMath for uint256;
 
@@ -105,6 +107,7 @@ contract CurveDepositPoolAdapter is
         onlyRiskOperator
     {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+        emit LogMaxDepositPoolPct(address(this), maxDepositPoolPct[_liquidityPool], msg.sender);
     }
 
     /**
@@ -117,6 +120,7 @@ contract CurveDepositPoolAdapter is
     ) external override onlyRiskOperator {
         // Note: We are using 18 as decimals for USD and BTC
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
+        emit LogMaxDepositAmount(address(this), maxDepositAmount[_liquidityPool], msg.sender);
     }
 
     /**
@@ -177,6 +181,7 @@ contract CurveDepositPoolAdapter is
      */
     function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+        emit LogMaxDepositProtocolPct(address(this), maxDepositProtocolPct, msg.sender);
     }
 
     /**
@@ -184,6 +189,7 @@ contract CurveDepositPoolAdapter is
      */
     function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
+        emit LogMaxDepositProtocolMode(address(this), maxDepositProtocolMode, msg.sender);
     }
 
     /**
