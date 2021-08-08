@@ -943,7 +943,7 @@
       "setActions": [
         {
           "contract": "",
-          "action": "fundTestDeFiAdapterContract",
+          "action": "fundTestDefiContractWithRewardToken()",
           "expect": "success",
           "message": ""
         },
@@ -978,7 +978,7 @@
       "setActions": [
         {
           "contract": "",
-          "action": "fundTestDeFiAdapterContract",
+          "action": "fundTestDefiContractWithRewardToken()",
           "expect": "success",
           "message": ""
         },
