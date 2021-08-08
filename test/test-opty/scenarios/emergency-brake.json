@@ -20,7 +20,8 @@
               "expect": "success",
               "message": ""
             }
-          ]
+          ],
+          "cleanActions": []
         },
         {
           "description": "[Deposit and withdraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
@@ -30,12 +31,13 @@
               "action": "runTwoTxnWithdrawAndDepositRebalance(uint256,uint256)",
               "args": {
                 "max_amount": 10000,
-                "min_amount": 1
+                "min_amount": 9999
               },
               "expect": "fail",
               "message": "!maxVaultValueJump"
             }
-          ]
+          ],
+          "cleanActions": []
         },
         {
           "description": "[Double deposit in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
@@ -45,8 +47,17 @@
               "action": "runTwoTxnDepositRebalance(uint256,uint256)",
               "args": {
                 "max_amount": 100000,
-                "min_amount": 99999
+                "min_amount": 1
               },
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "cleanActions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runWithdrawAllRebalance()",
+              "args": {},
               "expect": "success",
               "message": ""
             }
@@ -60,12 +71,13 @@
               "action": "runTwoTxnDepositRebalance(uint256,uint256)",
               "args": {
                 "max_amount": 100000,
-                "min_amount": 10000
+                "min_amount": 100000
               },
               "expect": "fail",
               "message": "!maxVaultValueJump"
             }
-          ]
+          ],
+          "cleanActions": []
         },
         {
           "description": "[Double withDraw in one block] Should pass when the pool value doesn't deviate from 1%, maxJumpAllowed=1%",
@@ -89,7 +101,8 @@
               "expect": "success",
               "message": ""
             }
-          ]
+          ],
+          "cleanActions": []
         },
         {
           "description": "[Double withDraw in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
@@ -113,6 +126,15 @@
               "expect": "fail",
               "message": "!maxVaultValueJump"
             }
+          ],
+          "cleanActions": [
+            {
+              "contract": "testEmergencyBrake",
+              "action": "runWithdrawAllRebalance()",
+              "args": {},
+              "expect": "success",
+              "message": ""
+            }
           ]
         },
         {
@@ -123,12 +145,13 @@
               "action": "runTwoTxnRebalance(uint256,uint256)",
               "args": {
                 "max_amount": 10000,
-                "min_amount": 9999
+                "min_amount": 1
               },
               "expect": "success",
               "message": ""
             }
-          ]
+          ],
+          "cleanActions": []
         },
         {
           "description": "[Double rebalance in one block] Should throw an error when the pool value deviates from 1%, maxJumpAllowed=1%",
@@ -143,7 +166,8 @@
               "expect": "fail",
               "message": "!maxVaultValueJump"
             }
-          ]
+          ],
+          "cleanActions": []
         }
       ]
     }

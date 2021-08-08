@@ -1,6 +1,25 @@
 {
   "title": "APROracle",
   "description": "Test cases for APROracle integration in RiskManager and StrategyProvider",
+  "usedTokens": ["DAI", "DX"],
+  "usedStrategies": [
+    {
+      "adapterName": "CompoundAdapter",
+      "token": "DAI"
+    },
+    {
+      "adapterName": "AaveV1Adapter",
+      "token": "DAI"
+    },
+    {
+      "adapterName": "AaveV2Adapter",
+      "token": "DAI"
+    },
+    {
+      "adapterName": "HarvestV1Adapter",
+      "token": "DAI"
+    }
+  ],
   "stories": [
     {
       "description": "getBestStrategy should return 0x00 strategy by default if the default strategy state is CompoundOrAave but Compound and Aave's strategies are not set",
@@ -22,9 +41,9 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          "expectedValue": null
         }
       ],
       "cleanActions": []
@@ -49,9 +68,9 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x973e52691176d36453868D9d86572788d27041A9"]
+            "token": "DX"
           },
-          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          "expectedValue": null
         }
       ],
       "cleanActions": []
@@ -73,7 +92,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -83,7 +103,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -93,7 +114,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -106,10 +128,9 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "executor": "",
-          "expectedValue": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          "expectedValue": null
         }
       ],
       "cleanActions": [
@@ -117,10 +138,19 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -143,7 +173,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -153,7 +184,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -163,7 +195,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -176,10 +209,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "executor": "",
-          "expectedValue": "0x105c19a2eb0ad6a81cdac155ea97967b4c9a612a4ba1fcf19f4adce8f0595ef7"
+          "expectedValue": {
+            "adapterName": "",
+            "token": ""
+          }
         }
       ],
       "cleanActions": [
@@ -187,10 +222,19 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -213,7 +257,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -223,7 +268,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -233,7 +279,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -243,14 +290,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -264,9 +305,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x105c19a2eb0ad6a81cdac155ea97967b4c9a612a4ba1fcf19f4adce8f0595ef7"
+          "expectedValue": {
+            "adapterName": "",
+            "token": ""
+          }
         }
       ],
       "cleanActions": [
@@ -274,10 +318,19 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -311,7 +364,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -321,7 +375,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -331,7 +386,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -341,7 +397,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -351,7 +408,8 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "score": 0
           },
           "executor": "",
@@ -362,14 +420,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -383,9 +435,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x105c19a2eb0ad6a81cdac155ea97967b4c9a612a4ba1fcf19f4adce8f0595ef7"
+          "expectedValue": {
+            "adapterName": "",
+            "token": ""
+          }
         }
       ],
       "cleanActions": [
@@ -393,11 +448,23 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-              "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "HarvestV1Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -431,7 +498,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -441,7 +509,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -451,7 +520,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -461,7 +531,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -471,7 +542,8 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "score": 1
           },
           "executor": "",
@@ -482,14 +554,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -503,9 +569,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x2c365ec0925c4400f3c0ad18ddcdd76c24a997ec8f0c2b4d35b6092783b6ac6a"
+          "expectedValue": {
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
+          }
         }
       ],
       "cleanActions": [
@@ -513,11 +582,23 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-              "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "HarvestV1Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -551,7 +632,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -561,7 +643,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -571,7 +654,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -581,7 +665,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -591,7 +676,8 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "score": 1
           },
           "executor": "",
@@ -602,14 +688,8 @@
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -623,9 +703,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x2c365ec0925c4400f3c0ad18ddcdd76c24a997ec8f0c2b4d35b6092783b6ac6a"
+          "expectedValue": {
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
+          }
         }
       ],
       "cleanActions": [
@@ -633,11 +716,23 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-              "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "HarvestV1Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -660,7 +755,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -670,7 +766,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -680,7 +777,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -690,7 +788,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -700,7 +799,8 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "score": 1
           },
           "executor": "",
@@ -711,14 +811,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -732,9 +826,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x2c365ec0925c4400f3c0ad18ddcdd76c24a997ec8f0c2b4d35b6092783b6ac6a"
+          "expectedValue": {
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
+          }
         }
       ],
       "cleanActions": [
@@ -742,11 +839,23 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-              "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "HarvestV1Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -769,7 +878,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -779,7 +889,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -789,7 +900,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -799,7 +911,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -809,7 +922,8 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "score": 1
           },
           "executor": "",
@@ -820,14 +934,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -841,9 +949,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0x2c365ec0925c4400f3c0ad18ddcdd76c24a997ec8f0c2b4d35b6092783b6ac6a"
+          "expectedValue": {
+            "adapterName": "HarvestV1Adapter",
+            "token": "DAI"
+          }
         }
       ],
       "cleanActions": [
@@ -851,11 +962,23 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d",
-              "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "HarvestV1Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }
@@ -878,7 +1001,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -888,7 +1012,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "adapterName": "AaveV1Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -898,7 +1023,8 @@
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
           "args": {
-            "token": "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
+            "adapterName": "AaveV2Adapter",
+            "token": "DAI"
           },
           "executor": "",
           "expect": "success",
@@ -908,14 +1034,8 @@
           "contract": "strategyProvider",
           "action": "setBestDefaultStrategy(string,bytes32,bytes32)",
           "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "adapterName": "CompoundAdapter",
+            "token": "DAI",
             "riskProfile": "RP1"
           },
           "executor": "",
@@ -929,9 +1049,12 @@
           "action": "getBestStrategy(string,address[])",
           "args": {
             "riskProfile": "RP1",
-            "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+            "token": "DAI"
           },
-          "expectedValue": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
+          "expectedValue": {
+            "adapterName": "CompoundAdapter",
+            "token": "DAI"
+          }
         }
       ],
       "cleanActions": [
@@ -939,10 +1062,19 @@
           "contract": "registry",
           "action": "revokeLiquidityPool(address[])",
           "args": {
-            "tokens": [
-              "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-              "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-              "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+            "liquidityPools": [
+              {
+                "adapterName": "CompoundAdapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV1Adapter",
+                "token": "DAI"
+              },
+              {
+                "adapterName": "AaveV2Adapter",
+                "token": "DAI"
+              }
             ]
           }
         }

@@ -3,12 +3,9 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { TypedAdapterStrategies } from "../../helpers/data";
-import { deployEssentialContracts, deployVault, deployAdapter } from "../../helpers/contracts-deployments";
+import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
   approveToken,
-  setBestBasicStrategy,
-  approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
@@ -20,20 +17,12 @@ describe(scenario.title, () => {
   const token = "DAI";
   const MAX_AMOUNT = 100000000;
   let essentialContracts: CONTRACTS;
-  let adapter: Contract;
   let owner: Signer;
   let admin: Signer;
   before(async () => {
     try {
       [owner, admin] = await hre.ethers.getSigners();
       essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      adapter = await deployAdapter(
-        hre,
-        owner,
-        "CompoundAdapter",
-        essentialContracts["registry"].address,
-        TESTING_DEPLOYMENT_ONCE,
-      );
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
     } catch (error) {
       console.log(error);
@@ -47,27 +36,11 @@ describe(scenario.title, () => {
       let underlyingTokenSymbol: string;
       const vault = scenario.vaults[i];
       const profile = vault.profile;
-      const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
       let ERC20Instance: Contract;
       let emergencyBrake: Contract;
       before(async () => {
         try {
-          await approveToken(owner, essentialContracts["registry"], [TOKENS[token]]);
-
-          await approveLiquidityPoolAndMapAdapter(
-            owner,
-            essentialContracts.registry,
-            adapter.address,
-            TOKEN_STRATEGY.strategy[0].contract,
-          );
-
-          await setBestBasicStrategy(
-            TOKEN_STRATEGY.strategy,
-            [TOKENS[token]],
-            essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
-            essentialContracts.strategyProvider,
-            profile,
-          );
+          await approveToken(owner, essentialContracts.registry, [TOKENS[token]]);
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
 
@@ -84,6 +57,7 @@ describe(scenario.title, () => {
             profile,
             TESTING_DEPLOYMENT_ONCE,
           );
+
           await unpauseVault(owner, essentialContracts.registry, Vault.address, true);
           await Vault.connect(owner).setMaxVaultValueJump(vault.maxJump);
 
@@ -118,6 +92,19 @@ describe(scenario.title, () => {
                 await expect(emergencyBrake[story.actions[j].action](min_amount, max_amount)).to.be.revertedWith(
                   story.actions[j].message,
                 );
+              }
+            }
+          }
+          for (let j = 0; j < story.cleanActions.length; j++) {
+            const action = story.cleanActions[j];
+            switch (action.action) {
+              case "runWithdrawAllRebalance()": {
+                if (action.expect === "success") {
+                  await emergencyBrake[action.action]();
+                } else {
+                  await expect(emergencyBrake[action.action]()).to.be.revertedWith(action.message);
+                }
+                break;
               }
             }
           }

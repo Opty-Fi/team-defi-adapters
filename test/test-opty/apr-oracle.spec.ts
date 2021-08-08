@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { TypedTokens } from "../../helpers/data";
+import { TypedTokens, TypedDefiPools } from "../../helpers/data";
 import {
   generateStrategyHash,
   deployContract,
@@ -11,67 +11,25 @@ import {
   generateStrategyStep,
 } from "../../helpers/helpers";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, ZERO_BYTES32 } from "../../helpers/constants";
 import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
 import { approveToken } from "../../helpers/contracts-actions";
-import defiPools from "../../helpers/data/defiPools.json";
 import scenario from "./scenarios/apr-oracle.json";
 
 type ARGUMENTS = {
   riskProfile?: string;
   canBorrow?: boolean;
   poolRatingRange?: number[];
-  strategy?: STRATEGY_DATA[];
+  adapterName?: string;
   token?: string;
   tokens?: string[];
   score?: number;
   defaultStrategyState?: number;
+  liquidityPools?: {
+    adapterName: string;
+    token: string;
+  }[];
 };
-
-const USED_TOKENS = [TypedTokens["DAI"], TypedTokens["DX"]];
-
-const USED_STRATEGIES = [
-  {
-    strategy: [
-      {
-        contract: defiPools["CompoundAdapter"]["dai"].pool,
-        outputToken: defiPools["CompoundAdapter"]["dai"].lpToken,
-        isBorrow: false,
-      },
-    ],
-    token: defiPools["CompoundAdapter"]["dai"].tokens[0],
-  },
-  {
-    strategy: [
-      {
-        contract: defiPools["AaveV1Adapter"]["dai"].pool,
-        outputToken: defiPools["AaveV1Adapter"]["dai"].lpToken,
-        isBorrow: false,
-      },
-    ],
-    token: defiPools["AaveV1Adapter"]["dai"].tokens[0],
-  },
-  {
-    strategy: [
-      {
-        contract: defiPools["AaveV2Adapter"]["dai"].pool,
-        outputToken: defiPools["AaveV2Adapter"]["dai"].lpToken,
-        isBorrow: false,
-      },
-    ],
-    token: defiPools["AaveV2Adapter"]["dai"].tokens[0],
-  },
-  {
-    strategy: [
-      {
-        contract: defiPools["HarvestV1Adapter"]["dai"].pool,
-        outputToken: defiPools["HarvestV1Adapter"]["dai"].lpToken,
-        isBorrow: false,
-      },
-    ],
-    token: defiPools["HarvestV1Adapter"]["dai"].tokens[0],
-  },
-];
 
 describe(scenario.title, async () => {
   let contracts: CONTRACTS = {};
@@ -113,9 +71,13 @@ describe(scenario.title, async () => {
 
       await registry["addRiskProfile(string,bool,(uint8,uint8))"]("RP1", false, [0, 10]);
 
-      await approveToken(owner, registry, USED_TOKENS);
+      await approveToken(
+        owner,
+        registry,
+        scenario.usedTokens.map(tokenName => TypedTokens[tokenName.toUpperCase()]),
+      );
 
-      contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager };
+      contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager, aprOracle };
     } catch (error) {
       console.log(error);
     }
@@ -126,11 +88,16 @@ describe(scenario.title, async () => {
     it(`${story.description}`, async () => {
       if (i === 1) {
         // scenario no.0 doesn't require to set Strategies
-        for (let i = 0; i < USED_STRATEGIES.length; i++) {
-          const strategy = USED_STRATEGIES[i];
+        for (let i = 0; i < scenario.usedStrategies.length; i++) {
+          const strategyInfo = scenario.usedStrategies[i];
+          const strategy = {
+            contract: TypedDefiPools[strategyInfo.adapterName][strategyInfo.token.toLowerCase()].lpToken,
+            outputToken: TypedDefiPools[strategyInfo.adapterName][strategyInfo.token.toLowerCase()].lpToken,
+            isBorrow: false,
+          };
           await contracts["vaultStepInvestStrategyDefinitionRegistry"]["setStrategy(bytes32,(address,address,bool)[])"](
-            generateTokenHash([strategy.token]),
-            generateStrategyStep(strategy.strategy),
+            generateTokenHash([TypedTokens[strategyInfo.token.toUpperCase()]]),
+            generateStrategyStep([strategy]),
           );
         }
       }
@@ -152,93 +119,81 @@ describe(scenario.title, async () => {
             assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "approveToken(address)":
           case "approveLiquidityPool(address)": {
-            const { token }: ARGUMENTS = action.args;
-            if (token) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](token);
-              } else {
-                await expect(contracts[action.contract][action.action](token)).to.be.revertedWith(action.message);
+            const { token, adapterName }: ARGUMENTS = action.args;
+            if (token && adapterName) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken) {
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](
+                    TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  );
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](TypedDefiPools[adapterName][token.toLowerCase()].lpToken),
+                  ).to.be.revertedWith(action.message);
+                }
               }
+              assert.isDefined(
+                TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                `args is wrong in ${action.action} testcase`,
+              );
             }
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "rateLiquidityPool(address,uint8)": {
-            const { token, score }: ARGUMENTS = action.args;
-            if (token && score) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](token, score);
-              } else {
-                await expect(contracts[action.contract][action.action](token, score)).to.be.revertedWith(
-                  action.message,
-                );
+            const { token, score, adapterName }: ARGUMENTS = action.args;
+            if (token && adapterName && score) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken) {
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](
+                    TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                    score,
+                  );
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](
+                      TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                      score,
+                    ),
+                  ).to.be.revertedWith(action.message);
+                }
               }
             }
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             assert.isDefined(score, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setTokensHashToTokens(address[])": {
-            const { tokens }: ARGUMENTS = action.args;
-            if (tokens) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](tokens);
-              } else {
-                await expect(contracts[action.contract][action.action](tokens)).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setStrategy(bytes32,(address,address,bool)[])": {
-            const { strategy, token }: ARGUMENTS = action.args;
-
-            if (strategy && token) {
-              const strategySteps: [string, string, boolean][] = [];
-              for (let index = 0; index < strategy.length; index++) {
-                const tempArr: [string, string, boolean] = [
-                  strategy[index].contract,
-                  strategy[index].outputToken,
-                  strategy[index].isBorrow,
-                ];
-                strategySteps.push(tempArr);
-              }
-
-              const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](tokenHash, strategySteps);
-              } else {
-                await expect(contracts[action.contract][action.action](tokenHash, strategySteps)).to.be.revertedWith(
-                  action.message,
-                );
-              }
-            }
-
-            assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(token, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(adapterName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setBestStrategy(string,bytes32,bytes32)":
           case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-            const { strategy, token, riskProfile }: ARGUMENTS = action.args;
+            const { adapterName, token, riskProfile }: ARGUMENTS = action.args;
 
-            if (strategy && token && riskProfile) {
-              const strategyHash = generateStrategyHash(strategy, token);
-              const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+            if (adapterName && token && riskProfile) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken && TypedTokens[token.toUpperCase()]) {
+                const strategy = {
+                  contract: TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  outputToken: TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  isBorrow: false,
+                };
+                const strategyHash = generateStrategyHash([strategy], TypedTokens[token.toUpperCase()]);
+                const tokenHash = getSoliditySHA3Hash(["address[]"], [[TypedTokens[token.toUpperCase()]]]);
 
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
-              } else {
-                await expect(
-                  contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash),
-                ).to.be.revertedWith(action.message);
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash),
+                  ).to.be.revertedWith(action.message);
+                }
               }
+              assert.isDefined(
+                TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                `args is wrong in ${action.action} testcase`,
+              );
+              assert.isDefined(TypedTokens[token.toUpperCase()], `args is wrong in ${action.action} testcase`);
             }
-
-            assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(adapterName, `args is wrong in ${action.action} testcase`);
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
@@ -260,13 +215,39 @@ describe(scenario.title, async () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "getBestStrategy(string,address[])": {
-            const { riskProfile, tokens }: ARGUMENTS = action.args;
-            if (riskProfile && tokens) {
-              const value = await contracts[action.contract][action.action](riskProfile, tokens);
-              expect(value).to.be.equal(action.expectedValue);
+            const { riskProfile, token }: ARGUMENTS = action.args;
+            if (riskProfile && token) {
+              const value = await contracts[action.contract][action.action](riskProfile, [
+                TypedTokens[token.toUpperCase()],
+              ]);
+              const tokenHash = generateTokenHash([TypedTokens[token.toUpperCase()]]);
+              if (action.expectedValue) {
+                if (action.expectedValue.adapterName && action.expectedValue.token) {
+                  const strategy = {
+                    contract:
+                      TypedDefiPools[action.expectedValue.adapterName][action.expectedValue.token.toLowerCase()]
+                        .lpToken,
+                    outputToken:
+                      TypedDefiPools[action.expectedValue.adapterName][action.expectedValue.token.toLowerCase()]
+                        .lpToken,
+                    isBorrow: false,
+                  };
+                  const strategyHash = generateStrategyHash(
+                    [strategy],
+                    TypedTokens[action.expectedValue.token.toUpperCase()],
+                  );
+                  expect(value).to.be.equal(strategyHash);
+                } else {
+                  const strategyHash = await contracts.aprOracle.getBestAPR(tokenHash);
+                  expect(value).to.be.equal(strategyHash);
+                }
+              } else {
+                expect(value).to.be.equal(ZERO_BYTES32);
+              }
             }
+
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             break;
           }
         }
@@ -274,20 +255,16 @@ describe(scenario.title, async () => {
       for (let i = 0; i < story.cleanActions.length; i++) {
         const action = story.cleanActions[i];
         switch (action.action) {
-          case "revokeToken(address[])": {
-            const { tokens }: ARGUMENTS = action.args;
-            if (tokens) {
-              await contracts[action.contract][action.action](tokens);
-            }
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
-            break;
-          }
           case "revokeLiquidityPool(address[])": {
-            const { tokens }: ARGUMENTS = action.args;
-            if (tokens) {
-              await contracts[action.contract][action.action](tokens);
+            const { liquidityPools }: ARGUMENTS = action.args;
+            if (liquidityPools) {
+              await contracts[action.contract][action.action](
+                liquidityPools.map(
+                  poolInfor => TypedDefiPools[poolInfor.adapterName][poolInfor.token.toLowerCase()].lpToken,
+                ),
+              );
             }
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(liquidityPools, `args is wrong in ${action.action} testcase`);
             break;
           }
         }
