@@ -46,7 +46,7 @@ export async function deployRiskManager(
   return riskManager;
 }
 
-export async function deployOptyStakeRateBalancer(
+export async function deployOptyStakingRateBalancer(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
   isDeployedOnce: boolean,
@@ -119,6 +119,7 @@ export async function deployAndSetupOptyStakingVaults(
 
   return optyStakingVaults;
 }
+
 export async function deployEssentialContracts(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -202,7 +203,7 @@ export async function deployEssentialContracts(
 
   await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
 
-  const optyStakingRateBalancer = await deployOptyStakeRateBalancer(hre, owner, isDeployedOnce, registry.address);
+  const optyStakingRateBalancer = await deployOptyStakingRateBalancer(hre, owner, isDeployedOnce, registry.address);
 
   await executeFunc(registry, owner, "setOPTYStakingRateBalancer(address)", [optyStakingRateBalancer.address]);
 

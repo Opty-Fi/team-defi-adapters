@@ -25,7 +25,6 @@
         {
           "contract": "",
           "action": "fundTestDeFiAdapterContract",
-
           "expect": "success",
           "message": ""
         },
@@ -47,7 +46,8 @@
         {
           "contract": "erc20",
           "action": "balanceOf(address)",
-          "executer": "owner"
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
       "cleanActions": [
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with protocol investment limit (mode=pct)",
+      "description": "getDepositAllCodes() with 0.1% protocol investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -119,7 +119,65 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with pool investment limit (mode=pct)",
+      "description": "getDepositAllCodes() with 100% pool investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositPoolPct(address,uint256)",
+          "args": {
+            "maxDepositPoolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositAllCodes() with 0.9% pool investment limit (mode=pct)",
       "setActions": [
         {
           "contract": "adapter",
@@ -135,7 +193,8 @@
           "args": {
             "maxDepositPoolPct": "90"
           },
-          "executer": "owner"
+          "expect": "success",
+          "message": ""
         },
         {
           "contract": "",
@@ -192,7 +251,8 @@
           "args": {
             "maxDepositAmount": "0"
           },
-          "executer": "owner"
+          "expect": "success",
+          "message": ""
         },
         {
           "contract": "",
@@ -233,7 +293,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with investment limit (mode=number)",
+      "description": "getDepositAllCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -247,9 +307,10 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "10"
+            "maxDepositAmount": "20"
           },
-          "executer": "owner"
+          "expect": "success",
+          "message": ""
         },
         {
           "contract": "",
@@ -277,6 +338,593 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositAllCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "0"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositAmount(address,address,uint256)",
+          "args": {
+            "maxDepositAmount": "300000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getWithdrawAllCodes() with 100% protocol investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": "=0"
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "getDepositSomeCodes() with 100% protocol investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with 0.1% protocol investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with 100% pool investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositPoolPct(address,uint256)",
+          "args": {
+            "maxDepositPoolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with 0.9% pool investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositPoolPct(address,uint256)",
+          "args": {
+            "maxDepositPoolPct": "90"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with 0 investment limit (mode=number)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "0"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositAmount(address,address,uint256)",
+          "args": {
+            "maxDepositAmount": "0"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "0"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositAmount(address,address,uint256)",
+          "args": {
+            "maxDepositAmount": "20"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getDepositSomeCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "0"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositAmount(address,address,uint256)",
+          "args": {
+            "maxDepositAmount": "300000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getWithdrawSomeCodes() with 100% protocol investment limit (mode=pct)",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolTokenBalance(address,address,address)",
+          "executer": "owner",
+          "expectedValue": "=0"
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
         }
       ],
       "cleanActions": [

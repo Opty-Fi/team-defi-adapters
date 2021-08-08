@@ -1081,7 +1081,7 @@
       ]
     },
     {
-      "description": "User that is not governance shouldn't be able to set the default strategy state",
+      "description": "User that is not strategyOperator shouldn't be able to set the default strategy state",
       "setActions": [
         {
           "contract": "strategyProvider",
@@ -1091,14 +1091,14 @@
           },
           "executor": "user1",
           "expect": "fail",
-          "message": "caller is not having governance"
+          "message": "caller is not the strategyOperator"
         }
       ],
       "getActions": [],
       "cleanActions": []
     },
     {
-      "description": "User that is governance should be able to set the default strategy state",
+      "description": "User that is strategyOperator should be able to set the default strategy state",
       "setActions": [
         {
           "contract": "strategyProvider",

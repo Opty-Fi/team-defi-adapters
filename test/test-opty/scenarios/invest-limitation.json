@@ -345,7 +345,32 @@
           ]
         },
         {
-          "description": "Non governance cannot set max deposit type",
+          "description": "RiskOperator should be able to set max deposit mode",
+          "setActions": [
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositProtocolMode(uint8)",
+              "args": {
+                "type": 0
+              },
+              "executer": "riskOperator",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "adapter",
+              "action": "maxDepositProtocolMode()",
+              "args": {},
+              "expectedValue": {
+                "type": 0
+              }
+            }
+          ]
+        },
+        {
+          "description": "Non RiskOperator cannot set max deposit mode",
           "setActions": [
             {
               "contract": "adapter",
@@ -355,13 +380,48 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
+
         {
-          "description": "Non governance cannot set max deposit amount",
+          "description": "RiskOperator should be able to set max deposit amount",
+          "setActions": [
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositAmount(address,address,uint256)",
+              "args": {
+                "amount": {
+                  "DAI": "500000000000000000",
+                  "USDC": "500000",
+                  "USDT": "500000",
+                  "SLP_WETH_USDC": "5000000000000"
+                }
+              },
+              "executer": "riskOperator",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "adapter",
+              "action": "maxDepositAmount(address,address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": "500000000000000000",
+                "USDC": "500000",
+                "USDT": "500000",
+                "SLP_WETH_USDC": "5000000000000"
+              }
+            }
+          ]
+        },
+
+        {
+          "description": "Non RiskOperator cannot set max deposit amount",
           "setActions": [
             {
               "contract": "adapter",
@@ -371,13 +431,41 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit percentage",
+          "description": "RiskOperator should be able to set max deposit pool percentage",
+          "setActions": [
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositPoolPct(address,uint256)",
+              "args": {
+                "amount": { "DAI": "5", "USDC": "5", "USDT": "5", "SLP_WETH_USDC": "5" }
+              },
+              "executer": "riskOperator",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "adapter",
+              "action": "maxDepositPoolPct(address)",
+              "args": {},
+              "expectedValue": {
+                "DAI": "5",
+                "USDC": "5",
+                "USDT": "5",
+                "SLP_WETH_USDC": "5"
+              }
+            }
+          ]
+        },
+        {
+          "description": "Non RiskOperator cannot set max deposit pool percentage",
           "setActions": [
             {
               "contract": "adapter",
@@ -387,13 +475,41 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []
         },
         {
-          "description": "Non governance cannot set max deposit percentage default",
+          "description": "RiskOperator should be able to set max deposit protocol percentage",
+          "setActions": [
+            {
+              "contract": "adapter",
+              "action": "setMaxDepositProtocolPct(uint256)",
+              "args": {
+                "amount": { "DAI": "5", "USDC": "5", "USDT": "5", "SLP_WETH_USDC": "5" }
+              },
+              "executer": "riskOperator",
+              "expect": "success",
+              "message": ""
+            }
+          ],
+          "getActions": [
+            {
+              "contract": "adapter",
+              "action": "maxDepositProtocolPct()",
+              "args": {},
+              "expectedValue": {
+                "DAI": "5",
+                "USDC": "5",
+                "USDT": "5",
+                "SLP_WETH_USDC": "5"
+              }
+            }
+          ]
+        },
+        {
+          "description": "Non RiskOperator cannot set max deposit protocol percentage",
           "setActions": [
             {
               "contract": "adapter",
@@ -403,7 +519,7 @@
               },
               "executer": "admin",
               "expect": "fail",
-              "message": "caller is not having governance"
+              "message": "caller is not the riskOperator"
             }
           ],
           "getActions": []

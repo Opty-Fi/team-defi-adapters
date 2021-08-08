@@ -14,7 +14,7 @@ import {
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  approveVaultRewardTokens,
+  setAndApproveVaultRewardToken,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
@@ -93,7 +93,7 @@ describe(scenario.title, () => {
               await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await approveVaultRewardTokens(
+                await setAndApproveVaultRewardToken(
                   users["owner"],
                   Vault.address,
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
