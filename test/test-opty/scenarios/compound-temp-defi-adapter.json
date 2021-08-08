@@ -943,7 +943,7 @@
       "setActions": [
         {
           "contract": "",
-          "action": "fundTestDeFiAdapterContract",
+          "action": "fundTestDefiContractWithRewardToken()",
           "expect": "success",
           "message": ""
         },
@@ -978,7 +978,7 @@
       "setActions": [
         {
           "contract": "",
-          "action": "fundTestDeFiAdapterContract",
+          "action": "fundTestDefiContractWithRewardToken()",
           "expect": "success",
           "message": ""
         },
@@ -994,6 +994,65 @@
         {
           "contract": "erc20",
           "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getClaimRewardTokenCode() should ba able claim reward tokens",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetClaimRewardTokenCode(address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
           "executer": "owner",
           "expectedValue": ">0"
         }
