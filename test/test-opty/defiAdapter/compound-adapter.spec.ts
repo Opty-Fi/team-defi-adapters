@@ -338,6 +338,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                       break;
                     }
@@ -347,12 +348,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const rewardTokenBalance = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
                         adapterAddress,
-                        rewardTokenBalance,
+                        rewardTokenBalanceBefore,
                       );
                       break;
                     }
@@ -419,9 +420,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         testDeFiAdapter.address,
                       );
                       const expectedValue = action.expectedValue;
-                      if (expectedValue == ">0") {
-                        expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore);
-                      }
+                      expectedValue == ">0"
+                        ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
+                        : expectedValue == "=0"
+                        ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
+                        : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
                       break;
                     }
                   }
