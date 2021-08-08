@@ -961,6 +961,12 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "executer": "owner",
+          "expectedValue": "=0"
         }
       ],
       "cleanActions": [
@@ -996,6 +1002,12 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "executer": "owner",
+          "expectedValue": "<"
         }
       ],
       "cleanActions": [

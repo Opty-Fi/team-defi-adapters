@@ -187,6 +187,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                   this.skip();
                 }
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
+                let rewardTokenBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 const decimals = await ERC20Instance.decimals();
                 const adapterAddress = compoundAdapter.address;
 
@@ -337,6 +338,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                       break;
                     }
@@ -346,12 +348,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const rewardTokenBalance = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
                         adapterAddress,
-                        rewardTokenBalance,
+                        rewardTokenBalanceBefore,
                       );
                       break;
                     }
@@ -406,6 +408,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
                           : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                       }
+                      break;
+                    }
+                    case "getRewardTokenBalance(address)": {
+                      const rewardTokenBalanceAfter: BigNumber = await RewardTokenERC20Instance!.balanceOf(
+                        testDeFiAdapter.address,
+                      );
+                      const expectedValue = action.expectedValue;
+                      expectedValue == ">0"
+                        ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
+                        : expectedValue == "=0"
+                        ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
+                        : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
                       break;
                     }
                   }
