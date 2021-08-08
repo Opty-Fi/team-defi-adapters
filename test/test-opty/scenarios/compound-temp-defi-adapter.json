@@ -984,7 +984,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestAllCodes(address,address,address)",
+          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -1001,7 +1001,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
