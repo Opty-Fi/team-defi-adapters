@@ -1021,7 +1021,7 @@
       ]
     },
     {
-      "description": "getClaimRewardTokenCode() should ba able claim reward tokens",
+      "description": "getClaimRewardTokenCode() should be able claim reward tokens",
       "setActions": [
         {
           "contract": "adapter",
@@ -1078,6 +1078,19 @@
           "message": ""
         }
       ]
+    },
+    {
+      "description": "getUnderlyingTokens() should return same underlying tokens as there in lp contracts",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "getUnderlyingTokens(address,address)",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
     }
   ]
 }

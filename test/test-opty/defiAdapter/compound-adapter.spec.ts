@@ -174,7 +174,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-                const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
+                const LpContractInstance = await hre.ethers.getContractAt(abis.cToken.abi, liquidityPool);
                 const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
@@ -182,7 +182,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 }
                 //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
                 //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
-                const getCode = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
+                const getCode = await LpContractInstance.provider.getCode(LpContractInstance.address);
                 if (getCode === "0x") {
                   this.skip();
                 }
@@ -362,13 +362,22 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       await testDeFiAdapter[action.action](liquidityPool, compoundAdapter.address);
                       break;
                     }
+                    case "getUnderlyingTokens(address,address)": {
+                      const _underlyingAddressFromAdapter = await compoundAdapter[action.action](
+                        liquidityPool,
+                        ADDRESS_ZERO,
+                      );
+                      const _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
+                      expect([_underlyingAddressFromAdapter[0]]).to.have.members([_underlyingAddressFromPoolContract]);
+                      break;
+                    }
                   }
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const expectedValue = action.expectedValue;
-                      const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const expectedLpBalanceFromPool = await LpContractInstance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalance = await compoundAdapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,

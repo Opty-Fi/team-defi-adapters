@@ -12,5 +12,28 @@
       }
     ],
     "address": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
+  },
+  "cToken": {
+    "abi": [
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "underlying",
+        "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+        "name": "balanceOf",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ],
+    "address": ""
   }
 }
