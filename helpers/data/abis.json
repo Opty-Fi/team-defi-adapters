@@ -9,6 +9,15 @@
         "payable": false,
         "stateMutability": "view",
         "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "name": "compAccrued",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
       }
     ],
     "address": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"

@@ -169,7 +169,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           // &&
           // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
         ) {
-          // for (let i = 0; i < 1; i++) {
+          // for (let i = 0; i < 2; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
@@ -364,6 +364,19 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       );
                       break;
                     }
+                    case "getUnclaimedRewardTokenAmount(address,address,address)": {
+                      const unclaimedRewardTokenAmount = await compoundAdapter[action.action](
+                        testDeFiAdapter.address,
+                        ADDRESS_ZERO,
+                        ADDRESS_ZERO,
+                      );
+                      const compoundController = await getCompoundComptroller();
+                      const expectedUnclaimedRewardTokenAmount = await compoundController.compAccrued(
+                        testDeFiAdapter.address,
+                      );
+                      expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
+                      break;
+                    }
                     case "testGetClaimRewardTokenCode(address,address)": {
                       rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, compoundAdapter.address);
@@ -427,6 +440,39 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                           .div(to_10powNumber_BN(18));
                         expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
                       }
+                      break;
+                    }
+                    case "getAllAmountInToken(address,address,address)": {
+                      const _amountInUnderlyingToken = await compoundAdapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      let expectedAmountInUnderlyingToken: BigNumber = await compoundAdapter.getSomeAmountInToken(
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _lpTokenBalance,
+                      );
+                      const _unclaimedReward: BigNumber = await compoundAdapter.getUnclaimedRewardTokenAmount(
+                        testDeFiAdapter.address,
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
+                      if (+_unclaimedReward > 0) {
+                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
+                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                            _unclaimedReward,
+                          ),
+                        );
+                      }
+                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
                       break;
                     }
                   }
@@ -537,10 +583,15 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
 //  @dev: SAI,REP = Mint is paused
 //  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber
 async function lpPausedStatus(pool: string): Promise<boolean> {
+  const compoundController = await getCompoundComptroller();
+  const lpPauseStatus = await compoundController["mintGuardianPaused(address)"](pool);
+  return lpPauseStatus;
+}
+
+async function getCompoundComptroller(): Promise<any> {
   const compoundController = await hre.ethers.getContractAt(
     abis.compoundComptroller.abi,
     abis.compoundComptroller.address,
   );
-  const lpPauseStatus = await compoundController["mintGuardianPaused(address)"](pool);
-  return lpPauseStatus;
+  return compoundController;
 }
