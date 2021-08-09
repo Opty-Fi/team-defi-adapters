@@ -363,6 +363,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnderlyingTokens(address,address)": {
+                      //  @reason Underlying is considered WETH in case of lp = CETH and and CETH doesn't have underlying()
+                      //  function as ETH as no address and therefore no underlying for CETH pool.
+                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                        this.skip();
+                      }
                       const _underlyingAddressFromAdapter = await compoundAdapter[action.action](
                         liquidityPool,
                         ADDRESS_ZERO,
