@@ -13,6 +13,7 @@ import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.js
 import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
+import { to_10powNumber_BN } from "../../../helpers/utils";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -163,7 +164,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
+        if (
+          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
+          // &&
+          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
+        ) {
+          // for (let i = 0; i < 1; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
@@ -189,6 +195,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let rewardTokenBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 const decimals = await ERC20Instance.decimals();
+                const rewardTokenDecimals = await RewardTokenERC20Instance!.decimals();
                 const adapterAddress = compoundAdapter.address;
 
                 const poolValue: BigNumber = await compoundAdapter.getPoolValue(liquidityPool, underlyingTokenAddress);
@@ -226,7 +233,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                      defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
@@ -239,12 +246,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                      defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
                       let { maxDepositAmount }: any = action.args;
-                      maxDepositAmount = BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(decimals));
+                      maxDepositAmount = BigNumber.from(maxDepositAmount).mul(to_10powNumber_BN(decimals));
                       const existingDepositAmount: BigNumber = await compoundAdapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
@@ -258,7 +265,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         expect(+maxDepositAmountSet).to.be.eq(+maxDepositAmount);
                       }
                       limit = BigNumber.from(maxDepositAmount);
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                      defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
                       break;
                     }
                     case "fundTestDeFiAdapterContract": {
@@ -287,7 +294,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                             hre,
                             RewardTokenERC20Instance!.address,
                             users["owner"],
-                            getDefaultFundAmount(rewardTokenAddress).mul(BigNumber.from(10).pow(18)),
+                            getDefaultFundAmount(rewardTokenAddress).mul(to_10powNumber_BN(rewardTokenDecimals)),
                             timestamp,
                             testDeFiAdapter.address,
                           );
@@ -375,6 +382,21 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
                       expect([_underlyingAddressFromAdapter[0]]).to.have.members([_underlyingAddressFromPoolContract]);
                       break;
+                    }
+                    case "calculateAmountInLPToken(address,address,uint256)": {
+                      const _depositAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress).mul(
+                        to_10powNumber_BN(decimals),
+                      );
+                      const _amountInLPToken = await compoundAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _depositAmount,
+                      );
+                      const exchangeRateStored = await LpContractInstance.exchangeRateStored();
+                      const expectedAmountInLPToken = _depositAmount
+                        .mul(to_10powNumber_BN(18))
+                        .div(BigNumber.from(exchangeRateStored));
+                      expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
                     }
                   }
                 }
