@@ -152,7 +152,7 @@ describe(scenarios.title, () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolModeTx,
                           "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(address,uint8,address)",
+                          "LogMaxDepositProtocolMode(uint8,address)",
                           contracts[setAction.contract].address,
                           userAddresses[setAction.executer],
                           type!,
@@ -175,7 +175,7 @@ describe(scenarios.title, () => {
                         expectInvestLimitEvents(
                           setMaxDepositAmountTx,
                           "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(address,uint256,address)",
+                          "LogMaxDepositAmount(uint256,address)",
                           contracts[setAction.contract].address,
                           userAddresses[setAction.executer],
                           maxDepositAmount,
@@ -200,7 +200,7 @@ describe(scenarios.title, () => {
                         expectInvestLimitEvents(
                           setMaxDepositPoolPctTx,
                           "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(address,uint256,address)",
+                          "LogMaxDepositPoolPct(uint256,address)",
                           contracts[setAction.contract].address,
                           userAddresses[setAction.executer],
                           maxDepositPoolPct,
@@ -225,7 +225,7 @@ describe(scenarios.title, () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolPctTx,
                           "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(address,uint256,address)",
+                          "LogMaxDepositProtocolPct(uint256,address)",
                           contracts[setAction.contract].address,
                           userAddresses[setAction.executer],
                           maxDepositProtocolPct,

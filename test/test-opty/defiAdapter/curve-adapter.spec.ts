@@ -262,7 +262,7 @@ describe("CurveAdapters Unit test", () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolModeTx,
                           "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(address,uint8,address)",
+                          "LogMaxDepositProtocolMode(uint8,address)",
                           curveAdapters[curveAdapterName].address,
                           ownerAddress,
                           mode!,
@@ -289,7 +289,7 @@ describe("CurveAdapters Unit test", () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolPctTx,
                           "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(address,uint256,address)",
+                          "LogMaxDepositProtocolPct(uint256,address)",
                           curveAdapters[curveAdapterName].address,
                           ownerAddress,
                           maxDepositProtocolPct!,
@@ -322,7 +322,7 @@ describe("CurveAdapters Unit test", () => {
                         expectInvestLimitEvents(
                           setMaxDepositPoolPctTx,
                           "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(address,uint256,address)",
+                          "LogMaxDepositPoolPct(uint256,address)",
                           curveAdapters[curveAdapterName].address,
                           ownerAddress,
                           maxDepositPoolPct!,
@@ -361,7 +361,7 @@ describe("CurveAdapters Unit test", () => {
                         expectInvestLimitEvents(
                           setMaxDepositAmountTx,
                           "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(address,uint256,address)",
+                          "LogMaxDepositAmount(uint256,address)",
                           curveAdapters[curveAdapterName].address,
                           ownerAddress,
                           +BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
@@ -482,7 +482,7 @@ describe("CurveAdapters Unit test", () => {
                       expect(lpTokenBalance).to.be.eq(0);
                       break;
                     }
-                    case "balanceOf(address": {
+                    case "balanceOf(address)": {
                       const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       expect(underlyingBalance).to.be.gt(0);
                       break;

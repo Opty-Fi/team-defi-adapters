@@ -204,7 +204,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolModeTx,
                           "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(address,uint8,address)",
+                          "LogMaxDepositProtocolMode(uint8,address)",
                           compoundAdapter.address,
                           ownerAddress,
                           mode!,
@@ -229,7 +229,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         expectInvestLimitEvents(
                           setMaxDepositProtocolPctTx,
                           "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(address,uint256,address)",
+                          "LogMaxDepositProtocolPct(uint256,address)",
                           compoundAdapter.address,
                           ownerAddress,
                           maxDepositProtocolPct!,
@@ -254,7 +254,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         expectInvestLimitEvents(
                           setMaxDepositPoolPctTx,
                           "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(address,uint256,address)",
+                          "LogMaxDepositPoolPct(uint256,address)",
                           compoundAdapter.address,
                           ownerAddress,
                           maxDepositPoolPct!,
@@ -287,7 +287,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         expectInvestLimitEvents(
                           setMaxDepositAmountTx,
                           "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(address,uint256,address)",
+                          "LogMaxDepositAmount(uint256,address)",
                           compoundAdapter.address,
                           ownerAddress,
                           maxDepositAmount,

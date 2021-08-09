@@ -187,7 +187,7 @@ export function expectInvestLimitEvents(
 ) {
   expect(transaction.events[0].event).to.equal(expectedEventName);
   expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
-  expect(transaction.events[0].args[0]).to.equal(expectedAdapterAddress);
-  expect(+transaction.events[0].args[1]).to.equal(+expectedMaxDepositTypeOrPctOrAmt);
-  expect(transaction.events[0].args[2]).to.equal(expectedCallerAddress);
+  expect(transaction.events[0].address).to.equal(expectedAdapterAddress);
+  expect(+transaction.events[0].args[0]).to.equal(+expectedMaxDepositTypeOrPctOrAmt);
+  expect(transaction.events[0].args[1]).to.equal(expectedCallerAddress);
 }
