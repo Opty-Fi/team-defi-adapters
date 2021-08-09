@@ -1164,7 +1164,7 @@
       "cleanActions": []
     },
     {
-      "description": "getAllAmountInToken() should return value in underlying token for all the lpTokens held",
+      "description": "getAllAmountInToken() should return value in underlying token for all the lpTokens held,\n - isRedeemableAmountSufficient() should return Redeemable amount is sufficient or not\n - calculateRedeemableLPTokenAmount() should return the redeemable lp token amount on the basis of lp token balance",
       "setActions": [
         {
           "contract": "adapter",
@@ -1195,15 +1195,34 @@
           "executer": "owner",
           "expect": "success",
           "message": ""
-        },
+        }
+      ],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "getAllAmountInToken(address,address,address)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
+        },
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficient(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ">"
+        },
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficient(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": "<"
+        },
+        {
+          "contract": "adapter",
+          "action": "calculateRedeemableLPTokenAmount(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",

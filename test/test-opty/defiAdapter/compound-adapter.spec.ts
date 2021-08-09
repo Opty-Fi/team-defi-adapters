@@ -169,7 +169,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           // &&
           // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
         ) {
-          // for (let i = 0; i < 2; i++) {
+          // for (let i = 0; i < 1; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
@@ -442,39 +442,39 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       }
                       break;
                     }
-                    case "getAllAmountInToken(address,address,address)": {
-                      const _amountInUnderlyingToken = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      let expectedAmountInUnderlyingToken: BigNumber = await compoundAdapter.getSomeAmountInToken(
-                        underlyingTokenAddress,
-                        liquidityPool,
-                        _lpTokenBalance,
-                      );
-                      const _unclaimedReward: BigNumber = await compoundAdapter.getUnclaimedRewardTokenAmount(
-                        testDeFiAdapter.address,
-                        liquidityPool,
-                        underlyingTokenAddress,
-                      );
-                      if (+_unclaimedReward > 0) {
-                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
-                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            _unclaimedReward,
-                          ),
-                        );
-                      }
-                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
-                      break;
-                    }
+                    // case "getAllAmountInToken(address,address,address)": {
+                    //   const _amountInUnderlyingToken = await compoundAdapter[action.action](
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //   );
+                    //   const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //   );
+                    //   let expectedAmountInUnderlyingToken: BigNumber = await compoundAdapter.getSomeAmountInToken(
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //     _lpTokenBalance,
+                    //   );
+                    //   const _unclaimedReward: BigNumber = await compoundAdapter.getUnclaimedRewardTokenAmount(
+                    //     testDeFiAdapter.address,
+                    //     liquidityPool,
+                    //     underlyingTokenAddress,
+                    //   );
+                    //   if (+_unclaimedReward > 0) {
+                    //     expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
+                    //       await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
+                    //         rewardTokenAddress,
+                    //         underlyingTokenAddress,
+                    //         _unclaimedReward,
+                    //       ),
+                    //     );
+                    //   }
+                    //   expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                    //   break;
+                    // }
                   }
                 }
                 for (const action of story.getActions) {
@@ -538,6 +538,101 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         : expectedValue == "=0"
                         ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
                         : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
+                      break;
+                    }
+                    case "getAllAmountInToken(address,address,address)": {
+                      console.log("Action: ", action.action);
+                      const _amountInUnderlyingToken = await compoundAdapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      let expectedAmountInUnderlyingToken: BigNumber = await compoundAdapter.getSomeAmountInToken(
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _lpTokenBalance,
+                      );
+                      const _unclaimedReward: BigNumber = await compoundAdapter.getUnclaimedRewardTokenAmount(
+                        testDeFiAdapter.address,
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
+                      if (+_unclaimedReward > 0) {
+                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
+                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                            _unclaimedReward,
+                          ),
+                        );
+                      }
+                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      break;
+                    }
+                    case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                      console.log("Action: ", action.action);
+                      const expectedValue = action.expectedValue;
+                      console.log("Expected value: ", expectedValue);
+                      const _amountInUnderlyingToken: BigNumber = await compoundAdapter.getAllAmountInToken(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      if (expectedValue == ">") {
+                        const _isRedeemableAmountSufficient = await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          _amountInUnderlyingToken.add(BigNumber.from(10)),
+                        );
+                        console.log("Redeemable amt sufficient: ", _isRedeemableAmountSufficient);
+                        expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                      } else if (expectedValue == "<") {
+                        const _isRedeemableAmountSufficient = await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          +_amountInUnderlyingToken > 0
+                            ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                            : BigNumber.from(0),
+                        );
+                        console.log("Redeemable amt sufficient: ", _isRedeemableAmountSufficient);
+                        expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                      }
+                      break;
+                    }
+                    case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                      console.log("Action: ", action.action);
+                      const _lpTokenBalance: BigNumber = await compoundAdapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _balanceInToken: BigNumber = await compoundAdapter.getAllAmountInToken(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _testRedeemAmount: BigNumber = _lpTokenBalance;
+
+                      const _redeemableLpTokenAmt = await compoundAdapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _testRedeemAmount,
+                      );
+                      console.log("Redeemable lp amt from adapter: ", +_redeemableLpTokenAmt);
+                      const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                        .mul(_testRedeemAmount)
+                        .div(_balanceInToken)
+                        .add(BigNumber.from(1));
+                      console.log("Expected redeemable amt: ", +expectedRedeemableLpTokenAmt);
+                      expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
                       break;
                     }
                   }
