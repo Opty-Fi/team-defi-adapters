@@ -397,6 +397,37 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         .mul(to_10powNumber_BN(18))
                         .div(BigNumber.from(exchangeRateStored));
                       expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
+                      break;
+                    }
+                    case "getPoolValue(address,address)": {
+                      const _poolValue = await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO);
+                      const expectedPoolValue = await LpContractInstance.getCash();
+                      expect(_poolValue).to.be.eq(expectedPoolValue);
+                      break;
+                    }
+                    case "getLiquidityPoolToken(address,address)": {
+                      const _liquidityPool = await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool);
+                      expect(getAddress(_liquidityPool)).to.be.eq(getAddress(liquidityPool));
+                      break;
+                    }
+                    case "getSomeAmountInToken(address,address,uint256)": {
+                      const _lpTokenDecimals = await LpContractInstance.decimals();
+                      const _lpTokenAmount = getDefaultFundAmount(liquidityPool).mul(
+                        to_10powNumber_BN(_lpTokenDecimals),
+                      );
+                      if (+_lpTokenAmount > 0) {
+                        const _amountInUnderlyingToken = await compoundAdapter[action.action](
+                          ADDRESS_ZERO,
+                          liquidityPool,
+                          _lpTokenAmount,
+                        );
+                        const exchangeRateStored = await LpContractInstance.exchangeRateStored();
+                        const expectedAmountInUnderlyingToken = _lpTokenAmount
+                          .mul(exchangeRateStored)
+                          .div(to_10powNumber_BN(18));
+                        expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
+                      }
+                      break;
                     }
                   }
                 }

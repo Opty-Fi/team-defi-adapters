@@ -1104,6 +1104,45 @@
       ],
       "getActions": [],
       "cleanActions": []
+    },
+    {
+      "description": "getPoolValue() should return the pool value of lp contract",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "getPoolValue(address,address)",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "getLiquidityPoolToken() should return liquidity pool token address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolToken(address,address)",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "getSomeAmountInToken() should return equivalent value of underlying token for given amount of lpToken",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "getSomeAmountInToken(address,address,uint256)",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
     }
   ]
 }
