@@ -68,10 +68,10 @@
                   "action": "userWithdrawRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "100000000000000",
-                      "USDC": "100000",
-                      "USDT": "100000",
-                      "SLP_WETH_USDC": "10000000000"
+                      "DAI": "50000000000000",
+                      "USDC": "50000",
+                      "USDT": "50000",
+                      "SLP_WETH_USDC": "5000000000"
                     }
                   },
                   "expect": "success",

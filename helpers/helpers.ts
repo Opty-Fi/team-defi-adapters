@@ -1,7 +1,7 @@
 import { Contract, Signer, ContractFactory, utils, BigNumber } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
-import { getSoliditySHA3Hash } from "./utils";
+import { getSoliditySHA3Hash, capitalizeFirstLetter } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
 
@@ -152,4 +152,30 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
+
+export function retrieveAdapterFromStrategyName(strategyName: string): string[] {
+  // strategyName should follow format TOKEN-DEPOSIT-STRATEGY-TOKEN
+  // For Ex: DAI-deposit-COMPOUND-cDAI
+  const strategyStep = strategyName.split("-deposit-");
+  const adapterNames: string[] = [];
+  console.log(strategyStep);
+  for (let i = 1; i < strategyStep.length; i++) {
+    const strategySymbol = strategyStep[i].split("-");
+    console.log(strategySymbol);
+    let adapterName;
+    if (strategySymbol[0] === "AAVE") {
+      adapterName = "AaveV1";
+    } else if (strategySymbol[0] === "AAVE_V2") {
+      adapterName = "AaveV2";
+    } else if (strategySymbol[0] === "CURVE") {
+      adapterName = strategySymbol[1] === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
+    } else {
+      adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
+    }
+    if (adapterName) {
+      adapterNames.push(`${adapterName}Adapter`);
+    }
+  }
+  return adapterNames;
 }
