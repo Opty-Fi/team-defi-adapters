@@ -398,9 +398,34 @@ describe("CurveAdapters Unit test", () => {
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
                     }
+                    case "testGetDepositSomeCodes(address,address,address,uint256)": {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        underlyingBalanceBefore,
+                      );
+                      break;
+                    }
                     case "testGetWithdrawAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
+                    }
+                    case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const lpTokenBalance = await curveAdapters[curveAdapterName].getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        lpTokenBalance,
+                      );
                       break;
                     }
                   }

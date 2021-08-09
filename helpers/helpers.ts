@@ -152,6 +152,7 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
     underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
     underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
     underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.RSV) ||
     underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.TBTC)
       ? BigNumber.from("200")
