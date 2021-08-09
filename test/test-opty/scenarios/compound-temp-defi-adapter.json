@@ -1233,5 +1233,116 @@
         }
       ]
     }
+  ],
+  "adapterStandloneStories": [
+    {
+      "description": "[canStake()] - should return whether stake is allowed or not",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "canStake(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[setRewardToken()] - Operator should be able to set valid reward token address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "adapter",
+          "action": "setRewardToken(address)",
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "[setRewardToken()] - Non-operator shouldn't be able to set reward token address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setRewardToken(address)",
+          "args": {},
+          "executer": "user1",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[setComptroller()] - Operator should be able to set valid Comptroller contract address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setComptroller(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "comptroller()",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "adapter",
+          "action": "setComptroller(address)",
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "[setComptroller()] -  Non-Operator shouldn't be able to set Comptroller contract address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setComptroller(address)",
+          "args": {},
+          "executer": "user1",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    }
   ]
 }

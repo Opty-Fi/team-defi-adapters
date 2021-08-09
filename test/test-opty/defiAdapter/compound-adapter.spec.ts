@@ -165,12 +165,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
         if (
-          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
-          // &&
-          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
+          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1 &&
+          getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
         ) {
-          // for (let i = 0; i < 1; i++) {
-          for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
+          for (let i = 0; i < 1; i++) {
+            // for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
               if (!lpPauseStatus) {
@@ -669,6 +668,88 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
             });
           }
         }
+      }
+
+      console.log("Standalone stories length: ", testDeFiAdaptersScenario?.adapterStandloneStories.length);
+      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandloneStories.length; i++) {
+        it(`${testDeFiAdaptersScenario?.adapterStandloneStories[i].description}`, async function () {
+          const story = testDeFiAdaptersScenario.adapterStandloneStories[i];
+          // const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
+          // const compoundComptroller = await compoundAdapter.comptroller();
+          for (const action of story.setActions) {
+            switch (action.action) {
+              case "canStake(address)": {
+                console.log("Action: ", action.action);
+                const _canStake = await compoundAdapter[action.action](ADDRESS_ZERO);
+                console.log("Can stake: ", _canStake);
+                expect(_canStake).to.be.eq(false);
+                break;
+              }
+              case "setRewardToken(address)": {
+                console.log("Action: ", action.action);
+                if (action.expect == "success") {
+                  await compoundAdapter[action.action](TypedTokens.COMP);
+                } else {
+                  console.log("Else for reward token");
+                  console.log("Executer: ", action.executer);
+                  //  TODO: Add test scenario if operator is trying to set ZERO ADDRESS as reward token address
+                  await expect(
+                    compoundAdapter.connect(users[action.executer])[action.action](TypedTokens.COMP),
+                  ).to.be.revertedWith(action.message);
+                }
+                break;
+              }
+              case "setComptroller(address)": {
+                console.log("Action: ", action.action);
+                if (action.expect == "success") {
+                  await compoundAdapter[action.action](abis.compoundComptroller.address);
+                } else {
+                  console.log("Else for comptroller");
+                  console.log("Executer: ", action.executer);
+                  //  TODO: Add test scenario if operater is trying to set ZERO ADDRESS/EOA as comptroller's contract address
+                  await expect(
+                    compoundAdapter.connect(users[action.executer])[action.action](abis.compoundComptroller.address),
+                  ).to.be.revertedWith(action.message);
+                }
+                break;
+              }
+            }
+          }
+          for (const action of story.getActions) {
+            switch (action.action) {
+              case "getRewardToken(address)": {
+                console.log("Action: ", action.action);
+                const _rewardTokenAddress = await compoundAdapter[action.action](ADDRESS_ZERO);
+                expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
+                break;
+              }
+              case "comptroller()": {
+                console.log("Action: ", action.action);
+                const _comptrollerAddress = await compoundAdapter[action.action]();
+                console.log("Comptroller address post setting: ", _comptrollerAddress);
+                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
+              }
+            }
+          }
+          for (const action of story.cleanActions) {
+            switch (action.action) {
+              case "setRewardToken(address)": {
+                console.log("Action: ", action.action);
+                await compoundAdapter[action.action](TypedTokens.COMP);
+                const _rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
+                expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
+                break;
+              }
+              case "setComptroller(address)": {
+                console.log("Action: ", action.action);
+                await compoundAdapter[action.action](abis.compoundComptroller.address);
+                const _comptrollerAddress = await compoundAdapter.comptroller();
+                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
+                break;
+              }
+            }
+          }
+        });
       }
     });
   });
