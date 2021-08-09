@@ -164,12 +164,8 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (
-          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1 &&
-          getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
-        ) {
-          for (let i = 0; i < 1; i++) {
-            // for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
+        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
+          for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
               if (!lpPauseStatus) {
@@ -441,39 +437,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       }
                       break;
                     }
-                    // case "getAllAmountInToken(address,address,address)": {
-                    //   const _amountInUnderlyingToken = await compoundAdapter[action.action](
-                    //     testDeFiAdapter.address,
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //   );
-                    //   const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
-                    //     testDeFiAdapter.address,
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //   );
-                    //   let expectedAmountInUnderlyingToken: BigNumber = await compoundAdapter.getSomeAmountInToken(
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //     _lpTokenBalance,
-                    //   );
-                    //   const _unclaimedReward: BigNumber = await compoundAdapter.getUnclaimedRewardTokenAmount(
-                    //     testDeFiAdapter.address,
-                    //     liquidityPool,
-                    //     underlyingTokenAddress,
-                    //   );
-                    //   if (+_unclaimedReward > 0) {
-                    //     expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
-                    //       await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
-                    //         rewardTokenAddress,
-                    //         underlyingTokenAddress,
-                    //         _unclaimedReward,
-                    //       ),
-                    //     );
-                    //   }
-                    //   expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
-                    //   break;
-                    // }
                   }
                 }
                 for (const action of story.getActions) {
@@ -540,7 +503,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getAllAmountInToken(address,address,address)": {
-                      console.log("Action: ", action.action);
                       const _amountInUnderlyingToken = await compoundAdapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
@@ -574,9 +536,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "isRedeemableAmountSufficient(address,address,address,uint256)": {
-                      console.log("Action: ", action.action);
                       const expectedValue = action.expectedValue;
-                      console.log("Expected value: ", expectedValue);
                       const _amountInUnderlyingToken: BigNumber = await compoundAdapter.getAllAmountInToken(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
@@ -589,7 +549,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                           liquidityPool,
                           _amountInUnderlyingToken.add(BigNumber.from(10)),
                         );
-                        console.log("Redeemable amt sufficient: ", _isRedeemableAmountSufficient);
                         expect(_isRedeemableAmountSufficient).to.be.eq(false);
                       } else if (expectedValue == "<") {
                         const _isRedeemableAmountSufficient = await compoundAdapter[action.action](
@@ -600,13 +559,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                             ? _amountInUnderlyingToken.sub(BigNumber.from(10))
                             : BigNumber.from(0),
                         );
-                        console.log("Redeemable amt sufficient: ", _isRedeemableAmountSufficient);
                         expect(_isRedeemableAmountSufficient).to.be.eq(true);
                       }
                       break;
                     }
                     case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
-                      console.log("Action: ", action.action);
                       const _lpTokenBalance: BigNumber = await compoundAdapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
@@ -625,12 +582,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         liquidityPool,
                         _testRedeemAmount,
                       );
-                      console.log("Redeemable lp amt from adapter: ", +_redeemableLpTokenAmt);
                       const expectedRedeemableLpTokenAmt = _lpTokenBalance
                         .mul(_testRedeemAmount)
                         .div(_balanceInToken)
                         .add(BigNumber.from(1));
-                      console.log("Expected redeemable amt: ", +expectedRedeemableLpTokenAmt);
                       expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
                       break;
                     }
@@ -670,29 +625,21 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         }
       }
 
-      console.log("Standalone stories length: ", testDeFiAdaptersScenario?.adapterStandloneStories.length);
       for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandloneStories.length; i++) {
         it(`${testDeFiAdaptersScenario?.adapterStandloneStories[i].description}`, async function () {
           const story = testDeFiAdaptersScenario.adapterStandloneStories[i];
-          // const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
-          // const compoundComptroller = await compoundAdapter.comptroller();
           for (const action of story.setActions) {
             switch (action.action) {
               case "canStake(address)": {
-                console.log("Action: ", action.action);
                 const _canStake = await compoundAdapter[action.action](ADDRESS_ZERO);
-                console.log("Can stake: ", _canStake);
                 expect(_canStake).to.be.eq(false);
                 break;
               }
               case "setRewardToken(address)": {
-                console.log("Action: ", action.action);
                 if (action.expect == "success") {
                   await compoundAdapter[action.action](TypedTokens.COMP);
                 } else {
-                  console.log("Else for reward token");
-                  console.log("Executer: ", action.executer);
-                  //  TODO: Add test scenario if operator is trying to set ZERO ADDRESS as reward token address
+                  //  TODO: Add test scenario if operator is trying to set ZERO/EOA ADDRESS as reward token address
                   await expect(
                     compoundAdapter.connect(users[action.executer])[action.action](TypedTokens.COMP),
                   ).to.be.revertedWith(action.message);
@@ -700,12 +647,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 break;
               }
               case "setComptroller(address)": {
-                console.log("Action: ", action.action);
                 if (action.expect == "success") {
                   await compoundAdapter[action.action](abis.compoundComptroller.address);
                 } else {
-                  console.log("Else for comptroller");
-                  console.log("Executer: ", action.executer);
                   //  TODO: Add test scenario if operater is trying to set ZERO ADDRESS/EOA as comptroller's contract address
                   await expect(
                     compoundAdapter.connect(users[action.executer])[action.action](abis.compoundComptroller.address),
@@ -718,15 +662,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           for (const action of story.getActions) {
             switch (action.action) {
               case "getRewardToken(address)": {
-                console.log("Action: ", action.action);
                 const _rewardTokenAddress = await compoundAdapter[action.action](ADDRESS_ZERO);
                 expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
                 break;
               }
               case "comptroller()": {
-                console.log("Action: ", action.action);
                 const _comptrollerAddress = await compoundAdapter[action.action]();
-                console.log("Comptroller address post setting: ", _comptrollerAddress);
                 expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
               }
             }
@@ -734,14 +675,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           for (const action of story.cleanActions) {
             switch (action.action) {
               case "setRewardToken(address)": {
-                console.log("Action: ", action.action);
                 await compoundAdapter[action.action](TypedTokens.COMP);
                 const _rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
                 expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
                 break;
               }
               case "setComptroller(address)": {
-                console.log("Action: ", action.action);
                 await compoundAdapter[action.action](abis.compoundComptroller.address);
                 const _comptrollerAddress = await compoundAdapter.comptroller();
                 expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
@@ -764,6 +703,7 @@ async function lpPausedStatus(pool: string): Promise<boolean> {
   return lpPauseStatus;
 }
 
+//  Function to get the Compound's Comptroller contract instance
 async function getCompoundComptroller(): Promise<any> {
   const compoundController = await hre.ethers.getContractAt(
     abis.compoundComptroller.abi,
