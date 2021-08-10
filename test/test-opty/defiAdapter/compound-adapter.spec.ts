@@ -9,7 +9,7 @@ import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-a
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 import testDeFiAdaptersScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, expectInvestLimitEvents, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 
@@ -197,9 +197,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingMode = await compoundAdapter.maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        await compoundAdapter[action.action](mode);
+                        const _setMaxDepositProtocolModeTx = await compoundAdapter[action.action](mode);
+                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
                         const modeSet = await compoundAdapter.maxDepositProtocolMode();
                         expect(+modeSet).to.be.eq(+mode!);
+                        expectInvestLimitEvents(
+                          setMaxDepositProtocolModeTx,
+                          "LogMaxDepositProtocolMode",
+                          "LogMaxDepositProtocolMode(uint8,address)",
+                          compoundAdapter.address,
+                          ownerAddress,
+                          mode!,
+                        );
                       }
                       break;
                     }
@@ -213,9 +222,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        await compoundAdapter[action.action](maxDepositProtocolPct);
+                        const _setMaxDepositProtocolPctTx = await compoundAdapter[action.action](maxDepositProtocolPct);
+                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
                         const maxDepositProtocolPctSet = await compoundAdapter.maxDepositProtocolPct();
                         expect(+maxDepositProtocolPctSet).to.be.eq(+maxDepositProtocolPct!);
+                        expectInvestLimitEvents(
+                          setMaxDepositProtocolPctTx,
+                          "LogMaxDepositProtocolPct",
+                          "LogMaxDepositProtocolPct(uint256,address)",
+                          compoundAdapter.address,
+                          ownerAddress,
+                          maxDepositProtocolPct!,
+                        );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -226,9 +244,21 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        await compoundAdapter[action.action](liquidityPool, maxDepositPoolPct);
+                        const _setMaxDepositPoolPctTx = await compoundAdapter[action.action](
+                          liquidityPool,
+                          maxDepositPoolPct,
+                        );
+                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
                         const maxDepositPoolPctSet = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                         expect(+maxDepositPoolPctSet).to.be.eq(+maxDepositPoolPct!);
+                        expectInvestLimitEvents(
+                          setMaxDepositPoolPctTx,
+                          "LogMaxDepositPoolPct",
+                          "LogMaxDepositPoolPct(uint256,address)",
+                          compoundAdapter.address,
+                          ownerAddress,
+                          maxDepositPoolPct!,
+                        );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -243,12 +273,25 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
-                        await compoundAdapter[action.action](liquidityPool, underlyingTokenAddress, maxDepositAmount);
+                        const _setMaxDepositAmountTx = await compoundAdapter[action.action](
+                          liquidityPool,
+                          underlyingTokenAddress,
+                          maxDepositAmount,
+                        );
+                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
                         const maxDepositAmountSet = await compoundAdapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress,
                         );
                         expect(+maxDepositAmountSet).to.be.eq(+maxDepositAmount);
+                        expectInvestLimitEvents(
+                          setMaxDepositAmountTx,
+                          "LogMaxDepositAmount",
+                          "LogMaxDepositAmount(uint256,address)",
+                          compoundAdapter.address,
+                          ownerAddress,
+                          maxDepositAmount,
+                        );
                       }
                       limit = BigNumber.from(maxDepositAmount);
                       defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
