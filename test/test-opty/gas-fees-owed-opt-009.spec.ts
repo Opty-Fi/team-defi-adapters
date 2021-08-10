@@ -174,7 +174,6 @@ describe(scenario.title, () => {
                 break;
               }
               case "setStrategy(bytes32,(address,address,bool)[])": {
-                console;
                 const strategySteps = generateStrategyStep(strategies[strategyIndex].strategy);
                 if (action.expect === "success") {
                   await contracts[action.contract][action.action](tokenHash, strategySteps);

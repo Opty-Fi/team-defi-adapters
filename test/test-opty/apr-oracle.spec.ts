@@ -1,7 +1,7 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
-import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
+import { CONTRACTS } from "../../helpers/type";
 import { TypedTokens, TypedDefiPools } from "../../helpers/data";
 import {
   generateStrategyHash,
@@ -168,7 +168,6 @@ describe(scenario.title, async () => {
           case "setBestStrategy(string,bytes32,bytes32)":
           case "setBestDefaultStrategy(string,bytes32,bytes32)": {
             const { adapterName, token, riskProfile }: ARGUMENTS = action.args;
-
             if (adapterName && token && riskProfile) {
               if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken && TypedTokens[token.toUpperCase()]) {
                 const strategy = {
