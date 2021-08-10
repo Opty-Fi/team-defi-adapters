@@ -378,16 +378,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnderlyingTokens(address,address)": {
-                      //  @reason Underlying is considered WETH in case of lp = CETH and and CETH doesn't have underlying()
-                      //  function as ETH as no address and therefore no underlying for CETH pool.
-                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
-                        this.skip();
-                      }
                       const _underlyingAddressFromAdapter = await compoundAdapter[action.action](
                         liquidityPool,
                         ADDRESS_ZERO,
                       );
-                      const _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
+                      let _underlyingAddressFromPoolContract: string;
+                      //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
+                      //  function because CETH has ETH as underlying.
+                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                        _underlyingAddressFromPoolContract = TypedTokens.WETH;
+                      } else {
+                        _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
+                      }
                       expect([_underlyingAddressFromAdapter[0]]).to.have.members([_underlyingAddressFromPoolContract]);
                       break;
                     }

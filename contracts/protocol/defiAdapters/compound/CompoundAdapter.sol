@@ -154,7 +154,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         returns (address[] memory _underlyingTokens)
     {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = ICompound(_liquidityPool).underlying();
+        _underlyingTokens[0] = _liquidityPool == CETH ? address(WETH) : ICompound(_liquidityPool).underlying();
     }
 
     /**
