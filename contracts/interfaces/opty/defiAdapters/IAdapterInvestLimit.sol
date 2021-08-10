@@ -14,22 +14,30 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
  */
 interface IAdapterInvestLimit {
     /**
-     * @notice notify when Max Deposit Protocol mode is set
+     * @notice Notify when Max Deposit Protocol mode is set
+     * @param maxDepositProtocolMode Mode of maxDeposit set (can be absolute value or percentage)
+     * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogMaxDepositProtocolMode(DataTypes.MaxExposure indexed maxDepositProtocolMode, address indexed caller);
 
     /**
-     * @notice notify when Max Deposit Protocol percentage is set
+     * @notice Notify when Max Deposit Protocol percentage is set
+     * @param maxDepositProtocolPct Protocol's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogMaxDepositProtocolPct(uint256 indexed maxDepositProtocolPct, address indexed caller);
 
     /**
-     * @notice notify when Max Deposit Pool percentage is set
+     * @notice Notify when Max Deposit Pool percentage is set
+     * @param maxDepositPoolPct Liquidity pool's max deposit percentage (in basis points, For eg: 50% means 5000)
+     * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogMaxDepositPoolPct(uint256 indexed maxDepositPoolPct, address indexed caller);
 
     /**
-     * @notice notify when Max Deposit Amount is set
+     * @notice Notify when Max Deposit Amount is set
+     * @param maxDepositAmount Absolute max deposit amount in underlying set for the given liquidity pool
+     * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogMaxDepositAmount(uint256 indexed maxDepositAmount, address indexed caller);
 
