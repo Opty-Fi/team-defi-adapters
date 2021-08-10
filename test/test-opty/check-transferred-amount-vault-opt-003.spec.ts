@@ -114,7 +114,6 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "balanceOf(address)": {
             const value = await contracts[action.contract][action.action](await operator.getAddress());
-            console.log(value.toString());
             expect(value).to.be.equal(action.expectedValue);
             break;
           }

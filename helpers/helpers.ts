@@ -159,10 +159,8 @@ export function retrieveAdapterFromStrategyName(strategyName: string): string[] 
   // For Ex: DAI-deposit-COMPOUND-cDAI
   const strategyStep = strategyName.split("-deposit-");
   const adapterNames: string[] = [];
-  console.log(strategyStep);
   for (let i = 1; i < strategyStep.length; i++) {
     const strategySymbol = strategyStep[i].split("-");
-    console.log(strategySymbol);
     let adapterName;
     if (strategySymbol[0] === "AAVE") {
       adapterName = "AaveV1";
