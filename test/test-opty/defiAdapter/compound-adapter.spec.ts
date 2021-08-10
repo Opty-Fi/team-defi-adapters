@@ -433,7 +433,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       } else {
                         _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
                       }
-                      expect([_underlyingAddressFromAdapter[0]]).to.have.members([_underlyingAddressFromPoolContract]);
+                      expect([getAddress(_underlyingAddressFromAdapter[0])]).to.have.members([
+                        getAddress(_underlyingAddressFromPoolContract),
+                      ]);
                       break;
                     }
                     case "calculateAmountInLPToken(address,address,uint256)": {
