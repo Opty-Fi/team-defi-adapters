@@ -156,7 +156,7 @@ export async function fundWalletToken(
   toAddress?: string,
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
-  const address = toAddress === null ? await wallet.getAddress() : toAddress;
+  const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
   const ValidatedPairTokens = Object.values(TypedPairTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
@@ -214,10 +214,11 @@ export async function fundWalletToken(
             await token0Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
       } else if (TOKEN0 === TypedTokens["WETH"]) {
         await sushiswapInstance
           .connect(wallet)
@@ -232,10 +233,12 @@ export async function fundWalletToken(
             await token1Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
+
       } else {
         await sushiswapInstance
           .connect(wallet)
@@ -258,9 +261,10 @@ export async function fundWalletToken(
             await token1Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
       }
     } else if ((await pairInstance.symbol()) === "UNI-V2") {
       const TOKEN0 = await pairInstance.token0();
@@ -281,10 +285,11 @@ export async function fundWalletToken(
             await token0Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
       } else if (TOKEN0 === TypedTokens["WETH"]) {
         await uniswapInstance
           .connect(wallet)
@@ -299,10 +304,11 @@ export async function fundWalletToken(
             await token1Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
       } else {
         await uniswapInstance
           .connect(wallet)
@@ -325,9 +331,10 @@ export async function fundWalletToken(
             await token1Instance.balanceOf(await wallet.getAddress()),
             0,
             0,
-            address,
+            await wallet.getAddress(),
             deadlineTimestamp,
           );
+        await pairInstance.connect(wallet).transfer(address,amount);
       }
     }
   } else if (ValidatedCurveTokens.includes(getAddress(tokenAddress))) {
@@ -368,7 +375,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), "0"], "1");
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
+            .transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
           swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractOld3.abi), wallet);
           await swapInstance
@@ -376,7 +383,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
+            .transfer(address, amount);
         }
       } else {
         let swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractNew2.abi), wallet);
@@ -412,7 +419,7 @@ export async function fundWalletToken(
               .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), "0"], "1");
             await tokenAddressInstance
               .connect(wallet)
-              .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
+              .transfer(address, amount);
           }
         } else if (N_COINS.toString() === "3") {
           swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractNew3.abi), wallet);
@@ -421,7 +428,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
+            .transfer(address, amount);
         }
       }
     } else {
@@ -448,7 +455,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
           depositInstance = new hre.ethers.Contract(
             pool,
@@ -460,7 +467,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         } else {
           depositInstance = new hre.ethers.Contract(
             pool,
@@ -472,7 +479,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         }
       } else {
         depositInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveDepositContractNew2.abi), wallet);
@@ -494,7 +501,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
           depositInstance = new hre.ethers.Contract(
             pool,
@@ -506,7 +513,7 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         } else {
           depositInstance = new hre.ethers.Contract(
             pool,
@@ -518,7 +525,7 @@ export async function fundWalletToken(
             .add_liquidity([0, await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance
             .connect(wallet)
-            .transfer(address, await tokenAddressInstance.balanceOf(await wallet.getAddress()));
+            .transfer(address, amount);
         }
       }
     }
@@ -532,7 +539,7 @@ export async function fundWalletToken(
     await wethInstance.connect(wallet).deposit(ETH_VALUE_GAS_OVERRIDE_OPTIONS);
     await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount));
   } else {
-    const address = toAddress == null ? await wallet.getAddress() : toAddress;
+    console.log("Address: ", address);
     await uniswapInstance.swapETHForExactTokens(
       amount,
       [TypedTokens["WETH"], tokenAddress],

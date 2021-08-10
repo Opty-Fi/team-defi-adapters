@@ -3,7 +3,14 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedPairTokens, TypedCurveTokens, TypedDefiPools, TypedTokens, TypedBtcTokens } from "../../../helpers/data";
+import {
+  TypedAdapterStrategies,
+  TypedPairTokens,
+  TypedCurveTokens,
+  TypedDefiPools,
+  TypedTokens,
+  TypedBtcTokens,
+} from "../../../helpers/data";
 import {
   deployAdapter,
   deployEssentialContracts,
@@ -141,7 +148,6 @@ describe("HarvestAdapter", () => {
                     expect(value[0]).to.be.equal(withdrawAmount);
                   }
                 }
-
                 break;
               }
             }
