@@ -10,7 +10,6 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
 contract FundTestDeFiAdapter is MultiCall {
-
     address public constant uniswapV2Router02 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     address public constant sushiswapRouter = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
@@ -36,7 +35,8 @@ contract FundTestDeFiAdapter is MultiCall {
             "depositSome"
         );
         address _lpToken = IAdapterFull(_adapter).getLiquidityPoolToken(_underlyingToken, _liquidityPool);
-        uint256 balance = IAdapterFull(_adapter).getLiquidityPoolTokenBalance(payable(address(this)),_lpToken,_liquidityPool);
+        uint256 balance =
+            IAdapterFull(_adapter).getLiquidityPoolTokenBalance(payable(address(this)), _lpToken, _liquidityPool);
         IERC20(_lpToken).transfer(_recipient, balance);
     }
 
@@ -48,11 +48,12 @@ contract FundTestDeFiAdapter is MultiCall {
         address _token0 = IUniswapV2Pair(_underlyingToken).token0();
         address _token1 = IUniswapV2Pair(_underlyingToken).token1();
         if (IERC20(_token0).balanceOf(address(this)) > 0 && IERC20(_token1).balanceOf(address(this)) > 0) {
-            IERC20(_token0).approve(uniswapV2Router02,uint256(0));
-            IERC20(_token0).approve(uniswapV2Router02,IERC20(_token0).balanceOf(address(this)));
-            IERC20(_token1).approve(uniswapV2Router02,uint256(0));
-            IERC20(_token1).approve(uniswapV2Router02,IERC20(_token1).balanceOf(address(this)));
-            IUniswapV2Router02(uniswapV2Router02).addLiquidity(_token0,
+            IERC20(_token0).approve(uniswapV2Router02, uint256(0));
+            IERC20(_token0).approve(uniswapV2Router02, IERC20(_token0).balanceOf(address(this)));
+            IERC20(_token1).approve(uniswapV2Router02, uint256(0));
+            IERC20(_token1).approve(uniswapV2Router02, IERC20(_token1).balanceOf(address(this)));
+            IUniswapV2Router02(uniswapV2Router02).addLiquidity(
+                _token0,
                 _token1,
                 IERC20(_token0).balanceOf(address(this)),
                 IERC20(_token1).balanceOf(address(this)),
@@ -73,11 +74,12 @@ contract FundTestDeFiAdapter is MultiCall {
         address _token0 = IUniswapV2Pair(_underlyingToken).token0();
         address _token1 = IUniswapV2Pair(_underlyingToken).token1();
         if (IERC20(_token0).balanceOf(address(this)) > 0 && IERC20(_token1).balanceOf(address(this)) > 0) {
-            IERC20(_token0).approve(sushiswapRouter,uint256(0));
-            IERC20(_token0).approve(sushiswapRouter,IERC20(_token0).balanceOf(address(this)));
-            IERC20(_token1).approve(sushiswapRouter,uint256(0));
-            IERC20(_token1).approve(sushiswapRouter,IERC20(_token1).balanceOf(address(this)));
-            IUniswapV2Router02(sushiswapRouter).addLiquidity(_token0,
+            IERC20(_token0).approve(sushiswapRouter, uint256(0));
+            IERC20(_token0).approve(sushiswapRouter, IERC20(_token0).balanceOf(address(this)));
+            IERC20(_token1).approve(sushiswapRouter, uint256(0));
+            IERC20(_token1).approve(sushiswapRouter, IERC20(_token1).balanceOf(address(this)));
+            IUniswapV2Router02(sushiswapRouter).addLiquidity(
+                _token0,
                 _token1,
                 IERC20(_token0).balanceOf(address(this)),
                 IERC20(_token1).balanceOf(address(this)),
