@@ -116,7 +116,7 @@ task("vault-actions", "perform actions in Vault")
         try {
           let strategyHash = await vaultContract.investStrategyHash();
           console.log(`Invest strategy : ${strategyHash}`);
-          console.log("withdrawing with rebalance..");
+          console.log(`withdrawing ${checkedAmount.toString()} with rebalance..`);
           const withdrawTx = await vaultContract.connect(userSigner).userWithdrawRebalance(checkedAmount.toString());
           await withdrawTx.wait(1);
           const vaultShareBalance = await vaultContract.balanceOf(user);
