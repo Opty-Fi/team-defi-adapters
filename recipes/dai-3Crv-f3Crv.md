@@ -18,12 +18,12 @@ $ yarn
 ```
 $ cd ./earn-protocol
 # start a forked mainnet
-$ yarn node
+$ yarn hardhat node
 ```
 
 ### Using the first terminal:
 
-- run `yarn setup-local`. Following is sample output
+- run `yarn setup:local`. Following is sample output
 
 ```console
         Deploying Infrastructure contracts ...
@@ -283,7 +283,7 @@ Underlying token : 3.00000005 DAI
 Finished executing Vault actions
 ```
 
-- Redeem 500 opDAIRP1Vault
+- Redeem 100 opDAIRP1Vault
 
 ```
 yarn hardhat vault-actions \
@@ -292,7 +292,7 @@ yarn hardhat vault-actions \
 --user 0x541dA4c3E9B46b813794239a04130345D8d74FB2 \
 --withrebalance true \
 --useall false \
---amount "500000000000000000000" \
+--amount "100000000000000000000" \
 --network localhost
 ```
 
