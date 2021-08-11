@@ -312,8 +312,8 @@ contract RegistryStorage is RegistryAdminStorage {
     /**
      * @notice Emitted when Risk profile is added/updated
      * @param index Index of an array at which risk profile is added or updated
-     * @param lowerLimit Lower limit of the pool which comes under for the specified risk profile
-     * @param upperLimit Upper limit of the pool which comes under for the specified risk profile
+     * @param lowerLimit Lower limit of the pool for the specified risk profile
+     * @param upperLimit Upper limit of the pool for the specified risk profile
      * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogRPPoolRatings(uint256 indexed index, uint8 indexed lowerLimit, uint8 indexed upperLimit, address caller);

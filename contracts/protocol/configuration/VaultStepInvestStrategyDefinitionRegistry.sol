@@ -31,6 +31,9 @@ contract VaultStepInvestStrategyDefinitionRegistry is IVaultStepInvestStrategyDe
 
     /**
      * @notice Emitted when hash strategy is set
+     * @param tokensHash Hash of token/list of tokens for which strategy is set
+     * @param hash Hash of strategy which is set for the above tokenshash
+     * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogSetVaultInvestStrategy(bytes32 indexed tokensHash, bytes32 indexed hash, address indexed caller);
 
