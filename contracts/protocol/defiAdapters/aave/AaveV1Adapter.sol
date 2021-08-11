@@ -112,12 +112,11 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory _codes) {
-        uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
-        return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProvider, _amounts);
+        uint256 _amount = ERC20(_underlyingToken).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, _amount);
     }
 
     /**
@@ -125,13 +124,13 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getBorrowAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider,
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         ReserveConfigurationData memory _inputTokenReserveConfigurationData =
-            IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
+            IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingToken);
         ReserveConfigurationData memory _outputTokenReserveConfigurationData =
             IAaveV1(_lendingPool).getReserveConfigurationData(_outputToken);
         require(
@@ -143,8 +142,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         );
         uint256 _borrow = _availableToBorrowReserve(_vault, _liquidityPoolAddressProvider, _outputToken);
         if (_borrow > 0) {
-            bool _isUserCollateralEnabled =
-                IAaveV1(_lendingPool).getUserReserveData(_underlyingTokens[0], _vault).enabled;
+            bool _isUserCollateralEnabled = IAaveV1(_lendingPool).getUserReserveData(_underlyingToken, _vault).enabled;
             uint256 _interestRateMode =
                 _outputTokenReserveConfigurationData.stableBorrowRateEnabled ? uint256(1) : uint256(2);
             if (_isUserCollateralEnabled) {
@@ -163,7 +161,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                 _codes = new bytes[](2);
                 _codes[0] = abi.encode(
                     _lendingPool,
-                    abi.encodeWithSignature("setUserUseReserveAsCollateral(address,bool)", _underlyingTokens[0], true)
+                    abi.encodeWithSignature("setUserUseReserveAsCollateral(address,bool)", _underlyingToken, true)
                 );
                 _codes[1] = abi.encode(
                     _lendingPool,
@@ -184,14 +182,14 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getRepayAndWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider,
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
         uint256 _liquidityPoolTokenBalance =
-            getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProvider);
+            getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
 
         // borrow token amount
         uint256 _borrowAmount = ERC20(_outputToken).balanceOf(_vault);
@@ -200,7 +198,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
             _maxWithdrawal(_vault, _lendingPool, _liquidityPoolTokenBalance, _outputToken, _borrowAmount);
 
         uint256 _outputTokenRepayable =
-            _over(_vault, _underlyingTokens[0], _liquidityPoolAddressProvider, _outputToken, _aTokenAmount);
+            _over(_vault, _underlyingToken, _liquidityPoolAddressProvider, _outputToken, _aTokenAmount);
 
         if (_outputTokenRepayable > 0) {
             if (_outputTokenRepayable > _borrowAmount) {
@@ -221,7 +219,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                     abi.encodeWithSignature("repay(address,uint256,address)", _outputToken, _borrowAmount, _vault)
                 );
                 _codes[3] = abi.encode(
-                    getLiquidityPoolToken(_underlyingTokens[0], _liquidityPoolAddressProvider),
+                    getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
                     abi.encodeWithSignature("redeem(uint256)", _aTokenAmount)
                 );
             }
@@ -233,12 +231,11 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount =
-            getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProvider);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProvider, _redeemAmount);
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, _redeemAmount);
     }
 
     /**
@@ -356,34 +353,29 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getDepositSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider,
-        uint256[] memory _amounts
+        uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingTokens[0], _amounts[0]);
+        uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingToken, _amount);
         if (_depositAmount > 0) {
             address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
             ReserveConfigurationData memory _inputTokenReserveConfigurationData =
-                IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingTokens[0]);
+                IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingToken);
             require(_inputTokenReserveConfigurationData.isActive, "!isActive");
             address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, uint256(0))
             );
             _codes[1] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, _depositAmount)
             );
             _codes[2] = abi.encode(
                 _lendingPool,
-                abi.encodeWithSignature(
-                    "deposit(address,uint256,uint16)",
-                    _underlyingTokens[0],
-                    _depositAmount,
-                    uint16(0)
-                )
+                abi.encodeWithSignature("deposit(address,uint256,uint16)", _underlyingToken, _depositAmount, uint16(0))
             );
         }
     }
@@ -393,14 +385,14 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
      */
     function getWithdrawSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPoolAddressProvider,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPoolAddressProvider),
+                getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
                 abi.encodeWithSignature("redeem(uint256)", _amount)
             );
         }

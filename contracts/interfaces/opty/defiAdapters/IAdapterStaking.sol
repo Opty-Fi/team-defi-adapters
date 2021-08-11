@@ -28,14 +28,14 @@ interface IAdapterStaking {
     /**
      * @notice Get batch of function calls for staking full balance of lpTokens held in a vault
      * @param _vault Vault contract address
-     * @param _underlyingTokens List of underlying token addresses for the given liquidity pool
+     * @param _underlyingToken Underlying token address for the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address where the vault has deposited and which is associated
      * to a staking pool where to stake all lpTokens
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
     function getStakeAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) external view returns (bytes[] memory _codes);
 
@@ -118,7 +118,7 @@ interface IAdapterStaking {
     /**
      * @notice Get the batch of function calls for unstake and redeem specified amount of shares
      * @param _vault Vault contract address
-     * @param _underlyingTokens List of underlying token addresses for the given liquidity pool
+     * @param _underlyingToken Underlying token address for the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address associated to a staking pool from where to unstake
      * and then withdraw
      * @param _redeemAmount Amount of lpToken to unstake and redeem
@@ -126,7 +126,7 @@ interface IAdapterStaking {
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) external view returns (bytes[] memory _codes);
@@ -134,14 +134,14 @@ interface IAdapterStaking {
     /**
      * @notice Get the batch of function calls for unstake and redeem whole balance of shares held in a vault
      * @param _vault Vault contract address
-     * @param _underlyingTokens List of underlying token addresses for the given liquidity pool
+     * @param _underlyingToken Underlying token address for the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address associated to a staking pool from where to unstake
      * and then withdraw
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) external view returns (bytes[] memory _codes);
 }

@@ -92,12 +92,11 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _masterChef
     ) external view override returns (bytes[] memory) {
-        uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
-        return getDepositSomeCodes(_vault, _underlyingTokens, _masterChef, _amounts);
+        uint256 _amount = IERC20(_underlyingToken).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingToken, _masterChef, _amount);
     }
 
     /**
@@ -105,11 +104,11 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function getWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _masterChef
     ) external view override returns (bytes[] memory) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _masterChef);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _masterChef, _redeemAmount);
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _masterChef);
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _masterChef, _redeemAmount);
     }
 
     /**
@@ -241,20 +240,20 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function getDepositSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _masterChef,
-        uint256[] memory _amounts
+        uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        if (_amounts[0] > 0) {
-            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingTokens[0]][_masterChef];
-            uint256 _depositAmount = _getDepositAmount(_masterChef, _underlyingTokens[0], _amounts[0]);
+        if (_amount > 0) {
+            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
+            uint256 _depositAmount = _getDepositAmount(_masterChef, _underlyingToken, _amount);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _masterChef, uint256(0))
             );
             _codes[1] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _masterChef, _depositAmount)
             );
             _codes[2] = abi.encode(
@@ -273,12 +272,12 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
      */
     function getWithdrawSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _masterChef,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
         if (_redeemAmount > 0) {
-            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingTokens[0]][_masterChef];
+            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
                 _masterChef,
