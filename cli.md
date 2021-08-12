@@ -350,7 +350,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-all-strategies \
+  yarn hardhat get-strategy \
   --network localhost \
   --strategyhash 0x0000000000000000000000000000000000000000 \
   --strategyregistry 0x0000000000000000000000000000000000000000 \
@@ -371,7 +371,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-all-strategies \
+  yarn hardhat get-all-strategies \
   --network localhost \
   --strategyregistry 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000
