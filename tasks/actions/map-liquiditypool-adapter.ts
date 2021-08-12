@@ -39,14 +39,16 @@ task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
     const { isLiquidityPool } = await registryContract.getLiquidityPool(liquiditypool);
 
     if (!isLiquidityPool) {
-      await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [liquiditypool]);
-
       try {
+        await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [liquiditypool]);
         console.log(`Liquidity pool ${liquiditypool} approved`);
       } catch (error) {
         console.error("approve liquidity pool errored with ", error.message);
       }
+    } else {
+      console.log(`Liquidity pool ${liquiditypool} is already approved`);
     }
+
     try {
       await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [
         liquiditypool,

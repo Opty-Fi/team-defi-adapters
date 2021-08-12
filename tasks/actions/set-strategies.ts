@@ -50,13 +50,7 @@ task("set-strategies", "Set strategies")
       throw new Error("strategyregistry address is invalid");
     }
 
-    const strategyRegistryContract = await getContractInstance(
-      hre,
-      ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-      strategyregistry,
-    );
     let strategies: STRATEGY[] = TypedStrategies;
-
     if (fromfile) {
       const content = fs.readFileSync(fromfile);
       strategies = JSON.parse(content.toString());
@@ -65,6 +59,13 @@ task("set-strategies", "Set strategies")
     if (!strategies.length) {
       throw new Error("strategies file is in wrong format");
     }
+
+    const strategyRegistryContract = await getContractInstance(
+      hre,
+      ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
+      strategyregistry,
+    );
+
     console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {

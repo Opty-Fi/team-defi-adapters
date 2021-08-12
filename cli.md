@@ -335,6 +335,28 @@ Options:
   --token 0x0000000000000000000000000000000000000000
 ```
 
+### get-strategy
+
+```
+Usage: get a specific strategy
+
+Options:
+--strategyhash     required <string>  the keccak256 hash of strategy
+--strategyregistry required <address> the address of vaultStepInvestStrategyDefinitionRegistry
+--token            required <address> the address of token
+--network          optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat set-all-strategies \
+  --network localhost \
+  --strategyhash 0x0000000000000000000000000000000000000000 \
+  --strategyregistry 0x0000000000000000000000000000000000000000 \
+  --token 0x0000000000000000000000000000000000000000
+```
+
 ### get-all-strategies
 
 ```
@@ -349,7 +371,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat set-all-strategies \
   --network localhost \
   --strategyregistry 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000
@@ -493,4 +515,74 @@ yarn hardhat map-liquiditypool-adapter \
 --registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
 --liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
 --adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
+```
+
+### map-liquiditypools-adapter
+
+```
+Usage: approve and map liquidity pools to a specific adapter
+
+Options:
+--registry      required <address> the address of registry
+--adaptername   required <address> the name of adapter
+--adapter       required <address> the address of defi adapter
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example
+
+```
+yarn hardhat map-liquiditypools-adapter \
+--network localhost \
+--registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
+--adaptername CompoundAdapter \
+--adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
+```
+
+### balance-of
+
+```
+Usage: check token balance of specific address
+
+Options:
+--token      required <address> the address of token
+--user       required <address> the address of user
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example
+
+```
+yarn hardhat balance-of \
+--network localhost \
+--token 0x6B175474E89094C44Da98b954EedeAC495271d0F  \
+--user 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1
+```
+
+### get-action
+
+```
+Usage: execute a get action in smart contract
+
+Options:
+--name      required <address> the name of contract
+--address       required <address> the address of smart contract
+--functionabi       required <string> a get function abi
+--params       required <string> the required params of the function
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+Tips:
+functionabi: needs to have quotation marks('') around the function abi.
+params: need to have comma(,) in order to differentiate each param (Ex : param1,param2).
+
+- Example
+
+```
+yarn hardhat get-action \
+--network localhost \
+--name ERC20 \
+--address 0x6B175474E89094C44Da98b954EedeAC495271d0F \
+--functionabi 'balanceOf(address)' \
+--params 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1  \
 ```

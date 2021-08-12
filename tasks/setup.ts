@@ -2,9 +2,8 @@ import { task, types } from "hardhat/config";
 
 import { CONTRACTS } from "../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../helpers/contracts-deployments";
-import { approveLiquidityPoolAndMapAdapters, approveTokens, approveToken } from "../helpers/contracts-actions";
 import { insertContractIntoDB } from "../helpers/db";
-import { TESTING_CONTRACTS } from "../helpers/constants";
+import { TESTING_CONTRACTS, HARVEST_ADAPTER_NAME } from "../helpers/constants";
 import { deployContract } from "../helpers/helpers";
 
 task("setup", "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
@@ -51,8 +50,23 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
-    await approveTokens(owner, essentialContracts["registry"]);
-    await approveLiquidityPoolAndMapAdapters(owner, essentialContracts["registry"], adaptersContracts);
+
+    console.log(`\tApproving Tokens ...`);
+
+    await hre.run("approve-tokens", {
+      registry: essentialContracts["registry"].address,
+    });
+
+    for (let adapterName in adaptersContracts) {
+      if (adapterName === HARVEST_ADAPTER_NAME) {
+        adapterName = "HarvestV1Adapter";
+      }
+      await hre.run("map-liquiditypools-adapter", {
+        adapter: adaptersContracts[adapterName].address,
+        adaptername: adapterName,
+        registry: essentialContracts["registry"].address,
+      });
+    }
 
     await hre.run("set-strategies", {
       strategyregistry: essentialContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
@@ -75,7 +89,10 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       0,
     ]);
     console.log(`BAL-ODEFI-USDC address : ${erc20Contract.address}`);
-    await approveToken(owner, essentialContracts["registry"], [erc20Contract.address]);
+    await hre.run("approve-token", {
+      registry: essentialContracts["registry"].address,
+      token: erc20Contract.address,
+    });
 
     await hre.run("deploy-vault", {
       token: erc20Contract.address,
