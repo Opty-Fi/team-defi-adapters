@@ -53,14 +53,14 @@ contract CurveSwapPoolAdapter is
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice Maps liquidityPool to absolute max deposit value in underlying */
     mapping(address => uint256) public maxDepositAmount;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /**
      * @dev mapp coins and tokens to curve deposit pool

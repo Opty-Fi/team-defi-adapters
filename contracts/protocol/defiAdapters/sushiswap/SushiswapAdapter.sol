@@ -27,14 +27,8 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice Maps liquidityPool to max deposit value in percentage */
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
-
-    /** @notice Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** @notice Maps underlyingToken to the ID of its pool */
-    mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
+    /** @notice Sushiswap's reward token address */
+    address public rewardToken;
 
     /** @notice SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
@@ -45,14 +39,20 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /** @notice Sushiswap WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
+
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice Sushiswap's reward token address */
-    address public rewardToken;
+    /** @notice Maps liquidityPool to max deposit value in percentage */
+    mapping(address => uint256) public maxDepositPoolPct; // basis points
 
-    /** @notice max deposit's protocol value in percentage */
-    uint256 public maxDepositProtocolPct; // basis points
+    /** @notice Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+
+    /** @notice Maps underlyingToken to the ID of its pool */
+    mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
 
     constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(SUSHI);

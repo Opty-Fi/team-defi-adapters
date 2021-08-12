@@ -29,23 +29,14 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice  Maps liquidityPool to max deposit value in percentage */
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
-
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** WETH ERC20 token address */
-    address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
-
     /** @notice Compound's comptroller contract address */
     address public comptroller;
 
     /** @notice Compound's reward token (COMP) address */
     address public rewardToken;
+
+    /** @dev ETH gateway contract for compound adapter */
+    address public immutable compoundETHGatewayContract;
 
     /**
      * @notice Compound's ETH liquidity pool contract address
@@ -54,11 +45,20 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
      */
     address public constant CETH = address(0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5);
 
+    /** WETH ERC20 token address */
+    address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
-    /** @dev ETH gateway contract for compound adapter */
-    address public immutable compoundETHGatewayContract;
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     constructor(address _registry) public Modifiers(_registry) {
         compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
