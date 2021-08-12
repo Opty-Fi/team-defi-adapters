@@ -42,7 +42,7 @@ task("set-best-strategy", "Set best strategy")
 
     const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
 
-    console.log(`StrategyHash: ${strategyhash}`);
+    console.log(`Invest step strategy Hash : ${strategyhash}`);
 
     try {
       if (isdefault) {

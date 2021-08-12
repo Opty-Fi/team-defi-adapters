@@ -1196,5 +1196,6 @@
       "lpToken": "0x5165d24277cD063F5ac44Efd447B27025e888f37",
       "tokens": ["0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"]
     }
-  }
+  },
+  "SushiswapAdapter": {}
 }

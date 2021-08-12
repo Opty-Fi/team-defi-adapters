@@ -539,6 +539,57 @@ yarn hardhat map-liquiditypools-adapter \
 --adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
 ```
 
+### set-max-deposit
+
+```
+Usage: set max deposit for a specific adapter
+
+Options:
+--adapter         required <address> the address of adapter
+--amount          required <number> the max deposit amount
+--mode            conditional required <address> the max deposit mode
+--liquiditypool   conditional required <address> the address of liquiditypool
+--underlyingtoken conditional required <address> the address of underlying token
+--setprotocol     optional <boolean>  set amount for Protocol or not (default: false)
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+- Tips:
+  Conditional required flags might be required depend on the Adapter's contract.
+
+- Example
+
+```
+yarn hardhat set-max-deposit
+--adapter 0xA38FdF6d6D3E6dff80F416Fa6C1649b317A70595 \
+--amount 1000000000000000000000000 \
+--mode pct \
+--liquiditypool 0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c \
+--underlyingtoken 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490 \
+--setprotocol false \
+--network localhost \
+```
+
+### set-max-deposit-mode
+
+```
+Usage: set max deposit mode for a specific adapter
+
+Options:
+--adapter         required <address> the address of adapter
+--mode            required <address> the max deposit mode
+--network       optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example
+
+```
+yarn hardhat set-max-deposit-mode
+--adapter 0xA38FdF6d6D3E6dff80F416Fa6C1649b317A70595 \
+--mode pct \
+--network localhost \
+```
+
 ### balance-of
 
 ```
@@ -568,7 +619,7 @@ Options:
 --name      required <address> the name of contract
 --address       required <address> the address of smart contract
 --functionabi       required <string> a get function abi
---params       required <string> the required params of the function
+--params       optional <array> the required params of the function (default: "")
 --network       optional <string>  name of the network provider (default: hardhat)
 ```
 

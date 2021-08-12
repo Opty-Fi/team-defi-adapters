@@ -102,6 +102,8 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
+export const ADDRESS_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
   RP0: {
     name: "RP0",
@@ -337,3 +339,8 @@ export const MAPPING_CURVE_DEPOSIT_DATA = [
     gauges: "DUSD_GAUGE",
   },
 ];
+
+export enum MAX_DEPOSIT_MODE {
+  number,
+  pct,
+}

@@ -1,5 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
+import { HARVEST_ADAPTER_NAME } from "../../helpers/constants";
 import { TypedDefiPools } from "../../helpers/data/index";
 task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
@@ -26,6 +27,10 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
       throw new Error("adaptername cannot be empty");
     }
 
+    if (adaptername === HARVEST_ADAPTER_NAME) {
+      adaptername = "HarvestV1Adapter";
+    }
+
     if (!TypedDefiPools[adaptername]) {
       throw new Error("wrong adapter name");
     }
@@ -41,4 +46,5 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
     }
 
     console.log(`Finished mapping liquidityPools to adapter : ${adaptername}`);
+    console.log("------------------");
   });

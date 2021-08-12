@@ -18,6 +18,7 @@ task("approve-tokens", "Approve Tokens")
         registry: registry,
         token: TypedTokens[tokensName[i]],
       });
+      console.log("---------------");
     }
 
     console.log(`Finished approving tokens`);

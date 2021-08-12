@@ -28,6 +28,7 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
+    console.log("********************");
     console.log(`\tDeploying Adapter contracts ...`);
     const adaptersContracts: CONTRACTS = await deployAdapters(
       hre,
@@ -50,17 +51,16 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
-
+    console.log("********************");
     console.log(`\tApproving Tokens ...`);
 
     await hre.run("approve-tokens", {
       registry: essentialContracts["registry"].address,
     });
+    console.log("********************");
+    console.log(`\tMapping Liquidity Pools to Adapters ...`);
 
-    for (let adapterName in adaptersContracts) {
-      if (adapterName === HARVEST_ADAPTER_NAME) {
-        adapterName = "HarvestV1Adapter";
-      }
+    for (const adapterName in adaptersContracts) {
       await hre.run("map-liquiditypools-adapter", {
         adapter: adaptersContracts[adapterName].address,
         adaptername: adapterName,
@@ -68,10 +68,13 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       });
     }
 
+    console.log("********************");
+    console.log(`\t Setting strategies ...`);
     await hre.run("set-strategies", {
       strategyregistry: essentialContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
     });
 
+    console.log("********************");
     console.log(`\tDeploying Core Vault contracts ...`);
     await hre.run("deploy-vaults", {
       registry: essentialContracts["registry"].address,
@@ -82,6 +85,7 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       insertindb: insertindb,
     });
 
+    console.log("********************");
     const erc20Contract = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
       "BAL-ODEFI-USDC",
       "BAL-ODEFI-USDC",
