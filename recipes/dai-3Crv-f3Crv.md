@@ -209,7 +209,7 @@ Finished setup task
 yarn hardhat map-liquiditypool-adapter \
 --network localhost \
 --registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
---liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
+--liquiditypool 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7 \
 --adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
 ```
 
