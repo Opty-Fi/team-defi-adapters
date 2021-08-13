@@ -2,20 +2,18 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
-import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import { approveTokens } from "../../../helpers/contracts-actions";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import scenarios from "../scenarios/adapters.json";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
-describe("SushiswapAdapter", () => {
-  const ADAPTER_NAME = "SushiswapAdapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
-  let essentialContracts: CONTRACTS;
+describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[SUSHISWAP_ADAPTER_NAME];
+  let adapterPrerequisites: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
@@ -23,16 +21,15 @@ describe("SushiswapAdapter", () => {
     try {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        SUSHISWAP_ADAPTER_NAME,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -40,7 +37,7 @@ describe("SushiswapAdapter", () => {
   });
 
   for (let i = 0; i < strategies.length; i++) {
-    describe(`${strategies[i].strategyName}`, async () => {
+    describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
       const masterChef = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd";
@@ -111,7 +108,6 @@ describe("SushiswapAdapter", () => {
                     expect(value[1]).to.equal(withdrawAmount);
                   }
                 }
-
                 break;
               }
             }

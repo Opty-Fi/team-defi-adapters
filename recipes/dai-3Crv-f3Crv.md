@@ -24,10 +24,7 @@ $ yarn hardhat node
 ### Using the first terminal:
 
 - run `yarn setup:local`. Following is sample output
-
 ```console
-        Deploying Infrastructure contracts ...
-REGISTRY address : 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51
 VAULTSTEPINVESTSTRATEGYDEFINITIONREGISTRY address : 0xa0D61133044ACB8Fb72Bc5a0378Fe13786538Dd0
 STRATEGYPROVIDER address : 0x04Ef8a8d3B198749582896F3Bb133ACCc989bD78
 STRATEGYMANAGER address : 0xd16db0605d9050738A12698446c3310d4849A107
@@ -198,11 +195,11 @@ Finished setup task
 - approve and map Curve3Crv liquidity pool to CurveSwapPoolAdapter
 
 ```
-yarn hardhat map-liquiditypool-adapter \
---network localhost \
---registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
---liquiditypool 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7 \
---adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
+ yarn hardhat map-liquiditypool-adapter \
+ --network localhost \
+ --registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
+ --liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
+ --adapter 0x1084641297453a0749865d0143E33F19Bf58D0f1
 ```
 
 - approve and map f3Crv liquidity pool to HarvestAdapter
@@ -212,7 +209,7 @@ yarn hardhat map-liquiditypool-adapter \
 --network localhost \
 --registry 0x09557807C515d758ECc5E1D1aCE7D09aA5842F51  \
 --liquiditypool 0x71B9eC42bB3CB40F017D8AD8011BE8e384a95fa5 \
---adapter 0x1084641297453a0749865d0143E33F19Bf58D0f1
+--adapter 0xbf78A1a02e34CF7aCDB8BD9D0f225cB6AA6B85C5
 ```
 
 - approve f3Crv token
