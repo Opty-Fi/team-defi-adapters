@@ -18,12 +18,12 @@ $ yarn
 ```
 $ cd ./earn-protocol
 # start a forked mainnet
-$ yarn node
+$ npx hardhat node
 ```
 
 ### Using the first terminal:
 
-- run `yarn setup-local`. Following is sample output
+- run `yarn setup:local`. Following is sample output
 
 ```console
         Deploying Infrastructure contracts ...

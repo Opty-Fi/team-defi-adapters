@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress, executeFunc } from "../../helpers/helpers";
+import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { approveToken } from "../../helpers/contracts-actions";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
@@ -28,13 +28,13 @@ task("approve-token", "Approve Token")
     }
 
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-    const [tokenAddress] = await registryContract.getTokensHashToTokenList(tokensHash);
-    if (getAddress(tokenAddress) == getAddress(token)) {
+    const tokensHash = getSoliditySHA3Hash(["address[]"], [[getAddress(token)]]);
+    const result = await registryContract.getTokensHashToTokenList(tokensHash);
+    if (result.length == 1 && getAddress(result[0]) == getAddress(token)) {
       console.log(`Token ${token} is already set`);
     } else {
+      // this function also sets tokens hash to token
       await approveToken(owner, registryContract, [token]);
-      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[token]]);
-      console.log(`Finished approving token`);
+      console.log(`Finished approving token and setting tokens hash`);
     }
   });

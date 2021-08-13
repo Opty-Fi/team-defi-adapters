@@ -1,0 +1,8 @@
+withdraw function is different in V1 and V2 liquidity gaugesP
+
+in V2 withdraw will also claim the tokens
+
+pbtc's liquidity gauge is V2.
+
+aave swap pool (https://etherscan.io/address/0xDeBF20617708857ebe4F679508E7b7863a8A8EeE) 
+can be used for both depositing aToken as well dai,usdt,usdt
