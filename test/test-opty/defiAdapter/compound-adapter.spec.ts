@@ -1,4 +1,4 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
