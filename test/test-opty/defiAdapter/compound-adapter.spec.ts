@@ -1,5 +1,6 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
+import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
@@ -10,7 +11,7 @@ import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
-import { deployContract, expectInvestLimitEvents, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 
@@ -19,11 +20,13 @@ type ARGUMENTS = {
 };
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  mode?: string;
-  maxDepositProtocolPct?: string;
-  maxDepositPoolPct?: string;
-  maxDepositAmount?: string;
+  mode?: number;
+  maxDepositProtocolPct?: number;
+  maxDepositPoolPct?: number;
+  maxDepositAmount?: number;
 };
+
+chai.use(solidity);
 
 describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
   const strategies = TypedAdapterStrategies[COMPOUND_ADAPTER_NAME];
@@ -204,18 +207,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingMode = await compoundAdapter.maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        const _setMaxDepositProtocolModeTx = await compoundAdapter[action.action](mode);
-                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
-                        const modeSet = await compoundAdapter.maxDepositProtocolMode();
-                        expect(+modeSet).to.be.eq(+mode!);
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolModeTx,
-                          "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(uint8,address)",
-                          compoundAdapter.address,
-                          ownerAddress,
-                          mode!,
-                        );
+                        await expect(compoundAdapter[action.action](mode))
+                          .to.emit(compoundAdapter, "LogMaxDepositProtocolMode")
+                          .withArgs(mode, ownerAddress);
+                        expect(await compoundAdapter.maxDepositProtocolMode()).to.equal(mode);
                       }
                       break;
                     }
@@ -229,18 +224,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        const _setMaxDepositProtocolPctTx = await compoundAdapter[action.action](maxDepositProtocolPct);
-                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
-                        const maxDepositProtocolPctSet = await compoundAdapter.maxDepositProtocolPct();
-                        expect(+maxDepositProtocolPctSet).to.be.eq(+maxDepositProtocolPct!);
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolPctTx,
-                          "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(uint256,address)",
-                          compoundAdapter.address,
-                          ownerAddress,
-                          maxDepositProtocolPct!,
-                        );
+                        await expect(compoundAdapter[action.action](maxDepositProtocolPct))
+                          .to.emit(compoundAdapter, "LogMaxDepositProtocolPct")
+                          .withArgs(maxDepositProtocolPct, ownerAddress);
+                        expect(await compoundAdapter.maxDepositProtocolPct()).to.equal(maxDepositProtocolPct);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -251,21 +238,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        const _setMaxDepositPoolPctTx = await compoundAdapter[action.action](
-                          liquidityPool,
-                          maxDepositPoolPct,
-                        );
-                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
-                        const maxDepositPoolPctSet = await compoundAdapter.maxDepositPoolPct(liquidityPool);
-                        expect(+maxDepositPoolPctSet).to.be.eq(+maxDepositPoolPct!);
-                        expectInvestLimitEvents(
-                          setMaxDepositPoolPctTx,
-                          "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(uint256,address)",
-                          compoundAdapter.address,
-                          ownerAddress,
-                          maxDepositPoolPct!,
-                        );
+                        await expect(compoundAdapter[action.action](liquidityPool, maxDepositPoolPct))
+                          .to.emit(compoundAdapter, "LogMaxDepositPoolPct")
+                          .withArgs(maxDepositPoolPct, ownerAddress);
+                        expect(await compoundAdapter.maxDepositPoolPct(liquidityPool)).to.equal(maxDepositPoolPct);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -280,23 +256,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(BigNumber.from(maxDepositAmount))) {
-                        const _setMaxDepositAmountTx = await compoundAdapter[action.action](
-                          liquidityPool,
-                          underlyingTokenAddress,
-                          maxDepositAmount,
-                        );
-                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
-                        const maxDepositAmountSet = await compoundAdapter.maxDepositAmount(
-                          liquidityPool,
-                          underlyingTokenAddress,
-                        );
-                        expect(+maxDepositAmountSet).to.be.eq(+maxDepositAmount);
-                        expectInvestLimitEvents(
-                          setMaxDepositAmountTx,
-                          "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(uint256,address)",
-                          compoundAdapter.address,
-                          ownerAddress,
+                        await expect(
+                          compoundAdapter[action.action](liquidityPool, underlyingTokenAddress, maxDepositAmount),
+                        )
+                          .to.emit(compoundAdapter, "LogMaxDepositAmount")
+                          .withArgs(maxDepositAmount, ownerAddress);
+                        expect(await compoundAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)).to.equal(
                           maxDepositAmount,
                         );
                       }

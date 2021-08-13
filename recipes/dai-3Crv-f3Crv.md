@@ -24,6 +24,7 @@ $ yarn hardhat node
 ### Using the first terminal:
 
 - run `yarn setup:local`. Following is sample output
+
 ```console
 VAULTSTEPINVESTSTRATEGYDEFINITIONREGISTRY address : 0xa0D61133044ACB8Fb72Bc5a0378Fe13786538Dd0
 STRATEGYPROVIDER address : 0x04Ef8a8d3B198749582896F3Bb133ACCc989bD78
