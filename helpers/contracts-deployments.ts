@@ -206,6 +206,8 @@ export async function deployEssentialContracts(
     1700000000,
   ]);
 
+  await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
+
   const optyStakingRateBalancer = await deployOptyStakingRateBalancer(hre, owner, isDeployedOnce, registry.address);
 
   await executeFunc(registry, owner, "setOPTYStakingRateBalancer(address)", [optyStakingRateBalancer.address]);
