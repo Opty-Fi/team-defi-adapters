@@ -4,12 +4,11 @@ import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   approveLiquidityPoolAndMapAdapter,
-  setBestBasicStrategy,
+  setBestStrategy,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
@@ -47,7 +46,6 @@ describe(scenario.title, () => {
       const vaults = scenario.vaults[i];
       const profile = vaults.profile;
       const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
-      const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
       let ERC20Instance: Contract;
       before(async () => {
         try {
@@ -73,12 +71,13 @@ describe(scenario.title, () => {
           );
 
           const riskProfile = await vault.profile();
-          await setBestBasicStrategy(
+          await setBestStrategy(
             TOKEN_STRATEGY.strategy,
-            tokensHash,
+            TOKENS[token],
             essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
             essentialContracts.strategyProvider,
             riskProfile,
+            false,
           );
 
           const timestamp = (await getBlockTimestamp(hre)) * 2;

@@ -12,7 +12,7 @@ import {
 } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
-import { approveToken } from "../../helpers/contracts-actions";
+import { approveAndSetTokenHashToToken } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/risk-manager.json";
 
 type ARGUMENTS = {
@@ -69,7 +69,7 @@ describe(scenario.title, () => {
       );
       for (let i = 0; i < usedTokens.length; i++) {
         try {
-          await approveToken(owner, contracts["registry"], [TypedTokens[usedTokens[i].toUpperCase()]]);
+          await approveAndSetTokenHashToToken(owner, contracts["registry"], TypedTokens[usedTokens[i].toUpperCase()]);
         } catch (error) {
           continue;
         }

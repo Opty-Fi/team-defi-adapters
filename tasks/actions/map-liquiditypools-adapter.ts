@@ -1,12 +1,16 @@
 import { task, types } from "hardhat/config";
-import { isAddress } from "../../helpers/helpers";
-import { HARVEST_ADAPTER_NAME } from "../../helpers/constants";
+import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { HARVEST_ADAPTER_NAME, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
 import { TypedDefiPools } from "../../helpers/data/index";
+import { removeDuplicateFromStringArray } from "../../helpers/utils";
 task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("adaptername", "the name of defi adapter", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ adapter, registry, adaptername }, hre) => {
+    const [owner] = await hre.ethers.getSigners();
+
     if (registry === "") {
       throw new Error("registry cannot be empty");
     }
@@ -34,15 +38,17 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
     if (!TypedDefiPools[adaptername]) {
       throw new Error("wrong adapter name");
     }
+    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
-    const liquidityPools = TypedDefiPools[adaptername];
+    const liquidityPools = removeDuplicateFromStringArray(
+      Object.keys(TypedDefiPools[adaptername]).map(name => TypedDefiPools[adaptername][name].pool),
+    );
+    const liquidityPoolsToAdapter = liquidityPools.map(lp => [lp, adapter as string]);
 
-    for (const name in liquidityPools) {
-      await hre.run("map-liquiditypool-adapter", {
-        registry: registry,
-        liquiditypool: liquidityPools[name].pool,
-        adapter: adapter,
-      });
+    try {
+      await approveLiquidityPoolAndMapAdapters(owner, registryContract, liquidityPools, liquidityPoolsToAdapter);
+    } catch (error) {
+      console.log(`Got error : ${error.message}`);
     }
 
     console.log(`Finished mapping liquidityPools to adapter : ${adaptername}`);

@@ -2,7 +2,6 @@ import { task, types } from "hardhat/config";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
-
 task("set-best-strategy", "Set best strategy")
   .addParam("token", "the address of token", "", types.string)
   .addParam("riskprofile", "risk profile", "", types.string)

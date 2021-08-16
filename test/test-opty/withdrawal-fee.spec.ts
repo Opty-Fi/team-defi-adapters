@@ -5,10 +5,10 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -48,7 +48,6 @@ describe(scenario.title, () => {
       const vault = scenario.vaults[i];
       const profile = vault.profile;
       const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
-      const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
       let ERC20Instance: Contract;
 
       before(async () => {
@@ -58,12 +57,13 @@ describe(scenario.title, () => {
           adapters["CompoundAdapter"].address,
           TOKEN_STRATEGY.strategy[0].contract,
         );
-        await setBestBasicStrategy(
+        await setBestStrategy(
           TOKEN_STRATEGY.strategy,
-          tokensHash,
+          TOKENS[token],
           essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
           essentialContracts.strategyProvider,
           "RP1",
+          false,
         );
         const timestamp = (await getBlockTimestamp(hre)) * 2;
         await fundWalletToken(hre, TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);

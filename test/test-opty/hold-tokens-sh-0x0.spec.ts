@@ -5,10 +5,9 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -61,7 +60,6 @@ describe(scenarios.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);
             let bestStrategyHash: string;
             let vaultRiskProfile: string;
             const contracts: CONTRACTS = {};
@@ -89,12 +87,13 @@ describe(scenarios.title, () => {
                   strategy.strategy[0].contract,
                 );
                 vaultRiskProfile = await Vault.profile();
-                bestStrategyHash = await setBestBasicStrategy(
+                bestStrategyHash = await setBestStrategy(
                   strategy.strategy,
-                  tokensHash,
+                  TOKENS[strategy.token],
                   essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                   essentialContracts.strategyProvider,
                   vaultRiskProfile,
+                  false,
                 );
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 await fundWalletToken(

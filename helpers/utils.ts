@@ -17,11 +17,5 @@ export function delay(ms: number): Promise<unknown> {
 }
 
 export function removeDuplicateFromStringArray(list: string[]): string[] {
-  const listNoDuplicates = list.reduce((accumulator: string[], currentValue: string) => {
-    if (accumulator.indexOf(currentValue) === -1) {
-      accumulator.push(currentValue);
-    }
-    return accumulator;
-  }, []);
-  return listNoDuplicates;
+  return list.filter((x, i, a) => a.indexOf(x) == i);
 }

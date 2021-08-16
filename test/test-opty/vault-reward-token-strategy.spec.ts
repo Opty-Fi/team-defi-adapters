@@ -8,13 +8,13 @@ import { TypedAdapterStrategies } from "../../helpers/data";
 import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  setAndApproveVaultRewardToken,
+  approveAndSetTokenHashToTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
@@ -66,7 +66,6 @@ describe(scenario.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
@@ -94,11 +93,11 @@ describe(scenario.title, () => {
               await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await setAndApproveVaultRewardToken(
+                await approveAndSetTokenHashToTokens(
                   users["owner"],
-                  Vault.address,
-                  <string>REWARD_TOKENS[adapterName].tokenAddress,
                   essentialContracts.registry,
+                  [Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress],
+                  false,
                 );
                 RewardToken_ERC20Instance = await getContractInstance(
                   hre,
@@ -114,12 +113,13 @@ describe(scenario.title, () => {
                 TOKEN_STRATEGY.strategy[0].contract,
               );
 
-              investStrategyHash = await setBestBasicStrategy(
+              investStrategyHash = await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
-                tokensHash,
+                TOKENS[TOKEN_STRATEGY.token],
                 essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                 essentialContracts.strategyProvider,
                 profile,
+                false,
               );
 
               const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);

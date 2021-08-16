@@ -5,12 +5,11 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
 import { deployContract, executeFunc, moveToNextBlock } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -35,7 +34,6 @@ describe(scenario.title, () => {
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
   const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
   let currentOdefi = 0;
   before(async () => {
@@ -49,12 +47,13 @@ describe(scenario.title, () => {
         adapters["CompoundAdapter"].address,
         TOKEN_STRATEGY.strategy[0].contract,
       );
-      await setBestBasicStrategy(
+      await setBestStrategy(
         TOKEN_STRATEGY.strategy,
-        tokensHash,
+        tokenAddr,
         essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
         essentialContracts.strategyProvider,
         "RP1",
+        false,
       );
       const timestamp = (await getBlockTimestamp(hre)) * 2;
       await fundWalletToken(hre, tokenAddr, users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
