@@ -50,7 +50,6 @@ export async function approveLiquidityPoolAndMapAdapters(
     }
     await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [lqPoolsMapToAdapter]);
   } catch (error) {
-    console.log(error);
     console.log(`Got error: ${error.message}`);
   }
 }

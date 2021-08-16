@@ -169,7 +169,7 @@ export function expectInvestLimitEvents(
   expectedAdapterAddress: string,
   expectedCallerAddress: string,
   expectedMaxDepositTypeOrPctOrAmt: string | number,
-) {
+): void {
   expect(transaction.events[0].event).to.equal(expectedEventName);
   expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
   expect(transaction.events[0].address).to.equal(expectedAdapterAddress);

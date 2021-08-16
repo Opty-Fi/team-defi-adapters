@@ -5,7 +5,6 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployContract, executeFunc } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -36,7 +35,6 @@ describe(scenario.title, () => {
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
   const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
   before(async () => {
     try {
@@ -51,7 +49,7 @@ describe(scenario.title, () => {
       );
       await setBestStrategy(
         TOKEN_STRATEGY.strategy,
-        tokensHash,
+        tokenAddr,
         essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
         essentialContracts.strategyProvider,
         "RP1",

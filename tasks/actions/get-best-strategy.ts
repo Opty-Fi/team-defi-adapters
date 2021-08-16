@@ -1,6 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { getContractInstance, isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
 
 task("get-best-strategy", "Get best strategy")
@@ -35,7 +34,7 @@ task("get-best-strategy", "Get best strategy")
 
     const strategyProvider = await getContractInstance(hre, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
 
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+    const tokensHash = generateTokenHash([token]);
 
     try {
       let strategyHash = "";

@@ -5,7 +5,7 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestStrategy,
@@ -18,7 +18,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
-import { getContractInstance } from "../../helpers/helpers";
+import { getContractInstance, generateTokenHash } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -144,10 +144,10 @@ describe(scenario.title, () => {
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
-                            vaultRewardTokenHash = getSoliditySHA3Hash(
-                              ["address[]"],
-                              [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]],
-                            );
+                            vaultRewardTokenHash = generateTokenHash([
+                              Vault.address,
+                              REWARD_TOKENS[adapterName].tokenAddress as string,
+                            ]);
                             await contracts[action.contract]
                               .connect(users[action.executer])
                               [action.action](
