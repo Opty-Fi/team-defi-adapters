@@ -174,6 +174,7 @@ export async function fundWalletToken(
     );
   } else {
     const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+
     await uniswapInstance.swapETHForExactTokens(
       amount,
       [TypedTokens["WETH"], tokenAddress],
@@ -280,4 +281,15 @@ export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): P
       console.log("Got error in insertDataCurveSwap() ", error);
     }
   }
+}
+
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  controllerAddr: string,
+  controllerABI: any,
+): Promise<boolean> {
+  const controller = await hre.ethers.getContractAt(controllerABI, controllerAddr);
+  const lpPauseStatus = await controller["mintGuardianPaused(address)"](pool);
+  return lpPauseStatus;
 }

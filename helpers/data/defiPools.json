@@ -1079,6 +1079,11 @@
       "lpToken": "0x797AAB1ce7c01eB727ab980762bA88e7133d2157",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
     },
+    "bal": {
+      "pool": "0xcE4Fe9b4b8Ff61949DCfeB7e03bc9FAca59D2Eb3",
+      "lpToken": "0xcE4Fe9b4b8Ff61949DCfeB7e03bc9FAca59D2Eb3",
+      "tokens": ["0xba100000625a3754423978a60c9317c58a424e3d"]
+    },
     "link": {
       "pool": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
       "lpToken": "0x697256CAA3cCaFD62BB6d3Aa1C7C5671786A5fD9",
