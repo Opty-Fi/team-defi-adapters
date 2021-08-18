@@ -164,7 +164,7 @@ export async function fundWalletToken(
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
-    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("100")),
+    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("1000")),
     gasLimit: 6721975,
   };
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);

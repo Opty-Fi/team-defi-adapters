@@ -82,7 +82,7 @@ contract TestDeFiAdapter is MultiCall {
         executeCodes(IAdapterFull(_adapter).getStakeSomeCodes(_liquidityPool, _stakeAmount), "stakeSome!");
     }
 
-    function claimReward(address _liquidityPool, address _adapter) external {
+    function testGetClaimRewardTokenCodes(address _liquidityPool, address _adapter) external {
         executeCodes(
             IAdapterFull(_adapter).getClaimRewardTokenCode(payable(address(this)), _liquidityPool),
             "claimReward"
@@ -100,7 +100,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function testGetHarvestSomeReward(
+    function testGetHarvestSomeCodes(
         address _liquidityPool,
         address _underlyingToken,
         uint256 _rewardTokenAmount,
@@ -142,7 +142,7 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function testGetWithdrawSome(
+    function testGetWithdrawSomeCodes(
         address _underlyingToken,
         address _liquidityPool,
         address _adapter,
