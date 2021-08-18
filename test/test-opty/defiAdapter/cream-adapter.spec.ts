@@ -193,7 +193,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
 
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
-              console.log(defaultFundAmount);
               let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
@@ -307,8 +306,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     case "fundTestDeFiAdapterContract": {
                       let underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalance.lt(defaultFundAmount)) {
-                        console.log(underlyingTokenAddress);
-                        console.log(defaultFundAmount.toString());
                         await fundWalletToken(
                           hre,
                           underlyingTokenAddress,

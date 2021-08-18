@@ -1114,6 +1114,21 @@
       "lpToken": "0xCbaE0A83f4f9926997c8339545fb8eE32eDc6b76",
       "tokens": ["0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"]
     },
+    "ycrv": {
+      "pool": "0x9baF8a5236d44AC410c0186Fe39178d5AAD0Bb87",
+      "lpToken": "0x9baF8a5236d44AC410c0186Fe39178d5AAD0Bb87",
+      "tokens": ["0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8"]
+    },
+    "cream": {
+      "pool": "0x892B14321a4FCba80669aE30Bd0cd99a7ECF6aC0",
+      "lpToken": "0x892B14321a4FCba80669aE30Bd0cd99a7ECF6aC0",
+      "tokens": ["0x2ba592f78db6436527729929aaf6c908497cb200"]
+    },
+    "lend": {
+      "pool": "0x8B86e0598616a8d4F1fdAE8b59E55FB5Bc33D0d6",
+      "lpToken": "0x8B86e0598616a8d4F1fdAE8b59E55FB5Bc33D0d6",
+      "tokens": ["0x80fb784b7ed66730e8b1dbd9820afd29931aab03"]
+    },
     "aave": {
       "pool": "0x3225E3C669B39C7c8B3e204a8614bB218c5e31BC",
       "lpToken": "0x3225E3C669B39C7c8B3e204a8614bB218c5e31BC",
@@ -1123,6 +1138,81 @@
       "pool": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
       "lpToken": "0x054B7ed3F45714d3091e82aAd64A1588dC4096Ed",
       "tokens": ["0x0316EB71485b0Ab14103307bf65a021042c6d380"]
+    },
+    "crv": {
+      "pool": "0xc7Fd8Dcee4697ceef5a2fd4608a7BD6A94C77480",
+      "lpToken": "0xc7Fd8Dcee4697ceef5a2fd4608a7BD6A94C77480",
+      "tokens": ["0xd533a949740bb3306d119cc777fa900ba034cd52"]
+    },
+    "mta": {
+      "pool": "0x3623387773010d9214B10C551d6e7fc375D31F58",
+      "lpToken": "0x3623387773010d9214B10C551d6e7fc375D31F58",
+      "tokens": ["0xa3BeD4E1c75D00fa6f4E5E6922DB7261B5E9AcD2"]
+    },
+    "yycrv": {
+      "pool": "0x4EE15f44c6F0d8d1136c83EfD2e8E4AC768954c6",
+      "lpToken": "0x4EE15f44c6F0d8d1136c83EfD2e8E4AC768954c6",
+      "tokens": ["0x5dbcf33d8c2e976c6b560249878e6f1491bca25c"]
+    },
+    "sushi": {
+      "pool": "0x338286C0BC081891A4Bda39C7667ae150bf5D206",
+      "lpToken": "0x338286C0BC081891A4Bda39C7667ae150bf5D206",
+      "tokens": ["0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"]
+    },
+    "ftt": {
+      "pool": "0x10FDBD1e48eE2fD9336a482D746138AE19e649Db",
+      "lpToken": "0x10FDBD1e48eE2fD9336a482D746138AE19e649Db",
+      "tokens": ["0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9"]
+    },
+    "srm": {
+      "pool": "0xef58b2d5A1b8D3cDE67b8aB054dC5C831E9Bc025",
+      "lpToken": "0xef58b2d5A1b8D3cDE67b8aB054dC5C831E9Bc025",
+      "tokens": ["0x476c5e26a75bd202a9683ffd34359c0cc15be0ff"]
+    },
+    "wnxm": {
+      "pool": "0xeFF039C3c1D668f408d09dD7B63008622a77532C",
+      "lpToken": "0xeFF039C3c1D668f408d09dD7B63008622a77532C",
+      "tokens": ["0x0d438f3b5175bebc262bf23753c1e53d03432bde"]
+    },
+    "swag": {
+      "pool": "0x22B243B96495C547598D9042B6f94B01C22B2e9E",
+      "lpToken": "0x22B243B96495C547598D9042B6f94B01C22B2e9E",
+      "tokens": ["0x87edffde3e14c7a66c9b9724747a1c5696b742e6"]
+    },
+    "cel": {
+      "pool": "0x8b3FF1ed4F36C2c2be675AFb13CC3AA5d73685a5",
+      "lpToken": "0x8b3FF1ed4F36C2c2be675AFb13CC3AA5d73685a5",
+      "tokens": ["0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d"]
+    },
+    "dpi": {
+      "pool": "0x2A537Fa9FFaea8C1A41D3C2B68a9cb791529366D",
+      "lpToken": "0x2A537Fa9FFaea8C1A41D3C2B68a9cb791529366D",
+      "tokens": ["0x1494ca1f11d487c2bbe4543e90080aeba4ba3c2b"]
+    },
+    "bbtc": {
+      "pool": "0x7ea9C63E216D5565c3940A2B3d150e59C2907Db3",
+      "lpToken": "0x7ea9C63E216D5565c3940A2B3d150e59C2907Db3",
+      "tokens": ["0x9be89d2a4cd102d8fecc6bf9da793be995c22541"]
+    },
+    "bond": {
+      "pool": "0xf55BbE0255f7f4E70f63837Ff72A577fbDDbE924",
+      "lpToken": "0xf55BbE0255f7f4E70f63837Ff72A577fbDDbE924",
+      "tokens": ["0x0391d2021f89dc339f60fff84546ea23e337750f"]
+    },
+    "kp3r": {
+      "pool": "0x903560b1CcE601794C584F58898dA8a8b789Fc5d",
+      "lpToken": "0x903560b1CcE601794C584F58898dA8a8b789Fc5d",
+      "tokens": ["0x1ceb5cb57c4d4e2b2433641b95dd330a33185a44"]
+    },
+    "husd": {
+      "pool": "0xD692ac3245bb82319A31068D6B8412796eE85d2c",
+      "lpToken": "0xD692ac3245bb82319A31068D6B8412796eE85d2c",
+      "tokens": ["0xdf574c24545e5ffecb9a659c229253d4111d87e1"]
+    },
+    "hegic": {
+      "pool": "0x10a3da2BB0Fae4D591476fd97D6636fd172923a8",
+      "lpToken": "0x10a3da2BB0Fae4D591476fd97D6636fd172923a8",
+      "tokens": ["0x584bc13c7d411c00c01a62e8019472de68768430"]
     }
   },
   "AaveV2Adapter": {

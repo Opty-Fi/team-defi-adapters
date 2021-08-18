@@ -174,7 +174,11 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
     underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.YFI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.HBTC)
+    underlyingTokenAddress == getAddress(TypedTokens.CREAM) ||
+    underlyingTokenAddress == getAddress(TypedTokens.WNXM) ||
+    underlyingTokenAddress == getAddress(TypedTokens.BBTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.BOND) ||
+    underlyingTokenAddress == getAddress(TypedTokens.KP3R)
       ? BigNumber.from("2")
       : defaultFundAmount;
   defaultFundAmount = underlyingTokenAddress == getAddress(TypedTokens.HBTC) ? BigNumber.from("1") : defaultFundAmount;
