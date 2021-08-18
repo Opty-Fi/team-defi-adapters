@@ -21,8 +21,6 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
 import { IAdapterStaking } from "../../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Adapter for Harvest.finance protocol
  * @author Opty.fi
@@ -328,8 +326,6 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
-        console.log("Deposit amount: ", _depositAmount);
-        console.log("Liquidity pool: ", _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _depositAmount);
     }
 
@@ -594,7 +590,9 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
         uint256 b = IHarvestFarm(_stakingVault).balanceOf(_vault);
         if (b > 0) {
-            b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(10**IHarvestDeposit(_liquidityPool).decimals());
+            b = b.mul(IHarvestDeposit(_liquidityPool).getPricePerFullShare()).div(
+                10**IHarvestDeposit(_liquidityPool).decimals()
+            );
         }
         uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         if (_unclaimedReward > 0) {

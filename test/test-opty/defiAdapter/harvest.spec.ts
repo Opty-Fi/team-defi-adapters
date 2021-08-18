@@ -383,13 +383,17 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     break;
                   }
                   case "testGetStakeAllCodes(address,address,address)": {
-                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                     break;
                   }
                   case "testGetStakeSomeCodes(address,uint256,address)": {
                     liquidityPoolTokenBalanceBefore = await vaultInstance.balanceOf(testDeFiAdapter.address);
-                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     await testDeFiAdapter[action.action](
                       liquidityPool,
                       liquidityPoolTokenBalanceBefore,
@@ -403,13 +407,17 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                   }
                   case "testGetUnstakeAllCodes(address,address)": {
                     await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
-                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     break;
                   }
                   case "testGetUnstakeSomeCodes(address,uint256,address)": {
                     liquidityPoolTokenBalanceBefore = await vaultInstance.balanceOf(testDeFiAdapter.address);
-                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     await testDeFiAdapter[action.action](
                       liquidityPool,
                       liquidityPoolTokenBalanceStakeBefore,
@@ -419,30 +427,36 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                   }
                   case "testGetUnstakeAndWithdrawAllCodes(address,address,address)": {
                     await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
-                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
                     expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     expect(+liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
                   }
                   case "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)": {
-                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, liquidityPoolTokenBalanceStakeBefore, adapterAddress);
-                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
+                    await testDeFiAdapter[action.action](
+                      liquidityPool,
+                      underlyingTokenAddress,
+                      liquidityPoolTokenBalanceStakeBefore,
+                      adapterAddress,
+                    );
+                    const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
                     const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
                     expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     expect(+liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
                   }
                   case "getUnderlyingTokens(address,address)": {
-                    const expectedUnderlyingAddress = await harvestAdapter[action.action](
-                      liquidityPool,
-                      ADDRESS_ZERO,
-                    );
+                    const expectedUnderlyingAddress = await harvestAdapter[action.action](liquidityPool, ADDRESS_ZERO);
                     const underlyingAddress = await vaultInstance.underlying();
-                    expect([getAddress(expectedUnderlyingAddress[0])]).to.have.members([
-                      getAddress(underlyingAddress),
-                    ]);
+                    expect([getAddress(expectedUnderlyingAddress[0])]).to.have.members([getAddress(underlyingAddress)]);
                     break;
                   }
                   case "calculateAmountInLPToken(address,address,uint256)": {
@@ -473,11 +487,15 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                   case "setLiquidityPoolToStakingVault(address,address)": {
                     if (action.expect == "success") {
                       await expect(
-                        harvestAdapter.connect(users[action.executer!])[action.action](liquidityPool,stakingVaultAddress),
+                        harvestAdapter
+                          .connect(users[action.executer!])
+                          [action.action](liquidityPool, stakingVaultAddress),
                       ).to.be.revertedWith(action.message!);
                     } else {
                       await expect(
-                        harvestAdapter.connect(users[action.executer!])[action.action](liquidityPool,stakingVaultAddress),
+                        harvestAdapter
+                          .connect(users[action.executer!])
+                          [action.action](liquidityPool, stakingVaultAddress),
                       ).to.be.revertedWith(action.message!);
                     }
                     break;
@@ -514,7 +532,9 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                       if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
                         expect(+lpTokenBalance).to.be.eq(0);
                       } else {
-                        expectedValue == "=0" ? expect(+lpTokenBalance).to.be.eq(0) : expect(+lpTokenBalance).to.be.gt(0);
+                        expectedValue == "=0"
+                          ? expect(+lpTokenBalance).to.be.eq(0)
+                          : expect(+lpTokenBalance).to.be.gt(0);
                       }
                     }
                     break;
@@ -673,7 +693,9 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     );
                     const pricePerFullShare = await vaultInstance.getPricePerFullShare();
                     const lpTokenBalance = await vaultInstance.balanceOf(testDeFiAdapter.address);
-                    let expectedAmountInUnderlyingToken: BigNumber = lpTokenBalance.mul(BigNumber.from(pricePerFullShare)).div(BigNumber.from(10).pow(decimals));
+                    let expectedAmountInUnderlyingToken: BigNumber = lpTokenBalance
+                      .mul(BigNumber.from(pricePerFullShare))
+                      .div(BigNumber.from(10).pow(decimals));
                     const unclaimedReward: BigNumber = await harvestAdapter.getUnclaimedRewardTokenAmount(
                       testDeFiAdapter.address,
                       liquidityPool,
@@ -716,7 +738,9 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     );
                     const lpTokenBalanceStake = await stakingVaultInstance.balanceOf(testDeFiAdapter.address);
                     const pricePerFullShare = await vaultInstance.getPricePerFullShare();
-                    let expectedAmountInUnderlyingToken: BigNumber = lpTokenBalanceStake.mul(BigNumber.from(pricePerFullShare)).div(BigNumber.from(10).pow(decimals));
+                    let expectedAmountInUnderlyingToken: BigNumber = lpTokenBalanceStake
+                      .mul(BigNumber.from(pricePerFullShare))
+                      .div(BigNumber.from(10).pow(decimals));
                     const unclaimedReward: BigNumber = await stakingVaultInstance.earned(testDeFiAdapter.address);
                     if (+unclaimedReward > 0) {
                       expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
