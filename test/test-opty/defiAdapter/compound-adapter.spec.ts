@@ -164,7 +164,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
+        if (
+          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
+          // &&
+          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
+        ) {
+          // for (let i = 0; i < 1; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
@@ -403,16 +408,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
-                      const unclaimedRewardTokenAmount = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        ADDRESS_ZERO,
-                        ADDRESS_ZERO,
-                      );
                       const compoundController = await getCompoundComptroller();
-                      const expectedUnclaimedRewardTokenAmount = await compoundController.compAccrued(
-                        testDeFiAdapter.address,
-                      );
-                      expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
+                      expect(
+                        await compoundAdapter[action.action](testDeFiAdapter.address, ADDRESS_ZERO, ADDRESS_ZERO),
+                      ).to.be.eq(await compoundController.compAccrued(testDeFiAdapter.address));
                       break;
                     }
                     case "testGetClaimRewardTokenCode(address,address)": {
@@ -421,20 +420,16 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnderlyingTokens(address,address)": {
-                      const _underlyingAddressFromAdapter = await compoundAdapter[action.action](
-                        liquidityPool,
-                        ADDRESS_ZERO,
-                      );
-                      let _underlyingAddressFromPoolContract: string;
                       //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
                       //  function because CETH has ETH as underlying.
-                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
-                        _underlyingAddressFromPoolContract = TypedTokens.WETH;
-                      } else {
-                        _underlyingAddressFromPoolContract = await LpContractInstance.underlying();
-                      }
-                      expect([getAddress(_underlyingAddressFromAdapter[0])]).to.have.members([
-                        getAddress(_underlyingAddressFromPoolContract),
+                      expect([
+                        getAddress((await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO))[0]),
+                      ]).to.have.members([
+                        getAddress(
+                          getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)
+                            ? TypedTokens.WETH
+                            : await LpContractInstance.underlying(),
+                        ),
                       ]);
                       break;
                     }
@@ -442,27 +437,23 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const _depositAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress).mul(
                         to_10powNumber_BN(decimals),
                       );
-                      const _amountInLPToken = await compoundAdapter[action.action](
-                        underlyingTokenAddress,
-                        liquidityPool,
-                        _depositAmount,
+                      expect(
+                        await compoundAdapter[action.action](underlyingTokenAddress, liquidityPool, _depositAmount),
+                      ).to.be.eq(
+                        _depositAmount.mul(to_10powNumber_BN(18)).div(await LpContractInstance.exchangeRateStored()),
                       );
-                      const exchangeRateStored = await LpContractInstance.exchangeRateStored();
-                      const expectedAmountInLPToken = _depositAmount
-                        .mul(to_10powNumber_BN(18))
-                        .div(BigNumber.from(exchangeRateStored));
-                      expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
                       break;
                     }
                     case "getPoolValue(address,address)": {
-                      const _poolValue = await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO);
-                      const expectedPoolValue = await LpContractInstance.getCash();
-                      expect(_poolValue).to.be.eq(expectedPoolValue);
+                      expect(await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO)).to.be.eq(
+                        await LpContractInstance.getCash(),
+                      );
                       break;
                     }
                     case "getLiquidityPoolToken(address,address)": {
-                      const _liquidityPool = await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool);
-                      expect(getAddress(_liquidityPool)).to.be.eq(getAddress(liquidityPool));
+                      expect(getAddress(await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool))).to.be.eq(
+                        getAddress(liquidityPool),
+                      );
                       break;
                     }
                     case "getSomeAmountInToken(address,address,uint256)": {
@@ -471,16 +462,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         to_10powNumber_BN(_lpTokenDecimals),
                       );
                       if (+_lpTokenAmount > 0) {
-                        const _amountInUnderlyingToken = await compoundAdapter[action.action](
-                          ADDRESS_ZERO,
-                          liquidityPool,
-                          _lpTokenAmount,
+                        expect(
+                          await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount),
+                        ).to.be.eq(
+                          _lpTokenAmount.mul(await LpContractInstance.exchangeRateStored()).div(to_10powNumber_BN(18)),
                         );
-                        const exchangeRateStored = await LpContractInstance.exchangeRateStored();
-                        const expectedAmountInUnderlyingToken = _lpTokenAmount
-                          .mul(exchangeRateStored)
-                          .div(to_10powNumber_BN(18));
-                        expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
                       }
                       break;
                     }
