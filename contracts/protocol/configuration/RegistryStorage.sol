@@ -258,17 +258,17 @@ contract RegistryStorage is RegistryAdminStorage {
     /**
      * @notice Emitted when liquidity pool pool is assigned to adapter
      * @param pool Liquidity Pool's address which is mapped to the adapter
-     * @param adapter OptyFi's Defi-adapter contract's address which is mapped to the Liquidity Pool
+     * @param adapter Address of the respective OptyFi's defi-adapter contract which is mapped to the Liquidity Pool
      * @param caller Address of user who has called the respective function to trigger this event
      */
     event LogLiquidityPoolToAdapter(address indexed pool, address indexed adapter, address indexed caller);
 
     /**
      * @notice Emitted when tokens are assigned to tokensHash
-     * @param _tokensHash Hash of the token/list of tokens mapped to the provided token/list of tokens
+     * @param tokensHash Hash of the token/list of tokens mapped to the provided token/list of tokens
      * @param caller Address of user who has called the respective function to trigger this event
      */
-    event LogTokensToTokensHash(bytes32 indexed _tokensHash, address indexed caller);
+    event LogTokensToTokensHash(bytes32 indexed tokensHash, address indexed caller);
 
     /**
      * @dev Emitted when Discontinue over vault is activated
