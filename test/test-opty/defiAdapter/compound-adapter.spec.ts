@@ -536,11 +536,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getAllAmountInToken(address,address,address)": {
-                      const _amountInUnderlyingToken = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
                       const _lpTokenBalance = await compoundAdapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
@@ -565,7 +560,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                           ),
                         );
                       }
-                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      expect(
+                        +(await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        )),
+                      ).to.be.eq(+expectedAmountInUnderlyingToken);
                       break;
                     }
                     case "isRedeemableAmountSufficient(address,address,address,uint256)": {
@@ -576,23 +577,25 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         liquidityPool,
                       );
                       if (expectedValue == ">") {
-                        const _isRedeemableAmountSufficient = await compoundAdapter[action.action](
-                          testDeFiAdapter.address,
-                          underlyingTokenAddress,
-                          liquidityPool,
-                          _amountInUnderlyingToken.add(BigNumber.from(10)),
-                        );
-                        expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                        expect(
+                          await compoundAdapter[action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            _amountInUnderlyingToken.add(BigNumber.from(10)),
+                          ),
+                        ).to.be.eq(false);
                       } else if (expectedValue == "<") {
-                        const _isRedeemableAmountSufficient = await compoundAdapter[action.action](
-                          testDeFiAdapter.address,
-                          underlyingTokenAddress,
-                          liquidityPool,
-                          +_amountInUnderlyingToken > 0
-                            ? _amountInUnderlyingToken.sub(BigNumber.from(10))
-                            : BigNumber.from(0),
-                        );
-                        expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                        expect(
+                          await compoundAdapter[action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            +_amountInUnderlyingToken > 0
+                              ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                              : BigNumber.from(0),
+                          ),
+                        ).to.be.eq(true);
                       }
                       break;
                     }
@@ -608,18 +611,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         liquidityPool,
                       );
                       const _testRedeemAmount: BigNumber = _lpTokenBalance;
-
-                      const _redeemableLpTokenAmt = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                        _testRedeemAmount,
-                      );
                       const expectedRedeemableLpTokenAmt = _lpTokenBalance
                         .mul(_testRedeemAmount)
                         .div(_balanceInToken)
                         .add(BigNumber.from(1));
-                      expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
+                      expect(
+                        await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          _testRedeemAmount,
+                        ),
+                      ).to.be.eq(expectedRedeemableLpTokenAmt);
                       break;
                     }
                   }
@@ -635,17 +638,17 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const lpTokenBalance = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      expect(lpTokenBalance).to.be.eq(0);
+                      expect(
+                        await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        ),
+                      ).to.be.eq(0);
                       break;
                     }
                     case "balanceOf(address)": {
-                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      expect(underlyingBalance).to.be.gt(0);
+                      expect(await ERC20Instance.balanceOf(testDeFiAdapter.address)).to.be.gt(0);
                       break;
                     }
                   }
