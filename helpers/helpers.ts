@@ -1,7 +1,7 @@
-import { Contract, Signer, ContractFactory, utils, BigNumber } from "ethers";
+import { Contract, Signer, ContractFactory, utils, BigNumber, BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
-import { getSoliditySHA3Hash } from "./utils";
+import { getSoliditySHA3Hash, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
 import { expect } from "chai";
@@ -152,7 +152,7 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   await hre.network.provider.send("evm_mine");
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
+export function getDefaultFundAmount(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
     underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
@@ -176,7 +176,7 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
     underlyingTokenAddress == getAddress(TypedTokens.WBTC)
       ? BigNumber.from("2")
       : defaultFundAmount;
-  return defaultFundAmount;
+  return defaultFundAmount.mul(to_10powNumber_BN(decimal));
 }
 
 export function getEthValueGasOverrideOptions(

@@ -293,7 +293,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
+      "description": "getDepositAllCodes() with investment limit (less than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -307,7 +307,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "20"
+            "maxDepositAmount": "<"
           },
           "expect": "success",
           "message": ""
@@ -351,7 +351,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "description": "getDepositAllCodes() with investment limit (more than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -365,7 +365,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "300000"
+            "maxDepositAmount": ">"
           },
           "expect": "success",
           "message": ""
@@ -757,7 +757,7 @@
       ]
     },
     {
-      "description": "getDepositSomeCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
+      "description": "getDepositSomeCodes() with investment limit (less than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -772,7 +772,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "20"
+            "maxDepositAmount": "<"
           },
           "expect": "success",
           "message": ""
@@ -816,7 +816,7 @@
       ]
     },
     {
-      "description": "getDepositSomeCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "description": "getDepositSomeCodes() with investment limit (more than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -830,7 +830,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "300000"
+            "maxDepositAmount": ">"
           },
           "expect": "success",
           "message": ""
@@ -1100,15 +1100,15 @@
     },
     {
       "description": "getUnderlyingTokens() should return same underlying tokens as there in lp contracts",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "getUnderlyingTokens(address,address)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": []
     },
     {
@@ -1126,41 +1126,41 @@
     },
     {
       "description": "getPoolValue() should return the pool value of lp contract",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "getPoolValue(address,address)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": []
     },
     {
       "description": "getLiquidityPoolToken() should return liquidity pool token address",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "getLiquidityPoolToken(address,address)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": []
     },
     {
       "description": "getSomeAmountInToken() should return equivalent value of underlying token for given amount of lpToken",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "getSomeAmountInToken(address,address,uint256)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": []
     },
     {
