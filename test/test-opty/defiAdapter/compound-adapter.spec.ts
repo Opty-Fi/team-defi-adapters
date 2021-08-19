@@ -245,8 +245,8 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
+                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
@@ -270,8 +270,8 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
+                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
