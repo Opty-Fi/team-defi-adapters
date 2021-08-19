@@ -61,7 +61,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     address public immutable compoundETHGatewayContract;
 
     constructor(address _registry) public Modifiers(_registry) {
-        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry));
+        compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
         setRewardToken(address(0xc00e94Cb662C3520282E6f5717214004A7f26888));
         setComptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -71,8 +71,13 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct) external override onlyGovernance {
+    function setMaxDepositPoolPct(address _liquidityPool, uint256 _maxDepositPoolPct)
+        external
+        override
+        onlyRiskOperator
+    {
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
+        emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
 
     /**
@@ -82,8 +87,9 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         address _liquidityPool,
         address _underlyingToken,
         uint256 _maxDepositAmount
-    ) external override onlyGovernance {
+    ) external override onlyRiskOperator {
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
+        emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
 
     /**
@@ -104,15 +110,17 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
+        emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+        emit LogMaxDepositProtocolPct(maxDepositProtocolPct, msg.sender);
     }
 
     /**
@@ -275,11 +283,11 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
             if (_liquidityPool == CETH) {
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(0))
                 );
                 _codes[1] = abi.encode(
-                    _underlyingTokens[0],
+                    _liquidityPool,
                     abi.encodeWithSignature("approve(address,uint256)", compoundETHGatewayContract, uint256(_amount))
                 );
                 _codes[2] = abi.encode(

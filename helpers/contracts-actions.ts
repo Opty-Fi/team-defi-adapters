@@ -10,7 +10,7 @@ import {
   TypedCurveDepositPoolGauges,
   TypedCurveSwapPools,
 } from "./data";
-import { executeFunc } from "./helpers";
+import { executeFunc, generateStrategyStep, getEthValueGasOverrideOptions } from "./helpers";
 import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
@@ -89,7 +89,7 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
   }
 }
 
-export async function approveVaultRewardTokens(
+export async function setAndApproveVaultRewardToken(
   owner: Signer,
   vaultContractAddress: string,
   rewardTokenAddress: string,
@@ -114,16 +114,7 @@ export async function setStrategy(
   tokensHash: string,
   vaultStepInvestStrategyDefinitionRegistry: Contract,
 ): Promise<string> {
-  const strategySteps: [string, string, boolean][] = [];
-
-  for (let index = 0; index < strategy.length; index++) {
-    const tempArr: [string, string, boolean] = [
-      strategy[index].contract,
-      strategy[index].outputToken,
-      strategy[index].isBorrow,
-    ];
-    strategySteps.push(tempArr);
-  }
+  const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
 
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
@@ -163,10 +154,6 @@ export async function fundWalletToken(
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
-  const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
-    value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther("1000")),
-    gasLimit: 6721975,
-  };
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
   const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
@@ -208,7 +195,7 @@ export async function fundWalletToken(
             token0Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token0Instance
           .connect(wallet)
@@ -225,7 +212,7 @@ export async function fundWalletToken(
             0,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
       } else if (TOKEN0 === TypedTokens["WETH"]) {
@@ -236,7 +223,7 @@ export async function fundWalletToken(
             token1Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token1Instance
           .connect(wallet)
@@ -253,7 +240,7 @@ export async function fundWalletToken(
             0,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
       } else {
@@ -264,7 +251,7 @@ export async function fundWalletToken(
             token0Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await sushiswapInstance
           .connect(wallet)
@@ -273,7 +260,7 @@ export async function fundWalletToken(
             token1Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token0Instance
           .connect(wallet)
@@ -314,7 +301,7 @@ export async function fundWalletToken(
             token0Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token0Instance
           .connect(wallet)
@@ -331,7 +318,7 @@ export async function fundWalletToken(
             0,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
       } else if (TOKEN0 === TypedTokens["WETH"]) {
@@ -342,7 +329,7 @@ export async function fundWalletToken(
             token1Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token1Instance
           .connect(wallet)
@@ -359,7 +346,7 @@ export async function fundWalletToken(
             0,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
       } else {
@@ -370,7 +357,7 @@ export async function fundWalletToken(
             token0Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await uniswapInstance
           .connect(wallet)
@@ -379,7 +366,7 @@ export async function fundWalletToken(
             token1Path,
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await token0Instance
           .connect(wallet)
@@ -436,7 +423,7 @@ export async function fundWalletToken(
             [TypedTokens["WETH"], coin],
             wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(wallet.getAddress()));
         const N_COINS = (await curveRegistryInstance.get_n_coins(pool))[1];
@@ -464,7 +451,7 @@ export async function fundWalletToken(
               [TypedTokens["WETH"], coin],
               wallet.getAddress(),
               deadlineTimestamp,
-              ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+              getEthValueGasOverrideOptions(hre, "9500"),
             );
           await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(wallet.getAddress()));
         }
@@ -476,7 +463,8 @@ export async function fundWalletToken(
           if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
             await swapInstance
               .connect(wallet)
-              .add_liquidity([ETH_VALUE_GAS_OVERRIDE_OPTIONS.value, "0"], "1", ETH_VALUE_GAS_OVERRIDE_OPTIONS);
+              .add_liquidity(["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"),
+              );
             await tokenAddressInstance
               .connect(wallet)
               .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
@@ -510,7 +498,7 @@ export async function fundWalletToken(
             [TypedTokens["WETH"], coin],
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(await wallet.getAddress()));
         const N_COINS = (await curveRegistryInstance.get_n_coins(swapPool))[1];
@@ -552,7 +540,7 @@ export async function fundWalletToken(
             [TypedTokens["WETH"], coin],
             await wallet.getAddress(),
             deadlineTimestamp,
-            ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+            getEthValueGasOverrideOptions(hre, "9500"),
           );
         await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(await wallet.getAddress()));
         const N_COINS = (await curveRegistryInstance.get_n_coins(swapPool))[1];
@@ -586,12 +574,8 @@ export async function fundWalletToken(
     }
   } else if (tokenAddress === TypedTokens["WETH"]) {
     fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
-    const ETH_VALUE_GAS_OVERRIDE_OPTIONS = {
-      value: hre.ethers.utils.hexlify(hre.ethers.utils.parseEther(fundAmount.toString())),
-      gasLimit: 6721975,
-    };
     const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], exchange.weth.abi, wallet);
-    await wethInstance.connect(wallet).deposit(ETH_VALUE_GAS_OVERRIDE_OPTIONS);
+    await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
     await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount));
   } else {
     await uniswapInstance.swapETHForExactTokens(
@@ -599,7 +583,7 @@ export async function fundWalletToken(
       [TypedTokens["WETH"], tokenAddress],
       address,
       deadlineTimestamp,
-      ETH_VALUE_GAS_OVERRIDE_OPTIONS,
+      getEthValueGasOverrideOptions(hre, "9500"),
     );
   }
 }

@@ -24,6 +24,7 @@ export const TypedCurveDepositPoolGauges = CurveDepositPoolGauges as DATA_OBJECT
 export const TypedCurveDepositPools = CurveDepositPools as DATA_OBJECT;
 export const TypedCurveSwapPools = CurveSwapPools as DATA_OBJECT;
 export const TypedTokens = Tokens as DATA_OBJECT;
+
 export const TypedBtcTokens = BtcTokens as DATA_OBJECT;
 export const TypedPairTokens = PairTokens as PAIR_TOKEN_DATA;
 export const TypedCurveTokens = CurveTokens as CURVE_TOKEN_DATA;

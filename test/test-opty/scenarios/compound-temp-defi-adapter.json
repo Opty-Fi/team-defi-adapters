@@ -494,6 +494,7 @@
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetDepositSomeCodes(address,address,address,uint256)",
+          "args": {},
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -925,6 +926,88 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getHarvestAllCodes() should harvest all reward tokens to underlying",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "fundTestDefiContractWithRewardToken()",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetHarvestAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "executer": "owner",
+          "expectedValue": "=0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getHarvestSomeCodes() should harvest specific amount of reward tokens to underlying",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "fundTestDefiContractWithRewardToken()",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "executer": "owner",
+          "expectedValue": "<"
         }
       ],
       "cleanActions": [

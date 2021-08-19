@@ -2,24 +2,22 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, HARVEST_ADAPTER_NAME } from "../../../helpers/constants";
 import {
   TypedAdapterStrategies,
   TypedPairTokens,
   TypedCurveTokens,
   TypedDefiPools,
   TypedTokens,
-  TypedBtcTokens,
 } from "../../../helpers/data";
 import {
   deployAdapter,
-  deployEssentialContracts,
   deployAdapterPrerequisites,
 } from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import testDeFiAdapterScenario from "../scenarios/harvest-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
-import { deployContract, getContractInstance, moveToNextBlock } from "../../../helpers/helpers";
+import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 
@@ -34,11 +32,10 @@ interface TEST_DEFI_ADAPTER_ARGUMENTS {
   mode?: string | null;
 }
 
-describe("HarvestAdapter", () => {
-  const ADAPTER_NAME = "HarvestAdapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
+describe(`${HARVEST_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[HARVEST_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  let essentialContracts: CONTRACTS;
+  let adapterPrerequisites: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
@@ -46,16 +43,15 @@ describe("HarvestAdapter", () => {
     try {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        HARVEST_ADAPTER_NAME,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -63,7 +59,7 @@ describe("HarvestAdapter", () => {
   });
 
   for (let i = 0; i < strategies.length; i++) {
-    describe(`${strategies[i].strategyName}`, async () => {
+    describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
       let lpToken: string;

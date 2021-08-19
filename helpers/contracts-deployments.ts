@@ -46,6 +46,41 @@ export async function deployRiskManager(
   return riskManager;
 }
 
+export async function deployOptyStakingRateBalancer(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  isDeployedOnce: boolean,
+  registry: string,
+): Promise<Contract> {
+  let optyStakingRateBalancer = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER,
+    isDeployedOnce,
+    owner,
+    [registry],
+  );
+
+  const optyStakingRateBalancerProxy = await deployContract(
+    hre,
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER_PROXY,
+    isDeployedOnce,
+    owner,
+    [registry],
+  );
+
+  await executeFunc(optyStakingRateBalancerProxy, owner, "setPendingImplementation(address)", [
+    optyStakingRateBalancer.address,
+  ]);
+  await executeFunc(optyStakingRateBalancer, owner, "become(address)", [optyStakingRateBalancerProxy.address]);
+
+  optyStakingRateBalancer = await hre.ethers.getContractAt(
+    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER,
+    optyStakingRateBalancerProxy.address,
+    owner,
+  );
+  return optyStakingRateBalancer;
+}
+
 export async function deployEssentialContracts(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -127,32 +162,7 @@ export async function deployEssentialContracts(
     1700000000,
   ]);
 
-  let optyStakingRateBalancer = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER,
-    isDeployedOnce,
-    owner,
-    [registry.address],
-  );
-
-  const optyStakingRateBalancerProxy = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER_PROXY,
-    isDeployedOnce,
-    owner,
-    [registry.address],
-  );
-
-  await executeFunc(optyStakingRateBalancerProxy, owner, "setPendingImplementation(address)", [
-    optyStakingRateBalancer.address,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "become(address)", [optyStakingRateBalancerProxy.address]);
-
-  optyStakingRateBalancer = await hre.ethers.getContractAt(
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_RATE_BALANCER,
-    optyStakingRateBalancerProxy.address,
-    owner,
-  );
+  const optyStakingRateBalancer = await deployOptyStakingRateBalancer(hre, owner, isDeployedOnce, registry.address);
 
   await executeFunc(registry, owner, "setOPTYStakingRateBalancer(address)", [optyStakingRateBalancer.address]);
 

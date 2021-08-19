@@ -71,9 +71,10 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     function setMaxDepositPoolPct(address _underlyingToken, uint256 _maxDepositPoolPct)
         external
         override
-        onlyGovernance
+        onlyRiskOperator
     {
         maxDepositPoolPct[_underlyingToken] = _maxDepositPoolPct;
+        emit LogMaxDepositPoolPct(maxDepositPoolPct[_underlyingToken], msg.sender);
     }
 
     /**
@@ -83,8 +84,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _masterChef,
         address _underlyingToken,
         uint256 _maxDepositAmount
-    ) external override onlyGovernance {
+    ) external override onlyRiskOperator {
         maxDepositAmount[_masterChef][_underlyingToken] = _maxDepositAmount;
+        emit LogMaxDepositAmount(maxDepositAmount[_masterChef][_underlyingToken], msg.sender);
     }
 
     /**
@@ -223,15 +225,17 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyGovernance {
+    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
+        emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyGovernance {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
+        emit LogMaxDepositProtocolPct(maxDepositProtocolPct, msg.sender);
     }
 
     /* solhint-disable no-unused-vars */
