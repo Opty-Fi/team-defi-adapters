@@ -212,6 +212,9 @@ export async function fundWalletToken(
           );
         await token0Instance
           .connect(wallet)
+          .approve(exchange.sushiswap.address, 0);
+        await token0Instance
+          .connect(wallet)
           .approve(exchange.sushiswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
         await sushiswapInstance
           .connect(wallet)
@@ -235,6 +238,9 @@ export async function fundWalletToken(
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await token1Instance
+          .connect(wallet)
+          .approve(exchange.sushiswap.address, 0);
         await token1Instance
           .connect(wallet)
           .approve(exchange.sushiswap.address, await token1Instance.balanceOf(await wallet.getAddress()));
@@ -269,6 +275,12 @@ export async function fundWalletToken(
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await token0Instance
+          .connect(wallet)
+          .approve(exchange.sushiswap.address, 0);
+        await token1Instance
+          .connect(wallet)
+          .approve(exchange.sushiswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.sushiswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
@@ -306,6 +318,9 @@ export async function fundWalletToken(
           );
         await token0Instance
           .connect(wallet)
+          .approve(exchange.uniswap.address, 0);
+        await token0Instance
+          .connect(wallet)
           .approve(exchange.uniswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
         await uniswapInstance
           .connect(wallet)
@@ -329,6 +344,9 @@ export async function fundWalletToken(
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await token1Instance
+          .connect(wallet)
+          .approve(exchange.uniswap.address, 0);
         await token1Instance
           .connect(wallet)
           .approve(exchange.uniswap.address, await token1Instance.balanceOf(await wallet.getAddress()));
@@ -363,6 +381,12 @@ export async function fundWalletToken(
             deadlineTimestamp,
             ETH_VALUE_GAS_OVERRIDE_OPTIONS,
           );
+        await token0Instance
+          .connect(wallet)
+          .approve(exchange.uniswap.address, 0);
+        await token1Instance
+          .connect(wallet)
+          .approve(exchange.uniswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.uniswap.address, await token0Instance.balanceOf(await wallet.getAddress()));

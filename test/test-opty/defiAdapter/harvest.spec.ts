@@ -189,7 +189,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of testDeFiAdapterScenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
-              let defaultFundAmount: BigNumber = BigNumber.from("20");
+              let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
@@ -401,8 +401,11 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     );
                     break;
                   }
-                  case "moveToNextBlock": {
-                    await moveToNextBlock(hre);
+                  case "wait10000Seconds": {
+                    const blockNumber = await hre.ethers.provider.getBlockNumber();
+                    const block = await hre.ethers.provider.getBlock(blockNumber);
+                    await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 10000]);
+                    await hre.network.provider.send("evm_mine");
                     break;
                   }
                   case "testGetUnstakeAllCodes(address,address)": {
@@ -666,7 +669,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    const balanceInToken: BigNumber = await harvestAdapter.getAllAmountInToken(
+                    const balanceInToken: BigNumber = await harvestAdapter.getAllAmountInTokenStake(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
                       liquidityPool,

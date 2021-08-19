@@ -1234,7 +1234,7 @@
         },
         {
           "contract": "",
-          "action": "moveToNextBlock",
+          "action": "wait10000Seconds",
           "executer": "",
           "expect": "",
           "message": ""
