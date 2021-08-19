@@ -3,14 +3,14 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, CREAM_ADAPTER_NAME, ADDRESS_ZERO } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp, lpPausedStatus } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
-import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
-import { deployContract, expectInvestLimitEvents, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, expectInvestLimitEvents, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
+import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
 import creamComptrollerABI from "../../../helpers/data/ABI/cream-comptroller.json";
 import creamLpABI from "../../../helpers/data/ABI/cream-liquidity-pool.json";
@@ -159,6 +159,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
 
     describe(`Test-${CREAM_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
+        if (pool !== "comp") {
+          continue;
+        }
         const poolDetail = TypedDefiPools[CREAM_ADAPTER_NAME][pool];
         const liquidityPool = poolDetail.pool;
         const underlyingTokenAddress =
@@ -169,6 +172,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
         if (TypedDefiPools[CREAM_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
+              const story = testDeFiAdaptersScenario.stories[i];
               const lpContract = await hre.ethers.getContractAt(creamLpABI, liquidityPool);
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
@@ -192,12 +196,12 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
               const decimals = await ERC20Instance.decimals();
 
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
-              let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
+              let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
               let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
-              if (!lpPauseStatus && getCode !== "0x" && +poolValue > 0) {
-                const story = testDeFiAdaptersScenario.stories[i];
+
+              if (getCode !== "0x" && +poolValue > 0) {
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
@@ -244,7 +248,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
@@ -266,41 +269,42 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
                       const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const convertedMaxDepositAmount = BigNumber.from(maxDepositAmount!).mul(
-                        BigNumber.from(10).pow(decimals),
-                      );
+                      let amount = BigNumber.from("0");
+                      if (maxDepositAmount === ">") {
+                        amount = defaultFundAmount.mul(BigNumber.from("10"));
+                      } else if (maxDepositAmount === "<") {
+                        amount = defaultFundAmount.div(BigNumber.from("10"));
+                      }
                       const existingDepositAmount: BigNumber = await adapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
-                      if (!existingDepositAmount.eq(convertedMaxDepositAmount)) {
+                      if (!existingDepositAmount.eq(amount)) {
                         const _setMaxDepositAmountTx = await adapter[action.action](
                           liquidityPool,
                           underlyingTokenAddress,
-                          convertedMaxDepositAmount,
+                          amount,
                         );
                         const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
                         const maxDepositAmountSet = await adapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress,
                         );
-                        expect(+maxDepositAmountSet).to.be.eq(+convertedMaxDepositAmount);
+                        expect(+maxDepositAmountSet).to.be.eq(+amount);
                         expectInvestLimitEvents(
                           setMaxDepositAmountTx,
                           "LogMaxDepositAmount",
                           "LogMaxDepositAmount(uint256,address)",
                           adapter.address,
                           ownerAddress,
-                          convertedMaxDepositAmount.toString(),
+                          amount.toString(),
                         );
                       }
-                      limit = convertedMaxDepositAmount;
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                      limit = amount;
                       break;
                     }
                     case "fundTestDeFiAdapterContract": {
@@ -320,10 +324,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       break;
                     }
                     case "fundTestDefiContractWithRewardToken()": {
-                      if (+compRate === 0) {
-                        this.skip();
-                      }
-                      console.log("compRate", compRate);
                       if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                         let compUnderlyingBalance: BigNumber = await RewardTokenERC20Instance!.balanceOf(
                           testDeFiAdapter.address,
@@ -333,7 +333,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                             hre,
                             RewardTokenERC20Instance!.address,
                             users["owner"],
-                            getDefaultFundAmount(rewardTokenAddress).mul(BigNumber.from(10).pow(18)),
+                            getDefaultFundAmountInDecimal(rewardTokenAddress, "18"),
                             timestamp,
                             testDeFiAdapter.address,
                           );
@@ -345,17 +345,34 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     }
                     case "testGetDepositAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address);
+                      if (lpPauseStatus && +limit !== 0) {
+                        await expect(
+                          testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address),
+                        ).to.be.revertedWith("depositAll");
+                      } else {
+                        await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address);
+                      }
                       break;
                     }
                     case "testGetDepositSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](
-                        underlyingTokenAddress,
-                        liquidityPool,
-                        adapter.address,
-                        underlyingBalanceBefore,
-                      );
+                      if (lpPauseStatus && +limit !== 0) {
+                        await expect(
+                          testDeFiAdapter[action.action](
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            adapter.address,
+                            underlyingBalanceBefore,
+                          ),
+                        ).to.be.revertedWith("depositSome");
+                      } else {
+                        await testDeFiAdapter[action.action](
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          adapter.address,
+                          underlyingBalanceBefore,
+                        );
+                      }
                       break;
                     }
                     case "testGetWithdrawAllCodes(address,address,address)": {
@@ -376,6 +393,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                         adapter.address,
                         lpTokenBalance,
                       );
+
                       break;
                     }
                     case "testGetHarvestAllCodes(address,address,address)": {
@@ -403,10 +421,84 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       );
                       break;
                     }
+                    case "getUnclaimedRewardTokenAmount(address,address,address)": {
+                      const unclaimedRewardTokenAmount = await adapter[action.action](
+                        testDeFiAdapter.address,
+                        ADDRESS_ZERO,
+                        ADDRESS_ZERO,
+                      );
+                      const expectedUnclaimedRewardTokenAmount = await compTrollerInstance.compAccrued(
+                        testDeFiAdapter.address,
+                      );
+                      expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
+                      break;
+                    }
+                    case "testGetClaimRewardTokenCode(address,address)": {
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                      break;
+                    }
+
+                    case "calculateAmountInLPToken(address,address,uint256)": {
+                      const _depositAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
+                      const _amountInLPToken = await adapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _depositAmount,
+                      );
+                      const exchangeRateStored = await lpContract.exchangeRateStored();
+                      const expectedAmountInLPToken = _depositAmount
+                        .mul(to_10powNumber_BN(18))
+                        .div(BigNumber.from(exchangeRateStored));
+                      expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
+                      break;
+                    }
                   }
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
+                    case "getPoolValue(address,address)": {
+                      const _poolValue = await adapter[action.action](liquidityPool, ADDRESS_ZERO);
+                      const expectedPoolValue = await lpContract.getCash();
+                      expect(_poolValue).to.be.eq(expectedPoolValue);
+                      break;
+                    }
+                    case "getLiquidityPoolToken(address,address)": {
+                      const _liquidityPool = await adapter[action.action](ADDRESS_ZERO, liquidityPool);
+                      expect(getAddress(_liquidityPool)).to.be.eq(getAddress(liquidityPool));
+                      break;
+                    }
+                    case "getSomeAmountInToken(address,address,uint256)": {
+                      const _lpTokenAmount = getDefaultFundAmountInDecimal(liquidityPool, decimals);
+                      if (+_lpTokenAmount > 0) {
+                        const _amountInUnderlyingToken = await adapter[action.action](
+                          ADDRESS_ZERO,
+                          liquidityPool,
+                          _lpTokenAmount,
+                        );
+                        const exchangeRateStored = await lpContract.exchangeRateStored();
+                        const expectedAmountInUnderlyingToken = _lpTokenAmount
+                          .mul(exchangeRateStored)
+                          .div(to_10powNumber_BN(18));
+                        expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
+                      }
+                      break;
+                    }
+                    case "getUnderlyingTokens(address,address)": {
+                      const _underlyingAddressFromAdapter = await adapter[action.action](liquidityPool, ADDRESS_ZERO);
+                      let _underlyingAddressFromPoolContract: string;
+                      //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
+                      //  function because CETH has ETH as underlying.
+                      if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                        _underlyingAddressFromPoolContract = TypedTokens.WETH;
+                      } else {
+                        _underlyingAddressFromPoolContract = await lpContract.underlying();
+                      }
+                      expect([getAddress(_underlyingAddressFromAdapter[0])]).to.have.members([
+                        getAddress(_underlyingAddressFromPoolContract),
+                      ]);
+                      break;
+                    }
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const expectedValue = action.expectedValue;
                       const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
@@ -417,27 +509,32 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       );
                       expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
                       const existingMode = await adapter.maxDepositProtocolMode();
-                      if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await adapter.maxDepositAmount(
-                          liquidityPool,
-                          underlyingTokenAddress,
-                        );
-                        if (existingDepositAmount.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
-                        } else {
-                          expect(lpTokenBalance).to.be.gt(0);
-                        }
+                      if (lpPauseStatus) {
+                        expect(+lpTokenBalance).to.be.eq(0);
                       } else {
-                        const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
-                        const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
-                        if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
-                        } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
-                          expectedValue == "=0"
-                            ? expect(lpTokenBalance).to.be.eq(0)
-                            : expect(lpTokenBalance).to.be.gt(0);
+                        if (existingMode == 0) {
+                          const existingDepositAmount: BigNumber = await adapter.maxDepositAmount(
+                            liquidityPool,
+                            underlyingTokenAddress,
+                          );
+                          if (existingDepositAmount.eq(0)) {
+                            expect(+lpTokenBalance).to.be.eq(0);
+                          } else {
+                            expect(+lpTokenBalance).to.be.gt(0);
+                          }
+                        } else {
+                          const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
+                          const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
+                          if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
+                            expect(+lpTokenBalance).to.be.eq(0);
+                          } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
+                            expectedValue == "=0"
+                              ? expect(+lpTokenBalance).to.be.eq(0)
+                              : expect(+lpTokenBalance).to.be.gt(0);
+                          }
                         }
                       }
+
                       break;
                     }
                     case "balanceOf(address)": {
@@ -445,14 +542,18 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                         testDeFiAdapter.address,
                       );
-                      if (underlyingBalanceBefore.lt(limit)) {
-                        expectedValue == ">0"
-                          ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                          : expect(underlyingBalanceAfter).to.be.eq(0);
+                      if (lpPauseStatus) {
+                        expect(+underlyingBalanceAfter).to.be.gte(+underlyingBalanceBefore);
                       } else {
-                        expectedValue == ">0"
-                          ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                          : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
+                        if (underlyingBalanceBefore.lt(limit)) {
+                          expectedValue == ">0"
+                            ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                            : expect(+underlyingBalanceAfter).to.be.eq(0);
+                        } else {
+                          expectedValue == ">0"
+                            ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                            : expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore.sub(limit));
+                        }
                       }
                       break;
                     }
@@ -461,11 +562,102 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                         testDeFiAdapter.address,
                       );
                       const expectedValue = action.expectedValue;
-                      expectedValue == ">0"
-                        ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
-                        : expectedValue == "=0"
-                        ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
-                        : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
+                      if (+compRate === 0) {
+                        expect(+rewardTokenBalanceAfter).to.be.eq(+rewardTokenBalanceBefore);
+                      } else {
+                        expectedValue == ">0"
+                          ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
+                          : expectedValue == "=0"
+                          ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
+                          : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
+                      }
+                      break;
+                    }
+                    case "getAllAmountInToken(address,address,address)": {
+                      const _amountInUnderlyingToken = await adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _lpTokenBalance = await adapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      let expectedAmountInUnderlyingToken: BigNumber = await adapter.getSomeAmountInToken(
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _lpTokenBalance,
+                      );
+                      const _unclaimedReward: BigNumber = await adapter.getUnclaimedRewardTokenAmount(
+                        testDeFiAdapter.address,
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
+                      if (+_unclaimedReward > 0) {
+                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
+                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                            _unclaimedReward,
+                          ),
+                        );
+                      }
+                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      break;
+                    }
+                    case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                      const expectedValue = action.expectedValue;
+                      const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInToken(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      if (expectedValue == ">") {
+                        const _isRedeemableAmountSufficient = await adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          _amountInUnderlyingToken.add(BigNumber.from(10)),
+                        );
+                        expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                      } else if (expectedValue == "<") {
+                        const _isRedeemableAmountSufficient = await adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          +_amountInUnderlyingToken > 0
+                            ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                            : BigNumber.from(0),
+                        );
+                        expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                      }
+                      break;
+                    }
+                    case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                      const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _balanceInToken: BigNumber = await adapter.getAllAmountInToken(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const _testRedeemAmount: BigNumber = _lpTokenBalance;
+
+                      const _redeemableLpTokenAmt = await adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _testRedeemAmount,
+                      );
+                      const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                        .mul(_testRedeemAmount)
+                        .div(_balanceInToken)
+                        .add(BigNumber.from(1));
+                      expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
                       break;
                     }
                   }
@@ -506,3 +698,20 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
     });
   });
 });
+
+// "yeth": {
+//   "pool": "0x01da76DEa59703578040012357b81ffE62015C2d",
+//   "lpToken": "0x01da76DEa59703578040012357b81ffE62015C2d",
+//   "tokens": ["0xe1237aa7f535b0cc33fd973d66cbf830354d16c7"]
+// }
+
+// "hfil": {
+//   "pool": "0xd5103AfcD0B3fA865997Ef2984C66742c51b2a8b",
+//   "lpToken": "0xd5103AfcD0B3fA865997Ef2984C66742c51b2a8b",
+//   "tokens": ["0x9afb950948c2370975fb91a441f36fdc02737cd4"]
+// },
+// "creth2": {
+//   "pool": "0xfd609a03B393F1A1cFcAcEdaBf068CAD09a924E2",
+//   "lpToken": "0xfd609a03B393F1A1cFcAcEdaBf068CAD09a924E2",
+//   "tokens": ["0xcbc1065255cbc3ab41a6868c22d1f1c573ab89fd"]
+// },
