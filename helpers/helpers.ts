@@ -152,7 +152,7 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
   await hre.network.provider.send("evm_mine");
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
+export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
     underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||

@@ -5,12 +5,12 @@ import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
-import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { fundWalletToken, getBlockTimestamp, getComptroller, lpPausedStatus } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
-import { deployContract, expectInvestLimitEvents, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, expectInvestLimitEvents, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 import { to_10powNumber_BN } from "../../../helpers/utils";
@@ -164,20 +164,17 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (
-          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
-          // &&
-          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
-        ) {
-          // for (let i = 0; i < 1; i++) {
+        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
-              const lpPauseStatus = await lpPausedStatus(getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool));
+              const lpPauseStatus = await lpPausedStatus(
+                hre,
+                getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool),
+                abis.compoundComptroller.address,
+                abis.compoundComptroller.abi,
+              );
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
-                // let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress, decimals);
-                // let limit: BigNumber = ethers.BigNumber.from(0);
-                // const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpContractInstance = await hre.ethers.getContractAt(abis.cToken.abi, liquidityPool);
@@ -194,12 +191,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 }
 
                 const decimals = await ERC20Instance.decimals();
-                let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress, decimals);
+                let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 let limit: BigNumber = ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let rewardTokenBalanceBefore: BigNumber = ethers.BigNumber.from(0);
-                // const decimals = await ERC20Instance.decimals();
                 const rewardTokenDecimals = await RewardTokenERC20Instance!.decimals();
                 const adapterAddress = compoundAdapter.address;
 
@@ -255,7 +251,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      // defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
@@ -280,11 +275,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         );
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                      // defaultFundAmount = defaultFundAmount.mul(to_10powNumber_BN(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
-
                     case "setMaxDepositAmount(address,address,uint256)": {
                       const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       let amount = BigNumber.from("0");
@@ -347,7 +340,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                             hre,
                             RewardTokenERC20Instance!.address,
                             users["owner"],
-                            getDefaultFundAmount(rewardTokenAddress, rewardTokenDecimals),
+                            getDefaultFundAmountInDecimal(rewardTokenAddress, rewardTokenDecimals),
                             timestamp,
                             testDeFiAdapter.address,
                           );
@@ -418,7 +411,11 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
-                      const compoundController = await getCompoundComptroller();
+                      const compoundController = await getComptroller(
+                        hre,
+                        abis.compoundComptroller.abi,
+                        abis.compoundComptroller.address,
+                      );
                       expect(
                         await compoundAdapter[action.action](testDeFiAdapter.address, ADDRESS_ZERO, ADDRESS_ZERO),
                       ).to.be.eq(await compoundController.compAccrued(testDeFiAdapter.address));
@@ -428,19 +425,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, compoundAdapter.address);
                       break;
-                    }
-                    case "calculateAmountInLPToken(address,address,uint256)": {
-                      const _depositAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress, decimals);
-                      expect(
-                        await compoundAdapter[action.action](underlyingTokenAddress, liquidityPool, _depositAmount),
-                      ).to.be.eq(
-                        _depositAmount.mul(to_10powNumber_BN(18)).div(await LpContractInstance.exchangeRateStored()),
-                      );
-                      break;
-                    }
-
-                    default: {
-                      throw `Case: ${action.action} not defined in SetActions`;
                     }
                   }
                 }
@@ -611,6 +595,15 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       ]);
                       break;
                     }
+                    case "calculateAmountInLPToken(address,address,uint256)": {
+                      const _depositAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
+                      expect(
+                        await compoundAdapter[action.action](underlyingTokenAddress, liquidityPool, _depositAmount),
+                      ).to.be.eq(
+                        _depositAmount.mul(to_10powNumber_BN(18)).div(await LpContractInstance.exchangeRateStored()),
+                      );
+                      break;
+                    }
                     case "getPoolValue(address,address)": {
                       expect(await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO)).to.be.eq(
                         await LpContractInstance.getCash(),
@@ -625,7 +618,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "getSomeAmountInToken(address,address,uint256)": {
                       const _lpTokenDecimals = await LpContractInstance.decimals();
-                      const _lpTokenAmount = getDefaultFundAmount(liquidityPool, _lpTokenDecimals);
+                      const _lpTokenAmount = getDefaultFundAmountInDecimal(liquidityPool, _lpTokenDecimals);
                       if (+_lpTokenAmount > 0) {
                         expect(
                           await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount),
@@ -634,9 +627,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         );
                       }
                       break;
-                    }
-                    default: {
-                      throw `Case: ${action.action} not defined in GetActions`;
                     }
                   }
                 }
@@ -742,21 +732,3 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
     });
   });
 });
-
-//  Function to check if cToken Pool is paused or not.
-//  @dev: SAI,REP = Mint is paused
-//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber
-async function lpPausedStatus(pool: string): Promise<boolean> {
-  const compoundController = await getCompoundComptroller();
-  const lpPauseStatus = await compoundController["mintGuardianPaused(address)"](pool);
-  return lpPauseStatus;
-}
-
-//  Function to get the Compound's Comptroller contract instance
-async function getCompoundComptroller(): Promise<any> {
-  const compoundController = await hre.ethers.getContractAt(
-    abis.compoundComptroller.abi,
-    abis.compoundComptroller.address,
-  );
-  return compoundController;
-}

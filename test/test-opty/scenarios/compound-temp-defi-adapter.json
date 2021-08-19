@@ -1113,15 +1113,15 @@
     },
     {
       "description": "calculateAmountInLPToken() should return amount in Lp token equivalent for specified deposit amount",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "calculateAmountInLPToken(address,address,uint256)",
-          "expect": "success",
-          "message": ""
+          "executer": "owner",
+          "expectedValue": {}
         }
       ],
-      "getActions": [],
       "cleanActions": []
     },
     {
