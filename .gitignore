@@ -12,6 +12,12 @@ node_modules/
 typechain/
 bin/
 specification_docs/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
 
 # files
 *.env
@@ -23,5 +29,3 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 **/*cache*.json
-typechain
-deployments
