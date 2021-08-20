@@ -281,26 +281,3 @@ export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): P
     }
   }
 }
-
-//  Function to check if cToken/crToken Pool is paused or not.
-//  @dev: SAI,REP = Mint is paused for cSAI, cREP
-//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
-export async function lpPausedStatus(
-  hre: HardhatRuntimeEnvironment,
-  pool: string,
-  controllerAddr: string,
-  controllerABI: any,
-): Promise<boolean> {
-  const controller = await getComptroller(hre, controllerABI, controllerAddr);
-  const lpPauseStatus = await controller["mintGuardianPaused(address)"](pool);
-  return lpPauseStatus;
-}
-
-export async function getComptroller(
-  hre: HardhatRuntimeEnvironment,
-  controllerABI: any,
-  controllerAddr: string,
-): Promise<any> {
-  const compoundController = await hre.ethers.getContractAt(controllerABI, controllerAddr);
-  return compoundController;
-}

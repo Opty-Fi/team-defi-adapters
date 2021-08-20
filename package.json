@@ -99,6 +99,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.1.7",
+    "@compound-finance/compound-js": "^0.3.0",
     "@openzeppelin/contracts": "3.4.0",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",

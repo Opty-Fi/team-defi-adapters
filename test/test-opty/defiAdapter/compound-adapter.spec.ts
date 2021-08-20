@@ -2,18 +2,27 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
+import {
+  TOKENS,
+  TESTING_DEPLOYMENT_ONCE,
+  ADDRESS_ZERO,
+  COMPOUND_ADAPTER_NAME,
+  CONTRACT_ADDRESSES,
+} from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
-import { fundWalletToken, getBlockTimestamp, getComptroller, lpPausedStatus } from "../../../helpers/contracts-actions";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, expectInvestLimitEvents, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
-import abis from "../../../helpers/data/abis.json";
+// import abis from "../../../helpers/data/abis.json";
 import { to_10powNumber_BN } from "../../../helpers/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -164,20 +173,29 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
+        if (
+          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
+          // &&
+          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
+        ) {
+          // for (let i = 0; i < 1; i++) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(
                 hre,
                 getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool),
-                abis.compoundComptroller.address,
-                abis.compoundComptroller.abi,
+                CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
               );
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-                const LpContractInstance = await hre.ethers.getContractAt(abis.cToken.abi, liquidityPool);
+                // const LpContractInstance = await hre.ethers.getContractAt(abis.cToken.abi, liquidityPool);
+                const LpContractInstance = await hre.ethers.getContractAt(
+                  Compound.util.getAbi("cErc20"),
+                  liquidityPool,
+                );
+                console.log("Lp contract instance created");
                 const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
@@ -411,14 +429,40 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
-                      const compoundController = await getComptroller(
-                        hre,
-                        abis.compoundComptroller.abi,
-                        abis.compoundComptroller.address,
-                      );
+                      // const compoundController = await getComptroller(
+                      //   hre,
+                      //   abis.compoundComptroller.abi,
+                      //   abis.compoundComptroller.address,
+                      // );
+                      // console.log("Action: ", action.action)
+                      // let comptrollerAddress = await Compound.eth.read(
+                      //   liquidityPool,
+                      //   'function comptroller() returns (address)',
+                      //   [],
+                      //   {}
+                      // );
+                      // console.log("Comptroller using lib: ", comptrollerAddress);
+                      // const _unclaimedCompAccured = await Compound.eth.read(
+                      //   CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
+                      //   'function compAccrued(address) returns (uint256)',
+                      //   [testDeFiAdapter.address],
+                      //   {provider: <Provider><unknown>hre.network.provider}
+                      // )
+                      // const _unclaimedCompAccured = await executeComptrollerFunc(hre, CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
+                      //   'function compAccrued(address) returns (uint256)',
+                      //   [testDeFiAdapter.address])
+                      // console.log("Function executed")
+                      // console.log("Unclaimed reward token: ", +_unclaimedCompAccured);
                       expect(
                         await compoundAdapter[action.action](testDeFiAdapter.address, ADDRESS_ZERO, ADDRESS_ZERO),
-                      ).to.be.eq(await compoundController.compAccrued(testDeFiAdapter.address));
+                      ).to.be.eq(
+                        await executeComptrollerFunc(
+                          hre,
+                          CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
+                          "function compAccrued(address) returns (uint256)",
+                          [testDeFiAdapter.address],
+                        ),
+                      );
                       break;
                     }
                     case "testGetClaimRewardTokenCode(address,address)": {
@@ -687,11 +731,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
               }
               case "setComptroller(address)": {
                 if (action.expect == "success") {
-                  await compoundAdapter[action.action](abis.compoundComptroller.address);
+                  await compoundAdapter[action.action](CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER);
                 } else {
                   //  TODO: Add test scenario if operater is trying to set ZERO ADDRESS/EOA as comptroller's contract address
                   await expect(
-                    compoundAdapter.connect(users[action.executer])[action.action](abis.compoundComptroller.address),
+                    compoundAdapter
+                      .connect(users[action.executer])
+                      [action.action](CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER),
                   ).to.be.revertedWith(action.message);
                 }
                 break;
@@ -707,7 +753,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
               }
               case "comptroller()": {
                 const _comptrollerAddress = await compoundAdapter[action.action]();
-                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
+                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER));
               }
             }
           }
@@ -720,9 +766,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 break;
               }
               case "setComptroller(address)": {
-                await compoundAdapter[action.action](abis.compoundComptroller.address);
+                await compoundAdapter[action.action](CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER);
                 const _comptrollerAddress = await compoundAdapter.comptroller();
-                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(abis.compoundComptroller.address));
+                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER));
                 break;
               }
             }
@@ -732,3 +778,47 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
     });
   });
 });
+
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  comptrollerAddress: string,
+): Promise<boolean> {
+  console.log("Coming in lpPausedStatus function");
+  // const comptrollerAddress = CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER
+  console.log("Comptroller using lib: ", comptrollerAddress);
+
+  const lpPauseStatus = await executeComptrollerFunc(
+    hre,
+    comptrollerAddress,
+    "function mintGuardianPaused(address) returns (bool)",
+    [pool],
+  );
+  // await Compound.eth.read(
+  //   comptrollerAddress,
+  //   'function mintGuardianPaused(address) returns (bool)',
+  //   [pool],
+  //   {provider: <Provider><unknown>hre.network.provider}
+  // );
+
+  console.log("lpPausedStatus using lib: ", lpPauseStatus);
+
+  // const controller = await getComptroller(hre, controllerABI, controllerAddr);
+  // const lpPauseStatus = await controller["mintGuardianPaused(address)"](pool);
+  return lpPauseStatus;
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+) {
+  const funcExecutionOutput = await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
+  return funcExecutionOutput;
+}
