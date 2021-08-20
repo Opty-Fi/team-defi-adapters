@@ -1,5 +1,6 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
+import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import {
@@ -14,18 +15,20 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract, expectInvestLimitEvents, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  maxDepositProtocolPct?: string;
-  maxDepositPoolPct?: string;
-  maxDepositAmount?: string;
-  mode?: string;
+  maxDepositProtocolPct?: number;
+  maxDepositPoolPct?: number;
+  maxDepositAmount?: number;
+  mode?: number;
 };
 const curveAdapters: CONTRACTS = {};
 describe("CurveAdapters Unit test", () => {
@@ -257,16 +260,9 @@ describe("CurveAdapters Unit test", () => {
                       const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                       const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        const _setMaxDepositProtocolModeTx = await curveAdapters[curveAdapterName][action.action](mode);
-                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolModeTx,
-                          "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(uint8,address)",
-                          curveAdapters[curveAdapterName].address,
-                          ownerAddress,
-                          mode!,
-                        );
+                        await expect(curveAdapters[curveAdapterName][action.action](mode))
+                          .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositProtocolMode")
+                          .withArgs(mode, ownerAddress);
                       }
                       break;
                     }
@@ -282,18 +278,9 @@ describe("CurveAdapters Unit test", () => {
                         curveAdapterName
                       ].maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        const _setMaxDepositProtocolPctTx = await curveAdapters[curveAdapterName][action.action](
-                          maxDepositProtocolPct,
-                        );
-                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolPctTx,
-                          "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(uint256,address)",
-                          curveAdapters[curveAdapterName].address,
-                          ownerAddress,
-                          maxDepositProtocolPct!,
-                        );
+                        await expect(curveAdapters[curveAdapterName][action.action](maxDepositProtocolPct))
+                          .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositProtocolPct")
+                          .withArgs(maxDepositProtocolPct, ownerAddress);
                       }
                       // Note: The pool value for curve pools will be in USD or BTC
                       const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(
@@ -314,19 +301,9 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                       );
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        const _setMaxDepositPoolPctTx = await curveAdapters[curveAdapterName][action.action](
-                          liquidityPool,
-                          maxDepositPoolPct,
-                        );
-                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositPoolPctTx,
-                          "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(uint256,address)",
-                          curveAdapters[curveAdapterName].address,
-                          ownerAddress,
-                          maxDepositPoolPct!,
-                        );
+                        await expect(curveAdapters[curveAdapterName][action.action](liquidityPool, maxDepositPoolPct))
+                          .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositPoolPct")
+                          .withArgs(maxDepositPoolPct, ownerAddress);
                       }
                       // Note: The pool value for curve pools will be in USD or BTC
                       const poolValue: BigNumber = await curveAdapters[curveAdapterName].getPoolValue(
@@ -352,20 +329,18 @@ describe("CurveAdapters Unit test", () => {
                           BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
                         )
                       ) {
-                        const _setMaxDepositAmountTx = await curveAdapters[curveAdapterName][action.action](
-                          liquidityPool,
-                          underlyingTokenAddress,
-                          BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
-                        );
-                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositAmountTx,
-                          "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(uint256,address)",
-                          curveAdapters[curveAdapterName].address,
-                          ownerAddress,
-                          +BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
-                        );
+                        await expect(
+                          curveAdapters[curveAdapterName][action.action](
+                            liquidityPool,
+                            underlyingTokenAddress,
+                            BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+                          ),
+                        )
+                          .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositAmount")
+                          .withArgs(
+                            BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+                            ownerAddress,
+                          );
                       }
                       const updatedDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
                         liquidityPool,
