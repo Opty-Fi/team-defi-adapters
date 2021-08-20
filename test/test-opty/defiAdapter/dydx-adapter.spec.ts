@@ -2,15 +2,14 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedBtcTokens, TypedDefiPools } from "../../../helpers/data";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
+import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
 import {
   deployAdapter,
-  deployEssentialContracts,
   deployAdapterPrerequisites,
   deployAdapters,
 } from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
 import { deployContract } from "../../../helpers/helpers";
@@ -21,17 +20,16 @@ type ARGUMENTS = {
 };
 
 interface TEST_DEFI_ADAPTER_ARGUMENTS {
-  maxDepositProtocolPct?: string | null;
-  maxDepositPoolPct?: string | null;
-  maxDepositAmount?: string | null;
-  mode?: string | null;
+  maxDepositProtocolPct?: number | null;
+  maxDepositPoolPct?: number | null;
+  maxDepositAmount?: number | null;
+  mode?: number | null;
 }
 
-describe("DyDxAdapter", () => {
-  const ADAPTER_NAME = "DyDxAdapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
+describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[DYDX_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  let essentialContracts: CONTRACTS;
+  let adapterPrerequisites: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
@@ -39,16 +37,15 @@ describe("DyDxAdapter", () => {
     try {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Essential contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        DYDX_ADAPTER_NAME,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -56,7 +53,7 @@ describe("DyDxAdapter", () => {
   });
 
   for (let i = 0; i < strategies.length; i++) {
-    describe(`${strategies[i].strategyName}`, async () => {
+    describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
       before(async () => {

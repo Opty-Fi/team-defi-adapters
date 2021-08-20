@@ -2,26 +2,22 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, AAVE_V1_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
-import { deployAdapter, deployEssentialContracts } from "../../../helpers/contracts-deployments";
-import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
+import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   type?: number;
   userName?: string;
 };
-type EXPECTED_ARGUMENTS = {
-  [key: string]: string;
-};
-describe("AaveV1Adapter", () => {
-  const ADAPTER_NAME = "AaveV1Adapter";
-  const strategies = TypedAdapterStrategies[ADAPTER_NAME];
+describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[AAVE_V1_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   const BORROW_AMOUNT = BigNumber.from("200000000000000000");
   const SNTToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
-  let essentialContracts: CONTRACTS;
+  let adapterPrerequisites: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
@@ -29,18 +25,15 @@ describe("AaveV1Adapter", () => {
     try {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
       adapter = await deployAdapter(
         hre,
         owner,
-        ADAPTER_NAME,
-        essentialContracts["registry"].address,
-        essentialContracts["harvestCodeProvider"].address,
-        essentialContracts["priceOracle"].address,
+        AAVE_V1_ADAPTER_NAME,
+        adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -48,7 +41,7 @@ describe("AaveV1Adapter", () => {
   });
 
   for (let i = 0; i < strategies.length; i++) {
-    describe(`${strategies[i].strategyName}`, async () => {
+    describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = TOKENS[strategy.token];
       let lpProvider: Contract;

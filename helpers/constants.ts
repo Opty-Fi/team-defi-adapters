@@ -1,4 +1,5 @@
 import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
+import { TypedTokens } from "./data";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -21,49 +22,74 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   ERC20: "ERC20",
 };
 
+export const AAVE_V1_ADAPTER_NAME: string = "AaveV1Adapter";
+export const AAVE_V2_ADAPTER_NAME: string = "AaveV2Adapter";
+export const COMPOUND_ADAPTER_NAME: string = "CompoundAdapter";
+export const CREAM_ADAPTER_NAME: string = "CreamAdapter";
+export const CURVE_DEPOSIT_POOL_ADAPTER_NAME: string = "CurveDepositPoolAdapter";
+export const CURVE_SWAP_POOL_ADAPTER_NAME: string = "CurveSwapPoolAdapter";
+export const DYDX_ADAPTER_NAME = "DyDxAdapter";
+export const DFORCE_ADAPTER_NAME = "DForceAdapter";
+export const FULCRUM_ADAPTER_NAME = "FulcrumAdapter";
+export const HARVEST_ADAPTER_NAME = "HarvestAdapter";
+export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
+export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
+
 export const ADAPTER = [
-  "AaveV1Adapter",
-  "AaveV2Adapter",
-  "CompoundAdapter",
-  "CreamAdapter",
-  "CurveDepositPoolAdapter",
-  "CurveSwapPoolAdapter",
-  "DyDxAdapter",
-  "DForceAdapter",
-  "FulcrumAdapter",
-  "HarvestAdapter",
-  "YVaultAdapter",
+  AAVE_V1_ADAPTER_NAME,
+  AAVE_V2_ADAPTER_NAME,
+  COMPOUND_ADAPTER_NAME,
+  CREAM_ADAPTER_NAME,
+  CURVE_DEPOSIT_POOL_ADAPTER_NAME,
+  CURVE_SWAP_POOL_ADAPTER_NAME,
+  DYDX_ADAPTER_NAME,
+  DFORCE_ADAPTER_NAME,
+  FULCRUM_ADAPTER_NAME,
+  HARVEST_ADAPTER_NAME,
+  YVAULT_ADAPTER_NAME,
+  SUSHISWAP_ADAPTER_NAME,
 ];
 
 export const TOKENS: DATA_OBJECT = {
-  DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-  USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-  USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-  WBTC: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-  CHI: "0x0000000000004946c0e9F43F4Dee607b0eF1fA1c",
+  DAI: TypedTokens["DAI"],
+  USDC: TypedTokens["USDC"],
+  USDT: TypedTokens["USDT"],
+  WBTC: TypedTokens["WBTC"],
+  WETH: TypedTokens["WETH"],
+  CHI: TypedTokens["CHI"],
+  SLP_WETH_USDC: TypedTokens["SLP_WETH_USDC"],
 };
 
 export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   CompoundAdapter: {
     tokenName: "COMP",
-    tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+    tokenAddress: TypedTokens["COMP"],
+    distributionActive: true,
+  },
+  CurveAdapter: {
+    tokenName: "CRV",
+    tokenAddress: TypedTokens["CRV"],
     distributionActive: true,
   },
   DForceAdapter: {
     tokenName: "DF",
-    tokenAddress: "0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0",
+    tokenAddress: TypedTokens["DF"],
     distributionActive: true,
   },
   HarvestAdapter: {
     tokenName: "FARM",
-    tokenAddress: "0xa0246c9032bC3A600820415aE600c6388619A14D",
+    tokenAddress: TypedTokens["FARM"],
     distributionActive: true,
   },
   CreamAdapter: {
     tokenName: "CREAM",
-    tokenAddress: "0x2ba592F78dB6436527729929AAf6c908497cB200",
+    tokenAddress: TypedTokens["CREAM"],
     distributionActive: false,
+  },
+  SushiswapAdapter: {
+    tokenName: "SUSHI",
+    tokenAddress: TypedTokens["SUSHI"],
+    distributionActive: true,
   },
 };
 
@@ -71,6 +97,7 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
   TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
+  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -78,22 +105,22 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
   RP0: {
     name: "RP0",
-    steps: 0,
+    canBorrow: false,
     poolRating: [0, 0],
   },
   RP1: {
     name: "RP1",
-    steps: 1,
+    canBorrow: false,
     poolRating: [0, 10],
   },
   RP2: {
     name: "RP2",
-    steps: 2,
+    canBorrow: true,
     poolRating: [0, 20],
   },
   RP3: {
     name: "RP3",
-    steps: 3,
+    canBorrow: true,
     poolRating: [0, 30],
   },
 };

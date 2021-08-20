@@ -24,6 +24,13 @@ interface IRegistry {
         returns (bool);
 
     /**
+     * @notice Set the treasury's address for optyfi's earn protocol
+     * @param _treasury Treasury's address
+     * @return Returns a boolean value indicating whether the operation succeeded
+     */
+    function setTreasury(address _treasury) external returns (bool);
+
+    /**
      * @notice Set the VaultStepInvestStrategyDefinitionRegistry contract address
      * @param _vaultStepInvestStrategyDefinitionRegistry VaultStepInvestStrategyDefinitionRegistry contract address
      * @return A boolean value indicating whether the operation succeeded
@@ -292,36 +299,37 @@ interface IRegistry {
     /**
      * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfile Risk Profile to add in Registry Storage
-     * @param _noOfSteps No. of permitted corresponding to risk profile provided
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string memory _riskProfile,
-        uint8 _noOfSteps,
+        bool _canBorrow,
         DataTypes.PoolRatingsRange memory _poolRatingRange
     ) external returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
+     * @dev All parameters must be in the same order.
      * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _noOfSteps List of No. of permitted strategy steps for a given risk profile
+     * @param _canBorrow List of boolean values indicating whether the riskProfile allows borrow step
      * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
      * @return A boolean value indicating whether the operation succeeded
      */
     function addRiskProfile(
         string[] memory _riskProfiles,
-        uint8[] memory _noOfSteps,
+        bool[] memory _canBorrow,
         DataTypes.PoolRatingsRange[] memory _poolRatingRanges
     ) external returns (bool);
 
     /**
-     * @notice Update the no. of strategy steps allowed for existing risk profile
+     * @notice Change the borrow permission for existing risk profile
      * @param _riskProfile Risk Profile to update with strategy steps
-     * @param _noOfSteps No. of strategy steps allowed for a given risk profile
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @return A boolean value indicating whether the operation succeeded
      */
-    function updateRiskProfileSteps(string memory _riskProfile, uint8 _noOfSteps) external returns (bool);
+    function updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow) external returns (bool);
 
     /**
      * @notice Update the pool ratings for existing risk profile
@@ -359,67 +367,85 @@ interface IRegistry {
     function getRiskProfileList() external view returns (string[] memory);
 
     /**
-     * @notice Get the StrategyManager contract address
+     * @notice Retrieve the StrategyManager contract address
      * @return Returns the StrategyManager contract address
      */
     function getStrategyManager() external view returns (address);
 
     /**
-     * @notice Get the StrategyProvider contract address
+     * @notice Retrieve the StrategyProvider contract address
      * @return Returns the StrategyProvider contract address
      */
     function getStrategyProvider() external view returns (address);
 
     /**
-     * @notice Get the VaultStepInvestStrategyDefinitionRegistry contract address
+     * @notice Retrieve the VaultStepInvestStrategyDefinitionRegistry contract address
      * @return Returns the VaultStepInvestStrategyDefinitionRegistry contract address
      */
     function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
 
     /**
-     * @notice Get the RiskManager contract address
+     * @notice Retrieve the RiskManager contract address
      * @return Returns the RiskManager contract address
      */
     function getRiskManager() external view returns (address);
 
     /**
-     * @notice Get the OPTYDistributor contract address
+     * @notice Retrieve the OPTYDistributor contract address
      * @return Returns the OPTYDistributor contract address
      */
     function getOPTYDistributor() external view returns (address);
 
     /**
-     * @notice Get the ODEFIVaultBooster contract address
+     * @notice Retrieve the ODEFIVaultBooster contract address
      * @return Returns the ODEFIVaultBooster contract address
      */
     function getODEFIVaultBooster() external view returns (address);
 
     /**
-     * @notice Get the Governance address
+     * @notice Retrieve the Governance address
      * @return Returns the Governance address
      */
     function getGovernance() external view returns (address);
 
     /**
-     * @notice Get the Operator address
+     * @notice Retrieve the FinanceOperator address
+     * @return Returns the FinanceOperator address
+     */
+    function getFinanceOperator() external view returns (address);
+
+    /**
+     * @notice Retrieve the RiskOperator address
+     * @return Returns the RiskOperator address
+     */
+    function getRiskOperator() external view returns (address);
+
+    /**
+     * @notice Retrieve the StrategyOperator address
+     * @return Returns the StrategyOperator address
+     */
+    function getStrategyOperator() external view returns (address);
+
+    /**
+     * @notice Retrieve the Operator address
      * @return Returns the Operator address
      */
     function getOperator() external view returns (address);
 
     /**
-     * @notice Get the HarvestCodeProvider contract address
+     * @notice Retrieve the HarvestCodeProvider contract address
      * @return Returns the HarvestCodeProvider contract address
      */
     function getHarvestCodeProvider() external view returns (address);
 
     /**
-     * @notice Get the AprOracle contract address
+     * @notice Retrieve the AprOracle contract address
      * @return Returns the AprOracle contract address
      */
     function getAprOracle() external view returns (address);
 
     /**
-     * @notice Get the OPTYStakingRateBalancer contract address
+     * @notice Retrieve the OPTYStakingRateBalancer contract address
      * @return Returns the OPTYStakingRateBalancer contract address
      */
     function getOPTYStakingRateBalancer() external view returns (address);

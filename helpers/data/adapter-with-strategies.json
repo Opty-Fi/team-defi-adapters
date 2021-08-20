@@ -152,5 +152,19 @@
         }
       ]
     }
+  ],
+  "SushiswapAdapter": [
+    {
+      "strategyName": "WETH-USDC-deposit-SUSHISWAP-SLP",
+      "token": "SLP_WETH_USDC",
+      "strategy": [
+        {
+          "contract": "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
+          "outputTokenSymbol": "SLP_WETH_USDC",
+          "outputToken": "0x0000000000000000000000000000000000000000",
+          "isBorrow": false
+        }
+      ]
+    }
   ]
 }

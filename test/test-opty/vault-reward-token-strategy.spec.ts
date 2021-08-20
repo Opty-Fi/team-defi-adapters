@@ -14,7 +14,7 @@ import {
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  approveVaultRewardTokens,
+  setAndApproveVaultRewardToken,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
@@ -94,7 +94,7 @@ describe(scenario.title, () => {
               await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await approveVaultRewardTokens(
+                await setAndApproveVaultRewardToken(
                   users["owner"],
                   Vault.address,
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
@@ -123,6 +123,7 @@ describe(scenario.title, () => {
               );
 
               const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;
               contracts["tokenErc20"] = Token_ERC20Instance;

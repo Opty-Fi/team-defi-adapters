@@ -42,6 +42,8 @@ interface ICompound {
 
     function mint(uint256 mintAmount) external returns (uint256);
 
+    function mint() external payable;
+
     function redeem(uint256 redeemTokens) external returns (uint256);
 
     function exchangeRateCurrent() external returns (uint256);

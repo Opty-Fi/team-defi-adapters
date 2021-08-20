@@ -17,7 +17,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -32,7 +33,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -46,7 +48,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -60,7 +63,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -84,7 +88,7 @@
           ]
         },
         {
-          "description": "Operator should be able to set VaultRewardTokenStrategy with Hold and Convert 5000 (50%)",
+          "description": "StrategyOperator should be able to set VaultRewardTokenStrategy with Hold and Convert 5000 (50%)",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -111,7 +115,7 @@
           ]
         },
         {
-          "description": "Operator should be able to Re-set VaultRewardTokenStrategy with Hold and Convert 0%",
+          "description": "StrategyOperator should be able to Re-set VaultRewardTokenStrategy with Hold and Convert 0%",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -181,7 +185,7 @@
           "getActions": []
         },
         {
-          "description": "Non-Operator shouldn't be able to set Vault Reward Token Strategy",
+          "description": "Non-StrategyOperator shouldn't be able to set Vault Reward Token Strategy",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -191,7 +195,7 @@
               },
               "executer": "user1",
               "expect": "fail",
-              "message": "caller is not the operator"
+              "message": "caller is not the strategyOperator"
             }
           ],
           "getActions": []
@@ -217,7 +221,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -232,7 +237,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -246,7 +252,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -260,7 +267,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -341,7 +349,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -356,7 +365,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -370,7 +380,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -384,7 +395,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -409,7 +421,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -424,7 +437,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -438,7 +452,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -452,7 +467,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -496,7 +512,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -511,7 +528,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -525,7 +543,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -539,7 +558,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -583,7 +603,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "",
@@ -598,7 +619,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -612,7 +634,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -626,7 +649,8 @@
                 "amount": {
                   "DAI": "15000000000000000000",
                   "USDC": "15000000",
-                  "USDT": "15000000"
+                  "USDT": "15000000",
+                  "SLP_WETH_USDC": "15000000000000"
                 }
               },
               "executer": "user1",
@@ -650,7 +674,7 @@
           ]
         },
         {
-          "description": "Operator shouldn't be able to set strategy for 0x0..0 VaultRewardToken hash",
+          "description": "StrategyOperator shouldn't be able to set strategy for 0x0..0 VaultRewardToken hash",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -667,7 +691,7 @@
           "getActions": []
         },
         {
-          "description": "Operator shouldn't be able to set strategy for Non-existing VaultRewardToken hash",
+          "description": "StrategyOperator shouldn't be able to set strategy for Non-existing VaultRewardToken hash",
           "setActions": [
             {
               "contract": "strategyProvider",
