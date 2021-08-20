@@ -152,6 +152,12 @@ export async function fundWalletToken(
     //  Funding user's wallet with WETH tokens
     await wEthInstance.deposit({ value: amount });
     await wEthInstance.transfer(address, amount);
+  } else if (getAddress(tokenAddress) == getAddress(TypedTokens.YETH)) {
+    const yEthInstance = await hre.ethers.getContractAt(exchange.yweth.abi, exchange.yweth.address);
+    //  Funding user's wallet with WETH tokens
+    await yEthInstance.connect(wallet).depositETH({ value: amount });
+    const balance = await yEthInstance.balanceOf(await wallet.getAddress());
+    await yEthInstance.transfer(address, balance);
   } else if (getAddress(tokenAddress) == getAddress(TypedTokens["SLP_WETH_USDC"])) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
