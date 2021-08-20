@@ -638,7 +638,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetDepositSomeCodes(address,uint256,address,address)",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
           "args": {},
           "executer": "owner",
           "expect": "success",
@@ -697,7 +697,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetDepositSomeCodes(address,uint256,address,address)",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -755,7 +755,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetDepositSomeCodes(address,uint256,address,address)",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -813,7 +813,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetDepositSomeCodes(address,uint256,address,address)",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -871,7 +871,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetDepositSomeCodes(address,uint256,address,address)",
+          "action": "testGetDepositSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -1162,7 +1162,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestSomeCodes(address,address,uint256,address)",
+          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
           "executer": "owner",
           "expect": "success",
           "message": ""

@@ -314,13 +314,13 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                     break;
                   }
-                  case "testGetDepositSomeCodes(address,uint256,address,address)": {
+                  case "testGetDepositSomeCodes(address,address,address,uint256)": {
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](
                       underlyingTokenAddress,
-                      underlyingBalanceBefore,
                       liquidityPool,
                       adapterAddress,
+                      underlyingBalanceBefore,
                     );
                     break;
                   }
@@ -350,14 +350,14 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                     await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                     break;
                   }
-                  case "testGetHarvestSomeCodes(address,address,uint256,address)": {
+                  case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](
                       liquidityPool,
                       underlyingTokenAddress,
-                      rewardTokenBalanceBefore,
                       adapterAddress,
+                      rewardTokenBalanceBefore,
                     );
                     break;
                   }
