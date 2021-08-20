@@ -18,7 +18,6 @@ import { TypedDefiPools } from "../../../helpers/data";
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, expectInvestLimitEvents, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
-// import abis from "../../../helpers/data/abis.json";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
@@ -173,12 +172,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        if (
-          TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1
-          // &&
-          // getAddress(underlyingTokenAddress) == getAddress(TypedTokens.DAI)
-        ) {
-          // for (let i = 0; i < 1; i++) {
+        if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const lpPauseStatus = await lpPausedStatus(
@@ -190,12 +184,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 const story = testDeFiAdaptersScenario.stories[i];
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-                // const LpContractInstance = await hre.ethers.getContractAt(abis.cToken.abi, liquidityPool);
                 const LpContractInstance = await hre.ethers.getContractAt(
                   Compound.util.getAbi("cErc20"),
                   liquidityPool,
                 );
-                console.log("Lp contract instance created");
                 const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
@@ -429,30 +421,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
-                      // const compoundController = await getComptroller(
-                      //   hre,
-                      //   abis.compoundComptroller.abi,
-                      //   abis.compoundComptroller.address,
-                      // );
-                      // console.log("Action: ", action.action)
-                      // let comptrollerAddress = await Compound.eth.read(
-                      //   liquidityPool,
-                      //   'function comptroller() returns (address)',
-                      //   [],
-                      //   {}
-                      // );
-                      // console.log("Comptroller using lib: ", comptrollerAddress);
-                      // const _unclaimedCompAccured = await Compound.eth.read(
-                      //   CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
-                      //   'function compAccrued(address) returns (uint256)',
-                      //   [testDeFiAdapter.address],
-                      //   {provider: <Provider><unknown>hre.network.provider}
-                      // )
-                      // const _unclaimedCompAccured = await executeComptrollerFunc(hre, CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
-                      //   'function compAccrued(address) returns (uint256)',
-                      //   [testDeFiAdapter.address])
-                      // console.log("Function executed")
-                      // console.log("Unclaimed reward token: ", +_unclaimedCompAccured);
                       expect(
                         await compoundAdapter[action.action](testDeFiAdapter.address, ADDRESS_ZERO, ADDRESS_ZERO),
                       ).to.be.eq(
@@ -708,14 +676,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         }
       }
 
-      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandloneStories.length; i++) {
-        it(`${testDeFiAdaptersScenario?.adapterStandloneStories[i].description}`, async function () {
-          const story = testDeFiAdaptersScenario.adapterStandloneStories[i];
+      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+        it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
+          const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
           for (const action of story.setActions) {
             switch (action.action) {
               case "canStake(address)": {
-                const _canStake = await compoundAdapter[action.action](ADDRESS_ZERO);
-                expect(_canStake).to.be.eq(false);
+                expect(await compoundAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
                 break;
               }
               case "setRewardToken(address)": {
@@ -747,13 +714,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           for (const action of story.getActions) {
             switch (action.action) {
               case "getRewardToken(address)": {
-                const _rewardTokenAddress = await compoundAdapter[action.action](ADDRESS_ZERO);
-                expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
+                expect(await compoundAdapter[action.action](ADDRESS_ZERO)).to.be.eq(getAddress(TypedTokens.COMP));
                 break;
               }
               case "comptroller()": {
-                const _comptrollerAddress = await compoundAdapter[action.action]();
-                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER));
+                expect(getAddress(await compoundAdapter[action.action]())).to.be.eq(
+                  getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER),
+                );
               }
             }
           }
@@ -761,14 +728,16 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
             switch (action.action) {
               case "setRewardToken(address)": {
                 await compoundAdapter[action.action](TypedTokens.COMP);
-                const _rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
-                expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.COMP));
+                expect(getAddress(await compoundAdapter.getRewardToken(ADDRESS_ZERO))).to.be.eq(
+                  getAddress(TypedTokens.COMP),
+                );
                 break;
               }
               case "setComptroller(address)": {
                 await compoundAdapter[action.action](CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER);
-                const _comptrollerAddress = await compoundAdapter.comptroller();
-                expect(getAddress(_comptrollerAddress)).to.be.eq(getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER));
+                expect(getAddress(await compoundAdapter.comptroller())).to.be.eq(
+                  getAddress(CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER),
+                );
                 break;
               }
             }
@@ -787,28 +756,9 @@ export async function lpPausedStatus(
   pool: string,
   comptrollerAddress: string,
 ): Promise<boolean> {
-  console.log("Coming in lpPausedStatus function");
-  // const comptrollerAddress = CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER
-  console.log("Comptroller using lib: ", comptrollerAddress);
-
-  const lpPauseStatus = await executeComptrollerFunc(
-    hre,
-    comptrollerAddress,
-    "function mintGuardianPaused(address) returns (bool)",
-    [pool],
-  );
-  // await Compound.eth.read(
-  //   comptrollerAddress,
-  //   'function mintGuardianPaused(address) returns (bool)',
-  //   [pool],
-  //   {provider: <Provider><unknown>hre.network.provider}
-  // );
-
-  console.log("lpPausedStatus using lib: ", lpPauseStatus);
-
-  // const controller = await getComptroller(hre, controllerABI, controllerAddr);
-  // const lpPauseStatus = await controller["mintGuardianPaused(address)"](pool);
-  return lpPauseStatus;
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
 }
 
 export async function executeComptrollerFunc(
@@ -817,8 +767,7 @@ export async function executeComptrollerFunc(
   functionSignature: string,
   params: any[],
 ) {
-  const funcExecutionOutput = await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
     provider: <Provider>(<unknown>hre.network.provider),
   });
-  return funcExecutionOutput;
 }

@@ -1372,7 +1372,7 @@
       ]
     }
   ],
-  "adapterStandloneStories": [
+  "adapterStandaloneStories": [
     {
       "description": "[canStake()] - should return whether stake is allowed or not",
       "setActions": [
