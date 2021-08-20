@@ -28,13 +28,13 @@ task("approve-token", "Approve Token")
     }
 
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[getAddress(token)]]);
-    const result = await registryContract.getTokensHashToTokenList(tokensHash);
-    if (result.length == 1 && getAddress(result[0]) == getAddress(token)) {
+    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+    const tokens: string[] = await registryContract.getTokensHashToTokenList(tokensHash);
+    if (tokens.length == 1 && getAddress(tokens[0]) == getAddress(token)) {
       console.log(`Token ${token} is already set`);
     } else {
-      // this function also sets tokens hash to token
+      // this function approves and set tokens hash
       await approveToken(owner, registryContract, [token]);
-      console.log(`Finished approving token and setting tokens hash`);
+      console.log(`Finished approving and setting tokens hash of token ${token}`);
     }
   });

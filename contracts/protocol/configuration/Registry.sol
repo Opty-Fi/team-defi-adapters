@@ -795,7 +795,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_adapter.isContract(), "!_adapter.isContract()");
         require(liquidityPools[_pool].isLiquidityPool || creditPools[_pool].isLiquidityPool, "!liquidityPools");
         liquidityPoolToAdapter[_pool] = _adapter;
-        emit LogLiquidityPoolToDepositToken(_pool, _adapter, msg.sender);
+        emit LogLiquidityPoolToAdapter(_pool, _adapter, msg.sender);
         return true;
     }
 
