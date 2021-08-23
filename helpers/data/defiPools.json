@@ -1362,7 +1362,7 @@
     "eurs_eurs+seur": {
       "pool": "0x0Ce6a5fF5217e38315f87032CF90686C96627CAA",
       "lpToken": "0x194eBd173F6cDacE046C53eACcE9B953F28411d1",
-      "tokens": ["0xD71eCFF9342A5Ced620049e616c5035F1dB98620"]
+      "tokens": ["0xdB25f211AB05b1c97D595516F45794528a807ad8"]
     },
     "seur_eurs+seur": {
       "pool": "0x0Ce6a5fF5217e38315f87032CF90686C96627CAA",
@@ -1397,7 +1397,7 @@
     "ausdc_adai+ausdc+ausdt": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
       "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-      "tokens": ["0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811"]
+      "tokens": ["0xBcca60bB61934080951369a648Fb03DF4F96263C"]
     },
     "ausdt_adai+ausdc+ausdt": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
