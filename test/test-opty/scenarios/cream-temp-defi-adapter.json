@@ -293,7 +293,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
+      "description": "getDepositAllCodes() with investment limit (less than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -307,7 +307,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "20"
+            "maxDepositAmount": "<"
           },
           "expect": "success",
           "message": ""
@@ -351,7 +351,7 @@
       ]
     },
     {
-      "description": "getDepositAllCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "description": "getDepositAllCodes() with investment limit (more than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -365,7 +365,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "300000"
+            "maxDepositAmount": ">"
           },
           "expect": "success",
           "message": ""
@@ -757,7 +757,7 @@
       ]
     },
     {
-      "description": "getDepositSomeCodes() with investment limit = 20 (less than the deposit amount) (mode=number)",
+      "description": "getDepositSomeCodes() with investment limit (less than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -772,7 +772,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "20"
+            "maxDepositAmount": "<"
           },
           "expect": "success",
           "message": ""
@@ -816,7 +816,7 @@
       ]
     },
     {
-      "description": "getDepositSomeCodes() with investment limit = 300000 (more than the deposit amount) (mode=number)",
+      "description": "getDepositSomeCodes() with investment limit (more than the deposit amount) (mode=number)",
       "setActions": [
         {
           "contract": "adapter",
@@ -830,7 +830,7 @@
           "contract": "adapter",
           "action": "setMaxDepositAmount(address,address,uint256)",
           "args": {
-            "maxDepositAmount": "300000"
+            "maxDepositAmount": ">"
           },
           "expect": "success",
           "message": ""
@@ -939,6 +939,47 @@
       ]
     },
     {
+      "description": "getHarvestSomeCodes() should harvest specific amount of reward tokens to underlying",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "fundTestDefiContractWithRewardToken()",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "executer": "owner",
+          "expectedValue": "<"
+        },
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "executer": "owner",
+          "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
       "description": "getHarvestAllCodes() should harvest all reward tokens to underlying",
       "setActions": [
         {
@@ -980,17 +1021,60 @@
       ]
     },
     {
-      "description": "getHarvestSomeCodes() should harvest specific amount of reward tokens to underlying",
+      "description": "getClaimRewardTokenCode() should be able claim reward tokens",
       "setActions": [
         {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
           "contract": "",
-          "action": "fundTestDefiContractWithRewardToken()",
+          "action": "fundTestDeFiAdapterContract",
           "expect": "success",
           "message": ""
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "getUnclaimedRewardTokenAmount(address,address,address)",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetClaimRewardTokenCode(address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -999,13 +1083,228 @@
       "getActions": [
         {
           "contract": "erc20",
-          "action": "balanceOf(address)",
+          "action": "getRewardTokenBalance(address)",
           "executer": "owner",
           "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getUnderlyingTokens() should return same underlying tokens as there in lp contracts",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getUnderlyingTokens(address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "calculateAmountInLPToken() should return amount in Lp token equivalent for specified deposit amount",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "calculateAmountInLPToken(address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "getPoolValue() should return the pool value of lp contract",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getPoolValue(address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "getLiquidityPoolToken() should return liquidity pool token address",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getLiquidityPoolToken(address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "getSomeAmountInToken() should return equivalent value of underlying token for given amount of lpToken",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getSomeAmountInToken(address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "getAllAmountInToken() should return value in underlying token for all the lpTokens held",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
         },
         {
-          "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getAllAmountInToken(address,address,address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "isRedeemableAmountSufficient() should return false if lp token redeem amt > balance in underlying tokens",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficient(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ">"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "isRedeemableAmountSufficient() should return true if lp token redeem amt < balance in underlying tokens",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficient(address,address,address,uint256)",
           "executer": "owner",
           "expectedValue": "<"
         }
@@ -1019,6 +1318,149 @@
           "message": ""
         }
       ]
+    },
+    {
+      "description": "calculateRedeemableLPTokenAmount() should return the redeemable lp token amount on the basis of lp token balance",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "calculateRedeemableLPTokenAmount(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    }
+  ],
+  "adapterStandloneStories": [
+    {
+      "description": "[canStake()] - should return whether stake is allowed or not",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "canStake(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[setRewardToken()] - Operator should be able to set valid reward token address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getRewardToken(address)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[setRewardToken()] - Non-operator shouldn't be able to set reward token address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setRewardToken(address)",
+          "args": {},
+          "executer": "user1",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[setComptroller()] - Operator should be able to set valid Comptroller contract address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setComptroller(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "comptroller()",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[setComptroller()] -  Non-Operator shouldn't be able to set Comptroller contract address",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setComptroller(address)",
+          "args": {},
+          "executer": "user1",
+          "expect": "fail",
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
     }
   ]
 }

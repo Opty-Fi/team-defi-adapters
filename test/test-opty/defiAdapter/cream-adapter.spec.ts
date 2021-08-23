@@ -8,8 +8,8 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp, lpPausedStatus } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
-import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
-import { deployContract, expectInvestLimitEvents, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
+import testDeFiAdaptersScenario from "../scenarios/cream-temp-defi-adapter.json";
+import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
 import creamComptrollerABI from "../../../helpers/data/ABI/cream-comptroller.json";
@@ -212,18 +212,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingMode = await adapter.maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        const _setMaxDepositProtocolModeTx = await adapter[action.action](mode);
-                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
-                        const modeSet = await adapter.maxDepositProtocolMode();
-                        expect(+modeSet).to.be.eq(+mode!);
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolModeTx,
-                          "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(uint8,address)",
-                          adapter.address,
-                          ownerAddress,
-                          mode!,
-                        );
+                        await expect(adapter[action.action](mode))
+                          .to.emit(adapter, "LogMaxDepositProtocolMode")
+                          .withArgs(mode, ownerAddress);
                       }
                       break;
                     }
@@ -237,18 +228,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        const _setMaxDepositProtocolPctTx = await adapter[action.action](maxDepositProtocolPct);
-                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
-                        const maxDepositProtocolPctSet = await adapter.maxDepositProtocolPct();
-                        expect(+maxDepositProtocolPctSet).to.be.eq(+maxDepositProtocolPct!);
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolPctTx,
-                          "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(uint256,address)",
-                          adapter.address,
-                          ownerAddress,
-                          maxDepositProtocolPct!,
-                        );
+                        await expect(adapter[action.action](maxDepositProtocolPct))
+                          .to.emit(adapter, "LogMaxDepositProtocolPct")
+                          .withArgs(maxDepositProtocolPct, ownerAddress);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -258,18 +240,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
                       const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        const _setMaxDepositPoolPctTx = await adapter[action.action](liquidityPool, maxDepositPoolPct);
-                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
-                        const maxDepositPoolPctSet = await adapter.maxDepositPoolPct(liquidityPool);
-                        expect(+maxDepositPoolPctSet).to.be.eq(+maxDepositPoolPct!);
-                        expectInvestLimitEvents(
-                          setMaxDepositPoolPctTx,
-                          "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(uint256,address)",
-                          adapter.address,
-                          ownerAddress,
-                          maxDepositPoolPct!,
-                        );
+                        await expect(adapter[action.action](liquidityPool, maxDepositPoolPct))
+                          .to.emit(adapter, "LogMaxDepositPoolPct")
+                          .withArgs(maxDepositPoolPct, ownerAddress);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -288,25 +261,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                         underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(amount)) {
-                        const _setMaxDepositAmountTx = await adapter[action.action](
-                          liquidityPool,
-                          underlyingTokenAddress,
-                          amount,
-                        );
-                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
-                        const maxDepositAmountSet = await adapter.maxDepositAmount(
-                          liquidityPool,
-                          underlyingTokenAddress,
-                        );
-                        expect(+maxDepositAmountSet).to.be.eq(+amount);
-                        expectInvestLimitEvents(
-                          setMaxDepositAmountTx,
-                          "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(uint256,address)",
-                          adapter.address,
-                          ownerAddress,
-                          amount.toString(),
-                        );
+                        await expect(adapter[action.action](liquidityPool, underlyingTokenAddress, amount))
+                          .to.emit(adapter, "LogMaxDepositAmount")
+                          .withArgs(amount, ownerAddress);
                       }
                       limit = amount;
                       break;
@@ -354,7 +311,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     }
                     case "testGetDepositAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      console.log("lpPauseStatus", lpPauseStatus);
                       if (lpPauseStatus && +limit !== 0) {
                         await expect(
                           testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address),
@@ -425,7 +381,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                      console.log(rewardTokenBalanceBefore.toString());
                       await testDeFiAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
@@ -453,7 +408,10 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       isTestingRewardTokenDistribution = true;
                       break;
                     }
-
+                  }
+                }
+                for (const action of story.getActions) {
+                  switch (action.action) {
                     case "calculateAmountInLPToken(address,address,uint256)": {
                       const _depositAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                       const _amountInLPToken = await adapter[action.action](
@@ -468,10 +426,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
                       break;
                     }
-                  }
-                }
-                for (const action of story.getActions) {
-                  switch (action.action) {
                     case "getPoolValue(address,address)": {
                       const _poolValue = await adapter[action.action](liquidityPool, ADDRESS_ZERO);
                       const expectedPoolValue = await lpContract.getCash();
@@ -557,8 +511,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
                         testDeFiAdapter.address,
                       );
-                      console.log(+underlyingBalanceAfter);
-                      console.log(+underlyingBalanceBefore);
                       if (lpPauseStatus || (isTestingHarvest && +availableToHarvestToken === 0)) {
                         expect(+underlyingBalanceAfter).to.be.gte(+underlyingBalanceBefore);
                       } else {
