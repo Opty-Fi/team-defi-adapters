@@ -576,15 +576,16 @@ export async function fundWalletToken(
     fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
     const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], exchange.weth.abi, wallet);
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
-    await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount));
+    await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
   } else {
-    await uniswapInstance.swapETHForExactTokens(
+    await uniswapInstance.connect(wallet).swapETHForExactTokens(
       amount,
       [TypedTokens["WETH"], tokenAddress],
       address,
       deadlineTimestamp,
       getEthValueGasOverrideOptions(hre, "9500"),
     );
+    const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   }
 }
 

@@ -20,7 +20,6 @@ import {
     AssetDenomination,
     AssetReference,
     ActionArgs,
-    AssetReference,
     ActionType
 } from "../../../interfaces/dydx/IdYdX.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -139,13 +138,9 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
-        for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
-            if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
-                _amounts[i] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
-            }
-        }
-        return getDepositSomeCodes(_vault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
+        uint256[] memory _amounts = new uint256[](1);
+        _amounts[0] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
     }
 
     /**
@@ -271,8 +266,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256 _depositAmount =
             _getDepositAmount(
                 _liquidityPool,
-                _underlyingTokens[_underlyingTokenIndex],
-                _amounts[_underlyingTokenIndex]
+                _underlyingTokens[0],
+                _amounts[0]
             );
         if (_depositAmount > 0) {
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
@@ -288,12 +283,12 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
             _actionArgs[0] = _actionArg;
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
+                _underlyingTokens[0],
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
             );
             _codes[1] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
+                _underlyingTokens[0],
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
             );
             _codes[2] = abi.encode(
                 _liquidityPool,

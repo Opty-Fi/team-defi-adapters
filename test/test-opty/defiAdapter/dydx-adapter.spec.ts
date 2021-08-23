@@ -3,17 +3,18 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import {
   deployAdapter,
   deployAdapterPrerequisites,
   deployAdapters,
 } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
+import testDeFiAdapterScenario from "../scenarios/dydx-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
-import { deployContract } from "../../../helpers/helpers";
+import { deployContract, moveToNextBlock } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
+import abis from "../../../helpers/data/abis.json";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -30,7 +31,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
   const strategies = TypedAdapterStrategies[DYDX_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   let adapterPrerequisites: CONTRACTS;
-  let adapter: Contract;
+  let dYdXAdapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
   before(async () => {
@@ -39,14 +40,14 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(adapterPrerequisites, "Essential contracts not deployed");
-      adapter = await deployAdapter(
+      dYdXAdapter = await deployAdapter(
         hre,
         owner,
         DYDX_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapter, "Adapter not deployed");
+      assert.isDefined(dYdXAdapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
     }
@@ -59,7 +60,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
+          await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp, ownerAddress);
         } catch (error) {
           console.error(error);
         }
@@ -78,7 +79,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](
+                    codes = await dYdXAdapter[action.action](
                       ownerAddress,
                       [ADDRESS_ZERO, ADDRESS_ZERO, ADDRESS_ZERO, token],
                       strategy.strategy[0].contract,
@@ -87,7 +88,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await dYdXAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -123,7 +124,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](
+                    codes = await dYdXAdapter[action.action](
                       ownerAddress,
                       [token],
                       strategy.strategy[0].contract,
@@ -132,7 +133,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await dYdXAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -163,197 +164,243 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
 describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
   let adapterPrerequisites: CONTRACTS;
   let users: { [key: string]: Signer };
-  const adapterNames = Object.keys(TypedDefiPools);
   let testDeFiAdapter: Contract;
-  let adapters: CONTRACTS;
+  let dYdXAdapter: Contract;
 
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
     adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
+    dYdXAdapter = await deployAdapter(
+      hre,
+      owner,
+      DYDX_ADAPTER_NAME,
+      adapterPrerequisites["registry"].address,
+      TESTING_DEPLOYMENT_ONCE,
+    );
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
   });
 
-  for (const adapterName of adapterNames) {
-    // TODO: In future it can be leverage across all the adapters
-    if (adapterName == "DyDxAdapter") {
-      const pools = Object.keys(TypedDefiPools[adapterName]);
-      for (const pool of pools) {
-        const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
-        if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
-          for (const story of testDeFiAdapterScenario.stories) {
-            it(`${pool} - ${story.description}`, async () => {
-              let defaultFundAmount: BigNumber = BigNumber.from("2");
-              let limit: BigNumber = hre.ethers.BigNumber.from(0);
-              const timestamp = (await getBlockTimestamp(hre)) * 2;
-              const liquidityPool = TypedDefiPools[adapterName][pool].pool;
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-              const decimals = await ERC20Instance.decimals();
-              const adapterAddress = adapters[adapterName].address;
-              let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-              for (const action of story.setActions) {
-                switch (action.action) {
-                  case "setMaxDepositProtocolMode(uint8)": {
-                    const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
-                    if (existingMode != mode) {
-                      await adapters[adapterName][action.action](mode);
-                    }
-                    break;
-                  }
-                  case "setMaxDepositProtocolPct(uint256)": {
-                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(BigNumber.from(0))) {
-                      await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
-                    }
-                    const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
-                    if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                      await adapters[adapterName][action.action](maxDepositProtocolPct);
-                    }
-                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "setMaxDepositPoolPct(address,uint256)": {
-                    const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                      await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
-                    }
-                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "setMaxDepositAmount(address,address,uint256)": {
-                    const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    if (
-                      !existingDepositAmount.eq(
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
-                      )
-                    ) {
-                      await adapters[adapterName][action.action](
-                        liquidityPool,
-                        underlyingTokenAddress,
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
-                      );
-                    }
-                    limit = await adapters[adapterName].maxDepositAmount(liquidityPool, underlyingTokenAddress);
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "fundTestDeFiAdapterContract": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    if (underlyingBalance.lt(defaultFundAmount)) {
-                      await fundWalletToken(
-                        hre,
-                        underlyingTokenAddress,
-                        users["owner"],
-                        defaultFundAmount,
-                        timestamp,
-                        testDeFiAdapter.address,
-                      );
-                    }
-                    break;
-                  }
-                  case "testGetDepositAllCodes(address,address,address)": {
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const lpTokenBalance = await adapters[adapterName][action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    const poolValue = await adapters[adapterName]["getPoolValue(address,address)"](
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
-                    if (existingMode == 0) {
-                      const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
-                        liquidityPool,
-                        underlyingTokenAddress,
-                      );
-                      if (existingDepositAmount.eq(0)) {
-                        expect(lpTokenBalance).to.be.eq(0);
-                      } else {
-                        expect(lpTokenBalance).to.be.gt(0);
-                      }
-                    } else {
-                      const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
-                      const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
-                      if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
-                        expect(lpTokenBalance).to.be.eq(0);
-                      } else {
-                        expect(lpTokenBalance).to.be.gt(0);
-                      }
-                    }
-                    break;
-                  }
-                  case "balanceOf(address)": {
-                    const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                      testDeFiAdapter.address,
-                    );
-                    if (underlyingBalanceBefore.lt(limit)) {
-                      expect(underlyingBalanceAfter).to.be.eq(0);
-                    } else {
-                      expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
-                    }
-                    break;
-                  }
-                }
-              }
-              for (const action of story.cleanActions) {
-                switch (action.action) {
-                  case "testGetWithdrawAllCodes(address,address,address)": {
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const lpTokenBalance = await adapters[adapterName][action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    expect(lpTokenBalance).to.be.eq(0);
-                    break;
-                  }
-                  case "balanceOf(address": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    expect(underlyingBalance).to.be.gt(0);
-                  }
-                }
-              }
-            });
+  // TODO: In future it can be leverage across all the adapters
+  const pools = Object.keys(TypedDefiPools[DYDX_ADAPTER_NAME]);
+  for (const pool of pools) {
+    const underlyingTokenAddress = getAddress(TypedDefiPools[DYDX_ADAPTER_NAME][pool].tokens[0]);
+    if (TypedDefiPools[DYDX_ADAPTER_NAME][pool].tokens.length == 1) {
+      for (const story of testDeFiAdapterScenario.stories) {
+        it(`${pool} - ${story.description}`, async function () {
+          if (underlyingTokenAddress === TypedTokens["SAI"]) {
+            this.skip();
           }
-        }
+          let defaultFundAmount: BigNumber = BigNumber.from("2");
+          let limit: BigNumber = hre.ethers.BigNumber.from(0);
+          const timestamp = (await getBlockTimestamp(hre)) * 2;
+          const liquidityPool = TypedDefiPools[DYDX_ADAPTER_NAME][pool].pool;
+          const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+          const decimals = await ERC20Instance.decimals();
+          const adapterAddress = dYdXAdapter.address;
+          const dYdXSoloInstance = await hre.ethers.getContractAt(abis.dYdXSolo.abi, abis.dYdXSolo.address);
+          let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+          for (const action of story.setActions) {
+            switch (action.action) {
+              case "setMaxDepositProtocolMode(uint8)": {
+                const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                const existingMode = await dYdXAdapter.maxDepositProtocolMode();
+                if (existingMode != mode) {
+                  await dYdXAdapter[action.action](mode);
+                }
+                break;
+              }
+              case "setMaxDepositProtocolPct(uint256)": {
+                const existingPoolPct: BigNumber = await dYdXAdapter.maxDepositPoolPct(liquidityPool);
+                if (!existingPoolPct.eq(BigNumber.from(0))) {
+                  await dYdXAdapter.setMaxDepositPoolPct(liquidityPool, 0);
+                }
+                const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                const existingProtocolPct: BigNumber = await dYdXAdapter.maxDepositProtocolPct();
+                if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
+                  await dYdXAdapter[action.action](maxDepositProtocolPct);
+                }
+                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(
+                  liquidityPool,
+                  underlyingTokenAddress,
+                );
+                limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                break;
+              }
+              case "setMaxDepositPoolPct(address,uint256)": {
+                const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                const existingPoolPct: BigNumber = await dYdXAdapter.maxDepositPoolPct(liquidityPool);
+                if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
+                  await dYdXAdapter[action.action](liquidityPool, maxDepositPoolPct);
+                }
+                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(
+                  liquidityPool,
+                  underlyingTokenAddress,
+                );
+                limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
+                defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                break;
+              }
+              case "setMaxDepositAmount(address,address,uint256)": {
+                const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                const existingDepositAmount: BigNumber = await dYdXAdapter.maxDepositAmount(
+                  liquidityPool,
+                  underlyingTokenAddress,
+                );
+                if (
+                  !existingDepositAmount.eq(
+                    BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
+                  )
+                ) {
+                  await dYdXAdapter[action.action](
+                    liquidityPool,
+                    underlyingTokenAddress,
+                    BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
+                  );
+                }
+                limit = await dYdXAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
+                defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                break;
+              }
+              case "fundTestDeFiAdapterContract": {
+                const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                if (underlyingBalance.lt(defaultFundAmount)) {
+                  await fundWalletToken(
+                    hre,
+                    underlyingTokenAddress,
+                    users["owner"],
+                    defaultFundAmount,
+                    timestamp,
+                    testDeFiAdapter.address,
+                  );
+                }
+                break;
+              }
+              case "testGetDepositAllCodes(address,address,address)": {
+                underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                break;
+              }
+              case "testGetWithdrawAllCodes(address,address,address)": {
+                console.log("Before withdraw: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                console.log("After withdraw: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                break;
+              }
+              case "testGetDepositSomeCodes(address,address,address,uint256)": {
+                underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                await testDeFiAdapter[action.action](
+                  underlyingTokenAddress,
+                  liquidityPool,
+                  adapterAddress,
+                  underlyingBalanceBefore,
+                );
+                break;
+              }
+              case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                const lpTokenBalance = await dYdXAdapter.getLiquidityPoolTokenBalance(
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                console.log("Before withdraw some: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                console.log("lpTokenBalance: ", lpTokenBalance.toString());
+                await testDeFiAdapter[action.action](
+                  underlyingTokenAddress,
+                  liquidityPool,
+                  adapterAddress,
+                  lpTokenBalance,
+                );
+                console.log("Balance after withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
+                console.log("After withdraw some: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                break;
+              }
+            }
+          }
+          for (const action of story.getActions) {
+            switch (action.action) {
+              case "getLiquidityPoolTokenBalance(address,address,address)": {
+                const expectedValue = action.expectedValue;
+                const expectedLpBalanceFromPool = (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1];
+                const lpTokenBalance = await dYdXAdapter[action.action](
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
+                const existingMode = await dYdXAdapter.maxDepositProtocolMode();
+                if (existingMode == 0) {
+                  const existingDepositAmount: BigNumber = await dYdXAdapter.maxDepositAmount(
+                    liquidityPool,
+                    underlyingTokenAddress,
+                  );
+                  if (existingDepositAmount.eq(0)) {
+                    expect(lpTokenBalance).to.be.eq(0);
+                  } else {
+                    expect(lpTokenBalance).to.be.gt(0);
+                  }
+                } else {
+                  const existingPoolPct: BigNumber = await dYdXAdapter.maxDepositPoolPct(liquidityPool);
+                  const existingProtocolPct: BigNumber = await dYdXAdapter.maxDepositProtocolPct();
+                  if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
+                    expect(lpTokenBalance).to.be.eq(0);
+                  } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
+                    expectedValue == "=0"
+                      ? expect(lpTokenBalance).to.be.eq(0)
+                      : expect(lpTokenBalance).to.be.gt(0);
+                  }
+                }
+                break;
+              }
+              case "balanceOf(address)": {
+                const expectedValue = action.expectedValue;
+                const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
+                  testDeFiAdapter.address,
+                );
+                if (underlyingBalanceBefore.lt(limit)) {
+                  expectedValue == ">0"
+                    ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                    : expect(underlyingBalanceAfter).to.be.eq(0);
+                } else {
+                  expectedValue == ">0"
+                    ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                    : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
+                }
+                break;
+              }
+            }
+          }
+          for (const action of story.cleanActions) {
+            switch (action.action) {
+              case "testGetWithdrawAllCodes(address,address,address)": {
+                await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                break;
+              }
+            }
+          }
+          for (const action of story.getActions) {
+            switch (action.action) {
+              case "getLiquidityPoolTokenBalance(address,address,address)": {
+                const lpTokenBalance = await dYdXAdapter[action.action](
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                expect(lpTokenBalance).to.be.eq(0);
+                break;
+              }
+              case "balanceOf(address": {
+                const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                expect(underlyingBalance).to.be.gt(0);
+              }
+            }
+          }
+        });
       }
     }
   }
