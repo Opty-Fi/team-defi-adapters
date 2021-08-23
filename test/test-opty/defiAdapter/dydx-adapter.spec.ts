@@ -305,13 +305,11 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
               case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
                 const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
                 underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                console.log("Block number before: ", (await hre.ethers.provider.getBlockNumber()).toString());
                 const lpTokenBalance = await dYdXAdapter.getAllAmountInToken(
                   testDeFiAdapter.address,
                   underlyingTokenAddress,
                   liquidityPool,
                 );
-                console.log("Block number after: ", (await hre.ethers.provider.getBlockNumber()).toString());
                 console.log("Before withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
                 console.log("Balance before withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
                 console.log("lpTokenBalance: ", lpTokenBalance.toString());
@@ -319,11 +317,7 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
                   underlyingTokenAddress,
                   liquidityPool,
                   adapterAddress,
-                  await dYdXAdapter.getAllAmountInToken(
-                    testDeFiAdapter.address,
-                    underlyingTokenAddress,
-                    liquidityPool,
-                  ),
+                  lpTokenBalance,
                 );
                 console.log("Balance after withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
                 console.log("After withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
