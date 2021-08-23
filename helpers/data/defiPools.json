@@ -1373,6 +1373,61 @@
       "pool": "0x1A122348B73B58eA39F822A89e6ec67950c2bBD0",
       "lpToken": "0x1A122348B73B58eA39F822A89e6ec67950c2bBD0",
       "tokens": ["0xbA4cFE5741b357FA371b506e5db0774aBFeCf8Fc"]
+    },
+    "gno": {
+      "pool": "0x523EFFC8bFEfC2948211A05A905F761CBA5E8e9E",
+      "lpToken": "0x523EFFC8bFEfC2948211A05A905F761CBA5E8e9E",
+      "tokens": ["0x6810e776880C02933D47DB1b9fc05908e5386b96"]
+    },
+    "yvweth": {
+      "pool": "0x4202D97E00B9189936EdF37f8D01cfF88BDd81d4",
+      "lpToken": "0x4202D97E00B9189936EdF37f8D01cfF88BDd81d4",
+      "tokens": ["0xa9fE4601811213c340e850ea305481afF02f5b28"]
+    },
+    "yusd": {
+      "pool": "0x4BAa77013ccD6705ab0522853cB0E9d453579Dd4",
+      "lpToken": "0x4BAa77013ccD6705ab0522853cB0E9d453579Dd4",
+      "tokens": ["0x4B5BfD52124784745c1071dcB244C6688d2533d3"]
+    },
+    "swap": {
+      "pool": "0x98E329eB5aae2125af273102f3440DE19094b77c",
+      "lpToken": "0x98E329eB5aae2125af273102f3440DE19094b77c",
+      "tokens": ["0xCC4304A31d09258b0029eA7FE63d032f52e44EFe"]
+    },
+    "fei": {
+      "pool": "0x8C3B7a4320ba70f8239F83770c4015B5bc4e6F91",
+      "lpToken": "0x8C3B7a4320ba70f8239F83770c4015B5bc4e6F91",
+      "tokens": ["0x956F47F50A910163D8BF957Cf5846D573E7f87CA"]
+    },
+    "woo": {
+      "pool": "0xE585c76573D7593ABF21537B607091F76c996E73",
+      "lpToken": "0xE585c76573D7593ABF21537B607091F76c996E73",
+      "tokens": ["0x4691937a7508860F876c9c0a2a617E7d9E945D4B"]
+    },
+    "bnt": {
+      "pool": "0x81E346729723C4D15d0FB1c5679b9f2926Ff13C6",
+      "lpToken": "0x81E346729723C4D15d0FB1c5679b9f2926Ff13C6",
+      "tokens": ["0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C"]
+    },
+    "pax": {
+      "pool": "0xD7394428536F63d5659cc869EF69d10f9E66314B",
+      "lpToken": "0xD7394428536F63d5659cc869EF69d10f9E66314B",
+      "tokens": ["0x8E870D67F660D95d5be530380D0eC0bd388289E1"]
+    },
+    "paxg": {
+      "pool": "0x1241B10E7EA55b22f5b2d007e8fECDF73DCff999",
+      "lpToken": "0x1241B10E7EA55b22f5b2d007e8fECDF73DCff999",
+      "tokens": ["0x45804880De22913dAFE09f4980848ECE6EcbAf78"]
+    },
+    "ibbtc": {
+      "pool": "0x2A867fd776B83e1bd4e13C6611AFd2F6af07EA6D",
+      "lpToken": "0x2A867fd776B83e1bd4e13C6611AFd2F6af07EA6D",
+      "tokens": ["0xc4E15973E6fF2A35cC804c2CF9D2a1b817a8b40F"]
+    },
+    "lon": {
+      "pool": "0x250Fb308199FE8C5220509C1bf83D21d60b7f74A",
+      "lpToken": "0x250Fb308199FE8C5220509C1bf83D21d60b7f74A",
+      "tokens": ["0x0000000000095413afC295d19EDeb1Ad7B71c952"]
     }
   },
   "AaveV2Adapter": {
