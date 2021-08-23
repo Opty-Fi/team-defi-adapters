@@ -4,5 +4,9 @@ in V2 withdraw will also claim the tokens
 
 pbtc's liquidity gauge is V2.
 
-aave swap pool (https://etherscan.io/address/0xDeBF20617708857ebe4F679508E7b7863a8A8EeE) 
-can be used for both depositing aToken as well dai,usdt,usdt
+
+depositing/withdrawing underlying/wrapped coind both like dai/adai, usdc/ausdc. susd/asusd etc:
+aave(dai,usdc,usdt) swap pool (https://etherscan.io/address/0xDeBF20617708857ebe4F679508E7b7863a8A8EeE) 
+aave(dai,susd) swap pool (https://etherscan.io/address/0xEB16Ae0052ed37f479f7fe63849198Df1765a733)
+iron swap pool (https://etherscan.io/address/0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF)
+
