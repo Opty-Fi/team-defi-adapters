@@ -286,9 +286,10 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
                 break;
               }
               case "testGetWithdrawAllCodes(address,address,address)": {
-                console.log("Before withdraw: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
+                console.log("Before withdraw: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
                 await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                console.log("After withdraw: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                console.log("After withdraw: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
                 break;
               }
               case "testGetDepositSomeCodes(address,address,address,uint256)": {
@@ -302,22 +303,30 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
                 break;
               }
               case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
                 underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                const lpTokenBalance = await dYdXAdapter.getLiquidityPoolTokenBalance(
+                console.log("Block number before: ", (await hre.ethers.provider.getBlockNumber()).toString());
+                const lpTokenBalance = await dYdXAdapter.getAllAmountInToken(
                   testDeFiAdapter.address,
                   underlyingTokenAddress,
                   liquidityPool,
                 );
-                console.log("Before withdraw some: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                console.log("Block number after: ", (await hre.ethers.provider.getBlockNumber()).toString());
+                console.log("Before withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
+                console.log("Balance before withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
                 console.log("lpTokenBalance: ", lpTokenBalance.toString());
                 await testDeFiAdapter[action.action](
                   underlyingTokenAddress,
                   liquidityPool,
                   adapterAddress,
-                  lpTokenBalance,
+                  await dYdXAdapter.getAllAmountInToken(
+                    testDeFiAdapter.address,
+                    underlyingTokenAddress,
+                    liquidityPool,
+                  ),
                 );
                 console.log("Balance after withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
-                console.log("After withdraw some: ", (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1].toString());
+                console.log("After withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
                 break;
               }
             }
@@ -325,8 +334,9 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
           for (const action of story.getActions) {
             switch (action.action) {
               case "getLiquidityPoolTokenBalance(address,address,address)": {
+                const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
                 const expectedValue = action.expectedValue;
-                const expectedLpBalanceFromPool = (await dYdXSoloInstance.getAccountWei([testDeFiAdapter.address, 0], await dYdXAdapter.marketToIndexes(underlyingTokenAddress)))[1];
+                const expectedLpBalanceFromPool = (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value;
                 const lpTokenBalance = await dYdXAdapter[action.action](
                   testDeFiAdapter.address,
                   underlyingTokenAddress,

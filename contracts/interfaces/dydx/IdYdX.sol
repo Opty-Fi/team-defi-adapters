@@ -57,13 +57,22 @@ struct TotalPar {
     uint128 borrow;
     uint128 supply;
 }
+struct Par {
+    bool sign; // true if positive
+    uint128 value;
+}
+
+struct Wei {
+    bool sign; // true if positive
+    uint256 value;
+}
 
 interface IdYdX {
     function operate(AccountInfo[] memory _accountInfo, ActionArgs[] memory _actionArgs) external;
 
     function setOperators(OperatorArg[] memory args) external;
 
-    function getAccountWei(AccountInfo calldata _accountInfo, uint256 marketId) external view returns (bool, uint256);
+    function getAccountBalances(AccountInfo calldata _accountInfo) external view returns (address[] memory, Par[] memory, Wei[] memory);
 
     function getMarketTotalPar(uint256 marketId) external view returns (TotalPar memory);
 }

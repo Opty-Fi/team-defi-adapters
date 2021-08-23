@@ -20,7 +20,8 @@ import {
     AssetDenomination,
     AssetReference,
     ActionArgs,
-    ActionType
+    ActionType,
+    Wei
 } from "../../../interfaces/dydx/IdYdX.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
@@ -354,8 +355,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     ) public view override returns (uint256) {
         uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
         AccountInfo memory _accountInfo = AccountInfo(_vault, uint256(0));
-        (, uint256 value) = IdYdX(_liquidityPool).getAccountWei(_accountInfo, _underlyingTokenIndex);
-        return value;
+        ( , , Wei[] memory _balances) = IdYdX(_liquidityPool).getAccountBalances(_accountInfo);
+        return uint256(_balances[_underlyingTokenIndex].value);
     }
 
     function _getDepositAmount(
