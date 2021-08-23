@@ -2,17 +2,16 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, FULCRUM_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
 import {
   deployAdapter,
   deployEssentialContracts,
   deployAdapterPrerequisites,
-  deployAdapters,
 } from "../../../helpers/contracts-deployments";
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
-import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
+import testDeFiAdapterScenario from "../scenarios/fulcrum-test-defi-adapter.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
@@ -159,14 +158,14 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
   let users: { [key: string]: Signer };
   const adapterNames = Object.keys(TypedDefiPools);
   let testDeFiAdapter: Contract;
-  let adapters: CONTRACTS;
+  let fulcrumAdapter;
 
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
     users = { owner, admin, user1 };
     adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    adapters = await deployAdapters(hre, owner, adapterPrerequisites.registry.address, true);
+    fulcrumAdapter = await deployAdapter(hre, owner, FULCRUM_ADAPTER_NAME, adapterPrerequisites.registry.address, true);
   });
 
   for (const adapterName of adapterNames) {
@@ -184,29 +183,29 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
-              const adapterAddress = adapters[adapterName].address;
+              const adapterAddress = fulcrumAdapter.address;
               let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositProtocolMode(uint8)": {
                     const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
+                    const existingMode = await fulcrumAdapter.maxDepositProtocolMode();
                     if (existingMode != mode) {
-                      await adapters[adapterName][action.action](mode);
+                      await fulcrumAdapter[action.action](mode);
                     }
                     break;
                   }
                   case "setMaxDepositProtocolPct(uint256)": {
-                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                    const existingPoolPct: BigNumber = await fulcrumAdapter.maxDepositPoolPct(liquidityPool);
                     if (!existingPoolPct.eq(BigNumber.from(0))) {
-                      await adapters[adapterName].setMaxDepositPoolPct(liquidityPool, 0);
+                      await fulcrumAdapter.setMaxDepositPoolPct(liquidityPool, 0);
                     }
                     const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
+                    const existingProtocolPct: BigNumber = await fulcrumAdapter.maxDepositProtocolPct();
                     if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                      await adapters[adapterName][action.action](maxDepositProtocolPct);
+                      await fulcrumAdapter[action.action](maxDepositProtocolPct);
                     }
-                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
+                    const poolValue: BigNumber = await fulcrumAdapter.getPoolValue(
                       liquidityPool,
                       underlyingTokenAddress,
                     );
@@ -217,11 +216,11 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                   }
                   case "setMaxDepositPoolPct(address,uint256)": {
                     const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
+                    const existingPoolPct: BigNumber = await fulcrumAdapter.maxDepositPoolPct(liquidityPool);
                     if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                      await adapters[adapterName][action.action](liquidityPool, maxDepositPoolPct);
+                      await fulcrumAdapter[action.action](liquidityPool, maxDepositPoolPct);
                     }
-                    const poolValue: BigNumber = await adapters[adapterName].getPoolValue(
+                    const poolValue: BigNumber = await fulcrumAdapter.getPoolValue(
                       liquidityPool,
                       underlyingTokenAddress,
                     );
@@ -232,7 +231,7 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                   }
                   case "setMaxDepositAmount(address,address,uint256)": {
                     const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args;
-                    const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                    const existingDepositAmount: BigNumber = await fulcrumAdapter.maxDepositAmount(
                       liquidityPool,
                       underlyingTokenAddress,
                     );
@@ -241,13 +240,13 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                         BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
                       )
                     ) {
-                      await adapters[adapterName][action.action](
+                      await fulcrumAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
                         BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
                       );
                     }
-                    limit = await adapters[adapterName].maxDepositAmount(liquidityPool, underlyingTokenAddress);
+                    limit = await fulcrumAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
                     defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
@@ -276,18 +275,18 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
               for (const action of story.getActions) {
                 switch (action.action) {
                   case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const lpTokenBalance = await adapters[adapterName][action.action](
+                    const lpTokenBalance = await fulcrumAdapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    const poolValue = await adapters[adapterName]["getPoolValue(address,address)"](
+                    const poolValue = await fulcrumAdapter["getPoolValue(address,address)"](
                       liquidityPool,
                       underlyingTokenAddress,
                     );
-                    const existingMode = await adapters[adapterName].maxDepositProtocolMode();
+                    const existingMode = await fulcrumAdapter.maxDepositProtocolMode();
                     if (existingMode == 0) {
-                      const existingDepositAmount: BigNumber = await adapters[adapterName].maxDepositAmount(
+                      const existingDepositAmount: BigNumber = await fulcrumAdapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
@@ -297,8 +296,8 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                         expect(lpTokenBalance).to.be.gt(0);
                       }
                     } else {
-                      const existingPoolPct: BigNumber = await adapters[adapterName].maxDepositPoolPct(liquidityPool);
-                      const existingProtocolPct: BigNumber = await adapters[adapterName].maxDepositProtocolPct();
+                      const existingPoolPct: BigNumber = await fulcrumAdapter.maxDepositPoolPct(liquidityPool);
+                      const existingProtocolPct: BigNumber = await fulcrumAdapter.maxDepositProtocolPct();
                       if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
                         expect(lpTokenBalance).to.be.eq(0);
                       } else {
@@ -331,7 +330,7 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
               for (const action of story.getActions) {
                 switch (action.action) {
                   case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const lpTokenBalance = await adapters[adapterName][action.action](
+                    const lpTokenBalance = await fulcrumAdapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
                       liquidityPool,
