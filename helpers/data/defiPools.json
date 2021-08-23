@@ -1559,6 +1559,21 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ]
+    },
+    "link_link+slink": {
+      "pool": "0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0",
+      "lpToken": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
+      "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA"]
+    },
+    "slink_link+slink": {
+      "pool": "0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0",
+      "lpToken": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
+      "tokens": ["0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6"]
+    },
+    "link+slink": {
+      "pool": "0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0",
+      "lpToken": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
+      "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA", "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6"]
     }
   },
   "DyDxAdapter": {
