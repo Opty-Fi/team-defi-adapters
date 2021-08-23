@@ -1428,6 +1428,36 @@
       "pool": "0x250Fb308199FE8C5220509C1bf83D21d60b7f74A",
       "lpToken": "0x250Fb308199FE8C5220509C1bf83D21d60b7f74A",
       "tokens": ["0x0000000000095413afC295d19EDeb1Ad7B71c952"]
+    },
+    "creth2": {
+      "pool": "0xfd609a03B393F1A1cFcAcEdaBf068CAD09a924E2",
+      "lpToken": "0xfd609a03B393F1A1cFcAcEdaBf068CAD09a924E2",
+      "tokens": ["0xcbc1065255cbc3ab41a6868c22d1f1c573ab89fd"]
+    },
+    "uni_v2_eth_usdt": {
+      "pool": "0xE6C3120F38F56deb38B69b65cC7dcAF916373963",
+      "lpToken": "0xE6C3120F38F56deb38B69b65cC7dcAF916373963",
+      "tokens": ["0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"]
+    },
+    "uni_v2_usdc_eth": {
+      "pool": "0x4Fe11BC316B6d7A345493127fBE298b95AdaAd85",
+      "lpToken": "0x4Fe11BC316B6d7A345493127fBE298b95AdaAd85",
+      "tokens": ["0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc"]
+    },
+    "uni_v2_dai_eth": {
+      "pool": "0xcD22C4110c12AC41aCEfA0091c432ef44efaAFA0",
+      "lpToken": "0xcD22C4110c12AC41aCEfA0091c432ef44efaAFA0",
+      "tokens": ["0xa478c2975ab1ea89e8196811f51a7b7ade33eb11"]
+    },
+    "xsushi": {
+      "pool": "0x228619CCa194Fbe3Ebeb2f835eC1eA5080DaFbb2",
+      "lpToken": "0x228619CCa194Fbe3Ebeb2f835eC1eA5080DaFbb2",
+      "tokens": ["0x8798249c2e607446efb7ad49ec89dd1865ff4272"]
+    },
+    "bbadger": {
+      "pool": "0x8B950f43fCAc4931D408F1fcdA55C6CB6cbF3096",
+      "lpToken": "0x8B950f43fCAc4931D408F1fcdA55C6CB6cbF3096",
+      "tokens": ["0x19d97d8fa813ee2f51ad4b4e04ea08baf4dffc28"]
     }
   },
   "AaveV2Adapter": {

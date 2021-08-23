@@ -1,4 +1,4 @@
-import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA } from "./constants";
+import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA, TOKEN_HOLDERS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import {
@@ -179,18 +179,44 @@ export async function fundWalletToken(
       getEthValueGasOverrideOptions(hre, "500"),
     );
   } else {
-    const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-
-    await uniswapInstance.swapETHForExactTokens(
-      amount,
-      [TypedTokens["WETH"], tokenAddress],
-      address,
-      deadlineTimestamp,
-      getEthValueGasOverrideOptions(hre, "9500"),
+    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
     );
+    if (tokenHolder.length > 0) {
+      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else {
+      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      await uniswapInstance.swapETHForExactTokens(
+        amount,
+        [TypedTokens["WETH"], tokenAddress],
+        address,
+        deadlineTimestamp,
+        getEthValueGasOverrideOptions(hre, "9500"),
+      );
+    }
   }
 }
 
+export async function fundWalletFromImpersonatedAccount(
+  hre: HardhatRuntimeEnvironment,
+  tokenAddress: string,
+  impersonatedAccountAddr: string,
+  fundAmount: BigNumber,
+  toAddress: string,
+): Promise<void> {
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [impersonatedAccountAddr],
+  });
+  const impersonatedAccount = await hre.ethers.getSigner(impersonatedAccountAddr);
+  const erc20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
+  const balance = await erc20Instance.balanceOf(impersonatedAccountAddr);
+  if (+balance >= +fundAmount) {
+    await erc20Instance.connect(impersonatedAccount).transfer(toAddress, fundAmount);
+  } else {
+    throw new Error("not enough amount");
+  }
+}
 export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise<number> {
   const blockNumber = await hre.ethers.provider.getBlockNumber();
   const block = await hre.ethers.provider.getBlock(blockNumber);

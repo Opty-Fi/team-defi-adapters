@@ -2,7 +2,13 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, CREAM_ADAPTER_NAME, ADDRESS_ZERO } from "../../../helpers/constants";
+import {
+  TOKENS,
+  TESTING_DEPLOYMENT_ONCE,
+  CREAM_ADAPTER_NAME,
+  ADDRESS_ZERO,
+  TOKEN_HOLDERS,
+} from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp, lpPausedStatus } from "../../../helpers/contracts-actions";
@@ -159,6 +165,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
 
     describe(`Test-${CREAM_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
+        if (!["bbadger"].includes(pool)) {
+          continue;
+        }
         const poolDetail = TypedDefiPools[CREAM_ADAPTER_NAME][pool];
         const liquidityPool = poolDetail.pool;
         const underlyingTokenAddress =
@@ -210,11 +219,13 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
                       const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingMode = await adapter.maxDepositProtocolMode();
-                      if (existingMode != mode) {
-                        await expect(adapter[action.action](mode))
-                          .to.emit(adapter, "LogMaxDepositProtocolMode")
-                          .withArgs(mode, ownerAddress);
+                      if (mode) {
+                        const existingMode = await adapter.maxDepositProtocolMode();
+                        if (existingMode != mode) {
+                          await expect(adapter[action.action](mode))
+                            .to.emit(adapter, "LogMaxDepositProtocolMode")
+                            .withArgs(+mode, ownerAddress);
+                        }
                       }
                       break;
                     }
@@ -226,26 +237,32 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                         expect(+maxDepositPoolPctSetToZero).to.be.eq(0);
                       }
                       const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
-                      if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        await expect(adapter[action.action](maxDepositProtocolPct))
-                          .to.emit(adapter, "LogMaxDepositProtocolPct")
-                          .withArgs(maxDepositProtocolPct, ownerAddress);
+                      if (maxDepositProtocolPct) {
+                        const convertedProtocolPct = BigNumber.from(maxDepositProtocolPct);
+                        const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
+                        if (!existingProtocolPct.eq(convertedProtocolPct)) {
+                          await expect(adapter[action.action](maxDepositProtocolPct))
+                            .to.emit(adapter, "LogMaxDepositProtocolPct")
+                            .withArgs(convertedProtocolPct, ownerAddress);
+                        }
+                        limit = poolValue.mul(convertedProtocolPct).div(BigNumber.from(10000));
+                        defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       }
-                      limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
                       const { maxDepositPoolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
-                      const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
-                      if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        await expect(adapter[action.action](liquidityPool, maxDepositPoolPct))
-                          .to.emit(adapter, "LogMaxDepositPoolPct")
-                          .withArgs(maxDepositPoolPct, ownerAddress);
+                      if (maxDepositPoolPct) {
+                        const convertedPoolPct = BigNumber.from(maxDepositPoolPct);
+                        const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
+                        if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
+                          await expect(adapter[action.action](liquidityPool, convertedPoolPct))
+                            .to.emit(adapter, "LogMaxDepositPoolPct")
+                            .withArgs(convertedPoolPct, ownerAddress);
+                        }
+                        limit = poolValue.mul(convertedPoolPct).div(BigNumber.from(10000));
+                        defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       }
-                      limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
@@ -284,6 +301,12 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       break;
                     }
                     case "fundTestDefiContractWithRewardToken()": {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        TOKEN_HOLDERS[pool.toUpperCase()]
+                      ) {
+                        this.skip();
+                      }
                       if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                         let compUnderlyingBalance: BigNumber = await RewardTokenERC20Instance!.balanceOf(
                           testDeFiAdapter.address,
@@ -305,7 +328,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                           underlyingTokenAddress,
                           compUnderlyingBalance,
                         );
-                        console.log("availableToHarvestToken", +availableToHarvestToken);
                       }
                       break;
                     }
@@ -364,7 +386,10 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     }
                     case "testGetHarvestAllCodes(address,address,address)": {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
-                      if (getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress)) {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        TOKEN_HOLDERS[pool.toUpperCase()]
+                      ) {
                         this.skip();
                       }
 
@@ -376,7 +401,10 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     }
                     case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
-                      if (getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress)) {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        TOKEN_HOLDERS[pool.toUpperCase()]
+                      ) {
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
