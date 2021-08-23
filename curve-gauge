@@ -10,3 +10,20 @@ aave(dai,usdc,usdt) swap pool (https://etherscan.io/address/0xDeBF20617708857ebe
 aave(dai,susd) swap pool (https://etherscan.io/address/0xEB16Ae0052ed37f479f7fe63849198Df1765a733)
 iron swap pool (https://etherscan.io/address/0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF)
 
+
+TBD:
+tusd metapool
+Deposit : https://etherscan.io/address/0xecd5e75afb02efa118af914515d6521aabd189f1
+StableSwap : https://etherscan.io/address/0xecd5e75afb02efa118af914515d6521aabd189f1
+
+frax
+Deposit : https://etherscan.io/address/0xA79828DF1850E8a3A3064576f380D90aECDD3359
+Stableswap : https://etherscan.io/address/0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B
+
+lusd metapool
+Deposit : https://etherscan.io/address/0xA79828DF1850E8a3A3064576f380D90aECDD3359
+StableSwap : https://etherscan.io/address/0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA
+
+busdv2
+Deposit: https://etherscan.io/address/0xA79828DF1850E8a3A3064576f380D90aECDD3359
+StableSwap ; https://etherscan.io/address/0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a

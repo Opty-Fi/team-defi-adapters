@@ -1574,6 +1574,21 @@
       "pool": "0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0",
       "lpToken": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
       "tokens": ["0x514910771AF9Ca656af840dff83E8264EcF986CA", "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6"]
+    },
+    "eth_eth+reth": {
+      "pool": "0xF9440930043eb3997fc70e1339dBb11F341de7A8",
+      "lpToken": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
+      "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
+    },
+    "reth_eth+reth": {
+      "pool": "0xF9440930043eb3997fc70e1339dBb11F341de7A8",
+      "lpToken": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
+      "tokens": ["0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593"]
+    },
+    "eth+reth": {
+      "pool": "0xF9440930043eb3997fc70e1339dBb11F341de7A8",
+      "lpToken": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
+      "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593"]
     }
   },
   "DyDxAdapter": {
