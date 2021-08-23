@@ -7,10 +7,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -55,10 +55,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -103,10 +103,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -233,10 +233,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -397,10 +397,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [2, 10]
           },
           "executor": "",
@@ -582,10 +582,10 @@
       "setActions": [
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -777,10 +777,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -972,10 +972,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1167,10 +1167,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1362,10 +1362,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",
@@ -1505,7 +1505,7 @@
       ]
     },
     {
-      "description": "User that is not governance shouldn't be able to set the default strategy state",
+      "description": "User that is not strategyOperator shouldn't be able to set the default strategy state",
       "setActions": [
         {
           "contract": "strategyProvider",
@@ -1515,13 +1515,13 @@
           },
           "executor": "user1",
           "expect": "fail",
-          "message": "caller is not having governance"
+          "message": "caller is not the strategyOperator"
         }
       ],
       "getActions": []
     },
     {
-      "description": "User that is governance should be able to set the default strategy state",
+      "description": "User that is strategyOperator should be able to set the default strategy state",
       "setActions": [
         {
           "contract": "strategyProvider",
@@ -1551,10 +1551,10 @@
         },
         {
           "contract": "registry",
-          "action": "addRiskProfile(string,uint8,(uint8,uint8))",
+          "action": "addRiskProfile(string,bool,(uint8,uint8))",
           "args": {
             "riskProfile": "RP1",
-            "noOfSteps": 1,
+            "canBorrow": false,
             "poolRatingRange": [0, 10]
           },
           "executor": "",

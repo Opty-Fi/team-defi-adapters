@@ -1,7 +1,6 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { getContractInstance, isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TOKENS } from "../../helpers/constants";
 import { TypedStrategies } from "../../helpers/data";
 import { STRATEGY } from "../../helpers/type";
@@ -41,7 +40,7 @@ import fs from "fs";
  */
 task("set-strategies", "Set strategies")
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
-  .addParam("fromfile", "the url of file", "", types.string)
+  .addParam("fromfile", "path to strategies json file", "", types.string)
   .setAction(async ({ strategyregistry, fromfile }, hre) => {
     if (strategyregistry === "") {
       throw new Error("strategyregistry cannot be empty");
@@ -66,12 +65,15 @@ task("set-strategies", "Set strategies")
     if (!strategies.length) {
       throw new Error("strategies file is in wrong format");
     }
-
+    console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {
-        const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategies[i].token]]]);
-        await setStrategy(strategies[i].strategy, tokensHash, strategyRegistryContract);
-        console.log(`Set successfully strategy : ${strategies[i].strategyName}`);
+        const tokensHash = generateTokenHash([TOKENS[strategies[i].token]]);
+        const hash = await setStrategy(strategies[i].strategy, tokensHash, strategyRegistryContract);
+        console.log("-----------------");
+        console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
+        console.log(`Invest step strategy Hash : ${hash}`);
+        console.log("-----------------");
       } catch (error) {
         console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }

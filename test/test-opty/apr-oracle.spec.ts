@@ -2,15 +2,14 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { generateStrategyHash, deployContract, executeFunc } from "../../helpers/helpers";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
+import { generateStrategyHash, deployContract, executeFunc, generateTokenHash } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/apr-oracle.json";
 
 type ARGUMENTS = {
   riskProfile?: string;
-  noOfSteps?: number;
+  canBorrow?: boolean;
   poolRatingRange?: number[];
   strategy?: STRATEGY_DATA[];
   token?: string;
@@ -84,19 +83,20 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addRiskProfile(string,uint8,(uint8,uint8))": {
-            const { riskProfile, noOfSteps, poolRatingRange }: ARGUMENTS = action.args;
-            if (riskProfile && noOfSteps && poolRatingRange) {
+          case "addRiskProfile(string,bool,(uint8,uint8))": {
+            const { riskProfile, canBorrow, poolRatingRange }: ARGUMENTS = action.args;
+            const borrowArgExists = canBorrow == true || canBorrow == false;
+            if (riskProfile && borrowArgExists && poolRatingRange) {
               if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, noOfSteps, poolRatingRange);
+                await contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange);
               } else {
                 await expect(
-                  contracts[action.contract][action.action](riskProfile, noOfSteps, poolRatingRange),
+                  contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(noOfSteps, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(canBorrow, `args is wrong in ${action.action} testcase`);
             assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
             break;
           }
@@ -154,7 +154,7 @@ describe(scenario.title, () => {
                 strategySteps.push(tempArr);
               }
 
-              const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+              const tokenHash = generateTokenHash([token]);
 
               if (action.expect === "success") {
                 await contracts[action.contract][action.action](tokenHash, strategySteps);
@@ -175,7 +175,7 @@ describe(scenario.title, () => {
 
             if (strategy && token && riskProfile) {
               const strategyHash = generateStrategyHash(strategy, token);
-              const tokenHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+              const tokenHash = generateTokenHash([token]);
 
               if (action.expect === "success") {
                 await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
