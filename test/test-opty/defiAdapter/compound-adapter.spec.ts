@@ -20,10 +20,10 @@ type ARGUMENTS = {
 };
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  mode?: number;
-  maxDepositProtocolPct?: number;
-  maxDepositPoolPct?: number;
-  maxDepositAmount?: number;
+  mode?: string;
+  maxDepositProtocolPct?: string;
+  maxDepositPoolPct?: string;
+  maxDepositAmount?: string;
 };
 
 chai.use(solidity);
@@ -204,13 +204,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
-                      const { mode }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
+                      const { mode }: any = action.args!;
                       const existingMode = await compoundAdapter.maxDepositProtocolMode();
                       if (existingMode != mode) {
                         await expect(compoundAdapter[action.action](mode))
                           .to.emit(compoundAdapter, "LogMaxDepositProtocolMode")
-                          .withArgs(mode, ownerAddress);
-                        expect(await compoundAdapter.maxDepositProtocolMode()).to.equal(mode);
+                          .withArgs(+mode, ownerAddress);
+                        expect(await compoundAdapter.maxDepositProtocolMode()).to.equal(+mode);
                       }
                       break;
                     }
@@ -218,16 +218,15 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
                         await compoundAdapter.setMaxDepositPoolPct(liquidityPool, 0);
-                        const maxDepositPoolPctSetToZero = await compoundAdapter.maxDepositPoolPct(liquidityPool);
-                        expect(+maxDepositPoolPctSetToZero).to.be.eq(0);
+                        expect(await compoundAdapter.maxDepositPoolPct(liquidityPool)).to.be.eq(0);
                       }
-                      const { maxDepositProtocolPct }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
+                      const { maxDepositProtocolPct }: any = action.args!;
                       const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                         await expect(compoundAdapter[action.action](maxDepositProtocolPct))
                           .to.emit(compoundAdapter, "LogMaxDepositProtocolPct")
-                          .withArgs(maxDepositProtocolPct, ownerAddress);
-                        expect(await compoundAdapter.maxDepositProtocolPct()).to.equal(maxDepositProtocolPct);
+                          .withArgs(+maxDepositProtocolPct, ownerAddress);
+                        expect(await compoundAdapter.maxDepositProtocolPct()).to.equal(+maxDepositProtocolPct);
                       }
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -261,9 +260,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                         )
                           .to.emit(compoundAdapter, "LogMaxDepositAmount")
                           .withArgs(maxDepositAmount, ownerAddress);
-                        expect(await compoundAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)).to.equal(
-                          maxDepositAmount,
-                        );
+                        expect(
+                          +(await compoundAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)),
+                        ).to.equal(+maxDepositAmount);
                       }
                       limit = BigNumber.from(maxDepositAmount);
                       defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
@@ -370,36 +369,14 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const expectedValue = action.expectedValue;
                       const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
-                      const existingMode = await compoundAdapter.maxDepositProtocolMode();
-                      if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await compoundAdapter.maxDepositAmount(
-                          liquidityPool,
+                      expect(
+                        await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
                           underlyingTokenAddress,
-                        );
-                        if (existingDepositAmount.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
-                        } else {
-                          expect(lpTokenBalance).to.be.gt(0);
-                        }
-                      } else {
-                        const existingPoolPct: BigNumber = await compoundAdapter.maxDepositPoolPct(liquidityPool);
-                        const existingProtocolPct: BigNumber = await compoundAdapter.maxDepositProtocolPct();
-                        if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
-                        } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
-                          expectedValue == "=0"
-                            ? expect(lpTokenBalance).to.be.eq(0)
-                            : expect(lpTokenBalance).to.be.gt(0);
-                        }
-                      }
+                          liquidityPool,
+                        ),
+                      ).to.be.eq(+expectedLpBalanceFromPool);
                       break;
                     }
                     case "balanceOf(address)": {
@@ -443,17 +420,18 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const lpTokenBalance = await compoundAdapter[action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      expect(lpTokenBalance).to.be.eq(0);
+                      // const lpTokenBalance =
+                      expect(
+                        await compoundAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        ),
+                      ).to.be.eq(0);
                       break;
                     }
                     case "balanceOf(address)": {
-                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      expect(underlyingBalance).to.be.gt(0);
+                      expect(await ERC20Instance.balanceOf(testDeFiAdapter.address)).to.be.gt(0);
                       break;
                     }
                   }
