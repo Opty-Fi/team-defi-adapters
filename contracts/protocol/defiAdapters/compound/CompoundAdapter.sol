@@ -12,7 +12,6 @@ import { DataTypes } from "../../../libraries/types/DataTypes.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { CompoundETHGateway } from "./CompoundETHGateway.sol";
 
-
 //  interfaces
 import { ICompound } from "../../../interfaces/compound/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -191,7 +190,10 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         returns (bytes[] memory _codes)
     {
         _codes = new bytes[](1);
-        _codes[0] = abi.encode(ICompound(_liquidityPool).comptroller(), abi.encodeWithSignature("claimComp(address)", _vault));
+        _codes[0] = abi.encode(
+            ICompound(_liquidityPool).comptroller(),
+            abi.encodeWithSignature("claimComp(address)", _vault)
+        );
     }
 
     /**
