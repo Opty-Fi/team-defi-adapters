@@ -992,17 +992,8 @@
       "cleanActions": []
     },
     {
-      "description": "[setRewardToken()] - Operator should be able to set valid reward token address",
-      "setActions": [
-        {
-          "contract": "adapter",
-          "action": "setRewardToken(address)",
-          "args": {},
-          "executer": "",
-          "expect": "success",
-          "message": ""
-        }
-      ],
+      "description": "[getRewardToken()] - should return address zero if there is no reward token",
+      "setActions": [],
       "getActions": [
         {
           "contract": "adapter",
@@ -1013,29 +1004,6 @@
           "message": ""
         }
       ],
-      "cleanActions": [
-        {
-          "contract": "adapter",
-          "action": "setRewardToken(address)",
-          "executer": "",
-          "expect": "success",
-          "message": ""
-        }
-      ]
-    },
-    {
-      "description": "[setRewardToken()] - Non-operator shouldn't be able to set reward token address",
-      "setActions": [
-        {
-          "contract": "adapter",
-          "action": "setRewardToken(address)",
-          "args": {},
-          "executer": "user1",
-          "expect": "fail",
-          "message": "caller is not the operator"
-        }
-      ],
-      "getActions": [],
       "cleanActions": []
     }
   ]

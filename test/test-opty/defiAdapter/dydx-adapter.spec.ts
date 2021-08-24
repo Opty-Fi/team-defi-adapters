@@ -7,12 +7,11 @@ import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../he
 import {
   deployAdapter,
   deployAdapterPrerequisites,
-  deployAdapters,
 } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-import testDeFiAdapterScenario from "../scenarios/dydx-test-defi-adapter.json";
+import testDeFiAdaptersScenario from "../scenarios/dydx-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
-import { deployContract, moveToNextBlock } from "../../../helpers/helpers";
+import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
 
@@ -161,7 +160,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
   }
 });
 
-describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
+describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
   let adapterPrerequisites: CONTRACTS;
   let users: { [key: string]: Signer };
   let testDeFiAdapter: Contract;
@@ -186,7 +185,7 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
   for (const pool of pools) {
     const underlyingTokenAddress = getAddress(TypedDefiPools[DYDX_ADAPTER_NAME][pool].tokens[0]);
     if (TypedDefiPools[DYDX_ADAPTER_NAME][pool].tokens.length == 1) {
-      for (const story of testDeFiAdapterScenario.stories) {
+      for (const story of testDeFiAdaptersScenario.stories) {
         it(`${pool} - ${story.description}`, async function () {
           if (underlyingTokenAddress === TypedTokens["SAI"]) {
             this.skip();
@@ -377,6 +376,56 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
                 }
                 break;
               }
+              case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                const expectedValue = action.expectedValue;
+                const amountInUnderlyingToken: BigNumber = await dYdXAdapter.getAllAmountInToken(
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                if (expectedValue == ">") {
+                  const isRedeemableAmountSufficient = await dYdXAdapter[action.action](
+                    testDeFiAdapter.address,
+                    underlyingTokenAddress,
+                    liquidityPool,
+                    amountInUnderlyingToken.add(BigNumber.from(10)),
+                  );
+                  expect(isRedeemableAmountSufficient).to.be.eq(false);
+                } else if (expectedValue == "<") {
+                  const isRedeemableAmountSufficient = await dYdXAdapter[action.action](
+                    testDeFiAdapter.address,
+                    underlyingTokenAddress,
+                    liquidityPool,
+                    +amountInUnderlyingToken > 0
+                      ? amountInUnderlyingToken.sub(BigNumber.from(1))
+                      : BigNumber.from(0),
+                  );
+                  expect(isRedeemableAmountSufficient).to.be.eq(true);
+                }
+                break;
+              }
+              case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                const lpTokenBalance: BigNumber = await dYdXAdapter.getLiquidityPoolTokenBalance(
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                const balanceInToken: BigNumber = await dYdXAdapter.getAllAmountInToken(
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                );
+                const testRedeemAmount: BigNumber = lpTokenBalance;
+                const redeemableLpTokenAmt = await dYdXAdapter[action.action](
+                  testDeFiAdapter.address,
+                  underlyingTokenAddress,
+                  liquidityPool,
+                  testRedeemAmount,
+                );
+                const expectedRedeemableLpTokenAmt = lpTokenBalance;
+                expect(redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
+                break;
+              }
             }
           }
           for (const action of story.cleanActions) {
@@ -401,6 +450,27 @@ describe(`${testDeFiAdapterScenario.title} - DyDxAdapter`, () => {
               case "balanceOf(address": {
                 const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                 expect(underlyingBalance).to.be.gt(0);
+              }
+            }
+          }
+        });
+      }
+      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+        it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
+          const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
+          for (const action of story.setActions) {
+            switch (action.action) {
+              case "canStake(address)": {
+                expect(await dYdXAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
+                break;
+              }
+            }
+          }
+          for (const action of story.getActions) {
+            switch (action.action) {
+              case "getRewardToken(address)": {
+                expect(await dYdXAdapter[action.action](ADDRESS_ZERO)).to.be.eq(ADDRESS_ZERO);
+                break;
               }
             }
           }
