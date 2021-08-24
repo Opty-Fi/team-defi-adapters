@@ -21,6 +21,7 @@
     "node": ">=12"
   },
   "devDependencies": {
+    "@compound-finance/compound-js": "^0.3.0",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -99,7 +100,6 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.1.7",
-    "@compound-finance/compound-js": "^0.3.0",
     "@openzeppelin/contracts": "3.4.0",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
