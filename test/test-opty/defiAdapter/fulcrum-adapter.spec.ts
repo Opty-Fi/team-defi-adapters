@@ -320,7 +320,9 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                     expect(
                       await fulcrumAdapter[action.action](underlyingTokenAddress, liquidityPool, _depositAmount),
                     ).to.be.eq(
-                      _depositAmount.mul(BigNumber.from(BigNumber.from(10).pow(decimals))).div(await iTokenInstance.tokenPrice()),
+                      _depositAmount
+                        .mul(BigNumber.from(BigNumber.from(10).pow(decimals)))
+                        .div(await iTokenInstance.tokenPrice()),
                     );
                     break;
                   }
@@ -339,12 +341,13 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                   case "getSomeAmountInToken(address,address,uint256)": {
                     const _lpTokenDecimals = await iTokenInstance.decimals();
                     const _lpTokenAmount = defaultFundAmount.mul(
-                      BigNumber.from(BigNumber.from(10).pow(_lpTokenDecimals)));
+                      BigNumber.from(BigNumber.from(10).pow(_lpTokenDecimals)),
+                    );
                     if (+_lpTokenAmount > 0) {
-                      expect(
-                        await fulcrumAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount),
-                      ).to.be.eq(
-                        _lpTokenAmount.mul(await iTokenInstance.tokenPrice()).div(BigNumber.from(BigNumber.from(10).pow(decimals))),
+                      expect(await fulcrumAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount)).to.be.eq(
+                        _lpTokenAmount
+                          .mul(await iTokenInstance.tokenPrice())
+                          .div(BigNumber.from(BigNumber.from(10).pow(decimals))),
                       );
                     }
                     break;

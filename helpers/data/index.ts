@@ -8,7 +8,14 @@ import { default as Tokens } from "./tokens.json";
 import { default as BtcTokens } from "./btc_tokens.json";
 import { default as CurveTokens } from "./curve_tokens.json";
 import { default as PairTokens } from "./pair_tokens.json";
-import { DEFI_POOLS_DATA, ADAPTER_WITH_STRATEGIES_DATA, STRATEGY, DATA_OBJECT, PAIR_TOKEN_DATA, CURVE_TOKEN_DATA } from "../type";
+import {
+  DEFI_POOLS_DATA,
+  ADAPTER_WITH_STRATEGIES_DATA,
+  STRATEGY,
+  DATA_OBJECT,
+  PAIR_TOKEN_DATA,
+  CURVE_TOKEN_DATA,
+} from "../type";
 
 export const TypedDefiPools = DefiPools as DEFI_POOLS_DATA;
 export const TypedAdapterStrategies = AdapterStrategies as ADAPTER_WITH_STRATEGIES_DATA;
