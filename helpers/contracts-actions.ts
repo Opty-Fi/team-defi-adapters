@@ -585,7 +585,6 @@ export async function fundWalletToken(
       deadlineTimestamp,
       getEthValueGasOverrideOptions(hre, "9500"),
     );
-    const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   }
 }
 

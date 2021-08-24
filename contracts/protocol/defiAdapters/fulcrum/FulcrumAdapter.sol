@@ -244,7 +244,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IFulcrum(_liquidityPool).marketLiquidity();
+        return IFulcrum(_liquidityPool).totalAssetSupply();
     }
 
     /**
