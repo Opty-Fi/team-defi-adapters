@@ -268,12 +268,10 @@ describe(scenario.title, () => {
                 case "balanceOf(address)": {
                   const { address, addressName } = <any>action.args;
                   if (address) {
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   } else if (addressName) {
                     const address = users[addressName].getAddress();
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   }
                   break;
                 }

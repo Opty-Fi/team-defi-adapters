@@ -174,7 +174,6 @@ describe(scenario.title, () => {
                           await contracts[action.contract.toLowerCase()][action.action](contracts[addressName].address);
                         }
                       }
-
                       assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                       break;
                     }
@@ -196,11 +195,13 @@ describe(scenario.title, () => {
                       const { expectedValue }: ARGUMENTS = action.args;
                       if (expectedValue) {
                         if (action.expect === "success") {
-                          const balance = await contracts[action.contract][action.action]();
-                          const convertedBalance = BigNumber.from(balance).div(BigNumber.from(10).pow(decimals));
                           expectedValue === "0"
-                            ? expect(+convertedBalance).to.equal(+expectedValue)
-                            : expect(+convertedBalance).to.be.gte(+expectedValue.split(">=")[1]);
+                            ? expect(+(await contracts[action.contract][action.action]())).to.equal(
+                                +BigNumber.from(expectedValue).div(BigNumber.from(10).pow(decimals)),
+                              )
+                            : expect(+(await contracts[action.contract][action.action]())).to.be.gte(
+                                +BigNumber.from(expectedValue.split(">=")[1]).div(BigNumber.from(10).pow(decimals)),
+                              );
                         }
                       }
 
@@ -211,10 +212,9 @@ describe(scenario.title, () => {
                       const { expectedValue }: ARGUMENTS = action.args;
                       if (expectedValue) {
                         if (action.expect === "success") {
-                          const addr = await owner.getAddress();
-                          const balance = await contracts[action.contract][action.action](addr);
-                          const convertedBalance = BigNumber.from(balance).div(BigNumber.from(10).pow(decimals));
-                          expect(+convertedBalance).to.gte(+expectedValue);
+                          expect(+(await contracts[action.contract][action.action](await owner.getAddress()))).to.gte(
+                            +BigNumber.from(expectedValue).mul(BigNumber.from(10).pow(decimals)),
+                          );
                         }
                       }
                       assert.isDefined(expectedValue, `args is wrong in ${action.action} testcase`);

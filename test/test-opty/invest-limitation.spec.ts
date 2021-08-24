@@ -236,40 +236,41 @@ describe(scenarios.title, () => {
                   switch (getAction.action) {
                     case "maxDepositPoolPct(address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(
+                        await contracts[getAction.contract][getAction.action](strategy.strategy[0].contract),
+                      ).to.equal(+expectedValue[strategy.token]);
                       break;
                     }
                     case "maxDepositProtocolPct()": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(+(await contracts[getAction.contract][getAction.action]())).to.equal(
+                        +expectedValue[strategy.token],
+                      );
                       break;
                     }
                     case "maxDepositAmount(address,address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                        TOKENS[strategy.token],
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(
+                        await contracts[getAction.contract][getAction.action](
+                          strategy.strategy[0].contract,
+                          TOKENS[strategy.token],
+                        ),
+                      ).to.equal(expectedValue[strategy.token]);
                       break;
                     }
                     case "maxDepositProtocolMode()": {
                       const expectedValue: any = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue.type);
+                      expect(await contracts[getAction.contract][getAction.action]()).to.equal(expectedValue.type);
                       break;
                     }
                     case "balanceOf(address)": {
                       const { userName }: ARGUMENTS = getAction.args;
                       if (userName) {
                         const address = await users[userName].getAddress();
-                        const balance = await contracts[getAction.contract][getAction.action](address);
                         const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                        expect(balance).to.equal(expectedValue[strategy.token]);
+                        expect(await contracts[getAction.contract][getAction.action](address)).to.equal(
+                          expectedValue[strategy.token],
+                        );
                       }
                       break;
                     }

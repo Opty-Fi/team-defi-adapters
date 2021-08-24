@@ -73,16 +73,17 @@ describe(scenario.title, () => {
           case "rpToTokenToBestStrategy(string,bytes32)": {
             const { riskProfile, tokenName }: ARGUMENTS = action.args;
             if (riskProfile && tokenName) {
-              const value = await contracts[action.contract][action.action](
-                riskProfile,
-                generateTokenHash([TypedTokens[tokenName]]),
-              );
               const expectedStrategyHash = generateStrategyHash(
                 TypedStrategies.filter(strategy => strategy.strategyName == action.expectedValue.strategyName)[0]
                   .strategy,
                 TypedTokens[action.expectedValue.tokenName],
               );
-              expect(value).to.be.equal(expectedStrategyHash);
+              expect(
+                await contracts[action.contract][action.action](
+                  riskProfile,
+                  generateTokenHash([TypedTokens[tokenName]]),
+                ),
+              ).to.be.equal(expectedStrategyHash);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             assert.isDefined(tokenName, `args is wrong in ${action.action} testcase`);
@@ -94,8 +95,9 @@ describe(scenario.title, () => {
             break;
           }
           case "defaultStrategyState()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(value).to.be.equal(action.expectedValue.defaultStrategyState);
+            expect(await contracts[action.contract][action.action]()).to.be.equal(
+              action.expectedValue.defaultStrategyState,
+            );
             break;
           }
         }

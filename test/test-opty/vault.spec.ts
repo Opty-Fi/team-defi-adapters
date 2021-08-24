@@ -130,53 +130,34 @@ describe(scenario.title, () => {
                       switch (action.action) {
                         case "fundWallet": {
                           const { amount }: ARGUMENTS = action.args;
-                          try {
-                            if (amount) {
-                              const timestamp = (await getBlockTimestamp(hre)) * 2;
-                              await fundWalletToken(
-                                hre,
-                                TOKENS[TOKEN_STRATEGY.token],
-                                users[userIndex],
-                                BigNumber.from(amount[TOKEN_STRATEGY.token]),
-                                timestamp,
-                              );
-                            }
-                          } catch (error) {
-                            if (action.expect === "success") {
-                              assert.isUndefined(error);
-                            } else {
-                              expect(error.message).to.equal(
-                                `VM Exception while processing transaction: revert ${action.message}`,
-                              );
-                            }
+                          if (amount) {
+                            const timestamp = (await getBlockTimestamp(hre)) * 2;
+                            await fundWalletToken(
+                              hre,
+                              TOKENS[TOKEN_STRATEGY.token],
+                              users[userIndex],
+                              BigNumber.from(amount[TOKEN_STRATEGY.token]),
+                              timestamp,
+                            );
                           }
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                           break;
                         }
                         case "approve(address,uint256)": {
                           const { contractName, amount }: ARGUMENTS = action.args;
-                          try {
-                            if (contractName && amount) {
-                              let investedAmount: string;
-                              if (amount[TOKEN_STRATEGY.token] === "all") {
-                                const userAddr = await users[userIndex].getAddress();
-                                const value = await contracts[action.contract].balanceOf(userAddr);
-                                investedAmount = value.toString();
-                              } else {
-                                investedAmount = amount[TOKEN_STRATEGY.token];
-                              }
-                              await contracts[action.contract]
-                                .connect(users[userIndex])
-                                [action.action](contracts[contractName].address, investedAmount);
-                            }
-                          } catch (error) {
-                            if (action.expect === "success") {
-                              assert.isUndefined(error);
+
+                          if (contractName && amount) {
+                            let investedAmount: string;
+                            if (amount[TOKEN_STRATEGY.token] === "all") {
+                              const userAddr = await users[userIndex].getAddress();
+                              const value = await contracts[action.contract].balanceOf(userAddr);
+                              investedAmount = value.toString();
                             } else {
-                              expect(error.message).to.equal(
-                                `VM Exception while processing transaction: revert ${action.message}`,
-                              );
+                              investedAmount = amount[TOKEN_STRATEGY.token];
                             }
+                            await contracts[action.contract]
+                              .connect(users[userIndex])
+                              [action.action](contracts[contractName].address, investedAmount);
                           }
                           assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
@@ -184,21 +165,13 @@ describe(scenario.title, () => {
                         }
                         case "mint(uint256)": {
                           const { amount }: ARGUMENTS = action.args;
-                          try {
-                            if (amount) {
-                              await contracts[action.contract]
-                                .connect(users[userIndex])
-                                [action.action](amount[action.contract.toUpperCase()]);
-                            }
-                          } catch (error) {
-                            if (action.expect === "success") {
-                              assert.isUndefined(error);
-                            } else {
-                              expect(error.message).to.equal(
-                                `VM Exception while processing transaction: revert ${action.message}`,
-                              );
-                            }
+
+                          if (amount) {
+                            await contracts[action.contract]
+                              .connect(users[userIndex])
+                              [action.action](amount[action.contract.toUpperCase()]);
                           }
+
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                           break;
                         }
@@ -211,35 +184,26 @@ describe(scenario.title, () => {
                           if (action.action.includes("userWithdrawRebalance")) {
                             await delay(200);
                           }
-                          try {
-                            if (amount) {
-                              let investedAmount: string;
-                              if (amount[TOKEN_STRATEGY.token] === "all") {
-                                if (action.action.includes("userWithdrawRebalance")) {
-                                  const userAddr = await users[userIndex].getAddress();
-                                  const value = await contracts[action.contract].balanceOf(userAddr);
-                                  investedAmount = value.toString();
-                                } else {
-                                  const userAddr = await users[userIndex].getAddress();
-                                  const value = await contracts["erc20"].allowance(
-                                    userAddr,
-                                    contracts[action.contract].address,
-                                  );
-                                  investedAmount = value.toString();
-                                }
+
+                          if (amount) {
+                            let investedAmount: string;
+                            if (amount[TOKEN_STRATEGY.token] === "all") {
+                              if (action.action.includes("userWithdrawRebalance")) {
+                                const userAddr = await users[userIndex].getAddress();
+                                const value = await contracts[action.contract].balanceOf(userAddr);
+                                investedAmount = value.toString();
                               } else {
-                                investedAmount = amount[TOKEN_STRATEGY.token];
+                                const userAddr = await users[userIndex].getAddress();
+                                const value = await contracts["erc20"].allowance(
+                                  userAddr,
+                                  contracts[action.contract].address,
+                                );
+                                investedAmount = value.toString();
                               }
-                              await contracts[action.contract].connect(users[userIndex])[action.action](investedAmount);
-                            }
-                          } catch (error) {
-                            if (action.expect === "success") {
-                              assert.isUndefined(error);
                             } else {
-                              expect(error.message).to.equal(
-                                `VM Exception while processing transaction: revert ${action.message}`,
-                              );
+                              investedAmount = amount[TOKEN_STRATEGY.token];
                             }
+                            await contracts[action.contract].connect(users[userIndex])[action.action](investedAmount);
                           }
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                           break;
@@ -251,17 +215,7 @@ describe(scenario.title, () => {
                         case "userDepositAllRebalanceWithCHI()":
                         case "userWithdrawAllRebalanceWithCHI()":
                         case "rebalance()": {
-                          try {
-                            await contracts[action.contract].connect(users[userIndex])[action.action]();
-                          } catch (error) {
-                            if (action.expect === "success") {
-                              assert.isUndefined(error);
-                            } else {
-                              expect(error.message).to.equal(
-                                `VM Exception while processing transaction: revert ${action.message}`,
-                              );
-                            }
-                          }
+                          await contracts[action.contract].connect(users[userIndex])[action.action]();
                           break;
                         }
                       }

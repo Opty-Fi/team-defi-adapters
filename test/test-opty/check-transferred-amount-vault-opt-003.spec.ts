@@ -113,13 +113,15 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "balanceOf(address)": {
-            const value = await contracts[action.contract][action.action](await operator.getAddress());
-            expect(value).to.be.equal(action.expectedValue);
+            expect(await contracts[action.contract][action.action](await operator.getAddress())).to.be.equal(
+              action.expectedValue,
+            );
             break;
           }
           case "balance()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(value).to.be.equal(BigNumber.from(action.expectedValue).add(BigNumber.from(currentBalance)));
+            expect(await contracts[action.contract][action.action]()).to.be.equal(
+              BigNumber.from(action.expectedValue).add(BigNumber.from(currentBalance)).toString(),
+            );
             break;
           }
         }

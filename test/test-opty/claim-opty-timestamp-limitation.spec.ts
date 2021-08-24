@@ -208,8 +208,7 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "operatorUnlockClaimOPTYTimestamp()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(+value).to.be.equal(+action.expectedValue);
+            expect(+(await contracts[action.contract][action.action]())).to.be.equal(+action.expectedValue);
             break;
           }
         }

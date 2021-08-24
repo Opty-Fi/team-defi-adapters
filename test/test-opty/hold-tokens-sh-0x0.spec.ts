@@ -171,8 +171,9 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "balance()": {
-                      const balance = await contracts[action.contract][action.action]();
-                      expect(balance).to.equal(action.expectedValue[<keyof typeof action.expectedValue>strategy.token]);
+                      expect(await contracts[action.contract][action.action]()).to.equal(
+                        action.expectedValue[<keyof typeof action.expectedValue>strategy.token],
+                      );
                       break;
                     }
                     case "userWithdrawRebalance(uint256)": {

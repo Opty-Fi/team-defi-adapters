@@ -337,8 +337,9 @@ describe(scenario.title, () => {
           case "odefiVaultRatePerSecond(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -348,11 +349,10 @@ describe(scenario.title, () => {
             if (addressName) {
               await moveToNextBlock(hre);
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
               if (action.expectedValue === "") {
-                expect(value.toString()).to.be.equal(currentOdefi.toString());
+                expect(+(await contracts[action.contract][action.action](addr))).to.be.equal(+currentOdefi);
               } else {
-                expect(+value).to.be.gte(+action.expectedValue);
+                expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
               }
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
@@ -362,8 +362,7 @@ describe(scenario.title, () => {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
-              expect(+value).to.be.gte(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;

@@ -216,8 +216,7 @@ describe(scenario.title, () => {
                 const action = story.getActions[j];
                 switch (action.action) {
                   case "pricePerShareWrite()": {
-                    const balance = await contracts[action.contract][action.action]();
-                    expect(balance).to.be.gt(0);
+                    expect(+(await contracts[action.contract][action.action]())).to.be.gt(0);
                     break;
                   }
                 }
