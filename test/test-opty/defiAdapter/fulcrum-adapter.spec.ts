@@ -11,7 +11,7 @@ import {
 } from "../../../helpers/contracts-deployments";
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
-import testDeFiAdapterScenario from "../scenarios/fulcrum-test-defi-adapter.json";
+import testDeFiAdaptersScenario from "../scenarios/fulcrum-test-defi-adapter.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
@@ -154,7 +154,7 @@ describe("FulcrumAdapter", () => {
   }
 });
 
-describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
+describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
   let adapterPrerequisites: CONTRACTS;
   let users: { [key: string]: Signer };
   const adapterNames = Object.keys(TypedDefiPools);
@@ -176,7 +176,7 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
       for (const pool of pools) {
         const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
-          for (const story of testDeFiAdapterScenario.stories) {
+          for (const story of testDeFiAdaptersScenario.stories) {
             it(`${pool} - ${story.description}`, async function () {
               let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
@@ -308,17 +308,9 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                     break;
                   }
                   case "getUnderlyingTokens(address,address)": {
-                    //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
-                    //  function because CETH has ETH as underlying.
                     expect([
                       getAddress((await fulcrumAdapter[action.action](liquidityPool, ADDRESS_ZERO))[0]),
-                    ]).to.have.members([
-                      getAddress(
-                        getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)
-                          ? TypedTokens.WETH
-                          : await iTokenInstance.loanTokenAddress(),
-                      ),
-                    ]);
+                    ]).to.have.members([getAddress(await iTokenInstance.loanTokenAddress())]);
                     break;
                   }
                   case "calculateAmountInLPToken(address,address,uint256)": {
@@ -412,6 +404,62 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                     }
                     break;
                   }
+                  case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                    const _lpTokenBalance: BigNumber = await fulcrumAdapter.getLiquidityPoolTokenBalance(
+                      testDeFiAdapter.address,
+                      underlyingTokenAddress,
+                      liquidityPool,
+                    );
+                    const _balanceInToken: BigNumber = await fulcrumAdapter.getAllAmountInToken(
+                      testDeFiAdapter.address,
+                      underlyingTokenAddress,
+                      liquidityPool,
+                    );
+                    const _testRedeemAmount: BigNumber = _lpTokenBalance;
+                    const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                      .mul(_testRedeemAmount)
+                      .div(_balanceInToken)
+                      .add(BigNumber.from(1));
+                    expect(
+                      await fulcrumAdapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _testRedeemAmount,
+                      ),
+                    ).to.be.eq(expectedRedeemableLpTokenAmt);
+                    break;
+                  }
+                  case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                    const expectedValue = action.expectedValue;
+                    const _amountInUnderlyingToken: BigNumber = await fulcrumAdapter.getAllAmountInToken(
+                      testDeFiAdapter.address,
+                      underlyingTokenAddress,
+                      liquidityPool,
+                    );
+                    if (expectedValue == ">") {
+                      expect(
+                        await fulcrumAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          _amountInUnderlyingToken.add(BigNumber.from(10)),
+                        ),
+                      ).to.be.eq(false);
+                    } else if (expectedValue == "<") {
+                      expect(
+                        await fulcrumAdapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          +_amountInUnderlyingToken > 0
+                            ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                            : BigNumber.from(0),
+                        ),
+                      ).to.be.eq(true);
+                    }
+                    break;
+                  }
                 }
               }
               for (const action of story.cleanActions) {
@@ -436,6 +484,27 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
                   case "balanceOf(address": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     expect(underlyingBalance).to.be.gt(0);
+                  }
+                }
+              }
+            });
+          }
+          for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+            it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
+              const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
+              for (const action of story.setActions) {
+                switch (action.action) {
+                  case "canStake(address)": {
+                    expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
+                    break;
+                  }
+                }
+              }
+              for (const action of story.getActions) {
+                switch (action.action) {
+                  case "getRewardToken(address)": {
+                    expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(ADDRESS_ZERO);
+                    break;
                   }
                 }
               }
