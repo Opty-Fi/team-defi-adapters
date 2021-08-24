@@ -30,16 +30,20 @@ task("set-max-deposit", "Set max deposit amount for adapter")
         throw new Error("liquiditypool address is invalid");
       }
 
-      if (underlyingtoken !== "" && !isAddress(underlyingtoken)) {
-        throw new Error("underlyingToken address is invalid");
-      }
-
       if (mode === "") {
         throw new Error("mode cannot be empty");
       }
 
       if (MAX_DEPOSIT_MODE[mode.toLowerCase()] === undefined) {
         throw new Error("mode is invalid");
+      }
+
+      if (underlyingtoken === "" && mode === "number") {
+        throw new Error("underlyingtoken cannot be empty");
+      }
+
+      if (underlyingtoken !== "" && !isAddress(underlyingtoken)) {
+        throw new Error("underlyingToken address is invalid");
       }
     }
 
