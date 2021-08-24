@@ -5,7 +5,7 @@ import { CONTRACTS } from "../../../helpers/type";
 import {
   TOKENS,
   TESTING_DEPLOYMENT_ONCE,
-  ZERO_ADDRESS,
+  ADDRESS_ZERO,
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
   CURVE_SWAP_POOL_ADAPTER_NAME,
 } from "../../../helpers/constants";
@@ -77,7 +77,7 @@ describe("CurveAdapters Unit test", () => {
             const timestamp = (await getBlockTimestamp(hre)) * 2;
             nCoins = await curveAdapters[curveAdapterName].getUnderlyingTokens(
               strategy.strategy[0].contract,
-              ZERO_ADDRESS,
+              ADDRESS_ZERO,
             );
             for (let i = 0; i < nCoins.length; i++) {
               if (nCoins[i] === TOKENS["DAI"]) {
@@ -91,7 +91,7 @@ describe("CurveAdapters Unit test", () => {
               }
             }
             lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
-              ZERO_ADDRESS,
+              ADDRESS_ZERO,
               strategy.strategy[0].contract,
             );
           } catch (error) {
@@ -112,7 +112,7 @@ describe("CurveAdapters Unit test", () => {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
-                        ZERO_ADDRESS,
+                        ADDRESS_ZERO,
                         [nCoins[0]], // DAI
                         strategy.strategy[0].contract,
                         depositAmount,
@@ -169,7 +169,7 @@ describe("CurveAdapters Unit test", () => {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
-                        ZERO_ADDRESS,
+                        ADDRESS_ZERO,
                         nCoins,
                         strategy.strategy[0].contract,
                         withdrawalAmount,
