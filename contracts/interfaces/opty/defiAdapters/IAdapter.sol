@@ -27,7 +27,7 @@ interface IAdapter {
     /**
      * @dev Get batch of function calls for depositing specified amount of underlying token in given liquidity pool
      * @param _vault Vault contract address
-     * @param _underlyingToken  Underlying token supported by the given liquidity pool
+     * @param _underlyingToken  Underlying token's address supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address where to deposit
      * @param _amount Underlying token's amount
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
@@ -42,7 +42,7 @@ interface IAdapter {
     /**
      * @dev Get batch of function calls for depositing vault's full balance in underlying tokens in given liquidity pool
      * @param _vault Vault contract address
-     * @param _underlyingToken  Underlying token supported by the given liquidity pool
+     * @param _underlyingToken  Underlying token's address supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address where to deposit
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
@@ -56,7 +56,7 @@ interface IAdapter {
      * @notice Get batch of function calls for redeeming specified amount of lpTokens held in the vault
      * @dev Redeem specified `amount` of `liquidityPoolToken` and send the `underlyingToken` to the caller`
      * @param _vault Vault contract address
-     * @param _underlyingToken  Underlying token's supported by the given liquidity pool
+     * @param _underlyingToken  Underlying token's address supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address from where to withdraw
      * @param _amount Amount of underlying token to redeem from the given liquidity pool
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
@@ -72,7 +72,7 @@ interface IAdapter {
      * @notice Get batch of function calls for redeeming full balance of lpTokens held in the vault
      * @dev Redeem full `amount` of `liquidityPoolToken` and send the `underlyingToken` to the caller`
      * @param _vault Vault contract address
-     * @param _underlyingToken  Underlying token's supported by the given liquidity pool
+     * @param _underlyingToken  Underlying token's address supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address from where to withdraw
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
