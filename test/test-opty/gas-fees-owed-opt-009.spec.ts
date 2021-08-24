@@ -309,7 +309,7 @@ describe(scenario.title, () => {
             const action = story.getActions[i];
             switch (action.action) {
               case "gasOwedToOperator()": {
-                expect(await contracts[action.contract][action.action]()).to.be.equal(true);
+                expect(+(await contracts[action.contract][action.action]())).to.be.lt(+gasOwedTotal);
               }
             }
           }
