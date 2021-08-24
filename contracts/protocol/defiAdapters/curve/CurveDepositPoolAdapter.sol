@@ -122,13 +122,6 @@ contract CurveDepositPoolAdapter is
     }
 
     /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address) external override onlyOperator {
-        revert("!empty");
-    }
-
-    /**
      * @inheritdoc IAdapterStakingCurve
      */
     function getAllAmountInTokenStakeWrite(
