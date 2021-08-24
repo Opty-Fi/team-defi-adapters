@@ -425,7 +425,7 @@ export async function fundWalletToken(
         }
       } else {
         let swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractNew2.abi), wallet);
-        let coin = await swapInstance.coins(0);
+        const coin = await swapInstance.coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
         if (coin !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
           await uniswapInstance
