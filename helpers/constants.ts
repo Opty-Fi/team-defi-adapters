@@ -367,5 +367,3 @@ export const MAPPING_CURVE_DEPOSIT_DATA = [
     gauges: "DUSD_GAUGE",
   },
 ];
-
-export const UNISWAPV2ROUTER01_ADDRESS = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";

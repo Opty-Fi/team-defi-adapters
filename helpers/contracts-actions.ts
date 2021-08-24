@@ -1,4 +1,4 @@
-import { TOKENS } from "./constants";
+import { TOKENS, RISK_PROFILES } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import { TypedAdapterStrategies, TypedTokens } from "./data";
@@ -223,4 +223,18 @@ export async function unpauseVault(
   unpaused: boolean,
 ): Promise<void> {
   await executeFunc(registryContract, owner, "unpauseVaultContract(address,bool)", [vaultAddr, unpaused]);
+}
+
+export async function addRiskProfiles(owner: Signer, registry: Contract): Promise<void> {
+  const profiles = Object.keys(RISK_PROFILES);
+  for (let i = 0; i < profiles.length; i++) {
+    const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
+    if (!profile.exists) {
+      await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
+        RISK_PROFILES[profiles[i]].name,
+        RISK_PROFILES[profiles[i]].canBorrow,
+        RISK_PROFILES[profiles[i]].poolRating,
+      ]);
+    }
+  }
 }

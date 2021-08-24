@@ -4,7 +4,7 @@ import { CONTRACTS } from "./type";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { deployContract, executeFunc } from "./helpers";
 import { OPTY_STAKING_VAULTS } from "./constants";
-
+import { addRiskProfiles } from "./contracts-actions";
 export async function deployRegistry(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -126,21 +126,8 @@ export async function deployEssentialContracts(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const registry = await deployRegistry(hre, owner, isDeployedOnce);
-  const profiles = Object.keys(RISK_PROFILES);
-  for (let i = 0; i < profiles.length; i++) {
-    try {
-      const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
-      if (!profile.exists) {
-        await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
-          RISK_PROFILES[profiles[i]].name,
-          RISK_PROFILES[profiles[i]].canBorrow,
-          RISK_PROFILES[profiles[i]].poolRating,
-        ]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
+  await addRiskProfiles(owner, registry);
 
   const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
     hre,

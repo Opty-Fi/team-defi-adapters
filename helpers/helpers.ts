@@ -68,15 +68,6 @@ export async function getExistingContractAddress(
   return address;
 }
 
-export async function getContractInstance(
-  hre: HardhatRuntimeEnvironment,
-  contractName: string,
-  contractAddress: string,
-): Promise<Contract> {
-  const contract = await hre.ethers.getContractAt(contractName, contractAddress);
-  return contract;
-}
-
 export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: string): string {
   const strategyStepsHash: string[] = [];
   const tokensHash = generateTokenHash([tokenAddress]);
@@ -162,12 +153,12 @@ export function retrieveAdapterFromStrategyName(strategyName: string): string[] 
   for (let i = 1; i < strategyStep.length; i++) {
     const strategySymbol = strategyStep[i].split("-");
     let adapterName;
-    if (strategySymbol[0] === "AAVE") {
+    if (strategySymbol[0].toUpperCase() === "AAVE") {
       adapterName = "AaveV1";
-    } else if (strategySymbol[0] === "AAVE_V2") {
+    } else if (strategySymbol[0].toUpperCase() === "AAVE_V2") {
       adapterName = "AaveV2";
-    } else if (strategySymbol[0] === "CURVE") {
-      adapterName = strategySymbol[1] === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
+    } else if (strategySymbol[0].toUpperCase() === "CURVE") {
+      adapterName = strategySymbol[1].toUpperCase() === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
     } else {
       adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
     }

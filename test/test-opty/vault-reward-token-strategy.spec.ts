@@ -121,7 +121,7 @@ describe(scenario.title, () => {
                 profile,
               );
 
-              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;

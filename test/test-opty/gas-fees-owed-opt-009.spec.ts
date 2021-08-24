@@ -17,7 +17,6 @@ import scenario from "./scenarios/gas-fees-owed-opt-009.json";
 import {
   generateTokenHash,
   generateStrategyHash,
-  getContractInstance,
   retrieveAdapterFromStrategyName,
   generateStrategyStep,
 } from "../../helpers/helpers";
@@ -89,13 +88,13 @@ describe(scenario.title, () => {
 
         await unpauseVault(operator, essentialContracts.registry, Vault.address, true);
 
-        const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[token]);
+        const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
 
         decimals = await Token_ERC20Instance.decimals();
 
         contracts["erc20"] = Token_ERC20Instance;
 
-        const CHIInstance = await getContractInstance(hre, "IChi", TOKENS["CHI"]);
+        const CHIInstance = await hre.ethers.getContractAt("IChi", TOKENS["CHI"]);
 
         contracts["chi"] = CHIInstance;
 

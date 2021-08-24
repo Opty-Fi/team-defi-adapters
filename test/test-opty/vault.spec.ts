@@ -18,7 +18,6 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault.json";
-import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   contractName?: string;
@@ -96,9 +95,9 @@ describe(scenario.title, () => {
                 ]);
               }
 
-              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
-              const CHIInstance = await getContractInstance(hre, "IChi", TOKENS["CHI"]);
+              const CHIInstance = await hre.ethers.getContractAt("IChi", TOKENS["CHI"]);
 
               Vault = await deployVault(
                 hre,
