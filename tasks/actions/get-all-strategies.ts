@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("get-strategies", "Get all available strategies for specific token")
@@ -23,8 +23,7 @@ task("get-strategies", "Get all available strategies for specific token")
       throw new Error("strategyregistry address is invalid");
     }
 
-    const strategyRegistryContract = await getContractInstance(
-      hre,
+    const strategyRegistryContract = await hre.ethers.getContractAt(
       ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
       strategyregistry,
     );

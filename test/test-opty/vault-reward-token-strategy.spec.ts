@@ -18,7 +18,6 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
-import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -99,8 +98,7 @@ describe(scenario.title, () => {
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
                   essentialContracts.registry,
                 );
-                RewardToken_ERC20Instance = await getContractInstance(
-                  hre,
+                RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                   "ERC20",
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
                 );

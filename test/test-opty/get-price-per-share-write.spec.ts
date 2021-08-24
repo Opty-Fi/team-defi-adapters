@@ -17,7 +17,6 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/get-price-per-share-write.json";
-import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -88,8 +87,7 @@ describe(scenario.title, () => {
                 <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
                 essentialContracts.registry,
               );
-              RewardToken_ERC20Instance = await getContractInstance(
-                hre,
+              RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                 "ERC20",
                 <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
               );
