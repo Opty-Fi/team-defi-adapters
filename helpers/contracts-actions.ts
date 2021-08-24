@@ -217,6 +217,7 @@ export async function fundWalletFromImpersonatedAccount(
     throw new Error("not enough amount");
   }
 }
+
 export async function getBlockTimestamp(hre: HardhatRuntimeEnvironment): Promise<number> {
   const blockNumber = await hre.ethers.provider.getBlockNumber();
   const block = await hre.ethers.provider.getBlock(blockNumber);

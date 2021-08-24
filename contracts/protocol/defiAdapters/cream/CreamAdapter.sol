@@ -36,6 +36,9 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
 
+    /** @notice HFIL token contract address */
+    address public constant HFIL = address(0x9AFb950948c2370975fb91a441F36FDC02737cD4);
+
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
@@ -234,7 +237,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
         if (_depositAmount > 0) {
-            if (_underlyingTokens[0] == HBTC) {
+            if (_underlyingTokens[0] == HBTC || _underlyingTokens[0] == HFIL) {
                 _codes = new bytes[](2);
                 _codes[0] = abi.encode(
                     _underlyingTokens[0],

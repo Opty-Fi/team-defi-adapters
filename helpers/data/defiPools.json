@@ -1458,6 +1458,11 @@
       "pool": "0x8B950f43fCAc4931D408F1fcdA55C6CB6cbF3096",
       "lpToken": "0x8B950f43fCAc4931D408F1fcdA55C6CB6cbF3096",
       "tokens": ["0x19d97d8fa813ee2f51ad4b4e04ea08baf4dffc28"]
+    },
+    "hfil": {
+      "pool": "0xd5103AfcD0B3fA865997Ef2984C66742c51b2a8b",
+      "lpToken": "0xd5103AfcD0B3fA865997Ef2984C66742c51b2a8b",
+      "tokens": ["0x9afb950948c2370975fb91a441f36fdc02737cd4"]
     }
   },
   "AaveV2Adapter": {
