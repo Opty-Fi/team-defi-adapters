@@ -1,4 +1,5 @@
 import { task, types } from "hardhat/config";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { getContractInstance, isAddress } from "../../helpers/helpers";
 
 task("get-action", "execute a get action in smart contract")
@@ -9,6 +10,10 @@ task("get-action", "execute a get action in smart contract")
   .setAction(async ({ name, address, functionabi, params }, hre) => {
     if (name === "") {
       throw new Error("name cannot be empty");
+    }
+
+    if (!Object.values(ESSENTIAL_CONTRACTS).includes(name)) {
+      throw new Error("name doesn't match with the available contracts list");
     }
 
     if (address === "") {

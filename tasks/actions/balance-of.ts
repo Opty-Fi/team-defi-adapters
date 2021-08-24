@@ -28,5 +28,5 @@ task("balance-of", "Check token balance of address")
 
     console.log(`Token: ${token}`);
     console.log(`User: ${user}`);
-    console.log(`Balance : ${balance}`);
+    console.log(`Balance : ${+balance}`);
   });
