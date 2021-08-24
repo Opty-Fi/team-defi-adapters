@@ -186,6 +186,7 @@ describe(`${testDeFiAdapterScenario.title} - FulcrumAdapter`, () => {
               const decimals = await ERC20Instance.decimals();
               const iTokenInstance = await hre.ethers.getContractAt(abis.iToken, liquidityPool);
               const poolValue = await fulcrumAdapter.getPoolValue(liquidityPool, ADDRESS_ZERO);
+              // @reason iLEND and iYFI are no longer active and we shouldn't test them
               if (+poolValue == 0) {
                 this.skip();
               }
