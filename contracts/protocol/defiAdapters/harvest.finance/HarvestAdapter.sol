@@ -74,14 +74,10 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice Harvest.finance's reward token address */
-    address public rewardToken;
-
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
-        setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
         setLiquidityPoolToStakingVault(TBTC_SBTC_CRV_DEPOSIT_POOL, TBTC_SBTC_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(THREE_CRV_DEPOSIT_POOL, THREE_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(YDAI_YUSDC_YUSDT_YTUSD_DEPOSIT_POOL, YDAI_YUSDC_YUSDT_YTUSD_STAKE_VAULT);
@@ -136,13 +132,6 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
             "liquidityPoolToStakingVault already set"
         );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address _rewardToken) public override onlyOperator {
-        rewardToken = _rewardToken;
     }
 
     /**
@@ -442,8 +431,8 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        return IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).rewardToken();
     }
 
     /**
@@ -542,7 +531,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    rewardToken,
+                    IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).rewardToken(),
                     _underlyingToken,
                     _unclaimedReward
                 )
