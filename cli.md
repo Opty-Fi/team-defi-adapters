@@ -624,8 +624,8 @@ Options:
 ```
 
 - Notes:
-functionabi: needs to have quotation marks('') around the function abi.
-params: need to have comma(,) in order to differentiate each param (Ex : param1,param2).
+  functionabi: needs to have quotation marks('') around the function abi.
+  params: need to have comma(,) in order to differentiate each param (Ex : param1,param2).
 
 - Example
 
@@ -635,5 +635,5 @@ yarn hardhat get-action \
 --name ERC20 \
 --address 0x6B175474E89094C44Da98b954EedeAC495271d0F \
 --functionabi 'balanceOf(address)' \
---params 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1 
+--params 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1
 ```
