@@ -27,6 +27,9 @@ import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAd
 contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice Sushiswap's reward token address */
     address public rewardToken;
 
@@ -41,9 +44,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points

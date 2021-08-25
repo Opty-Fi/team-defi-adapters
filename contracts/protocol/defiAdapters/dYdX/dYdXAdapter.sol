@@ -34,6 +34,9 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address public constant SAI = address(0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359);
@@ -42,9 +45,6 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points

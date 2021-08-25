@@ -26,11 +26,11 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract YVaultAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice max deposit's protocol value in percentage */
-    uint256 public maxDepositProtocolPct; // basis points
-
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
+
+    /** @notice max deposit's protocol value in percentage */
+    uint256 public maxDepositProtocolPct; // basis points
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points

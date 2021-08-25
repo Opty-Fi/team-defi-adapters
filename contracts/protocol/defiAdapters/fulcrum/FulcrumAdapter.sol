@@ -25,10 +25,10 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
-    uint256 public maxDepositProtocolPct; // basis points
-
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
+
+    uint256 public maxDepositProtocolPct; // basis points
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points

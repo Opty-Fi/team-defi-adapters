@@ -44,6 +44,9 @@ contract CurveSwapPoolAdapter is
 {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice  Curve Registry Address Provider */
     address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
 
@@ -52,9 +55,6 @@ contract CurveSwapPoolAdapter is
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Maps liquidityPool to absolute max deposit value in underlying */
     mapping(address => uint256) public maxDepositAmount;

@@ -30,6 +30,9 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice Harvest.finance's reward token address */
     address public rewardToken;
 
@@ -67,9 +70,6 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice Maps liquidityPool to staking vault */
     mapping(address => address) public liquidityPoolToStakingVault;

@@ -42,6 +42,9 @@ import { IAdapterBorrow } from "../../../interfaces/opty/defiAdapters/IAdapterBo
 contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
@@ -63,9 +66,6 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     /** @notice AaveV2's Data provider id */
     bytes32 public constant PROTOCOL_DATA_PROVIDER_ID =
         0x0100000000000000000000000000000000000000000000000000000000000000;
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points

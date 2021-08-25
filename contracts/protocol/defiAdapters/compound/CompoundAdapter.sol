@@ -29,6 +29,9 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice Compound's comptroller contract address */
     address public comptroller;
 
@@ -56,9 +59,6 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
 
     /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     constructor(address _registry) public Modifiers(_registry) {
         compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
