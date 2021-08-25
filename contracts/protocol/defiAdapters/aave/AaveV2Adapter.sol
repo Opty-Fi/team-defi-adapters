@@ -125,7 +125,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _amounts);
@@ -279,7 +279,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPoolAddressProviderRegistry
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount =
             getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPoolAddressProviderRegistry);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProviderRegistry, _redeemAmount);
