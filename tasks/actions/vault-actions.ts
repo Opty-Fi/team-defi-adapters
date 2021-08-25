@@ -80,7 +80,7 @@ task("vault-actions", "perform actions in Vault")
           if (withrebalance) {
             let strategyHash = await vaultContract.investStrategyHash();
             console.log(`Invest strategy : ${strategyHash}`);
-            console.log("depositing with rebalance..");
+            console.log(`depositing ${checkedAmount.toString()} with rebalance..`);
             const depositTx = await vaultContract.connect(userSigner).userDepositRebalance(checkedAmount.toString());
             await depositTx.wait(1);
             const vaultShareBalance = await vaultContract.balanceOf(user);
@@ -117,7 +117,7 @@ task("vault-actions", "perform actions in Vault")
         try {
           let strategyHash = await vaultContract.investStrategyHash();
           console.log(`Invest strategy : ${strategyHash}`);
-          console.log("withdrawing with rebalance..");
+          console.log(`withdrawing ${checkedAmount.toString()} with rebalance..`);
           const withdrawTx = await vaultContract.connect(userSigner).userWithdrawRebalance(checkedAmount.toString());
           await withdrawTx.wait(1);
           const vaultShareBalance = await vaultContract.balanceOf(user);

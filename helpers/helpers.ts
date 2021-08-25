@@ -4,7 +4,6 @@ import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
-import { expect } from "chai";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -191,20 +190,4 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
-}
-
-//  function to test max deposit invest limitation events
-export function expectInvestLimitEvents(
-  transaction: any,
-  expectedEventName: string,
-  expectedEventSignature: string,
-  expectedAdapterAddress: string,
-  expectedCallerAddress: string,
-  expectedMaxDepositTypeOrPctOrAmt: string | number,
-) {
-  expect(transaction.events[0].event).to.equal(expectedEventName);
-  expect(transaction.events[0].eventSignature).to.equal(expectedEventSignature);
-  expect(transaction.events[0].address).to.equal(expectedAdapterAddress);
-  expect(+transaction.events[0].args[0]).to.equal(+expectedMaxDepositTypeOrPctOrAmt);
-  expect(transaction.events[0].args[1]).to.equal(expectedCallerAddress);
 }
