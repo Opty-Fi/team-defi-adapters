@@ -178,16 +178,16 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
-                const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
-                let RewardTokenERC20Instance: Contract;
-                if (!(rewardTokenAddress == ADDRESS_ZERO)) {
-                  RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
-                }
                 //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
                 //  However, it works fine if existing blockNumber is removed with the latest blockNumber.
                 const getCode = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
                 if (getCode === "0x") {
                   this.skip();
+                }
+                const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
+                let RewardTokenERC20Instance: Contract;
+                if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                  RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 }
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let rewardTokenBalanceBefore: BigNumber = ethers.BigNumber.from(0);
