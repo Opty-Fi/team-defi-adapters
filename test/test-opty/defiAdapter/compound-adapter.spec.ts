@@ -178,7 +178,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
-                const rewardTokenAddress = await compoundAdapter.getRewardToken(ADDRESS_ZERO);
+                const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                   RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
