@@ -154,7 +154,6 @@ export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<v
 export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.COMP) ||
     underlyingTokenAddress == getAddress(TypedTokens.SAI) ||
     underlyingTokenAddress == getAddress(TypedTokens.REP) ||
@@ -170,6 +169,7 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
       ? BigNumber.from("200")
       : defaultFundAmount;
   defaultFundAmount =
+    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
     underlyingTokenAddress == getAddress(TypedTokens.YFI) ||
