@@ -507,7 +507,7 @@ Options:
 --network       optional <string>  name of the network provider (default: hardhat)
 ```
 
-- Example
+- Example:
 
 ```
 yarn hardhat map-liquiditypool-adapter \
@@ -529,7 +529,7 @@ Options:
 --network       optional <string>  name of the network provider (default: hardhat)
 ```
 
-- Example
+- Example:
 
 ```
 yarn hardhat map-liquiditypools-adapter \
@@ -551,13 +551,13 @@ Options:
 --liquiditypool   conditional required <address> the address of liquiditypool
 --underlyingtoken conditional required <address> the address of underlying token
 --setprotocol     optional <boolean>  set amount for Protocol or not (default: false)
---network       optional <string>  name of the network provider (default: hardhat)
+--network         optional <string>  name of the network provider (default: hardhat)
 ```
 
-- Tips:
+- Notes:
   Conditional required flags might be required depend on the Adapter's contract.
 
-- Example
+- Example:
 
 ```
 yarn hardhat set-max-deposit
@@ -567,7 +567,7 @@ yarn hardhat set-max-deposit
 --liquiditypool 0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c \
 --underlyingtoken 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490 \
 --setprotocol false \
---network localhost \
+--network localhost
 ```
 
 ### set-max-deposit-mode
@@ -576,18 +576,18 @@ yarn hardhat set-max-deposit
 Usage: set max deposit mode for a specific adapter
 
 Options:
---adapter         required <address> the address of adapter
---mode            required <address> the max deposit mode
---network       optional <string>  name of the network provider (default: hardhat)
+--adapter      required <address> the address of adapter
+--mode         required <address> the max deposit mode
+--network      optional <string>  name of the network provider (default: hardhat)
 ```
 
-- Example
+- Example:
 
 ```
 yarn hardhat set-max-deposit-mode
 --adapter 0xA38FdF6d6D3E6dff80F416Fa6C1649b317A70595 \
 --mode pct \
---network localhost \
+--network localhost
 ```
 
 ### balance-of
@@ -598,7 +598,7 @@ Usage: check token balance of specific address
 Options:
 --token      required <address> the address of token
 --user       required <address> the address of user
---network       optional <string>  name of the network provider (default: hardhat)
+--network    optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Example
@@ -616,14 +616,14 @@ yarn hardhat balance-of \
 Usage: execute a get action in smart contract
 
 Options:
---name      required <address> the name of contract
+--name          required <address> the name of contract
 --address       required <address> the address of smart contract
---functionabi       required <string> a get function abi
---params       optional <array> the required params of the function (default: "")
+--functionabi   required <string> a get function abi
+--params        optional <array> the required params of the function (default: "")
 --network       optional <string>  name of the network provider (default: hardhat)
 ```
 
-Tips:
+- Notes:
 functionabi: needs to have quotation marks('') around the function abi.
 params: need to have comma(,) in order to differentiate each param (Ex : param1,param2).
 
@@ -635,5 +635,5 @@ yarn hardhat get-action \
 --name ERC20 \
 --address 0x6B175474E89094C44Da98b954EedeAC495271d0F \
 --functionabi 'balanceOf(address)' \
---params 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1  \
+--params 0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1 
 ```

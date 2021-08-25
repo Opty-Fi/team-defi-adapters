@@ -1,6 +1,7 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
+import { solidity } from "ethereum-waffle";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
@@ -16,7 +17,6 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/invest-limitation.json";
-import { expectInvestLimitEvents } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -26,6 +26,7 @@ type ARGUMENTS = {
 type EXPECTED_ARGUMENTS = {
   [key: string]: string | number;
 };
+chai.use(solidity);
 describe(scenarios.title, () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("20000000000000000000"),
@@ -144,18 +145,11 @@ describe(scenarios.title, () => {
                     case "setMaxDepositProtocolMode(uint8)": {
                       const { type }: ARGUMENTS = setAction.args;
                       if (setAction.expect === "success") {
-                        const _setMaxDepositProtocolModeTx = await contracts[setAction.contract]
-                          .connect(users[setAction.executer])
-                          [setAction.action](type);
-                        const setMaxDepositProtocolModeTx = await _setMaxDepositProtocolModeTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolModeTx,
-                          "LogMaxDepositProtocolMode",
-                          "LogMaxDepositProtocolMode(uint8,address)",
-                          contracts[setAction.contract].address,
-                          userAddresses[setAction.executer],
-                          type!,
-                        );
+                        await expect(
+                          contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
+                        )
+                          .to.emit(contracts[setAction.contract], "LogMaxDepositProtocolMode")
+                          .withArgs(type, userAddresses[setAction.executer]);
                       } else {
                         await expect(
                           contracts[setAction.contract].connect(users[setAction.executer])[setAction.action](type),
@@ -167,18 +161,13 @@ describe(scenarios.title, () => {
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositAmount = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        const _setMaxDepositAmountTx = await contracts[setAction.contract]
-                          .connect(users[setAction.executer])
-                          [setAction.action](strategy.strategy[0].contract, token, maxDepositAmount);
-                        const setMaxDepositAmountTx = await _setMaxDepositAmountTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositAmountTx,
-                          "LogMaxDepositAmount",
-                          "LogMaxDepositAmount(uint256,address)",
-                          contracts[setAction.contract].address,
-                          userAddresses[setAction.executer],
-                          maxDepositAmount,
-                        );
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](strategy.strategy[0].contract, token, maxDepositAmount),
+                        )
+                          .to.emit(contracts[setAction.contract], "LogMaxDepositAmount")
+                          .withArgs(maxDepositAmount, userAddresses[setAction.executer]);
                       } else {
                         await expect(
                           contracts[setAction.contract]
@@ -192,18 +181,13 @@ describe(scenarios.title, () => {
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositPoolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        const _setMaxDepositPoolPctTx = await contracts[setAction.contract]
-                          .connect(users[setAction.executer])
-                          [setAction.action](strategy.strategy[0].contract, maxDepositPoolPct);
-                        const setMaxDepositPoolPctTx = await _setMaxDepositPoolPctTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositPoolPctTx,
-                          "LogMaxDepositPoolPct",
-                          "LogMaxDepositPoolPct(uint256,address)",
-                          contracts[setAction.contract].address,
-                          userAddresses[setAction.executer],
-                          maxDepositPoolPct,
-                        );
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](strategy.strategy[0].contract, maxDepositPoolPct),
+                        )
+                          .to.emit(contracts[setAction.contract], "LogMaxDepositPoolPct")
+                          .withArgs(maxDepositPoolPct, userAddresses[setAction.executer]);
                       } else {
                         await expect(
                           contracts[setAction.contract]
@@ -217,18 +201,13 @@ describe(scenarios.title, () => {
                       const { amount }: ARGUMENTS = setAction.args;
                       const maxDepositProtocolPct = amount ? amount[strategy.token] : "0";
                       if (setAction.expect === "success") {
-                        const _setMaxDepositProtocolPctTx = await contracts[setAction.contract]
-                          .connect(users[setAction.executer])
-                          [setAction.action](maxDepositProtocolPct);
-                        const setMaxDepositProtocolPctTx = await _setMaxDepositProtocolPctTx.wait();
-                        expectInvestLimitEvents(
-                          setMaxDepositProtocolPctTx,
-                          "LogMaxDepositProtocolPct",
-                          "LogMaxDepositProtocolPct(uint256,address)",
-                          contracts[setAction.contract].address,
-                          userAddresses[setAction.executer],
-                          maxDepositProtocolPct,
-                        );
+                        await expect(
+                          contracts[setAction.contract]
+                            .connect(users[setAction.executer])
+                            [setAction.action](maxDepositProtocolPct),
+                        )
+                          .to.emit(contracts[setAction.contract], "LogMaxDepositProtocolPct")
+                          .withArgs(maxDepositProtocolPct, userAddresses[setAction.executer]);
                       } else {
                         await expect(
                           contracts[setAction.contract]
