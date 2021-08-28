@@ -173,6 +173,16 @@
       "pool": "0x55BCf7173C8840d5517424eD19b7bbF11CFb9F2B",
       "lpToken": "0x55bcf7173c8840d5517424ed19b7bbf11cfb9f2b",
       "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"]
+    },
+    "usdx": {
+      "pool": "0x109917F7C3b6174096f9E1744e41ac073b3E1F72",
+      "lpToken": "0x109917F7C3b6174096f9E1744e41ac073b3E1F72",
+      "tokens": ["0xeb269732ab75A6fD61Ea60b06fE994cD32a83549"]
+    },
+    "pax": {
+      "pool": "0xF4dFc3Df8C83Be5a2ec2025491fd157c474f438a",
+      "lpToken": "0xF4dFc3Df8C83Be5a2ec2025491fd157c474f438a",
+      "tokens": ["0x8E870D67F660D95d5be530380D0eC0bd388289E1"]
     }
   },
   "FulcrumAdapter": {

@@ -4,6 +4,7 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import {
   TOKENS,
+  TESTING_CONTRACTS,
   TESTING_DEPLOYMENT_ONCE,
   DFORCE_ADAPTER_NAME,
   ADDRESS_ZERO,
@@ -14,7 +15,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
-import testDeFiAdaptersScenario from "../scenarios/cream-temp-defi-adapter.json";
+import testDeFiAdaptersScenario from "../scenarios/dforce-temp-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
@@ -157,16 +158,29 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
 
   describe(`DForce pools test`, async () => {
     let testDeFiAdapter: Contract;
-
+    let dummyContract: Contract;
     before(async () => {
-      testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
+      testDeFiAdapter = await deployContract(
+        hre,
+        TESTING_CONTRACTS.TESTING_DEFI_ADAPTER,
+        TESTING_DEPLOYMENT_ONCE,
+        users["owner"],
+        [],
+      );
+      dummyContract = await deployContract(
+        hre,
+        TESTING_CONTRACTS.TEST_DUMMY_EMPTY_CONTRACT,
+        TESTING_DEPLOYMENT_ONCE,
+        users["owner"],
+        [],
+      );
     });
 
     const pools = Object.keys(TypedDefiPools[DFORCE_ADAPTER_NAME]);
 
     describe(`Test-${DFORCE_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
-        if (pool !== "dai") {
+        if (pool !== "usdt") {
           continue;
         }
         const poolDetail = TypedDefiPools[DFORCE_ADAPTER_NAME][pool];
@@ -213,6 +227,8 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                 let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let stakingTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
 
                 for (const action of story.setActions) {
@@ -334,6 +350,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetDepositAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
 
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address);
 
@@ -341,6 +358,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetDepositSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](
                         underlyingTokenAddress,
                         liquidityPool,
@@ -352,21 +370,20 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetWithdrawAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address);
                       break;
                     }
                     case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await adapter.getLiquidityPoolTokenBalance(
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
+                      lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+
                       await testDeFiAdapter[action.action](
                         underlyingTokenAddress,
                         liquidityPool,
                         adapter.address,
-                        lpTokenBalance,
+                        lpTokenBalanceBefore,
                       );
 
                       break;
@@ -403,6 +420,50 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       );
                       break;
                     }
+                    case "testGetClaimRewardTokenCode(address,address)": {
+                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                      console.log("rewardTokenBalanceBefore", +rewardTokenBalanceBefore);
+                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                      break;
+                    }
+                    case "testGetStakeAllCodes(address,address,address)": {
+                      stakingTokenBalanceBefore = await lpStakingContract.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapter.address);
+                      break;
+                    }
+                    case "testGetStakeSomeCodes(address,uint256,address)": {
+                      stakingTokenBalanceBefore = await lpStakingContract.balanceOf(testDeFiAdapter.address);
+                      const balanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, balanceFromPool, adapter.address);
+                      break;
+                    }
+                    case "testGetUnstakeAllCodes(address,address)": {
+                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                      break;
+                    }
+                    case "testGetUnstakeSomeCodes(address,uint256,address)": {
+                      const stakingBalance = await lpStakingContract.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, stakingBalance, adapter.address);
+                      break;
+                    }
+                    case "testGetUnstakeAndWithdrawAllCodes(address,address,address)": {
+                      await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapter.address);
+                      break;
+                    }
+                    case "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)": {
+                      const stakingBalance = await lpStakingContract.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        stakingBalance,
+                        adapter.address,
+                      );
+                      break;
+                    }
+                  }
+                }
+                for (const action of story.getActions) {
+                  switch (action.action) {
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
                       const unclaimedRewardTokenAmount = await adapter[action.action](
                         testDeFiAdapter.address,
@@ -416,15 +477,6 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
                       break;
                     }
-                    case "testGetClaimRewardTokenCode(address,address)": {
-                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
-                      break;
-                    }
-                  }
-                }
-                for (const action of story.getActions) {
-                  switch (action.action) {
                     case "calculateAmountInLPToken(address,address,uint256)": {
                       const _depositAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                       const _amountInLPToken = await adapter[action.action](
@@ -474,7 +526,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
                         _underlyingAddressFromPoolContract = TypedTokens.WETH;
                       } else {
-                        _underlyingAddressFromPoolContract = await lpContract.underlying();
+                        _underlyingAddressFromPoolContract = await lpContract.token();
                       }
                       expect([getAddress(_underlyingAddressFromAdapter[0])]).to.have.members([
                         getAddress(_underlyingAddressFromPoolContract),
@@ -484,12 +536,13 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const expectedValue = action.expectedValue;
                       const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await adapter[action.action](
+                      const lpTokenBalanceAfter = await adapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      expect(+lpTokenBalance).to.be.eq(+expectedLpBalanceFromPool);
+
+                      expect(+lpTokenBalanceAfter).to.be.eq(+expectedLpBalanceFromPool);
                       const existingMode = await adapter.maxDepositProtocolMode();
                       if (existingMode == 0) {
                         const existingDepositAmount: BigNumber = await adapter.maxDepositAmount(
@@ -497,19 +550,21 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                           underlyingTokenAddress,
                         );
                         if (existingDepositAmount.eq(0)) {
-                          expect(+lpTokenBalance).to.be.eq(0);
+                          expect(+lpTokenBalanceAfter).to.be.eq(0);
                         } else {
-                          expect(+lpTokenBalance).to.be.gt(0);
+                          expect(+lpTokenBalanceAfter).to.be.gt(+lpTokenBalanceBefore);
                         }
                       } else {
                         const existingPoolPct: BigNumber = await adapter.maxDepositPoolPct(liquidityPool);
                         const existingProtocolPct: BigNumber = await adapter.maxDepositProtocolPct();
                         if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
-                          expect(+lpTokenBalance).to.be.eq(0);
+                          expect(+lpTokenBalanceAfter).to.be.eq(0);
                         } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
                           expectedValue == "=0"
-                            ? expect(+lpTokenBalance).to.be.eq(0)
-                            : expect(+lpTokenBalance).to.be.gt(0);
+                            ? expect(+lpTokenBalanceAfter).to.be.eq(0)
+                            : expectedValue == "<"
+                            ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
+                            : expect(+lpTokenBalanceAfter).to.be.gt(+lpTokenBalanceBefore);
                         }
                       }
 
@@ -524,11 +579,11 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       console.log("underlyingBalanceBefore: ", underlyingBalanceBefore.toString());
                       console.log("limit: ", limit.toString());
                       if (underlyingBalanceBefore.lt(limit)) {
-                        expectedValue == ">0"
+                        expectedValue == ">"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
                           : expect(+underlyingBalanceAfter).to.be.eq(0);
                       } else {
-                        expectedValue == ">0"
+                        expectedValue == ">"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
                           : expect(+underlyingBalanceAfter).to.be.lte(+underlyingBalanceBefore.sub(limit));
                       }
@@ -539,13 +594,10 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       const rewardTokenBalanceAfter: BigNumber = await RewardTokenERC20Instance!.balanceOf(
                         testDeFiAdapter.address,
                       );
-                      const underlyingBalanceAfter: BigNumber = await LpERC20Instance!.balanceOf(
-                        testDeFiAdapter.address,
-                      );
-                      console.log("token erc20", underlyingBalanceAfter.toString());
+
                       const expectedValue = action.expectedValue;
 
-                      expectedValue == ">0"
+                      expectedValue == ">"
                         ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
                         : expectedValue == "=0"
                         ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
@@ -553,36 +605,37 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
 
                       break;
                     }
+                    case "getLiquidityPoolTokenBalanceStake(address,address)": {
+                      const expectedValue = action.expectedValue;
+                      const expectedStakingBalanceFromPool: BigNumber = await lpStakingContract.balanceOf(
+                        testDeFiAdapter.address,
+                      );
+                      const stakingTokenBalanceAfter: BigNumber = await adapter[action.action](
+                        testDeFiAdapter.address,
+                        liquidityPool,
+                      );
+
+                      expect(+stakingTokenBalanceAfter).to.be.eq(+expectedStakingBalanceFromPool);
+
+                      expectedValue == ">"
+                        ? expect(+stakingTokenBalanceAfter).to.be.gt(+stakingTokenBalanceBefore)
+                        : expectedValue == "=0"
+                        ? expect(+stakingTokenBalanceAfter).to.be.eq(0)
+                        : expect(+stakingTokenBalanceAfter).to.be.lt(+stakingTokenBalanceBefore);
+
+                      break;
+                    }
                     case "getAllAmountInToken(address,address,address)": {
                       const _amountInUnderlyingToken = await adapter[action.action](
                         testDeFiAdapter.address,
-                        underlyingTokenAddress,
+                        ADDRESS_ZERO,
                         liquidityPool,
                       );
-                      const _lpTokenBalance = await adapter.getLiquidityPoolTokenBalance(
+
+                      const expectedAmountInUnderlyingToken: BigNumber = await lpContract.getTokenBalance(
                         testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
                       );
-                      let expectedAmountInUnderlyingToken: BigNumber = await adapter.getSomeAmountInToken(
-                        underlyingTokenAddress,
-                        liquidityPool,
-                        _lpTokenBalance,
-                      );
-                      const _unclaimedReward: BigNumber = await adapter.getUnclaimedRewardTokenAmount(
-                        testDeFiAdapter.address,
-                        liquidityPool,
-                        underlyingTokenAddress,
-                      );
-                      if (+_unclaimedReward > 0) {
-                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
-                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            _unclaimedReward,
-                          ),
-                        );
-                      }
+
                       expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
                       break;
                     }
@@ -642,6 +695,61 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
 
                       break;
                     }
+                    case "isRedeemableAmountSufficientStake(address,address,address,uint256)": {
+                      const expectedValue = action.expectedValue;
+                      const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInToken(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      if (expectedValue == ">") {
+                        const _isRedeemableAmountSufficient = await adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          _amountInUnderlyingToken.add(BigNumber.from(10)),
+                        );
+                        expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                      } else if (expectedValue == "<") {
+                        const _isRedeemableAmountSufficient = await adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          +_amountInUnderlyingToken > 0
+                            ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                            : BigNumber.from(0),
+                        );
+                        expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                      }
+                      break;
+                    }
+                    case "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)": {
+                      const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalanceStake(
+                        testDeFiAdapter.address,
+                        liquidityPool,
+                      );
+                      const _balanceInToken: BigNumber = await adapter.getAllAmountInTokenStake(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+
+                      const _testRedeemAmount: BigNumber = _lpTokenBalance;
+
+                      const _redeemableLpTokenAmt = await adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _testRedeemAmount,
+                      );
+                      const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                        .mul(_testRedeemAmount)
+                        .div(_balanceInToken)
+                        .add(BigNumber.from(1));
+                      expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
+
+                      break;
+                    }
                   }
                 }
                 for (const action of story.cleanActions) {
@@ -650,10 +758,21 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapter.address);
                       break;
                     }
+                    case "testGetUnstakeAllCodes(address,address)": {
+                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                      break;
+                    }
                   }
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
+                    case "getStakingTokenBalance(address)": {
+                      const stakingTokenBalance: BigNumber = await lpStakingContract!.balanceOf(
+                        testDeFiAdapter.address,
+                      );
+                      expect(stakingTokenBalance).to.be.eq(0);
+                      break;
+                    }
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const lpTokenBalance = await adapter[action.action](
                         testDeFiAdapter.address,
@@ -684,7 +803,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
             switch (action.action) {
               case "canStake(address)": {
                 const _canStake = await adapter[action.action](ADDRESS_ZERO);
-                expect(_canStake).to.be.eq(false);
+                expect(_canStake).to.be.eq(true);
                 break;
               }
               case "setRewardToken(address)": {
@@ -698,6 +817,19 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                 }
                 break;
               }
+              case "setLiquidityPoolToStakingVault(address,address)": {
+                if (action.expect == "success") {
+                  await adapter[action.action](dummyContract.address, dummyContract.address);
+                } else {
+                  //  TODO: Add test scenario if operator is trying to set ZERO/EOA ADDRESS as reward token address
+                  await expect(
+                    adapter
+                      .connect(users[action.executer])
+                      [action.action](dummyContract.address, dummyContract.address),
+                  ).to.be.revertedWith(action.message);
+                }
+                break;
+              }
             }
           }
           for (const action of story.getActions) {
@@ -705,6 +837,11 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
               case "getRewardToken(address)": {
                 const _rewardTokenAddress = await adapter[action.action](ADDRESS_ZERO);
                 expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.DF));
+                break;
+              }
+              case "liquidityPoolToStakingVault(address)": {
+                const stakingVaultAddress = await adapter[action.action](dummyContract.address);
+                expect(getAddress(stakingVaultAddress)).to.be.eq(getAddress(dummyContract.address));
                 break;
               }
             }
