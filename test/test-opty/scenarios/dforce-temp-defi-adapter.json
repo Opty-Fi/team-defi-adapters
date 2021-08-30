@@ -1446,7 +1446,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetUnstakeAndWithdrawSomeCodes(address,address,address,uint256)",
+          "action": "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -1463,7 +1463,7 @@
           "contract": "adapter",
           "action": "getLiquidityPoolTokenBalance(address,address,address)",
           "executer": "owner",
-          "expectedValue": {}
+          "expectedValue": "<"
         },
         {
           "contract": "erc20",
