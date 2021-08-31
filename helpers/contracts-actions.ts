@@ -197,9 +197,7 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token0Instance
-          .connect(wallet)
-          .approve(exchange.sushiswap.address, 0);
+        await token0Instance.connect(wallet).approve(exchange.sushiswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.sushiswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
@@ -225,9 +223,7 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token1Instance
-          .connect(wallet)
-          .approve(exchange.sushiswap.address, 0);
+        await token1Instance.connect(wallet).approve(exchange.sushiswap.address, 0);
         await token1Instance
           .connect(wallet)
           .approve(exchange.sushiswap.address, await token1Instance.balanceOf(await wallet.getAddress()));
@@ -262,12 +258,8 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token0Instance
-          .connect(wallet)
-          .approve(exchange.sushiswap.address, 0);
-        await token1Instance
-          .connect(wallet)
-          .approve(exchange.sushiswap.address, 0);
+        await token0Instance.connect(wallet).approve(exchange.sushiswap.address, 0);
+        await token1Instance.connect(wallet).approve(exchange.sushiswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.sushiswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
@@ -303,9 +295,7 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token0Instance
-          .connect(wallet)
-          .approve(exchange.uniswap.address, 0);
+        await token0Instance.connect(wallet).approve(exchange.uniswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.uniswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
@@ -331,9 +321,7 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token1Instance
-          .connect(wallet)
-          .approve(exchange.uniswap.address, 0);
+        await token1Instance.connect(wallet).approve(exchange.uniswap.address, 0);
         await token1Instance
           .connect(wallet)
           .approve(exchange.uniswap.address, await token1Instance.balanceOf(await wallet.getAddress()));
@@ -368,12 +356,8 @@ export async function fundWalletToken(
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
-        await token0Instance
-          .connect(wallet)
-          .approve(exchange.uniswap.address, 0);
-        await token1Instance
-          .connect(wallet)
-          .approve(exchange.uniswap.address, 0);
+        await token0Instance.connect(wallet).approve(exchange.uniswap.address, 0);
+        await token1Instance.connect(wallet).approve(exchange.uniswap.address, 0);
         await token0Instance
           .connect(wallet)
           .approve(exchange.uniswap.address, await token0Instance.balanceOf(await wallet.getAddress()));
@@ -463,8 +447,7 @@ export async function fundWalletToken(
           if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
             await swapInstance
               .connect(wallet)
-              .add_liquidity(["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"),
-              );
+              .add_liquidity(["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
             await tokenAddressInstance
               .connect(wallet)
               .transfer(address, await tokenAddressInstance.balanceOf(wallet.getAddress()));
@@ -578,13 +561,15 @@ export async function fundWalletToken(
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
     await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
   } else {
-    await uniswapInstance.connect(wallet).swapETHForExactTokens(
-      amount,
-      [TypedTokens["WETH"], tokenAddress],
-      address,
-      deadlineTimestamp,
-      getEthValueGasOverrideOptions(hre, "9500"),
-    );
+    await uniswapInstance
+      .connect(wallet)
+      .swapETHForExactTokens(
+        amount,
+        [TypedTokens["WETH"], tokenAddress],
+        address,
+        deadlineTimestamp,
+        getEthValueGasOverrideOptions(hre, "9500"),
+      );
     const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   }
 }

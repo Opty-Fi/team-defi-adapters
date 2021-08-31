@@ -216,15 +216,9 @@ contract TestDeFiAdapter is MultiCall {
         );
     }
 
-    function testGetAddLiquidityCodes(
-        address _underlyingToken,
-        address _adapter
-    ) external {
+    function testGetAddLiquidityCodes(address _underlyingToken, address _adapter) external {
         executeCodes(
-            IAdapterFull(_adapter).getAddLiquidityCodes(
-                payable(address(this)),
-                _underlyingToken
-            ),
+            IAdapterFull(_adapter).getAddLiquidityCodes(payable(address(this)), _underlyingToken),
             "addLiquidity"
         );
     }

@@ -3,7 +3,13 @@ import hre from "hardhat";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedTokens, TypedPairTokens, TypedCurveTokens, TypedDefiPools } from "../../../helpers/data";
+import {
+  TypedAdapterStrategies,
+  TypedTokens,
+  TypedPairTokens,
+  TypedCurveTokens,
+  TypedDefiPools,
+} from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
@@ -43,7 +49,11 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      await adapter.setUnderlyingTokenToMasterChefToPid(TOKENS[strategies[0].token], "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd", 1);
+      await adapter.setUnderlyingTokenToMasterChefToPid(
+        TOKENS[strategies[0].token],
+        "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
+        1,
+      );
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -144,7 +154,13 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
     users = { owner, admin, user1 };
     adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    sushiswapAdapter = await deployAdapter(hre, owner, SUSHISWAP_ADAPTER_NAME, adapterPrerequisites.registry.address, true);
+    sushiswapAdapter = await deployAdapter(
+      hre,
+      owner,
+      SUSHISWAP_ADAPTER_NAME,
+      adapterPrerequisites.registry.address,
+      true,
+    );
     masterChefInstance = await hre.ethers.getContractAt(abis.masterChef.abi, abis.masterChef.address);
   });
 
@@ -166,7 +182,11 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
           for (const story of testDeFiAdapterScenario.stories) {
             it(`${pool} - ${story.description}`, async () => {
               if (alreadySet === false) {
-                await sushiswapAdapter.setUnderlyingTokenToMasterChefToPid(underlyingTokenAddress, masterChefInstance.address, pid);
+                await sushiswapAdapter.setUnderlyingTokenToMasterChefToPid(
+                  underlyingTokenAddress,
+                  masterChefInstance.address,
+                  pid,
+                );
                 alreadySet = true;
               }
               let defaultFundAmount: BigNumber = BigNumber.from("2");
@@ -377,15 +397,15 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "getUnderlyingTokens(address,address)": {
-                    await expect(
-                      sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO),
-                    ).to.be.revertedWith("!empty");
+                    await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO)).to.be.revertedWith(
+                      "!empty",
+                    );
                     break;
                   }
                   case "calculateAmountInLPToken(address,address,uint256)": {
-                    await expect(
-                      sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0),
-                    ).to.be.revertedWith("!empty");
+                    await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0)).to.be.revertedWith(
+                      "!empty",
+                    );
                     break;
                   }
                   case "getPoolValue(address,address)": {
@@ -395,7 +415,10 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "getLiquidityPoolToken(address,address)": {
-                    const liquidityPoolFromAdapter = await sushiswapAdapter[action.action](underlyingTokenAddress, ADDRESS_ZERO);
+                    const liquidityPoolFromAdapter = await sushiswapAdapter[action.action](
+                      underlyingTokenAddress,
+                      ADDRESS_ZERO,
+                    );
                     expect(getAddress(liquidityPoolFromAdapter)).to.be.eq(getAddress(underlyingTokenAddress));
                     break;
                   }
@@ -453,7 +476,9 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"
                         ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : +rewardTokenBalanceBefore > 0 ? expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore) : expect(+underlyingBalanceAfter).to.be.eq(0);
+                        : +rewardTokenBalanceBefore > 0
+                        ? expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore)
+                        : expect(+underlyingBalanceAfter).to.be.eq(0);
                     } else {
                       expectedValue == ">0"
                         ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
@@ -465,12 +490,8 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     const rewardTokenBalanceAfter: BigNumber = await rewardTokenERC20Instance!.balanceOf(
                       testDeFiAdapter.address,
                     );
-                    const token0BalanceAfter: BigNumber = await token0Instance.balanceOf(
-                      testDeFiAdapter.address,
-                    );
-                    const token1BalanceAfter: BigNumber = await token1Instance.balanceOf(
-                      testDeFiAdapter.address,
-                    );
+                    const token0BalanceAfter: BigNumber = await token0Instance.balanceOf(testDeFiAdapter.address);
+                    const token1BalanceAfter: BigNumber = await token1Instance.balanceOf(testDeFiAdapter.address);
                     const expectedValue = action.expectedValue;
                     if (expectedValue == ">0") {
                       expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore);
@@ -519,7 +540,9 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    const expectedRedeemableLpTokenAmt = (await masterChefInstance.userInfo(pid, testDeFiAdapter.address))[0];
+                    const expectedRedeemableLpTokenAmt = (
+                      await masterChefInstance.userInfo(pid, testDeFiAdapter.address)
+                    )[0];
                     expect(+lpTokenBalance).to.be.eq(+expectedRedeemableLpTokenAmt);
                     break;
                   }
@@ -529,7 +552,9 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    let expectedAmountInUnderlyingToken = (await masterChefInstance.userInfo(pid, testDeFiAdapter.address))[0];
+                    let expectedAmountInUnderlyingToken = (
+                      await masterChefInstance.userInfo(pid, testDeFiAdapter.address)
+                    )[0];
                     const expectedUnclaimedRewardTokenAmount = await masterChefInstance.pendingSushi(
                       pid,
                       testDeFiAdapter.address,
@@ -547,9 +572,9 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "getSomeAmountInToken(address,address,uint256)": {
-                    await expect(
-                      sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0),
-                    ).to.be.revertedWith("!empty");
+                    await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0)).to.be.revertedWith(
+                      "!empty",
+                    );
                     break;
                   }
                 }
