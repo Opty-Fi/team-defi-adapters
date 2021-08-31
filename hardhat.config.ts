@@ -11,7 +11,12 @@ import "hardhat-watcher";
 import "solidity-coverage";
 import "hardhat-deploy";
 import "hardhat-docgen";
-import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
+import {
+  NETWORKS_RPC_URL,
+  NETWORKS_DEFAULT_GAS,
+  eEthereumNetwork,
+  CURRENT_BLOCK_NUMBER,
+} from "./helper-hardhat-config";
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
 const DEFAULT_BLOCK_GAS_LIMIT = 0x1fffffffffffff;
@@ -95,7 +100,7 @@ const buidlerConfig: HardhatUserConfig = {
       initialBaseFeePerGas: 1_00_000_000,
       gasPrice: "auto",
       forking: {
-        blockNumber: 13134932,
+        blockNumber: CURRENT_BLOCK_NUMBER,
         url: chainstackMainnetUrl,
       },
       allowUnlimitedContractSize: true,
