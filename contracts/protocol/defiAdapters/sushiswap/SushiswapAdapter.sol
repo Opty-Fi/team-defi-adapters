@@ -42,9 +42,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /** @notice Sushiswap router contract address */
     address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    /** @notice Sushiswap WETH-USDC pair contract address */
-    address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
-
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
@@ -58,11 +55,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         setRewardToken(SUSHI);
         setMaxDepositProtocolPct(uint256(10000)); // 100%
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
-        setUnderlyingTokenToMasterChefToPid(
-            SUSHI_WETH_USDC,
-            address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd), // MasterChef V1 contract address
-            uint256(1)
-        );
     }
 
     /**
@@ -268,10 +260,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         }
     }
 
-    /* solhint-enable no-unused-vars */
-
-    /* solhint-disable no-unused-vars */
-
     /**
      * @inheritdoc IAdapter
      */
@@ -290,8 +278,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
             );
         }
     }
-
-    /* solhint-enable no-unused-vars */
 
     /**
      * @inheritdoc IAdapter
