@@ -16,7 +16,7 @@ import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./help
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
 const DEFAULT_BLOCK_GAS_LIMIT = 0x1fffffffffffff;
 const DEFAULT_GAS_MUL = 5;
-const HARDFORK = "istanbul";
+const HARDFORK = "london";
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 
 if (!SKIP_LOAD) {
@@ -92,12 +92,13 @@ const buidlerConfig: HardhatUserConfig = {
     },
     kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, chainIds.kovan),
     hardhat: {
+      initialBaseFeePerGas: 1_00_000_000,
+      gasPrice: "auto",
       forking: {
-        blockNumber: 12200321,
+        blockNumber: 13089137,
         url: chainstackMainnetUrl,
       },
       allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff,
       chainId: chainIds.ganache,
       accounts: {
         mnemonic,
