@@ -95,7 +95,7 @@ const buidlerConfig: HardhatUserConfig = {
       initialBaseFeePerGas: 1_00_000_000,
       gasPrice: "auto",
       forking: {
-        blockNumber: 13089137,
+        blockNumber: 13134932,
         url: chainstackMainnetUrl,
       },
       allowUnlimitedContractSize: true,
