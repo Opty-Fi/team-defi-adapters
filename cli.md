@@ -452,6 +452,7 @@ Options:
   --lowestrating 0 \
   --highestrating 10
 ```
+
 ### approve-erc20
 
 ```
