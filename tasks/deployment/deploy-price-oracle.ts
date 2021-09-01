@@ -1,9 +1,9 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, getContractInstance, executeFunc, deployContract } from "../../helpers/helpers";
+import { isAddress, deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
 
-task("deploy-strategy-provider", "Deploy Strategy Provider")
+task("deploy-price-oracle", "Deploy Price Oracle")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
@@ -18,20 +18,17 @@ task("deploy-strategy-provider", "Deploy Strategy Provider")
       throw new Error("registry address is invalid");
     }
 
-    const strategyProvider = await deployContract(hre, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, deployedonce, owner, [
-      registry,
-    ]);
-
-    console.log("Finished deploying strategyProvider");
-
-    console.log(`Contract strategyProvider : ${strategyProvider.address}`);
-
+    const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS.PRICE_ORACLE, deployedonce, owner, [registry]);
     const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
-    await executeFunc(registryContract, owner, "setStrategyProvider(address)", [strategyProvider.address]);
+    await executeFunc(registryContract, owner, "setPriceOracle(address)", [priceOracle.address]);
+
+    console.log("Finished deploying PriceOracle");
+
+    console.log(`Contract PriceOracle : ${priceOracle.address}`);
 
     if (insertindb) {
-      const err = await insertContractIntoDB(`strategyProvider`, strategyProvider.address);
+      const err = await insertContractIntoDB(`priceOracle`, priceOracle.address);
       if (err !== "") {
         console.log(err);
       }

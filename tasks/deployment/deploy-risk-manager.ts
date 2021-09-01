@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 import { deployRiskManager } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
-import { isAddress } from "../../helpers/helpers";
+import { isAddress, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("deploy-risk-manager", "Deploy Risk Manager")
   .addParam("registry", "the address of registry", "", types.string)
@@ -23,6 +24,10 @@ task("deploy-risk-manager", "Deploy Risk Manager")
     console.log("Finished deploying riskManager");
 
     console.log(`Contract riskManager : ${riskManagerContract.address}`);
+
+    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setRiskManager(address)", [riskManagerContract.address]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(`riskManager`, riskManagerContract.address);

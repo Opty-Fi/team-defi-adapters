@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract } from "../../helpers/helpers";
+import { deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("deploy-vault-step-registry", "Deploy VaultStepInvestStrategyDefinitionRegistry")
@@ -21,6 +21,12 @@ task("deploy-vault-step-registry", "Deploy VaultStepInvestStrategyDefinitionRegi
     console.log(
       `Contract vaultStepInvestStrategyDefinitionRegistry: ${vaultStepInvestStrategyDefinitionRegistry.address}`,
     );
+
+    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setVaultStepInvestStrategyDefinitionRegistry(address)", [
+      vaultStepInvestStrategyDefinitionRegistry.address,
+    ]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(

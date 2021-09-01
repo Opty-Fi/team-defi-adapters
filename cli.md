@@ -204,6 +204,136 @@ Options:
   --registry 0x0000000000000000000000000000000000000000
 ```
 
+### deploy-apr-oracle
+
+```
+Usage: deploy AprOracle contract
+
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-apr-oracle \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000
+```
+
+### deploy-odefi-vault-booster
+
+```
+Usage: deploy ODEFIVaultBooster contract
+
+Options:
+--registry     required <address> the address of registry
+--odefi        required <address> the address of odefi
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-odefi-vault-booster \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+  --odefi 0x0000000000000000000000000000000000000000
+```
+
+### deploy-opty-distributor
+
+```
+Usage: deploy OptyDistributor contract
+
+Options:
+--registry     required <address> the address of registry
+--opty         required <address> the address of opty
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-strategy-provider \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+  --opty 0x0000000000000000000000000000000000000000
+```
+
+### deploy-opty-staking-rate-balancer
+
+```
+Usage: deploy OptyStakingRateBalancer contract
+
+Options:
+--registry     required <address> the address of registry
+--deployedonce optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb   optional <bool>    allow inserting to database
+--network      optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-opty-staking-rate-balancer \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000
+```
+
+### deploy-opty-staking-vaults
+
+```
+Usage: deploy OptyStakingVault contracts
+
+Options:
+--registry                  required <address> the address of registry
+--opty                      required <address> the address of opty
+--optydistributor           required <address> the address of registry
+--optystakingratebalancer   required <address> the address of registry
+--deployedonce              optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb                optional <bool>    allow inserting to database
+--network                   optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-strategy-provider \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+  --opty 0x0000000000000000000000000000000000000000 \
+  --optydistributor 0x0000000000000000000000000000000000000000 \
+  --optystakingratebalancer 0x0000000000000000000000000000000000000000
+```
+
+### deploy-price-oracle
+
+```
+Usage: deploy PriceOracle contracts
+
+Options:
+--registry                  required <address> the address of registry
+--deployedonce              optional <bool>    allow checking whether contracts were deployed previously (default: true)
+--insertindb                optional <bool>    allow inserting to database
+--network                   optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat deploy-price-oracle \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+```
+
 ### deploy-vault
 
 ```
@@ -295,6 +425,55 @@ Options:
   --network localhost \
   --strategyregistry 0x0000000000000000000000000000000000000000 \
   --fromfile /path/to/file.json
+```
+
+### add-risk-profile
+
+```
+Usage: add risk profile in Registry contract
+
+Options:
+--registry required <address> the address of registry
+--name required <string> the name of risk profile
+--canborrow required <boolean> whether risk profile can borrow or not
+--lowestrating required <int> the lowest rating
+--highestrating required <int> the highest rating
+--network  optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat set-strategies \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+  --name RP1 \
+  --canborrow true \
+  --lowestrating 0 \
+  --highestrating 10
+```
+### approve-erc20
+
+```
+Usage: approve spender to use specific amount of erc20 token
+
+Options:
+--registry  required <address> the address of registry
+--spender   required <address> the address of spender
+--token     required <address> the address of token
+--amount    required <int> the amount of token
+--network   optional <string>  name of the network provider (default: hardhat)
+```
+
+- Example:
+
+```
+  yarn hardhat set-strategies \
+  --network localhost \
+  --registry 0x0000000000000000000000000000000000000000 \
+  --spender 0x0000000000000000000000000000000000000000 \
+  --token 0x0000000000000000000000000000000000000000 \
+  --amount 1000000000000000
 ```
 
 ### approve-tokens

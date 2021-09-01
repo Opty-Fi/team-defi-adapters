@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import { deployVault } from "../../helpers/contracts-deployments";
 import { getTokenInforWithAddress, unpauseVault } from "../../helpers/contracts-actions";
 import { insertContractIntoDB } from "../../helpers/db";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress, getContractInstance, executeFunc } from "../../helpers/helpers";
 import { RISK_PROFILES, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 task("deploy-vault", "Deploy Vault")
   .addParam("token", "the address of underlying token", "", types.string)
@@ -48,6 +48,12 @@ task("deploy-vault", "Deploy Vault")
     if (unpause) {
       await unpauseVault(owner, registryContract, vault.address, true);
     }
+
+    await executeFunc(registryContract, owner, "setUnderlyingAssetHashToRPToVaults(address[],string,address)", [
+      [token],
+      riskprofile,
+      vault.address,
+    ]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(`${symbol}-${riskprofile}`, vault.address);

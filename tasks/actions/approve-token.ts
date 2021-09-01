@@ -35,6 +35,7 @@ task("approve-token", "Approve Token")
     } else {
       // this function approves and set tokens hash
       await approveToken(owner, registryContract, [token]);
+      console.log(`Token Hash: ${tokensHash}`);
       console.log(`Finished approving and setting tokens hash of token ${token}`);
     }
   });

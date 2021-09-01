@@ -1,7 +1,13 @@
-import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, RISK_PROFILES, ADAPTER, TOKENS } from "./constants";
+import {
+  ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
+  RISK_PROFILES,
+  ADAPTER,
+  TOKENS,
+  OPTY_STAKING_VAULTS,
+} from "./constants";
 import { Contract, Signer } from "ethers";
 import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
-import { getTokenName, getTokenSymbol } from "./contracts-actions";
+import { getTokenName, getTokenSymbol, addRiskProfile } from "./contracts-actions";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { deployContract, executeFunc, deployContractWithHash } from "./helpers";
 
@@ -81,6 +87,44 @@ export async function deployOptyStakingRateBalancer(
   return optyStakingRateBalancer;
 }
 
+export async function deployAndSetupOptyStakingVaults(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  isDeployedOnce: boolean,
+  registry: string,
+  opty: string,
+  optyStakingRateBalancer: Contract,
+  optyDistributor: Contract,
+): Promise<CONTRACTS> {
+  const optyStakingVaults: CONTRACTS = {};
+  for (let i = 0; i < OPTY_STAKING_VAULTS.length; i++) {
+    const optyStakingVault = await deployContract(
+      hre,
+      ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
+      isDeployedOnce,
+      owner,
+      [registry, opty, OPTY_STAKING_VAULTS[i].lockTime, OPTY_STAKING_VAULTS[i].numberOfDays],
+    );
+
+    await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault.address, true]);
+    await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
+      optyStakingVault.address,
+      OPTY_STAKING_VAULTS[i].multiplier,
+    ]);
+
+    optyStakingVaults[OPTY_STAKING_VAULTS[i].name] = optyStakingVault;
+  }
+
+  await executeFunc(optyStakingRateBalancer, owner, "initialize(address,address,address,address)", [
+    optyStakingVaults["optyStakingVault1D"].address,
+    optyStakingVaults["optyStakingVault30D"].address,
+    optyStakingVaults["optyStakingVault60D"].address,
+    optyStakingVaults["optyStakingVault180D"].address,
+  ]);
+
+  return optyStakingVaults;
+}
+
 export async function deployEssentialContracts(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -89,18 +133,13 @@ export async function deployEssentialContracts(
   const registry = await deployRegistry(hre, owner, isDeployedOnce);
   const profiles = Object.keys(RISK_PROFILES);
   for (let i = 0; i < profiles.length; i++) {
-    try {
-      const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
-      if (!profile.exists) {
-        await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
-          RISK_PROFILES[profiles[i]].name,
-          RISK_PROFILES[profiles[i]].canBorrow,
-          RISK_PROFILES[profiles[i]].poolRating,
-        ]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    await addRiskProfile(
+      registry,
+      owner,
+      RISK_PROFILES[profiles[i]].name,
+      RISK_PROFILES[profiles[i]].canBorrow,
+      RISK_PROFILES[profiles[i]].poolRating,
+    );
   }
 
   const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
@@ -162,70 +201,21 @@ export async function deployEssentialContracts(
     1700000000,
   ]);
 
+  await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
+
   const optyStakingRateBalancer = await deployOptyStakingRateBalancer(hre, owner, isDeployedOnce, registry.address);
 
   await executeFunc(registry, owner, "setOPTYStakingRateBalancer(address)", [optyStakingRateBalancer.address]);
 
-  const optyStakingVault1D = await deployContract(
+  const optyStakingVaults = await deployAndSetupOptyStakingVaults(
     hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
-    isDeployedOnce,
     owner,
-    [registry.address, opty.address, 86400, "1D"],
-  );
-
-  const optyStakingVault30D = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
     isDeployedOnce,
-    owner,
-    [registry.address, opty.address, 2592000, "30D"],
+    registry.address,
+    opty.address,
+    optyStakingRateBalancer,
+    optyDistributor,
   );
-
-  const optyStakingVault60D = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
-    isDeployedOnce,
-    owner,
-    [registry.address, opty.address, 5184000, "60D"],
-  );
-
-  const optyStakingVault180D = await deployContract(
-    hre,
-    ESSENTIAL_CONTRACTS_DATA.OPTY_STAKING_VAULT,
-    isDeployedOnce,
-    owner,
-    [registry.address, opty.address, 15552000, "180D"],
-  );
-
-  await executeFunc(registry, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
-  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault1D.address, true]);
-  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault30D.address, true]);
-  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault60D.address, true]);
-  await executeFunc(optyDistributor, owner, "setStakingVault(address,bool)", [optyStakingVault180D.address, true]);
-  await executeFunc(optyStakingRateBalancer, owner, "initialize(address,address,address,address)", [
-    optyStakingVault1D.address,
-    optyStakingVault30D.address,
-    optyStakingVault60D.address,
-    optyStakingVault180D.address,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
-    optyStakingVault1D.address,
-    10000,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
-    optyStakingVault30D.address,
-    12000,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
-    optyStakingVault60D.address,
-    15000,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultMultipliers(address,uint256)", [
-    optyStakingVault180D.address,
-    20000,
-  ]);
-  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultOPTYAllocation(uint256)", [10000000000]);
 
   const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
     registry.address,
@@ -243,10 +233,10 @@ export async function deployEssentialContracts(
     riskManager,
     harvestCodeProvider,
     optyStakingRateBalancer,
-    optyStakingVault1D,
-    optyStakingVault30D,
-    optyStakingVault60D,
-    optyStakingVault180D,
+    optyStakingVault1D: optyStakingVaults["optyStakingVault1D"],
+    optyStakingVault30D: optyStakingVaults["optyStakingVault30D"],
+    optyStakingVault60D: optyStakingVaults["optyStakingVault60D"],
+    optyStakingVault180D: optyStakingVaults["optyStakingVault180D"],
     priceOracle,
   };
 

@@ -1,4 +1,4 @@
-import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
+import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA, OPTY_STAKING_VAULT } from "./type";
 import { TypedTokens } from "./data";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
@@ -335,5 +335,32 @@ export const MAPPING_CURVE_DEPOSIT_DATA = [
     tokens: ["DUSD", "DAI", "USDC", "USDT"],
     swap: "DUSD_SWAP_POOL",
     gauges: "DUSD_GAUGE",
+  },
+];
+
+export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
+  {
+    name: "optyStakingVault1D",
+    numberOfDays: "1D",
+    lockTime: 86400,
+    multiplier: 10000,
+  },
+  {
+    name: "optyStakingVault30D",
+    numberOfDays: "30D",
+    lockTime: 2592000,
+    multiplier: 12000,
+  },
+  {
+    name: "optyStakingVault60D",
+    numberOfDays: "60D",
+    lockTime: 5184000,
+    multiplier: 15000,
+  },
+  {
+    name: "optyStakingVault180D",
+    numberOfDays: "180D",
+    lockTime: 15552000,
+    multiplier: 20000,
   },
 ];

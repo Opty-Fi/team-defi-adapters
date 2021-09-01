@@ -281,3 +281,16 @@ export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): P
     }
   }
 }
+
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
+  }
+}
