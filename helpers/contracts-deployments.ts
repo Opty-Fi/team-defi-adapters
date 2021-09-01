@@ -386,7 +386,7 @@ export async function deployVaultsWithHash(
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {
       const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
-      vaults[`${symbol}-${riskProfile}`] = vault;
+      vaults[`${symbol}-${riskProfile}`] = vault["vaultProxy"];
     }
   }
   return vaults;
@@ -401,7 +401,7 @@ export async function deployVaultWithHash(
   underlyingTokenName: string,
   underlyingTokenSymbol: string,
   riskProfile: string,
-): Promise<{ contract: Contract; hash: string }> {
+): Promise<{ [key: string]: { contract: Contract; hash: string } }> {
   const VAULT_FACTORY = await hre.ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.VAULT);
   const vault = await deployContractWithHash(
     VAULT_FACTORY,
@@ -421,11 +421,21 @@ export async function deployVaultWithHash(
     owner,
   );
 
-  await executeFunc(
-    vaultProxy.contract,
-    owner,
-    "initialize(address,address,address,address,address,string,string,string)",
-    [registry, underlyingToken, underlyingTokenName, underlyingTokenSymbol, riskProfile],
-  );
-  return vaultProxy;
+  await executeFunc(vaultProxy.contract, owner, "initialize(address,address,string,string,string)", [
+    registry,
+    underlyingToken,
+    underlyingTokenName,
+    underlyingTokenSymbol,
+    riskProfile,
+  ]);
+
+  const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.REGISTRY, registry, owner);
+
+  await executeFunc(registryContract, owner, "setUnderlyingAssetHashToRPToVaults(address[],string,address)", [
+    [underlyingToken],
+    riskProfile,
+    vaultProxy.contract.address,
+  ]);
+
+  return { vault, vaultProxy };
 }

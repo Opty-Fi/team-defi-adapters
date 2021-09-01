@@ -32,7 +32,7 @@ task("deploy-opty-staking-rate-balancer", "Deploy Opty Staking Rate Balancer")
     ]);
 
     if (insertindb) {
-      const err = await insertContractIntoDB(`aprOracle`, aprOracle.address);
+      const err = await insertContractIntoDB(`optyStakingRateBalancer`, optyStakingRateBalancer.address);
       if (err !== "") {
         console.log(err);
       }
