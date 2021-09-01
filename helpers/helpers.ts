@@ -164,6 +164,8 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
     underlyingTokenAddress == getAddress(TypedTokens.REP) ||
     underlyingTokenAddress == getAddress(TypedTokens.ETH) ||
     underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
+    underlyingTokenAddress == getAddress(TypedTokens.TUSD) ||
+    underlyingTokenAddress == getAddress(TypedTokens.USDN) ||
     underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
     underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
     underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
