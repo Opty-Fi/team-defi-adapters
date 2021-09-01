@@ -217,6 +217,8 @@ export async function deployEssentialContracts(
     optyDistributor,
   );
 
+  await executeFunc(optyStakingRateBalancer, owner, "setStakingVaultOPTYAllocation(uint256)", [10000000000]);
+
   const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.PRICE_ORACLE, isDeployedOnce, owner, [
     registry.address,
   ]);
