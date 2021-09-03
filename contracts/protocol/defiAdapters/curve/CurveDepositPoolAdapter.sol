@@ -265,11 +265,11 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -361,11 +361,11 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -689,14 +689,14 @@ contract CurveDepositPoolAdapter is
      * @param _swapPool swap pool address
      * @return _tokenIndex index of coin in swap pool
      */
-    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128 _tokenIndex) {
+    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128) {
         address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
         for (uint256 _i = 0; _i < _underlyingTokens.length; _i++) {
             if (_underlyingTokens[_i] == _underlyingToken) {
-                _tokenIndex = int128(_i);
-                break;
+                return int128(_i);
             }
         }
+        return int128(0);
     }
 
     /*

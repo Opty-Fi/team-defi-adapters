@@ -151,9 +151,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef,
         uint256
-    ) external view override returns (uint256 _amount) {
+    ) external view override returns (uint256) {
         uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
-        _amount = ISushiswapMasterChef(_masterChef).userInfo(_pid, _vault).amount;
+        return ISushiswapMasterChef(_masterChef).userInfo(_pid, _vault).amount;
     }
 
     /**
@@ -401,43 +401,21 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _masterChef,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_masterChef, _underlyingToken, _amount)
-                : _getMaxDepositAmount(_masterChef, _underlyingToken, _amount);
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
+                ? _getMaxDepositAmountByPct(_masterChef, _underlyingToken)
+                : maxDepositAmount[_masterChef][_underlyingToken];
+        return _amount > _limit ? _limit : _amount;
     }
 
-    function _getMaxDepositAmountByPct(
-        address _masterChef,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
+    function _getMaxDepositAmountByPct(address _masterChef, address _underlyingToken) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_masterChef, _underlyingToken);
-        uint256 maxPct = maxDepositPoolPct[_underlyingToken];
-        if (maxPct == 0) {
-            maxPct = maxDepositProtocolPct;
-        }
-        uint256 _limit = (_poolValue.mul(maxPct)).div(uint256(10000));
-        if (_depositAmount > _limit) {
-            _depositAmount = _limit;
-        }
-    }
-
-    function _getMaxDepositAmount(
-        address _masterChef,
-        address _underlyingToken,
-        uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
-        _depositAmount = _amount;
-        uint256 maxDeposit = maxDepositAmount[_masterChef][_underlyingToken];
-        if (_depositAmount > maxDeposit) {
-            _depositAmount = maxDeposit;
-        }
+        uint256 _poolPct = maxDepositPoolPct[_underlyingToken];
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
+        return _limit;
     }
 }
