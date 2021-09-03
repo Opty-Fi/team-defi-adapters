@@ -253,9 +253,9 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > 0) {
+            uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
             _accountInfos[0] = AccountInfo(_vault, uint256(0));
             AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
