@@ -340,7 +340,7 @@ describe(scenario.title, () => {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
               const addr = await users[addressName].getAddress();
-              expect(await contracts[action.contract][action.action](addr)).to.be.gte(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;
