@@ -329,10 +329,10 @@ contract CurveDepositPoolAdapter is
      */
     function getStakeAllCodes(
         address payable _vault,
-        address _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens, _liquidityPool);
+        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
 
