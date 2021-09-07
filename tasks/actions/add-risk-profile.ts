@@ -24,7 +24,7 @@ task("add-risk-profile", "Add Risk Profile")
       throw new Error("name cannot be empty");
     }
 
-    if (lowestrating === 0 || highestrating === 0 || highestrating < lowestrating) {
+    if (highestrating < lowestrating) {
       throw new Error("rating range is invalid");
     }
 
