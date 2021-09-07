@@ -221,9 +221,9 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "setMaxDepositProtocolPct(uint256)": {
-                    const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(liquidityPool);
+                    const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(underlyingTokenAddress);
                     if (!existingPoolPct.eq(BigNumber.from(0))) {
-                      await sushiswapAdapter.setMaxDepositPoolPct(liquidityPool, 0);
+                      await sushiswapAdapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
                     }
                     const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                     const existingProtocolPct: BigNumber = await sushiswapAdapter.maxDepositProtocolPct();
@@ -279,7 +279,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                   case "fundTestDeFiAdapterContract": {
                     const underlyingBalance: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
                     if (ValidatedPairTokens.includes(underlyingTokenAddress)) {
-                      defaultFundAmount = defaultFundAmount.div(BigNumber.from(10).pow(4));
+                      defaultFundAmount = defaultFundAmount.div(BigNumber.from(10).pow(3));
                     } else if (ValidatedCurveTokens.includes(underlyingTokenAddress)) {
                       defaultFundAmount = defaultFundAmount.div(BigNumber.from(10).pow(6));
                     }

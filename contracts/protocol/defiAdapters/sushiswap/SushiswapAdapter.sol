@@ -18,6 +18,8 @@ import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 import { IAdapterHarvestReward } from "../../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Adapter for Sushiswap protocol
  * @author Opty.fi
