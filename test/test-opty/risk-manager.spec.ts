@@ -1,4 +1,4 @@
-import chai, { expect, assert } from "chai";
+import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer, Contract } from "ethers";
 import { MOCK_CONTRACTS } from "../../helpers/type";
@@ -14,7 +14,6 @@ import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/cons
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import { approveToken } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/risk-manager.json";
-import { smock } from "@defi-wonderland/smock";
 
 type ARGUMENTS = {
   canBorrow?: boolean;
@@ -22,7 +21,6 @@ type ARGUMENTS = {
   score?: number[];
   defaultStrategyState?: number;
 };
-chai.use(smock.matchers);
 
 describe(scenario.title, () => {
   let contracts: MOCK_CONTRACTS = {};
@@ -74,6 +72,7 @@ describe(scenario.title, () => {
     if (!defaultStrategy) {
       continue;
     }
+
     const defaultStrategyHash = generateStrategyHash(
       defaultStrategy.strategy,
       TypedTokens[defaultStrategy.token.toUpperCase()],
@@ -118,7 +117,6 @@ describe(scenario.title, () => {
               }
               case "approveLiquidityPool(address[])": {
                 const lpTokens = strategy.strategy.map(strategy => strategy.contract);
-
                 if (action.expect === "success") {
                   await registry[action.action](lpTokens);
                 } else {
@@ -152,8 +150,10 @@ describe(scenario.title, () => {
                 if (score) {
                   for (let i = 0; i < defaultStrategy.strategy.length; i++) {
                     const strategy = defaultStrategy.strategy[i];
-                    await registry["approveLiquidityPool(address)"](strategy.contract);
-                    usedLps.push(strategy.contract);
+                    if (!usedLps.includes(strategy.contract)) {
+                      await registry["approveLiquidityPool(address)"](strategy.contract);
+                      usedLps.push(strategy.contract);
+                    }
                     scoredPools.push([strategy.contract, score[i]]);
                   }
                   await registry["rateLiquidityPool((address,uint8)[])"](scoredPools);
