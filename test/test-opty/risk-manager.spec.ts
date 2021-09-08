@@ -7,14 +7,14 @@ import {
   generateStrategyHash,
   generateStrategyStep,
   generateTokenHash,
-  deploySmockContract,
   executeFunc,
+  deploySmockContract,
 } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployRegistry } from "../../helpers/contracts-deployments";
 import { approveToken } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/risk-manager.json";
-
+import { smock } from "@defi-wonderland/smock";
 type ARGUMENTS = {
   canBorrow?: boolean;
   poolRatingRange?: number[];
@@ -31,15 +31,18 @@ describe(scenario.title, () => {
     [owner] = await hre.ethers.getSigners();
     registry = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
     const vaultStepInvestStrategyDefinitionRegistry = await deploySmockContract(
+      smock,
       ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
       [registry.address],
     );
 
-    const strategyProvider = await deploySmockContract(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, [registry.address]);
+    const strategyProvider = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, [
+      registry.address,
+    ]);
 
-    const aprOracle = await deploySmockContract(ESSENTIAL_CONTRACTS.APR_ORACLE, [registry.address]);
+    const aprOracle = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.APR_ORACLE, [registry.address]);
 
-    const riskManager = await deploySmockContract(ESSENTIAL_CONTRACTS.RISK_MANAGER, [registry.address]);
+    const riskManager = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.RISK_MANAGER, [registry.address]);
 
     contracts = { vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager };
     await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
