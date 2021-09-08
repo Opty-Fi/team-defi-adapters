@@ -4,6 +4,7 @@ import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
+import { smock, MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -20,6 +21,12 @@ export async function deployContract(
     const factory = await hre.ethers.getContractFactory(contractName);
     contract = await _deployContract(factory, args, owner);
   }
+  return contract;
+}
+
+export async function deploySmockContract(contractName: string, args: any[]): Promise<MockContract<Contract>> {
+  const factory = await smock.mock(contractName);
+  const contract = await factory.deploy(...args);
   return contract;
 }
 
