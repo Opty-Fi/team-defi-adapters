@@ -310,7 +310,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         if (_unclaimedReward > 0) {
             _balance = _balance.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    ISushiswapMasterChef(_masterChef).sushi(),
+                    getRewardToken(_masterChef),
                     _underlyingToken,
                     _unclaimedReward
                 )
