@@ -25,16 +25,16 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
+    uint256 public maxDepositProtocolPct; // basis points
+
     /** @notice  Maps liquidityPool to max deposit value in percentage */
     mapping(address => uint256) public maxDepositPoolPct; // basis points
 
     /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
-
-    uint256 public maxDepositProtocolPct; // basis points
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
@@ -88,7 +88,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
@@ -101,7 +101,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -161,11 +161,11 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**

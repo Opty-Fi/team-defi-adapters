@@ -30,14 +30,11 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
 
-    /** @notice Maps liquidityPool to staking vault */
-    mapping(address => address) public liquidityPoolToStakingVault;
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice  Maps liquidityPool to max deposit value in percentage */
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
-
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
+    /** @notice DForce's reward token address */
+    address public rewardToken;
 
     // deposit pools
     address public constant USDT_DEPOSIT_POOL = address(0x868277d475E0e475E38EC5CdA2d9C83B5E1D9fc8);
@@ -49,14 +46,17 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     address public constant USDC_STAKING_VAULT = address(0xB71dEFDd6240c45746EC58314a01dd6D833fD3b5);
     address public constant DAI_STAKING_VAULT = address(0xD2fA07cD6Cd4A5A96aa86BacfA6E50bB3aaDBA8B);
 
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
-
-    /** @notice DForce's reward token address */
-    address public rewardToken;
-
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
+
+    /** @notice Maps liquidityPool to staking vault */
+    mapping(address => address) public liquidityPoolToStakingVault;
+
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
         setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
@@ -134,7 +134,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
@@ -147,7 +147,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -203,11 +203,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -244,7 +244,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
         return getHarvestSomeCodes(_vault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
@@ -263,7 +263,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
@@ -275,7 +275,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         public
         view
         override
-        returns (bytes[] memory _codes)
+        returns (bytes[] memory)
     {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
@@ -289,11 +289,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         uint256 _balanceInTokenStake = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStake).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStake).add(1);
     }
 
     /**
@@ -316,7 +316,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -428,7 +428,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         return
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
@@ -549,7 +549,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
