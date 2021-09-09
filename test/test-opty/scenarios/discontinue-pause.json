@@ -47,7 +47,7 @@
               },
               "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -62,7 +62,7 @@
               },
               "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -171,7 +171,7 @@
               },
               "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -218,7 +218,7 @@
               },
               "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },

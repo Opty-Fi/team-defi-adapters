@@ -21,7 +21,7 @@ import scenario from "./scenarios/vault.json";
 
 type ARGUMENTS = {
   contractName?: string;
-  amount?: { [key: string]: string };
+  amount?: { [key: string]: string | undefined };
   hold?: number;
   convert?: number;
   vaultRewardStrategy?: number[];
@@ -111,7 +111,6 @@ describe(scenario.title, () => {
                 TESTING_DEPLOYMENT_ONCE,
               );
               await unpauseVault(users[0], essentialContracts.registry, Vault.address, true);
-
               contracts["vault"] = Vault;
               contracts["chi"] = CHIInstance;
               contracts["erc20"] = Token_ERC20Instance;
@@ -146,7 +145,7 @@ describe(scenario.title, () => {
                           const { contractName, amount }: ARGUMENTS = action.args;
 
                           if (contractName && amount) {
-                            let investedAmount: string;
+                            let investedAmount: string | undefined;
                             if (amount[TOKEN_STRATEGY.token] === "all") {
                               const userAddr = await users[userIndex].getAddress();
                               const value = await contracts[action.contract].balanceOf(userAddr);
@@ -185,7 +184,7 @@ describe(scenario.title, () => {
                           }
 
                           if (amount) {
-                            let investedAmount: string;
+                            let investedAmount: string | undefined;
                             if (amount[TOKEN_STRATEGY.token] === "all") {
                               if (action.action.includes("userWithdrawRebalance")) {
                                 const userAddr = await users[userIndex].getAddress();

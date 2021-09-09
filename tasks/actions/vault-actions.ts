@@ -3,8 +3,9 @@ import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { ethers } from "ethers";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
+import { VAULT_ACTIONS } from "../task-names";
 
-task("vault-actions", "perform actions in Vault")
+task(VAULT_ACTIONS, "perform actions in Vault")
   .addParam("vault", "the address of vault", "", types.string)
   .addParam("action", "deposit, withdraw or rebalance", "DEPOSIT" || "WITHDRAW" || "REBALANCE", types.string)
   .addParam("user", "account address of the user", "", types.string)

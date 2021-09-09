@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { MAP_LIQUIDITYPOOL_ADAPTER } from "../task-names";
 
-task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
+task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("liquiditypool", "the address of liquidity", "", types.string)
