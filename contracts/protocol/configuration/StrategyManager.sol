@@ -264,30 +264,23 @@ contract StrategyManager is IStrategyManager, Modifiers {
         DataTypes.StrategyStep[] memory _strategySteps = _getStrategySteps(_investStrategyhash);
         uint8 _subStepCounter = 0;
         for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
+            if (_i != 0) {
+                _underlyingToken = _strategySteps[_i - 1].outputToken;
+            }
             if (_strategySteps[_i].isBorrow) {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    _underlyingTokens[0] = _underlyingToken;
-                    if (_i != 0) {
-                        _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
-                    }
-                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingToken, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == _subStepCounter + 1) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _outputToken = _strategySteps[_i].outputToken; // borrow token
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    _underlyingTokens[0] = _underlyingToken;
-                    if (_i != 0) {
-                        _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
-                    }
                     _codes = IAdapterFull(_adapter).getBorrowAllCodes(
                         _vault,
-                        _underlyingTokens,
+                        _underlyingToken,
                         _liquidityPool,
                         _outputToken
                     );
@@ -298,22 +291,13 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 if (_stepIndex == _subStepCounter) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    _underlyingTokens[0] = _underlyingToken;
-                    if (_i != 0) {
-                        _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
-                    }
-                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getDepositAllCodes(_vault, _underlyingToken, _liquidityPool);
                     break;
                 } // deposit at ith step
                 if (_stepIndex == (_subStepCounter + 1) && _i == (_strategySteps.length - 1)) {
                     address _liquidityPool = _strategySteps[_i].pool;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_liquidityPool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    if (_i != 0) {
-                        _underlyingTokens[0] = _strategySteps[_i - 1].outputToken;
-                    }
-                    _codes = IAdapterFull(_adapter).getStakeAllCodes(_vault, _underlyingTokens, _liquidityPool);
+                    _codes = IAdapterFull(_adapter).getStakeAllCodes(_vault, _underlyingToken, _liquidityPool);
                     break;
                 } // stake at ith step
                 _subStepCounter++;
@@ -337,11 +321,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    _underlyingTokens[0] = _underlyingToken;
                     _codes = IAdapterFull(_adapter).getRepayAndWithdrawAllCodes(
                         _vault,
-                        _underlyingTokens,
+                        _underlyingToken,
                         _strategySteps[_iterator].pool,
                         _outputToken
                     );
@@ -365,18 +347,16 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 if (_stepIndex == _subStepCounter) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
-                    address[] memory _underlyingTokens = new address[](1);
-                    _underlyingTokens[0] = _underlyingToken;
                     _codes = (_iterator == (_strategySteps.length - 1) &&
                         IAdapterFull(_adapter).canStake(_strategySteps[_iterator].pool))
                         ? IAdapterFull(_adapter).getUnstakeAndWithdrawAllCodes(
                             _vault,
-                            _underlyingTokens,
+                            _underlyingToken,
                             _strategySteps[_iterator].pool
                         )
                         : IAdapterFull(_adapter).getWithdrawAllCodes(
                             _vault,
-                            _underlyingTokens,
+                            _underlyingToken,
                             _strategySteps[_iterator].pool
                         );
                     break;
