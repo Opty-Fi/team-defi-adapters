@@ -236,7 +236,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > 0) {
-            if (_underlyingTokens[0] == HBTC || _underlyingTokens[0] == HFIL) {
+            if (_underlyingToken == HBTC || _underlyingToken == HFIL) {
                 _codes = new bytes[](2);
                 _codes[0] = abi.encode(
                     _underlyingToken,
