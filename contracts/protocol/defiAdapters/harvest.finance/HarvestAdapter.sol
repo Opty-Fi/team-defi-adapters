@@ -168,7 +168,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
         return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
@@ -181,7 +181,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -221,11 +221,11 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -262,7 +262,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _rewardTokenAmount = IERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
         return getHarvestSomeCodes(_vault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
@@ -281,7 +281,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _depositAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _depositAmount);
     }
@@ -293,7 +293,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         public
         view
         override
-        returns (bytes[] memory _codes)
+        returns (bytes[] memory)
     {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _redeemAmount);
@@ -307,12 +307,12 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
         uint256 _liquidityPoolTokenBalance = IHarvestFarm(_stakingVault).balanceOf(_vault);
         uint256 _balanceInToken = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -335,7 +335,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _unstakeAmount);
     }
@@ -465,7 +465,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         return
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,

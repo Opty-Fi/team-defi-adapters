@@ -138,7 +138,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
         for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
             if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
@@ -155,7 +155,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address payable _vault,
         address[] memory _underlyingTokens,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getAllAmountInToken(_vault, _underlyingTokens[0], _liquidityPool);
         return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
     }
@@ -170,13 +170,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getUnderlyingTokens(address _liquidityPool, address)
-        public
-        view
-        override
-        returns (address[] memory _underlyingTokens)
-    {
-        _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
+    function getUnderlyingTokens(address _liquidityPool, address) public view override returns (address[] memory) {
+        return liquidityPoolToUnderlyingTokens[_liquidityPool];
     }
 
     /**
@@ -367,7 +362,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
