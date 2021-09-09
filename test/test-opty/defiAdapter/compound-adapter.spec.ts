@@ -184,7 +184,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 if (getCode === "0x") {
                   this.skip();
                 }
-                const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
+                const rewardTokenAddress = TypedTokens["COMP"];
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                   RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
