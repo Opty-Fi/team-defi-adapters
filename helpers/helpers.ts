@@ -4,6 +4,7 @@ import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
+import { MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -196,4 +197,10 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
+
+export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
+  const factory = await smock.mock(contractName);
+  const contract = await factory.deploy(...args);
+  return contract;
 }
