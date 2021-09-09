@@ -40,6 +40,7 @@ export const DEPLOY_OPTY_STAKING_VAULTS = "deploy-opty-staking-vaults";
 
 export const DEPLOY_PRICE_ORACLE = "deploy-price-oracle";
 
+export const DEPLOY_APR_ORACLE = "deploy-apr-oracle";
 /**ACTION TASKS */
 
 export const APPROVE_TOKEN: string = "approve-token";
