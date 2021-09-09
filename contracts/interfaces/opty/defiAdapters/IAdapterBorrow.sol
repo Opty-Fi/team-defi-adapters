@@ -17,14 +17,14 @@ interface IAdapterBorrow {
      * @dev Get batch of function calls for token amount that can be borrowed safely against the underlying token
      * when kept as collateral
      * @param _vault Vault contract address
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+     * @param _underlyingToken Underlying token supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address from where to borrow
      * @param _outputToken Token address to borrow
      * @return _codes Returns an array of bytes in sequence that can be executed by vault
      */
     function getBorrowAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         address _outputToken
     ) external view returns (bytes[] memory _codes);
@@ -32,7 +32,7 @@ interface IAdapterBorrow {
     /**
      * @dev Get batch of function calls require to repay debt, unlock collateral and redeem lpToken
      * @param _vault Vault contract address
-     * @param _underlyingTokens List of underlying tokens supported by the given liquidity pool
+     * @param _underlyingToken Underlying token supported by the given liquidity pool
      * @param _liquidityPool Liquidity pool's contract address for all protocols except for Aave where it is
      * liquidity pool address provider's contract address
      * @param _outputToken Token address to borrow
@@ -40,7 +40,7 @@ interface IAdapterBorrow {
      */
     function getRepayAndWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         address _outputToken
     ) external view returns (bytes[] memory _codes);
