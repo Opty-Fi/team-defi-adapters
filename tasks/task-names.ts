@@ -30,6 +30,16 @@ export const DEPLOY_VAULT: string = "deploy-vault";
 
 export const DEPLOY_VAULTS: string = "deploy-vaults";
 
+export const DEPLOY_ODEFI_VAULT_BOOSTER = "deploy-odefi-vault-booster";
+
+export const DEPLOY_OPTY_DISTRIBUTOR = "deploy-opty-distributor";
+
+export const DEPLOY_OPTY_STAKING_RATE_BALANCER = "deploy-opty-staking-rate-balancer";
+
+export const DEPLOY_OPTY_STAKING_VAULTS = "deploy-opty-staking-vaults";
+
+export const DEPLOY_PRICE_ORACLE = "deploy-price-oracle";
+
 /**ACTION TASKS */
 
 export const APPROVE_TOKEN: string = "approve-token";
@@ -51,3 +61,7 @@ export const SET_VAULT_STEP_REGISTRY: string = "set-vault-step-registry";
 export const UNPAUSE_VAULT: string = "unpause-vault";
 
 export const VAULT_ACTIONS: string = "vault-actions";
+
+export const ADD_RISK_PROFILE: string = "add-risk-profile";
+
+export const APPROVE_ERC20: string = "approve-erc20";

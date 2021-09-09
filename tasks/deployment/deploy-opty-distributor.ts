@@ -2,8 +2,9 @@ import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { isAddress, deployContract, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { DEPLOY_OPTY_DISTRIBUTOR } from "../task-names";
 
-task("deploy-opty-distributor", "Deploy Opty Distributor")
+task(DEPLOY_OPTY_DISTRIBUTOR, "Deploy Opty Distributor")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("opty", "the address of opty", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)

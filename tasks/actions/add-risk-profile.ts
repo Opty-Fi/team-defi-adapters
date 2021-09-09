@@ -2,8 +2,9 @@ import { task, types } from "hardhat/config";
 import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { addRiskProfile } from "../../helpers/contracts-actions";
+import { ADD_RISK_PROFILE } from "../task-names";
 
-task("add-risk-profile", "Add Risk Profile")
+task(ADD_RISK_PROFILE, "Add Risk Profile")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("name", "the name of risk profile", "", types.string)
   .addParam("canborrow", "whether risk profile can borrow or not", false, types.boolean)

@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { getContractInstance, isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { APPROVE_ERC20 } from "../task-names";
 
-task("approve-erc20", "Approve erc20 Token")
+task(APPROVE_ERC20, "Approve erc20 Token")
   .addParam("token", "the address of token", "", types.string)
   .addParam("spender", "the address of spender", "", types.string)
   .addParam("amount", "the allowance amount", "0", types.string)

@@ -2,8 +2,9 @@ import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { isAddress, deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
+import { DEPLOY_PRICE_ORACLE } from "../task-names";
 
-task("deploy-price-oracle", "Deploy Price Oracle")
+task(DEPLOY_PRICE_ORACLE, "Deploy Price Oracle")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)

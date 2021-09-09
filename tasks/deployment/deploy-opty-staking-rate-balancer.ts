@@ -3,8 +3,9 @@ import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployOptyStakingRateBalancer } from "../../helpers/contracts-deployments";
 import { isAddress, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { DEPLOY_OPTY_STAKING_RATE_BALANCER } from "../task-names";
 
-task("deploy-opty-staking-rate-balancer", "Deploy Opty Staking Rate Balancer")
+task(DEPLOY_OPTY_STAKING_RATE_BALANCER, "Deploy Opty Staking Rate Balancer")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)

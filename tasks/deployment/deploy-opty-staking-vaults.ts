@@ -3,8 +3,9 @@ import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployAndSetupOptyStakingVaults } from "../../helpers/contracts-deployments";
 import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { DEPLOY_OPTY_STAKING_VAULTS } from "../task-names";
 
-task("deploy-opty-staking-vaults", "Deploy Opty Staking Vault")
+task(DEPLOY_OPTY_STAKING_VAULTS, "Deploy Opty Staking Vault")
   .addParam("opty", "the address of opty", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("optydistributor", "the address of optyDistributor", "", types.string)
