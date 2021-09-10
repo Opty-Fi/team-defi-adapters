@@ -191,7 +191,7 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
 }
 
 export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
-  let defaultFundAmount: BigNumber = BigNumber.from("20000").mul(to_10powNumber_BN(decimal));
+  let defaultFundAmount: BigNumber = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
   switch (getAddress(underlyingTokenAddress)) {
     case getAddress(TypedTokens.BAL):
     case getAddress(TypedTokens.WBTC):
@@ -207,7 +207,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.RSV):
     case getAddress(TypedTokens.YCRV):
     case getAddress(TypedTokens.ESD): {
-      defaultFundAmount = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
+      defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
       break;
     }
     case getAddress(TypedTokens.REN_BTC):
@@ -220,7 +220,8 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.KP3R):
     case getAddress(TypedTokens.FTT):
     case getAddress(TypedTokens.SWAG):
-    case getAddress(TypedTokens.COVER): {
+    case getAddress(TypedTokens.COVER):
+    case getAddress(TypedTokens.IBBTC): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
       break;
     }
@@ -233,6 +234,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal - 2));
       break;
     }
+
     case getAddress(TypedTokens.UNI_V2_WBTC_ETH):
     case getAddress(TypedTokens.UNI_V2_ETH_USDT):
     case getAddress(TypedTokens.UNI_V2_USDC_ETH):
