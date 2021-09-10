@@ -7,7 +7,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getDepositSomeCodes(address,address[],address,uint256[])",
+          "action": "getDepositSomeCodes(address,address,address,uint256)",
           "args": {
             "amount": {
               "DAI": "2000000000000000000",
@@ -24,7 +24,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getDepositAllCodes(address,address[],address)",
+          "action": "getDepositAllCodes(address,address,address)",
           "args": {}
         }
       ]
@@ -34,7 +34,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getWithdrawAllCodes(address,address[],address)",
+          "action": "getWithdrawAllCodes(address,address,address)",
           "args": {}
         }
       ]
@@ -44,7 +44,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getWithdrawSomeCodes(address,address[],address,uint256)",
+          "action": "getWithdrawSomeCodes(address,address,address,uint256)",
           "args": {
             "amount": {
               "DAI": "2000000000000000000",
@@ -61,7 +61,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getBorrowAllCodes(address,address[],address,address)",
+          "action": "getBorrowAllCodes(address,address,address,address)",
           "args": {}
         }
       ]
@@ -71,7 +71,7 @@
       "actions": [
         {
           "contract": "adapter",
-          "action": "getRepayAndWithdrawAllCodes(address,address[],address,address)",
+          "action": "getRepayAndWithdrawAllCodes(address,address,address,address)",
           "args": {}
         }
       ]
