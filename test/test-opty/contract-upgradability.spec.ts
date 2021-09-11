@@ -84,11 +84,19 @@ describe(scenario.title, () => {
                     .connect(users[action.executor])
                     [action.action](contracts["proxy"].address);
                 } else {
-                  await expect(
-                    contracts[action.contract]
-                      .connect(users[action.executor])
-                      [action.action](contracts["proxy"].address),
-                  ).to.be.revertedWith(action.message);
+                  if (testingContract === ESSENTIAL_CONTRACTS.REGISTRY) {
+                    await expect(
+                      contracts[action.contract]
+                        .connect(users[action.executor])
+                        [action.action](contracts["proxy"].address),
+                    ).to.be.revertedWith("!governance");
+                  } else {
+                    await expect(
+                      contracts[action.contract]
+                        .connect(users[action.executor])
+                        [action.action](contracts["proxy"].address),
+                    ).to.be.revertedWith("caller is not having governance");
+                  }
                 }
                 break;
               }
