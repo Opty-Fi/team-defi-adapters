@@ -197,9 +197,15 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
               const story = testDeFiAdaptersScenario.stories[i];
               const lpContract = await hre.ethers.getContractAt("IDForceDeposit", liquidityPool);
               const stakingAddress = await adapter.liquidityPoolToStakingVault(liquidityPool);
+              let stopReward = false;
               let lpStakingContract: Contract | undefined;
               if (stakingAddress !== ZERO_ADDRESS) {
                 lpStakingContract = await hre.ethers.getContractAt("IDForceStake", stakingAddress);
+                const lockedDetails = lpStakingContract ? await lpStakingContract.lockedDetails() : "0";
+                const currentTimestamp = await getBlockTimestamp(hre);
+                if (lockedDetails[1].toString() < currentTimestamp.toString()) {
+                  stopReward = true;
+                }
               }
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
@@ -207,6 +213,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
               const getERC20Code = await ERC20Instance.provider.getCode(ERC20Instance.address);
               const getLPCode = await lpContract.provider.getCode(lpContract.address);
               let isTestingStakingFunction = false;
+              let isTestingClaimRewardFunction = false;
               let poolValue: BigNumber = BigNumber.from("0");
               if (getLPCode !== "0x") {
                 poolValue = await adapter.getPoolValue(liquidityPool, underlyingTokenAddress);
@@ -416,6 +423,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     case "testGetClaimRewardTokenCode(address,address)": {
                       rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                      isTestingClaimRewardFunction = true;
                       break;
                     }
                     case "testGetStakeAllCodes(address,address,address)": {
@@ -608,7 +616,11 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       const rewardTokenBalanceAfter: BigNumber = await RewardTokenERC20Instance!.balanceOf(
                         testDeFiAdapter.address,
                       );
-                      if (!lpStakingContract && isTestingStakingFunction) {
+
+                      if (
+                        (!lpStakingContract && isTestingStakingFunction) ||
+                        (stopReward && isTestingClaimRewardFunction)
+                      ) {
                         expect(+rewardTokenBalanceAfter).to.be.eq(+rewardTokenBalanceBefore);
                       } else {
                         const expectedValue = action.expectedValue;
@@ -818,7 +830,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                     switch (action.action) {
                       case "getStakingTokenBalance(address)": {
                         if (lpStakingContract) {
-                          const stakingTokenBalance: BigNumber = await lpStakingContract!.balanceOf(
+                          const stakingTokenBalance: BigNumber = await lpStakingContract.balanceOf(
                             testDeFiAdapter.address,
                           );
                           expect(stakingTokenBalance).to.be.eq(0);
