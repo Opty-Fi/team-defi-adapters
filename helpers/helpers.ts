@@ -4,6 +4,7 @@ import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
+import { MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -155,41 +156,6 @@ export async function moveToSpecificBlock(hre: HardhatRuntimeEnvironment, timest
   await hre.network.provider.send("evm_mine");
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
-  let defaultFundAmount: BigNumber = BigNumber.from("20000");
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.COMP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.SAI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.ETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.USDN) ||
-    underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.RSV) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC)
-      ? BigNumber.from("200")
-      : defaultFundAmount;
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.YFI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.CREAM) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WNXM) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BOND) ||
-    underlyingTokenAddress == getAddress(TypedTokens.KP3R)
-      ? BigNumber.from("2")
-      : defaultFundAmount;
-  defaultFundAmount = underlyingTokenAddress == getAddress(TypedTokens.HBTC) ? BigNumber.from("1") : defaultFundAmount;
-  return defaultFundAmount;
-}
-
 export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
   switch (getAddress(underlyingTokenAddress)) {
@@ -198,6 +164,8 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.COMP):
     case getAddress(TypedTokens.SAI):
     case getAddress(TypedTokens.REP):
+    case getAddress(TypedTokens.TUSD):
+    case getAddress(TypedTokens.USDN):
     case getAddress(TypedTokens.ETH):
     case getAddress(TypedTokens.WETH):
     case getAddress(TypedTokens.DUSD):
@@ -262,4 +230,10 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
+
+export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
+  const factory = await smock.mock(contractName);
+  const contract = await factory.deploy(...args);
+  return contract;
 }
