@@ -4,10 +4,7 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
-import {
-  deployAdapter,
-  deployAdapterPrerequisites,
-} from "../../../helpers/contracts-deployments";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import testDeFiAdaptersScenario from "../scenarios/dydx-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
@@ -71,23 +68,23 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < story.actions.length; i++) {
             const action = story.actions[i];
             switch (action.action) {
-              case "getDepositSomeCodes(address,address[],address,uint256[])":
-              case "getDepositAllCodes(address,address[],address)": {
+              case "getDepositSomeCodes(address,address,address,uint256)":
+              case "getDepositAllCodes(address,address,address)": {
                 let codes;
                 let depositAmount;
-                if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await dYdXAdapter[action.action](
                       ownerAddress,
-                      [ADDRESS_ZERO, ADDRESS_ZERO, ADDRESS_ZERO, token],
+                      token,
                       strategy.strategy[0].contract,
-                      [0, 0, 0, amount[strategy.token]],
+                      amount[strategy.token],
                     );
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await dYdXAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -96,7 +93,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(token);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(strategy.strategy[0].contract);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
@@ -109,30 +106,30 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     expect(value[0][0][0]).to.be.equal(ownerAddress);
                     expect(value[1][0][0]).to.be.equal(0);
                     expect(value[1][0][5]).to.be.equal(ownerAddress);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1][0][2][3]).to.be.equal(depositAmount);
                     }
                   }
                 }
                 break;
               }
-              case "getWithdrawAllCodes(address,address[],address)":
-              case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+              case "getWithdrawAllCodes(address,address,address)":
+              case "getWithdrawSomeCodes(address,address,address,uint256)": {
                 let codes;
                 let withdrawAmount;
-                if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await dYdXAdapter[action.action](
                       ownerAddress,
-                      [token],
+                      token,
                       strategy.strategy[0].contract,
                       amount[strategy.token],
                     );
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await dYdXAdapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -145,7 +142,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                   expect(value[0][0][0]).to.be.equal(ownerAddress);
                   expect(value[1][0][0]).to.be.equal(1);
                   expect(value[1][0][5]).to.be.equal(ownerAddress);
-                  if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                  if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                     expect(value[1][0][2][3]).to.be.equal(withdrawAmount);
                   }
                 }
@@ -219,10 +216,7 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                 if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
                   await dYdXAdapter[action.action](maxDepositProtocolPct);
                 }
-                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(
-                  liquidityPool,
-                  underlyingTokenAddress,
-                );
+                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(liquidityPool, underlyingTokenAddress);
                 limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                 defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                 defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -234,10 +228,7 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                 if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                   await dYdXAdapter[action.action](liquidityPool, maxDepositPoolPct);
                 }
-                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(
-                  liquidityPool,
-                  underlyingTokenAddress,
-                );
+                const poolValue: BigNumber = await dYdXAdapter.getPoolValue(liquidityPool, underlyingTokenAddress);
                 limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                 defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                 defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
@@ -286,9 +277,19 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
               }
               case "testGetWithdrawAllCodes(address,address,address)": {
                 const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
-                console.log("Before withdraw: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
+                console.log(
+                  "Before withdraw: ",
+                  (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][
+                    underlyingTokenIndex
+                  ].value.toString(),
+                );
                 await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                console.log("After withdraw: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
+                console.log(
+                  "After withdraw: ",
+                  (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][
+                    underlyingTokenIndex
+                  ].value.toString(),
+                );
                 break;
               }
               case "testGetDepositSomeCodes(address,address,address,uint256)": {
@@ -309,8 +310,16 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                   underlyingTokenAddress,
                   liquidityPool,
                 );
-                console.log("Before withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
-                console.log("Balance before withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
+                console.log(
+                  "Before withdraw some: ",
+                  (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][
+                    underlyingTokenIndex
+                  ].value.toString(),
+                );
+                console.log(
+                  "Balance before withdraw: ",
+                  (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString(),
+                );
                 console.log("lpTokenBalance: ", lpTokenBalance.toString());
                 await testDeFiAdapter[action.action](
                   underlyingTokenAddress,
@@ -318,8 +327,16 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                   adapterAddress,
                   lpTokenBalance,
                 );
-                console.log("Balance after withdraw: ", (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString());
-                console.log("After withdraw some: ", (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value.toString());
+                console.log(
+                  "Balance after withdraw: ",
+                  (await ERC20Instance.balanceOf(testDeFiAdapter.address)).toString(),
+                );
+                console.log(
+                  "After withdraw some: ",
+                  (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][
+                    underlyingTokenIndex
+                  ].value.toString(),
+                );
                 break;
               }
             }
@@ -329,7 +346,9 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
               case "getLiquidityPoolTokenBalance(address,address,address)": {
                 const underlyingTokenIndex = await dYdXAdapter.marketToIndexes(underlyingTokenAddress);
                 const expectedValue = action.expectedValue;
-                const expectedLpBalanceFromPool = (await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0]))[2][underlyingTokenIndex].value;
+                const expectedLpBalanceFromPool = (
+                  await dYdXSoloInstance.getAccountBalances([testDeFiAdapter.address, 0])
+                )[2][underlyingTokenIndex].value;
                 const lpTokenBalance = await dYdXAdapter[action.action](
                   testDeFiAdapter.address,
                   underlyingTokenAddress,
@@ -353,18 +372,14 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                   if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
                     expect(lpTokenBalance).to.be.eq(0);
                   } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
-                    expectedValue == "=0"
-                      ? expect(lpTokenBalance).to.be.eq(0)
-                      : expect(lpTokenBalance).to.be.gt(0);
+                    expectedValue == "=0" ? expect(lpTokenBalance).to.be.eq(0) : expect(lpTokenBalance).to.be.gt(0);
                   }
                 }
                 break;
               }
               case "balanceOf(address)": {
                 const expectedValue = action.expectedValue;
-                const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                  testDeFiAdapter.address,
-                );
+                const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](testDeFiAdapter.address);
                 if (underlyingBalanceBefore.lt(limit)) {
                   expectedValue == ">0"
                     ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
@@ -396,9 +411,7 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
                     testDeFiAdapter.address,
                     underlyingTokenAddress,
                     liquidityPool,
-                    +amountInUnderlyingToken > 0
-                      ? amountInUnderlyingToken.sub(BigNumber.from(1))
-                      : BigNumber.from(0),
+                    +amountInUnderlyingToken > 0 ? amountInUnderlyingToken.sub(BigNumber.from(1)) : BigNumber.from(0),
                   );
                   expect(isRedeemableAmountSufficient).to.be.eq(true);
                 }
@@ -406,11 +419,6 @@ describe(`${testDeFiAdaptersScenario.title} - DyDxAdapter`, () => {
               }
               case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
                 const lpTokenBalance: BigNumber = await dYdXAdapter.getLiquidityPoolTokenBalance(
-                  testDeFiAdapter.address,
-                  underlyingTokenAddress,
-                  liquidityPool,
-                );
-                const balanceInToken: BigNumber = await dYdXAdapter.getAllAmountInToken(
                   testDeFiAdapter.address,
                   underlyingTokenAddress,
                   liquidityPool,

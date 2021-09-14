@@ -43,6 +43,9 @@ contract CurveDepositPoolAdapter is
 {
     using SafeMath for uint256;
 
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
+
     /** @notice  Curve Registry Address Provider */
     address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
 
@@ -69,9 +72,6 @@ contract CurveDepositPoolAdapter is
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
-
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     /** @dev deposit addresses that uses old API */
     mapping(address => bool) public isOldDepositZap;
@@ -207,11 +207,11 @@ contract CurveDepositPoolAdapter is
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 _amount = ERC20(_underlyingTokens[0]).balanceOf(_vault);
-        _codes = _getDepositCode(_underlyingTokens[0], _liquidityPool, _amount);
+    ) public view override returns (bytes[] memory) {
+        uint256 _amount = ERC20(_underlyingToken).balanceOf(_vault);
+        return _getDepositCode(_underlyingToken, _liquidityPool, _amount);
     }
 
     /**
@@ -219,11 +219,11 @@ contract CurveDepositPoolAdapter is
      */
     function getWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory) {
-        uint256 _amount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amount);
+        uint256 _amount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _amount);
     }
 
     /**
@@ -265,11 +265,11 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -312,7 +312,7 @@ contract CurveDepositPoolAdapter is
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _rewardTokenAmount = ERC20(getRewardToken(_liquidityPool)).balanceOf(_vault);
         return getHarvestSomeCodes(_vault, _underlyingToken, _liquidityPool, _rewardTokenAmount);
     }
@@ -333,10 +333,10 @@ contract CurveDepositPoolAdapter is
      */
     function getStakeAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
+    ) public view override returns (bytes[] memory) {
+        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
 
@@ -347,7 +347,7 @@ contract CurveDepositPoolAdapter is
         public
         view
         override
-        returns (bytes[] memory _codes)
+        returns (bytes[] memory)
     {
         uint256 _unstakeAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
@@ -361,11 +361,11 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256 _amount) {
+    ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
         // can have unintentional rounding errors
-        _amount = (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
 
     /**
@@ -386,11 +386,11 @@ contract CurveDepositPoolAdapter is
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+        return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
     }
 
     /**
@@ -398,11 +398,11 @@ contract CurveDepositPoolAdapter is
      */
     function getDepositSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
-        uint256[] memory _amounts
-    ) public view override returns (bytes[] memory _codes) {
-        _codes = _getDepositCode(_underlyingTokens[0], _liquidityPool, _amounts[0]);
+        uint256 _amount
+    ) public view override returns (bytes[] memory) {
+        return _getDepositCode(_underlyingToken, _liquidityPool, _amount);
     }
 
     /**
@@ -410,7 +410,7 @@ contract CurveDepositPoolAdapter is
      */
     function getWithdrawSomeCodes(
         address payable,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
@@ -427,38 +427,16 @@ contract CurveDepositPoolAdapter is
                 _liquidityPoolToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
             );
-            uint256 _numOfTokens = _underlyingTokens.length;
-            if (_numOfTokens == 1) {
-                _codes[2] = abi.encode(
-                    _liquidityPool,
-                    abi.encodeWithSignature(
-                        "remove_liquidity_one_coin(uint256,int128,uint256)",
-                        _amount,
-                        _getTokenIndex(_swapPool, _underlyingTokens[0]),
-                        uint256(0)
-                    )
-                );
-            } else {
-                if (_numOfTokens == uint256(2)) {
-                    uint256[2] memory _minAmountOut = [uint256(0), uint256(0)];
-                    _codes[2] = abi.encode(
-                        _liquidityPool,
-                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[2])", _amount, _minAmountOut)
-                    );
-                } else if (_numOfTokens == uint256(3)) {
-                    uint256[3] memory _minAmountOut = [uint256(0), uint256(0), uint256(0)];
-                    _codes[2] = abi.encode(
-                        _liquidityPool,
-                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[3])", _amount, _minAmountOut)
-                    );
-                } else if (_numOfTokens == uint256(4)) {
-                    uint256[4] memory _minAmountOut = [uint256(0), uint256(0), uint256(0), uint256(0)];
-                    _codes[2] = abi.encode(
-                        _liquidityPool,
-                        abi.encodeWithSignature("remove_liquidity(uint256,uint256[4])", _amount, _minAmountOut)
-                    );
-                }
-            }
+
+            _codes[2] = abi.encode(
+                _liquidityPool,
+                abi.encodeWithSignature(
+                    "remove_liquidity_one_coin(uint256,int128,uint256)",
+                    _amount,
+                    _getTokenIndex(_swapPool, _underlyingToken),
+                    uint256(0)
+                )
+            );
         }
     }
 
@@ -548,7 +526,7 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _rewardTokenAmount
-    ) public view override returns (bytes[] memory _codes) {
+    ) public view override returns (bytes[] memory) {
         return
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).getHarvestCodes(
                 _vault,
@@ -661,7 +639,7 @@ contract CurveDepositPoolAdapter is
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
@@ -669,7 +647,7 @@ contract CurveDepositPoolAdapter is
             _codes = new bytes[](4);
             _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
             bytes[] memory _withdrawCodes =
-                getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+                getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
             _codes[1] = _withdrawCodes[0];
             _codes[2] = _withdrawCodes[1];
             _codes[3] = _withdrawCodes[2];
@@ -689,14 +667,14 @@ contract CurveDepositPoolAdapter is
      * @param _swapPool swap pool address
      * @return _tokenIndex index of coin in swap pool
      */
-    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128 _tokenIndex) {
+    function _getTokenIndex(address _swapPool, address _underlyingToken) internal view returns (int128) {
         address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
         for (uint256 _i = 0; _i < _underlyingTokens.length; _i++) {
             if (_underlyingTokens[_i] == _underlyingToken) {
-                _tokenIndex = int128(_i);
-                break;
+                return int128(_i);
             }
         }
+        return int128(0);
     }
 
     /*

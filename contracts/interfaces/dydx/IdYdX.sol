@@ -72,7 +72,14 @@ interface IdYdX {
 
     function setOperators(OperatorArg[] memory args) external;
 
-    function getAccountBalances(AccountInfo calldata _accountInfo) external view returns (address[] memory, Par[] memory, Wei[] memory);
+    function getAccountBalances(AccountInfo calldata _accountInfo)
+        external
+        view
+        returns (
+            address[] memory,
+            Par[] memory,
+            Wei[] memory
+        );
 
     function getMarketTotalPar(uint256 marketId) external view returns (TotalPar memory);
 }
