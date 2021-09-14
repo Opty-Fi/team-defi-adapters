@@ -82,20 +82,23 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < story.actions.length; i++) {
             const action = story.actions[i];
             switch (action.action) {
-              case "getDepositSomeCodes(address,address[],address,uint256[])":
-              case "getDepositAllCodes(address,address[],address)": {
+              case "getDepositSomeCodes(address,address,address,uint256)":
+              case "getDepositAllCodes(address,address,address)": {
                 let codes;
                 let depositAmount;
-                if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, [
+                    codes = await adapter[action.action](
+                      ownerAddress,
+                      token,
+                      strategy.strategy[0].contract,
                       amount[strategy.token],
-                    ]);
+                    );
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -104,7 +107,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(token);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(lpAddress);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
@@ -113,7 +116,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(lpAddress);
                     const value = inter.decodeFunctionData("deposit", abiCode);
                     expect(value[0]).to.equal(token);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(depositAmount);
                     }
                     expect(value[2]).to.equal(ownerAddress);
@@ -122,23 +125,23 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                 }
                 break;
               }
-              case "getWithdrawAllCodes(address,address[],address)":
-              case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+              case "getWithdrawAllCodes(address,address,address)":
+              case "getWithdrawSomeCodes(address,address,address,uint256)": {
                 let codes;
                 let withdrawAmount;
-                if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await adapter[action.action](
                       ownerAddress,
-                      [token],
+                      token,
                       strategy.strategy[0].contract,
                       amount[strategy.token],
                     );
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -148,7 +151,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(lpToken);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(lpAddress);
-                    if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                    if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : withdrawAmount);
                     }
                   } else {
@@ -157,7 +160,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(lpAddress);
                     const value = inter.decodeFunctionData("withdraw", abiCode);
                     expect(value[0]).to.equal(token);
-                    if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                    if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(withdrawAmount);
                     }
                     expect(value[2]).to.equal(ownerAddress);
@@ -166,10 +169,10 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
 
                 break;
               }
-              case "getBorrowAllCodes(address,address[],address,address)": {
+              case "getBorrowAllCodes(address,address,address,address)": {
                 const codes = await adapter[action.action](
                   ownerAddress,
-                  [token],
+                  token,
                   strategy.strategy[0].contract,
                   SNTToken,
                 );
@@ -186,7 +189,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                 expect(value[4]).to.be.equal(ownerAddress);
                 break;
               }
-              case "getRepayAndWithdrawAllCodes(address,address[],address,address)": {
+              case "getRepayAndWithdrawAllCodes(address,address,address,address)": {
                 await lpContract.borrow(SNTToken, BigNumber.from("2000000000"), 2, 0, ownerAddress);
                 // @Error : the code getting revert with division by zero error
                 // @Reason : _debt() returns error.

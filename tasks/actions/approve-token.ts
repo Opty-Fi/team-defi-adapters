@@ -4,8 +4,9 @@ import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { approveToken } from "../../helpers/contracts-actions";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
+import { APPROVE_TOKEN } from "../task-names";
 
-task("approve-token", "Approve Token")
+task(APPROVE_TOKEN, "Approve Token")
   .addParam("token", "the address of token", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ token, registry }, hre) => {

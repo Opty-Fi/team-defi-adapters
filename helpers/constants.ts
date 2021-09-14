@@ -74,7 +74,7 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   DForceAdapter: {
     tokenName: "DF",
     tokenAddress: TypedTokens["DF"],
-    distributionActive: true,
+    distributionActive: false,
   },
   HarvestAdapter: {
     tokenName: "FARM",
@@ -346,4 +346,7 @@ export const TOKEN_HOLDERS: DATA_OBJECT = {
   UNI_V2_DAI_ETH: "0x79317fc0fb17bc0ce213a2b50f343e4d4c277704",
   XSUSHI: "0xf977814e90da44bfa03b6295a0616a897441acec",
   BBADGER: "0x108a8b7200d044bbbe95bef6f671baec5473e05f",
+};
+export const CONTRACT_ADDRESSES: DATA_OBJECT = {
+  COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
 };

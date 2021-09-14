@@ -4,6 +4,7 @@ import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
+import { MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -147,48 +148,18 @@ export function isAddress(address: string): boolean {
 export async function moveToNextBlock(hre: HardhatRuntimeEnvironment): Promise<void> {
   const blockNumber = await hre.ethers.provider.getBlockNumber();
   const block = await hre.ethers.provider.getBlock(blockNumber);
-  await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 1]);
-  await hre.network.provider.send("evm_mine");
+  await moveToSpecificBlock(hre, block.timestamp);
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
-  let defaultFundAmount: BigNumber = BigNumber.from("20000");
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.COMP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.SAI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.ETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.RSV) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC)
-      ? BigNumber.from("200")
-      : defaultFundAmount;
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.YFI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.CREAM) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WNXM) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BOND) ||
-    underlyingTokenAddress == getAddress(TypedTokens.KP3R)
-      ? BigNumber.from("2")
-      : defaultFundAmount;
-  defaultFundAmount = underlyingTokenAddress == getAddress(TypedTokens.HBTC) ? BigNumber.from("1") : defaultFundAmount;
-  return defaultFundAmount;
+export async function moveToSpecificBlock(hre: HardhatRuntimeEnvironment, timestamp: number): Promise<void> {
+  await hre.network.provider.send("evm_setNextBlockTimestamp", [timestamp + 1]);
+  await hre.network.provider.send("evm_mine");
 }
 
 export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000").mul(to_10powNumber_BN(decimal));
   switch (getAddress(underlyingTokenAddress)) {
     case getAddress(TypedTokens.BAL):
-    case getAddress(TypedTokens.WBTC):
     case getAddress(TypedTokens.COMP):
     case getAddress(TypedTokens.SAI):
     case getAddress(TypedTokens.REP):
@@ -200,12 +171,15 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.BUSD):
     case getAddress(TypedTokens.RSV):
     case getAddress(TypedTokens.YCRV):
-    case getAddress(TypedTokens.ESD): {
+    case getAddress(TypedTokens.ESD):
+    case getAddress(TypedTokens.USDN):
+    case getAddress(TypedTokens.TUSD): {
       defaultFundAmount = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
       break;
     }
     case getAddress(TypedTokens.REN_BTC):
     case getAddress(TypedTokens.TBTC):
+    case getAddress(TypedTokens.WBTC):
     case getAddress(TypedTokens.YFI):
     case getAddress(TypedTokens.CREAM):
     case getAddress(TypedTokens.WNXM):
@@ -254,4 +228,10 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
+
+export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
+  const factory = await smock.mock(contractName);
+  const contract = await factory.deploy(...args);
+  return contract;
 }
