@@ -238,7 +238,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory _codes) {
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPoolAddressProvider, uint256(-1));
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, uint256(-1));
     }
 
     /**
