@@ -27,8 +27,6 @@ task(DEPLOY_HARVEST_CODE_PROVIDER, "Deploy Harvest Code Provider")
       [registry],
     );
 
-    await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
-
     console.log("Finished deploying harvestCodeProvider");
 
     console.log(`Contract harvestCodeProvider : ${harvestCodeProvider.address}`);

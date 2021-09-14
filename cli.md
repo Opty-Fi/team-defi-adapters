@@ -262,7 +262,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat deploy-strategy-provider \
+  yarn hardhat deploy-opty-distributor \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --opty 0x0000000000000000000000000000000000000000
@@ -296,8 +296,8 @@ Usage: deploy OptyStakingVault contracts
 Options:
 --registry                  required <address> the address of registry
 --opty                      required <address> the address of opty
---optydistributor           required <address> the address of registry
---optystakingratebalancer   required <address> the address of registry
+--optydistributor           required <address> the address of opty distributor
+--optystakingratebalancer   required <address> the address of opty staking rate balancer
 --deployedonce              optional <bool>    allow checking whether contracts were deployed previously (default: true)
 --insertindb                optional <bool>    allow inserting to database
 --network                   optional <string>  name of the network provider (default: hardhat)
@@ -306,7 +306,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat deploy-strategy-provider \
+  yarn hardhat deploy-staking-vautls \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --opty 0x0000000000000000000000000000000000000000 \
@@ -444,7 +444,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat add-risk-profile \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --name RP1 \
@@ -459,7 +459,6 @@ Options:
 Usage: approve spender to use specific amount of erc20 token
 
 Options:
---registry  required <address> the address of registry
 --spender   required <address> the address of spender
 --token     required <address> the address of token
 --amount    required <int> the amount of token
@@ -469,9 +468,8 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat approve-erc20 \
   --network localhost \
-  --registry 0x0000000000000000000000000000000000000000 \
   --spender 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000 \
   --amount 1000000000000000
@@ -490,7 +488,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat approve-tokens \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000
 ```
@@ -509,7 +507,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat approve-token \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000
@@ -529,7 +527,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat set-strategies \
+  yarn hardhat get-all-strategies \
   --network localhost \
   --strategyregistry 0x0000000000000000000000000000000000000000 \
   --token 0x0000000000000000000000000000000000000000

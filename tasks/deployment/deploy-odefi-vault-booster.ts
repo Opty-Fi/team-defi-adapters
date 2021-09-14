@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, deployContract } from "../../helpers/helpers";
+import { isAddress, deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_ODEFI_VAULT_BOOSTER } from "../task-names";
 
 task(DEPLOY_ODEFI_VAULT_BOOSTER, "Deploy Odefi Vault Booster")
@@ -36,6 +36,10 @@ task(DEPLOY_ODEFI_VAULT_BOOSTER, "Deploy Odefi Vault Booster")
     console.log("Finished deploying ODEFIVaultBooster");
 
     console.log(`Contract ODEFIVaultBooster : ${odefiVaultBooster.address}`);
+
+    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setODEFIVaultBooster(address)", [odefiVaultBooster.address]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(`odefiVaultBooster`, odefiVaultBooster.address);
