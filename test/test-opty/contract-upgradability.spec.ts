@@ -104,12 +104,12 @@ describe(scenario.title, () => {
                 if (testingContract === ESSENTIAL_CONTRACTS.REGISTRY) {
                   await contracts["mainProxy"].getTokenHashes();
                   await contracts["mainProxy"].setTreasury(await users["treasury"].getAddress());
+                  expect(await contracts["mainProxy"].treasury()).to.be.eq(await users["treasury"].getAddress());
                 }
                 break;
               }
               case "checkTestingContractFunction": {
                 expect(await contracts["mainProxy"].isNewContract()).to.be.eq(true);
-                //expect(await contracts["mainProxy"].value()).to.be.eq("NewContract");
                 break;
               }
               case "verifyOldValue": {
