@@ -132,12 +132,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory) {
-        uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = IERC20(_underlyingTokens[0]).balanceOf(_vault);
-        return getDepositSomeCodes(_vault, _underlyingTokens, _liquidityPool, _amounts);
+        uint256 _amount = IERC20(_underlyingToken).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingToken, _liquidityPool, _amount);
     }
 
     /**
@@ -145,11 +144,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
     }
 
     /**
@@ -261,10 +260,10 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getStakeAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory) {
-        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
+        uint256 _stakeAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         return getStakeSomeCodes(_liquidityPool, _stakeAmount);
     }
 
@@ -315,11 +314,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getUnstakeAndWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory) {
         uint256 _redeemAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+        return getUnstakeAndWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
     }
 
     /**
@@ -327,19 +326,19 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getDepositSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
-        uint256[] memory _amounts
+        uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingTokens[0], _amounts[0]);
+        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > 0) {
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
             );
             _codes[1] = abi.encode(
-                _underlyingTokens[0],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _depositAmount)
             );
             _codes[2] = abi.encode(
@@ -354,14 +353,14 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getWithdrawSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
         if (_redeemAmount > 0) {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
-                getLiquidityPoolToken(_underlyingTokens[0], _liquidityPool),
+                getLiquidityPoolToken(_underlyingToken, _liquidityPool),
                 abi.encodeWithSignature("redeem(address,uint256)", _vault, _redeemAmount)
             );
         }
@@ -535,14 +534,14 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function getUnstakeAndWithdrawSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
         if (_redeemAmount > 0) {
             _codes = new bytes[](2);
             _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
-            _codes[1] = getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount)[0];
+            _codes[1] = getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount)[0];
         }
     }
 
