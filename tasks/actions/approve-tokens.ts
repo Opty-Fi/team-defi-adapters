@@ -3,8 +3,9 @@ import { getContractInstance, isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
 import { TypedTokens } from "../../helpers/data";
 import { approveAndSetTokenHashToTokens } from "../../helpers/contracts-actions";
+import { APPROVE_TOKENS } from "../task-names";
 
-task("approve-tokens", "Approve Tokens")
+task(APPROVE_TOKENS, "Approve Tokens")
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ registry }, hre) => {
     const [owner] = await hre.ethers.getSigners();

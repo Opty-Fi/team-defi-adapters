@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { getContractInstance, isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { GET_STRATEGIES } from "../task-names";
 
-task("get-all-strategies", "Get all available strategies for specific token")
+task(GET_STRATEGIES, "Get all available strategies for specific token")
   .addParam("token", "the address of token", "", types.string)
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
   .setAction(async ({ strategyregistry, token }, hre) => {

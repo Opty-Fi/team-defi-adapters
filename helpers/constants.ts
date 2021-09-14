@@ -74,7 +74,7 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   DForceAdapter: {
     tokenName: "DF",
     tokenAddress: TypedTokens["DF"],
-    distributionActive: true,
+    distributionActive: false,
   },
   HarvestAdapter: {
     tokenName: "FARM",
@@ -129,11 +129,6 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
 
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
-export enum MAX_DEPOSIT_MODE {
-  number,
-  pct,
-}
-
 export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
   {
     name: "optyStakingVault1D",
@@ -160,3 +155,12 @@ export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
     multiplier: 20000,
   },
 ];
+
+export enum MAX_DEPOSIT_MODE {
+  number,
+  pct,
+}
+
+export const CONTRACT_ADDRESSES: DATA_OBJECT = {
+  COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+};
