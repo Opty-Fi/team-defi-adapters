@@ -1,4 +1,5 @@
 import { Contract } from "ethers";
+import { MockContract } from "@defi-wonderland/smock";
 
 export type ESSENTIAL_CONTRACTS = {
   registry: Contract;
@@ -14,6 +15,10 @@ export type ESSENTIAL_CONTRACTS = {
 
 export type CONTRACTS = {
   [name: string]: Contract;
+};
+
+export type MOCK_CONTRACTS = {
+  [name: string]: MockContract<Contract>;
 };
 
 export type CONTRACTS_WITH_HASH = {

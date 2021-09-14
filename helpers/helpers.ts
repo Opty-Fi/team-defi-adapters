@@ -1,9 +1,10 @@
-import { Contract, Signer, ContractFactory, utils, BigNumber } from "ethers";
+import { Contract, Signer, ContractFactory, utils, BigNumber, BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
-import { getSoliditySHA3Hash, capitalizeFirstLetter } from "./utils";
+import { getSoliditySHA3Hash, capitalizeFirstLetter, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
+import { MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -108,7 +109,7 @@ export async function moveToSpecificBlock(hre: HardhatRuntimeEnvironment, timest
   await hre.network.provider.send("evm_mine");
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
+export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
     underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
@@ -129,10 +130,12 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
       ? BigNumber.from("200")
       : defaultFundAmount;
   defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) || underlyingTokenAddress == getAddress(TypedTokens.TBTC)
+    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.WBTC)
       ? BigNumber.from("2")
       : defaultFundAmount;
-  return defaultFundAmount;
+  return defaultFundAmount.mul(to_10powNumber_BN(decimal));
 }
 
 export function getEthValueGasOverrideOptions(
@@ -173,4 +176,10 @@ export function retrieveAdapterFromStrategyName(strategyName: string): string[] 
     }
   }
   return adapterNames;
+}
+
+export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
+  const factory = await smock.mock(contractName);
+  const contract = await factory.deploy(...args);
+  return contract;
 }
