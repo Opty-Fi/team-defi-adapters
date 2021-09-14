@@ -57,23 +57,23 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < story.actions.length; i++) {
             const action = story.actions[i];
             switch (action.action) {
-              case "getDepositSomeCodes(address,address[],address,uint256[])":
-              case "getDepositAllCodes(address,address[],address)": {
+              case "getDepositSomeCodes(address,address,address,uint256)":
+              case "getDepositAllCodes(address,address,address)": {
                 let codes;
                 let depositAmount;
-                if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await adapter[action.action](
                       ownerAddress,
-                      [ADDRESS_ZERO, ADDRESS_ZERO, ADDRESS_ZERO, token],
+                      token,
                       strategy.strategy[0].contract,
-                      [0, 0, 0, amount[strategy.token]],
+                      amount[strategy.token],
                     );
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -82,7 +82,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(token);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(strategy.strategy[0].contract);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
@@ -95,30 +95,30 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                     expect(value[0][0][0]).to.be.equal(ownerAddress);
                     expect(value[1][0][0]).to.be.equal(0);
                     expect(value[1][0][5]).to.be.equal(ownerAddress);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1][0][2][3]).to.be.equal(depositAmount);
                     }
                   }
                 }
                 break;
               }
-              case "getWithdrawAllCodes(address,address[],address)":
-              case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+              case "getWithdrawAllCodes(address,address,address)":
+              case "getWithdrawSomeCodes(address,address,address,uint256)": {
                 let codes;
                 let withdrawAmount;
-                if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await adapter[action.action](
                       ownerAddress,
-                      [token],
+                      token,
                       strategy.strategy[0].contract,
                       amount[strategy.token],
                     );
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -131,7 +131,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
                   expect(value[0][0][0]).to.be.equal(ownerAddress);
                   expect(value[1][0][0]).to.be.equal(1);
                   expect(value[1][0][5]).to.be.equal(ownerAddress);
-                  if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                  if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                     expect(value[1][0][2][3]).to.be.equal(withdrawAmount);
                   }
                 }

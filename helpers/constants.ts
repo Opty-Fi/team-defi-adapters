@@ -74,7 +74,7 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
   DForceAdapter: {
     tokenName: "DF",
     tokenAddress: TypedTokens["DF"],
-    distributionActive: true,
+    distributionActive: false,
   },
   HarvestAdapter: {
     tokenName: "FARM",
@@ -344,3 +344,6 @@ export enum MAX_DEPOSIT_MODE {
   number,
   pct,
 }
+export const CONTRACT_ADDRESSES: DATA_OBJECT = {
+  COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+};

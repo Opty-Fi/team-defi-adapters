@@ -3,8 +3,9 @@ import { getContractInstance, isAddress, executeFunc } from "../../helpers/helpe
 import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
+import { APPROVE_TOKEN } from "../task-names";
 
-task("approve-token", "Approve Token")
+task(APPROVE_TOKEN, "Approve Token")
   .addParam("token", "the address of token", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ token, registry }, hre) => {
@@ -26,7 +27,7 @@ task("approve-token", "Approve Token")
       throw new Error("token address is invalid");
     }
 
-    if (token !== ADDRESS_ETH) {
+    if (getAddress(token) !== getAddress(ADDRESS_ETH)) {
       const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
       const isApprovedToken = await registryContract.isApprovedToken(token);

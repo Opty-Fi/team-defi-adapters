@@ -1,7 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { TypedTokens } from "../../helpers/data";
-task("approve-tokens", "Approve Tokens")
+import { APPROVE_TOKENS } from "../task-names";
+
+task(APPROVE_TOKENS, "Approve Tokens")
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ registry }, hre) => {
     if (registry === "") {
