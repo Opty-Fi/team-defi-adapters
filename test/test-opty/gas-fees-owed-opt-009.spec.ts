@@ -137,7 +137,9 @@ describe(scenario.title, () => {
                       );
                     }
                   } catch (error) {
-                    expect(error.message).to.equal("VM Exception while processing transaction: revert !liquidityPools");
+                    expect(error.message).to.equal(
+                      "VM Exception while processing transaction: reverted with reason string '!liquidityPools'",
+                    );
                   }
                 }
 
