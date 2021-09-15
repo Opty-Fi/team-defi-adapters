@@ -116,7 +116,7 @@ describe("CurveAdapters Unit test", () => {
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
                         ADDRESS_ZERO,
-                        [nCoins[0]], // DAI
+                        nCoins[0], // DAI
                         strategy.strategy[0].contract,
                         depositAmount[0],
                       );
@@ -173,7 +173,7 @@ describe("CurveAdapters Unit test", () => {
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
                         ADDRESS_ZERO,
-                        nCoins,
+                        nCoins[0],
                         strategy.strategy[0].contract,
                         withdrawalAmount,
                       );
@@ -185,6 +185,7 @@ describe("CurveAdapters Unit test", () => {
                       strategy.strategy[0].contract,
                     );
                   }
+
                   for (let i = 0; i < codes.length; i++) {
                     if (i < 2) {
                       const inter = new utils.Interface(["function approve(address,uint256)"]);
