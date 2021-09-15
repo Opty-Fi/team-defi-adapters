@@ -229,7 +229,7 @@ describe(scenario.title, () => {
                           if (action.expectedValue.toString().includes(">")) {
                             expect(+value).to.be.gt(+action.expectedValue.toString().split(">")[1]);
                           } else {
-                            expect(+value).to.be.equal(action.expectedValue);
+                            expect(+value).to.be.equal(+action.expectedValue);
                           }
                           break;
                         }
