@@ -98,7 +98,7 @@ export async function deployEssentialContracts(
           RISK_PROFILES[profiles[i]].poolRating,
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   }
@@ -299,7 +299,7 @@ export async function deployAdapters(
   for (const adapter of ADAPTER) {
     try {
       data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
-    } catch (error) {
+    } catch (error: any) {
       console.log(adapter, error);
     }
   }

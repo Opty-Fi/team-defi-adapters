@@ -41,7 +41,7 @@ describe(scenarios.title, () => {
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -113,7 +113,7 @@ describe(scenarios.title, () => {
                 contracts["vault"] = Vault;
 
                 contracts["erc20"] = ERC20Instance;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });

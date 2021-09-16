@@ -88,7 +88,7 @@ describe(scenario.title, () => {
       for (let i = 0; i < callerNames.length; i++) {
         callers[callerNames[i]] = await signers[callerNames[i]].getAddress();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

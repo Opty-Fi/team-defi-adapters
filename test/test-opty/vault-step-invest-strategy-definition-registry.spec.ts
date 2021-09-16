@@ -29,7 +29,7 @@ describe(scenario.title, () => {
         vaultStepInvestStrategyDefinitionRegistryContract,
         "vaultStepInvestStrategyDefinitionRegistry contract not deployed",
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

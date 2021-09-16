@@ -47,7 +47,7 @@ describe(scenario.title, () => {
       [essentialContracts, adapters] = await setUp(owner);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -160,7 +160,7 @@ describe(scenario.title, () => {
                             expect([+value[0]._hex, +value[1]._hex]).to.have.members(vaultRewardStrategy);
                           }
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
@@ -186,7 +186,7 @@ describe(scenario.title, () => {
                             timestamp,
                           );
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
@@ -207,7 +207,7 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](contracts[addressName].address, amount[TOKEN_STRATEGY.token]);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
@@ -227,7 +227,7 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](investStrategyHash);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
@@ -250,7 +250,7 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](amount[TOKEN_STRATEGY.token]);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
@@ -278,7 +278,7 @@ describe(scenario.title, () => {
                           );
                           expect([+value[0]._hex, +value[1]._hex]).to.have.members(<number[]>vaultRewardStrategy);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {

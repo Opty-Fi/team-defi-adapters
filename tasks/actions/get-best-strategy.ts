@@ -46,7 +46,7 @@ task(GET_BEST_STRATEGY, "Get best strategy")
         strategyHash = await strategyProvider.rpToTokenToBestStrategy(riskprofile.toUpperCase(), tokensHash);
       }
       console.log(`StrategyHash : ${strategyHash}`);
-    } catch (error) {
+    } catch (error: any) {
       console.log(`Got error : `, error.message);
     }
   });

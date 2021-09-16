@@ -30,7 +30,7 @@ describe(scenario.title, () => {
       [essentialContracts, adapters] = await setUp(operator);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -98,7 +98,7 @@ describe(scenario.title, () => {
                     .connect(operator)
                     [action.action](contracts[contractName].address, amount);
                 }
-              } catch (error) {
+              } catch (error: any) {
                 if (action.expect === "success") {
                   assert.isUndefined(error);
                 } else {
@@ -132,7 +132,7 @@ describe(scenario.title, () => {
                   }
                   await contracts[action.contract].connect(operator)[action.action](amount);
                 }
-              } catch (error) {
+              } catch (error: any) {
                 if (action.expect === "success") {
                   assert.isUndefined(error);
                 } else {

@@ -61,7 +61,7 @@ export async function approveLiquidityPoolAndMapAdapters(
     if (creditPools.length > 0) {
       await executeFunc(registryContract, owner, "approveCreditPool(address[])", [creditPools]);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Got error when executing approveLiquidityPoolAndMapAdapters : ${error}`);
   }
 }
@@ -82,7 +82,7 @@ export async function approveTokens(owner: Signer, registryContract: Contract): 
   }
   try {
     await approveToken(owner, registryContract, tokenAddresses);
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Got error when executing approveTokens : ${error}`);
   }
 }
@@ -102,7 +102,7 @@ export async function setAndApproveVaultRewardToken(
         [vaultContractAddress, rewardTokenAddress],
       ]);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Got error when executing approveTokens for vault and reward tokens : ${error}`);
   }
 }
@@ -250,7 +250,7 @@ export async function insertDataCurveDeposit(owner: Signer, curveDeposit: Contra
           TypedCurveDepositPoolGauges[data.gauges],
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Got error in insertDataCurveDeposit() ", error);
     }
   }
@@ -276,7 +276,7 @@ export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): P
           TypedCurveDepositPoolGauges[data.gauges],
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Got error in insertDataCurveSwap() ", error);
     }
   }

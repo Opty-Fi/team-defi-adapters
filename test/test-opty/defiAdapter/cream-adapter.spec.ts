@@ -33,7 +33,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -48,7 +48,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
           lpToken = await adapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

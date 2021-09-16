@@ -78,7 +78,7 @@ export const insertVaultIntoDB = async (transactionHash: string): Promise<string
       },
     });
     return "";
-  } catch (error) {
+  } catch (error: any) {
     return error.message ? error.message : error;
   }
 };
@@ -103,7 +103,7 @@ export const insertContractIntoDB = async (contractName: string, contractAddress
       },
     });
     return "";
-  } catch (error) {
+  } catch (error: any) {
     return error.message ? error.message : error;
   }
 };

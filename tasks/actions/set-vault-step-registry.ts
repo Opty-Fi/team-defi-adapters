@@ -32,7 +32,7 @@ task(SET_VAULT_STEP_REGISTRY, "Set vaultStepInvestStrategyDefinitionRegistry")
         strategyregistry,
       ]);
       console.log("Set VaultStepInvestStrategyDefinitionRegistry successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.log("Got error", error);
     }
     console.log("Finished setting VaultStepInvestStrategyDefinitionRegistry");

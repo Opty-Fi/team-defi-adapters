@@ -30,7 +30,7 @@ describe(scenario.title, () => {
       [essentialContracts, adapters] = await setUp(owner);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -67,7 +67,7 @@ describe(scenario.title, () => {
           await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
 
           ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

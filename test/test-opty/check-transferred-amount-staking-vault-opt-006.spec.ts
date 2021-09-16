@@ -23,7 +23,7 @@ describe(scenario.title, () => {
       users = { owner };
       [essentialContracts] = await setUp(owner);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

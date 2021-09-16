@@ -103,7 +103,7 @@ task(VAULT_ACTIONS, "perform actions in Vault")
             await vaultContract.connect(userSigner).userDeposit(checkedAmount.toString());
             console.log("Deposit without rebalance successfully");
           }
-        } catch (error) {
+        } catch (error: any) {
           console.log(`Got error when depositing : ${error}`);
         }
 
@@ -136,7 +136,7 @@ task(VAULT_ACTIONS, "perform actions in Vault")
               tokenDecimals,
             )} ${tokenSymbol}`,
           );
-        } catch (error) {
+        } catch (error: any) {
           console.log(`Got error when withdrawing : ${error}`);
         }
 
@@ -151,7 +151,7 @@ task(VAULT_ACTIONS, "perform actions in Vault")
           strategyHash = await vaultContract.investStrategyHash();
           console.log(`Invest strategy : ${strategyHash}`);
           console.log("Rebalance successfully");
-        } catch (error) {
+        } catch (error: any) {
           console.log(`Got error when rebalancing : ${error}`);
         }
         break;

@@ -83,7 +83,7 @@ export async function getExistingContractAddress(
   try {
     const deployedContract = await hre.deployments.get(contractName);
     address = deployedContract.address;
-  } catch (error) {
+  } catch (error: any) {
     address = "";
   }
   return address;

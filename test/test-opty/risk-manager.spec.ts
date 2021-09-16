@@ -59,7 +59,7 @@ describe(scenario.title, () => {
     for (let i = 0; i < usedTokens.length; i++) {
       try {
         await approveToken(owner, registry, [TypedTokens[usedTokens[i].toUpperCase()]]);
-      } catch (error) {
+      } catch (error: any) {
         continue;
       }
     }

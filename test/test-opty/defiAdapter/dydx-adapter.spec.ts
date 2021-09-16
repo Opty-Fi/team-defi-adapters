@@ -33,7 +33,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -46,7 +46,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

@@ -43,7 +43,7 @@ describe(scenario.title, () => {
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -141,7 +141,7 @@ describe(scenario.title, () => {
                           timestamp,
                         );
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
@@ -162,7 +162,7 @@ describe(scenario.title, () => {
                           .connect(users[action.executer])
                           [action.action](contracts[addressName].address, amount[TOKEN_STRATEGY.token]);
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
@@ -183,7 +183,7 @@ describe(scenario.title, () => {
                           .connect(users[action.executer])
                           [action.action](amount[TOKEN_STRATEGY.token]);
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
@@ -201,7 +201,7 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action]();
                       await pricePerShare.wait();
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {

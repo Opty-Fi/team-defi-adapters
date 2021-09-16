@@ -62,7 +62,7 @@ describe("CurveAdapters Unit test", () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(curveAdapters[CURVE_SWAP_POOL_ADAPTER_NAME], "CurveSwapPoolAdapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -97,7 +97,7 @@ describe("CurveAdapters Unit test", () => {
               ZERO_ADDRESS,
               strategy.strategy[0].contract,
             );
-          } catch (error) {
+          } catch (error: any) {
             console.error(error);
           }
         });

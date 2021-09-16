@@ -51,7 +51,7 @@ describe(scenarios.title, () => {
       [essentialContracts, adapters] = await setUp(users["owner"]);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -109,7 +109,7 @@ describe(scenarios.title, () => {
                 contracts["adapter"] = adapter;
 
                 contracts["erc20"] = ERC20Instance;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });
@@ -132,7 +132,7 @@ describe(scenarios.title, () => {
                 );
                 await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
                 contracts["vault"] = Vault;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });

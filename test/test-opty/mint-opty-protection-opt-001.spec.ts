@@ -25,7 +25,7 @@ describe(scenario.title, () => {
       contracts["priceOracle"] = essentialContracts.priceOracle;
 
       contracts["optyDistributor"] = essentialContracts.optyDistributor;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

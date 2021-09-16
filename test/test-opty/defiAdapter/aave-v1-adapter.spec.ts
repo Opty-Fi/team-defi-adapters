@@ -35,7 +35,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -64,7 +64,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
           await fundWalletToken(hre, SNTToken, owner, MAX_AMOUNT, timestamp);
           await lpContract.setUserUseReserveAsCollateral(token, true);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

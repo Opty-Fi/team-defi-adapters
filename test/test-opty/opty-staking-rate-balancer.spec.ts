@@ -36,7 +36,7 @@ describe(scenario.title, () => {
         [],
       );
       contracts = { registry, optyStakingRateBalancer, dummyOptyStakingVaultEmptyContract };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

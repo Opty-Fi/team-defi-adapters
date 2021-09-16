@@ -59,7 +59,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(compoundAdapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -74,7 +74,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
           lpToken = await compoundAdapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

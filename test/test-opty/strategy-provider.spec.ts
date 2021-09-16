@@ -61,7 +61,7 @@ describe(scenario.title, () => {
       vaultRewardTokenHash = generateTokenHash([DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN]);
       await setAndApproveVaultRewardToken(signers["owner"], DUMMY_VAULT_EMPTY_CONTRACT.address, COMP_TOKEN, registry);
       contracts = { registry, strategyProvider };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

@@ -35,7 +35,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -71,7 +71,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
           await tokenContract.approve(lpAddress, BORROW_AMOUNT);
           await lpContract.deposit(token, BORROW_AMOUNT, ownerAddress, 0);
           await lpContract.setUserUseReserveAsCollateral(token, true);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

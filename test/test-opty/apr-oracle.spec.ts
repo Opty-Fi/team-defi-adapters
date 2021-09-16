@@ -72,7 +72,7 @@ describe(scenario.title, () => {
       riskManager = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.RISK_MANAGER, riskManagerProxy.address, owner);
 
       contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

@@ -44,7 +44,7 @@ task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
 
       try {
         console.log(`Liquidity pool ${liquiditypool} approved`);
-      } catch (error) {
+      } catch (error: any) {
         console.error("approve liquidity pool errored with ", error.message);
       }
     }
@@ -54,7 +54,7 @@ task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
         adapter,
       ]);
       console.log(`Mapped ${liquiditypool} to ${adapter}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("map liquidity pool to adapter errored with ", error.message);
     }
   });
