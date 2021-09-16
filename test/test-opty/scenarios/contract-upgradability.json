@@ -31,6 +31,14 @@
         },
         {
           "contract": "mainProxy",
+          "action": "initMainContractData",
+          "args": {},
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "mainProxy",
           "action": "checkMainContractFunction",
           "args": {},
           "executor": "owner",

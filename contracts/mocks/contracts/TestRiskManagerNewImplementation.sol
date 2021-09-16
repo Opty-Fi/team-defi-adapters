@@ -7,7 +7,7 @@ import { RiskManagerStorage } from "../../protocol/configuration/RiskManagerStor
 import { RiskManagerProxy } from "../../protocol/configuration/RiskManagerProxy.sol";
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
-contract TestRiskManagerUpgradability is RiskManagerStorage, Modifiers {
+contract TestRiskManagerNewImplementation is RiskManagerStorage, Modifiers {
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 

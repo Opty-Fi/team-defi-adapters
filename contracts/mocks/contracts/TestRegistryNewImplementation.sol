@@ -5,8 +5,10 @@ pragma experimental ABIEncoderV2;
 
 import { ModifiersController } from "../../protocol/configuration/ModifiersController.sol";
 import { RegistryProxy } from "../../protocol/configuration/RegistryProxy.sol";
+import { RegistryStorage } from "../../protocol/configuration/RegistryStorage.sol";
+import { NewImplementationStorage } from "./NewImplementationStorage.sol";
 
-contract TestRegistryUpgradability is ModifiersController {
+contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, NewImplementationStorage {
     /**
      * @dev Set RegistryProxy to act as Registry
      * @param _registryProxy RegistryProxy Contract address to act as Registry
@@ -20,7 +22,11 @@ contract TestRegistryUpgradability is ModifiersController {
         return true;
     }
 
-    function getTreasury() external view returns (address) {
-        return treasury;
+    function getTokensHashToTokenList(bytes32 _tokensHash) public view returns (address[] memory) {
+        return tokensHashToTokens[_tokensHash].tokens;
+    }
+
+    function getTokensHashByIndex(uint256 _index) public view returns (bytes32) {
+        return tokensHashIndexes[_index];
     }
 }
