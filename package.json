@@ -21,6 +21,7 @@
     "node": ">=12"
   },
   "devDependencies": {
+    "@compound-finance/compound-js": "^0.3.0",
     "@defi-wonderland/smock": "^2.0.2",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
