@@ -1,27 +1,40 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
-import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { generateStrategyHash, deployContract, executeFunc, generateTokenHash } from "../../helpers/helpers";
-import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { deployRegistry } from "../../helpers/contracts-deployments";
+import { CONTRACTS } from "../../helpers/type";
+import { TypedTokens, TypedDefiPools } from "../../helpers/data";
+import {
+  generateStrategyHash,
+  deployContract,
+  executeFunc,
+  generateTokenHash,
+  generateStrategyStep,
+} from "../../helpers/helpers";
+import { getSoliditySHA3Hash } from "../../helpers/utils";
+import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, ZERO_BYTES32 } from "../../helpers/constants";
+import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
+import { approveToken } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/apr-oracle.json";
 
 type ARGUMENTS = {
   riskProfile?: string;
   canBorrow?: boolean;
   poolRatingRange?: number[];
-  strategy?: STRATEGY_DATA[];
+  adapterName?: string;
   token?: string;
   tokens?: string[];
   score?: number;
   defaultStrategyState?: number;
+  liquidityPools?: {
+    adapterName: string;
+    token: string;
+  }[];
 };
 
-describe(scenario.title, () => {
+describe(scenario.title, async () => {
   let contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  beforeEach(async () => {
+  before(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
       users = { owner, user1 };
@@ -54,24 +67,17 @@ describe(scenario.title, () => {
 
       await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
 
-      let riskManager = await deployContract(hre, ESSENTIAL_CONTRACTS.RISK_MANAGER, TESTING_DEPLOYMENT_ONCE, owner, [
-        registry.address,
-      ]);
+      const riskManager = await deployRiskManager(hre, owner, TESTING_DEPLOYMENT_ONCE, registry.address);
 
-      const riskManagerProxy = await deployContract(
-        hre,
-        ESSENTIAL_CONTRACTS.RISK_MANAGER_PROXY,
-        TESTING_DEPLOYMENT_ONCE,
+      await registry["addRiskProfile(string,bool,(uint8,uint8))"]("RP1", false, [0, 10]);
+
+      await approveToken(
         owner,
-        [registry.address],
+        registry,
+        scenario.usedTokens.map(tokenName => TypedTokens[tokenName.toUpperCase()]),
       );
 
-      await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [riskManager.address]);
-      await executeFunc(riskManager, owner, "become(address)", [riskManagerProxy.address]);
-
-      riskManager = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.RISK_MANAGER, riskManagerProxy.address, owner);
-
-      contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager };
+      contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager, aprOracle };
     } catch (error) {
       console.log(error);
     }
@@ -80,113 +86,113 @@ describe(scenario.title, () => {
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(`${story.description}`, async () => {
+      if (i === 1) {
+        // scenario no.0 doesn't require to set Strategies
+        for (let i = 0; i < scenario.usedStrategies.length; i++) {
+          const strategyInfo = scenario.usedStrategies[i];
+          const strategy = {
+            contract: TypedDefiPools[strategyInfo.adapterName][strategyInfo.token.toLowerCase()].lpToken,
+            outputToken: TypedDefiPools[strategyInfo.adapterName][strategyInfo.token.toLowerCase()].lpToken,
+            isBorrow: false,
+          };
+          await contracts["vaultStepInvestStrategyDefinitionRegistry"]["setStrategy(bytes32,(address,address,bool)[])"](
+            generateTokenHash([TypedTokens[strategyInfo.token.toUpperCase()]]),
+            generateStrategyStep([strategy]),
+          );
+        }
+      }
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addRiskProfile(string,bool,(uint8,uint8))": {
-            const { riskProfile, canBorrow, poolRatingRange }: ARGUMENTS = action.args;
-            const borrowArgExists = canBorrow == true || canBorrow == false;
-            if (riskProfile && borrowArgExists && poolRatingRange) {
+          case "updateRPPoolRatings(string,(uint8,uint8))": {
+            const { riskProfile, poolRatingRange }: ARGUMENTS = action.args;
+            if (riskProfile && poolRatingRange) {
               if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange);
+                await contracts[action.contract][action.action](riskProfile, poolRatingRange);
               } else {
                 await expect(
-                  contracts[action.contract][action.action](riskProfile, canBorrow, poolRatingRange),
+                  contracts[action.contract][action.action](riskProfile, poolRatingRange),
                 ).to.be.revertedWith(action.message);
               }
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(canBorrow, `args is wrong in ${action.action} testcase`);
             assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
             break;
           }
-          case "approveToken(address)":
           case "approveLiquidityPool(address)": {
-            const { token }: ARGUMENTS = action.args;
-            if (token) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](token);
-              } else {
-                await expect(contracts[action.contract][action.action](token)).to.be.revertedWith(action.message);
+            const { token, adapterName }: ARGUMENTS = action.args;
+            if (token && adapterName) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken) {
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](
+                    TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  );
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](TypedDefiPools[adapterName][token.toLowerCase()].lpToken),
+                  ).to.be.revertedWith(action.message);
+                }
               }
+              assert.isDefined(
+                TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                `args is wrong in ${action.action} testcase`,
+              );
             }
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "rateLiquidityPool(address,uint8)": {
-            const { token, score }: ARGUMENTS = action.args;
-            if (token && score) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](token, score);
-              } else {
-                await expect(contracts[action.contract][action.action](token, score)).to.be.revertedWith(
-                  action.message,
-                );
+            const { token, score, adapterName }: ARGUMENTS = action.args;
+            if (token && adapterName && score) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken) {
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](
+                    TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                    score,
+                  );
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](
+                      TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                      score,
+                    ),
+                  ).to.be.revertedWith(action.message);
+                }
               }
             }
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             assert.isDefined(score, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setTokensHashToTokens(address[])": {
-            const { tokens }: ARGUMENTS = action.args;
-            if (tokens) {
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](tokens);
-              } else {
-                await expect(contracts[action.contract][action.action](tokens)).to.be.revertedWith(action.message);
-              }
-            }
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
-            break;
-          }
-          case "setStrategy(bytes32,(address,address,bool)[])": {
-            const { strategy, token }: ARGUMENTS = action.args;
-
-            if (strategy && token) {
-              const strategySteps: [string, string, boolean][] = [];
-              for (let index = 0; index < strategy.length; index++) {
-                const tempArr: [string, string, boolean] = [
-                  strategy[index].contract,
-                  strategy[index].outputToken,
-                  strategy[index].isBorrow,
-                ];
-                strategySteps.push(tempArr);
-              }
-
-              const tokenHash = generateTokenHash([token]);
-
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](tokenHash, strategySteps);
-              } else {
-                await expect(contracts[action.contract][action.action](tokenHash, strategySteps)).to.be.revertedWith(
-                  action.message,
-                );
-              }
-            }
-
-            assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(token, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(adapterName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "setBestStrategy(string,bytes32,bytes32)":
           case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-            const { strategy, token, riskProfile }: ARGUMENTS = action.args;
+            const { adapterName, token, riskProfile }: ARGUMENTS = action.args;
+            if (adapterName && token && riskProfile) {
+              if (TypedDefiPools[adapterName][token.toLowerCase()].lpToken && TypedTokens[token.toUpperCase()]) {
+                const strategy = {
+                  contract: TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  outputToken: TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                  isBorrow: false,
+                };
+                const strategyHash = generateStrategyHash([strategy], TypedTokens[token.toUpperCase()]);
+                const tokenHash = getSoliditySHA3Hash(["address[]"], [[TypedTokens[token.toUpperCase()]]]);
 
-            if (strategy && token && riskProfile) {
-              const strategyHash = generateStrategyHash(strategy, token);
-              const tokenHash = generateTokenHash([token]);
-
-              if (action.expect === "success") {
-                await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
-              } else {
-                await expect(
-                  contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash),
-                ).to.be.revertedWith(action.message);
+                if (action.expect === "success") {
+                  await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
+                } else {
+                  await expect(
+                    contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash),
+                  ).to.be.revertedWith(action.message);
+                }
               }
+              assert.isDefined(
+                TypedDefiPools[adapterName][token.toLowerCase()].lpToken,
+                `args is wrong in ${action.action} testcase`,
+              );
+              assert.isDefined(TypedTokens[token.toUpperCase()], `args is wrong in ${action.action} testcase`);
             }
-
-            assert.isDefined(strategy, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(adapterName, `args is wrong in ${action.action} testcase`);
             assert.isDefined(token, `args is wrong in ${action.action} testcase`);
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
@@ -208,13 +214,57 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "getBestStrategy(string,address[])": {
-            const { riskProfile, tokens }: ARGUMENTS = action.args;
-            if (riskProfile && tokens) {
-              const value = await contracts[action.contract][action.action](riskProfile, tokens);
-              expect(value).to.be.equal(action.expectedValue);
+            const { riskProfile, token }: ARGUMENTS = action.args;
+            if (riskProfile && token) {
+              const value = await contracts[action.contract][action.action](riskProfile, [
+                TypedTokens[token.toUpperCase()],
+              ]);
+              const tokenHash = generateTokenHash([TypedTokens[token.toUpperCase()]]);
+              if (action.expectedValue) {
+                if (action.expectedValue.adapterName && action.expectedValue.token) {
+                  const strategy = {
+                    contract:
+                      TypedDefiPools[action.expectedValue.adapterName][action.expectedValue.token.toLowerCase()]
+                        .lpToken,
+                    outputToken:
+                      TypedDefiPools[action.expectedValue.adapterName][action.expectedValue.token.toLowerCase()]
+                        .lpToken,
+                    isBorrow: false,
+                  };
+                  const strategyHash = generateStrategyHash(
+                    [strategy],
+                    TypedTokens[action.expectedValue.token.toUpperCase()],
+                  );
+                  expect(value).to.be.equal(strategyHash);
+                } else {
+                  const strategyHash = await contracts.aprOracle.getBestAPR(tokenHash);
+                  expect(value).to.be.equal(strategyHash);
+                }
+              } else {
+                expect(value).to.be.equal(ZERO_BYTES32);
+              }
             }
+
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
+            assert.isDefined(token, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+        }
+      }
+      for (let i = 0; i < story.cleanActions.length; i++) {
+        const action = story.cleanActions[i];
+        switch (action.action) {
+          case "revokeLiquidityPool(address[])": {
+            const { liquidityPools }: ARGUMENTS = action.args;
+            if (liquidityPools) {
+              await contracts[action.contract][action.action](
+                liquidityPools.map(
+                  poolInfor => TypedDefiPools[poolInfor.adapterName][poolInfor.token.toLowerCase()].lpToken,
+                ),
+              );
+            }
+            assert.isDefined(liquidityPools, `args is wrong in ${action.action} testcase`);
+            break;
           }
         }
       }
