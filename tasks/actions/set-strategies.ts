@@ -72,7 +72,7 @@ task(SET_STRATEGIES, "Set strategies")
         console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
         console.log(`Invest step strategy Hash : ${hash}`);
         console.log("-----------------");
-      } catch (error) {
+      } catch (error:any) {
         console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }
     }

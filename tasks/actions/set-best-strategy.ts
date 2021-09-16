@@ -51,7 +51,7 @@ task(SET_BEST_STRATEGY, "Set best strategy")
         await strategyProvider.setBestStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
         console.log(`Set best strategy successfully`);
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(`Got error : `, error.message);
     }
     console.log("Finished setting best strategy");
