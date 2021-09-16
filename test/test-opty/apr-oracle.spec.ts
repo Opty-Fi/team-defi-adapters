@@ -78,7 +78,7 @@ describe(scenario.title, async () => {
       );
 
       contracts = { registry, vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager, aprOracle };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

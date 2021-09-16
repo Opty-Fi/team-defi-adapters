@@ -45,7 +45,7 @@ describe(scenario.title, () => {
       contracts["strategyProvider"] = essentialContracts.strategyProvider;
       contracts["erc20"] = dummyToken;
       contracts["vault"] = Vault;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -65,7 +65,7 @@ describe(scenario.title, () => {
                   .connect(operator)
                   [action.action](contracts[contractName].address, amount);
               }
-            } catch (error) {
+            } catch (error: any) {
               if (action.expect === "success") {
                 assert.isUndefined(error);
               } else {
@@ -86,7 +86,7 @@ describe(scenario.title, () => {
               if (amount) {
                 await contracts[action.contract].connect(operator)[action.action](amount);
               }
-            } catch (error) {
+            } catch (error: any) {
               if (action.expect === "success") {
                 assert.isUndefined(error);
               } else {

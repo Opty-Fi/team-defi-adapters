@@ -475,7 +475,7 @@ Tree is too large, part of the tree has been dunped
 
 `,`try {
 `,`  Object.freeze({}).detectStrictMode = true;
-`,`} catch (error) {
+`,`} catch(error:any) {
 `,"  throw new Error(`The whole PnP file got strict-mode-ified, which is known to break (Emscripten libraries aren't strict mode). This usually happens when the file goes through Babel.`);\n",`}
 `,`
 `,`var __non_webpack_module__ = module;

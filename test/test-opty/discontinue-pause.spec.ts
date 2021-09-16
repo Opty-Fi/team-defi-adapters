@@ -113,7 +113,7 @@ describe(scenario.title, () => {
 
                 contracts["vault"] = vault;
                 contracts["erc20"] = ERC20Instance;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });

@@ -79,7 +79,7 @@ describe(scenario.title, () => {
       contracts = { ...optyStakingVaults };
       contracts["optyDistributor"] = optyDistributor;
       contracts["opty"] = opty;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

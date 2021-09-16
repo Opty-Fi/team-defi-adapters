@@ -105,7 +105,7 @@ describe(scenario.title, () => {
       contracts["odefi"] = odefi;
 
       contracts["odefiVaultBooster"] = odefiVaultBooster;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -134,7 +134,7 @@ describe(scenario.title, () => {
                   ).to.be.revertedWith(action.message);
                 }
               }
-            } catch (error) {
+            } catch (error: any) {
               expect(error.message).to.include("odefiVault already added");
             }
 
@@ -157,7 +157,7 @@ describe(scenario.title, () => {
                   ).to.be.revertedWith(action.message);
                 }
               }
-            } catch (error) {
+            } catch (error: any) {
               console.log(error);
             }
 

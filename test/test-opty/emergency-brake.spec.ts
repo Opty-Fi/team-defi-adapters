@@ -24,7 +24,7 @@ describe(scenario.title, () => {
       [owner, admin] = await hre.ethers.getSigners();
       essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -66,7 +66,7 @@ describe(scenario.title, () => {
 
           ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
           await ERC20Instance.connect(owner).transfer(emergencyBrake.address, MAX_AMOUNT * 2);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });
