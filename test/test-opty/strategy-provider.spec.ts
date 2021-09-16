@@ -10,7 +10,7 @@ import scenario from "./scenarios/strategy-provider.json";
 import { setAndApproveVaultRewardToken } from "../../helpers/contracts-actions";
 import { TypedStrategies, TypedTokens } from "../../helpers/data";
 
-chai.use(solidity)
+chai.use(solidity);
 
 type ARGUMENTS = {
   riskProfile?: string;
@@ -127,7 +127,7 @@ describe(scenario.title, () => {
           if (action.expect === "success") {
             await contracts[action.contract]
               .connect(signers[action.executor])
-            [action.action](tempNewStrategyOperatorrAddr);
+              [action.action](tempNewStrategyOperatorrAddr);
           } else {
             await expect(
               contracts[action.contract].connect(signers[action.executor])[action.action](tempNewStrategyOperatorrAddr),
@@ -143,12 +143,12 @@ describe(scenario.title, () => {
           if (action.expect === "success") {
             await contracts[action.contract]
               .connect(signers[action.executor])
-            [action.action](vaultRewardTokenHash, vaultRewardStrategy);
+              [action.action](vaultRewardTokenHash, vaultRewardStrategy);
           } else {
             await expect(
               contracts[action.contract]
                 .connect(signers[action.executor])
-              [action.action](isNonApprovedToken ? nonApprovedTokenHash : vaultRewardTokenHash, vaultRewardStrategy),
+                [action.action](isNonApprovedToken ? nonApprovedTokenHash : vaultRewardTokenHash, vaultRewardStrategy),
             ).to.be.revertedWith(action.message);
           }
         }
@@ -162,12 +162,12 @@ describe(scenario.title, () => {
           if (action.expect === "success") {
             await contracts[action.contract]
               .connect(signers[action.executor])
-            [action.action](riskProfile, usedTokenHash, strategyHash);
+              [action.action](riskProfile, usedTokenHash, strategyHash);
           } else {
             await expect(
               contracts[action.contract]
                 .connect(signers[action.executor])
-              [action.action](riskProfile, isNonApprovedToken ? nonApprovedTokenHash : usedTokenHash, strategyHash),
+                [action.action](riskProfile, isNonApprovedToken ? nonApprovedTokenHash : usedTokenHash, strategyHash),
             ).to.be.revertedWith(action.message);
           }
         }
