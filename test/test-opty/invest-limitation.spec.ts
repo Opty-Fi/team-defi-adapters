@@ -6,7 +6,6 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestBasicStrategy,
@@ -69,12 +68,10 @@ describe(scenarios.title, () => {
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
-
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
             const token = TOKENS[strategy.token];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
             const contracts: CONTRACTS = {};
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
@@ -90,7 +87,7 @@ describe(scenarios.title, () => {
                 );
                 await setBestBasicStrategy(
                   strategy.strategy,
-                  tokensHash,
+                  [token],
                   essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                   essentialContracts.strategyProvider,
                   profile,
@@ -104,19 +101,6 @@ describe(scenarios.title, () => {
                   timestamp,
                 );
 
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
-
-                contracts["adapter"] = adapter;
-
-                contracts["erc20"] = ERC20Instance;
-              } catch (error: any) {
-                console.error(error);
-              }
-            });
-
-            beforeEach(async () => {
-              try {
-                currentPoolValue = BigNumber.from("0");
                 underlyingTokenName = await getTokenName(hre, strategy.token);
                 underlyingTokenSymbol = await getTokenSymbol(hre, strategy.token);
                 const Vault = await deployVault(
@@ -131,10 +115,21 @@ describe(scenarios.title, () => {
                   TESTING_DEPLOYMENT_ONCE,
                 );
                 await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
+
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+
+                contracts["adapter"] = adapter;
+
+                contracts["erc20"] = ERC20Instance;
+
                 contracts["vault"] = Vault;
               } catch (error: any) {
                 console.error(error);
               }
+            });
+
+            beforeEach(async () => {
+              currentPoolValue = BigNumber.from("0");
             });
 
             for (let i = 0; i < stories.length; i++) {
@@ -259,40 +254,41 @@ describe(scenarios.title, () => {
                   switch (getAction.action) {
                     case "maxDepositPoolPct(address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(
+                        await contracts[getAction.contract][getAction.action](strategy.strategy[0].contract),
+                      ).to.equal(+expectedValue[strategy.token]);
                       break;
                     }
                     case "maxDepositProtocolPct()": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(+(await contracts[getAction.contract][getAction.action]())).to.equal(
+                        +expectedValue[strategy.token],
+                      );
                       break;
                     }
                     case "maxDepositAmount(address,address)": {
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action](
-                        strategy.strategy[0].contract,
-                        TOKENS[strategy.token],
-                      );
-                      expect(+value).to.equal(+expectedValue[strategy.token]);
+                      expect(
+                        await contracts[getAction.contract][getAction.action](
+                          strategy.strategy[0].contract,
+                          TOKENS[strategy.token],
+                        ),
+                      ).to.equal(expectedValue[strategy.token]);
                       break;
                     }
                     case "maxDepositProtocolMode()": {
                       const expectedValue: any = getAction.expectedValue;
-                      const value: BigNumber = await contracts[getAction.contract][getAction.action]();
-                      expect(+value).to.equal(+expectedValue.type);
+                      expect(await contracts[getAction.contract][getAction.action]()).to.equal(expectedValue.type);
                       break;
                     }
                     case "balanceOf(address)": {
                       const { userName }: ARGUMENTS = getAction.args;
                       if (userName) {
                         const address = await users[userName].getAddress();
-                        const balance = await contracts[getAction.contract][getAction.action](address);
                         const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
-                        expect(balance).to.equal(expectedValue[strategy.token]);
+                        expect(await contracts[getAction.contract][getAction.action](address)).to.equal(
+                          expectedValue[strategy.token],
+                        );
                       }
                       break;
                     }
@@ -300,6 +296,10 @@ describe(scenarios.title, () => {
                       const balance = await contracts[getAction.contract][getAction.action]();
                       const expectedValue: EXPECTED_ARGUMENTS = getAction.expectedValue;
                       expect(balance).to.equal(expectedValue[strategy.token]);
+
+                      if (balance > 0) {
+                        await contracts["vault"].userWithdrawAllRebalance();
+                      }
                       break;
                     }
                     case "getPoolValue(address,address)": {
@@ -315,6 +315,10 @@ describe(scenarios.title, () => {
                       break;
                     }
                   }
+                }
+                const currentBalance = await contracts["vault"].balanceOf(await users["owner"].getAddress());
+                if (currentBalance > 0) {
+                  await contracts["vault"].userWithdrawAllRebalance();
                 }
               }).timeout(150000);
             }

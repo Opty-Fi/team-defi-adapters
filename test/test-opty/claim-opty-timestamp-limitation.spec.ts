@@ -1,17 +1,12 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { deployContract, executeFunc } from "../../helpers/helpers";
-import { deployVault } from "../../helpers/contracts-deployments";
+import { executeFunc } from "../../helpers/helpers";
+import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
-  approveLiquidityPoolAndMapAdapter,
+  approveToken,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
@@ -33,81 +28,43 @@ describe(scenario.title, () => {
   const token = "DAI";
   const tokenAddr = TOKENS["DAI"];
   const MAX_AMOUNT = "100000000000000000000000";
-  let essentialContracts: CONTRACTS;
-  let adapters: CONTRACTS;
-  const contracts: CONTRACTS = {};
+  let contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
-  const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
   before(async () => {
     try {
       const [owner, admin, user1] = await hre.ethers.getSigners();
       users = { owner, admin, user1 };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
-      await approveLiquidityPoolAndMapAdapter(
-        users["owner"],
-        essentialContracts.registry,
-        adapters["CompoundAdapter"].address,
-        TOKEN_STRATEGY.strategy[0].contract,
-      );
-      await setBestBasicStrategy(
-        TOKEN_STRATEGY.strategy,
-        tokensHash,
-        essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
-        essentialContracts.strategyProvider,
-        "RP1",
-      );
+      contracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
+
+      await approveToken(owner, contracts["registry"], [tokenAddr]);
       const timestamp = (await getBlockTimestamp(hre)) * 2;
       await fundWalletToken(hre, tokenAddr, users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
-      assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error: any) {
+      const underlyingTokenName = await getTokenName(hre, token);
+      const underlyingTokenSymbol = await getTokenSymbol(hre, token);
+
+      const Vault = await deployVault(
+        hre,
+        contracts["registry"].address,
+        tokenAddr,
+        users["owner"],
+        users["admin"],
+        underlyingTokenName,
+        underlyingTokenSymbol,
+        "RP1",
+        TESTING_DEPLOYMENT_ONCE,
+      );
+      await unpauseVault(users["owner"], contracts["registry"], Vault.address, true);
+
+      const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddr);
+
+      contracts["vault"] = Vault;
+
+      contracts["erc20"] = ERC20Instance;
+    } catch (error) {
       console.log(error);
     }
   });
-  beforeEach(async () => {
-    const underlyingTokenName = await getTokenName(hre, token);
-    const underlyingTokenSymbol = await getTokenSymbol(hre, token);
-    const opty = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY, false, users["owner"], [
-      essentialContracts["registry"].address,
-      0,
-    ]);
 
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, false, users["owner"], [
-      essentialContracts["registry"].address,
-      opty.address,
-      1700000000,
-    ]);
-
-    await executeFunc(essentialContracts.registry, users["owner"], "setOPTYDistributor(address)", [
-      optyDistributor.address,
-    ]);
-
-    const Vault = await deployVault(
-      hre,
-      essentialContracts.registry.address,
-      tokenAddr,
-      users["owner"],
-      users["admin"],
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      "RP1",
-      TESTING_DEPLOYMENT_ONCE,
-    );
-    await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
-
-    const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddr);
-
-    contracts["registry"] = essentialContracts.registry;
-
-    contracts["optyDistributor"] = optyDistributor;
-
-    contracts["vault"] = Vault;
-
-    contracts["erc20"] = ERC20Instance;
-
-    contracts["opty"] = opty;
-  });
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
     it(story.description, async () => {
@@ -249,8 +206,7 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "operatorUnlockClaimOPTYTimestamp()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(+value).to.be.equal(+action.expectedValue);
+            expect(+(await contracts[action.contract][action.action]())).to.be.equal(+action.expectedValue);
             break;
           }
         }

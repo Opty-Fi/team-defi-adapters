@@ -1,6 +1,7 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract } from "ethers";
+import { solidity } from "ethereum-waffle";
 import { CONTRACTS } from "../../helpers/type";
 import { generateStrategyHash, deployContract, generateTokenHash } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
@@ -8,6 +9,8 @@ import { deployRegistry } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-provider.json";
 import { setAndApproveVaultRewardToken } from "../../helpers/contracts-actions";
 import { TypedStrategies, TypedTokens } from "../../helpers/data";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   riskProfile?: string;
@@ -78,11 +81,19 @@ describe(scenario.title, () => {
         switch (action.action) {
           case "rpToTokenToDefaultStrategy(string,bytes32)":
           case "rpToTokenToBestStrategy(string,bytes32)": {
-            const { riskProfile }: ARGUMENTS = action.args;
-            if (riskProfile) {
-              const value = await contracts[action.contract][action.action](riskProfile, usedTokenHash);
-              const expectedStrategyHash = generateStrategyHash(usedStrategy, usedToken);
-              expect(value).to.be.equal(expectedStrategyHash);
+            const { riskProfile, tokenName }: ARGUMENTS = action.args;
+            if (riskProfile && tokenName) {
+              const expectedStrategyHash = generateStrategyHash(
+                TypedStrategies.filter(strategy => strategy.strategyName == action.expectedValue.strategyName)[0]
+                  .strategy,
+                TypedTokens[action.expectedValue.tokenName],
+              );
+              expect(
+                await contracts[action.contract][action.action](
+                  riskProfile,
+                  generateTokenHash([TypedTokens[tokenName]]),
+                ),
+              ).to.be.equal(expectedStrategyHash);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
             break;
@@ -93,8 +104,9 @@ describe(scenario.title, () => {
             break;
           }
           case "defaultStrategyState()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(value).to.be.equal(action.expectedValue.defaultStrategyState);
+            expect(await contracts[action.contract][action.action]()).to.be.equal(
+              action.expectedValue.defaultStrategyState,
+            );
             break;
           }
         }

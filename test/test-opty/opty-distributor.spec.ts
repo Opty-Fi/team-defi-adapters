@@ -5,7 +5,6 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployContract, executeFunc, moveToNextBlock } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -35,7 +34,6 @@ describe(scenario.title, () => {
   let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
   const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
   let currentOpty = 0;
   before(async () => {
@@ -51,7 +49,7 @@ describe(scenario.title, () => {
       );
       await setBestBasicStrategy(
         TOKEN_STRATEGY.strategy,
-        tokensHash,
+        [tokenAddr],
         essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
         essentialContracts.strategyProvider,
         "RP1",
@@ -296,8 +294,9 @@ describe(scenario.title, () => {
           case "allOptyVaults(uint256)": {
             const { index }: ARGUMENTS = action.args;
             if (index) {
-              const value = await contracts[action.contract][action.action](index);
-              expect(value).to.be.equal(contracts[action.expectedValue.toString()].address);
+              expect(await contracts[action.contract][action.action](index)).to.be.equal(
+                contracts[action.expectedValue.toString()].address,
+              );
             }
             assert.isDefined(index, `args is wrong in ${action.action} testcase`);
             break;
@@ -305,8 +304,9 @@ describe(scenario.title, () => {
           case "optyVaultEnabled(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -314,8 +314,9 @@ describe(scenario.title, () => {
           case "optyVaultRatePerSecond(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -339,8 +340,7 @@ describe(scenario.title, () => {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
-              expect(+value).to.be.gte(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;

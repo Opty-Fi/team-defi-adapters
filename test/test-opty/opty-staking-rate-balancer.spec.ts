@@ -54,15 +54,15 @@ describe(scenario.title, () => {
           case "stakingVaultMultipliers(address)": {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
-              const value = await contracts[action.contract][action.action](contracts[addressName].address);
-              expect(+value).to.be.equal(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](contracts[addressName].address))).to.be.equal(
+                +action.expectedValue,
+              );
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "stakingVaultOPTYAllocation()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(+value).to.be.equal(+action.expectedValue);
+            expect(+(await contracts[action.contract][action.action]())).to.be.equal(+action.expectedValue);
             break;
           }
         }

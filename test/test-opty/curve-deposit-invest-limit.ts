@@ -5,7 +5,6 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestBasicStrategy,
@@ -63,7 +62,6 @@ describe(scenarios.title, () => {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
             const token = TOKENS[strategy.token];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
             const contracts: CONTRACTS = {};
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
@@ -79,7 +77,7 @@ describe(scenarios.title, () => {
                 );
                 await setBestBasicStrategy(
                   strategy.strategy,
-                  tokensHash,
+                  [token],
                   essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                   essentialContracts.strategyProvider,
                   profile,

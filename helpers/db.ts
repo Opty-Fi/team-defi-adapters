@@ -104,6 +104,6 @@ export const insertContractIntoDB = async (contractName: string, contractAddress
     });
     return "";
   } catch (error: any) {
-    return error.message ? error.message : error;
+    return error?.message ? error.message : error;
   }
 };
