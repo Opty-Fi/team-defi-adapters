@@ -3,10 +3,10 @@
 pragma solidity ^0.6.12;
 
 /**
- * @title RiskManagerStorage Contract
+ * @title NewImplementationStorage Contract
  * @author Opty.fi
- * @notice Contract to store the state variables of the RiskManager Contract
+ * @notice Contract to store the state variables of the New Implementation Contract
  */
 contract NewImplementationStorage {
-    bool public isNewVariable = true;
+    bool public constant isNewVariable = true;
 }

@@ -10,7 +10,7 @@ import { NewImplementationStorage } from "./NewImplementationStorage.sol";
 
 contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, NewImplementationStorage {
     /**
-     * @dev Set RegistryProxy to act as Registry
+     * @dev Set TestRegistryNewImplementation to act as Registry
      * @param _registryProxy RegistryProxy Contract address to act as Registry
      */
     function become(RegistryProxy _registryProxy) external {
@@ -19,7 +19,7 @@ contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, 
     }
 
     function isNewContract() external view returns (bool) {
-        return true;
+        return isNewVariable;
     }
 
     function getTokensHashToTokenList(bytes32 _tokensHash) public view returns (address[] memory) {

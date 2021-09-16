@@ -117,6 +117,7 @@ describe(scenario.title, () => {
               }
               case "checkTestingContractFunction": {
                 expect(await contracts["mainProxy"].isNewContract()).to.be.eq(true);
+                expect(await contracts["mainProxy"].isNewVariable()).to.be.eq(true);
                 break;
               }
               case "verifyOldValue": {
@@ -367,39 +368,27 @@ async function initDefaultData(contract: Contract, data: TESTING_DEFAULT_DATA[])
 }
 
 async function verifyDefaultData(contract: Contract, data: TESTING_DEFAULT_DATA[]): Promise<void> {
-  console.log(contract);
   for (let i = 0; i < data.length; i++) {
     const action = data[i];
     for (let i = 0; i < action.getFunction.length; i++) {
       const getFunction = action.getFunction[i];
-      try {
-        const value = await contract[getFunction.name](...getFunction.input);
-
-        if (Array.isArray(getFunction.output)) {
-          const objectValue: any[] = Object.values(value);
-          const half_length = Math.ceil(objectValue.length / 2);
-          const realValue = objectValue.splice(0, half_length);
-          if (getFunction.name === "getTokensHashByIndex(uint256)") {
-            console.log(objectValue.splice(0, half_length));
-            expect(value.toString()).to.have.eq(getFunction.output[0]);
-          } else if (getFunction.name === "vaultToVaultConfiguration(address)") {
-            // objectValue.splice(0, half_length).forEach((value, index) => )
-
-            expect(realValue[0]).to.equal(getFunction.output[0]);
-            expect(realValue[1]).to.equal(getFunction.output[1]);
-            console.log(realValue[2]);
-            expect(+realValue[2]).to.equal(+getFunction.output[2]);
-          } else {
-            console.log(objectValue.splice(0, half_length));
-            console.log(getFunction.output);
-            expect(realValue).to.have.members(getFunction.output);
-          }
+      const value = await contract[getFunction.name](...getFunction.input);
+      if (Array.isArray(getFunction.output)) {
+        const objectValue: any[] = Object.values(value);
+        const half_length = Math.ceil(objectValue.length / 2);
+        const realValue = objectValue.splice(0, half_length);
+        if (getFunction.name === "getTokensHashByIndex(uint256)") {
+          console.log(objectValue.splice(0, half_length));
+          expect(value.toString()).to.have.eq(getFunction.output[0]);
+        } else if (getFunction.name === "vaultToVaultConfiguration(address)") {
+          expect(realValue[0]).to.equal(getFunction.output[0]);
+          expect(realValue[1]).to.equal(getFunction.output[1]);
+          expect(+realValue[2]).to.equal(+getFunction.output[2]);
         } else {
-          expect(value).to.be.eq(getFunction.output);
+          expect(realValue).to.have.members(getFunction.output);
         }
-      } catch (error) {
-        console.log(error);
-        console.log(getFunction.name);
+      } else {
+        expect(value).to.be.eq(getFunction.output);
       }
     }
   }
