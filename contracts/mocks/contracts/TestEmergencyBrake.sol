@@ -20,6 +20,10 @@ contract TestEmergencyBrake {
         vaultAddr.userDepositRebalance(amount);
     }
 
+    function runWithdrawAllRebalance() external {
+        vaultAddr.userWithdrawAllRebalance();
+    }
+
     function runTwoTxnDepositRebalance(uint256 minAmount, uint256 maxAmount) external {
         tokenAddr.approve(address(vaultAddr), (minAmount + maxAmount));
         vaultAddr.userDepositRebalance(maxAmount);
@@ -51,7 +55,7 @@ contract TestEmergencyBrake {
     }
 
     function runTwoTxnWithdrawAndDepositRebalance(uint256 minAmount, uint256 maxAmount) external {
-        tokenAddr.approve(address(vaultAddr), (minAmount + maxAmount));
+        tokenAddr.approve(address(vaultAddr), (maxAmount));
         vaultAddr.userDepositRebalance(maxAmount);
         tokenAddr.transfer(address(vaultAddr), minAmount);
         vaultAddr.userWithdrawRebalance(minAmount);
