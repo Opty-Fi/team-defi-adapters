@@ -14,7 +14,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp, lpPausedStatus } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
-import testDeFiAdaptersScenario from "../scenarios/cream-temp-defi-adapter.json";
+import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
@@ -703,9 +703,9 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
           }
         }
       }
-      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandloneStories.length; i++) {
-        it(`${testDeFiAdaptersScenario?.adapterStandloneStories[i].description}`, async function () {
-          const story = testDeFiAdaptersScenario.adapterStandloneStories[i];
+      for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+        it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
+          const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
           for (const action of story.setActions) {
             switch (action.action) {
               case "canStake(address)": {

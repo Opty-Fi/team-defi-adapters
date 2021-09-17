@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
-import { getContractInstance, isAddress, generateTokenHash } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TOKENS } from "../../helpers/constants";
 import { TypedStrategies } from "../../helpers/data";
 import { STRATEGY } from "../../helpers/type";
@@ -50,8 +50,7 @@ task(SET_STRATEGIES, "Set strategies")
       throw new Error("strategyregistry address is invalid");
     }
 
-    const strategyRegistryContract = await getContractInstance(
-      hre,
+    const strategyRegistryContract = await hre.ethers.getContractAt(
       ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
       strategyregistry,
     );
@@ -68,13 +67,12 @@ task(SET_STRATEGIES, "Set strategies")
     console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {
-        const tokensHash = generateTokenHash([TOKENS[strategies[i].token]]);
-        const hash = await setStrategy(strategies[i].strategy, tokensHash, strategyRegistryContract);
+        const hash = await setStrategy(strategies[i].strategy, [TOKENS[strategies[i].token]], strategyRegistryContract);
         console.log("-----------------");
         console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
         console.log(`Invest step strategy Hash : ${hash}`);
         console.log("-----------------");
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
       }
     }

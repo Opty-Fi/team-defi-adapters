@@ -7,20 +7,21 @@
       "profile": "RP1",
       "stories": [
         {
-          "description": "8 Users deposit, 1 User rebalance.",
+          "description": "9 Users depositRebalance and then withdrawRebalance.",
           "activities": [
             {
-              "name": "depositActions",
-              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "name": "depositRebalanceActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
               "actions": [
                 {
                   "contract": "",
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -32,9 +33,86 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            },
+            {
+              "name": "withdrawRebalanceAction",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
+              "actions": [
+                {
+                  "contract": "vault",
+                  "action": "userWithdrawRebalance(uint256)",
+                  "args": {
+                    "amount": {
+                      "DAI": "50000000000000",
+                      "USDC": "50000",
+                      "USDT": "50000",
+                      "SLP_WETH_USDC": "5000000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": []
+            }
+          ]
+        },
+        {
+          "description": "8 Users deposit, 1 User rebalance.",
+          "activities": [
+            {
+              "name": "depositActions",
+              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8],
+              "actions": [
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "amount": {
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
+                    }
+                  },
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "contractName": "vault",
+                    "amount": {
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -45,9 +123,10 @@
                   "action": "userDeposit(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -73,78 +152,6 @@
           ]
         },
         {
-          "description": "9 Users depositRebalance and then withdrawRebalance.",
-          "activities": [
-            {
-              "name": "depositRebalanceActions",
-              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
-              "actions": [
-                {
-                  "contract": "",
-                  "action": "fundWallet",
-                  "args": {
-                    "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
-                    }
-                  },
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "erc20",
-                  "action": "approve(address,uint256)",
-                  "args": {
-                    "contractName": "vault",
-                    "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
-                    }
-                  },
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "vault",
-                  "action": "userDepositRebalance(uint256)",
-                  "args": {
-                    "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
-                    }
-                  },
-                  "expect": "success",
-                  "message": ""
-                }
-              ],
-              "getActions": []
-            },
-            {
-              "name": "withdrawRebalanceAction",
-              "userIndexes": [0, 2, 3, 4, 5, 6, 7, 8, 9],
-              "actions": [
-                {
-                  "contract": "vault",
-                  "action": "userWithdrawRebalance(uint256)",
-                  "args": {
-                    "amount": {
-                      "DAI": "14000000000000000000",
-                      "USDC": "14000000",
-                      "USDT": "14000000"
-                    }
-                  },
-                  "expect": "success",
-                  "message": ""
-                }
-              ],
-              "getActions": []
-            }
-          ]
-        },
-        {
           "description": "8 Users depositRebalance and 1 User rebalance.",
           "activities": [
             {
@@ -156,9 +163,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -170,9 +178,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -183,9 +192,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -222,9 +232,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -236,9 +247,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -249,9 +261,10 @@
                   "action": "userDeposit(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -283,9 +296,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -297,9 +311,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -310,9 +325,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -335,9 +351,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -349,9 +366,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -362,9 +380,10 @@
                   "action": "userDeposit(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -396,9 +415,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -410,9 +430,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -423,9 +444,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -443,9 +465,10 @@
                   "action": "userWithdrawRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "14000000000000000000",
-                      "USDC": "14000000",
-                      "USDT": "14000000"
+                      "DAI": "100000000000000",
+                      "USDC": "100000",
+                      "USDT": "100000",
+                      "SLP_WETH_USDC": "10000000000"
                     }
                   },
                   "expect": "success",
@@ -468,9 +491,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -482,9 +506,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -495,9 +520,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -515,9 +541,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -529,9 +556,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -542,9 +570,10 @@
                   "action": "userDeposit(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -581,9 +610,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -597,7 +627,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -606,9 +637,7 @@
                 {
                   "contract": "vault",
                   "action": "userDepositAll()",
-                  "args": {
-                    "amount": {}
-                  },
+                  "args": {},
                   "expect": "success",
                   "message": ""
                 }
@@ -636,9 +665,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -652,7 +682,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -661,9 +692,7 @@
                 {
                   "contract": "vault",
                   "action": "userDepositAllRebalance()",
-                  "args": {
-                    "amount": {}
-                  },
+                  "args": {},
                   "expect": "success",
                   "message": ""
                 }
@@ -691,9 +720,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -705,9 +735,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -718,9 +749,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -770,9 +802,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -786,7 +819,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -799,7 +833,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -826,7 +861,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -873,9 +909,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -889,7 +926,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -902,7 +940,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -929,7 +968,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -976,9 +1016,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -992,7 +1033,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -1040,9 +1082,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -1056,7 +1099,8 @@
                     "amount": {
                       "DAI": "all",
                       "USDC": "all",
-                      "USDT": "all"
+                      "USDT": "all",
+                      "SLP_WETH_USDC": "all"
                     }
                   },
                   "expect": "success",
@@ -1065,9 +1109,7 @@
                 {
                   "contract": "vault",
                   "action": "userDepositAllRebalanceWithCHI()",
-                  "args": {
-                    "amount": {}
-                  },
+                  "args": {},
                   "expect": "success",
                   "message": ""
                 }
@@ -1106,9 +1148,10 @@
                   "action": "fundWallet",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -1120,9 +1163,10 @@
                   "args": {
                     "contractName": "vault",
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",
@@ -1133,9 +1177,10 @@
                   "action": "userDepositRebalance(uint256)",
                   "args": {
                     "amount": {
-                      "DAI": "15000000000000000000",
-                      "USDC": "15000000",
-                      "USDT": "15000000"
+                      "DAI": "15000000000000000",
+                      "USDC": "150000",
+                      "USDT": "150000",
+                      "SLP_WETH_USDC": "15000000000"
                     }
                   },
                   "expect": "success",

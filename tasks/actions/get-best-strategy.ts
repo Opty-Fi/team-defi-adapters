@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
 import { GET_BEST_STRATEGY } from "../task-names";
 
@@ -34,7 +34,7 @@ task(GET_BEST_STRATEGY, "Get best strategy")
       throw new Error("risk profile is not available");
     }
 
-    const strategyProvider = await getContractInstance(hre, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
+    const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
 
     const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
 
@@ -46,7 +46,7 @@ task(GET_BEST_STRATEGY, "Get best strategy")
         strategyHash = await strategyProvider.rpToTokenToBestStrategy(riskprofile.toUpperCase(), tokensHash);
       }
       console.log(`StrategyHash : ${strategyHash}`);
-    } catch (error) {
+    } catch (error: any) {
       console.log(`Got error : `, error.message);
     }
   });
