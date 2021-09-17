@@ -31,8 +31,8 @@ Options :
   yarn hardhat deploy-adapter \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --name AaveV1Adapter
-  --deployedonce false
+  --name AaveV1Adapter \
+  --deployedonce false \
   --network localhost
 ```
 
@@ -53,7 +53,7 @@ Usage: deploy all available adapter contracts
   yarn hardhat deploy-adapters \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
-  --deployedonce false
+  --deployedonce false \
   --network localhost
 ```
 
@@ -74,8 +74,8 @@ Options:
 ```
   yarn hardhat deploy-harvest-code-provider \
   --network localhost \
-  --registry 0x0000000000000000000000000000000000000000
-  --deployedonce false
+  --registry 0x0000000000000000000000000000000000000000 \
+  --deployedonce false \
   --network localhost
 ```
 
@@ -96,8 +96,8 @@ Options :
 ```
   yarn hardhat deploy-opty \
   --network localhost \
-  --registry 0x0000000000000000000000000000000000000000
-  --deployedonce false
+  --registry 0x0000000000000000000000000000000000000000 \
+  --deployedonce false \
   --network hardhat
 ```
 
@@ -137,7 +137,7 @@ Options:
 ```
   yarn hardhat deploy-vault-step-registry \
   --registry 0x0000000000000000000000000000000000000000 \
-  --deployedonce false
+  --deployedonce false \
   --network hardhat
 ```
 
@@ -331,7 +331,7 @@ Options:
 ```
   yarn hardhat deploy-price-oracle \
   --network localhost \
-  --registry 0x0000000000000000000000000000000000000000 \
+  --registry 0x0000000000000000000000000000000000000000
 ```
 
 ### deploy-vault
@@ -371,9 +371,9 @@ Options:
 - Example:
 
 ```
-  yarn hardhat deploy-vault \
+  yarn hardhat deploy-vaults \
   --network localhost \
-  --registry 0x0000000000000000000000000000000000000000 \
+  --registry 0x0000000000000000000000000000000000000000
 ```
 
 ### deploy-erc20
