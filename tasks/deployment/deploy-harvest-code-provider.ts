@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract, isAddress, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { deployContract, isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { DEPLOY_HARVEST_CODE_PROVIDER } from "../task-names";
 
@@ -31,7 +31,7 @@ task(DEPLOY_HARVEST_CODE_PROVIDER, "Deploy Harvest Code Provider")
 
     console.log(`Contract harvestCodeProvider : ${harvestCodeProvider.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
 

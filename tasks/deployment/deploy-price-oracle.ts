@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
+import { isAddress, deployContract, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_PRICE_ORACLE } from "../task-names";
 
 task(DEPLOY_PRICE_ORACLE, "Deploy Price Oracle")
@@ -20,7 +20,7 @@ task(DEPLOY_PRICE_ORACLE, "Deploy Price Oracle")
     }
 
     const priceOracle = await deployContract(hre, ESSENTIAL_CONTRACTS.PRICE_ORACLE, deployedonce, owner, [registry]);
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setPriceOracle(address)", [priceOracle.address]);
 

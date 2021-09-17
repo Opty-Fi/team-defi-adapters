@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployOptyStakingRateBalancer } from "../../helpers/contracts-deployments";
-import { isAddress, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { isAddress, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_OPTY_STAKING_RATE_BALANCER } from "../task-names";
 
 task(DEPLOY_OPTY_STAKING_RATE_BALANCER, "Deploy Opty Staking Rate Balancer")
@@ -26,7 +26,7 @@ task(DEPLOY_OPTY_STAKING_RATE_BALANCER, "Deploy Opty Staking Rate Balancer")
 
     console.log(`Contract optyStakingRateBalancer : ${optyStakingRateBalancer.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setOPTYStakingRateBalancer(address)", [
       optyStakingRateBalancer.address,

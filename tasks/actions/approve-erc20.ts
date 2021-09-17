@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress, executeFunc } from "../../helpers/helpers";
+import { isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { APPROVE_ERC20 } from "../task-names";
 
@@ -30,7 +30,7 @@ task(APPROVE_ERC20, "Approve erc20 Token")
       throw new Error("amount is invalid");
     }
 
-    const erc20Instance = await getContractInstance(hre, ESSENTIAL_CONTRACTS.ERC20, token);
+    const erc20Instance = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
 
     await executeFunc(erc20Instance, owner, "approve(address,uint256)", [spender, amount]);
 

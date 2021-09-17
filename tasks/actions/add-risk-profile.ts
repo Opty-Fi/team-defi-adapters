@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { addRiskProfile } from "../../helpers/contracts-actions";
 import { ADD_RISK_PROFILE } from "../task-names";
@@ -29,7 +29,7 @@ task(ADD_RISK_PROFILE, "Add Risk Profile")
       throw new Error("rating range is invalid");
     }
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
     await addRiskProfile(registryContract, owner, name, canborrow, [lowestrating, highestrating]);
 
     console.log("Finished adding risk profile");

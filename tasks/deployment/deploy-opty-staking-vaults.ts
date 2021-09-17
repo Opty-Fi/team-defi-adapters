@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { deployAndSetupOptyStakingVaults } from "../../helpers/contracts-deployments";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { DEPLOY_OPTY_STAKING_VAULTS } from "../task-names";
 
 task(DEPLOY_OPTY_STAKING_VAULTS, "Deploy Opty Staking Vault")
@@ -47,14 +47,12 @@ task(DEPLOY_OPTY_STAKING_VAULTS, "Deploy Opty Staking Vault")
       throw new Error("optyStakingRateBalancer address is invalid");
     }
 
-    const optyDistributorInstance = await getContractInstance(
-      hre,
+    const optyDistributorInstance = await hre.ethers.getContractAt(
       ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR,
       optydistributor,
     );
 
-    const optyStakingRateBalancerInstance = await getContractInstance(
-      hre,
+    const optyStakingRateBalancerInstance = await hre.ethers.getContractAt(
       ESSENTIAL_CONTRACTS.OPTY_STAKING_RATE_BALANCER,
       optydistributor,
     );

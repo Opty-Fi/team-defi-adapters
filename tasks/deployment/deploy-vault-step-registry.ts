@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract, getContractInstance, executeFunc } from "../../helpers/helpers";
+import { deployContract, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { DEPLOY_VAULT_STEP_REGISTRY } from "../task-names";
 
@@ -23,7 +23,7 @@ task(DEPLOY_VAULT_STEP_REGISTRY, "Deploy VaultStepInvestStrategyDefinitionRegist
       `Contract vaultStepInvestStrategyDefinitionRegistry: ${vaultStepInvestStrategyDefinitionRegistry.address}`,
     );
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setVaultStepInvestStrategyDefinitionRegistry(address)", [
       vaultStepInvestStrategyDefinitionRegistry.address,

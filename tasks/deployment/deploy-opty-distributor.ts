@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, deployContract, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { isAddress, deployContract, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_OPTY_DISTRIBUTOR } from "../task-names";
 
 task(DEPLOY_OPTY_DISTRIBUTOR, "Deploy Opty Distributor")
@@ -37,7 +37,7 @@ task(DEPLOY_OPTY_DISTRIBUTOR, "Deploy Opty Distributor")
 
     console.log(`Contract optyDistributor : ${optyDistributor.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
 

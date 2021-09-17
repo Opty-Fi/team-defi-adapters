@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, deployContract, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { isAddress, deployContract, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_OPTY } from "../task-names";
 
 task(DEPLOY_OPTY, "Deploy Opty")
@@ -25,7 +25,7 @@ task(DEPLOY_OPTY, "Deploy Opty")
 
     console.log(`Contract opty : ${opty.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setOPTY(address)", [opty.address]);
 

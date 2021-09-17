@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, getContractInstance, executeFunc, deployContract } from "../../helpers/helpers";
+import { isAddress, executeFunc, deployContract } from "../../helpers/helpers";
 import { DEPLOY_STRATEGY_MANAGER } from "../task-names";
 
 task(DEPLOY_STRATEGY_MANAGER, "Deploy Strategy Manager")
@@ -29,7 +29,7 @@ task(DEPLOY_STRATEGY_MANAGER, "Deploy Strategy Manager")
 
     console.log(`Contract strategyManager : ${strategyManagerContract.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setStrategyManager(address)", [strategyManagerContract.address]);
 

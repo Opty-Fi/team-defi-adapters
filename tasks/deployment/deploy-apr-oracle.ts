@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress, deployContract, executeFunc, getContractInstance } from "../../helpers/helpers";
+import { isAddress, deployContract, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_APR_ORACLE } from "../task-names";
 
 task(DEPLOY_APR_ORACLE, "Deploy Apr Oracle")
@@ -25,7 +25,7 @@ task(DEPLOY_APR_ORACLE, "Deploy Apr Oracle")
 
     console.log(`Contract aprOracle : ${aprOracle.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await executeFunc(registryContract, owner, "setAPROracle(address)", [aprOracle.address]);
 

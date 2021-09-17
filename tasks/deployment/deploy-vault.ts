@@ -50,7 +50,7 @@ task(DEPLOY_VAULT, "Deploy Vault")
     console.log(`Address : ${vault["vaultProxy"].contract.address}`);
     console.log(`Hash : ${vault["vaultProxy"].hash}`);
     console.log("----------------");
-    const registryContract = await hre.ethers.getContractAt(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     if (unpause) {
       await unpauseVault(owner, registryContract, vault["vaultProxy"].contract.address, true);
