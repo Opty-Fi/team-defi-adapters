@@ -40,6 +40,12 @@
       "getActions": [
         {
           "contract": "vault",
+          "action": "balance()",
+          "args": {},
+          "expectedValue": "1353750000000000"
+        },
+        {
+          "contract": "vault",
           "action": "balanceOf(address)",
           "args": {},
           "expectedValue": "1353750000000000"

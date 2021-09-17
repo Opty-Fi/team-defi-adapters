@@ -1,16 +1,8 @@
-import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA } from "./constants";
+import { TOKENS, RISK_PROFILES } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
-import {
-  TypedAdapterStrategies,
-  TypedTokens,
-  TypedPairTokens,
-  TypedCurveTokens,
-  TypedCurveDepositPools,
-  TypedCurveDepositPoolGauges,
-  TypedCurveSwapPools,
-} from "./data";
-import { executeFunc, generateStrategyStep, getEthValueGasOverrideOptions } from "./helpers";
+import { TypedAdapterStrategies, TypedTokens, TypedPairTokens, TypedCurveTokens } from "./data";
+import { executeFunc, generateStrategyStep, generateTokenHash, getEthValueGasOverrideOptions } from "./helpers";
 import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
@@ -111,11 +103,11 @@ export async function setAndApproveVaultRewardToken(
 
 export async function setStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
 ): Promise<string> {
   const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
-
+  const tokensHash = generateTokenHash(tokens);
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
     strategySteps,
@@ -126,12 +118,13 @@ export async function setStrategy(
 
 export async function setBestBasicStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
   strategyProvider: Contract,
   riskProfile: string,
 ): Promise<string> {
-  const strategyHash = await setStrategy(strategy, tokensHash, vaultStepInvestStrategyDefinitionRegistry);
+  const tokensHash = generateTokenHash(tokens);
+  const strategyHash = await setStrategy(strategy, tokens, vaultStepInvestStrategyDefinitionRegistry);
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
   expect(strategyProviderStrategy).to.equal(strategyHash);
@@ -619,54 +612,16 @@ export async function unpauseVault(
   await executeFunc(registryContract, owner, "unpauseVaultContract(address,bool)", [vaultAddr, unpaused]);
 }
 
-export async function insertDataCurveDeposit(owner: Signer, curveDeposit: Contract): Promise<void> {
-  for (let i = 0; i < MAPPING_CURVE_DEPOSIT_DATA.length; i++) {
-    const data = MAPPING_CURVE_DEPOSIT_DATA[i];
-    try {
-      await executeFunc(curveDeposit, owner, "setLiquidityPoolToUnderlyingTokens(address,address[])", [
-        TypedCurveDepositPools[data.lp],
-        data.tokens.map(token => TypedTokens[token]),
+export async function addRiskProfiles(owner: Signer, registry: Contract): Promise<void> {
+  const profiles = Object.keys(RISK_PROFILES);
+  for (let i = 0; i < profiles.length; i++) {
+    const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
+    if (!profile.exists) {
+      await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
+        RISK_PROFILES[profiles[i]].name,
+        RISK_PROFILES[profiles[i]].canBorrow,
+        RISK_PROFILES[profiles[i]].poolRating,
       ]);
-
-      await executeFunc(curveDeposit, owner, "setLiquidityPoolToSwap(address,address)", [
-        TypedCurveDepositPools[data.lp],
-        TypedCurveSwapPools[data.swap],
-      ]);
-
-      if (TypedCurveDepositPoolGauges[data.gauges]) {
-        await executeFunc(curveDeposit, owner, "setLiquidityPoolToGauges(address,address)", [
-          TypedCurveDepositPools[data.lp],
-          TypedCurveDepositPoolGauges[data.gauges],
-        ]);
-      }
-    } catch (error) {
-      console.log("Got error in insertDataCurveDeposit() ", error);
-    }
-  }
-}
-
-export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): Promise<void> {
-  for (let i = 0; i < MAPPING_CURVE_SWAP_DATA.length; i++) {
-    const data = MAPPING_CURVE_SWAP_DATA[i];
-    try {
-      await executeFunc(curveSwap, owner, "setSwapPoolToLiquidityPoolToken(address,address)", [
-        TypedCurveSwapPools[data.swap],
-        TypedTokens[data.lpToken],
-      ]);
-
-      await executeFunc(curveSwap, owner, "setSwapPoolToUnderlyingTokens(address,address[])", [
-        TypedCurveSwapPools[data.swap],
-        data.tokens.map(token => TypedTokens[token]),
-      ]);
-
-      if (TypedCurveDepositPoolGauges[data.gauges]) {
-        await executeFunc(curveSwap, owner, "setSwapPoolToGauges(address,address)", [
-          TypedCurveSwapPools[data.swap],
-          TypedCurveDepositPoolGauges[data.gauges],
-        ]);
-      }
-    } catch (error) {
-      console.log("Got error in insertDataCurveSwap() ", error);
     }
   }
 }

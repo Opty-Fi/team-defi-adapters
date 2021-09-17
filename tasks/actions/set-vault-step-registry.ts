@@ -1,9 +1,10 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { executeFunc } from "../../helpers/helpers";
+import { SET_VAULT_STEP_REGISTRY } from "../task-names";
 
-task("set-vault-step-registry", "Set vaultStepInvestStrategyDefinitionRegistry")
+task(SET_VAULT_STEP_REGISTRY, "Set vaultStepInvestStrategyDefinitionRegistry")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
   .setAction(async ({ registry, strategyregistry }, hre) => {
@@ -26,7 +27,7 @@ task("set-vault-step-registry", "Set vaultStepInvestStrategyDefinitionRegistry")
     }
 
     try {
-      const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setVaultStepInvestStrategyDefinitionRegistry(address)", [
         strategyregistry,
       ]);

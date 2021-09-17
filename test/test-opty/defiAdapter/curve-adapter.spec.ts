@@ -15,7 +15,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
 chai.use(solidity);
@@ -108,23 +108,23 @@ describe("CurveAdapters Unit test", () => {
             for (let i = 0; i < story.actions.length; i++) {
               const action = story.actions[i];
               switch (action.action) {
-                case "getDepositSomeCodes(address,address[],address,uint256[])":
-                case "getDepositAllCodes(address,address[],address)": {
+                case "getDepositSomeCodes(address,address,address,uint256)":
+                case "getDepositAllCodes(address,address,address)": {
                   let codes;
-                  if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                  if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
                         ZERO_ADDRESS,
-                        [nCoins[0]], // DAI
+                        nCoins[0], // DAI
                         strategy.strategy[0].contract,
-                        depositAmount,
+                        depositAmount[0],
                       );
                     }
                   } else {
                     codes = await curveAdapters[curveAdapterName][action.action](
                       ownerAddress,
-                      [nCoins[0]],
+                      nCoins[0],
                       strategy.strategy[0].contract,
                     );
                   }
@@ -139,7 +139,7 @@ describe("CurveAdapters Unit test", () => {
                             expect(address).to.equal(nCoins[tokenIndex]);
                             const value = inter.decodeFunctionData("approve", abiCode);
                             expect(value[0]).to.equal(strategy.strategy[0].contract);
-                            if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                            if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                               expect(value[1]).to.equal(amount);
                             }
                           }
@@ -155,7 +155,7 @@ describe("CurveAdapters Unit test", () => {
                     );
                     expect(address).to.equal(strategy.strategy[0].contract);
                     const value = inter.decodeFunctionData("add_liquidity", abiCode);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[0].length).to.equal(depositAmount.length);
                       expect(value[0][0]).to.equal(depositAmount[0]);
                     }
@@ -164,16 +164,16 @@ describe("CurveAdapters Unit test", () => {
 
                   break;
                 }
-                case "getWithdrawAllCodes(address,address[],address)":
-                case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+                case "getWithdrawAllCodes(address,address,address)":
+                case "getWithdrawSomeCodes(address,address,address,uint256)": {
                   let codes;
                   const withdrawalAmount = BigNumber.from("1000000000");
-                  if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                  if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
                         ZERO_ADDRESS,
-                        nCoins,
+                        nCoins[0],
                         strategy.strategy[0].contract,
                         withdrawalAmount,
                       );
@@ -181,7 +181,7 @@ describe("CurveAdapters Unit test", () => {
                   } else {
                     codes = await curveAdapters[curveAdapterName][action.action](
                       ownerAddress,
-                      nCoins,
+                      nCoins[0],
                       strategy.strategy[0].contract,
                     );
                   }
@@ -192,17 +192,15 @@ describe("CurveAdapters Unit test", () => {
                       expect(address).to.equal(lpToken);
                       const value = inter.decodeFunctionData("approve", abiCode);
                       expect(value[0]).to.equal(strategy.strategy[0].contract);
-                      if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                      if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                         expect(value[1]).to.equal(i == 0 ? 0 : withdrawalAmount);
                       }
                     } else {
-                      const inter = new utils.Interface([
-                        `function remove_liquidity(uint256,uint256[${nCoins.length}])`,
-                      ]);
+                      const inter = new utils.Interface([`function remove_liquidity_one_coin(uint256,int128,uint256)`]);
                       const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                       expect(address).to.equal(strategy.strategy[0].contract);
-                      const value = inter.decodeFunctionData("remove_liquidity", abiCode);
-                      if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                      const value = inter.decodeFunctionData("remove_liquidity_one_coin", abiCode);
+                      if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                         expect(value[0]).to.equal(withdrawalAmount);
                       }
                     }
@@ -240,17 +238,17 @@ describe("CurveAdapters Unit test", () => {
           ) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
-                let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const decimals = await ERC20Instance.decimals();
+                let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 let limit: BigNumber;
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
                   underlyingTokenAddress,
                   liquidityPool,
                 );
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
-                const decimals = await ERC20Instance.decimals();
                 const adapterAddress = curveAdapters[curveAdapterName].address;
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
@@ -289,7 +287,6 @@ describe("CurveAdapters Unit test", () => {
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
@@ -312,7 +309,6 @@ describe("CurveAdapters Unit test", () => {
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
@@ -348,7 +344,6 @@ describe("CurveAdapters Unit test", () => {
                       limitInUnderlyingToken = BigNumber.from(updatedDepositAmount).div(
                         BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)),
                       );
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
