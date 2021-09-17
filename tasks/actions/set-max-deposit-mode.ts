@@ -1,7 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { MAX_DEPOSIT_MODE } from "../../helpers/constants";
-task("set-max-deposit-mode", "Set max deposit mode for adapter")
+import { SET_MAX_DEPOSIT_MODE } from "../task-names";
+
+task(SET_MAX_DEPOSIT_MODE, "Set max deposit mode for adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("mode", "the mode of max deposit", "", types.string)
   .setAction(async ({ adapter, mode }, hre) => {

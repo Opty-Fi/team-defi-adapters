@@ -547,15 +547,15 @@ Usage: set max deposit for a specific adapter
 Options:
 --adapter         required <address> the address of adapter
 --amount          required <number> the max deposit amount
---mode            conditional required <address> the max deposit mode
---liquiditypool   conditional required <address> the address of liquiditypool
---underlyingtoken conditional required <address> the address of underlying token
+--mode            required <address> the max deposit mode (*)
+--liquiditypool   required <address> the address of liquiditypool (*)
+--underlyingtoken required <address> the address of underlying token (*)
 --setprotocol     optional <boolean>  set amount for Protocol or not (default: false)
 --network         optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Notes:
-  Conditional required flags might be required depend on the Adapter's contract.
+  (\*) might be required depend on the Adapter's contract.
 
 - Example:
 

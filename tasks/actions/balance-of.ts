@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { BALANCE_OF } from "../task-names";
 
-task("balance-of", "Check token balance of address")
+task(BALANCE_OF, "Check token balance of address")
   .addParam("token", "the address of token", "", types.string)
   .addParam("user", "the address of user", "", types.string)
   .setAction(async ({ token, user }, hre) => {

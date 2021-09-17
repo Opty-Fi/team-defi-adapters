@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { GET_STRATEGY } from "../task-names";
 
-task("get-strategy", "Get a specific strategy")
+task(GET_STRATEGY, "Get a specific strategy")
   .addParam("strategyhash", "the hash of strategy", "", types.string)
   .addParam("token", "the address of token", "", types.string)
   .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)

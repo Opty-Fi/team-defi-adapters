@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { isAddress } from "../../helpers/helpers";
+import { GET_ACTION } from "../task-names";
 
-task("get-action", "execute a get action in smart contract")
+task(GET_ACTION, "execute a get action in smart contract")
   .addParam("name", "the name of contract", "", types.string)
   .addParam("address", "the address of contract", "", types.string)
   .addParam("functionabi", "the abi of function", "", types.string)
