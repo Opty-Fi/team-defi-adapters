@@ -18,7 +18,7 @@ contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, 
         require(_registryProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
-    function isNewContract() external view returns (bool) {
+    function isNewContract() external pure returns (bool) {
         return isNewVariable;
     }
 

@@ -30,6 +30,9 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
+    /** @notice HBTC token contract address */
+    address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 

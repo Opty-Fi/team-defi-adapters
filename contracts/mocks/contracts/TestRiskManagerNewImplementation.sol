@@ -20,7 +20,7 @@ contract TestRiskManagerNewImplementation is RiskManagerStorage, NewImplementati
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
-    function isNewContract() external view returns (bool) {
+    function isNewContract() external pure returns (bool) {
         return isNewVariable;
     }
 }
