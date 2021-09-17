@@ -433,12 +433,12 @@ Options:
 Usage: add risk profile in Registry contract
 
 Options:
---registry required <address> the address of registry
---name required <string> the name of risk profile
---canborrow required <boolean> whether risk profile can borrow or not
---lowestrating required <int> the lowest rating
---highestrating required <int> the highest rating
---network  optional <string>  name of the network provider (default: hardhat)
+--registry      required <address> the address of registry
+--name          required <string>  the name of risk profile
+--canborrow     required <boolean> whether risk profile can borrow or not
+--lowestrating  required <int>     the lowest rating
+--highestrating required <int>     the highest rating
+--network       optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Example:
@@ -461,7 +461,7 @@ Usage: approve spender to use specific amount of erc20 token
 Options:
 --spender   required <address> the address of spender
 --token     required <address> the address of token
---amount    required <int> the amount of token
+--amount    required <int>     the amount of token
 --network   optional <string>  name of the network provider (default: hardhat)
 ```
 
