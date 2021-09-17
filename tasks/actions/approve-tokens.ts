@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
 import { TypedTokens } from "../../helpers/data";
 import { approveAndSetTokenHashToTokens } from "../../helpers/contracts-actions";
@@ -18,7 +18,7 @@ task(APPROVE_TOKENS, "Approve Tokens")
       throw new Error("registry address is invalid");
     }
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     const tokensAddresses = Object.values(TypedTokens).filter(addr => addr !== ADDRESS_ETH);
 

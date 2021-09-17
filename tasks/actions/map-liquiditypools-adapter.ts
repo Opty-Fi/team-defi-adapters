@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { HARVEST_ADAPTER_NAME, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
 import { TypedDefiPools } from "../../helpers/data/index";
@@ -38,7 +38,7 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
     if (!TypedDefiPools[adaptername]) {
       throw new Error("wrong adapter name");
     }
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     const liquidityPools = removeDuplicateFromStringArray(
       Object.keys(TypedDefiPools[adaptername]).map(name => TypedDefiPools[adaptername][name].pool),
@@ -48,7 +48,7 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
     try {
       await approveLiquidityPoolAndMapAdapters(owner, registryContract, liquidityPools, liquidityPoolsToAdapter);
     } catch (error) {
-      console.log(`Got error : ${error.message}`);
+      console.log(`Got error : ${error}`);
     }
 
     console.log(`Finished mapping liquidityPools to adapter : ${adaptername}`);
