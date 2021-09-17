@@ -1,9 +1,9 @@
 import { task, types } from "hardhat/config";
-import { isAddress, executeFunc, getContract } from "../../helpers/helpers";
+import { isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { Contract } from "ethers";
+import { MAP_LIQUIDITYPOOL_ADAPTER } from "../task-names";
 
-task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
+task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("liquiditypool", "the address of liquidity", "", types.string)
@@ -34,16 +34,16 @@ task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
       throw new Error("adapter address is invalid");
     }
 
-    const registryContract = (await getContract(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry)) as Contract;
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     const { isLiquidityPool } = await registryContract.getLiquidityPool(liquiditypool);
 
     if (!isLiquidityPool) {
-      await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [liquiditypool]);
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address)", [liquiditypool]);
 
       try {
         console.log(`Liquidity pool ${liquiditypool} approved`);
-      } catch (error) {
+      } catch (error: any) {
         console.error("approve liquidity pool errored with ", error.message);
       }
     }
@@ -53,7 +53,7 @@ task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
         adapter,
       ]);
       console.log(`Mapped ${liquiditypool} to ${adapter}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("map liquidity pool to adapter errored with ", error.message);
     }
   });

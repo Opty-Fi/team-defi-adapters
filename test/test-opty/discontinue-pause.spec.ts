@@ -1,29 +1,34 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  approveLiquidityPoolAndMapAdapter,
   setBestBasicStrategy,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
+  approveLiquidityPoolAndMapAdapter,
 } from "../../helpers/contracts-actions";
+import { setUp } from "./setup";
 import scenario from "./scenarios/discontinue-pause.json";
 
+type ARGUMENTS = {
+  addressName?: string;
+  unpause?: boolean;
+  amount?: string;
+  expectedValue?: string;
+  spender?: string;
+  stakedOPTY?: string;
+};
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
-  const token = "DAI";
-  const MAX_AMOUNT = "100000000000000000000";
+  const MAX_AMOUNT = "10000";
   let essentialContracts: CONTRACTS;
-  let contracts: CONTRACTS;
   let adapters: CONTRACTS;
+  let contracts: CONTRACTS;
   let owner: Signer;
   let admin: Signer;
   let users: { [key: string]: Signer };
@@ -31,7 +36,8 @@ describe(scenario.title, () => {
     try {
       [owner, admin] = await hre.ethers.getSigners();
       users = { owner, admin };
-      [essentialContracts, adapters] = await setUp(owner);
+      [essentialContracts, adapters] = await setUp(users["owner"]);
+      contracts = { ...essentialContracts };
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
     } catch (error) {
@@ -46,140 +52,240 @@ describe(scenario.title, () => {
       let underlyingTokenSymbol: string;
       const vaults = scenario.vaults[i];
       const profile = vaults.profile;
-      const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
-      const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
-      let ERC20Instance: Contract;
-      before(async () => {
-        try {
-          underlyingTokenName = await getTokenName(hre, token);
-          underlyingTokenSymbol = await getTokenSymbol(hre, token);
-          vault = await deployVault(
-            hre,
-            essentialContracts.registry.address,
-            TOKENS[token],
-            owner,
-            admin,
-            underlyingTokenName,
-            underlyingTokenSymbol,
-            profile,
-            TESTING_DEPLOYMENT_ONCE,
-          );
-          contracts = { ...essentialContracts, vault };
-          await approveLiquidityPoolAndMapAdapter(
-            owner,
-            essentialContracts.registry,
-            adapters["CompoundAdapter"].address,
-            TOKEN_STRATEGY.strategy[0].contract,
-          );
+      const adapterNames = Object.keys(TypedAdapterStrategies).filter(adapter => adapter !== "SushiswapAdapter");
 
-          const riskProfile = await vault.profile();
-          await setBestBasicStrategy(
-            TOKEN_STRATEGY.strategy,
-            tokensHash,
-            essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
-            essentialContracts.strategyProvider,
-            riskProfile,
-          );
+      for (let i = 0; i < adapterNames.length; i++) {
+        const adapterName = adapterNames[i];
+        const strategies = TypedAdapterStrategies[adapterName];
+        let ERC20Instance: Contract;
 
-          const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT), timestamp);
-          ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
-          contracts["erc20"] = ERC20Instance;
-        } catch (error) {
-          console.error(error);
+        for (let i = 0; i < strategies.length; i++) {
+          const strategy = strategies[i];
+
+          describe(`${adapterName}- ${strategy.strategyName}`, async () => {
+            let decimals: BigNumber;
+            before(async () => {
+              try {
+                underlyingTokenName = await getTokenName(hre, strategy.token);
+                underlyingTokenSymbol = await getTokenSymbol(hre, strategy.token);
+                const adapter = adapters[adapterName];
+
+                for (let i = 0; i < strategy.strategy.length; i++) {
+                  await approveLiquidityPoolAndMapAdapter(
+                    users["owner"],
+                    essentialContracts.registry,
+                    adapter.address,
+                    strategy.strategy[i].contract,
+                  );
+                }
+
+                vault = await deployVault(
+                  hre,
+                  essentialContracts.registry.address,
+                  TOKENS[strategy.token],
+                  owner,
+                  admin,
+                  underlyingTokenName,
+                  underlyingTokenSymbol,
+                  profile,
+                  TESTING_DEPLOYMENT_ONCE,
+                );
+
+                await setBestBasicStrategy(
+                  strategy.strategy,
+                  [TOKENS[strategy.token]],
+                  essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+                  essentialContracts.strategyProvider,
+                  profile,
+                );
+
+                const timestamp = (await getBlockTimestamp(hre)) * 2;
+
+                ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                decimals = await ERC20Instance.decimals();
+                await fundWalletToken(
+                  hre,
+                  TOKENS[strategy.token],
+                  owner,
+                  BigNumber.from(MAX_AMOUNT).mul(BigNumber.from(10).pow(decimals)),
+                  timestamp,
+                );
+
+                contracts["vault"] = vault;
+                contracts["erc20"] = ERC20Instance;
+              } catch (error) {
+                console.error(error);
+              }
+            });
+            for (let i = 0; i < vaults.vaultStories.length; i++) {
+              const story = vaults.vaultStories[i];
+              it(story.description, async () => {
+                for (let j = 0; j < story.actions.length; j++) {
+                  const action = story.actions[j];
+                  switch (action.action) {
+                    case "userDepositRebalance(uint256)":
+                    case "userWithdrawRebalance(uint256)": {
+                      const { amount }: ARGUMENTS = action.args;
+                      if (amount) {
+                        const actualAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals));
+                        if (action.action === "userDepositRebalance(uint256)") {
+                          const allowance = await contracts["erc20"].allowance(
+                            await owner.getAddress(),
+                            contracts[action.contract.toLowerCase()].address,
+                          );
+                          if (allowance.toString() === "0") {
+                            await contracts["erc20"].approve(
+                              contracts[action.contract.toLowerCase()].address,
+                              actualAmount,
+                            );
+                          }
+                        }
+                        if (action.expect === "success") {
+                          await contracts[action.contract.toLowerCase()][action.action](actualAmount);
+                        } else {
+                          await expect(
+                            contracts[action.contract.toLowerCase()][action.action](actualAmount),
+                          ).to.be.revertedWith(action.message);
+                        }
+                      }
+
+                      assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
+                    case "userDepositAllRebalance()":
+                    case "userWithdrawAllRebalance()": {
+                      if (action.expect === "success") {
+                        if (action.action === "userDepositAllRebalance()") {
+                          const balance = await ERC20Instance.connect(owner).balanceOf(await owner.getAddress());
+                          await ERC20Instance.approve(contracts[action.contract.toLowerCase()].address, balance);
+                        }
+                        await contracts[action.contract.toLowerCase()][action.action]();
+                      } else {
+                        await expect(contracts[action.contract.toLowerCase()][action.action]()).to.be.revertedWith(
+                          action.message,
+                        );
+                      }
+                      break;
+                    }
+                    case "discontinue(address)": {
+                      const { addressName }: ARGUMENTS = action.args;
+                      if (addressName) {
+                        if (action.expect === "success") {
+                          await contracts[action.contract.toLowerCase()][action.action](contracts[addressName].address);
+                        }
+                      }
+                      assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
+                    case "unpauseVaultContract(address,bool)": {
+                      const { addressName, unpause }: ARGUMENTS = action.args;
+                      if (addressName && unpause !== undefined) {
+                        if (action.expect === "success") {
+                          await contracts[action.contract.toLowerCase()][action.action](
+                            contracts[addressName].address,
+                            unpause,
+                          );
+                        }
+                      }
+                      assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+                      assert.isDefined(unpause, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
+                    case "balance()": {
+                      const { expectedValue }: ARGUMENTS = action.args;
+                      if (expectedValue) {
+                        if (action.expect === "success") {
+                          expectedValue === "0"
+                            ? expect(+(await contracts[action.contract][action.action]())).to.equal(
+                                +BigNumber.from(expectedValue).div(BigNumber.from(10).pow(decimals)),
+                              )
+                            : expect(+(await contracts[action.contract][action.action]())).to.be.gte(
+                                +BigNumber.from(expectedValue.split(">=")[1]).div(BigNumber.from(10).pow(decimals)),
+                              );
+                        }
+                      }
+
+                      assert.isDefined(expectedValue, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
+                    case "balanceOf(address)": {
+                      const { expectedValue }: ARGUMENTS = action.args;
+                      if (expectedValue) {
+                        if (action.expect === "success") {
+                          expect(+(await contracts[action.contract][action.action](await owner.getAddress()))).to.gte(
+                            +BigNumber.from(expectedValue).mul(BigNumber.from(10).pow(decimals)),
+                          );
+                        }
+                      }
+                      assert.isDefined(expectedValue, `args is wrong in ${action.action} testcase`);
+                      break;
+                    }
+                  }
+                }
+              }).timeout(100000);
+            }
+          });
         }
-      });
+      }
 
-      for (let i = 0; i < vaults.stories.length; i++) {
-        const story = vaults.stories[i];
-        it(story.description, async () => {
-          for (let j = 0; j < story.actions.length; j++) {
-            const action: any = story.actions[j];
+      for (let i = 0; i < vaults.stakingVaultstories.length; i++) {
+        const story = vaults.stakingVaultstories[i];
+        for (let i = 0; i < story.actions.length; i++) {
+          it(story.description, async () => {
+            const action = story.actions[i];
             switch (action.action) {
-              case "userDepositRebalance(uint256)":
-              case "userWithdrawRebalance(uint256)": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  await ERC20Instance.connect(owner).approve(
-                    contracts[action.contract.toLowerCase()].address,
-                    BigNumber.from(MAX_AMOUNT),
-                  );
-                  await contracts[action.contract.toLowerCase()][action.action](BigNumber.from(args?.amount));
-                } else {
-                  await expect(
-                    contracts[action.contract.toLowerCase()][action.action](args?.amount),
-                  ).to.be.revertedWith(action.message);
-                }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
-                break;
-              }
-              case "userDepositAllRebalance()":
-              case "userWithdrawAllRebalance()": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  await ERC20Instance.connect(owner).approve(
-                    contracts[action.contract.toLowerCase()].address,
-                    BigNumber.from(MAX_AMOUNT),
-                  );
-                  await contracts[action.contract.toLowerCase()][action.action]();
-                } else {
-                  await expect(contracts[action.contract.toLowerCase()][action.action]()).to.be.revertedWith(
-                    action.message,
-                  );
-                }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
-                break;
-              }
               case "discontinue(address)": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  await contracts[action.contract.toLowerCase()][action.action](contracts[args?.addressName].address);
+                const { addressName }: ARGUMENTS = action.args;
+                if (addressName) {
+                  if (action.expect === "success") {
+                    await contracts[action.contract.toLowerCase()][action.action](contracts[addressName].address);
+                  }
                 }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+
+                assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
                 break;
               }
               case "unpauseVaultContract(address,bool)": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  await contracts[action.contract.toLowerCase()][action.action](
-                    contracts[args?.addressName].address,
-                    args?.unpause,
-                  );
+                const { addressName, unpause }: ARGUMENTS = action.args;
+                if (addressName && unpause !== undefined) {
+                  if (action.expect === "success") {
+                    await contracts[action.contract.toLowerCase()][action.action](
+                      contracts[addressName].address,
+                      unpause,
+                    );
+                  }
                 }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
+                assert.isDefined(unpause, `args is wrong in ${action.action} testcase`);
                 break;
               }
               case "balance()": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  const expectedValue = <string>args[<keyof typeof args>"expectedValue"];
-                  const balance = await contracts[action.contract][action.action]();
-                  action.contract == "optyStakingVault1D"
-                    ? expect(+balance).to.be.equal(+expectedValue)
-                    : expectedValue === "0"
-                    ? expect(+balance).to.equal(+expectedValue)
-                    : expect(+balance).to.be.gte(+expectedValue.split(">=")[1]);
+                const { expectedValue }: ARGUMENTS = action.args;
+                if (expectedValue) {
+                  if (action.expect === "success") {
+                    const balance = await contracts[action.contract][action.action]();
+                    expect(+balance).to.be.equal(+expectedValue);
+                  }
                 }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+
+                assert.isDefined(expectedValue, `args is wrong in ${action.action} testcase`);
                 break;
               }
               case "balanceOf(address)": {
-                const args = action.args;
-                if (action.expect === "success") {
-                  const expectedValue = <string>args[<keyof typeof args>"expectedValue"];
-                  const addr = await owner.getAddress();
-                  const balance = await contracts[action.contract][action.action](addr);
-                  ["optyStakingVault1D", "opty"].includes(action.contract)
-                    ? expect(+balance).to.be.equal(+expectedValue)
-                    : expectedValue === "0"
-                    ? expect(+balance).to.equal(+expectedValue)
-                    : expect(+balance).to.be.gte(+MAX_AMOUNT);
+                const { expectedValue }: ARGUMENTS = action.args;
+                if (expectedValue) {
+                  if (action.expect === "success") {
+                    const addr = await owner.getAddress();
+                    const balance = await contracts[action.contract][action.action](addr);
+
+                    expect(+balance).to.be.equal(+expectedValue);
+                  }
                 }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                assert.isDefined(expectedValue, `args is wrong in ${action.action} testcase`);
                 break;
               }
               case "approve(address,uint256)": {
-                const { spender, stakedOPTY }: any = action.args;
+                const { spender, stakedOPTY }: ARGUMENTS = action.args;
                 if (spender && stakedOPTY) {
                   if (action.expect === "success") {
                     await contracts[action.contract]
@@ -198,19 +304,19 @@ describe(scenario.title, () => {
                 break;
               }
               case "userStake(uint256)": {
-                const args: any = action.args;
+                const { stakedOPTY }: ARGUMENTS = action.args;
                 if (action.expect === "success") {
-                  await contracts[action.contract].connect(users[action.executor])[action.action](args?.stakedOPTY);
+                  await contracts[action.contract].connect(users[action.executor])[action.action](stakedOPTY);
                 } else {
                   await expect(
-                    contracts[action.contract].connect(users[action.executor])[action.action](args?.stakedOPTY),
+                    contracts[action.contract].connect(users[action.executor])[action.action](stakedOPTY),
                   ).to.be.revertedWith(action.message);
                 }
-                assert.isDefined(args, `args is wrong in ${action.action} testcase`);
+                assert.isDefined(stakedOPTY, `args is wrong in ${action.action} testcase`);
                 break;
               }
               case "userUnstake(uint256)": {
-                const { stakedOPTY }: any = action.args;
+                const { stakedOPTY }: ARGUMENTS = action.args;
                 if (stakedOPTY) {
                   if (action.expect === "success") {
                     const time = (await getBlockTimestamp(hre)) + 86400;
@@ -230,8 +336,8 @@ describe(scenario.title, () => {
                 break;
               }
             }
-          }
-        }).timeout(100000);
+          });
+        }
       }
     });
   }

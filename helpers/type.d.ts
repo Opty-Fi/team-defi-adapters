@@ -1,4 +1,5 @@
 import { Contract } from "ethers";
+import { MockContract } from "@defi-wonderland/smock";
 
 export type ESSENTIAL_CONTRACTS = {
   registry: Contract;
@@ -16,6 +17,10 @@ export type CONTRACTS = {
   [name: string]: Contract;
 };
 
+export type MOCK_CONTRACTS = {
+  [name: string]: MockContract<Contract>;
+};
+
 export type CONTRACTS_WITH_HASH = {
   [name: string]: { contract: Contract; hash: string };
 };
@@ -30,6 +35,13 @@ export type RISK_PROFILE_DATA = {
     canBorrow: boolean;
     poolRating: number[];
   };
+};
+
+export type OPTY_STAKING_VAULT = {
+  name: string;
+  numberOfDays: string;
+  lockTime: number;
+  multiplier: number;
 };
 
 export type REWARD_TOKEN_DATA_OBJECT = {
@@ -57,6 +69,7 @@ export type DEFI_POOLS_DATA = {
       pool: string;
       lpToken: string;
       tokens: string[];
+      deprecated?: boolean;
     };
   };
 };
