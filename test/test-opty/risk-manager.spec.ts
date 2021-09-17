@@ -9,9 +9,10 @@ import {
   generateTokenHash,
   executeFunc,
   deploySmockContract,
+  deployContract,
 } from "../../helpers/helpers";
-import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { deployRegistry } from "../../helpers/contracts-deployments";
+import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
+import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
 import { approveToken } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/risk-manager.json";
 import { smock } from "@defi-wonderland/smock";
@@ -25,6 +26,7 @@ type ARGUMENTS = {
 describe(scenario.title, () => {
   let contracts: MOCK_CONTRACTS = {};
   let registry: Contract;
+  let riskManager: Contract;
   const riskProfile = "RP1";
   let owner: Signer;
   before(async () => {
@@ -42,9 +44,9 @@ describe(scenario.title, () => {
 
     const aprOracle = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.APR_ORACLE, [registry.address]);
 
-    const riskManager = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.RISK_MANAGER, [registry.address]);
+    riskManager = await deployRiskManager(hre, owner, TESTING_DEPLOYMENT_ONCE, registry.address);
 
-    contracts = { vaultStepInvestStrategyDefinitionRegistry, strategyProvider, riskManager };
+    contracts = { vaultStepInvestStrategyDefinitionRegistry, strategyProvider };
     await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
     await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
     await executeFunc(registry, owner, "setVaultStepInvestStrategyDefinitionRegistry(address)", [
@@ -67,6 +69,7 @@ describe(scenario.title, () => {
 
   for (let i = 0; i < TypedStrategies.length; i++) {
     const strategy = TypedStrategies[i];
+
     const tokenHash = generateTokenHash([TypedTokens[strategy.token.toUpperCase()]]);
     const strategyHash = generateStrategyHash(strategy.strategy, TypedTokens[strategy.token.toUpperCase()]);
     const defaultStrategy = TypedStrategies.filter(
@@ -162,7 +165,6 @@ describe(scenario.title, () => {
                   await registry["rateLiquidityPool((address,uint8)[])"](scoredPools);
                 }
                 contracts[action.contract].rpToTokenToDefaultStrategy.returns(defaultStrategyHash);
-
                 isCheckDefault = true;
                 assert.isDefined(score, `args is wrong in ${action.action} testcase`);
                 break;
@@ -173,15 +175,38 @@ describe(scenario.title, () => {
                 assert.isDefined(defaultStrategyState, `args is wrong in ${action.action} testcase`);
                 break;
               }
+              case "become(address)": {
+                const newRiskManager = await deployContract(
+                  hre,
+                  TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
+                  TESTING_DEPLOYMENT_ONCE,
+                  owner,
+                  [registry.address],
+                );
+
+                const riskManagerProxy = await hre.ethers.getContractAt(
+                  ESSENTIAL_CONTRACTS.RISK_MANAGER_PROXY,
+                  riskManager.address,
+                );
+
+                await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [
+                  newRiskManager.address,
+                ]);
+                await executeFunc(newRiskManager, owner, "become(address)", [riskManagerProxy.address]);
+
+                riskManager = await hre.ethers.getContractAt(
+                  TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
+                  riskManagerProxy.address,
+                );
+                break;
+              }
             }
           }
           for (let i = 0; i < story.getActions.length; i++) {
             const action = story.getActions[i];
             switch (action.action) {
               case "getBestStrategy(string,address[])": {
-                const value = await contracts[action.contract][action.action](riskProfile, [
-                  TypedTokens[strategy.token],
-                ]);
+                const value = await riskManager[action.action](riskProfile, [TypedTokens[strategy.token]]);
                 expect(value).to.be.equal(
                   action.expectedValue !== ""
                     ? action.expectedValue
@@ -189,6 +214,10 @@ describe(scenario.title, () => {
                     ? defaultStrategyHash
                     : strategyHash,
                 );
+                break;
+              }
+              case "isNewContract()": {
+                expect(await riskManager[action.action]()).to.be.equal(action.expectedValue);
                 break;
               }
             }
