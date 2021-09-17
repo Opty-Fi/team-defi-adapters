@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { MAX_DEPOSIT_MODE, ADDRESS_ZERO } from "../../helpers/constants";
 task("set-max-deposit", "Set max deposit amount for adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
@@ -63,7 +63,7 @@ task("set-max-deposit", "Set max deposit amount for adapter")
 
     console.log(`Max Deposit: ${amount}`);
 
-    const contract = await getContractInstance(hre, "IAdapterFull", adapter);
+    const contract = await hre.ethers.getContractAt("IAdapterFull", adapter);
     try {
       if (setprotocol) {
         await contract.setMaxDepositProtocolPct(amount);
@@ -80,7 +80,7 @@ task("set-max-deposit", "Set max deposit amount for adapter")
         }
       }
     } catch (error) {
-      console.log(`Got error : ${error.message}`);
+      console.log(`Got error : ${error}`);
     }
 
     console.log(`Finished setting max deposit`);

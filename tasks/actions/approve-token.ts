@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress, executeFunc } from "../../helpers/helpers";
+import { isAddress, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
@@ -28,7 +28,7 @@ task(APPROVE_TOKEN, "Approve Token")
     }
 
     if (getAddress(token) !== getAddress(ADDRESS_ETH)) {
-      const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
       const isApprovedToken = await registryContract.isApprovedToken(token);
 
