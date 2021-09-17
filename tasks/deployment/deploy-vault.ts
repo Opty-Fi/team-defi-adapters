@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import { deployVaultWithHash } from "../../helpers/contracts-deployments";
 import { getTokenInforWithAddress, unpauseVault } from "../../helpers/contracts-actions";
 import { insertContractIntoDB } from "../../helpers/db";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { RISK_PROFILES, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { DEPLOY_VAULT } from "../task-names";
 
@@ -50,7 +50,7 @@ task(DEPLOY_VAULT, "Deploy Vault")
     console.log(`Address : ${vault["vaultProxy"].contract.address}`);
     console.log(`Hash : ${vault["vaultProxy"].hash}`);
     console.log("----------------");
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     if (unpause) {
       await unpauseVault(owner, registryContract, vault["vaultProxy"].contract.address, true);

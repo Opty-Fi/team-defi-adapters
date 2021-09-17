@@ -1,13 +1,13 @@
 import {
   ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
   RISK_PROFILES,
-  ADAPTER,
+  ADAPTERS,
   TOKENS,
   OPTY_STAKING_VAULTS,
 } from "./constants";
 import { Contract, Signer } from "ethers";
 import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
-import { getTokenName, getTokenSymbol, addRiskProfile } from "./contracts-actions";
+import { getTokenName, getTokenSymbol, addRiskProfiles } from "./contracts-actions";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { deployContract, executeFunc, deployContractWithHash } from "./helpers";
 
@@ -84,6 +84,7 @@ export async function deployOptyStakingRateBalancer(
     optyStakingRateBalancerProxy.address,
     owner,
   );
+
   return optyStakingRateBalancer;
 }
 
@@ -131,16 +132,7 @@ export async function deployEssentialContracts(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const registry = await deployRegistry(hre, owner, isDeployedOnce);
-  const profiles = Object.keys(RISK_PROFILES);
-  for (let i = 0; i < profiles.length; i++) {
-    await addRiskProfile(
-      registry,
-      owner,
-      RISK_PROFILES[profiles[i]].name,
-      RISK_PROFILES[profiles[i]].canBorrow,
-      RISK_PROFILES[profiles[i]].poolRating,
-    );
-  }
+  await addRiskProfiles(owner, registry);
 
   const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
     hre,
@@ -288,7 +280,7 @@ export async function deployAdapters(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
-  for (const adapter of ADAPTER) {
+  for (const adapter of ADAPTERS) {
     try {
       data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
     } catch (error) {
@@ -298,37 +290,6 @@ export async function deployAdapters(
   return data;
 }
 
-export async function deployVaults(
-  hre: HardhatRuntimeEnvironment,
-  registry: string,
-  owner: Signer,
-  admin: Signer,
-  isDeployedOnce: boolean,
-): Promise<CONTRACTS> {
-  const vaults: CONTRACTS = {};
-  for (const token in TOKENS) {
-    if (token === "CHI") {
-      continue;
-    }
-    const name = await getTokenName(hre, token);
-    const symbol = await getTokenSymbol(hre, token);
-    for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVault(
-        hre,
-        registry,
-        TOKENS[token],
-        owner,
-        admin,
-        name,
-        symbol,
-        riskProfile,
-        isDeployedOnce,
-      );
-      vaults[`${symbol}-${riskProfile}`] = vault;
-    }
-  }
-  return vaults;
-}
 export async function deployVault(
   hre: HardhatRuntimeEnvironment,
   registry: string,
