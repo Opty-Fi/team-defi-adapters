@@ -17,7 +17,6 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/get-price-per-share-write.json";
-import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -88,8 +87,7 @@ describe(scenario.title, () => {
                 [Vault.address, <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress],
                 false,
               );
-              RewardToken_ERC20Instance = await getContractInstance(
-                hre,
+              RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                 "ERC20",
                 <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
               );
@@ -111,7 +109,7 @@ describe(scenario.title, () => {
               false,
             );
 
-            const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+            const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
             contracts["vault"] = Vault;
             contracts["registry"] = essentialContracts.registry;
             contracts["tokenErc20"] = Token_ERC20Instance;
@@ -217,8 +215,7 @@ describe(scenario.title, () => {
                 const action = story.getActions[j];
                 switch (action.action) {
                   case "pricePerShareWrite()": {
-                    const balance = await contracts[action.contract][action.action]();
-                    expect(balance).to.be.gt(0);
+                    expect(+(await contracts[action.contract][action.action]())).to.be.gt(0);
                     break;
                   }
                 }

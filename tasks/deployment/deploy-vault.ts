@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import { deployVault } from "../../helpers/contracts-deployments";
 import { getTokenInforWithAddress, unpauseVault } from "../../helpers/contracts-actions";
 import { insertContractIntoDB } from "../../helpers/db";
-import { isAddress, getContractInstance } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { RISK_PROFILES, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { DEPLOY_VAULT } from "../task-names";
 
@@ -45,7 +45,7 @@ task(DEPLOY_VAULT, "Deploy Vault")
 
     console.log(`Contract ${symbol}-${riskprofile}: ${vault.address}`);
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     if (unpause) {
       await unpauseVault(owner, registryContract, vault.address, true);

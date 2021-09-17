@@ -295,8 +295,9 @@ describe(scenario.title, () => {
           case "allOptyVaults(uint256)": {
             const { index }: ARGUMENTS = action.args;
             if (index) {
-              const value = await contracts[action.contract][action.action](index);
-              expect(value).to.be.equal(contracts[action.expectedValue.toString()].address);
+              expect(await contracts[action.contract][action.action](index)).to.be.equal(
+                contracts[action.expectedValue.toString()].address,
+              );
             }
             assert.isDefined(index, `args is wrong in ${action.action} testcase`);
             break;
@@ -304,8 +305,9 @@ describe(scenario.title, () => {
           case "optyVaultEnabled(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -313,8 +315,9 @@ describe(scenario.title, () => {
           case "optyVaultRatePerSecond(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -338,8 +341,7 @@ describe(scenario.title, () => {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
-              expect(+value).to.be.gte(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;

@@ -20,6 +20,10 @@ export function removeDuplicateFromStringArray(list: string[]): string[] {
   return list.filter((x, i, a) => a.indexOf(x) == i);
 }
 
+export function capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 export function to_10powNumber_BN(decimals: BigNumberish): BigNumber {
   return BigNumber.from(10).pow(decimals);
 }

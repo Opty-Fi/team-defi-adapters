@@ -1,6 +1,7 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract } from "ethers";
+import { solidity } from "ethereum-waffle";
 import { CONTRACTS } from "../../helpers/type";
 import { generateStrategyHash, deployContract, generateTokenHash } from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
@@ -9,6 +10,8 @@ import scenario from "./scenarios/strategy-provider.json";
 import { approveAndSetTokenHashToTokens } from "../../helpers/contracts-actions";
 import { TypedStrategies, TypedTokens } from "../../helpers/data";
 
+chai.use(solidity);
+
 type ARGUMENTS = {
   riskProfile?: string;
   strategyName?: string;
@@ -16,6 +19,7 @@ type ARGUMENTS = {
   defaultStrategyState?: number;
   vaultRewardStrategy?: number[];
   newStrategyOperator?: string;
+  isNonApprovedToken?: boolean;
 };
 
 describe(scenario.title, () => {
@@ -23,7 +27,13 @@ describe(scenario.title, () => {
   let signers: any;
   let DUMMY_VAULT_EMPTY_CONTRACT: Contract;
   let vaultRewardTokenHash: string;
-
+  const usedToken = TypedTokens["DAI"];
+  const nonApprovedToken = TypedTokens["USDC"];
+  const usedTokenHash = generateTokenHash([usedToken]);
+  const nonApprovedTokenHash = generateTokenHash([nonApprovedToken]);
+  const usedStrategy = TypedStrategies.filter(strategy => strategy.strategyName == "DAI-deposit-COMPOUND-cDAI")[0]
+    .strategy;
+  const strategyHash = generateStrategyHash(usedStrategy, usedToken);
   before(async () => {
     try {
       const [owner, user1] = await hre.ethers.getSigners();
@@ -78,19 +88,19 @@ describe(scenario.title, () => {
           case "rpToTokenToBestStrategy(string,bytes32)": {
             const { riskProfile, tokenName }: ARGUMENTS = action.args;
             if (riskProfile && tokenName) {
-              const value = await contracts[action.contract][action.action](
-                riskProfile,
-                generateTokenHash([TypedTokens[tokenName]]),
-              );
               const expectedStrategyHash = generateStrategyHash(
                 TypedStrategies.filter(strategy => strategy.strategyName == action.expectedValue.strategyName)[0]
                   .strategy,
                 TypedTokens[action.expectedValue.tokenName],
               );
-              expect(value).to.be.equal(expectedStrategyHash);
+              expect(
+                await contracts[action.contract][action.action](
+                  riskProfile,
+                  generateTokenHash([TypedTokens[tokenName]]),
+                ),
+              ).to.be.equal(expectedStrategyHash);
             }
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
-            assert.isDefined(tokenName, `args is wrong in ${action.action} testcase`);
             break;
           }
           case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
@@ -99,8 +109,9 @@ describe(scenario.title, () => {
             break;
           }
           case "defaultStrategyState()": {
-            const value = await contracts[action.contract][action.action]();
-            expect(value).to.be.equal(action.expectedValue.defaultStrategyState);
+            expect(await contracts[action.contract][action.action]()).to.be.equal(
+              action.expectedValue.defaultStrategyState,
+            );
             break;
           }
         }
@@ -132,7 +143,7 @@ describe(scenario.title, () => {
         break;
       }
       case "setVaultRewardStrategy(bytes32,(uint256,uint256))": {
-        const { vaultRewardStrategy }: ARGUMENTS = action.args;
+        const { vaultRewardStrategy, isNonApprovedToken }: ARGUMENTS = action.args;
         if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
           if (action.expect === "success") {
             await contracts[action.contract]
@@ -142,7 +153,7 @@ describe(scenario.title, () => {
             await expect(
               contracts[action.contract]
                 .connect(signers[action.executor])
-                [action.action](vaultRewardTokenHash, vaultRewardStrategy),
+                [action.action](isNonApprovedToken ? nonApprovedTokenHash : vaultRewardTokenHash, vaultRewardStrategy),
             ).to.be.revertedWith(action.message);
           }
         }
@@ -151,28 +162,20 @@ describe(scenario.title, () => {
       }
       case "setBestStrategy(string,bytes32,bytes32)":
       case "setBestDefaultStrategy(string,bytes32,bytes32)": {
-        const { riskProfile, tokenName, strategyName }: ARGUMENTS = action.args;
-        if (riskProfile && tokenName && strategyName) {
-          const strategyHash = generateStrategyHash(
-            TypedStrategies.filter(strategy => strategy.strategyName == strategyName)[0].strategy,
-            TypedTokens[tokenName],
-          );
-          const tokenHash = generateTokenHash([TypedTokens[tokenName]]);
-
+        const { riskProfile, isNonApprovedToken }: ARGUMENTS = action.args;
+        if (riskProfile) {
           if (action.expect === "success") {
             await contracts[action.contract]
               .connect(signers[action.executor])
-              [action.action](riskProfile, tokenHash, strategyHash);
+              [action.action](riskProfile, usedTokenHash, strategyHash);
           } else {
             await expect(
               contracts[action.contract]
                 .connect(signers[action.executor])
-                [action.action](riskProfile, tokenHash, strategyHash),
+                [action.action](riskProfile, isNonApprovedToken ? nonApprovedTokenHash : usedTokenHash, strategyHash),
             ).to.be.revertedWith(action.message);
           }
         }
-        assert.isDefined(strategyName, `args is wrong in ${action.action} testcase`);
-        assert.isDefined(tokenName, `args is wrong in ${action.action} testcase`);
         assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
         break;
       }

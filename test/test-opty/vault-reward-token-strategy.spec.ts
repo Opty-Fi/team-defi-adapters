@@ -18,7 +18,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
-import { getContractInstance, generateTokenHash } from "../../helpers/helpers";
+import { generateTokenHash } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -69,11 +69,11 @@ describe(scenario.title, () => {
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
-            let investStrategyHash: any;
+            let investStrategyHash: string;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
-            let RewardToken_ERC20Instance: any;
+            let RewardToken_ERC20Instance: Contract;
 
             before(async () => {
               underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
@@ -99,8 +99,7 @@ describe(scenario.title, () => {
                   [Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress],
                   false,
                 );
-                RewardToken_ERC20Instance = await getContractInstance(
-                  hre,
+                RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                   "ERC20",
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
                 );
@@ -122,7 +121,7 @@ describe(scenario.title, () => {
                 false,
               );
 
-              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;

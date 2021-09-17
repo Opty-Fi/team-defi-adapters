@@ -1,11 +1,14 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import scenario from "./scenarios/check-transferred-amount-staking-vault-opt-006.json";
 import { getBlockTimestamp, unpauseVault } from "../../helpers/contracts-actions";
-import { deployAndSetupOptyStakingVaults } from "../../helpers/contracts-deployments";
+import {
+  deployRegistry,
+  deployAndSetupOptyStakingVaults,
+  deployOptyStakingRateBalancer,
+} from "../../helpers/contracts-deployments";
 import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { deployContract, executeFunc } from "../../helpers/helpers";
 
@@ -15,62 +18,70 @@ type ARGUMENTS = {
 };
 
 describe(scenario.title, () => {
-  let essentialContracts: CONTRACTS;
-  const contracts: CONTRACTS = {};
+  let contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
   before(async () => {
     try {
       const [owner] = await hre.ethers.getSigners();
       users = { owner };
-      [essentialContracts] = await setUp(owner);
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
+      const registry = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
+
+      const opty = await deployContract(
+        hre,
+        TESTING_CONTRACTS.TEST_DUMMY_TOKEN_TRANSFER_FEE,
+        TESTING_DEPLOYMENT_ONCE,
+        users["owner"],
+        [1500000000000000],
+      );
+
+      await executeFunc(registry, users["owner"], "approveToken(address)", [opty.address]);
+
+      const optyDistributor = await deployContract(
+        hre,
+        ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR,
+        TESTING_DEPLOYMENT_ONCE,
+        users["owner"],
+        [registry.address, opty.address, await getBlockTimestamp(hre)],
+      );
+
+      await executeFunc(registry, users["owner"], "setOPTYDistributor(address)", [optyDistributor.address]);
+
+      const optyStakingRateBalancer = await deployOptyStakingRateBalancer(
+        hre,
+        users["owner"],
+        TESTING_DEPLOYMENT_ONCE,
+        registry.address,
+      );
+
+      await executeFunc(registry, users["owner"], "setOPTYStakingRateBalancer(address)", [
+        optyStakingRateBalancer.address,
+      ]);
+
+      const optyStakingVaults = await deployAndSetupOptyStakingVaults(
+        hre,
+        users["owner"],
+        TESTING_DEPLOYMENT_ONCE,
+        registry.address,
+        opty.address,
+        optyStakingRateBalancer,
+        optyDistributor,
+      );
+
+      await executeFunc(optyStakingRateBalancer, users["owner"], "setStakingVaultOPTYAllocation(uint256)", [
+        10000000000,
+      ]);
+
+      const stakingVaultNames = Object.keys(optyStakingVaults);
+      for (let i = 0; i < stakingVaultNames.length; i++) {
+        await unpauseVault(users["owner"], registry, optyStakingVaults[stakingVaultNames[i]].address, true);
+      }
+
+      contracts = { ...optyStakingVaults };
+      contracts["optyDistributor"] = optyDistributor;
+      contracts["opty"] = opty;
     } catch (error) {
       console.log(error);
     }
-  });
-  beforeEach(async () => {
-    const opty = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN_TRANSFER_FEE, false, users["owner"], [
-      1500000000000000,
-    ]);
-
-    await executeFunc(essentialContracts.registry, users["owner"], "approveToken(address)", [opty.address]);
-
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, false, users["owner"], [
-      essentialContracts.registry.address,
-      opty.address,
-      await getBlockTimestamp(hre),
-    ]);
-
-    const optyStakingVaults = await deployAndSetupOptyStakingVaults(
-      hre,
-      users["owner"],
-      TESTING_DEPLOYMENT_ONCE,
-      essentialContracts.registry.address,
-      opty.address,
-      essentialContracts.optyStakingRateBalancer,
-      optyDistributor,
-    );
-
-    await executeFunc(
-      essentialContracts.optyStakingRateBalancer,
-      users["owner"],
-      "setStakingVaultOPTYAllocation(uint256)",
-      [10000000000],
-    );
-
-    contracts["stakingVault1D"] = optyStakingVaults["optyStakingVault1D"];
-    contracts["stakingVault30D"] = optyStakingVaults["optyStakingVault30D"];
-    contracts["stakingVault60D"] = optyStakingVaults["optyStakingVault60D"];
-    contracts["stakingVault180D"] = optyStakingVaults["optyStakingVault180D"];
-
-    const stakingVaultNames = Object.keys(contracts);
-    for (let i = 0; i < stakingVaultNames.length; i++) {
-      await unpauseVault(users["owner"], essentialContracts.registry, contracts[stakingVaultNames[i]].address, true);
-    }
-
-    contracts["optyDistributor"] = optyDistributor;
-
-    contracts["opty"] = opty;
   });
 
   for (let i = 0; i < scenario.stories.length; i++) {

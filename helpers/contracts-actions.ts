@@ -1,4 +1,5 @@
 import { Contract, Signer, BigNumber } from "ethers";
+import { RISK_PROFILES } from "./constants";
 import { STRATEGY_DATA } from "./type";
 import { TypedTokens } from "./data";
 import {
@@ -111,11 +112,11 @@ export async function approveAndSetTokenHashToTokens(
 
 export async function setStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
 ): Promise<string> {
   const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
-
+  const tokensHash = generateTokenHash(tokens);
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
     strategySteps,
@@ -140,7 +141,7 @@ export async function setBestStrategy(
   const strategyDetail = await vaultStepInvestStrategyDefinitionRegistry.getStrategy(strategyHash);
 
   if (strategyDetail[1].length === 0) {
-    await setStrategy(strategy, tokenHash, vaultStepInvestStrategyDefinitionRegistry);
+    await setStrategy(strategy, [tokenAddress], vaultStepInvestStrategyDefinitionRegistry);
   }
 
   if (isDefault) {
@@ -148,7 +149,6 @@ export async function setBestStrategy(
   } else {
     await strategyProvider.setBestStrategy(riskProfile.toUpperCase(), tokenHash, strategyHash);
   }
-
   return strategyHash;
 }
 
@@ -261,4 +261,17 @@ export async function isSetTokenHash(registryContract: Contract, tokenAddresses:
     }
   }
   return true;
+}
+export async function addRiskProfiles(owner: Signer, registry: Contract): Promise<void> {
+  const profiles = Object.keys(RISK_PROFILES);
+  for (let i = 0; i < profiles.length; i++) {
+    const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
+    if (!profile.exists) {
+      await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
+        RISK_PROFILES[profiles[i]].name,
+        RISK_PROFILES[profiles[i]].canBorrow,
+        RISK_PROFILES[profiles[i]].poolRating,
+      ]);
+    }
+  }
 }

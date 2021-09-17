@@ -179,10 +179,9 @@ describe(scenario.title, () => {
             const action = story.getActions[i];
             switch (action.action) {
               case "getBestStrategy(string,address[])": {
-                const value = await contracts[action.contract][action.action](riskProfile, [
-                  TypedTokens[strategy.token],
-                ]);
-                expect(value).to.be.equal(
+                expect(
+                  await contracts[action.contract][action.action](riskProfile, [TypedTokens[strategy.token]]),
+                ).to.be.equal(
                   action.expectedValue !== ""
                     ? action.expectedValue
                     : isCheckDefault

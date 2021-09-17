@@ -19,7 +19,6 @@ import {
 import scenario from "./scenarios/withdrawal-fee.json";
 
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
   const MAX_AMOUNT = "2000000000000000000";
   let essentialContracts: CONTRACTS;
@@ -67,30 +66,25 @@ describe(scenario.title, () => {
         );
         const timestamp = (await getBlockTimestamp(hre)) * 2;
         await fundWalletToken(hre, TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
-      });
-      beforeEach(async () => {
-        try {
-          underlyingTokenName = await getTokenName(hre, token);
-          underlyingTokenSymbol = await getTokenSymbol(hre, token);
-          Vault = await deployVault(
-            hre,
-            essentialContracts.registry.address,
-            TOKENS[token],
-            users["owner"],
-            users["admin"],
-            underlyingTokenName,
-            underlyingTokenSymbol,
-            profile,
-            TESTING_DEPLOYMENT_ONCE,
-          );
-          await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
-          ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
-          contracts["vault"] = Vault;
-          contracts["erc20"] = ERC20Instance;
-        } catch (error) {
-          console.error(error);
-        }
+        underlyingTokenName = await getTokenName(hre, token);
+        underlyingTokenSymbol = await getTokenSymbol(hre, token);
+        Vault = await deployVault(
+          hre,
+          essentialContracts.registry.address,
+          TOKENS[token],
+          users["owner"],
+          users["admin"],
+          underlyingTokenName,
+          underlyingTokenSymbol,
+          profile,
+          TESTING_DEPLOYMENT_ONCE,
+        );
+        await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
+
+        ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+        contracts["vault"] = Vault;
+        contracts["erc20"] = ERC20Instance;
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
@@ -275,12 +269,10 @@ describe(scenario.title, () => {
                 case "balanceOf(address)": {
                   const { address, addressName } = <any>action.args;
                   if (address) {
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   } else if (addressName) {
                     const address = users[addressName].getAddress();
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   }
                   break;
                 }

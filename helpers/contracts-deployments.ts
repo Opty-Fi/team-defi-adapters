@@ -1,16 +1,9 @@
-import {
-  ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
-  RISK_PROFILES,
-  ADAPTER,
-  TOKENS,
-  OPTY_STAKING_VAULTS,
-} from "./constants";
+import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, ADAPTERS, OPTY_STAKING_VAULTS } from "./constants";
 import { Contract, Signer } from "ethers";
-import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
-import { getTokenName, getTokenSymbol } from "./contracts-actions";
+import { CONTRACTS } from "./type";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { deployContract, executeFunc, deployContractWithHash } from "./helpers";
-
+import { deployContract, executeFunc } from "./helpers";
+import { addRiskProfiles } from "./contracts-actions";
 export async function deployRegistry(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
@@ -84,6 +77,7 @@ export async function deployOptyStakingRateBalancer(
     optyStakingRateBalancerProxy.address,
     owner,
   );
+
   return optyStakingRateBalancer;
 }
 
@@ -131,21 +125,8 @@ export async function deployEssentialContracts(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const registry = await deployRegistry(hre, owner, isDeployedOnce);
-  const profiles = Object.keys(RISK_PROFILES);
-  for (let i = 0; i < profiles.length; i++) {
-    try {
-      const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
-      if (!profile.exists) {
-        await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
-          RISK_PROFILES[profiles[i]].name,
-          RISK_PROFILES[profiles[i]].canBorrow,
-          RISK_PROFILES[profiles[i]].poolRating,
-        ]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
+  await addRiskProfiles(owner, registry);
 
   const vaultStepInvestStrategyDefinitionRegistry = await deployContract(
     hre,
@@ -293,7 +274,7 @@ export async function deployAdapters(
   isDeployedOnce: boolean,
 ): Promise<CONTRACTS> {
   const data: CONTRACTS = {};
-  for (const adapter of ADAPTER) {
+  for (const adapter of ADAPTERS) {
     try {
       data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
     } catch (error) {
@@ -303,37 +284,6 @@ export async function deployAdapters(
   return data;
 }
 
-export async function deployVaults(
-  hre: HardhatRuntimeEnvironment,
-  registry: string,
-  owner: Signer,
-  admin: Signer,
-  isDeployedOnce: boolean,
-): Promise<CONTRACTS> {
-  const vaults: CONTRACTS = {};
-  for (const token in TOKENS) {
-    if (token === "CHI") {
-      continue;
-    }
-    const name = await getTokenName(hre, token);
-    const symbol = await getTokenSymbol(hre, token);
-    for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVault(
-        hre,
-        registry,
-        TOKENS[token],
-        owner,
-        admin,
-        name,
-        symbol,
-        riskProfile,
-        isDeployedOnce,
-      );
-      vaults[`${symbol}-${riskProfile}`] = vault;
-    }
-  }
-  return vaults;
-}
 export async function deployVault(
   hre: HardhatRuntimeEnvironment,
   registry: string,
@@ -379,60 +329,4 @@ export async function deployVault(
   ]);
 
   return vault;
-}
-
-export async function deployVaultsWithHash(
-  hre: HardhatRuntimeEnvironment,
-  registry: string,
-  owner: Signer,
-  admin: Signer,
-): Promise<CONTRACTS_WITH_HASH> {
-  const vaults: CONTRACTS_WITH_HASH = {};
-  for (const token in TOKENS) {
-    const name = await getTokenName(hre, token);
-    const symbol = await getTokenSymbol(hre, token);
-    for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
-      vaults[`${symbol}-${riskProfile}`] = vault;
-    }
-  }
-  return vaults;
-}
-
-export async function deployVaultWithHash(
-  hre: HardhatRuntimeEnvironment,
-  registry: string,
-  underlyingToken: string,
-  owner: Signer,
-  admin: Signer,
-  underlyingTokenName: string,
-  underlyingTokenSymbol: string,
-  riskProfile: string,
-): Promise<{ contract: Contract; hash: string }> {
-  const VAULT_FACTORY = await hre.ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.VAULT);
-  const vault = await deployContractWithHash(
-    VAULT_FACTORY,
-    [registry, underlyingTokenName, underlyingTokenSymbol, riskProfile],
-    owner,
-  );
-  const adminAddress = await admin.getAddress();
-
-  const VAULT_PROXY_FACTORY = await hre.ethers.getContractFactory(ESSENTIAL_CONTRACTS_DATA.VAULT_PROXY);
-  const vaultProxy = await deployContractWithHash(VAULT_PROXY_FACTORY, [adminAddress], owner);
-
-  await executeFunc(vaultProxy.contract, admin, "upgradeTo(address)", [vault.contract.address]);
-
-  vaultProxy.contract = await hre.ethers.getContractAt(
-    ESSENTIAL_CONTRACTS_DATA.VAULT,
-    vaultProxy.contract.address,
-    owner,
-  );
-
-  await executeFunc(
-    vaultProxy.contract,
-    owner,
-    "initialize(address,address,address,address,address,string,string,string)",
-    [registry, underlyingToken, underlyingTokenName, underlyingTokenSymbol, riskProfile],
-  );
-  return vaultProxy;
 }

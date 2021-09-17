@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 
 task("get-action", "execute a get action in smart contract")
   .addParam("name", "the name of contract", "", types.string)
@@ -30,7 +30,7 @@ task("get-action", "execute a get action in smart contract")
 
     const convertedParams = params === "" ? [] : params.split(",");
 
-    const contract = await getContractInstance(hre, name, address);
+    const contract = await hre.ethers.getContractAt(name, address);
 
     const value = await contract[functionabi](...convertedParams);
 

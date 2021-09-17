@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("balance-of", "Check token balance of address")
@@ -22,7 +22,7 @@ task("balance-of", "Check token balance of address")
       throw new Error("token address is invalid");
     }
 
-    const erc20Contract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.ERC20, token);
+    const erc20Contract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
 
     const balance = await erc20Contract.balanceOf(user);
 

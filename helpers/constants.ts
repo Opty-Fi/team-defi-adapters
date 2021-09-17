@@ -1,5 +1,6 @@
 import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA, OPTY_STAKING_VAULT } from "./type";
 import { TypedTokens } from "./data";
+
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -35,7 +36,7 @@ export const HARVEST_ADAPTER_NAME = "HarvestAdapter";
 export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
 export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
 
-export const ADAPTER = [
+export const ADAPTERS = [
   AAVE_V1_ADAPTER_NAME,
   AAVE_V2_ADAPTER_NAME,
   COMPOUND_ADAPTER_NAME,
@@ -127,8 +128,6 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
   },
 };
 
-export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
-
 export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
   {
     name: "optyStakingVault1D",
@@ -155,6 +154,8 @@ export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
     multiplier: 20000,
   },
 ];
+
+export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
 export enum MAX_DEPOSIT_MODE {
   number,

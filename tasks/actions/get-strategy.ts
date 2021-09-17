@@ -1,5 +1,5 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 
 task("get-strategy", "Get a specific strategy")
@@ -27,8 +27,7 @@ task("get-strategy", "Get a specific strategy")
       throw new Error("strategyhash cannot be empty");
     }
 
-    const strategyRegistryContract = await getContractInstance(
-      hre,
+    const strategyRegistryContract = await await hre.ethers.getContractAt(
       ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
       strategyregistry,
     );
