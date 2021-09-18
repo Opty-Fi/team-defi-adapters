@@ -1,22 +1,18 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
-import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
 import { deployContract, executeFunc, moveToNextBlock } from "../../helpers/helpers";
-import { deployVault } from "../../helpers/contracts-deployments";
+import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
-  approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
   unpauseVault,
+  approveToken,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/odefi-vault-booster.json";
 type ARGUMENTS = {
@@ -32,116 +28,89 @@ describe(scenario.title, () => {
   const tokenAddr = TOKENS["DAI"];
   const MAX_AMOUNT = "100000000000000000000000";
   let essentialContracts: CONTRACTS;
-  let adapters: CONTRACTS;
   const contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
-  const tokensHash = getSoliditySHA3Hash(["address[]"], [[tokenAddr]]);
-  const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
   let currentOdefi = 0;
   before(async () => {
     try {
       const [owner, admin, user1, rewarder] = await hre.ethers.getSigners();
       users = { owner, admin, user1, rewarder };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
-      await approveLiquidityPoolAndMapAdapter(
-        users["owner"],
-        essentialContracts.registry,
-        adapters["CompoundAdapter"].address,
-        TOKEN_STRATEGY.strategy[0].contract,
-      );
-      await setBestBasicStrategy(
-        TOKEN_STRATEGY.strategy,
-        tokensHash,
-        essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
-        essentialContracts.strategyProvider,
-        "RP1",
-      );
+
+      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
+
+      await approveToken(owner, essentialContracts["registry"], [tokenAddr]);
+
       const timestamp = (await getBlockTimestamp(hre)) * 2;
       await fundWalletToken(hre, tokenAddr, users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
-      assert.isDefined(adapters, "Adapters not deployed");
+
+      const underlyingTokenName = await getTokenName(hre, token);
+      const underlyingTokenSymbol = await getTokenSymbol(hre, token);
+
+      const odefi = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, false, users["owner"], [
+        "ODEFI",
+        "ODEFI",
+        18,
+        2000000000000000,
+      ]);
+
+      const odefiVaultBooster = await deployContract(
+        hre,
+        ESSENTIAL_CONTRACTS.ODEFI_VAULT_BOOSTER,
+        false,
+        users["owner"],
+        [essentialContracts["registry"].address, odefi.address],
+      );
+
+      await executeFunc(odefi, users["owner"], "transfer(address,uint256)", [
+        odefiVaultBooster.address,
+        2000000000000000,
+      ]);
+
+      const Vault = await deployVault(
+        hre,
+        essentialContracts.registry.address,
+        tokenAddr,
+        users["owner"],
+        users["admin"],
+        underlyingTokenName,
+        underlyingTokenSymbol,
+        "RP1",
+        TESTING_DEPLOYMENT_ONCE,
+      );
+      await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
+
+      const Vault2 = await deployVault(
+        hre,
+        essentialContracts.registry.address,
+        tokenAddr,
+        users["owner"],
+        users["admin"],
+        underlyingTokenName,
+        underlyingTokenSymbol,
+        "RP1",
+        TESTING_DEPLOYMENT_ONCE,
+      );
+      await unpauseVault(users["owner"], essentialContracts.registry, Vault2.address, true);
+
+      const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddr);
+
+      contracts["registry"] = essentialContracts.registry;
+
+      contracts["vault"] = Vault;
+
+      contracts["vault2"] = Vault2;
+
+      contracts["erc20"] = ERC20Instance;
+
+      contracts["odefi"] = odefi;
+
+      contracts["odefiVaultBooster"] = odefiVaultBooster;
     } catch (error) {
       console.log(error);
     }
   });
-  beforeEach(async () => {
-    const underlyingTokenName = await getTokenName(hre, token);
-    const underlyingTokenSymbol = await getTokenSymbol(hre, token);
-
-    const opty = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY, false, users["owner"], [
-      essentialContracts["registry"].address,
-      0,
-    ]);
-
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, false, users["owner"], [
-      essentialContracts["registry"].address,
-      opty.address,
-      await getBlockTimestamp(hre),
-    ]);
-
-    const odefi = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, false, users["owner"], [
-      "ODEFI",
-      "ODEFI",
-      18,
-      2000000000000000,
-    ]);
-
-    const odefiVaultBooster = await deployContract(
-      hre,
-      ESSENTIAL_CONTRACTS.ODEFI_VAULT_BOOSTER,
-      false,
-      users["owner"],
-      [essentialContracts["registry"].address, odefi.address],
-    );
-
-    await executeFunc(odefi, users["owner"], "transfer(address,uint256)", [
-      odefiVaultBooster.address,
-      2000000000000000,
-    ]);
-
-    const Vault = await deployVault(
-      hre,
-      essentialContracts.registry.address,
-      tokenAddr,
-      users["owner"],
-      users["admin"],
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      "RP1",
-      TESTING_DEPLOYMENT_ONCE,
-    );
-    await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
-
-    const Vault2 = await deployVault(
-      hre,
-      essentialContracts.registry.address,
-      tokenAddr,
-      users["owner"],
-      users["admin"],
-      underlyingTokenName,
-      underlyingTokenSymbol,
-      "RP1",
-      TESTING_DEPLOYMENT_ONCE,
-    );
-    await unpauseVault(users["owner"], essentialContracts.registry, Vault2.address, true);
-
-    const ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddr);
-
-    contracts["registry"] = essentialContracts.registry;
-
-    contracts["optyDistributor"] = optyDistributor;
-
-    contracts["vault"] = Vault;
-
-    contracts["vault2"] = Vault2;
-
-    contracts["erc20"] = ERC20Instance;
-
-    contracts["opty"] = opty;
-
-    contracts["odefi"] = odefi;
-
-    contracts["odefiVaultBooster"] = odefiVaultBooster;
+  beforeEach(() => {
+    currentOdefi = 0;
   });
   for (let i = 0; i < scenario.stories.length; i++) {
     const story = scenario.stories[i];
@@ -149,22 +118,49 @@ describe(scenario.title, () => {
       for (let i = 0; i < story.setActions.length; i++) {
         const action = story.setActions[i];
         switch (action.action) {
-          case "addOdefiVault(address)":
+          case "addOdefiVault(address)": {
+            const { contractName }: ARGUMENTS = action.args;
+            try {
+              if (contractName) {
+                if (action.expect === "success") {
+                  await executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                    contracts[contractName].address,
+                  ]);
+                } else {
+                  await expect(
+                    executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                      contracts[contractName].address,
+                    ]),
+                  ).to.be.revertedWith(action.message);
+                }
+              }
+            } catch (error) {
+              expect(error.message).to.include("odefiVault already added");
+            }
+
+            assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
+            break;
+          }
           case "setODEFIVaultBooster(address)": {
             const { contractName }: ARGUMENTS = action.args;
-            if (contractName) {
-              if (action.expect === "success") {
-                await executeFunc(contracts[action.contract], users[action.executer], action.action, [
-                  contracts[contractName].address,
-                ]);
-              } else {
-                await expect(
-                  executeFunc(contracts[action.contract], users[action.executer], action.action, [
+            try {
+              if (contractName) {
+                if (action.expect === "success") {
+                  await executeFunc(contracts[action.contract], users[action.executer], action.action, [
                     contracts[contractName].address,
-                  ]),
-                ).to.be.revertedWith(action.message);
+                  ]);
+                } else {
+                  await expect(
+                    executeFunc(contracts[action.contract], users[action.executer], action.action, [
+                      contracts[contractName].address,
+                    ]),
+                  ).to.be.revertedWith(action.message);
+                }
               }
+            } catch (error) {
+              console.log(error);
             }
+
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
           }
@@ -341,8 +337,9 @@ describe(scenario.title, () => {
           case "odefiVaultRatePerSecond(address)": {
             const { contractName }: ARGUMENTS = action.args;
             if (contractName) {
-              const value = await contracts[action.contract][action.action](contracts[contractName].address);
-              expect(value).to.be.equal(action.expectedValue);
+              expect(await contracts[action.contract][action.action](contracts[contractName].address)).to.be.equal(
+                action.expectedValue,
+              );
             }
             assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
             break;
@@ -352,11 +349,10 @@ describe(scenario.title, () => {
             if (addressName) {
               await moveToNextBlock(hre);
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
               if (action.expectedValue === "") {
-                expect(value.toString()).to.be.equal(currentOdefi.toString());
+                expect(+(await contracts[action.contract][action.action](addr))).to.be.equal(+currentOdefi);
               } else {
-                expect(+value).to.be.gte(+action.expectedValue);
+                expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
               }
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
@@ -366,8 +362,7 @@ describe(scenario.title, () => {
             const { addressName }: ARGUMENTS = action.args;
             if (addressName) {
               const addr = await users[addressName].getAddress();
-              const value = await contracts[action.contract][action.action](addr);
-              expect(+value).to.be.gte(+action.expectedValue);
+              expect(+(await contracts[action.contract][action.action](addr))).to.be.gte(+action.expectedValue);
             }
             assert.isDefined(addressName, `args is wrong in ${action.action} testcase`);
             break;

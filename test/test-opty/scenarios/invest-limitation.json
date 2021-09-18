@@ -268,17 +268,6 @@
                 "USDT": "1500000",
                 "SLP_WETH_USDC": "15000000000000"
               }
-            },
-            {
-              "contract": "adapter",
-              "action": "getPoolValue(address,address)",
-              "args": {},
-              "expectedValue": {
-                "DAI": ">",
-                "USDC": ">",
-                "USDT": ">",
-                "SLP_WETH_USDC": ">"
-              }
             }
           ]
         },

@@ -3,7 +3,7 @@ import { Contract } from "ethers";
 import { deployAdapter } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
 import { isAddress } from "../../helpers/helpers";
-import { ADAPTER } from "../../helpers/constants";
+import { ADAPTERS } from "../../helpers/constants";
 import { DEPLOY_ADAPTER } from "../task-names";
 
 task(DEPLOY_ADAPTER, "Deploy Adapter contract")
@@ -18,7 +18,7 @@ task(DEPLOY_ADAPTER, "Deploy Adapter contract")
       throw new Error("name cannot be empty");
     }
 
-    if (!ADAPTER.map(adapter => adapter.toUpperCase()).includes(name.toUpperCase())) {
+    if (!ADAPTERS.map(adapter => adapter.toUpperCase()).includes(name.toUpperCase())) {
       throw new Error("adapter does not exist");
     }
 
