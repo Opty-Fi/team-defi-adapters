@@ -8,6 +8,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
 import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -273,13 +275,26 @@ export async function addRiskProfiles(owner: Signer, registry: Contract): Promis
   }
 }
 
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
 export async function lpPausedStatus(
   hre: HardhatRuntimeEnvironment,
   pool: string,
-  controllerAddr: string,
-  controllerABI: any,
+  comptrollerAddress: string,
 ): Promise<boolean> {
-  const controller = await hre.ethers.getContractAt(controllerABI, controllerAddr);
-  const lpPauseStatus = await controller["mintGuardianPaused(address)"](pool);
-  return lpPauseStatus;
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+) {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
 }

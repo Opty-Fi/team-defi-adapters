@@ -11,16 +11,21 @@ import {
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
-import { fundWalletToken, getBlockTimestamp, lpPausedStatus } from "../../../helpers/contracts-actions";
+import {
+  fundWalletToken,
+  getBlockTimestamp,
+  lpPausedStatus,
+  executeComptrollerFunc,
+} from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
-import creamComptrollerABI from "../../../helpers/data/ABI/cream-comptroller.json";
-import creamLpABI from "../../../helpers/data/ABI/cream-liquidity-pool.json";
 import COMPTROLLER from "../../../helpers/data/comptroller.json";
+import Compound from "@compound-finance/compound-js";
+
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
@@ -179,7 +184,8 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const story = testDeFiAdaptersScenario.stories[i];
-              const lpContract = await hre.ethers.getContractAt(creamLpABI, liquidityPool);
+              const lpContract = await hre.ethers.getContractAt(Compound.util.getAbi("cErc20"), liquidityPool);
+
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
               const getLPERC20Code = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
@@ -191,19 +197,21 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
               }
               if (getLPERC20Code !== "0x" && getERC20Code !== "0x" && getLPCode !== "0x" && +poolValue > 0) {
                 const compTroller = await lpContract.comptroller();
-                const compTrollerInstance = await hre.ethers.getContractAt(creamComptrollerABI, compTroller);
                 const rewardTokenAddress = await adapter.getRewardToken(ADDRESS_ZERO);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                   RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 }
-                const compRate = await compTrollerInstance.compRate();
-                const lpPauseStatus = await lpPausedStatus(
+                const compRate = await executeComptrollerFunc(
                   hre,
-                  getAddress(liquidityPool),
                   compTroller,
-                  creamComptrollerABI,
+                  "function compRate() returns (uint256)",
+                  [],
                 );
+
+                console.log("helloooooooooooo");
+                const lpPauseStatus = await lpPausedStatus(hre, getAddress(liquidityPool), compTroller);
+
                 const decimals = await ERC20Instance.decimals();
 
                 let limit: BigNumber = hre.ethers.BigNumber.from(0);
@@ -424,8 +432,11 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                         ADDRESS_ZERO,
                         ADDRESS_ZERO,
                       );
-                      const expectedUnclaimedRewardTokenAmount = await compTrollerInstance.compAccrued(
-                        testDeFiAdapter.address,
+                      const expectedUnclaimedRewardTokenAmount = await executeComptrollerFunc(
+                        hre,
+                        compTroller,
+                        "function compAccrued(address) returns (uint256)",
+                        [testDeFiAdapter.address],
                       );
                       expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
                       break;
