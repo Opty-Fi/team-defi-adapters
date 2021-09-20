@@ -169,7 +169,9 @@
           "action": "revokeLiquidityPool(address[])"
         }
       ]
-    },
+    }
+  ],
+  "standaloneStories": [
     {
       "description": "[Upgradability] Should be able to use functions and variables in new contracts and maintains old variable states",
       "setActions": [
@@ -191,7 +193,12 @@
           "expectedMultiValues": {}
         }
       ],
-      "cleanActions": []
+      "cleanActions": [
+        {
+          "contract": "riskManager",
+          "action": "deployRiskManager()"
+        }
+      ]
     }
   ]
 }
