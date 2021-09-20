@@ -6,9 +6,9 @@ pragma experimental ABIEncoderV2;
 import { RiskManagerStorage } from "../../protocol/configuration/RiskManagerStorage.sol";
 import { RiskManagerProxy } from "../../protocol/configuration/RiskManagerProxy.sol";
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
-import { NewImplementationStorage } from "./NewImplementationStorage.sol";
+import { TestStorageV2 } from "./TestStorageV2.sol";
 
-contract TestRiskManagerNewImplementation is RiskManagerStorage, NewImplementationStorage, Modifiers {
+contract TestRiskManagerNewImplementation is RiskManagerStorage, TestStorageV2, Modifiers {
     /* solhint-disable no-empty-blocks */
     constructor(address _registry) public Modifiers(_registry) {}
 
@@ -20,7 +20,7 @@ contract TestRiskManagerNewImplementation is RiskManagerStorage, NewImplementati
         require(_riskManagerProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
-    function isNewContract() external view returns (bool) {
+    function isNewContract() external pure returns (bool) {
         return isNewVariable;
     }
 }
