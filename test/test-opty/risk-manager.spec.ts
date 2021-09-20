@@ -66,10 +66,8 @@ describe(scenario.title, () => {
       }
     }
   });
-
   for (let i = 0; i < TypedStrategies.length; i++) {
     const strategy = TypedStrategies[i];
-
     const tokenHash = generateTokenHash([TypedTokens[strategy.token.toUpperCase()]]);
     const strategyHash = generateStrategyHash(strategy.strategy, TypedTokens[strategy.token.toUpperCase()]);
     const defaultStrategy = TypedStrategies.filter(
@@ -206,9 +204,7 @@ describe(scenario.title, () => {
             const action = story.getActions[i];
             switch (action.action) {
               case "getBestStrategy(string,address[])": {
-                expect(
-                  await contracts[action.contract][action.action](riskProfile, [TypedTokens[strategy.token]]),
-                ).to.be.equal(
+                expect(await riskManager[action.action](riskProfile, [TypedTokens[strategy.token]])).to.be.equal(
                   action.expectedValue !== ""
                     ? action.expectedValue
                     : isCheckDefault
