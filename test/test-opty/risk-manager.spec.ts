@@ -66,6 +66,7 @@ describe(scenario.title, () => {
       }
     }
   });
+
   for (let i = 0; i < TypedStrategies.length; i++) {
     const strategy = TypedStrategies[i];
     const tokenHash = generateTokenHash([TypedTokens[strategy.token.toUpperCase()]]);
@@ -173,31 +174,6 @@ describe(scenario.title, () => {
                 assert.isDefined(defaultStrategyState, `args is wrong in ${action.action} testcase`);
                 break;
               }
-              case "become(address)": {
-                const newRiskManager = await deployContract(
-                  hre,
-                  TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
-                  TESTING_DEPLOYMENT_ONCE,
-                  owner,
-                  [registry.address],
-                );
-
-                const riskManagerProxy = await hre.ethers.getContractAt(
-                  ESSENTIAL_CONTRACTS.RISK_MANAGER_PROXY,
-                  riskManager.address,
-                );
-
-                await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [
-                  newRiskManager.address,
-                ]);
-                await executeFunc(newRiskManager, owner, "become(address)", [riskManagerProxy.address]);
-
-                riskManager = await hre.ethers.getContractAt(
-                  TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
-                  riskManagerProxy.address,
-                );
-                break;
-              }
             }
           }
           for (let i = 0; i < story.getActions.length; i++) {
@@ -211,10 +187,6 @@ describe(scenario.title, () => {
                     ? defaultStrategyHash
                     : strategyHash,
                 );
-                break;
-              }
-              case "isNewContract()": {
-                expect(await riskManager[action.action]()).to.be.equal(action.expectedValue);
                 break;
               }
             }
@@ -231,6 +203,57 @@ describe(scenario.title, () => {
             }
           }
         });
+      }
+    });
+  }
+  for (let i = 0; i < scenario.standaloneStories.length; i++) {
+    const story = scenario.standaloneStories[i];
+    it(story.description, async () => {
+      for (let i = 0; i < story.setActions.length; i++) {
+        const action = story.setActions[i];
+        switch (action.action) {
+          case "become(address)": {
+            const newRiskManager = await deployContract(
+              hre,
+              TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
+              TESTING_DEPLOYMENT_ONCE,
+              owner,
+              [registry.address],
+            );
+
+            const riskManagerProxy = await hre.ethers.getContractAt(
+              ESSENTIAL_CONTRACTS.RISK_MANAGER_PROXY,
+              riskManager.address,
+            );
+
+            await executeFunc(riskManagerProxy, owner, "setPendingImplementation(address)", [newRiskManager.address]);
+            await executeFunc(newRiskManager, owner, "become(address)", [riskManagerProxy.address]);
+
+            riskManager = await hre.ethers.getContractAt(
+              TESTING_CONTRACTS.TEST_RISK_MANAGER_NEW_IMPLEMENTATION,
+              riskManagerProxy.address,
+            );
+            break;
+          }
+        }
+      }
+      for (let i = 0; i < story.getActions.length; i++) {
+        const action = story.getActions[i];
+        switch (action.action) {
+          case "isNewContract()": {
+            expect(await riskManager[action.action]()).to.be.equal(action.expectedValue);
+            break;
+          }
+        }
+      }
+      for (let i = 0; i < story.cleanActions.length; i++) {
+        const action = story.cleanActions[i];
+        switch (action.action) {
+          case "deployRiskManager()": {
+            riskManager = await deployRiskManager(hre, owner, TESTING_DEPLOYMENT_ONCE, registry.address);
+            break;
+          }
+        }
       }
     });
   }
