@@ -546,16 +546,16 @@ Usage: set max deposit for a specific adapter
 
 Options:
 --adapter         required <address> the address of adapter
---amount          required <number> the max deposit amount
---mode            conditional required <address> the max deposit mode
---liquiditypool   conditional required <address> the address of liquiditypool
---underlyingtoken conditional required <address> the address of underlying token
---setprotocol     optional <boolean>  set amount for Protocol or not (default: false)
+--amount          required <number>  the max deposit amount
+--mode            required <address> the max deposit mode (*)
+--liquiditypool   required <address> the address of liquiditypool (*)
+--underlyingtoken required <address> the address of underlying token (*)
+--setprotocol     optional <boolean> set amount for Protocol or not (default: false)
 --network         optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Notes:
-  Conditional required flags might be required depend on the Adapter's contract.
+  (\*) might be required depend on the Adapter's contract.
 
 - Example:
 
@@ -596,9 +596,9 @@ yarn hardhat set-max-deposit-mode
 Usage: check token balance of specific address
 
 Options:
---token      required <address> the address of token
---user       required <address> the address of user
---network    optional <string>  name of the network provider (default: hardhat)
+--token   required <address> the address of token
+--user    required <address> the address of user
+--network optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Example
@@ -616,11 +616,11 @@ yarn hardhat balance-of \
 Usage: execute a get action in smart contract
 
 Options:
---name          required <address> the name of contract
---address       required <address> the address of smart contract
---functionabi   required <string> a get function abi
---params        optional <array> the required params of the function (default: "")
---network       optional <string>  name of the network provider (default: hardhat)
+--name        required <address> the name of contract
+--address     required <address> the address of smart contract
+--functionabi required <string> a get function abi
+--params      optional <array> the required params of the function (default: "")
+--network     optional <string>  name of the network provider (default: hardhat)
 ```
 
 - Notes:

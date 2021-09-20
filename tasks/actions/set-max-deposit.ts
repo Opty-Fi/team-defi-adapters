@@ -1,7 +1,9 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { MAX_DEPOSIT_MODE, ADDRESS_ZERO } from "../../helpers/constants";
-task("set-max-deposit", "Set max deposit amount for adapter")
+import { SET_MAX_DEPOSIT } from "../task-names";
+
+task(SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("amount", "the max deposit amount", "0", types.string)
   .addParam("liquiditypool", "the address of liquiditypool", "", types.string)
