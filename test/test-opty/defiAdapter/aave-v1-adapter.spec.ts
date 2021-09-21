@@ -770,6 +770,11 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                     if (!existingPoolPct.eq(BigNumber.from(0))) {
                       await aaveV1Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
                     }
+                    break;
+                  }
+                  case "burnTokens": {
+                    await testDeFiAdapter.burnBorrowTokens(borrowToken);
+                    break;
                   }
                 }
               }

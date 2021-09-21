@@ -1126,6 +1126,13 @@
           "args": {},
           "expect": "success",
           "message": ""
+        },
+        {
+          "contract": "",
+          "action": "burnTokens",
+          "executer": "",
+          "expect": "",
+          "message": ""
         }
       ]
     },
@@ -1205,6 +1212,13 @@
           "args": {},
           "expect": "success",
           "message": ""
+        },
+        {
+          "contract": "",
+          "action": "burnTokens",
+          "executer": "",
+          "expect": "",
+          "message": ""
         }
       ]
     },
@@ -1283,6 +1297,13 @@
           "action": "setMaxDepositProtocolPct(uint256)",
           "args": {},
           "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "burnTokens",
+          "executer": "",
+          "expect": "",
           "message": ""
         }
       ]
