@@ -1,5 +1,6 @@
-import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA } from "./type";
+import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, RISK_PROFILE_DATA, OPTY_STAKING_VAULT } from "./type";
 import { TypedTokens } from "./data";
+
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
@@ -35,7 +36,7 @@ export const HARVEST_ADAPTER_NAME = "HarvestAdapter";
 export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
 export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
 
-export const ADAPTER = [
+export const ADAPTERS = [
   AAVE_V1_ADAPTER_NAME,
   AAVE_V2_ADAPTER_NAME,
   COMPOUND_ADAPTER_NAME,
@@ -125,9 +126,38 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
   },
 };
 
+export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
+  {
+    name: "optyStakingVault1D",
+    numberOfDays: "1D",
+    lockTime: 86400,
+    multiplier: 10000,
+  },
+  {
+    name: "optyStakingVault30D",
+    numberOfDays: "30D",
+    lockTime: 2592000,
+    multiplier: 12000,
+  },
+  {
+    name: "optyStakingVault60D",
+    numberOfDays: "60D",
+    lockTime: 5184000,
+    multiplier: 15000,
+  },
+  {
+    name: "optyStakingVault180D",
+    numberOfDays: "180D",
+    lockTime: 15552000,
+    multiplier: 20000,
+  },
+];
+
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export const MAPPING_CURVE_SWAP_DATA = [
   {
@@ -337,3 +367,8 @@ export const MAPPING_CURVE_DEPOSIT_DATA = [
     gauges: "DUSD_GAUGE",
   },
 ];
+
+export const UPGRADABLE_CONTRACTS = [ESSENTIAL_CONTRACTS.REGISTRY, ESSENTIAL_CONTRACTS.RISK_MANAGER];
+export const CONTRACT_ADDRESSES: DATA_OBJECT = {
+  COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+};

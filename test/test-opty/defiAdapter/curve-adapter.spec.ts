@@ -15,7 +15,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
-import { deployContract, getDefaultFundAmount } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
 chai.use(solidity);
@@ -238,17 +238,17 @@ describe("CurveAdapters Unit test", () => {
           ) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
-                let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const decimals = await ERC20Instance.decimals();
+                let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 let limit: BigNumber;
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
                   underlyingTokenAddress,
                   liquidityPool,
                 );
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
-                const decimals = await ERC20Instance.decimals();
                 const adapterAddress = curveAdapters[curveAdapterName].address;
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
@@ -287,7 +287,6 @@ describe("CurveAdapters Unit test", () => {
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
@@ -310,7 +309,6 @@ describe("CurveAdapters Unit test", () => {
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
                       limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
@@ -346,7 +344,6 @@ describe("CurveAdapters Unit test", () => {
                       limitInUnderlyingToken = BigNumber.from(updatedDepositAmount).div(
                         BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)),
                       );
-                      defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;

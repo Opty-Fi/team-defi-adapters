@@ -1,7 +1,7 @@
-import { Contract, Signer, ContractFactory, utils, BigNumber } from "ethers";
+import { Contract, Signer, ContractFactory, utils, BigNumber, BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
-import { getSoliditySHA3Hash } from "./utils";
+import { getSoliditySHA3Hash, capitalizeFirstLetter, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
 import { MockContract } from "@defi-wonderland/smock";
@@ -24,11 +24,7 @@ export async function deployContract(
   return contract;
 }
 
-export async function _deployContract(
-  contractFactory: ContractFactory,
-  args: any[],
-  owner?: Signer,
-): Promise<Contract> {
+async function _deployContract(contractFactory: ContractFactory, args: any[], owner?: Signer): Promise<Contract> {
   let contract: Contract;
   if (owner) {
     contract = await contractFactory.connect(owner).deploy(...args);
@@ -39,7 +35,7 @@ export async function _deployContract(
   return contract;
 }
 
-export async function _deployContractOnce(
+async function _deployContractOnce(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
   args: any[],
@@ -53,23 +49,7 @@ export async function _deployContractOnce(
   return contract;
 }
 
-export async function deployContractWithHash(
-  contractFactory: ContractFactory,
-  args: any[],
-  owner?: Signer,
-): Promise<{ contract: Contract; hash: string }> {
-  let contract: Contract;
-  if (owner) {
-    contract = await contractFactory.connect(owner).deploy(...args);
-  } else {
-    contract = await contractFactory.deploy(...args);
-  }
-  const hash = contract.deployTransaction.hash;
-  await contract.deployTransaction.wait();
-  return { contract, hash };
-}
-
-export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<any> {
+export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
   const tx = await contract.connect(executer)[funcAbi](...args);
   await tx.wait();
   return tx;
@@ -87,33 +67,6 @@ export async function getExistingContractAddress(
     address = "";
   }
   return address;
-}
-
-export async function getContract(
-  hre: HardhatRuntimeEnvironment,
-  contractName: string,
-  address: string,
-  contractProxy?: string,
-): Promise<Contract | undefined> {
-  let contract: Contract | undefined;
-  if (address === "") {
-    address = await getExistingContractAddress(hre, contractProxy ? contractProxy : contractName);
-  }
-  if (address !== "") {
-    contract = await getContractInstance(hre, contractName, address);
-  } else {
-    contract = undefined;
-  }
-  return contract;
-}
-
-export async function getContractInstance(
-  hre: HardhatRuntimeEnvironment,
-  contractName: string,
-  contractAddress: string,
-): Promise<Contract> {
-  const contract = await hre.ethers.getContractAt(contractName, contractAddress);
-  return contract;
 }
 
 export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: string): string {
@@ -156,7 +109,7 @@ export async function moveToSpecificBlock(hre: HardhatRuntimeEnvironment, timest
   await hre.network.provider.send("evm_mine");
 }
 
-export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber {
+export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
   let defaultFundAmount: BigNumber = BigNumber.from("20000");
   defaultFundAmount =
     underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
@@ -177,10 +130,12 @@ export function getDefaultFundAmount(underlyingTokenAddress: string): BigNumber 
       ? BigNumber.from("200")
       : defaultFundAmount;
   defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) || underlyingTokenAddress == getAddress(TypedTokens.TBTC)
+    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
+    underlyingTokenAddress == getAddress(TypedTokens.WBTC)
       ? BigNumber.from("2")
       : defaultFundAmount;
-  return defaultFundAmount;
+  return defaultFundAmount.mul(to_10powNumber_BN(decimal));
 }
 
 export function getEthValueGasOverrideOptions(
@@ -197,6 +152,30 @@ export function getEthValueGasOverrideOptions(
 //  function to generate the token/list of tokens's hash
 export function generateTokenHash(addresses: string[]): string {
   return getSoliditySHA3Hash(["address[]"], [addresses]);
+}
+
+export function retrieveAdapterFromStrategyName(strategyName: string): string[] {
+  // strategyName should follow format TOKEN-DEPOSIT-STRATEGY-TOKEN
+  // For Ex: DAI-deposit-COMPOUND-cDAI
+  const strategyStep = strategyName.split("-deposit-");
+  const adapterNames: string[] = [];
+  for (let i = 1; i < strategyStep.length; i++) {
+    const strategySymbol = strategyStep[i].split("-");
+    let adapterName;
+    if (strategySymbol[0].toUpperCase() === "AAVE") {
+      adapterName = "AaveV1";
+    } else if (strategySymbol[0].toUpperCase() === "AAVE_V2") {
+      adapterName = "AaveV2";
+    } else if (strategySymbol[0].toUpperCase() === "CURVE") {
+      adapterName = strategySymbol[1].toUpperCase() === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
+    } else {
+      adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
+    }
+    if (adapterName) {
+      adapterNames.push(`${adapterName}Adapter`);
+    }
+  }
+  return adapterNames;
 }
 
 export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
