@@ -1101,6 +1101,178 @@
       ],
       "cleanActions": [
         {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "executer": "",
+          "expect": "",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetRepayAndWithdrawAllCodes(address,address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {},
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {},
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getAllAmountInTokenBorrow() should return value in underlying token for all the tokens borrowed",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetBorrowAllCodes(address,address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getAllAmountInTokenBorrow(address,address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "executer": "",
+          "expect": "",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetRepayAndWithdrawAllCodes(address,address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {},
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {},
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "getSomeAmountInTokenBorrow() should return value in underlying token for some of the tokens borrowed",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolMode(uint8)",
+          "args": {
+            "mode": "1"
+          },
+          "executer": "owner"
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {
+            "maxDepositProtocolPct": "10000"
+          },
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetDepositAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetBorrowAllCodes(address,address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getSomeAmountInTokenBorrow(address,address,address,uint256,address,uint256)",
+          "executer": "owner",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "executer": "",
+          "expect": "",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetRepayAndWithdrawAllCodes(address,address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
           "contract": "adapter",
           "action": "setMaxDepositProtocolMode(uint8)",
           "args": {},

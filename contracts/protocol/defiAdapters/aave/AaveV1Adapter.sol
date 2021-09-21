@@ -224,7 +224,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                 );
                 _codes[3] = abi.encode(
                     getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
-                    abi.encodeWithSignature("redeem(uint256)", _aTokenAmount)
+                    abi.encodeWithSignature("redeem(uint256)", uint256(-1))
                 );
             }
         }
