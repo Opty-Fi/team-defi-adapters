@@ -257,7 +257,11 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
               }
               let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
-              const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, users["owner"]);
+              const uniswapInstance = new hre.ethers.Contract(
+                exchange.uniswap.address,
+                exchange.uniswap.abi,
+                users["owner"],
+              );
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const lpToken = TypedDefiPools[adapterName][pool].lpToken;
@@ -601,16 +605,30 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                       borrowAmount,
                     );
                     const lpTokenBalance = await aTokenInstance.balanceOf(testDeFiAdapter.address);
-                    const debt = (await lendingPoolInstance.getUserReserveData(borrowToken, testDeFiAdapter.address))[1]
+                    const debt = (
+                      await lendingPoolInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
+                    )[1];
                     const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
                     const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
-                    const maxWithdrawal: BigNumber = safeWithdraw > lpTokenBalance ? lpTokenBalance : lpTokenBalance.sub((lpTokenBalance.sub(safeWithdraw)).mul(2));
+                    const maxWithdrawal: BigNumber =
+                      safeWithdraw > lpTokenBalance
+                        ? lpTokenBalance
+                        : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
                     const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
                     const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
-                    const eth: BigNumber = (maxWithdrawal.mul(underlyingPrice).div(BigNumber.from(10).pow(decimals))).mul(65).div(100).div(2);
-                    const totalBorrows: BigNumber = (await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address))[2];
-                    const availableBorrows: BigNumber = (await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address))[4];
-                    let maxSafeETH: BigNumber = (totalBorrows.add(availableBorrows)).div(2);
+                    const eth: BigNumber = maxWithdrawal
+                      .mul(underlyingPrice)
+                      .div(BigNumber.from(10).pow(decimals))
+                      .mul(65)
+                      .div(100)
+                      .div(2);
+                    const totalBorrows: BigNumber = (
+                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                    )[2];
+                    const availableBorrows: BigNumber = (
+                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                    )[4];
+                    let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
                     maxSafeETH = maxSafeETH.mul(105).div(100);
                     if (eth > maxSafeETH) {
                       maxSafeETH = BigNumber.from(0);
@@ -620,14 +638,22 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                     let over: BigNumber;
                     if (maxSafeETH.lt(totalBorrows)) {
                       over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
-                      over = over.mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals())).div(borrowTokenPrice)
+                      over = over
+                        .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
+                        .div(borrowTokenPrice);
                     } else {
                       over = BigNumber.from(0);
                     }
                     if (over > borrowAmount) {
                       expect(+amountInUnderlyingToken).to.be.eq(+maxWithdrawal);
                     } else {
-                      const optimalAmount: BigNumber = (await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [borrowToken, TypedTokens.WETH, underlyingTokenAddress]))[2];
+                      const optimalAmount: BigNumber = (
+                        await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
+                          borrowToken,
+                          TypedTokens.WETH,
+                          underlyingTokenAddress,
+                        ])
+                      )[2];
                       const result: BigNumber = maxWithdrawal.add(optimalAmount);
                       expect(+amountInUnderlyingToken).to.be.eq(+result);
                     }
@@ -644,16 +670,30 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                       borrowToken,
                       borrowAmount,
                     );
-                    const debt = (await lendingPoolInstance.getUserReserveData(borrowToken, testDeFiAdapter.address))[1]
+                    const debt = (
+                      await lendingPoolInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
+                    )[1];
                     const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
                     const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
-                    const maxWithdrawal: BigNumber = safeWithdraw > lpTokenBalance ? lpTokenBalance : lpTokenBalance.sub((lpTokenBalance.sub(safeWithdraw)).mul(2));
+                    const maxWithdrawal: BigNumber =
+                      safeWithdraw > lpTokenBalance
+                        ? lpTokenBalance
+                        : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
                     const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
                     const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
-                    const eth: BigNumber = (maxWithdrawal.mul(underlyingPrice).div(BigNumber.from(10).pow(decimals))).mul(65).div(100).div(2);
-                    const totalBorrows: BigNumber = (await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address))[2];
-                    const availableBorrows: BigNumber = (await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address))[4];
-                    let maxSafeETH: BigNumber = (totalBorrows.add(availableBorrows)).div(2);
+                    const eth: BigNumber = maxWithdrawal
+                      .mul(underlyingPrice)
+                      .div(BigNumber.from(10).pow(decimals))
+                      .mul(65)
+                      .div(100)
+                      .div(2);
+                    const totalBorrows: BigNumber = (
+                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                    )[2];
+                    const availableBorrows: BigNumber = (
+                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                    )[4];
+                    let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
                     maxSafeETH = maxSafeETH.mul(105).div(100);
                     if (eth > maxSafeETH) {
                       maxSafeETH = BigNumber.from(0);
@@ -663,14 +703,22 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                     let over: BigNumber;
                     if (maxSafeETH.lt(totalBorrows)) {
                       over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
-                      over = over.mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals())).div(borrowTokenPrice)
+                      over = over
+                        .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
+                        .div(borrowTokenPrice);
                     } else {
                       over = BigNumber.from(0);
                     }
                     if (over > borrowAmount) {
                       expect(+amountInUnderlyingToken).to.be.eq(+maxWithdrawal);
                     } else {
-                      const optimalAmount: BigNumber = (await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [borrowToken, TypedTokens.WETH, underlyingTokenAddress]))[2];
+                      const optimalAmount: BigNumber = (
+                        await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
+                          borrowToken,
+                          TypedTokens.WETH,
+                          underlyingTokenAddress,
+                        ])
+                      )[2];
                       const result: BigNumber = maxWithdrawal.add(optimalAmount);
                       expect(+amountInUnderlyingToken).to.be.eq(+result);
                     }
