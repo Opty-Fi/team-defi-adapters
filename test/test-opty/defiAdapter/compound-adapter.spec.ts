@@ -164,7 +164,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
   }
   describe(`CompoundAdapter pools test`, async () => {
     let testDeFiAdapter: Contract;
-    let liquidityPool: string;
 
     before(async () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", TESTING_DEPLOYMENT_ONCE, users["owner"], []);
@@ -179,7 +178,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens[0]);
-        liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
         if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
@@ -191,6 +189,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
               if (!lpPauseStatus) {
                 const story = testDeFiAdaptersScenario.stories[i];
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
                 const LpContractInstance = await hre.ethers.getContractAt(
                   Compound.util.getAbi("cErc20"),
                   liquidityPool,
@@ -583,6 +582,10 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       }
                       break;
                     }
+                    case "getRewardToken(address)": {
+                      expect(getAddress(await compoundAdapter[action.action](liquidityPool))).to.be.eq(getAddress(TypedTokens.COMP));
+                      break;
+                    }
                   }
                 }
                 for (const action of story.cleanActions) {
@@ -626,14 +629,6 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
             switch (action.action) {
               case "canStake(address)": {
                 expect(await compoundAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
-                break;
-              }
-            }
-          }
-          for (const action of story.getActions) {
-            switch (action.action) {
-              case "getRewardToken(address)": {
-                expect(await compoundAdapter[action.action](liquidityPool)).to.be.eq(getAddress(TypedTokens.COMP));
                 break;
               }
             }

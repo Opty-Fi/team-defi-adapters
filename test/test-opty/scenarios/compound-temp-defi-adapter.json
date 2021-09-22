@@ -1370,6 +1370,20 @@
           "message": ""
         }
       ]
+    },
+    {
+      "description": "getRewardToken() should return the reward token address",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
     }
   ],
   "adapterStandaloneStories": [
@@ -1386,21 +1400,6 @@
         }
       ],
       "getActions": [],
-      "cleanActions": []
-    },
-    {
-      "description": "[getRewardToken()] - should return the reward token address",
-      "setActions": [],
-      "getActions": [
-        {
-          "contract": "adapter",
-          "action": "getRewardToken(address)",
-          "args": {},
-          "executer": "",
-          "expect": "success",
-          "message": ""
-        }
-      ],
       "cleanActions": []
     }
   ]
