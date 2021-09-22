@@ -170,5 +170,35 @@
         }
       ]
     }
+  ],
+  "standaloneStories": [
+    {
+      "description": "[Upgradability] Should be able to use functions and variables in new contracts and maintains old variable states",
+      "setActions": [
+        {
+          "contract": "riskManager",
+          "action": "become(address)",
+          "args": {},
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "riskManager",
+          "action": "isNewContract()",
+          "args": {},
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "riskManager",
+          "action": "deployRiskManager()"
+        }
+      ]
+    }
   ]
 }
