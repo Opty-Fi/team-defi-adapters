@@ -209,7 +209,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                   [],
                 );
 
-                console.log("helloooooooooooo");
                 const lpPauseStatus = await lpPausedStatus(hre, getAddress(liquidityPool), compTroller);
 
                 const decimals = await ERC20Instance.decimals();
