@@ -1,7 +1,6 @@
 import { task, types } from "hardhat/config";
-import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { approveToken } from "../../helpers/contracts-actions";
+import { isAddress, executeFunc } from "../../helpers/helpers";
+import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
 import { APPROVE_TOKEN } from "../task-names";
@@ -27,14 +26,27 @@ task(APPROVE_TOKEN, "Approve Token")
     if (!isAddress(token)) {
       throw new Error("token address is invalid");
     }
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-    const tokens: string[] = await registryContract.getTokensHashToTokenList(tokensHash);
-    if (tokens.length == 1 && getAddress(tokens[0]) == getAddress(token)) {
-      console.log(`Token ${token} is already set`);
-    } else {
-      // this function approves and set tokens hash
-      await approveToken(owner, registryContract, [token]);
-      console.log(`Finished approving and setting tokens hash of token ${token}`);
+
+    if (getAddress(token) !== getAddress(ADDRESS_ETH)) {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+      const isApprovedToken = await registryContract.isApprovedToken(token);
+
+      if (isApprovedToken) {
+        console.log(`Token ${token} is already approved`);
+      } else {
+        await executeFunc(registryContract, owner, "approveToken(address)", [token]);
+        console.log(`Finished approving token: ${token}`);
+      }
+
+      const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
+      const [tokenAddress] = await registryContract.getTokensHashToTokenList(tokensHash);
+
+      if (isAddress(tokenAddress) && getAddress(tokenAddress) == getAddress(token)) {
+        console.log(`Token ${token} is already set`);
+      } else {
+        await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[token]]);
+        console.log(`Finished setting tokensHash to token: ${token}`);
+      }
     }
   });
