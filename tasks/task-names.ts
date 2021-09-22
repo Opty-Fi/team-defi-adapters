@@ -66,3 +66,13 @@ export const VAULT_ACTIONS: string = "vault-actions";
 export const ADD_RISK_PROFILE: string = "add-risk-profile";
 
 export const APPROVE_ERC20: string = "approve-erc20";
+
+export const BALANCE_OF: string = "balance-of";
+
+export const GET_ACTION: string = "get-action";
+
+export const GET_STRATEGY: string = "get-strategy";
+
+export const SET_MAX_DEPOSIT_MODE: string = "set-max-deposit-mode";
+
+export const SET_MAX_DEPOSIT: string = "set-max-deposit";

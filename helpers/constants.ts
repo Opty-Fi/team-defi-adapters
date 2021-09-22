@@ -99,9 +99,13 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
   TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
   TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
+  TEST_REGISTRY_NEW_IMPLEMENTATION: "TestRegistryNewImplementation",
+  TEST_RISK_MANAGER_NEW_IMPLEMENTATION: "TestRiskManagerNewImplementation",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
+
+export const ADDRESS_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
   RP0: {
@@ -367,6 +371,11 @@ export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
     multiplier: 20000,
   },
 ];
+
+export enum MAX_DEPOSIT_MODE {
+  number,
+  pct,
+}
 
 export const UPGRADABLE_CONTRACTS = [ESSENTIAL_CONTRACTS.REGISTRY, ESSENTIAL_CONTRACTS.RISK_MANAGER];
 
