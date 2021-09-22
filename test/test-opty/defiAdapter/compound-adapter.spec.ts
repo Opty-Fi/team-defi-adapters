@@ -583,7 +583,9 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getRewardToken(address)": {
-                      expect(getAddress(await compoundAdapter[action.action](liquidityPool))).to.be.eq(getAddress(TypedTokens.COMP));
+                      expect(getAddress(await compoundAdapter[action.action](liquidityPool))).to.be.eq(
+                        getAddress(TypedTokens.COMP),
+                      );
                       break;
                     }
                   }
