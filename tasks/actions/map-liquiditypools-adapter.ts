@@ -1,9 +1,11 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
+
 import { HARVEST_ADAPTER_NAME, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
 import { TypedDefiPools } from "../../helpers/data/index";
 import { removeDuplicateFromStringArray } from "../../helpers/utils";
+
 task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("adaptername", "the name of defi adapter", "", types.string)
@@ -38,6 +40,7 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
     if (!TypedDefiPools[adaptername]) {
       throw new Error("wrong adapter name");
     }
+
     const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     const liquidityPools = removeDuplicateFromStringArray(

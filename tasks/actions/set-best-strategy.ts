@@ -44,6 +44,8 @@ task(SET_BEST_STRATEGY, "Set best strategy")
 
     console.log(`Invest step strategy Hash : ${strategyhash}`);
 
+    console.log(`Invest step strategy Hash : ${strategyhash}`);
+
     try {
       if (isdefault) {
         await strategyProvider.setBestDefaultStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
