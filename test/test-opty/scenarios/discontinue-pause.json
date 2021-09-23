@@ -5,7 +5,7 @@
     {
       "name": "Vault",
       "profile": "RP1",
-      "stories": [
+      "vaultStories": [
         {
           "description": "[Vault is paused By Default] Should fail when user deposits in the vault contract",
           "actions": [
@@ -13,8 +13,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "fail",
               "message": "paused"
             }
@@ -29,6 +30,7 @@
               "args": {
                 "amount": ""
               },
+              "executor": "owner",
               "expect": "fail",
               "message": "paused"
             }
@@ -41,10 +43,11 @@
               "contract": "Vault",
               "action": "userWithdrawRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -57,8 +60,9 @@
               "args": {
                 "amount": ""
               },
+              "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -72,6 +76,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -79,8 +84,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -90,6 +96,7 @@
               "args": {
                 "amount": ""
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -105,6 +112,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -112,8 +120,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "fail",
               "message": "paused"
             }
@@ -129,6 +138,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -136,8 +146,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -148,6 +159,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -155,10 +167,11 @@
               "contract": "Vault",
               "action": "userWithdrawRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -172,6 +185,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -179,8 +193,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -191,6 +206,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -200,8 +216,9 @@
               "args": {
                 "amount": ""
               },
+              "executor": "owner",
               "expect": "fail",
-              "message": "revert unpause"
+              "message": "unpause"
             }
           ]
         },
@@ -215,6 +232,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -222,8 +240,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -233,6 +252,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -243,6 +263,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -250,8 +271,9 @@
               "contract": "vault",
               "action": "balance()",
               "args": {
-                "expectedValue": ">=2000000000000000000"
+                "expectedValue": ">=2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -267,6 +289,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -274,8 +297,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -283,8 +307,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -294,6 +319,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -304,6 +330,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -311,8 +338,9 @@
               "contract": "vault",
               "action": "balance()",
               "args": {
-                "expectedValue": ">=4000000000000000000"
+                "expectedValue": ">=4"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -328,6 +356,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -335,8 +364,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -346,6 +376,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -356,6 +387,7 @@
                 "addressName": "vault",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -363,8 +395,9 @@
               "contract": "vault",
               "action": "balance()",
               "args": {
-                "expectedValue": ">=2000000000000000000"
+                "expectedValue": ">=2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -375,6 +408,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -382,8 +416,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -393,6 +428,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -408,6 +444,7 @@
                 "addressName": "vault",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -415,8 +452,9 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -426,6 +464,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -433,9 +472,9 @@
               "contract": "Registry",
               "action": "discontinue(address)",
               "args": {
-                "addressName": "vault",
-                "unpause": ""
+                "addressName": "vault"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -443,8 +482,9 @@
               "contract": "vault",
               "action": "balance()",
               "args": {
-                "expectedValue": ">=2000000000000000000"
+                "expectedValue": ">=2"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -457,9 +497,9 @@
               "contract": "Registry",
               "action": "discontinue(address)",
               "args": {
-                "addressName": "vault",
-                "unpause": ""
+                "addressName": "vault"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -469,6 +509,7 @@
               "args": {
                 "amount": ""
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -476,8 +517,9 @@
               "contract": "erc20",
               "action": "balanceOf(address)",
               "args": {
-                "expectedValue": ">0"
+                "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -490,9 +532,9 @@
               "contract": "Registry",
               "action": "discontinue(address)",
               "args": {
-                "addressName": "vault",
-                "unpause": ""
+                "addressName": "vault"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -500,13 +542,16 @@
               "contract": "Vault",
               "action": "userDepositRebalance(uint256)",
               "args": {
-                "amount": "2000000000000000000"
+                "amount": "2"
               },
+              "executor": "owner",
               "expect": "fail",
               "message": "paused or discontinued"
             }
           ]
-        },
+        }
+      ],
+      "stakingVaultstories": [
         {
           "description": "[OptyStakingVault is paused By Default] User shouldn't be able to stake OPTY tokens",
           "actions": [
@@ -532,6 +577,7 @@
                 "addressName": "optyStakingVault1D",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -562,6 +608,7 @@
               "args": {
                 "expectedValue": "100000000"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -571,6 +618,7 @@
               "args": {
                 "expectedValue": "100000000"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -586,6 +634,7 @@
                 "addressName": "optyStakingVault1D",
                 "unpause": true
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -627,6 +676,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -636,6 +686,7 @@
               "args": {
                 "expectedValue": "0"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -645,6 +696,7 @@
               "args": {
                 "expectedValue": "964040000000000"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             }
@@ -660,6 +712,7 @@
                 "addressName": "optyStakingVault1D",
                 "unpause": false
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },
@@ -682,9 +735,9 @@
               "contract": "Registry",
               "action": "discontinue(address)",
               "args": {
-                "addressName": "optyStakingVault1D",
-                "unpause": ""
+                "addressName": "optyStakingVault1D"
               },
+              "executor": "owner",
               "expect": "success",
               "message": ""
             },

@@ -9,7 +9,7 @@
           "contract": "opty",
           "action": "approve(address,uint256)",
           "args": {
-            "spender": "stakingVault1D",
+            "spender": "optyStakingVault1D",
             "stakedOPTY": "100000000"
           },
           "executor": "owner",
@@ -17,7 +17,7 @@
           "message": ""
         },
         {
-          "contract": "stakingVault1D",
+          "contract": "optyStakingVault1D",
           "action": "userStake(uint256)",
           "args": {
             "stakedOPTY": "100000000"
@@ -29,12 +29,12 @@
       ],
       "getActions": [
         {
-          "contract": "stakingVault1D",
+          "contract": "optyStakingVault1D",
           "action": "balance()",
           "expectedValue": "95000000"
         },
         {
-          "contract": "stakingVault1D",
+          "contract": "optyStakingVault1D",
           "action": "balanceOf(address)",
           "expectedValue": "95000000"
         }

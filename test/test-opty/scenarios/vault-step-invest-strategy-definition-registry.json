@@ -1,50 +1,57 @@
 {
-  "title": "VaultStepInvestStrategyDefinitionRegistry - setStrategy",
+  "title": "VaultStepInvestStrategyDefinitionRegistry",
   "description": "Test cases for VaultStepInvestStrategyDefinitionRegistry contract",
   "stories": [
     {
-      "description": "User should be able to set one strategy for one tokensHash",
+      "description": "Operator should be able to set one strategy only one time for one tokensHash",
       "setActions": [
         {
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "tokensHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
-            "strategySteps": [
-              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", false]
-            ]
-          },
+          "args": {},
+          "executer": "owner",
           "expect": "success",
           "message": ""
+        },
+        {
+          "action": "setStrategy(bytes32,(address,address,bool)[])",
+          "args": {},
+          "executer": "owner",
+          "expect": "fail",
+          "message": "isNewStrategy"
         }
       ],
       "getActions": [
         {
           "action": "getStrategy(bytes32)",
-          "args": {
-            "strategyHash": "0xf14294bb238069facb3da995a8d6e805967558c99956a61ce7aa8b53954db845"
-          },
-          "expectedValue": {
-            "index": 0,
-            "strategySteps": [
-              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", false]
-            ]
-          }
+          "args": {},
+          "expectedValue": {}
         }
       ]
     },
     {
-      "description": "User should not be able to set same one strategy for one tokensHash",
+      "description": "Non-Operator shouldn't be able to set strategy",
       "setActions": [
         {
           "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "tokensHash": "0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80",
-            "strategySteps": [
-              ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", false]
-            ]
-          },
+          "args": {},
+          "executer": "user1",
           "expect": "fail",
-          "message": "isNewStrategy"
+          "message": "caller is not the operator"
+        }
+      ],
+      "getActions": []
+    },
+    {
+      "description": "Operator cannot set multiple strategies which not correspond to the number of token input",
+      "setActions": [
+        {
+          "action": "setStrategy(bytes32[],(address,address,bool)[][])",
+          "args": {
+            "mismatchLength": true
+          },
+          "executer": "owner",
+          "expect": "fail",
+          "message": "!index mismatch"
         }
       ],
       "getActions": []

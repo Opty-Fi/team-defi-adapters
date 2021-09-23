@@ -1,9 +1,10 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { unpauseVault } from "../../helpers/contracts-actions";
+import { UNPAUSE_VAULT } from "../task-names";
 
-task("unpause-vault", "Unpause Vault")
+task(UNPAUSE_VAULT, "Unpause Vault")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("vault", "the address of vault", "", types.string)
   .setAction(async ({ registry, vault }, hre) => {
@@ -25,7 +26,7 @@ task("unpause-vault", "Unpause Vault")
       throw new Error("registry address is invalid");
     }
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
     await unpauseVault(owner, registryContract, vault, true);
 
