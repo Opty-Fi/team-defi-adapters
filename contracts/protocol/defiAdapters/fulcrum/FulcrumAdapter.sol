@@ -106,7 +106,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, uint256(-1));
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, uint256(-1));
     }
 
     /**
