@@ -43,6 +43,8 @@ task(SET_BEST_STRATEGY, "Set best strategy")
 
     const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
 
+    console.log(`Invest step strategy Hash : ${strategyhash}`);
+
     try {
       if (isdefault) {
         await strategyProvider.setBestDefaultStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);

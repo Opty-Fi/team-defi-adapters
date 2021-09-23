@@ -6,9 +6,9 @@ pragma experimental ABIEncoderV2;
 import { ModifiersController } from "../../protocol/configuration/ModifiersController.sol";
 import { RegistryProxy } from "../../protocol/configuration/RegistryProxy.sol";
 import { RegistryStorage } from "../../protocol/configuration/RegistryStorage.sol";
-import { NewImplementationStorage } from "./NewImplementationStorage.sol";
+import { TestStorageV2 } from "./TestStorageV2.sol";
 
-contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, NewImplementationStorage {
+contract TestRegistryNewImplementation is RegistryStorage, TestStorageV2, ModifiersController {
     /**
      * @dev Set TestRegistryNewImplementation to act as Registry
      * @param _registryProxy RegistryProxy Contract address to act as Registry
@@ -18,7 +18,7 @@ contract TestRegistryNewImplementation is RegistryStorage, ModifiersController, 
         require(_registryProxy.acceptImplementation() == 0, "!unauthorized");
     }
 
-    function isNewContract() external view returns (bool) {
+    function isNewContract() external pure returns (bool) {
         return isNewVariable;
     }
 

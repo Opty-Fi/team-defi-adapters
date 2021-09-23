@@ -51,3 +51,13 @@ export const SET_VAULT_STEP_REGISTRY: string = "set-vault-step-registry";
 export const UNPAUSE_VAULT: string = "unpause-vault";
 
 export const VAULT_ACTIONS: string = "vault-actions";
+
+export const BALANCE_OF: string = "balance-of";
+
+export const GET_ACTION: string = "get-action";
+
+export const GET_STRATEGY: string = "get-strategy";
+
+export const SET_MAX_DEPOSIT_MODE: string = "set-max-deposit-mode";
+
+export const SET_MAX_DEPOSIT: string = "set-max-deposit";
