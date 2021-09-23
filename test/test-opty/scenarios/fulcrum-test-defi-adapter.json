@@ -114,6 +114,13 @@
           "executer": "owner",
           "expect": "success",
           "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {},
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -459,6 +466,13 @@
           "executer": "owner",
           "expect": "success",
           "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {},
+          "expect": "success",
+          "message": ""
         }
       ]
     },
@@ -696,6 +710,13 @@
           "contract": "TestDeFiAdapter",
           "action": "testGetWithdrawAllCodes(address,address,address)",
           "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "setMaxDepositProtocolPct(uint256)",
+          "args": {},
           "expect": "success",
           "message": ""
         }

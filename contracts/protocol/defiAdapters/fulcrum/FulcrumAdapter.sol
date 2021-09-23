@@ -102,8 +102,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address[] memory _underlyingTokens,
         address _liquidityPool
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, uint256(-1));
     }
 
     /**
@@ -244,7 +243,7 @@ contract FulcrumAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @inheritdoc IAdapter
      */
     function getPoolValue(address _liquidityPool, address) public view override returns (uint256) {
-        return IFulcrum(_liquidityPool).totalAssetSupply();
+        return IFulcrum(_liquidityPool).marketLiquidity();
     }
 
     /**

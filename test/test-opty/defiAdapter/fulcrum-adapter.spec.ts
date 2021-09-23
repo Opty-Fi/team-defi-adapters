@@ -6,15 +6,13 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, FULCRUM_ADAPTER_NAME, ADDRESS_ZERO } f
 import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
 import {
   deployAdapter,
-  deployEssentialContracts,
   deployAdapterPrerequisites,
 } from "../../../helpers/contracts-deployments";
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdaptersScenario from "../scenarios/fulcrum-test-defi-adapter.json";
-import { deployContract } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmount, moveToNextBlock } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
-import abis from "../../../helpers/data/abis.json";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -31,7 +29,7 @@ describe("FulcrumAdapter", () => {
   const ADAPTER_NAME = "FulcrumAdapter";
   const strategies = TypedAdapterStrategies[ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
-  let essentialContracts: CONTRACTS;
+  let adapterPrerequisites: CONTRACTS;
   let adapter: Contract;
   let ownerAddress: string;
   let owner: Signer;
@@ -39,16 +37,16 @@ describe("FulcrumAdapter", () => {
     try {
       [owner] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
-      essentialContracts = await deployEssentialContracts(hre, owner, TESTING_DEPLOYMENT_ONCE);
-      await approveTokens(owner, essentialContracts["registry"]);
+      adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      await approveTokens(owner, adapterPrerequisites.registry);
       adapter = await deployAdapter(
         hre,
         owner,
         ADAPTER_NAME,
-        essentialContracts["registry"].address,
+        adapterPrerequisites.registry.address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(essentialContracts, "Essential contracts not deployed");
+      assert.isDefined(adapterPrerequisites, "Adapter prerequisites not deployed");
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
@@ -178,20 +176,24 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of testDeFiAdaptersScenario.stories) {
             it(`${pool} - ${story.description}`, async function () {
-              let defaultFundAmount: BigNumber = BigNumber.from("2");
-              let limit: BigNumber = hre.ethers.BigNumber.from(0);
+              let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
+              let limit: BigNumber = BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
-              const iTokenInstance = await hre.ethers.getContractAt(abis.iToken, liquidityPool);
+              const iTokenInstance = await hre.ethers.getContractAt("IFulcrum", liquidityPool);
+              const getCode = await iTokenInstance.provider.getCode(iTokenInstance.address);
+                if (getCode === "0x") {
+                  this.skip();
+                }
               const poolValue = await fulcrumAdapter.getPoolValue(liquidityPool, ADDRESS_ZERO);
               // @reason iLEND and iYFI are no longer active and we shouldn't test them
-              if (+poolValue == 0) {
+              if (poolValue == 0) {
                 this.skip();
               }
               const adapterAddress = fulcrumAdapter.address;
-              let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+              let underlyingBalanceBefore: BigNumber = BigNumber.from(0);
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositProtocolMode(uint8)": {
@@ -227,6 +229,7 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                     if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
                       await fulcrumAdapter[action.action](liquidityPool, maxDepositPoolPct);
                     }
+                    await moveToNextBlock(hre);
                     const poolValue: BigNumber = await fulcrumAdapter.getPoolValue(
                       liquidityPool,
                       underlyingTokenAddress,
@@ -328,7 +331,7 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                   }
                   case "getPoolValue(address,address)": {
                     expect(await fulcrumAdapter[action.action](liquidityPool, ADDRESS_ZERO)).to.be.eq(
-                      await iTokenInstance.totalAssetSupply(),
+                      await iTokenInstance.marketLiquidity(),
                     );
                     break;
                   }
@@ -340,10 +343,10 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                   }
                   case "getSomeAmountInToken(address,address,uint256)": {
                     const _lpTokenDecimals = await iTokenInstance.decimals();
-                    const _lpTokenAmount = defaultFundAmount.mul(
+                    const _lpTokenAmount: BigNumber = defaultFundAmount.mul(
                       BigNumber.from(BigNumber.from(10).pow(_lpTokenDecimals)),
                     );
-                    if (+_lpTokenAmount > 0) {
+                    if (_lpTokenAmount.gt(0)) {
                       expect(await fulcrumAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount)).to.be.eq(
                         _lpTokenAmount
                           .mul(await iTokenInstance.tokenPrice())
@@ -385,8 +388,8 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                         expect(lpTokenBalance).to.be.eq(0);
                       } else {
                         expectedValue == "=0"
-                          ? expect(+lpTokenBalance).to.be.eq(0)
-                          : expect(+lpTokenBalance).to.be.gt(0);
+                          ? expect(lpTokenBalance).to.be.eq(0)
+                          : expect(lpTokenBalance).to.be.gt(0);
                       }
                     }
                     break;
@@ -399,11 +402,11 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"
                         ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(0);
+                        : expect(underlyingBalanceAfter).to.be.eq(0);
                     } else {
                       expectedValue == ">0"
                         ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore.sub(limit));
+                        : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                     }
                     break;
                   }
@@ -455,7 +458,7 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                           testDeFiAdapter.address,
                           underlyingTokenAddress,
                           liquidityPool,
-                          +_amountInUnderlyingToken > 0
+                          _amountInUnderlyingToken.gt(0)
                             ? _amountInUnderlyingToken.sub(BigNumber.from(10))
                             : BigNumber.from(0),
                         ),
@@ -469,6 +472,13 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                 switch (action.action) {
                   case "testGetWithdrawAllCodes(address,address,address)": {
                     await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                    break;
+                  }
+                  case "setMaxDepositProtocolPct(uint256)": {
+                    const existingProtocolPct: BigNumber = await fulcrumAdapter.maxDepositProtocolPct();
+                    if (!existingProtocolPct.eq(BigNumber.from(0))) {
+                      await fulcrumAdapter.setMaxDepositProtocolPct(0);
+                    }
                     break;
                   }
                 }
@@ -487,6 +497,7 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                   case "balanceOf(address": {
                     const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     expect(underlyingBalance).to.be.gt(0);
+                    break;
                   }
                 }
               }

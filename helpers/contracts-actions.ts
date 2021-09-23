@@ -152,8 +152,7 @@ export async function fundWalletToken(
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
-    .map(({ address }) => address)
-    .map(t => getAddress(t));
+    .map(({ address }) => getAddress(address))
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
   const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
@@ -163,10 +162,10 @@ export async function fundWalletToken(
     const token0Instance = await hre.ethers.getContractAt("ERC20", TOKEN0);
     const token1Instance = await hre.ethers.getContractAt("ERC20", TOKEN1);
     let token0Path = Object.values(TypedPairTokens)
-      .filter(({ address }) => tokenAddress.includes(address))
+      .filter(({ address }) => getAddress(tokenAddress) === getAddress(address))
       .map(({ path0 }) => path0)[0];
     let token1Path = Object.values(TypedPairTokens)
-      .filter(({ address }) => tokenAddress.includes(address))
+      .filter(({ address }) => getAddress(tokenAddress) === getAddress(address))
       .map(({ path1 }) => path1)[0];
     if (token0Path === undefined) {
       if (TOKEN0 !== TypedTokens["WETH"]) {
