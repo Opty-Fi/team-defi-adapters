@@ -369,8 +369,28 @@ contract Registry is IRegistry, ModifiersController {
     {
         require(_vault != address(0), "!address(0)");
         require(_vault.isContract(), "!isContract");
-        require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
+        require(
+            _withdrawalFee >= withdrawalFeeRange.lowerLimit && _withdrawalFee <= withdrawalFeeRange.upperLimit,
+            "!BasisRange"
+        );
         vaultToVaultConfiguration[_vault].withdrawalFee = _withdrawalFee;
+        return true;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
+    function setWithdrawalFeeRange(DataTypes.WithdrawalFeeRange memory _withdrawalFeeRange)
+        external
+        override
+        onlyFinanceOperator
+        returns (bool)
+    {
+        require(
+            _withdrawalFeeRange.lowerLimit >= 0 && _withdrawalFeeRange.lowerLimit < _withdrawalFeeRange.upperLimit,
+            "!BasisRange"
+        );
+        withdrawalFeeRange = _withdrawalFeeRange;
         return true;
     }
 
