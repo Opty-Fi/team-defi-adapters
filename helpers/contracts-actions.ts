@@ -151,8 +151,7 @@ export async function fundWalletToken(
   const ValidatedPairTokens = Object.values(TypedPairTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
-  const ValidatedCurveTokens = Object.values(TypedCurveTokens)
-    .map(({ address }) => getAddress(address))
+  const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
   const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {

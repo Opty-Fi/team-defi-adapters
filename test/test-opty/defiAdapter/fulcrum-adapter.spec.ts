@@ -4,10 +4,7 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, FULCRUM_ADAPTER_NAME, ADDRESS_ZERO } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
-import {
-  deployAdapter,
-  deployAdapterPrerequisites,
-} from "../../../helpers/contracts-deployments";
+import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdaptersScenario from "../scenarios/fulcrum-test-defi-adapter.json";
@@ -184,9 +181,9 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
               const decimals = await ERC20Instance.decimals();
               const iTokenInstance = await hre.ethers.getContractAt("IFulcrum", liquidityPool);
               const getCode = await iTokenInstance.provider.getCode(iTokenInstance.address);
-                if (getCode === "0x") {
-                  this.skip();
-                }
+              if (getCode === "0x") {
+                this.skip();
+              }
               const poolValue = await fulcrumAdapter.getPoolValue(liquidityPool, ADDRESS_ZERO);
               // @reason iLEND and iYFI are no longer active and we shouldn't test them
               if (poolValue == 0) {
@@ -387,9 +384,7 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                       if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
                         expect(lpTokenBalance).to.be.eq(0);
                       } else {
-                        expectedValue == "=0"
-                          ? expect(lpTokenBalance).to.be.eq(0)
-                          : expect(lpTokenBalance).to.be.gt(0);
+                        expectedValue == "=0" ? expect(lpTokenBalance).to.be.eq(0) : expect(lpTokenBalance).to.be.gt(0);
                       }
                     }
                     break;
