@@ -1,6 +1,7 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS, ADDRESS_ETH } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { TypedTokens } from "../../helpers/data";
 import { approveAndSetTokenHashToToken } from "../../helpers/contracts-actions";
 import { getAddress } from "ethers/lib/utils";
 import { APPROVE_TOKEN } from "../task-names";
@@ -27,7 +28,7 @@ task(APPROVE_TOKEN, "Approve Token")
       throw new Error("token address is invalid");
     }
 
-    if (getAddress(token) !== getAddress(ADDRESS_ETH)) {
+    if (getAddress(token) !== getAddress(TypedTokens.ETH)) {
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       try {
         await approveAndSetTokenHashToToken(owner, registryContract, token);
