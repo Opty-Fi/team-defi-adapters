@@ -8377,6 +8377,7 @@
           }
         ]
       },
+      { "payable": true, "stateMutability": "payable", "type": "fallback" },
       {
         "stateMutability": "view",
         "type": "function",

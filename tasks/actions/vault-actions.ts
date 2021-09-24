@@ -1,10 +1,11 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
 import { ethers } from "ethers";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
+import { VAULT_ACTIONS } from "../task-names";
 
-task("vault-actions", "perform actions in Vault")
+task(VAULT_ACTIONS, "perform actions in Vault")
   .addParam("vault", "the address of vault", "", types.string)
   .addParam("action", "deposit, withdraw or rebalance", "DEPOSIT" || "WITHDRAW" || "REBALANCE", types.string)
   .addParam("user", "account address of the user", "", types.string)
@@ -34,18 +35,19 @@ task("vault-actions", "perform actions in Vault")
       throw new Error("action is invalid");
     }
 
-    if (amount <= 0 && action.toUpperCase() != "REBALANCE") {
+    if (!useall && amount <= 0 && action.toUpperCase() != "REBALANCE") {
       throw new Error("amount is not set");
     }
+
     const userSigner = await hre.ethers.getSigner(user);
 
-    const vaultContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.VAULT, vault);
+    const vaultContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.VAULT, vault);
     const vaultShareSymbol = await vaultContract.symbol();
     const vaultShareDecimals = await vaultContract.decimals();
 
     const tokenAddress = await vaultContract.underlyingToken();
 
-    const tokenContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.ERC20, tokenAddress);
+    const tokenContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, tokenAddress);
     const tokenSymbol = await tokenContract.symbol();
     const tokenDecimals = await tokenContract.decimals();
 

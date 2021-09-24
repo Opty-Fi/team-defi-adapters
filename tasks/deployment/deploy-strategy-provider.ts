@@ -1,10 +1,10 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress } from "../../helpers/helpers";
+import { isAddress, executeFunc, deployContract } from "../../helpers/helpers";
+import { DEPLOY_STRATEGY_PROVIDER } from "../task-names";
 
-task("deploy-strategy-provider", "Deploy Strategy Provider")
+task(DEPLOY_STRATEGY_PROVIDER, "Deploy Strategy Provider")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
@@ -26,6 +26,10 @@ task("deploy-strategy-provider", "Deploy Strategy Provider")
     console.log("Finished deploying strategyProvider");
 
     console.log(`Contract strategyProvider : ${strategyProvider.address}`);
+
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setStrategyProvider(address)", [strategyProvider.address]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(`strategyProvider`, strategyProvider.address);

@@ -1,9 +1,10 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract } from "../../helpers/helpers";
+import { deployContract, executeFunc } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { DEPLOY_VAULT_STEP_REGISTRY } from "../task-names";
 
-task("deploy-vault-step-registry", "Deploy VaultStepInvestStrategyDefinitionRegistry")
+task(DEPLOY_VAULT_STEP_REGISTRY, "Deploy VaultStepInvestStrategyDefinitionRegistry")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
@@ -21,6 +22,12 @@ task("deploy-vault-step-registry", "Deploy VaultStepInvestStrategyDefinitionRegi
     console.log(
       `Contract vaultStepInvestStrategyDefinitionRegistry: ${vaultStepInvestStrategyDefinitionRegistry.address}`,
     );
+
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setVaultStepInvestStrategyDefinitionRegistry(address)", [
+      vaultStepInvestStrategyDefinitionRegistry.address,
+    ]);
 
     if (insertindb) {
       const err = await insertContractIntoDB(

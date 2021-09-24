@@ -1,21 +1,15 @@
-import { TOKENS, MAPPING_CURVE_DEPOSIT_DATA, MAPPING_CURVE_SWAP_DATA } from "./constants";
+import { TOKENS, RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
-import {
-  TypedAdapterStrategies,
-  TypedTokens,
-  TypedPairTokens,
-  TypedCurveTokens,
-  TypedCurveDepositPools,
-  TypedCurveDepositPoolGauges,
-  TypedCurveSwapPools,
-} from "./data";
-import { executeFunc, generateStrategyStep, getEthValueGasOverrideOptions } from "./helpers";
+import { TypedPairTokens, TypedCurveTokens, TypedAdapterStrategies, TypedTokens } from "./data";
+import { executeFunc, generateStrategyStep, generateTokenHash, getEthValueGasOverrideOptions } from "./helpers";
 import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
 import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -111,11 +105,11 @@ export async function setAndApproveVaultRewardToken(
 
 export async function setStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
 ): Promise<string> {
   const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
-
+  const tokensHash = generateTokenHash(tokens);
   const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
     strategySteps,
@@ -126,12 +120,13 @@ export async function setStrategy(
 
 export async function setBestBasicStrategy(
   strategy: STRATEGY_DATA[],
-  tokensHash: string,
+  tokens: string[],
   vaultStepInvestStrategyDefinitionRegistry: Contract,
   strategyProvider: Contract,
   riskProfile: string,
 ): Promise<string> {
-  const strategyHash = await setStrategy(strategy, tokensHash, vaultStepInvestStrategyDefinitionRegistry);
+  const tokensHash = generateTokenHash(tokens);
+  const strategyHash = await setStrategy(strategy, tokens, vaultStepInvestStrategyDefinitionRegistry);
   await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
   const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
   expect(strategyProviderStrategy).to.equal(strategyHash);
@@ -561,15 +556,42 @@ export async function fundWalletToken(
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
     await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
   } else {
-    await uniswapInstance
-      .connect(wallet)
-      .swapETHForExactTokens(
+    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
+    );
+    if (tokenHolder.length > 0) {
+      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else {
+      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      await uniswapInstance.swapETHForExactTokens(
         amount,
         [TypedTokens["WETH"], tokenAddress],
         address,
         deadlineTimestamp,
         getEthValueGasOverrideOptions(hre, "9500"),
       );
+    }
+  }
+}
+
+export async function fundWalletFromImpersonatedAccount(
+  hre: HardhatRuntimeEnvironment,
+  tokenAddress: string,
+  impersonatedAccountAddr: string,
+  fundAmount: BigNumber,
+  toAddress: string,
+): Promise<void> {
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [impersonatedAccountAddr],
+  });
+  const impersonatedAccount = await hre.ethers.getSigner(impersonatedAccountAddr);
+  const erc20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
+  const balance = await erc20Instance.balanceOf(impersonatedAccountAddr);
+  if (+balance >= +fundAmount) {
+    await erc20Instance.connect(impersonatedAccount).transfer(toAddress, fundAmount);
+  } else {
+    throw new Error("not enough amount");
   }
 }
 
@@ -619,54 +641,53 @@ export async function unpauseVault(
   await executeFunc(registryContract, owner, "unpauseVaultContract(address,bool)", [vaultAddr, unpaused]);
 }
 
-export async function insertDataCurveDeposit(owner: Signer, curveDeposit: Contract): Promise<void> {
-  for (let i = 0; i < MAPPING_CURVE_DEPOSIT_DATA.length; i++) {
-    const data = MAPPING_CURVE_DEPOSIT_DATA[i];
-    try {
-      await executeFunc(curveDeposit, owner, "setLiquidityPoolToUnderlyingTokens(address,address[])", [
-        TypedCurveDepositPools[data.lp],
-        data.tokens.map(token => TypedTokens[token]),
+export async function addRiskProfiles(owner: Signer, registry: Contract): Promise<void> {
+  const profiles = Object.keys(RISK_PROFILES);
+  for (let i = 0; i < profiles.length; i++) {
+    const profile = await registry.getRiskProfile(RISK_PROFILES[profiles[i]].name);
+    if (!profile.exists) {
+      await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [
+        RISK_PROFILES[profiles[i]].name,
+        RISK_PROFILES[profiles[i]].canBorrow,
+        RISK_PROFILES[profiles[i]].poolRating,
       ]);
-
-      await executeFunc(curveDeposit, owner, "setLiquidityPoolToSwap(address,address)", [
-        TypedCurveDepositPools[data.lp],
-        TypedCurveSwapPools[data.swap],
-      ]);
-
-      if (TypedCurveDepositPoolGauges[data.gauges]) {
-        await executeFunc(curveDeposit, owner, "setLiquidityPoolToGauges(address,address)", [
-          TypedCurveDepositPools[data.lp],
-          TypedCurveDepositPoolGauges[data.gauges],
-        ]);
-      }
-    } catch (error) {
-      console.log("Got error in insertDataCurveDeposit() ", error);
     }
   }
 }
 
-export async function insertDataCurveSwap(owner: Signer, curveSwap: Contract): Promise<void> {
-  for (let i = 0; i < MAPPING_CURVE_SWAP_DATA.length; i++) {
-    const data = MAPPING_CURVE_SWAP_DATA[i];
-    try {
-      await executeFunc(curveSwap, owner, "setSwapPoolToLiquidityPoolToken(address,address)", [
-        TypedCurveSwapPools[data.swap],
-        TypedTokens[data.lpToken],
-      ]);
-
-      await executeFunc(curveSwap, owner, "setSwapPoolToUnderlyingTokens(address,address[])", [
-        TypedCurveSwapPools[data.swap],
-        data.tokens.map(token => TypedTokens[token]),
-      ]);
-
-      if (TypedCurveDepositPoolGauges[data.gauges]) {
-        await executeFunc(curveSwap, owner, "setSwapPoolToGauges(address,address)", [
-          TypedCurveSwapPools[data.swap],
-          TypedCurveDepositPoolGauges[data.gauges],
-        ]);
-      }
-    } catch (error) {
-      console.log("Got error in insertDataCurveSwap() ", error);
-    }
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
   }
+}
+
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  comptrollerAddress: string,
+): Promise<boolean> {
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+): Promise<any> {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
 }

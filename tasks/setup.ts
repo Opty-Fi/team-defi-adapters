@@ -2,12 +2,12 @@ import { task, types } from "hardhat/config";
 
 import { CONTRACTS } from "../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../helpers/contracts-deployments";
-import { approveLiquidityPoolAndMapAdapters, approveTokens, approveToken } from "../helpers/contracts-actions";
 import { insertContractIntoDB } from "../helpers/db";
-import { TESTING_CONTRACTS } from "../helpers/constants";
+import { TESTING_CONTRACTS, HARVEST_ADAPTER_NAME } from "../helpers/constants";
 import { deployContract } from "../helpers/helpers";
+import { SETUP } from "./task-names";
 
-task("setup", "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
+task(SETUP, "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {
@@ -29,6 +29,7 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
+    console.log("********************");
     console.log(`\tDeploying Adapter contracts ...`);
     const adaptersContracts: CONTRACTS = await deployAdapters(
       hre,
@@ -51,13 +52,30 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
-    await approveTokens(owner, essentialContracts["registry"]);
-    await approveLiquidityPoolAndMapAdapters(owner, essentialContracts["registry"], adaptersContracts);
+    console.log("********************");
+    console.log(`\tApproving Tokens ...`);
 
+    await hre.run("approve-tokens", {
+      registry: essentialContracts["registry"].address,
+    });
+    console.log("********************");
+    console.log(`\tMapping Liquidity Pools to Adapters ...`);
+
+    for (const adapterName in adaptersContracts) {
+      await hre.run("map-liquiditypools-adapter", {
+        adapter: adaptersContracts[adapterName].address,
+        adaptername: adapterName,
+        registry: essentialContracts["registry"].address,
+      });
+    }
+
+    console.log("********************");
+    console.log(`\t Setting strategies ...`);
     await hre.run("set-strategies", {
       strategyregistry: essentialContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
     });
 
+    console.log("********************");
     console.log(`\tDeploying Core Vault contracts ...`);
     await hre.run("deploy-vaults", {
       registry: essentialContracts["registry"].address,
@@ -68,6 +86,7 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       insertindb: insertindb,
     });
 
+    console.log("********************");
     const erc20Contract = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
       "BAL-ODEFI-USDC",
       "BAL-ODEFI-USDC",
@@ -75,7 +94,10 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       0,
     ]);
     console.log(`BAL-ODEFI-USDC address : ${erc20Contract.address}`);
-    await approveToken(owner, essentialContracts["registry"], [erc20Contract.address]);
+    await hre.run("approve-token", {
+      registry: essentialContracts["registry"].address,
+      token: erc20Contract.address,
+    });
 
     await hre.run("deploy-vault", {
       token: erc20Contract.address,
