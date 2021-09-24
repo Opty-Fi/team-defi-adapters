@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -234,7 +234,7 @@ describe(scenarios.title, () => {
                       } else {
                         currentPoolValue = await contracts["adapter"].getPoolValue(
                           strategy.strategy[0].contract,
-                          ADDRESS_ZERO,
+                          ZERO_ADDRESS,
                         );
                       }
                       if (setAction.expect === "success") {
@@ -279,7 +279,7 @@ describe(scenarios.title, () => {
                       if (adapterName.includes("Aave") || adapterName === "DyDxAdapter") {
                         value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, token);
                       } else {
-                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ADDRESS_ZERO);
+                        value = await contracts["adapter"].getPoolValue(strategy.strategy[0].contract, ZERO_ADDRESS);
                       }
                       if (expectedValue[strategy.token] === "<") {
                         expect(value.sub(currentPoolValue)).to.lt(0);

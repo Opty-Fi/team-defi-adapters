@@ -6,13 +6,18 @@ import { CONTRACTS } from "../../../helpers/type";
 import {
   TOKENS,
   TESTING_DEPLOYMENT_ONCE,
-  ADDRESS_ZERO,
+  ZERO_ADDRESS,
   COMPOUND_ADAPTER_NAME,
   CONTRACT_ADDRESSES,
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
-import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import {
+  fundWalletToken,
+  getBlockTimestamp,
+  lpPausedStatus,
+  executeComptrollerFunc,
+} from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
@@ -21,8 +26,6 @@ import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/
 import { getAddress } from "ethers/lib/utils";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import Compound from "@compound-finance/compound-js";
-import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -196,7 +199,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                 );
                 const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
                 let RewardTokenERC20Instance: Contract;
-                if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                if (!(rewardTokenAddress == ZERO_ADDRESS)) {
                   RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 }
                 //  @reason: Some LpToken contracts (like cLink's contract) are not detectable as Contract with the blockNumber being used in Hardhat config.
@@ -306,7 +309,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "fundTestDefiContractWithRewardToken()": {
-                      if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                      if (!(rewardTokenAddress == ZERO_ADDRESS)) {
                         let compUnderlyingBalance: BigNumber = await RewardTokenERC20Instance!.balanceOf(
                           testDeFiAdapter.address,
                         );
@@ -387,7 +390,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
                       expect(
-                        await compoundAdapter[action.action](testDeFiAdapter.address, liquidityPool, ADDRESS_ZERO),
+                        await compoundAdapter[action.action](testDeFiAdapter.address, liquidityPool, ZERO_ADDRESS),
                       ).to.be.eq(
                         await executeComptrollerFunc(
                           hre,
@@ -539,7 +542,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
                       //  function because CETH has ETH as underlying.
                       expect([
-                        getAddress((await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO))[0]),
+                        getAddress((await compoundAdapter[action.action](liquidityPool, ZERO_ADDRESS))[0]),
                       ]).to.have.members([
                         getAddress(
                           getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)
@@ -559,13 +562,13 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getPoolValue(address,address)": {
-                      expect(await compoundAdapter[action.action](liquidityPool, ADDRESS_ZERO)).to.be.eq(
+                      expect(await compoundAdapter[action.action](liquidityPool, ZERO_ADDRESS)).to.be.eq(
                         await LpContractInstance.getCash(),
                       );
                       break;
                     }
                     case "getLiquidityPoolToken(address,address)": {
-                      expect(getAddress(await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool))).to.be.eq(
+                      expect(getAddress(await compoundAdapter[action.action](ZERO_ADDRESS, liquidityPool))).to.be.eq(
                         getAddress(liquidityPool),
                       );
                       break;
@@ -575,7 +578,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       const _lpTokenAmount = getDefaultFundAmountInDecimal(liquidityPool, _lpTokenDecimals);
                       if (+_lpTokenAmount > 0) {
                         expect(
-                          await compoundAdapter[action.action](ADDRESS_ZERO, liquidityPool, _lpTokenAmount),
+                          await compoundAdapter[action.action](ZERO_ADDRESS, liquidityPool, _lpTokenAmount),
                         ).to.be.eq(
                           _lpTokenAmount.mul(await LpContractInstance.exchangeRateStored()).div(to_10powNumber_BN(18)),
                         );
@@ -630,7 +633,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           for (const action of story.setActions) {
             switch (action.action) {
               case "canStake(address)": {
-                expect(await compoundAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
+                expect(await compoundAdapter[action.action](ZERO_ADDRESS)).to.be.eq(false);
                 break;
               }
             }
@@ -640,27 +643,3 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
     });
   });
 });
-
-//  Function to check if cToken/crToken Pool is paused or not.
-//  @dev: SAI,REP = Mint is paused for cSAI, cREP
-//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
-export async function lpPausedStatus(
-  hre: HardhatRuntimeEnvironment,
-  pool: string,
-  comptrollerAddress: string,
-): Promise<boolean> {
-  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
-    pool,
-  ]);
-}
-
-export async function executeComptrollerFunc(
-  hre: HardhatRuntimeEnvironment,
-  comptrollerAddress: string,
-  functionSignature: string,
-  params: any[],
-) {
-  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
-    provider: <Provider>(<unknown>hre.network.provider),
-  });
-}
