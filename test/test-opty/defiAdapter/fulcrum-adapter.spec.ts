@@ -8,7 +8,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { approveTokens, fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdaptersScenario from "../scenarios/fulcrum-test-defi-adapter.json";
-import { deployContract, getDefaultFundAmount, moveToNextBlock } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmountInDecimal, moveToNextBlock } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 
 type ARGUMENTS = {
@@ -173,12 +173,12 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of testDeFiAdaptersScenario.stories) {
             it(`${pool} - ${story.description}`, async function () {
-              let defaultFundAmount: BigNumber = getDefaultFundAmount(underlyingTokenAddress);
               let limit: BigNumber = BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const decimals = await ERC20Instance.decimals();
+              let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
               const iTokenInstance = await hre.ethers.getContractAt("IFulcrum", liquidityPool);
               const getCode = await iTokenInstance.provider.getCode(iTokenInstance.address);
               if (getCode === "0x") {
@@ -216,7 +216,6 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                       underlyingTokenAddress,
                     );
                     limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
@@ -232,7 +231,6 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                       underlyingTokenAddress,
                     );
                     limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
@@ -254,7 +252,6 @@ describe(`${testDeFiAdaptersScenario.title} - FulcrumAdapter`, () => {
                       );
                     }
                     limit = await fulcrumAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
