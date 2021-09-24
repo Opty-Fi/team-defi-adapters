@@ -110,32 +110,63 @@ export async function moveToSpecificBlock(hre: HardhatRuntimeEnvironment, timest
 }
 
 export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, decimal: BigNumberish): BigNumber {
-  let defaultFundAmount: BigNumber = BigNumber.from("20000");
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.WBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.COMP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.SAI) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REP) ||
-    underlyingTokenAddress == getAddress(TypedTokens.ETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WETH) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.USDN) ||
-    underlyingTokenAddress == getAddress(TypedTokens.DUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.HUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.MUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.BUSD) ||
-    underlyingTokenAddress == getAddress(TypedTokens.RSV) ||
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC)
-      ? BigNumber.from("200")
-      : defaultFundAmount;
-  defaultFundAmount =
-    underlyingTokenAddress == getAddress(TypedTokens.REN_BTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.TBTC) ||
-    underlyingTokenAddress == getAddress(TypedTokens.WBTC)
-      ? BigNumber.from("2")
-      : defaultFundAmount;
-  return defaultFundAmount.mul(to_10powNumber_BN(decimal));
+  let defaultFundAmount: BigNumber = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
+  switch (getAddress(underlyingTokenAddress)) {
+    case getAddress(TypedTokens.BAL):
+    case getAddress(TypedTokens.WBTC):
+    case getAddress(TypedTokens.COMP):
+    case getAddress(TypedTokens.SAI):
+    case getAddress(TypedTokens.REP):
+    case getAddress(TypedTokens.TUSD):
+    case getAddress(TypedTokens.USDN):
+    case getAddress(TypedTokens.ETH):
+    case getAddress(TypedTokens.WETH):
+    case getAddress(TypedTokens.DUSD):
+    case getAddress(TypedTokens.HUSD):
+    case getAddress(TypedTokens.MUSD):
+    case getAddress(TypedTokens.BUSD):
+    case getAddress(TypedTokens.RSV):
+    case getAddress(TypedTokens.YCRV):
+    case getAddress(TypedTokens.ESD): {
+      defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
+      break;
+    }
+    case getAddress(TypedTokens.REN_BTC):
+    case getAddress(TypedTokens.TBTC):
+    case getAddress(TypedTokens.YFI):
+    case getAddress(TypedTokens.CREAM):
+    case getAddress(TypedTokens.WNXM):
+    case getAddress(TypedTokens.BBTC):
+    case getAddress(TypedTokens.BOND):
+    case getAddress(TypedTokens.KP3R):
+    case getAddress(TypedTokens.FTT):
+    case getAddress(TypedTokens.SWAG):
+    case getAddress(TypedTokens.COVER):
+    case getAddress(TypedTokens.IBBTC): {
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
+      break;
+    }
+    case getAddress(TypedTokens.HBTC): {
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 1));
+      break;
+    }
+    case getAddress(TypedTokens.YETH):
+    case getAddress(TypedTokens.CRETH2): {
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 2));
+      break;
+    }
+
+    case getAddress(TypedTokens.UNI_V2_WBTC_ETH):
+    case getAddress(TypedTokens.UNI_V2_ETH_USDT):
+    case getAddress(TypedTokens.UNI_V2_USDC_ETH):
+    case getAddress(TypedTokens.UNI_V2_DAI_ETH):
+    case getAddress(TypedTokens.BBADGER):
+    case getAddress(TypedTokens.HFIL): {
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 8));
+      break;
+    }
+  }
+  return defaultFundAmount;
 }
 
 export function getEthValueGasOverrideOptions(
