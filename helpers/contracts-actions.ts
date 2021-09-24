@@ -162,25 +162,25 @@ export async function fundWalletToken(
       .filter(({ address }) => getAddress(tokenAddress) === getAddress(address))
       .map(({ path1 }) => path1)[0];
     if (token0Path === undefined) {
-      if (TOKEN0 !== TypedTokens["WETH"]) {
+      if (getAddress(TOKEN0) !== getAddress(TypedTokens["WETH"])) {
         token0Path = [TypedTokens["WETH"], TOKEN0];
       }
     } else {
-      token0Path = token0Path.map(token => TypedTokens[token]);
+      token0Path = token0Path.map(token => getAddress(TypedTokens[token]));
       token0Path.unshift(TypedTokens["WETH"]);
       token0Path.push(TOKEN0);
     }
     if (token1Path === undefined) {
-      if (TOKEN1 !== TypedTokens["WETH"]) {
+      if (getAddress(TOKEN1) !== getAddress(TypedTokens["WETH"])) {
         token1Path = [TypedTokens["WETH"], TOKEN1];
       }
     } else {
-      token1Path = token1Path.map(token => TypedTokens[token]);
+      token1Path = token1Path.map(token => getAddress(TypedTokens[token]));
       token1Path.unshift(TypedTokens["WETH"]);
       token1Path.push(TOKEN1);
     }
     if ((await pairInstance.symbol()) === "SLP") {
-      if (TOKEN1 === TypedTokens["WETH"]) {
+      if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
         await sushiswapInstance
           .connect(wallet)
           .swapExactETHForTokens(
@@ -206,7 +206,7 @@ export async function fundWalletToken(
             getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
-      } else if (TOKEN0 === TypedTokens["WETH"]) {
+      } else if (getAddress(TOKEN0) === getAddress(TypedTokens["WETH"])) {
         await sushiswapInstance
           .connect(wallet)
           .swapExactETHForTokens(
@@ -278,7 +278,7 @@ export async function fundWalletToken(
       const TOKEN1 = await pairInstance.token1();
       const token0Instance = await hre.ethers.getContractAt("ERC20", TOKEN0);
       const token1Instance = await hre.ethers.getContractAt("ERC20", TOKEN1);
-      if (TOKEN1 === TypedTokens["WETH"]) {
+      if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
         await uniswapInstance
           .connect(wallet)
           .swapExactETHForTokens(
@@ -304,7 +304,7 @@ export async function fundWalletToken(
             getEthValueGasOverrideOptions(hre, "9500"),
           );
         await pairInstance.connect(wallet).transfer(address, amount);
-      } else if (TOKEN0 === TypedTokens["WETH"]) {
+      } else if (getAddress(TOKEN0) === getAddress(TypedTokens["WETH"])) {
         await uniswapInstance
           .connect(wallet)
           .swapExactETHForTokens(
@@ -374,13 +374,13 @@ export async function fundWalletToken(
     }
   } else if (ValidatedCurveTokens.includes(getAddress(tokenAddress))) {
     const pool = Object.values(TypedCurveTokens)
-      .filter(({ address }) => tokenAddress.includes(address))
+      .filter(({ address }) => getAddress(tokenAddress).includes(getAddress(address)))
       .map(({ pool }) => pool)[0];
     const swap = Object.values(TypedCurveTokens)
-      .filter(({ address }) => tokenAddress.includes(address))
+      .filter(({ address }) => getAddress(tokenAddress).includes(getAddress(address)))
       .map(({ swap }) => swap)[0];
     const old = Object.values(TypedCurveTokens)
-      .filter(({ address }) => tokenAddress.includes(address))
+      .filter(({ address }) => getAddress(tokenAddress).includes(getAddress(address)))
       .map(({ old }) => old)[0];
     const curveRegistryInstance = new hre.ethers.Contract(
       curve_abis.curveRegistry.address,
@@ -548,7 +548,7 @@ export async function fundWalletToken(
         }
       }
     }
-  } else if (tokenAddress === TypedTokens["WETH"]) {
+  } else if (getAddress(tokenAddress) === getAddress(TypedTokens["WETH"])) {
     fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
     const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], weth.abi, wallet);
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
