@@ -3,7 +3,6 @@ import { default as AdapterStrategies } from "./adapter-with-strategies.json";
 import { default as Strategies } from "./strategies.json";
 import { default as Tokens } from "./tokens.json";
 import { default as BtcTokens } from "./btc_tokens.json";
-import { default as PairTokens } from "./pair_tokens.json";
 import { default as CurveTokens } from "./curve_tokens.json";
 import {
   DEFI_POOLS_DATA,
@@ -20,5 +19,4 @@ export const TypedStrategies = Strategies as STRATEGY[];
 export const TypedTokens = Tokens as DATA_OBJECT;
 
 export const TypedBtcTokens = BtcTokens as DATA_OBJECT;
-export const TypedPairTokens = PairTokens as PAIR_TOKEN_DATA;
 export const TypedCurveTokens = CurveTokens as CURVE_TOKEN_DATA;

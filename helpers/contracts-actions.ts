@@ -1,7 +1,7 @@
-import { TOKENS, RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
+import { TOKENS, RISK_PROFILES, TOKEN_HOLDERS, ADDRESS_ETH } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
-import { TypedPairTokens, TypedCurveTokens, TypedAdapterStrategies, TypedTokens } from "./data";
+import { TypedCurveTokens, TypedAdapterStrategies, TypedTokens } from "./data";
 import { executeFunc, generateStrategyStep, generateTokenHash, getEthValueGasOverrideOptions } from "./helpers";
 import { amountInHex, removeDuplicateFromStringArray } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -143,7 +143,7 @@ export async function fundWalletToken(
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
-  const ValidatedPairTokens = Object.values(TypedPairTokens)
+  const ValidatedPairTokens = Object.values(TypedTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
@@ -152,15 +152,15 @@ export async function fundWalletToken(
   const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, "IUniswapV2Router02", wallet);
   const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, "IUniswapV2Router02", wallet);
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = new hre.ethers.Contract(tokenAddress, exchange.pair.abi, wallet);
+    const pairInstance = new hre.ethers.Contract(tokenAddress, "IUniswapV2Pair", wallet);
     const TOKEN0 = await pairInstance.token0();
     const TOKEN1 = await pairInstance.token1();
     const token0Instance = await hre.ethers.getContractAt("ERC20", TOKEN0);
     const token1Instance = await hre.ethers.getContractAt("ERC20", TOKEN1);
-    let token0Path = Object.values(TypedPairTokens)
+    let token0Path = Object.values(TypedTokens)
       .filter(({ address }) => tokenAddress.includes(address))
       .map(({ path0 }) => path0)[0];
-    let token1Path = Object.values(TypedPairTokens)
+    let token1Path = Object.values(TypedTokens)
       .filter(({ address }) => tokenAddress.includes(address))
       .map(({ path1 }) => path1)[0];
     if (token0Path === undefined) {
@@ -384,15 +384,11 @@ export async function fundWalletToken(
     const old = Object.values(TypedCurveTokens)
       .filter(({ address }) => tokenAddress.includes(address))
       .map(({ old }) => old)[0];
-    const curveRegistryInstance = new hre.ethers.Contract(
-      exchange.curveRegistry.address,
-      JSON.stringify(exchange.curveRegistry.abi),
-      wallet,
-    );
+    const curveRegistryInstance = new hre.ethers.Contract(exchange.curveRegistry.address, "ICurveRegistry", wallet);
     const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
     if (swap === true) {
       if (old === true) {
-        let swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractOld2.abi), wallet);
+        let swapInstance = new hre.ethers.Contract(pool, "ICurveSwap", wallet);
         const coin = await swapInstance.coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
         await uniswapInstance
@@ -412,17 +408,17 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), "0"], "1");
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
-          swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractOld3.abi), wallet);
+          swapInstance = new hre.ethers.Contract(pool, "ICurveSwap", wallet);
           await swapInstance
             .connect(wallet)
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         }
       } else {
-        let swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractNew2.abi), wallet);
+        let swapInstance = new hre.ethers.Contract(pool, "ICurveSwap", wallet);
         const coin = await swapInstance.coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
-        if (coin !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+        if (coin !== ADDRESS_ETH) {
           await uniswapInstance
             .connect(wallet)
             .swapExactETHForTokens(
@@ -434,12 +430,12 @@ export async function fundWalletToken(
             );
           await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(wallet.getAddress()));
         }
-        if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
-          swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractEthNew2.abi), wallet);
+        if (coin === ADDRESS_ETH) {
+          swapInstance = new hre.ethers.Contract(pool, "ICurveSwap", wallet);
         }
         const N_COINS = (await curveRegistryInstance.get_n_coins(pool))[1];
         if (N_COINS.toString() === "2") {
-          if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+          if (coin === ADDRESS_ETH) {
             await swapInstance
               .connect(wallet)
               .add_liquidity(["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
@@ -453,7 +449,7 @@ export async function fundWalletToken(
             await tokenAddressInstance.connect(wallet).transfer(address, amount);
           }
         } else if (N_COINS.toString() === "3") {
-          swapInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveSwapContractNew3.abi), wallet);
+          swapInstance = new hre.ethers.Contract(pool, "ICurveSwap", wallet);
           await swapInstance
             .connect(wallet)
             .add_liquidity([await coinInstance.balanceOf(wallet.getAddress()), 0, 0], 1);
@@ -465,7 +461,7 @@ export async function fundWalletToken(
       let swapPool;
       let coin;
       if (old === true) {
-        depositInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveDepositContractOld2.abi), wallet);
+        depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
         swapPool = await depositInstance.curve();
         coin = await depositInstance.underlying_coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
@@ -486,28 +482,20 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
-          depositInstance = new hre.ethers.Contract(
-            pool,
-            JSON.stringify(exchange.curveDepositContractOld3.abi),
-            wallet,
-          );
+          depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
           await depositInstance
             .connect(wallet)
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else {
-          depositInstance = new hre.ethers.Contract(
-            pool,
-            JSON.stringify(exchange.curveDepositContractOld4.abi),
-            wallet,
-          );
+          depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
           await depositInstance
             .connect(wallet)
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         }
       } else {
-        depositInstance = new hre.ethers.Contract(pool, JSON.stringify(exchange.curveDepositContractNew2.abi), wallet);
+        depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
         swapPool = await depositInstance.pool();
         coin = await depositInstance.base_coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
@@ -528,21 +516,13 @@ export async function fundWalletToken(
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else if (N_COINS.toString() === "3") {
-          depositInstance = new hre.ethers.Contract(
-            pool,
-            JSON.stringify(exchange.curveDepositContractNew3.abi),
-            wallet,
-          );
+          depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
           await depositInstance
             .connect(wallet)
             .add_liquidity([await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else {
-          depositInstance = new hre.ethers.Contract(
-            pool,
-            JSON.stringify(exchange.curveDepositContractNew4.abi),
-            wallet,
-          );
+          depositInstance = new hre.ethers.Contract(pool, "ICurveDeposit", wallet);
           await depositInstance
             .connect(wallet)
             .add_liquidity([0, await coinInstance.balanceOf(await wallet.getAddress()), 0, 0], 1);
@@ -552,7 +532,7 @@ export async function fundWalletToken(
     }
   } else if (tokenAddress === TypedTokens["WETH"]) {
     fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
-    const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], exchange.weth.abi, wallet);
+    const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], "IWETH", wallet);
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
     await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
   } else {
@@ -562,7 +542,7 @@ export async function fundWalletToken(
     if (tokenHolder.length > 0) {
       await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
     } else {
-      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, "IUniswapV2Router02", wallet);
       await uniswapInstance.swapETHForExactTokens(
         amount,
         [TypedTokens["WETH"], tokenAddress],

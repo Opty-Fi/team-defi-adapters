@@ -3,20 +3,12 @@ import hre from "hardhat";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
-import {
-  TypedAdapterStrategies,
-  TypedTokens,
-  TypedPairTokens,
-  TypedCurveTokens,
-  TypedDefiPools,
-} from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens, TypedCurveTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
-import abis from "../../../helpers/data/abis.json";
-import pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 import testDeFiAdapterScenario from "../scenarios/sushiswap-test-defi-adapter.json";
 
 type ARGUMENTS = {
@@ -161,10 +153,13 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
       adapterPrerequisites.registry.address,
       true,
     );
-    masterChefInstance = await hre.ethers.getContractAt(abis.masterChef.abi, abis.masterChef.address);
+    masterChefInstance = await hre.ethers.getContractAt(
+      "ISushiswapMasterChef",
+      "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
+    );
   });
 
-  const ValidatedPairTokens = Object.values(TypedPairTokens)
+  const ValidatedPairTokens = Object.values(TypedTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
@@ -193,7 +188,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
-              const pairInstance = await hre.ethers.getContractAt(pair.abi, underlyingTokenAddress);
+              const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", underlyingTokenAddress);
               const token0Address = await pairInstance.token0();
               const token1Address = await pairInstance.token1();
               const token0Instance = await hre.ethers.getContractAt("ERC20", token0Address);
