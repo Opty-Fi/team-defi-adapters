@@ -41,7 +41,7 @@ task(APPROVE_TOKEN, "Approve Token")
 
       const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
       const [tokenAddress] = await registryContract.getTokensHashToTokenList(tokensHash);
-
+      console.log(`Token Hash: ${tokensHash}`);
       if (isAddress(tokenAddress) && getAddress(tokenAddress) == getAddress(token)) {
         console.log(`Token ${token} is already set`);
       } else {

@@ -1,4 +1,4 @@
-import { TOKENS, RISK_PROFILES } from "./constants";
+import { TOKENS, RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS, STRATEGY_DATA } from "./type";
 import { TypedAdapterStrategies, TypedTokens, TypedPairTokens, TypedCurveTokens } from "./data";
@@ -8,6 +8,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { expect } from "chai";
 import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -622,4 +624,41 @@ export async function addRiskProfiles(owner: Signer, registry: Contract): Promis
       ]);
     }
   }
+}
+
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
+  }
+}
+
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  comptrollerAddress: string,
+): Promise<boolean> {
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+): Promise<any> {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
 }
