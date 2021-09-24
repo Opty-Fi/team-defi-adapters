@@ -145,8 +145,7 @@ export async function fundWalletToken(
   const amount = amountInHex(fundAmount);
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
   const ValidatedPairTokens = Object.values(TypedPairTokens)
-    .map(({ address }) => address)
-    .map(t => getAddress(t));
+    .map(({ address }) => getAddress(address))
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
   const uniswapInstance = new hre.ethers.Contract(UNISWAP_ROUTER, router.abi, wallet);
   const sushiswapInstance = new hre.ethers.Contract(SUSHISWAP_ROUTER, router.abi, wallet);
