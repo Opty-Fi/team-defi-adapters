@@ -420,7 +420,7 @@ export async function fundWalletToken(
         let swapInstance = new hre.ethers.Contract(pool, JSON.stringify(curve_abis.curveSwapContractNew2.abi), wallet);
         const coin = await swapInstance.coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
-        if (coin !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+        if (getAddress(coin) !== getAddress(TypedTokens.ETH)) {
           await uniswapInstance
             .connect(wallet)
             .swapExactETHForTokens(
@@ -432,12 +432,12 @@ export async function fundWalletToken(
             );
           await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(wallet.getAddress()));
         }
-        if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+        if (getAddress(coin) === getAddress(TypedTokens.ETH)) {
           swapInstance = new hre.ethers.Contract(pool, JSON.stringify(curve_abis.curveSwapContractEthNew2.abi), wallet);
         }
         const N_COINS = (await curveRegistryInstance.get_n_coins(pool))[1];
         if (N_COINS.toString() === "2") {
-          if (coin === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+          if (getAddress(coin) === getAddress(TypedTokens.ETH)) {
             await swapInstance
               .connect(wallet)
               .add_liquidity(["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
