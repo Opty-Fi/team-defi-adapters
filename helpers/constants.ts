@@ -130,33 +130,6 @@ export const RISK_PROFILES: RISK_PROFILE_DATA = {
   },
 };
 
-export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
-  {
-    name: "optyStakingVault1D",
-    numberOfDays: "1D",
-    lockTime: 86400,
-    multiplier: 10000,
-  },
-  {
-    name: "optyStakingVault30D",
-    numberOfDays: "30D",
-    lockTime: 2592000,
-    multiplier: 12000,
-  },
-  {
-    name: "optyStakingVault60D",
-    numberOfDays: "60D",
-    lockTime: 5184000,
-    multiplier: 15000,
-  },
-  {
-    name: "optyStakingVault180D",
-    numberOfDays: "180D",
-    lockTime: 15552000,
-    multiplier: 20000,
-  },
-];
-
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -372,6 +345,32 @@ export const MAPPING_CURVE_DEPOSIT_DATA = [
   },
 ];
 
+export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
+  {
+    name: "optyStakingVault1D",
+    numberOfDays: "1D",
+    lockTime: 86400,
+    multiplier: 10000,
+  },
+  {
+    name: "optyStakingVault30D",
+    numberOfDays: "30D",
+    lockTime: 2592000,
+    multiplier: 12000,
+  },
+  {
+    name: "optyStakingVault60D",
+    numberOfDays: "60D",
+    lockTime: 5184000,
+    multiplier: 15000,
+  },
+  {
+    name: "optyStakingVault180D",
+    numberOfDays: "180D",
+    lockTime: 15552000,
+    multiplier: 20000,
+  },
+];
 export const TOKEN_HOLDERS: DATA_OBJECT = {
   CRETH2: "0x66692b8e2a9543e1f83d681f6ef535ca60a0a655",
   UNI_V2_ETH_USDT: "0x888e1b67bfb11d6a68c43a6af939b89d8defb2bb",
@@ -395,6 +394,7 @@ export enum MAX_DEPOSIT_MODE {
 }
 
 export const UPGRADABLE_CONTRACTS = [ESSENTIAL_CONTRACTS.REGISTRY, ESSENTIAL_CONTRACTS.RISK_MANAGER];
+
 export const CONTRACT_ADDRESSES: DATA_OBJECT = {
   COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
 };

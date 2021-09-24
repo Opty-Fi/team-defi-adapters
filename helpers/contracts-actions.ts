@@ -275,6 +275,19 @@ export async function addRiskProfiles(owner: Signer, registry: Contract): Promis
   }
 }
 
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
+  }
+}
+
 //  Function to check if cToken/crToken Pool is paused or not.
 //  @dev: SAI,REP = Mint is paused for cSAI, cREP
 //  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
@@ -293,7 +306,7 @@ export async function executeComptrollerFunc(
   comptrollerAddress: string,
   functionSignature: string,
   params: any[],
-) {
+): Promise<any> {
   return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
     provider: <Provider>(<unknown>hre.network.provider),
   });
