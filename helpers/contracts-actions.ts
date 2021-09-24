@@ -144,8 +144,7 @@ export async function fundWalletToken(
 ): Promise<void> {
   const amount = amountInHex(fundAmount);
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
-  const ValidatedPairTokens = Object.values(TypedPairTokens)
-    .map(({ address }) => getAddress(address))
+  const ValidatedPairTokens = Object.values(TypedPairTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
   const uniswapInstance = new hre.ethers.Contract(UNISWAP_ROUTER, router.abi, wallet);
   const sushiswapInstance = new hre.ethers.Contract(SUSHISWAP_ROUTER, router.abi, wallet);
@@ -463,7 +462,11 @@ export async function fundWalletToken(
       let swapPool;
       let coin;
       if (old === true) {
-        depositInstance = new hre.ethers.Contract(pool, JSON.stringify(curve_abis.curveDepositContractOld2.abi), wallet);
+        depositInstance = new hre.ethers.Contract(
+          pool,
+          JSON.stringify(curve_abis.curveDepositContractOld2.abi),
+          wallet,
+        );
         swapPool = await depositInstance.curve();
         coin = await depositInstance.underlying_coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
@@ -505,7 +508,11 @@ export async function fundWalletToken(
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         }
       } else {
-        depositInstance = new hre.ethers.Contract(pool, JSON.stringify(curve_abis.curveDepositContractNew2.abi), wallet);
+        depositInstance = new hre.ethers.Contract(
+          pool,
+          JSON.stringify(curve_abis.curveDepositContractNew2.abi),
+          wallet,
+        );
         swapPool = await depositInstance.pool();
         coin = await depositInstance.base_coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
