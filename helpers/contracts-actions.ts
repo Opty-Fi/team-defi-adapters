@@ -1,5 +1,5 @@
+import { RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
-import { RISK_PROFILES } from "./constants";
 import { STRATEGY_DATA } from "./type";
 import { TypedTokens } from "./data";
 import {
@@ -14,6 +14,8 @@ import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
 import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -168,6 +170,12 @@ export async function fundWalletToken(
     //  Funding user's wallet with WETH tokens
     await wEthInstance.deposit({ value: amount });
     await wEthInstance.transfer(address, amount);
+  } else if (getAddress(tokenAddress) == getAddress(TypedTokens.YETH)) {
+    const yEthInstance = await hre.ethers.getContractAt(exchange.yweth.abi, exchange.yweth.address);
+    //  Funding user's wallet with WETH tokens
+    await yEthInstance.connect(wallet).depositETH({ value: amount });
+    const balance = await yEthInstance.balanceOf(await wallet.getAddress());
+    await yEthInstance.transfer(address, balance);
   } else if (getAddress(tokenAddress) == getAddress(TypedTokens["SLP_WETH_USDC"])) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
@@ -189,14 +197,42 @@ export async function fundWalletToken(
       getEthValueGasOverrideOptions(hre, "500"),
     );
   } else {
-    const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-    await uniswapInstance.swapETHForExactTokens(
-      amount,
-      [TypedTokens["WETH"], tokenAddress],
-      address,
-      deadlineTimestamp,
-      getEthValueGasOverrideOptions(hre, "9500"),
+    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
     );
+    if (tokenHolder.length > 0) {
+      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else {
+      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      await uniswapInstance.swapETHForExactTokens(
+        amount,
+        [TypedTokens["WETH"], tokenAddress],
+        address,
+        deadlineTimestamp,
+        getEthValueGasOverrideOptions(hre, "9500"),
+      );
+    }
+  }
+}
+
+export async function fundWalletFromImpersonatedAccount(
+  hre: HardhatRuntimeEnvironment,
+  tokenAddress: string,
+  impersonatedAccountAddr: string,
+  fundAmount: BigNumber,
+  toAddress: string,
+): Promise<void> {
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [impersonatedAccountAddr],
+  });
+  const impersonatedAccount = await hre.ethers.getSigner(impersonatedAccountAddr);
+  const erc20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
+  const balance = await erc20Instance.balanceOf(impersonatedAccountAddr);
+  if (+balance >= +fundAmount) {
+    await erc20Instance.connect(impersonatedAccount).transfer(toAddress, fundAmount);
+  } else {
+    throw new Error("not enough amount");
   }
 }
 
@@ -274,4 +310,41 @@ export async function addRiskProfiles(owner: Signer, registry: Contract): Promis
       ]);
     }
   }
+}
+
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
+  }
+}
+
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  comptrollerAddress: string,
+): Promise<boolean> {
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+): Promise<any> {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
 }
