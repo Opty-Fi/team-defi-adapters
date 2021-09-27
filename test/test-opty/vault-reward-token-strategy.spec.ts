@@ -5,19 +5,20 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  setAndApproveVaultRewardToken,
+  approveAndSetTokenHashToTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
+import { generateTokenHash } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -92,11 +93,11 @@ describe(scenario.title, () => {
               await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await setAndApproveVaultRewardToken(
+                await approveAndSetTokenHashToTokens(
                   users["owner"],
-                  Vault.address,
-                  <string>REWARD_TOKENS[adapterName].tokenAddress,
                   essentialContracts.registry,
+                  [Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress],
+                  false,
                 );
                 RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                   "ERC20",
@@ -111,12 +112,13 @@ describe(scenario.title, () => {
                 TOKEN_STRATEGY.strategy[0].contract,
               );
 
-              investStrategyHash = await setBestBasicStrategy(
+              investStrategyHash = await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
-                [TOKENS[TOKEN_STRATEGY.token]],
+                TOKENS[TOKEN_STRATEGY.token],
                 essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
                 essentialContracts.strategyProvider,
                 profile,
+                false,
               );
 
               const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
@@ -141,10 +143,10 @@ describe(scenario.title, () => {
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
-                            vaultRewardTokenHash = getSoliditySHA3Hash(
-                              ["address[]"],
-                              [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]],
-                            );
+                            vaultRewardTokenHash = generateTokenHash([
+                              Vault.address,
+                              REWARD_TOKENS[adapterName].tokenAddress as string,
+                            ]);
                             await contracts[action.contract]
                               .connect(users[action.executer])
                               [action.action](

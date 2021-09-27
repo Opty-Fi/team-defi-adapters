@@ -71,20 +71,6 @@ export async function executeFunc(contract: Contract, executer: Signer, funcAbi:
   return tx;
 }
 
-export async function getExistingContractAddress(
-  hre: HardhatRuntimeEnvironment,
-  contractName: string,
-): Promise<string> {
-  let address;
-  try {
-    const deployedContract = await hre.deployments.get(contractName);
-    address = deployedContract.address;
-  } catch (error) {
-    address = "";
-  }
-  return address;
-}
-
 export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: string): string {
   const strategyStepsHash: string[] = [];
   const tokensHash = generateTokenHash([tokenAddress]);
