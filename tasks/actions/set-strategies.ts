@@ -49,13 +49,7 @@ task(SET_STRATEGIES, "Set strategies")
     if (!isAddress(strategyregistry)) {
       throw new Error("strategyregistry address is invalid");
     }
-
-    const strategyRegistryContract = await hre.ethers.getContractAt(
-      ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-      strategyregistry,
-    );
     let strategies: STRATEGY[] = TypedStrategies;
-
     if (fromfile) {
       const content = fs.readFileSync(fromfile);
       strategies = JSON.parse(content.toString());
@@ -64,6 +58,12 @@ task(SET_STRATEGIES, "Set strategies")
     if (!strategies.length) {
       throw new Error("strategies file is in wrong format");
     }
+
+    const strategyRegistryContract = await hre.ethers.getContractAt(
+      ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
+      strategyregistry,
+    );
+
     console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {

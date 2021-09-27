@@ -1,12 +1,12 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, BigNumber } from "ethers";
 import { deployAdapters, deployRegistry } from "../../helpers/contracts-deployments";
 import { CONTRACTS } from "../../helpers/type";
-import { deployContract } from "../../helpers/helpers";
-import { TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import scenario from "./scenarios/registry.json";
+import { deployContract, executeFunc, generateTokenHash } from "../../helpers/helpers";
+import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
+import scenario from "./scenarios/registry.json";
 
 type ARGUMENTS = {
   [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -193,13 +193,21 @@ describe(scenario.title, () => {
           }
           case "underlyingAssetHashToRPToVaults(bytes32,string)": {
             const { tokens, riskProfile }: ARGUMENTS = action.args;
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [tokens]);
+            const tokensHash = generateTokenHash(tokens);
             if (tokens && riskProfile) {
               const value = await registryContract[action.action](tokensHash, riskProfile);
               expect(value).to.be.equal(action.expectedValue);
             }
             assert.isDefined(tokens, `args is wrong in ${action.action} testcase`);
             assert.isDefined(riskProfile, `args is wrong in ${action.action} testcase`);
+            break;
+          }
+          case "isNewContract()": {
+            expect(await registryContract[action.action]()).to.be.equal(action.expectedValue);
+            break;
+          }
+          case "verifyOldValue()": {
+            await verifyDefaultData(registryContract, REGISTRY_TESTING_DEFAULT_DATA);
             break;
           }
           default:
@@ -217,6 +225,36 @@ describe(scenario.title, () => {
   async function setAndCleanActions(action: any) {
     // eslint-disable-line @typescript-eslint/no-explicit-any
     switch (action.action) {
+      case "become(address)": {
+        const newRegistry = await deployContract(
+          hre,
+          TESTING_CONTRACTS.TEST_REGISTRY_NEW_IMPLEMENTATION,
+          TESTING_DEPLOYMENT_ONCE,
+          owner,
+          [],
+        );
+
+        const registryProxy = await hre.ethers.getContractAt(
+          ESSENTIAL_CONTRACTS.REGISTRY_PROXY,
+          registryContract.address,
+        );
+
+        await executeFunc(registryProxy, owner, "setPendingImplementation(address)", [newRegistry.address]);
+        await executeFunc(newRegistry, owner, "become(address)", [registryProxy.address]);
+
+        registryContract = await hre.ethers.getContractAt(
+          TESTING_CONTRACTS.TEST_REGISTRY_NEW_IMPLEMENTATION,
+          registryProxy.address,
+        );
+        break;
+      }
+      case "initData()": {
+        await registryContract["setOperator(address)"](await owner.getAddress());
+        await registryContract["setRiskOperator(address)"](await owner.getAddress());
+        await registryContract["setFinanceOperator(address)"](await owner.getAddress());
+        await initDefaultData(registryContract, REGISTRY_TESTING_DEFAULT_DATA, owner);
+        break;
+      }
       case "setTreasury(address)": {
         const { contractName }: ARGUMENTS = action.args;
         if (contractName) {
@@ -685,3 +723,270 @@ describe(scenario.title, () => {
     }
   }
 });
+
+type TESTING_DEFAULT_DATA = {
+  setFunction: string;
+  input: any[];
+  getFunction: {
+    name: string;
+    input: any[];
+    output: any;
+  }[];
+};
+
+const REGISTRY_TESTING_DEFAULT_DATA: TESTING_DEFAULT_DATA[] = [
+  {
+    setFunction: "setTreasury(address)",
+    input: ["0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"],
+    getFunction: [
+      {
+        name: "treasury()",
+        input: [],
+        output: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+      },
+    ],
+  },
+  {
+    setFunction: "setVaultStepInvestStrategyDefinitionRegistry(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "vaultStepInvestStrategyDefinitionRegistry()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setAPROracle(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "aprOracle()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setStrategyProvider(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "strategyProvider()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setRiskManager(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "riskManager()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setHarvestCodeProvider(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "harvestCodeProvider()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setStrategyManager(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "strategyManager()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setOPTY(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "opty()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setPriceOracle(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "priceOracle()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setOPTYStakingRateBalancer(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "optyStakingRateBalancer()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setODEFIVaultBooster(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "odefiVaultBooster()",
+        input: [],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "approveToken(address)",
+    input: ["0x6b175474e89094c44da98b954eedeac495271d0f"],
+    getFunction: [
+      {
+        name: "tokens(address)",
+        input: ["0x6b175474e89094c44da98b954eedeac495271d0f"],
+        output: true,
+      },
+    ],
+  },
+  {
+    setFunction: "approveLiquidityPool(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "liquidityPools(address)",
+        input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+        output: [0, true],
+      },
+    ],
+  },
+  {
+    setFunction: "approveCreditPool(address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "creditPools(address)",
+        input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+        output: [0, true],
+      },
+    ],
+  },
+  {
+    setFunction: "setLiquidityPoolToAdapter(address,address)",
+    input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    getFunction: [
+      {
+        name: "liquidityPoolToAdapter(address)",
+        input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+        output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      },
+    ],
+  },
+  {
+    setFunction: "setTokensHashToTokens(address[])",
+    input: [["0x6b175474e89094c44da98b954eedeac495271d0f"]],
+    getFunction: [
+      {
+        name: "getTokensHashToTokenList(bytes32)",
+        input: ["0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"],
+        output: ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+      },
+      {
+        name: "getTokensHashByIndex(uint256)",
+        input: ["0"],
+        output: ["0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80"],
+      },
+    ],
+  },
+  {
+    setFunction: "addRiskProfile(string,bool,(uint8,uint8))",
+    input: ["RP1", false, [0, 10]],
+    getFunction: [
+      {
+        name: "riskProfilesArray(uint256)",
+        input: ["0"],
+        output: "RP1",
+      },
+    ],
+  },
+  {
+    setFunction: "setUnderlyingAssetHashToRPToVaults(address[],string,address)",
+    input: [["0x6b175474e89094c44da98b954eedeac495271d0f"], "RP1", "0x6b175474e89094c44da98b954eedeac495271d0f"],
+    getFunction: [
+      {
+        name: "underlyingAssetHashToRPToVaults(bytes32,string)",
+        input: ["0x50440c05332207ba7b1bb0dcaf90d1864e3aa44dd98a51f88d0796a7623f0c80", "RP1"],
+        output: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      },
+    ],
+  },
+  {
+    setFunction: "setWithdrawalFee(address,uint256)",
+    input: ["0x6b175474e89094c44da98b954eedeac495271d0f", 10],
+    getFunction: [
+      {
+        name: "vaultToVaultConfiguration(address)",
+        input: ["0x6b175474e89094c44da98b954eedeac495271d0f"],
+        output: [false, false, BigNumber.from("10")],
+      },
+    ],
+  },
+];
+
+async function initDefaultData(contract: Contract, data: TESTING_DEFAULT_DATA[], owner: Signer): Promise<void> {
+  for (let i = 0; i < data.length; i++) {
+    try {
+      await contract.connect(owner)[data[i].setFunction](...data[i].input);
+    } catch (error) {
+      // ignore the error
+    }
+  }
+}
+
+async function verifyDefaultData(contract: Contract, data: TESTING_DEFAULT_DATA[]): Promise<void> {
+  for (let i = 0; i < data.length; i++) {
+    const action = data[i];
+    for (let i = 0; i < action.getFunction.length; i++) {
+      const getFunction = action.getFunction[i];
+      const value = await contract[getFunction.name](...getFunction.input);
+      try {
+        if (Array.isArray(getFunction.output)) {
+          const objectValue: any[] = Object.values(value);
+          const half_length = Math.ceil(objectValue.length / 2);
+          const realValue = objectValue.splice(0, half_length);
+          if (getFunction.name === "getTokensHashByIndex(uint256)") {
+            expect(value.toString()).to.have.eq(getFunction.output[0]);
+          } else if (getFunction.name === "vaultToVaultConfiguration(address)") {
+            expect(realValue[0]).to.equal(getFunction.output[0]);
+            expect(realValue[1]).to.equal(getFunction.output[1]);
+            expect(+realValue[2]).to.equal(+getFunction.output[2]);
+          } else {
+            expect(realValue).to.have.members(getFunction.output);
+          }
+        } else {
+          expect(value).to.be.eq(getFunction.output);
+        }
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    }
+  }
+}

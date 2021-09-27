@@ -12,7 +12,12 @@ import {
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
-import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
+import {
+  fundWalletToken,
+  getBlockTimestamp,
+  lpPausedStatus,
+  executeComptrollerFunc,
+} from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
@@ -21,8 +26,6 @@ import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/
 import { getAddress } from "ethers/lib/utils";
 import { to_10powNumber_BN } from "../../../helpers/utils";
 import Compound from "@compound-finance/compound-js";
-import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -689,27 +692,3 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
     });
   });
 });
-
-//  Function to check if cToken/crToken Pool is paused or not.
-//  @dev: SAI,REP = Mint is paused for cSAI, cREP
-//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
-export async function lpPausedStatus(
-  hre: HardhatRuntimeEnvironment,
-  pool: string,
-  comptrollerAddress: string,
-): Promise<boolean> {
-  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
-    pool,
-  ]);
-}
-
-export async function executeComptrollerFunc(
-  hre: HardhatRuntimeEnvironment,
-  comptrollerAddress: string,
-  functionSignature: string,
-  params: any[],
-) {
-  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
-    provider: <Provider>(<unknown>hre.network.provider),
-  });
-}

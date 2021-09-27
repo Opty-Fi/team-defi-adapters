@@ -7,13 +7,13 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/co
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  setAndApproveVaultRewardToken,
+  approveAndSetTokenHashToTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/get-price-per-share-write.json";
@@ -81,11 +81,11 @@ describe(scenario.title, () => {
             await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
             if (rewardTokenAdapterNames.includes(ADAPTER_NAME.toLowerCase())) {
-              await setAndApproveVaultRewardToken(
+              await approveAndSetTokenHashToTokens(
                 users["owner"],
-                Vault.address,
-                <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
                 essentialContracts.registry,
+                [Vault.address, <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress],
+                false,
               );
               RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                 "ERC20",
@@ -100,12 +100,13 @@ describe(scenario.title, () => {
               TOKEN_STRATEGY.strategy[0].contract,
             );
 
-            await setBestBasicStrategy(
+            await setBestStrategy(
               TOKEN_STRATEGY.strategy,
-              [TOKENS[TOKEN_STRATEGY.token]],
+              TOKENS[TOKEN_STRATEGY.token],
               essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
               essentialContracts.strategyProvider,
               profile,
+              false,
             );
 
             const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);

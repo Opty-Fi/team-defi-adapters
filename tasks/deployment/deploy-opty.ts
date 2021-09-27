@@ -1,8 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../helpers/db";
-import { deployContract } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { isAddress } from "../../helpers/helpers";
+import { isAddress, deployContract, executeFunc } from "../../helpers/helpers";
 import { DEPLOY_OPTY } from "../task-names";
 
 task(DEPLOY_OPTY, "Deploy Opty")
@@ -22,19 +21,16 @@ task(DEPLOY_OPTY, "Deploy Opty")
 
     const opty = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY, deployedonce, owner, [registry, 100000000000000]);
 
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, deployedonce, owner, [
-      registry,
-      opty.address,
-    ]);
-
-    console.log("Finished deploying OPTY and OPTYDistributor");
+    console.log("Finished deploying OPTY");
 
     console.log(`Contract opty : ${opty.address}`);
-    console.log(`Contract optyDistributor : ${optyDistributor.address}`);
+
+    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+
+    await executeFunc(registryContract, owner, "setOPTY(address)", [opty.address]);
 
     if (insertindb) {
-      let err = await insertContractIntoDB(`opty`, opty.address);
-      err = await insertContractIntoDB(`optyDistributor`, optyDistributor.address);
+      const err = await insertContractIntoDB(`opty`, opty.address);
       if (err !== "") {
         console.log(err);
       }

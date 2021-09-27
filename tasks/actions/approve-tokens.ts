@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { approveTokens } from "../../helpers/contracts-actions";
+import { TypedTokens } from "../../helpers/data";
+import { approveAndSetTokenHashToTokens } from "../../helpers/contracts-actions";
 import { APPROVE_TOKENS } from "../task-names";
 
 task(APPROVE_TOKENS, "Approve Tokens")
@@ -19,7 +20,11 @@ task(APPROVE_TOKENS, "Approve Tokens")
 
     const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
 
-    await approveTokens(owner, registryContract);
+    const tokensAddresses = Object.values(TypedTokens).filter(addr => addr !== TypedTokens.ETH);
+
+    console.log(`Start approving tokens....`);
+
+    await approveAndSetTokenHashToTokens(owner, registryContract, tokensAddresses, true);
 
     console.log(`Finished approving tokens`);
   });
