@@ -13,4 +13,3 @@ deployments/
 # files
 .solcover.js
 coverage.json
-test/test-opty/script.ts
