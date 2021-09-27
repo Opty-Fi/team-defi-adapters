@@ -1175,6 +1175,13 @@
           "executer": "owner",
           "expect": "success",
           "message": ""
+        },
+        {
+          "contract": "",
+          "action": "wait10000Seconds",
+          "executer": "",
+          "expect": "",
+          "message": ""
         }
       ],
       "getActions": [
@@ -1260,6 +1267,13 @@
           "action": "testGetBorrowAllCodes(address,address,address,address)",
           "executer": "owner",
           "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "wait10000Seconds",
+          "executer": "",
+          "expect": "",
           "message": ""
         }
       ],

@@ -3,8 +3,6 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
-import { IAaveV1Token } from "../interfaces/aave/v1/IAaveV1Token.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title MultiCall Contract

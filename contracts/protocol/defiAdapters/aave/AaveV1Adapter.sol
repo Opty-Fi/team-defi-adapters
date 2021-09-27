@@ -395,17 +395,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _vaultBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
         if (_amount > 0 && _vaultBalance != uint256(0)) {
             _codes = new bytes[](1);
-            if (_amount == _vaultBalance) {
-                _codes[0] = abi.encode(
-                    getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
-                    abi.encodeWithSignature("redeem(uint256)", uint256(-1))
-                );
-            } else {
-                _codes[0] = abi.encode(
-                    getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
-                    abi.encodeWithSignature("redeem(uint256)", _amount)
-                );
-            }
+            _codes[0] = abi.encode(
+                getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
+                abi.encodeWithSignature("redeem(uint256)", _amount)
+            );
         }
     }
 

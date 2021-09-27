@@ -2,7 +2,13 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, ADDRESS_ZERO, TESTING_DEPLOYMENT_ONCE, AAVE_V1_ADAPTER_NAME } from "../../../helpers/constants";
+import {
+  TOKENS,
+  ADDRESS_ZERO,
+  TESTING_DEPLOYMENT_ONCE,
+  AAVE_V1_ADAPTER_NAME,
+  CONTRACT_ADDRESSES,
+} from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
@@ -265,13 +271,12 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
               const lpToken = TypedDefiPools[adapterName][pool].lpToken;
-              const borrowToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-              const borrowTokenInstance = await hre.ethers.getContractAt("ERC20", borrowToken);
-              const aTokenInstance = await hre.ethers.getContractAt(abis.aToken.abi, lpToken);
+              const aTokenERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
+              const aTokenInstance = await hre.ethers.getContractAt("IAaveV1Token", lpToken);
               const lendingPoolInstance = await hre.ethers.getContractAt(
-                abis.aaveV1LendingPool.abi,
-                abis.aaveV1LendingPool.address,
+                "IAaveV1",
+                CONTRACT_ADDRESSES.AAVE_V1_LENDING_POOL,
               );
               const priceOracle = await hre.ethers.getContractAt(
                 "IAaveV1PriceOracle",
@@ -287,6 +292,13 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
               let borrowTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let isWithdrawSome: boolean = false;
+              let borrowToken: string;
+              if (getAddress(underlyingTokenAddress) !== getAddress(TypedTokens.SNX)) {
+                borrowToken = TypedTokens.SNX;
+              } else {
+                borrowToken = TypedTokens.DAI;
+              }
+              const borrowTokenInstance = await hre.ethers.getContractAt("ERC20", borrowToken);
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositProtocolMode(uint8)": {
@@ -578,12 +590,12 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                       underlyingTokenAddress,
                       liquidityPool,
                     );
-                    const lpTokenBalance = await aTokenInstance.balanceOf(testDeFiAdapter.address);
+                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     expect(+amountInUnderlyingToken).to.be.eq(+lpTokenBalance);
                     break;
                   }
                   case "getSomeAmountInToken(address,address,uint256)": {
-                    const lpTokenDecimals = await aTokenInstance.decimals();
+                    const lpTokenDecimals = await aTokenERC20Instance.decimals();
                     const lpTokenAmount = defaultFundAmount.mul(BigNumber.from(10).pow(lpTokenDecimals));
                     if (+lpTokenAmount > 0) {
                       const _amountInUnderlyingToken = await aaveV1Adapter[action.action](
@@ -604,7 +616,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                       borrowToken,
                       borrowAmount,
                     );
-                    const lpTokenBalance = await aTokenInstance.balanceOf(testDeFiAdapter.address);
+                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     const debt = (
                       await lendingPoolInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
                     )[1];
@@ -618,9 +630,9 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                     const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
                     const eth: BigNumber = maxWithdrawal
                       .mul(underlyingPrice)
-                      .div(BigNumber.from(10).pow(decimals))
                       .mul(65)
                       .div(100)
+                      .div(BigNumber.from(10).pow(decimals))
                       .div(2);
                     const totalBorrows: BigNumber = (
                       await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
@@ -661,7 +673,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
                   }
                   case "getSomeAmountInTokenBorrow(address,address,address,uint256,address,uint256)": {
                     const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
-                    const lpTokenBalance = await aTokenInstance.balanceOf(testDeFiAdapter.address);
+                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     const amountInUnderlyingToken = await aaveV1Adapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,

@@ -9,7 +9,6 @@ node_modules/
 typechain/
 specification_docs/
 deployments/
-test/test-opty/script.ts
 
 # files
 .solcover.js
