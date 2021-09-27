@@ -984,7 +984,7 @@ async function verifyDefaultData(contract: Contract, data: TESTING_DEFAULT_DATA[
         } else {
           expect(value).to.be.eq(getFunction.output);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log(error.message);
         console.log(getFunction);
       }
