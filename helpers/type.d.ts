@@ -80,7 +80,7 @@ export type ADAPTER_WITH_STRATEGIES_DATA = {
   [key: string]: STRATEGY[];
 };
 
-export type PAIR_TOKEN_DATA = {
+export type MULTI_ASSET_TOKEN_DATA = {
   [token: string]: {
     address: string;
     path0?: string[];
