@@ -1,13 +1,21 @@
-import { TOKENS, RISK_PROFILES } from "./constants";
+import { RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
-import { CONTRACTS, STRATEGY_DATA } from "./type";
-import { TypedAdapterStrategies, TypedTokens } from "./data";
-import { executeFunc, generateStrategyStep, generateTokenHash, getEthValueGasOverrideOptions } from "./helpers";
-import { amountInHex, removeDuplicateFromStringArray } from "./utils";
+import { STRATEGY_DATA } from "./type";
+import { TypedTokens } from "./data";
+import {
+  executeFunc,
+  generateStrategyStep,
+  getEthValueGasOverrideOptions,
+  generateStrategyHash,
+  generateTokenHash,
+  isAddress,
+} from "./helpers";
+import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
-import { expect } from "chai";
 import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -15,89 +23,92 @@ export async function approveLiquidityPoolAndMapAdapter(
   adapter: string,
   lqPool: string,
 ): Promise<void> {
-  await executeFunc(registryContract, owner, "approveLiquidityPool(address)", [lqPool]);
-  await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [lqPool, adapter]);
+  const { isLiquidityPool } = await registryContract.getLiquidityPool(lqPool);
+  if (!isLiquidityPool) {
+    try {
+      await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [lqPool]);
+      await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [lqPool, adapter]);
+    } catch (error) {
+      console.log(`Got error: ${error}`);
+    }
+  }
 }
 
 export async function approveLiquidityPoolAndMapAdapters(
   owner: Signer,
   registryContract: Contract,
-  adapters: CONTRACTS,
+  lqPools: string[],
+  lqPoolsMapToAdapter: string[][],
 ): Promise<void> {
-  const liquidityPools: string[] = [];
-  const liquidityPoolsMapToAdapters: [string, string][] = [];
-  const creditPools: string[] = [];
-  for (const adapter in adapters) {
-    if (TypedAdapterStrategies[adapter]) {
-      for (const strategy of TypedAdapterStrategies[adapter]) {
-        for (const pool of strategy.strategy) {
-          if (pool.isBorrow) {
-            creditPools.push(pool.contract);
-          } else {
-            liquidityPools.push(pool.contract);
-            liquidityPoolsMapToAdapters.push([pool.contract, adapters[adapter].address]);
-          }
+  try {
+    const approveLpList: string[] = [];
+    for (let i = 0; i < lqPools.length; i++) {
+      const { isLiquidityPool } = await registryContract.getLiquidityPool(lqPools[i]);
+      if (!isLiquidityPool) {
+        approveLpList.push(lqPools[i]);
+      }
+    }
+    if (approveLpList.length > 0) {
+      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [approveLpList]);
+    }
+    await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [lqPoolsMapToAdapter]);
+  } catch (error) {
+    console.log(`Got error: ${error}`);
+  }
+}
+
+export async function approveAndSetTokenHashToToken(
+  owner: Signer,
+  registryContract: Contract,
+  tokenAddress: string,
+): Promise<void> {
+  try {
+    const isApprovedToken = await registryContract.isApprovedToken(tokenAddress);
+    if (!isApprovedToken) {
+      await executeFunc(registryContract, owner, "approveToken(address)", [tokenAddress]);
+    }
+    if (!(await isSetTokenHash(registryContract, [tokenAddress]))) {
+      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[tokenAddress]]);
+    }
+  } catch (error) {
+    console.log(`Got error when executing approveAndSetTokenHashToToken : ${error}`);
+  }
+}
+
+export async function approveAndSetTokenHashToTokens(
+  owner: Signer,
+  registryContract: Contract,
+  tokenAddresses: string[],
+  setTokenHashForEach: boolean,
+): Promise<void> {
+  try {
+    const approveTokenLists: string[] = [];
+    const setTokenHashLists: string[] = [];
+    for (const tokenAddress of tokenAddresses) {
+      const isApprovedToken = await registryContract.isApprovedToken(tokenAddress);
+      if (!isApprovedToken) {
+        approveTokenLists.push(tokenAddress);
+      }
+      if (setTokenHashForEach) {
+        if (!(await isSetTokenHash(registryContract, [tokenAddress]))) {
+          setTokenHashLists.push(tokenAddress);
         }
       }
     }
-  }
-  try {
-    if (liquidityPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [
-        removeDuplicateFromStringArray(liquidityPools),
-      ]);
+    if (approveTokenLists.length > 0) {
+      await executeFunc(registryContract, owner, "approveToken(address[])", [approveTokenLists]);
     }
-    if (liquidityPoolsMapToAdapters.length > 0) {
-      await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [
-        liquidityPoolsMapToAdapters,
+    if (setTokenHashLists.length > 0) {
+      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
+        setTokenHashLists.map(addr => [addr]),
       ]);
-    }
-    if (creditPools.length > 0) {
-      await executeFunc(registryContract, owner, "approveCreditPool(address[])", [creditPools]);
+    } else {
+      if (!(await isSetTokenHash(registryContract, tokenAddresses))) {
+        await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [[tokenAddresses]]);
+      }
     }
   } catch (error) {
-    console.log(`Got error when executing approveLiquidityPoolAndMapAdapters : ${error}`);
-  }
-}
-
-export async function approveToken(owner: Signer, registryContract: Contract, tokenAddresses: string[]): Promise<void> {
-  if (tokenAddresses.length > 0) {
-    await executeFunc(registryContract, owner, "approveToken(address[])", [tokenAddresses]);
-    await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [
-      tokenAddresses.map(addr => [addr]),
-    ]);
-  }
-}
-
-export async function approveTokens(owner: Signer, registryContract: Contract): Promise<void> {
-  const tokenAddresses: string[] = [];
-  for (const token in TOKENS) {
-    tokenAddresses.push(TOKENS[token]);
-  }
-  try {
-    await approveToken(owner, registryContract, tokenAddresses);
-  } catch (error) {
-    console.log(`Got error when executing approveTokens : ${error}`);
-  }
-}
-
-export async function setAndApproveVaultRewardToken(
-  owner: Signer,
-  vaultContractAddress: string,
-  rewardTokenAddress: string,
-  registryContract: Contract,
-): Promise<void> {
-  try {
-    if (vaultContractAddress.length > 0 && rewardTokenAddress.length > 0) {
-      await executeFunc(registryContract, owner, "approveToken(address[])", [
-        [vaultContractAddress, rewardTokenAddress],
-      ]);
-      await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [
-        [vaultContractAddress, rewardTokenAddress],
-      ]);
-    }
-  } catch (error) {
-    console.log(`Got error when executing approveTokens for vault and reward tokens : ${error}`);
+    console.log(`Got error when executing approveAndSetTokenHashToTokens : ${error}`);
   }
 }
 
@@ -112,22 +123,34 @@ export async function setStrategy(
     tokensHash,
     strategySteps,
   );
+
   const strategyReceipt = await strategies.wait();
   return strategyReceipt.events[0].args[1];
 }
 
-export async function setBestBasicStrategy(
+export async function setBestStrategy(
   strategy: STRATEGY_DATA[],
-  tokens: string[],
+  tokenAddress: string,
   vaultStepInvestStrategyDefinitionRegistry: Contract,
   strategyProvider: Contract,
   riskProfile: string,
+  isDefault: boolean,
 ): Promise<string> {
-  const tokensHash = generateTokenHash(tokens);
-  const strategyHash = await setStrategy(strategy, tokens, vaultStepInvestStrategyDefinitionRegistry);
-  await strategyProvider.setBestStrategy(riskProfile, tokensHash, strategyHash);
-  const strategyProviderStrategy = await strategyProvider.rpToTokenToBestStrategy(riskProfile, tokensHash);
-  expect(strategyProviderStrategy).to.equal(strategyHash);
+  const strategyHash = generateStrategyHash(strategy, tokenAddress);
+
+  const tokenHash = generateTokenHash([tokenAddress]);
+
+  const strategyDetail = await vaultStepInvestStrategyDefinitionRegistry.getStrategy(strategyHash);
+
+  if (strategyDetail[1].length === 0) {
+    await setStrategy(strategy, [tokenAddress], vaultStepInvestStrategyDefinitionRegistry);
+  }
+
+  if (isDefault) {
+    await strategyProvider.setBestDefaultStrategy(riskProfile.toUpperCase(), tokenHash, strategyHash);
+  } else {
+    await strategyProvider.setBestStrategy(riskProfile.toUpperCase(), tokenHash, strategyHash);
+  }
   return strategyHash;
 }
 
@@ -147,6 +170,12 @@ export async function fundWalletToken(
     //  Funding user's wallet with WETH tokens
     await wEthInstance.deposit({ value: amount });
     await wEthInstance.transfer(address, amount);
+  } else if (getAddress(tokenAddress) == getAddress(TypedTokens.YETH)) {
+    const yEthInstance = await hre.ethers.getContractAt(exchange.yweth.abi, exchange.yweth.address);
+    //  Funding user's wallet with WETH tokens
+    await yEthInstance.connect(wallet).depositETH({ value: amount });
+    const balance = await yEthInstance.balanceOf(await wallet.getAddress());
+    await yEthInstance.transfer(address, balance);
   } else if (getAddress(tokenAddress) == getAddress(TypedTokens["SLP_WETH_USDC"])) {
     const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
@@ -168,14 +197,42 @@ export async function fundWalletToken(
       getEthValueGasOverrideOptions(hre, "500"),
     );
   } else {
-    const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
-    await uniswapInstance.swapETHForExactTokens(
-      amount,
-      [TypedTokens["WETH"], tokenAddress],
-      address,
-      deadlineTimestamp,
-      getEthValueGasOverrideOptions(hre, "9500"),
+    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
     );
+    if (tokenHolder.length > 0) {
+      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else {
+      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      await uniswapInstance.swapETHForExactTokens(
+        amount,
+        [TypedTokens["WETH"], tokenAddress],
+        address,
+        deadlineTimestamp,
+        getEthValueGasOverrideOptions(hre, "9500"),
+      );
+    }
+  }
+}
+
+export async function fundWalletFromImpersonatedAccount(
+  hre: HardhatRuntimeEnvironment,
+  tokenAddress: string,
+  impersonatedAccountAddr: string,
+  fundAmount: BigNumber,
+  toAddress: string,
+): Promise<void> {
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [impersonatedAccountAddr],
+  });
+  const impersonatedAccount = await hre.ethers.getSigner(impersonatedAccountAddr);
+  const erc20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
+  const balance = await erc20Instance.balanceOf(impersonatedAccountAddr);
+  if (+balance >= +fundAmount) {
+    await erc20Instance.connect(impersonatedAccount).transfer(toAddress, fundAmount);
+  } else {
+    throw new Error("not enough amount");
   }
 }
 
@@ -225,6 +282,22 @@ export async function unpauseVault(
   await executeFunc(registryContract, owner, "unpauseVaultContract(address,bool)", [vaultAddr, unpaused]);
 }
 
+export async function isSetTokenHash(registryContract: Contract, tokenAddresses: string[]): Promise<boolean> {
+  const tokensHash = generateTokenHash(tokenAddresses);
+  const tokenAddressesInContract = await registryContract.getTokensHashToTokenList(tokensHash);
+  if (tokenAddressesInContract.length === 0) {
+    return false;
+  }
+  for (let i = 0; i < tokenAddresses.length; i++) {
+    if (
+      isAddress(tokenAddressesInContract[i]) &&
+      getAddress(tokenAddressesInContract[i]) !== getAddress(tokenAddresses[i])
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 export async function addRiskProfiles(owner: Signer, registry: Contract): Promise<void> {
   const profiles = Object.keys(RISK_PROFILES);
   for (let i = 0; i < profiles.length; i++) {
@@ -237,4 +310,41 @@ export async function addRiskProfiles(owner: Signer, registry: Contract): Promis
       ]);
     }
   }
+}
+
+export async function addRiskProfile(
+  registry: Contract,
+  owner: Signer,
+  name: string,
+  canBorrow: boolean,
+  poolRating: number[],
+): Promise<void> {
+  const profile = await registry.getRiskProfile(name);
+  if (!profile.exists) {
+    await executeFunc(registry, owner, "addRiskProfile(string,bool,(uint8,uint8))", [name, canBorrow, poolRating]);
+  }
+}
+
+//  Function to check if cToken/crToken Pool is paused or not.
+//  @dev: SAI,REP = Mint is paused for cSAI, cREP
+//  @dev: WBTC has mint paused for latest blockNumbers, However WBTC2 works fine with the latest blockNumber (For Compound)
+export async function lpPausedStatus(
+  hre: HardhatRuntimeEnvironment,
+  pool: string,
+  comptrollerAddress: string,
+): Promise<boolean> {
+  return await executeComptrollerFunc(hre, comptrollerAddress, "function mintGuardianPaused(address) returns (bool)", [
+    pool,
+  ]);
+}
+
+export async function executeComptrollerFunc(
+  hre: HardhatRuntimeEnvironment,
+  comptrollerAddress: string,
+  functionSignature: string,
+  params: any[],
+): Promise<any> {
+  return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
+    provider: <Provider>(<unknown>hre.network.provider),
+  });
 }
