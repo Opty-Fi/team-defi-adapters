@@ -387,7 +387,9 @@ contract Registry is IRegistry, ModifiersController {
         returns (bool)
     {
         require(
-            _withdrawalFeeRange.lowerLimit >= 0 && _withdrawalFeeRange.lowerLimit < _withdrawalFeeRange.upperLimit,
+            _withdrawalFeeRange.lowerLimit >= 0 &&
+                _withdrawalFeeRange.lowerLimit < _withdrawalFeeRange.upperLimit &&
+                _withdrawalFeeRange.upperLimit <= 10000,
             "!BasisRange"
         );
         withdrawalFeeRange = _withdrawalFeeRange;
