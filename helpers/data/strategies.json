@@ -403,7 +403,7 @@
   },
   {
     "strategyName": "3Crv-deposit-CURVE-usdn3CRV-deposit-HARVEST-fusdn3CRV",
-    "token": "THREE_CRV",
+    "token": "3CRV",
     "strategy": [
       {
         "contract": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
