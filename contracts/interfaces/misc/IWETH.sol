@@ -9,4 +9,6 @@ interface IWETH {
     function withdraw(uint256) external;
 
     function transfer(address recipient, uint256 amount) external;
+
+    function balanceOf(address _holder) external view returns (uint256);
 }
