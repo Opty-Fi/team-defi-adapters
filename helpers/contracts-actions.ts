@@ -303,8 +303,8 @@ export async function fundWalletToken(
     //  Funding user's wallet with WETH tokens
     await wEthInstance.deposit({ value: amount });
     await wEthInstance.transfer(address, amount);
-  } else if (getAddress(tokenAddress) === getAddress(TypedTokens["YETH"])) {
-    const yEthInstance = await hre.ethers.getContractAt("IWETH", TypedTokens["YETH"]);
+  } else if (getAddress(tokenAddress) === getAddress(TypedTokens["YWETH"])) {
+    const yEthInstance = await hre.ethers.getContractAt("IYWETH", TypedTokens["YWETH"]);
     //  Funding user's wallet with WETH tokens
     await yEthInstance.depositETH({ value: amount });
     const balance = await yEthInstance.balanceOf(await wallet.getAddress());
