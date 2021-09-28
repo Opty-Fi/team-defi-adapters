@@ -486,28 +486,29 @@ describe("FulcrumAdapter", () => {
             }
           });
         }
-        for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
-          it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
-            const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
-            for (const action of story.setActions) {
-              switch (action.action) {
-                case "canStake(address)": {
-                  expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
-                  break;
-                }
-              }
-            }
-            for (const action of story.getActions) {
-              switch (action.action) {
-                case "getRewardToken(address)": {
-                  expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(ADDRESS_ZERO);
-                  break;
-                }
-              }
-            }
-          });
-        }
       }
+    }
+
+    for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+      it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
+        const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
+        for (const action of story.setActions) {
+          switch (action.action) {
+            case "canStake(address)": {
+              expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(false);
+              break;
+            }
+          }
+        }
+        for (const action of story.getActions) {
+          switch (action.action) {
+            case "getRewardToken(address)": {
+              expect(await fulcrumAdapter[action.action](ADDRESS_ZERO)).to.be.eq(ADDRESS_ZERO);
+              break;
+            }
+          }
+        }
+      });
     }
   });
 });

@@ -1227,6 +1227,21 @@
       ],
       "getActions": [],
       "cleanActions": []
+    },
+    {
+      "description": "[getRewardToken()] - Should return address(0)",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "cleanActions": []
     }
   ]
 }
