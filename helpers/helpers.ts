@@ -154,7 +154,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 1));
       break;
     }
-    case getAddress(TypedTokens.YETH):
+    case getAddress(TypedTokens.YWETH):
     case getAddress(TypedTokens.CRETH2): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 2));
       break;
