@@ -3,7 +3,13 @@ import hre from "hardhat";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedTokens, TypedCurveTokens, TypedDefiPools } from "../../../helpers/data";
+import {
+  TypedAdapterStrategies,
+  TypedTokens,
+  TypedCurveTokens,
+  TypedDefiPools,
+  TypedMultiAssetTokens,
+} from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
@@ -159,7 +165,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
     );
   });
 
-  const ValidatedPairTokens = Object.values(TypedTokens)
+  const ValidatedPairTokens = Object.values(TypedMultiAssetTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)

@@ -1,5 +1,9 @@
 import { RISK_PROFILES, TOKEN_HOLDERS, ADDRESS_ETH } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 import { STRATEGY_DATA } from "./type";
 import { TypedCurveTokens, TypedMultiAssetTokens, TypedTokens } from "./data";
 import {
@@ -11,11 +15,8 @@ import {
   isAddress,
 } from "./helpers";
 import { amountInHex } from "./utils";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import exchange from "./data/exchange.json";
-import { getAddress } from "ethers/lib/utils";
-import Compound from "@compound-finance/compound-js";
-import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import { IUniswapV2Pair, IUniswapV2Router02, IWETH } from "../typechain";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -170,10 +171,14 @@ export async function fundWalletToken(
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
-  const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, "IUniswapV2Router02", wallet);
-  const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, "IUniswapV2Router02", wallet);
+  const uniswapInstance = <IUniswapV2Router02>(
+    await hre.ethers.getContractAt("IUniswapV2Router02", exchange.uniswap.address)
+  );
+  const sushiswapInstance = <IUniswapV2Router02>(
+    await hre.ethers.getContractAt("IUniswapV2Router02", exchange.sushiswap.address)
+  );
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = new hre.ethers.Contract(tokenAddress, "IUniswapV2Pair", wallet);
+    const pairInstance = <IUniswapV2Pair>await hre.ethers.getContractAt("IUniswapV2Pair", tokenAddress);
     const TOKEN0 = await pairInstance.token0();
     const TOKEN1 = await pairInstance.token1();
     const token0Instance = await hre.ethers.getContractAt("ERC20", TOKEN0);
@@ -208,7 +213,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token0Path,
+            token0Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -234,7 +239,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token1Path,
+            token1Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -260,7 +265,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token0Path,
+            token0Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -269,7 +274,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token1Path,
+            token1Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -306,7 +311,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token0Path,
+            token0Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -332,7 +337,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token1Path,
+            token1Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -358,7 +363,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token0Path,
+            token0Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -367,7 +372,7 @@ export async function fundWalletToken(
           .connect(wallet)
           .swapExactETHForTokens(
             1,
-            token1Path,
+            token1Path as string[],
             await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
@@ -417,7 +422,7 @@ export async function fundWalletToken(
           .swapExactETHForTokens(
             1,
             [TypedTokens["WETH"], coin],
-            wallet.getAddress(),
+            await wallet.getAddress(),
             deadlineTimestamp,
             getEthValueGasOverrideOptions(hre, "9500"),
           );
@@ -445,7 +450,7 @@ export async function fundWalletToken(
             .swapExactETHForTokens(
               1,
               [TypedTokens["WETH"], coin],
-              wallet.getAddress(),
+              await wallet.getAddress(),
               deadlineTimestamp,
               getEthValueGasOverrideOptions(hre, "9500"),
             );
@@ -553,9 +558,11 @@ export async function fundWalletToken(
     }
   } else if (tokenAddress === TypedTokens["WETH"]) {
     fundAmount = fundAmount.div(BigNumber.from(10).pow(18));
-    const wethInstance = new hre.ethers.Contract(TypedTokens["WETH"], "IWETH", wallet);
+    const wethInstance = <IWETH>await hre.ethers.getContractAt("IWETH", TypedTokens["WETH"]);
     await wethInstance.connect(wallet).deposit(getEthValueGasOverrideOptions(hre, fundAmount.toString()));
-    await wethInstance.connect(wallet).transfer(toAddress, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
+    await wethInstance
+      .connect(wallet)
+      .transfer(address as string, amountInHex(fundAmount.mul(BigNumber.from(10).pow(18))));
   } else {
     const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
       holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
@@ -563,7 +570,6 @@ export async function fundWalletToken(
     if (tokenHolder.length > 0) {
       await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
     } else {
-      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, "IUniswapV2Router02", wallet);
       await uniswapInstance.swapETHForExactTokens(
         amount,
         [TypedTokens["WETH"], tokenAddress],

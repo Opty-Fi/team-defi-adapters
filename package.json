@@ -44,10 +44,8 @@
     "ethereumjs-util": "^7.0.8",
     "fs-extra": "^9.1.0",
     "hardhat": "^2.6.1",
-    "hardhat-deploy": "^0.7.5",
     "hardhat-docgen": "^1.1.1",
     "hardhat-gas-reporter": "^1.0.4",
-    "hardhat-watcher": "^2.1.1",
     "husky": "^5.2.0",
     "lint-staged": "^10.5.4",
     "mocha": "^8.2.1",
@@ -71,7 +69,6 @@
     "ethers": "^5.0.29",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.11.0",
-    "hardhat-deploy-ethers": "^0.3.0-beta.7",
     "node-fetch": "^2.6.1",
     "pg": "^8.5.1"
   },

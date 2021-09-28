@@ -4,12 +4,10 @@ import { resolve } from "path";
 import path from "path";
 import fs from "fs";
 import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
-import "@typechain/hardhat";
-import "hardhat-watcher";
 import "solidity-coverage";
-import "hardhat-deploy";
 import "hardhat-docgen";
 import {
   NETWORKS_RPC_URL,
@@ -135,35 +133,6 @@ const buidlerConfig: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API,
     excludeContracts: [],
     src: "./contracts",
-  },
-  watcher: {
-    compilation: {
-      tasks: ["compile"],
-      files: ["./contracts"],
-      verbose: true,
-    },
-    ci: {
-      tasks: [
-        "clean",
-        {
-          command: "compile",
-          params: {
-            quiet: true,
-          },
-        },
-        {
-          command: "test",
-          params: {
-            noCompile: true,
-            testFiles: ["test/test-opty/*.spec.ts"],
-          },
-        },
-      ],
-    },
-    test: {
-      tasks: ["test"],
-      files: ["./contracts", "./test/test-opty/invest-limitation.spec.ts"],
-    },
   },
   docgen: {
     path: "./specification_docs",

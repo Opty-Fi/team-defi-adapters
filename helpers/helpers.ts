@@ -1,5 +1,5 @@
 import { Contract, Signer, ContractFactory, utils, BigNumber, BigNumberish } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Artifact, HardhatRuntimeEnvironment } from "hardhat/types";
 import { STRATEGY_DATA } from "./type";
 import { getSoliditySHA3Hash, capitalizeFirstLetter, to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
@@ -41,12 +41,8 @@ async function _deployContractOnce(
   args: any[],
   owner: string,
 ): Promise<Contract> {
-  const result = await hre.deployments.deploy(contractName, {
-    from: owner,
-    args: args,
-  });
-  const contract = await hre.ethers.getContractAt(result.abi, result.address);
-  return contract;
+  const contractArtifact: Artifact = await hre.artifacts.readArtifact(contractName);
+  return hre.waffle.deployContract(await hre.ethers.getSigner(owner), contractArtifact, args);
 }
 
 export async function deployContractWithHash(

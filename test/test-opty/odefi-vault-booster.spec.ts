@@ -1,5 +1,6 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
 import hre from "hardhat";
+import { solidity } from "ethereum-waffle";
 import { Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
@@ -15,6 +16,9 @@ import {
   approveAndSetTokenHashToToken,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/odefi-vault-booster.json";
+
+chai.use(solidity);
+
 type ARGUMENTS = {
   contractName?: string;
   addressName?: string;
@@ -134,7 +138,7 @@ describe(scenario.title, () => {
                   ).to.be.revertedWith(action.message);
                 }
               }
-            } catch (error) {
+            } catch (error: any) {
               expect(error.message).to.include("odefiVault already added");
             }
 
