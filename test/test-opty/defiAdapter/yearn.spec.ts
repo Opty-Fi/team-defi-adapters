@@ -410,17 +410,9 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
                     break;
                   }
                   case "getUnderlyingTokens(address,address)": {
-                    //  @reason Underlying is considered WETH in case of lp = CETH and as CETH doesn't have underlying()
-                    //  function because CETH has ETH as underlying.
                     expect([
                       getAddress((await adapter[action.action](liquidityPool, ADDRESS_ZERO))[0]),
-                    ]).to.have.members([
-                      getAddress(
-                        getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)
-                          ? TypedTokens.WETH
-                          : await LpContractInstance.token(),
-                      ),
-                    ]);
+                    ]).to.have.members([getAddress(await LpContractInstance.token())]);
                     break;
                   }
                   case "calculateAmountInLPToken(address,address,uint256)": {
