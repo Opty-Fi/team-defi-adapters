@@ -131,7 +131,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.YCRV):
     case getAddress(TypedTokens.ESD):
     case getAddress(TypedTokens.THREE_CRV):
-    case getAddress(TypedTokens.LINK_YLINK): {
+    case getAddress(TypedTokens.LINK): {
       defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
       break;
     }
