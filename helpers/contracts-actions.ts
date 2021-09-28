@@ -247,8 +247,8 @@ export async function fundWalletToken(
       const coin = swap
         ? await instance.coins(0)
         : old
-          ? await instance.underlying_coins(0)
-          : await instance.base_coins(0);
+        ? await instance.underlying_coins(0)
+        : await instance.base_coins(0);
       const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
       await uniswapInstance
         .connect(wallet)
@@ -268,29 +268,29 @@ export async function fundWalletToken(
       if (N_COINS.toString() === "2") {
         await instance
           .connect(wallet)
-        ["add_liquidity(uint256[2],uint256)"]([await coinInstance.balanceOf(walletAddress), "0"], "1");
+          ["add_liquidity(uint256[2],uint256)"]([await coinInstance.balanceOf(walletAddress), "0"], "1");
         await tokenAddressInstance.connect(wallet).transfer(address, amount);
       } else if (N_COINS.toString() === "3") {
         await instance
           .connect(wallet)
-        ["add_liquidity(uint256[3],uint256)"]([await coinInstance.balanceOf(walletAddress), "0", "0"], 1);
+          ["add_liquidity(uint256[3],uint256)"]([await coinInstance.balanceOf(walletAddress), "0", "0"], 1);
         await tokenAddressInstance.connect(wallet).transfer(address, amount);
       } else if (N_COINS.toString() === "4") {
         if (old) {
           await instance
             .connect(wallet)
-          ["add_liquidity(uint256[4],uint256)"]([await coinInstance.balanceOf(walletAddress), 0, 0, 0], 1);
+            ["add_liquidity(uint256[4],uint256)"]([await coinInstance.balanceOf(walletAddress), 0, 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         } else {
           await instance
             .connect(wallet)
-          ["add_liquidity(uint256[4],uint256)"]([0, await coinInstance.balanceOf(walletAddress), 0, 0], 1);
+            ["add_liquidity(uint256[4],uint256)"]([0, await coinInstance.balanceOf(walletAddress), 0, 0], 1);
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
         }
       } else if (getAddress(coin) === getAddress(TypedTokens.ETH)) {
         await instance
           .connect(wallet)
-        ["add_liquidity(uint256[2],uint256)"](["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
+          ["add_liquidity(uint256[2],uint256)"](["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
         await tokenAddressInstance
           .connect(wallet)
           .transfer(address, await tokenAddressInstance.balanceOf(walletAddress));
