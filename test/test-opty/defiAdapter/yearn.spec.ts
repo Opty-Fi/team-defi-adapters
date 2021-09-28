@@ -498,6 +498,14 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
               }
             }
           }
+          for (const action of story.getActions) {
+            switch (action.action) {
+              case "getRewardToken(address)": {
+                expect(await adapter[action.action](ADDRESS_ZERO)).to.be.eq(ADDRESS_ZERO);
+                break;
+              }
+            }
+          }
         });
       }
     });
