@@ -3,13 +3,7 @@ import hre from "hardhat";
 import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import {
-  TOKENS,
-  TESTING_DEPLOYMENT_ONCE,
-  ADDRESS_ZERO,
-  COMPOUND_ADAPTER_NAME,
-  CONTRACT_ADDRESSES,
-} from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import {
@@ -184,19 +178,17 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         if (TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].tokens.length == 1) {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
+              const story = testDeFiAdaptersScenario.stories[i];
+              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+              const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
+              const LpContractInstance = await hre.ethers.getContractAt(Compound.util.getAbi("cErc20"), liquidityPool);
+              const compTroller = await LpContractInstance.comptroller();
               const lpPauseStatus = await lpPausedStatus(
                 hre,
                 getAddress(TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool),
-                CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
+                compTroller,
               );
               if (!lpPauseStatus) {
-                const story = testDeFiAdaptersScenario.stories[i];
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-                const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
-                const LpContractInstance = await hre.ethers.getContractAt(
-                  Compound.util.getAbi("cErc20"),
-                  liquidityPool,
-                );
                 const rewardTokenAddress = await compoundAdapter.getRewardToken(liquidityPool);
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
@@ -394,7 +386,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       ).to.be.eq(
                         await executeComptrollerFunc(
                           hre,
-                          CONTRACT_ADDRESSES.COMPOUND_COMPTROLLER,
+                          compTroller,
                           "function compAccrued(address) returns (uint256)",
                           [testDeFiAdapter.address],
                         ),
@@ -587,7 +579,12 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "getRewardToken(address)": {
                       expect(getAddress(await compoundAdapter[action.action](liquidityPool))).to.be.eq(
-                        getAddress(TypedTokens.COMP),
+                        await executeComptrollerFunc(
+                          hre,
+                          compTroller,
+                          "function getCompAddress() returns (address)",
+                          [],
+                        ),
                       );
                       break;
                     }
