@@ -1,4 +1,4 @@
-import { RISK_PROFILES, TOKEN_HOLDERS } from "./constants";
+import { RISK_PROFILES, TOKEN_HOLDERS, CONTRACT_ADDRESSES } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
 import { STRATEGY_DATA } from "./type";
 import { TypedTokens } from "./data";
@@ -16,6 +16,8 @@ import exchange from "./data/exchange.json";
 import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import IWETH from "@uniswap/v2-periphery/build/IWETH.json";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -166,7 +168,7 @@ export async function fundWalletToken(
   const address = toAddress == null ? await wallet.getAddress() : toAddress;
 
   if (getAddress(tokenAddress) == getAddress(TypedTokens.WETH)) {
-    const wEthInstance = await hre.ethers.getContractAt(exchange.weth.abi, exchange.weth.address);
+    const wEthInstance = await hre.ethers.getContractAt(IWETH.abi, TypedTokens.WETH);
     //  Funding user's wallet with WETH tokens
     await wEthInstance.deposit({ value: amount });
     await wEthInstance.transfer(address, amount);
@@ -177,7 +179,7 @@ export async function fundWalletToken(
     const balance = await yEthInstance.balanceOf(await wallet.getAddress());
     await yEthInstance.transfer(address, balance);
   } else if (getAddress(tokenAddress) == getAddress(TypedTokens["SLP_WETH_USDC"])) {
-    const sushiswapInstance = new hre.ethers.Contract(exchange.sushiswap.address, exchange.uniswap.abi, wallet);
+    const sushiswapInstance = new hre.ethers.Contract(CONTRACT_ADDRESSES.SUSHISWAP_ROUTER, IUniswapV2Router02.abi, wallet);
     const USDCInstance = await hre.ethers.getContractAt("ERC20", TypedTokens["USDC"]);
     await sushiswapInstance.swapExactETHForTokens(
       1,
@@ -186,7 +188,7 @@ export async function fundWalletToken(
       deadlineTimestamp,
       getEthValueGasOverrideOptions(hre, "500"),
     );
-    await USDCInstance.connect(wallet).approve(exchange.sushiswap.address, await USDCInstance.balanceOf(address));
+    await USDCInstance.connect(wallet).approve(CONTRACT_ADDRESSES.SUSHISWAP_ROUTER, await USDCInstance.balanceOf(address));
     await sushiswapInstance.addLiquidityETH(
       TypedTokens["USDC"],
       await USDCInstance.balanceOf(address),
@@ -203,7 +205,7 @@ export async function fundWalletToken(
     if (tokenHolder.length > 0) {
       await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
     } else {
-      const uniswapInstance = new hre.ethers.Contract(exchange.uniswap.address, exchange.uniswap.abi, wallet);
+      const uniswapInstance = new hre.ethers.Contract(CONTRACT_ADDRESSES.UNISWAPV2_ROUTER, IUniswapV2Router02.abi, wallet);
       await uniswapInstance.swapETHForExactTokens(
         amount,
         [TypedTokens["WETH"], tokenAddress],

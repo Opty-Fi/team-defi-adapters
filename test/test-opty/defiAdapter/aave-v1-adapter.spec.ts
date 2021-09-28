@@ -16,7 +16,7 @@ import { deployContract, moveToNextBlock } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/aavev1-test-defi-adapter.json";
-import exchange from "../../../helpers/data/exchange.json";
+import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import abis from "../../../helpers/data/abis.json";
 
 type ARGUMENTS = {
@@ -264,8 +264,8 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
               let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const uniswapInstance = new hre.ethers.Contract(
-                exchange.uniswap.address,
-                exchange.uniswap.abi,
+                CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                IUniswapV2Router02.abi,
                 users["owner"],
               );
               const timestamp = (await getBlockTimestamp(hre)) * 2;
@@ -280,11 +280,11 @@ describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
               );
               const priceOracle = await hre.ethers.getContractAt(
                 "IAaveV1PriceOracle",
-                "0x76B47460d7F7c5222cFb6b6A75615ab10895DDe4",
+                CONTRACT_ADDRESSES.AAVE_V1_PRICE_ORACLE,
               );
               const lendingPoolCoreInstance = await hre.ethers.getContractAt(
                 abis.aaveV1LendingPoolCore.abi,
-                abis.aaveV1LendingPoolCore.address,
+                CONTRACT_ADDRESSES.AAVE_V1_LENDING_POOL_CORE,
               );
               const decimals = await ERC20Instance.decimals();
               const adapterAddress = aaveV1Adapter.address;

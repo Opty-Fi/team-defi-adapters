@@ -1742,8 +1742,7 @@
         "stateMutability": "nonpayable",
         "type": "function"
       }
-    ],
-    "address": "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3"
+    ]
   },
   "compoundComptroller": {
     "abi": [
@@ -1768,7 +1767,6 @@
         "stateMutability": "view",
         "type": "function"
       }
-    ],
-    "address": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
+    ]
   }
 }
