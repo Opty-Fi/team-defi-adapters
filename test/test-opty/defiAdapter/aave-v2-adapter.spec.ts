@@ -290,7 +290,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
               let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let isWithdrawSome: boolean = false;
               let borrowToken: string;
-              if (getAddress(underlyingTokenAddress) !== getAddress(TypedTokens.WETH)) {
+              if (getAddress(underlyingTokenAddress) !== getAddress(TypedTokens.TUSD)) {
                 borrowToken = TypedTokens.TUSD;
               } else {
                 borrowToken = TypedTokens.DAI;
