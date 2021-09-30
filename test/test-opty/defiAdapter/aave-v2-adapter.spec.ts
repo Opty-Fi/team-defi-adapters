@@ -505,7 +505,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                           if (isWithdrawSome === false) {
                             expect(+lpTokenBalance).to.be.eq(0);
                           } else {
-                            expect(+lpTokenBalanceBefore).to.be.eq(+underlyingBalanceAfter);
+                            expect(lpTokenBalanceBefore).to.be.eq(underlyingBalanceAfter);
                           }
                         } else {
                           expect(+lpTokenBalance).to.be.gt(0);
@@ -521,12 +521,12 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                     );
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"
-                        ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                         : expect(+underlyingBalanceAfter).to.be.eq(0);
                     } else {
                       expectedValue == ">0"
-                        ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore.sub(limit));
+                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                        : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                     }
                     break;
                   }
@@ -591,7 +591,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                       liquidityPool,
                     );
                     const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                    expect(+amountInUnderlyingToken).to.be.eq(+lpTokenBalance);
+                    expect(amountInUnderlyingToken).to.be.eq(lpTokenBalance);
                     break;
                   }
                   case "getSomeAmountInToken(address,address,uint256)": {
@@ -630,9 +630,9 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                     const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
                     const eth: BigNumber = maxWithdrawal
                       .mul(underlyingPrice)
+                      .div(BigNumber.from(10).pow(decimals))
                       .mul(65)
                       .div(100)
-                      .div(BigNumber.from(10).pow(decimals))
                       .div(2);
                     const totalBorrows: BigNumber = (
                       await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
@@ -642,7 +642,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                     )[2];
                     let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
                     maxSafeETH = maxSafeETH.mul(105).div(100);
-                    if (eth > maxSafeETH) {
+                    if (eth.gt(maxSafeETH)) {
                       maxSafeETH = BigNumber.from(0);
                     } else {
                       maxSafeETH = maxSafeETH.sub(eth);
@@ -657,7 +657,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                       over = BigNumber.from(0);
                     }
                     if (over > borrowAmount) {
-                      expect(+amountInUnderlyingToken).to.be.eq(+maxWithdrawal);
+                      expect(amountInUnderlyingToken).to.be.eq(maxWithdrawal);
                     } else {
                       const optimalAmount: BigNumber = (
                         await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
@@ -667,14 +667,14 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                         ])
                       )[2];
                       const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                      expect(+amountInUnderlyingToken).to.be.eq(+result);
+                      expect(amountInUnderlyingToken).to.be.eq(result);
                     }
                     break;
                   }
                   case "getSomeAmountInTokenBorrow(address,address,address,uint256,address,uint256)": {
                     const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
                     const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                    const amountInUnderlyingToken = await aaveV2Adapter[action.action](
+                    const amountInUnderlyingToken: BigNumber = await aaveV2Adapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
                       liquidityPool,
@@ -707,7 +707,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                     )[2];
                     let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
                     maxSafeETH = maxSafeETH.mul(105).div(100);
-                    if (eth > maxSafeETH) {
+                    if (eth.gt(maxSafeETH)) {
                       maxSafeETH = BigNumber.from(0);
                     } else {
                       maxSafeETH = maxSafeETH.sub(eth);
@@ -722,7 +722,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                       over = BigNumber.from(0);
                     }
                     if (over > borrowAmount) {
-                      expect(+amountInUnderlyingToken).to.be.eq(+maxWithdrawal);
+                      expect(amountInUnderlyingToken).to.be.lt(maxWithdrawal);
                     } else {
                       const optimalAmount: BigNumber = (
                         await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
@@ -732,7 +732,7 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                         ])
                       )[2];
                       const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                      expect(+amountInUnderlyingToken).to.be.eq(+result);
+                      expect(amountInUnderlyingToken).to.be.eq(result);
                     }
                     break;
                   }
