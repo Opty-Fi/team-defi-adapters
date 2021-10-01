@@ -17,5 +17,7 @@ interface IDForceStake {
 
     function decimals() external view returns (uint256);
 
+    function df() external view returns (address);
+
     function lockedDetails() external view returns (bool, uint256);
 }
