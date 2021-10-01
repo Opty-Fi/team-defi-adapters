@@ -77,3 +77,20 @@ export type DEFI_POOLS_DATA = {
 export type ADAPTER_WITH_STRATEGIES_DATA = {
   [key: string]: STRATEGY[];
 };
+
+export type PAIR_TOKEN_DATA = {
+  [token: string]: {
+    address: string;
+    path0?: string[];
+    path1?: string[];
+  };
+};
+
+export type CURVE_TOKEN_DATA = {
+  [token: string]: {
+    address: string;
+    pool: string;
+    swap?: boolean;
+    old?: boolean;
+  };
+};
