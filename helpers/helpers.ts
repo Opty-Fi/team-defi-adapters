@@ -128,7 +128,9 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.BUSD):
     case getAddress(TypedTokens.RSV):
     case getAddress(TypedTokens.YCRV):
-    case getAddress(TypedTokens.ESD): {
+    case getAddress(TypedTokens.ESD):
+    case getAddress(TypedTokens.THREE_CRV):
+    case getAddress(TypedTokens.LINK): {
       defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
       break;
     }
@@ -152,7 +154,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 1));
       break;
     }
-    case getAddress(TypedTokens.YETH):
+    case getAddress(TypedTokens.YWETH):
     case getAddress(TypedTokens.CRETH2): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 2));
       break;
