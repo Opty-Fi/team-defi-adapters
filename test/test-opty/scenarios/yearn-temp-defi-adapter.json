@@ -939,166 +939,6 @@
       ]
     },
     {
-      "description": "getHarvestAllCodes() should harvest all reward tokens to underlying",
-      "setActions": [
-        {
-          "contract": "",
-          "action": "fundTestDefiContractWithRewardToken()",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "erc20",
-          "action": "balanceOf(address)",
-          "executer": "owner",
-          "expectedValue": ">0"
-        },
-        {
-          "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
-          "executer": "owner",
-          "expectedValue": "=0"
-        }
-      ],
-      "cleanActions": [
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetWithdrawAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ]
-    },
-    {
-      "description": "getHarvestSomeCodes() should harvest specific amount of reward tokens to underlying",
-      "setActions": [
-        {
-          "contract": "",
-          "action": "fundTestDefiContractWithRewardToken()",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetHarvestSomeCodes(address,address,address,uint256)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "erc20",
-          "action": "balanceOf(address)",
-          "executer": "owner",
-          "expectedValue": ">0"
-        },
-        {
-          "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
-          "executer": "owner",
-          "expectedValue": "<"
-        }
-      ],
-      "cleanActions": [
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetWithdrawAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ]
-    },
-    {
-      "description": "getClaimRewardTokenCode() should be able claim reward tokens",
-      "setActions": [
-        {
-          "contract": "adapter",
-          "action": "setMaxDepositProtocolMode(uint8)",
-          "args": {
-            "mode": "1"
-          },
-          "executer": "owner"
-        },
-        {
-          "contract": "adapter",
-          "action": "setMaxDepositProtocolPct(uint256)",
-          "args": {
-            "maxDepositProtocolPct": "10000"
-          },
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "",
-          "action": "fundTestDeFiAdapterContract",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetDepositAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "",
-          "action": "fundTestDeFiAdapterContract",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetDepositAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "adapter",
-          "action": "getUnclaimedRewardTokenAmount(address,address,address)",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetClaimRewardTokenCode(address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
-          "executer": "owner",
-          "expectedValue": ">0"
-        }
-      ],
-      "cleanActions": [
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetWithdrawAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ]
-    },
-    {
       "description": "getUnderlyingTokens() should return same underlying tokens as there in lp contracts",
       "setActions": [],
       "getActions": [
@@ -1370,20 +1210,6 @@
           "message": ""
         }
       ]
-    },
-    {
-      "description": "getRewardToken() should return the reward token address",
-      "setActions": [],
-      "getActions": [
-        {
-          "contract": "adapter",
-          "action": "getRewardToken(address)",
-          "args": {},
-          "executer": "",
-          "expectedValue": {}
-        }
-      ],
-      "cleanActions": []
     }
   ],
   "adapterStandaloneStories": [
@@ -1400,6 +1226,21 @@
         }
       ],
       "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[getRewardToken()] - Should return address(0)",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "getRewardToken(address)",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
       "cleanActions": []
     }
   ]

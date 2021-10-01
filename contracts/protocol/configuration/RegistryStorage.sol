@@ -156,6 +156,11 @@ contract RegistryStorage is RegistryAdminStorage {
     mapping(address => DataTypes.VaultConfiguration) public vaultToVaultConfiguration;
 
     /**
+     * @notice withdrawal fee's range
+     */
+    DataTypes.WithdrawalFeeRange public withdrawalFeeRange;
+
+    /**
      * @notice List of all the tokenHashes
      */
     bytes32[] public tokensHashIndexes;

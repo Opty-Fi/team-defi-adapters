@@ -113,7 +113,7 @@ const buidlerConfig: HardhatUserConfig = {
         path: MNEMONIC_PATH,
         initialIndex: 0,
         count: 20,
-        accountsBalance: "100000000000000000000000000",
+        accountsBalance: "1000000000000000000000000000",
       },
     },
   },

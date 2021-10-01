@@ -53,6 +53,7 @@ describe(scenario.title, () => {
       let ERC20Instance: Contract;
 
       before(async () => {
+        await contracts["registry"].setWithdrawalFeeRange(["0", "1000"]);
         await approveLiquidityPoolAndMapAdapter(
           users["owner"],
           essentialContracts.registry,

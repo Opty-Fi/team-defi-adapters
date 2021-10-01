@@ -18,7 +18,6 @@ export const TypedDefiPools = DefiPools as DEFI_POOLS_DATA;
 export const TypedAdapterStrategies = AdapterStrategies as ADAPTER_WITH_STRATEGIES_DATA;
 export const TypedStrategies = Strategies as STRATEGY[];
 export const TypedTokens = Tokens as DATA_OBJECT;
-
 export const TypedBtcTokens = BtcTokens as DATA_OBJECT;
 export const TypedMultiAssetTokens = PairTokens as MULTI_ASSET_TOKEN_DATA;
 export const TypedCurveTokens = CurveTokens as CURVE_TOKEN_DATA;
