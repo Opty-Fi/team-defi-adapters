@@ -37,13 +37,6 @@ export type RISK_PROFILE_DATA = {
   };
 };
 
-export type OPTY_STAKING_VAULT = {
-  name: string;
-  numberOfDays: string;
-  lockTime: number;
-  multiplier: number;
-};
-
 export type REWARD_TOKEN_DATA_OBJECT = {
   [name: string]: {
     [name: string]: string | boolean;
@@ -69,6 +62,7 @@ export type DEFI_POOLS_DATA = {
       pool: string;
       lpToken: string;
       tokens: string[];
+      stakingVault?: string;
       deprecated?: boolean;
     };
   };
@@ -93,4 +87,11 @@ export type CURVE_TOKEN_DATA = {
     swap?: boolean;
     old?: boolean;
   };
+};
+
+export type OPTY_STAKING_VAULT = {
+  name: string;
+  numberOfDays: string;
+  lockTime: number;
+  multiplier: number;
 };
