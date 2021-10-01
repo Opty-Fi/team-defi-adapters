@@ -115,7 +115,6 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
   let defaultFundAmount: BigNumber = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
   switch (getAddress(underlyingTokenAddress)) {
     case getAddress(TypedTokens.BAL):
-    case getAddress(TypedTokens.WBTC):
     case getAddress(TypedTokens.COMP):
     case getAddress(TypedTokens.SAI):
     case getAddress(TypedTokens.REP):
@@ -135,6 +134,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     }
     case getAddress(TypedTokens.REN_BTC):
     case getAddress(TypedTokens.TBTC):
+    case getAddress(TypedTokens.WBTC):
     case getAddress(TypedTokens.YFI):
     case getAddress(TypedTokens.CREAM):
     case getAddress(TypedTokens.WNXM):
