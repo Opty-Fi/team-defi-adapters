@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - master
-  workflow_dispatch:
-    inputs:
-      git-ref:
-        description: Git Ref (Required)    
-        required: true
-
 
 jobs:
   lint:
