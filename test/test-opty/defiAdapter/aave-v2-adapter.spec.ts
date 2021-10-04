@@ -418,7 +418,9 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
                     const configuration = await lendingPoolInstance.getConfiguration(underlyingTokenAddress);
                     const isActive = (configuration >> 56) % 2;
                     const isFrozen = (isActive >> 1) % 2;
-                    if (isActive == 0 || isFrozen == 1) {
+                    const borrowEnabled = (isFrozen >> 1) % 2;
+                    const stableBorrowEnabled = (borrowEnabled >> 1) % 2;
+                    if (isActive == 0 || isFrozen == 1 || borrowEnabled == 0 || stableBorrowEnabled == 0) {
                       this.skip();
                     }
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
