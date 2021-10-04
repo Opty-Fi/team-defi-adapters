@@ -183,32 +183,34 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
 
     describe(`Test-${DFORCE_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
-        if (pool !== "tusd") {
-          continue;
-        }
         const poolDetail = TypedDefiPools[DFORCE_ADAPTER_NAME][pool];
         const liquidityPool = poolDetail.pool;
+
         const underlyingTokenAddress =
           getAddress(poolDetail.tokens[0]) == getAddress(TypedTokens.ETH)
             ? getAddress(TypedTokens.WETH)
             : getAddress(TypedDefiPools[DFORCE_ADAPTER_NAME][pool].tokens[0]);
 
         if (TypedDefiPools[DFORCE_ADAPTER_NAME][pool].tokens.length == 1) {
+          let lpContract: Contract;
+          let lpStakingContract: Contract;
+          let stopReward = false;
+          before(async () => {
+            lpContract = await hre.ethers.getContractAt("IDForceDeposit", liquidityPool);
+            const stakingAddress = await adapter.liquidityPoolToStakingVault(liquidityPool);
+            if (stakingAddress !== ADDRESS_ZERO) {
+              lpStakingContract = await hre.ethers.getContractAt("IDForceStake", stakingAddress);
+              const lockedDetails = lpStakingContract ? await lpStakingContract.lockedDetails() : "0";
+              const currentTimestamp = await getBlockTimestamp(hre);
+              if (lockedDetails[1].toString() < currentTimestamp.toString()) {
+                stopReward = true;
+              }
+            }
+          });
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const story = testDeFiAdaptersScenario.stories[i];
-              const lpContract = await hre.ethers.getContractAt("IDForceDeposit", liquidityPool);
-              const stakingAddress = await adapter.liquidityPoolToStakingVault(liquidityPool);
-              let stopReward = false;
-              let lpStakingContract: Contract | undefined;
-              if (stakingAddress !== ADDRESS_ZERO) {
-                lpStakingContract = await hre.ethers.getContractAt("IDForceStake", stakingAddress);
-                const lockedDetails = lpStakingContract ? await lpStakingContract.lockedDetails() : "0";
-                const currentTimestamp = await getBlockTimestamp(hre);
-                if (lockedDetails[1].toString() < currentTimestamp.toString()) {
-                  stopReward = true;
-                }
-              }
+
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const LpERC20Instance = await hre.ethers.getContractAt("ERC20", liquidityPool);
               const getLPERC20Code = await LpERC20Instance.provider.getCode(LpERC20Instance.address);
@@ -221,7 +223,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                 poolValue = await adapter.getPoolValue(liquidityPool, underlyingTokenAddress);
               }
               if (getLPERC20Code !== "0x" && getERC20Code !== "0x" && getLPCode !== "0x" && +poolValue > 0) {
-                const rewardTokenAddress = await adapter.getRewardToken(ADDRESS_ZERO);
+                const rewardTokenAddress = pool !== "tusd" ? await adapter.getRewardToken(liquidityPool) : ADDRESS_ZERO;
                 let RewardTokenERC20Instance: Contract;
                 if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                   RewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
@@ -394,6 +396,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        rewardTokenAddress === ADDRESS_ZERO ||
                         TOKEN_HOLDERS[pool.toUpperCase()]
                       ) {
                         this.skip();
@@ -408,6 +411,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        rewardTokenAddress === ADDRESS_ZERO ||
                         TOKEN_HOLDERS[pool.toUpperCase()]
                       ) {
                         this.skip();
@@ -423,9 +427,11 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "testGetClaimRewardTokenCode(address,address)": {
-                      rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, adapter.address);
-                      isTestingClaimRewardFunction = true;
+                      if (lpStakingContract) {
+                        rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](liquidityPool, adapter.address);
+                        isTestingClaimRewardFunction = true;
+                      }
                       break;
                     }
                     case "testGetStakeAllCodes(address,address,address)": {
@@ -607,9 +613,9 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getRewardTokenBalance(address)": {
-                      const rewardTokenBalanceAfter: BigNumber = await RewardTokenERC20Instance!.balanceOf(
-                        testDeFiAdapter.address,
-                      );
+                      const rewardTokenBalanceAfter: BigNumber = lpStakingContract
+                        ? await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address)
+                        : BigNumber.from("0");
 
                       if (
                         (!lpStakingContract && isTestingStakingFunction) ||
@@ -846,6 +852,12 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                         expect(underlyingBalance).to.be.gt(0);
                         break;
                       }
+                      case "getRewardToken(address)": {
+                        if (lpStakingContract) {
+                          expect(await adapter[action.action](liquidityPool)).to.be.eq(await lpStakingContract.df());
+                        }
+                        break;
+                      }
                     }
                   }
                 }
@@ -866,17 +878,6 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                 expect(_canStake).to.be.eq(true);
                 break;
               }
-              case "setRewardToken(address)": {
-                if (action.expect == "success") {
-                  await adapter[action.action](TypedTokens.DF);
-                } else {
-                  //  TODO: Add test scenario if operator is trying to set ZERO/EOA ADDRESS as reward token address
-                  await expect(
-                    adapter.connect(users[action.executer])[action.action](TypedTokens.DF),
-                  ).to.be.revertedWith(action.message);
-                }
-                break;
-              }
               case "setLiquidityPoolToStakingVault(address,address)": {
                 if (action.expect == "success") {
                   await adapter[action.action](dummyContract.address, dummyContract.address);
@@ -894,11 +895,6 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
           }
           for (const action of story.getActions) {
             switch (action.action) {
-              case "getRewardToken(address)": {
-                const _rewardTokenAddress = await adapter[action.action](ADDRESS_ZERO);
-                expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.DF));
-                break;
-              }
               case "liquidityPoolToStakingVault(address)": {
                 const stakingVaultAddress = await adapter[action.action](dummyContract.address);
                 expect(getAddress(stakingVaultAddress)).to.be.eq(getAddress(dummyContract.address));
