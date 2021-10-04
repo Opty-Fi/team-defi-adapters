@@ -271,6 +271,10 @@ describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
               const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const aTokenERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
               const aTokenInstance = await hre.ethers.getContractAt("IAaveV2Token", lpToken);
+              const getCode = await aTokenInstance.provider.getCode(aTokenInstance.address);
+              if (getCode === "0x") {
+                this.skip();
+              }
               const lendingPoolInstance = await hre.ethers.getContractAt(
                 "IAaveV2",
                 CONTRACT_ADDRESSES.AAVE_V2_LENDING_POOL,
