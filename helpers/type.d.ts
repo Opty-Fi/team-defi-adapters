@@ -37,13 +37,6 @@ export type RISK_PROFILE_DATA = {
   };
 };
 
-export type OPTY_STAKING_VAULT = {
-  name: string;
-  numberOfDays: string;
-  lockTime: number;
-  multiplier: number;
-};
-
 export type REWARD_TOKEN_DATA_OBJECT = {
   [name: string]: {
     [name: string]: string | boolean;
@@ -69,6 +62,7 @@ export type DEFI_POOLS_DATA = {
       pool: string;
       lpToken: string;
       tokens: string[];
+      stakingVault?: string;
       deprecated?: boolean;
     };
   };
@@ -76,6 +70,23 @@ export type DEFI_POOLS_DATA = {
 
 export type ADAPTER_WITH_STRATEGIES_DATA = {
   [key: string]: STRATEGY[];
+};
+
+export type PAIR_TOKEN_DATA = {
+  [token: string]: {
+    address: string;
+    path0?: string[];
+    path1?: string[];
+  };
+};
+
+export type CURVE_TOKEN_DATA = {
+  [token: string]: {
+    address: string;
+    pool: string;
+    swap?: boolean;
+    old?: boolean;
+  };
 };
 
 export type OPTY_STAKING_VAULT = {

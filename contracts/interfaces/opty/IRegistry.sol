@@ -261,6 +261,15 @@ interface IRegistry {
     ) external returns (bool);
 
     /**
+     * @notice Set the withdrawal fee's range
+     * @param _withdrawalFeeRange the withdrawal fee's range
+     * @return _success Returns a boolean value indicating whether the operation succeeded
+     */
+    function setWithdrawalFeeRange(DataTypes.WithdrawalFeeRange memory _withdrawalFeeRange)
+        external
+        returns (bool _success);
+
+    /**
      * @notice Set the withdrawal fee for the vault contract
      * @param _vault Vault contract address
      * @param _withdrawalFee Withdrawal fee to be set for vault contract
