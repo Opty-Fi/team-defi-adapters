@@ -1,4 +1,4 @@
-name: Earn protocol Install, lint, test and deploy pipeline
+name: Manual Earn protocol piepline
 
 on:
   workflow_dispatch:
