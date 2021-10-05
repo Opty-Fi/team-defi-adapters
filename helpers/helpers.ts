@@ -203,6 +203,10 @@ export function retrieveAdapterFromStrategyName(strategyName: string): string[] 
       adapterName = "AaveV2";
     } else if (strategySymbol[0].toUpperCase() === "CURVE") {
       adapterName = strategySymbol[1].toUpperCase() === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
+    } else if (strategySymbol[0].toUpperCase() === "DFORCE") {
+      adapterName = "DForce";
+    } else if (strategySymbol[0].toUpperCase() === "DYDX") {
+      adapterName = "DyDx";
     } else {
       adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
     }
