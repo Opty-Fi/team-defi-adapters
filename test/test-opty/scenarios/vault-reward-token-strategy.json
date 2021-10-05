@@ -724,7 +724,7 @@
           "getActions": [
             {
               "contract": "riskManager",
-              "action": "getVaultRewardTokenStrategy(bytes32)",
+              "action": "getVaultRewardTokenStrategy(address[])",
               "args": {},
               "expectedValue": {
                 "vaultRewardStrategy": [5000, 5000]
@@ -735,7 +735,7 @@
           ]
         },
         {
-          "description": "Risk Manager shouldn't get the VaultRewardTokenStrategy for 0x0..0 VaultRewardToken hash",
+          "description": "Risk Manager shouldn't get the VaultRewardTokenStrategy for empty VaultRewardToken",
           "setActions": [
             {
               "contract": "strategyProvider",
@@ -751,13 +751,13 @@
           "getActions": [
             {
               "contract": "riskManager",
-              "action": "getVaultRewardTokenStrategy(bytes32)",
+              "action": "getVaultRewardTokenStrategy(address[])",
               "args": {
-                "vaultRewardTokenInvalidHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                "underlyingTokens": []
               },
               "expectedValue": {},
               "expect": "fail",
-              "message": "vRtHash!=0x0"
+              "message": "Tokens_Empty!"
             }
           ]
         }
