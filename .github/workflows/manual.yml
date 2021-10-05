@@ -1,9 +1,12 @@
-name: Earn protocol Install, lint, test and deploy pipeline
+name: Manual Earn protocol piepline
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: Git Ref (Required)    
+        required: true
+
 
 jobs:
   lint:
@@ -20,6 +23,8 @@ jobs:
     steps:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
       - name: Cache node modules
         uses: actions/cache@v2
         id: cache
@@ -54,6 +59,8 @@ jobs:
     steps:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
       - name: Cache node modules
         uses: actions/cache@v2
         id: cache
@@ -90,6 +97,8 @@ jobs:
     steps:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.git-ref }}
       - name: Cache node modules
         uses: actions/cache@v2
         id: cache
