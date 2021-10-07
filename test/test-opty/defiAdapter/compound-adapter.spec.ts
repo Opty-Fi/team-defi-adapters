@@ -2,6 +2,7 @@ import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
+import Compound from "@compound-finance/compound-js";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
@@ -14,12 +15,14 @@ import {
 } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import { TypedDefiPools } from "../../../helpers/data";
+import { ERC20 } from "../../../typechain/ERC20";
 //  TODO: This file is temporarily being used until all the adapters testing doesn't adapt this file
 import testDeFiAdaptersScenario from "../scenarios/compound-temp-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { to_10powNumber_BN } from "../../../helpers/utils";
-import Compound from "@compound-finance/compound-js";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -31,8 +34,6 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositPoolPct?: string;
   maxDepositAmount?: string;
 };
-
-chai.use(solidity);
 
 describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
   const strategies = TypedAdapterStrategies[COMPOUND_ADAPTER_NAME];
@@ -179,7 +180,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < testDeFiAdaptersScenario.stories.length; i++) {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const story = testDeFiAdaptersScenario.stories[i];
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+              const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const liquidityPool = TypedDefiPools[COMPOUND_ADAPTER_NAME][pool].pool;
               const LpContractInstance = await hre.ethers.getContractAt(Compound.util.getAbi("cErc20"), liquidityPool);
               const compTroller = await LpContractInstance.comptroller();
@@ -414,9 +415,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                        testDeFiAdapter.address,
-                      );
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limit)) {
                         expectedValue == ">0"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)

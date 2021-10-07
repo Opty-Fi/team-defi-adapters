@@ -95,7 +95,7 @@ describe(scenario.title, async () => {
             outputToken: TypedDefiPools[strategyInfo.adapterName][strategyInfo.token.toLowerCase()].lpToken,
             isBorrow: false,
           };
-          await contracts["InvestStrategyRegistry"]["setStrategy(bytes32,(address,address,bool)[])"](
+          await contracts["investStrategyRegistry"]["setStrategy(bytes32,(address,address,bool)[])"](
             generateTokenHash([TypedTokens[strategyInfo.token.toUpperCase()]]),
             generateStrategyStep([strategy]),
           );

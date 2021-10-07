@@ -441,9 +441,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                        testDeFiAdapter.address,
-                      );
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                         expectedValue == ">0"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
