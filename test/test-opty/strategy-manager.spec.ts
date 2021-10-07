@@ -3,12 +3,16 @@ import hre from "hardhat";
 import { Contract, Signer } from "ethers";
 import { solidity } from "ethereum-waffle";
 import { CONTRACTS, MOCK_CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { deployContract, deploySmockContract, retrieveAdapterFromStrategyName } from "../../helpers/helpers";
+import {
+  generateStrategyHash,
+  deployContract,
+  deploySmockContract,
+  retrieveAdapterFromStrategyName,
+} from "../../helpers/helpers";
 import { TESTING_DEPLOYMENT_ONCE, ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants";
-import { deployRegistry, deployAdapter } from "../../helpers/contracts-deployments";
+import { deployAdapter } from "../../helpers/contracts-deployments";
 import scenario from "./scenarios/strategy-manager.json";
-import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
-import { TypedStrategies } from "../../helpers/data";
+import { TypedStrategies, TypedTokens } from "../../helpers/data";
 import { smock } from "@defi-wonderland/smock";
 
 chai.use(solidity);
@@ -16,63 +20,95 @@ chai.use(solidity);
 describe(scenario.title, () => {
   const sideContracts: MOCK_CONTRACTS = {};
   let strategyManager: Contract;
-  let registry: Contract;
   let owner: Signer;
   before(async () => {
     try {
       [owner] = await hre.ethers.getSigners();
-      registry = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
+      sideContracts["registry"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.REGISTRY, []);
       sideContracts["vaultStepInvestStrategyDefinitionRegistry"] = await deploySmockContract(
         smock,
         ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-        [registry.address],
+        [sideContracts["registry"].address],
       );
       sideContracts["harvestCodeProvider"] = await deploySmockContract(
         smock,
         ESSENTIAL_CONTRACTS.HARVEST_CODE_PROVIDER,
-        [registry.address],
+        [sideContracts["registry"].address],
       );
       strategyManager = await deployContract(
         hre,
         ESSENTIAL_CONTRACTS.STRATEGY_MANAGER,
         TESTING_DEPLOYMENT_ONCE,
         owner,
-        [registry.address],
+        [sideContracts["registry"].address],
       );
+      sideContracts["registry"].getRiskOperator.returns(await owner.getAddress());
+      sideContracts["registry"].getVaultStepInvestStrategyDefinitionRegistry.returns(
+        sideContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
+      );
+      sideContracts["registry"].getHarvestCodeProvider.returns(sideContracts["harvestCodeProvider"].address);
     } catch (error) {
       console.log(error);
     }
   });
   for (let i = 0; i < TypedStrategies.length; i++) {
     const strategy = TypedStrategies[i];
+    if (i > 0) {
+      break;
+    }
     const adapterNames = retrieveAdapterFromStrategyName(strategy.strategyName);
     const adapters: CONTRACTS = {};
+    const strategyHash = generateStrategyHash(strategy.strategy, TypedTokens[strategy.token.toUpperCase()]);
     before(async () => {
-      const liquidityPoolToAdapters = [];
-      const liquidityPools = strategy.strategy.map(item => item.contract);
       for (let i = 0; i < adapterNames.length; i++) {
         adapters[adapterNames[i]] = await deployAdapter(
           hre,
           owner,
           adapterNames[i],
-          registry.address,
+          sideContracts["registry"].address,
           TESTING_DEPLOYMENT_ONCE,
         );
-        liquidityPoolToAdapters.push([strategy.strategy[i].contract, adapters[adapterNames[i]].address]);
       }
-      await approveLiquidityPoolAndMapAdapters(owner, registry, liquidityPools, liquidityPoolToAdapters);
     });
 
     for (let i = 0; i < scenario.stories.length; i++) {
       const story = scenario.stories[i];
       it(`${story.description}`, async () => {
-        // for (let i = 0; i < story.setActions.length; i++) {}
+        for (let i = 0; i < story.setActions.length; i++) {
+          const action = story.setActions[i];
+          switch (action.action) {
+            case "getStrategy()": {
+              sideContracts["vaultStepInvestStrategyDefinitionRegistry"].getStrategy.returns([
+                0,
+                strategy.strategy.map(s => ({
+                  pool: s.contract,
+                  outputToken: s.outputToken,
+                  isBorrow: s.isBorrow,
+                })),
+              ]);
+              break;
+            }
+            case "getLiquidityPoolToAdapter()": {
+              for (let i = 0; i < strategy.strategy.length; i++) {
+                sideContracts["registry"].getLiquidityPoolToAdapter
+                  .whenCalledWith(strategy.strategy[i].contract)
+                  .returns(adapters[adapterNames[i]].address);
+              }
+            }
+          }
+        }
         for (let i = 0; i < story.getActions.length; i++) {
           const action = story.getActions[i];
           switch (action.action) {
+            case "getDepositAllStepCount(bytes32)": {
+              const value = await strategyManager[action.action](strategyHash);
+              expect(value).to.be.equal(1);
+              console.log("value:", value);
+              break;
+            }
             case "getBalanceInUnderlyingTokenWrite(address,address,bytes32)": {
               // await getBalanceInUnderlyingTokenWrite()
-              expect(await strategyManager.getBalanceInUnderlyingTokenWrite());
+              //expect(await strategyManager.getBalanceInUnderlyingTokenWrite());
               break;
             }
           }
@@ -82,32 +118,3 @@ describe(scenario.title, () => {
     }
   }
 });
-
-// async function getBalanceInUnderlyingTokenWrite(
-//   vault: string,
-//   strategies: STRATEGY_DATA[],
-//   adapter: Contract,
-//   underlyingToken: string,
-// ): Promise<number> {
-//   let balance = 0;
-//   for (let i = strategies.length - 1; i >= 0; i--) {
-//     const inputToken = i === 0 ? underlyingToken : strategies[i].outputToken;
-//     const liquidityPool = strategies[i].contract;
-//     const strategy = strategies[i];
-//     if (!strategy.isBorrow) {
-//       if (i === strategies.length - 1) {
-//         if (await adapter.canStake(liquidityPool)) {
-//           balance = await adapter.getAllAmountInTokenStakeWrite(vault, inputToken, liquidityPool);
-//         } else {
-//           balance = await adapter.getAllAmountInToken(vault, inputToken, liquidityPool);
-//         }
-//       } else {
-//         balance = await adapter.getSomeAmountInToken(inputToken, liquidityPool, balance);
-//       }
-//     } else {
-//       const borrowToken = strategy.outputToken;
-//       balance = await adapter.getAllAmountInTokenBorrow(vault, inputToken, liquidityPool, borrowToken, balance);
-//     }
-//   }
-//   return balance;
-// }

@@ -3,16 +3,446 @@
   "description": "Test cases for strategy Manager",
   "stories": [
     {
+      "description": "[getDepositAllStepCount] Should return correct number of steps.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "registry",
+          "action": "getLiquidityPoolToAdapter()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "strategyManager",
+          "action": "getDepositAllStepCount(bytes32)",
+          "args": {},
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getWithdrawAllStepsCount] Should return correct number of steps.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "strategyManager",
+          "action": "getWithdrawAllStepsCount(bytes32)",
+          "args": {},
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getClaimRewardStepsCount] Should return correct number of steps.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "strategyManager",
+          "action": "getClaimRewardStepsCount(bytes32)",
+          "args": {},
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getBalanceInUnderlyingToken] Should return correct balance in underlying token.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "strategyManager",
+          "action": "getBalanceInUnderlyingToken(address,address,bytes32)",
+          "args": {},
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    },
+    {
       "description": "[getBalanceInUnderlyingTokenWrite] Should return correct balance.",
-      "setActions": [],
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
       "getActions": [
         {
           "contract": "strategyProvider",
           "action": "getBalanceInUnderlyingTokenWrite(address,address,bytes32)",
           "args": {},
-          "expectedValue": {}
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getPoolDepositAllCodes] Should deposit successfully.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundWallet",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolDepositAllCode(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": "=0"
+        },
+        {
+          "contract": "strategyManager",
+          "action": "getBalanceInUnderlyingToken(address,address,bytes32)",
+          "args": {},
+          "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolWithdrawAllCodes(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
         }
       ]
+    },
+    {
+      "description": "[getPoolWithdrawAllCodes] Should withdraw successfully.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundWallet",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolDepositAllCode(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolWithdrawAllCodes(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": ">0"
+        },
+        {
+          "contract": "strategyManager",
+          "action": "getBalanceInUnderlyingToken(address,address,bytes32)",
+          "args": {},
+          "expectedValue": "=0"
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getPoolClaimAllRewardCodes] Should claim all reward tokens successfully.",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "checkRewardToken",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundWallet",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolDepositAllCode(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolClaimAllRewardCodes(address,bytes32)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": "=0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "args": {},
+          "expectedValue": ">0"
+        }
+      ],
+      "cleanActions": [
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolWithdrawAllCodes(address,address,bytes32,uint256,uint256)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ]
+    },
+    {
+      "description": "[getPoolHarvestAllRewardCodes] Should harvest all reward tokens successfully.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundWalletWithRewardToken",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolHarvestAllRewardCodes(address,address,bytes32)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "args": {},
+          "expectedValue": "=0"
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getPoolHarvestSomeRewardCodes] Should harvest all reward tokens successfully.",
+      "setActions": [
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "",
+          "action": "fundWalletWithRewardToken",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testPoolHarvestSomeRewardCodes(address,address,bytes32,(uint256,uint256))",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "erc20",
+          "action": "balanceOf(address)",
+          "args": {},
+          "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "getRewardTokenBalance(address)",
+          "args": {},
+          "expectedValue": "=0"
+        }
+      ],
+      "cleanActions": []
+    },
+    {
+      "description": "[getAddLiquidityCodes] Should add liquidity successfully.",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "checkAddLiquidity()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testAddLiquidityCodes(address,address,bytes32)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[getAddLiquidityCodes] Should add liquidity successfully.",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "checkAddLiquidity()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "vaultStepInvestStrategyDefinitionRegistry",
+          "action": "getStrategy()",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "testStrategyManager",
+          "action": "testAddLiquidityCodes(address,address,bytes32)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
     }
   ]
 }
