@@ -31,13 +31,11 @@ interface IRegistry {
     function setTreasury(address _treasury) external returns (bool);
 
     /**
-     * @notice Set the VaultStepInvestStrategyDefinitionRegistry contract address
-     * @param _vaultStepInvestStrategyDefinitionRegistry VaultStepInvestStrategyDefinitionRegistry contract address
+     * @notice Set the investStrategyRegistry contract address
+     * @param _investStrategyRegistry InvestStrategyRegistry contract address
      * @return A boolean value indicating whether the operation succeeded
      */
-    function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
-        external
-        returns (bool);
+    function setInvestStrategyRegistry(address _investStrategyRegistry) external returns (bool);
 
     /**
      * @notice Set the APROracle contract address
@@ -388,10 +386,10 @@ interface IRegistry {
     function getStrategyProvider() external view returns (address);
 
     /**
-     * @notice Retrieve the VaultStepInvestStrategyDefinitionRegistry contract address
-     * @return Returns the VaultStepInvestStrategyDefinitionRegistry contract address
+     * @notice Retrieve the InvestStrategyRegistry contract address
+     * @return Returns the InvestStrategyRegistry contract address
      */
-    function getVaultStepInvestStrategyDefinitionRegistry() external view returns (address);
+    function getInvestStrategyRegistry() external view returns (address);
 
     /**
      * @notice Retrieve the RiskManager contract address

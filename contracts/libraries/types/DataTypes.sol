@@ -179,12 +179,12 @@ library DataTypes {
 
     /**
      * @notice Container for persisting all strategy related contract's configuration
-     * @param vaultStepInvestStrategyDefinitionRegistry vaultStepInvestStrategyDefinitionRegistry contract address
+     * @param investStrategyRegistry investStrategyRegistry contract address
      * @param strategyProvider strategyProvider contract address
      * @param aprOracle aprOracle contract address
      */
     struct StrategyConfiguration {
-        address vaultStepInvestStrategyDefinitionRegistry;
+        address investStrategyRegistry;
         address strategyProvider;
         address aprOracle;
     }

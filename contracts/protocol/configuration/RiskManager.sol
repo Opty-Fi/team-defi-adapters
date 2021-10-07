@@ -13,7 +13,7 @@ import { RiskManagerStorage } from "./RiskManagerStorage.sol";
 import { RiskManagerProxy } from "./RiskManagerProxy.sol";
 
 //  interfaces
-import { IVaultStepInvestStrategyDefinitionRegistry } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IInvestStrategyRegistry } from "../../interfaces/opty/IInvestStrategyRegistry.sol";
 import { IStrategyProvider } from "../../interfaces/opty/IStrategyProvider.sol";
 import { IAPROracle } from "../../interfaces/opty/IAPROracle.sol";
 import { IRiskManager } from "../../interfaces/opty/IRiskManager.sol";
@@ -91,11 +91,7 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
 
         if (
             _strategyHash == Constants.ZERO_BYTES32 ||
-            _isInValidStrategy(
-                _strategyHash,
-                _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
-                _riskProfileStruct
-            )
+            _isInValidStrategy(_strategyHash, _strategyConfiguration.investStrategyRegistry, _riskProfileStruct)
         ) {
             _strategyHash = IStrategyProvider(_strategyConfiguration.strategyProvider).rpToTokenToDefaultStrategy(
                 _riskProfile,
@@ -107,19 +103,15 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
 
         if (
             _strategyHash == Constants.ZERO_BYTES32 ||
-            _isInValidStrategy(
-                _strategyHash,
-                _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry,
-                _riskProfileStruct
-            )
+            _isInValidStrategy(_strategyHash, _strategyConfiguration.investStrategyRegistry, _riskProfileStruct)
         ) {
             if (
                 IStrategyProvider(_strategyConfiguration.strategyProvider).getDefaultStrategyState() ==
                 DataTypes.DefaultStrategyState.CompoundOrAave
             ) {
                 _strategyHash = IAPROracle(registryContract.getAprOracle()).getBestAPR(_tokensHash);
-                (, DataTypes.StrategyStep[] memory _strategySteps_) = IVaultStepInvestStrategyDefinitionRegistry(
-                    _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry
+                (, DataTypes.StrategyStep[] memory _strategySteps_) = IInvestStrategyRegistry(
+                    _strategyConfiguration.investStrategyRegistry
                 ).getStrategy(_strategyHash);
                 return _strategySteps_.length > 0 ? _strategyHash : Constants.ZERO_BYTES32;
             } else {
@@ -134,9 +126,9 @@ contract RiskManager is IRiskManager, RiskManagerStorage, Modifiers {
         address _strategyRegistry,
         DataTypes.RiskProfile memory _riskProfileStruct
     ) internal view returns (bool) {
-        (, DataTypes.StrategyStep[] memory _strategySteps) = IVaultStepInvestStrategyDefinitionRegistry(
-            _strategyRegistry
-        ).getStrategy(_strategyHash);
+        (, DataTypes.StrategyStep[] memory _strategySteps) = IInvestStrategyRegistry(_strategyRegistry).getStrategy(
+            _strategyHash
+        );
 
         for (uint256 _i = 0; _i < _strategySteps.length; _i++) {
             DataTypes.LiquidityPool memory _liquidityPool = registryContract.getLiquidityPool(_strategySteps[_i].pool);

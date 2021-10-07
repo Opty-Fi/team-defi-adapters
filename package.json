@@ -24,6 +24,7 @@
     "@commitlint/cli": "^13.2.0",
     "@commitlint/config-conventional": "^13.2.0",
     "@compound-finance/compound-js": "^0.4.0",
+    "@defi-wonderland/smock": "^2.0.7",
     "@ethersproject/abi": "^5.4.1",
     "@ethersproject/abstract-signer": "^5.4.1",
     "@ethersproject/bignumber": "^5.4.2",

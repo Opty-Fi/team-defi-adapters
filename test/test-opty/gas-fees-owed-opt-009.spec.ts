@@ -100,8 +100,7 @@ describe(scenario.title, () => {
 
         contracts["registry"] = essentialContracts.registry;
 
-        contracts["vaultStepInvestStrategyDefinitionRegistry"] =
-          essentialContracts.vaultStepInvestStrategyDefinitionRegistry;
+        contracts["investStrategyRegistry"] = essentialContracts.investStrategyRegistry;
 
         contracts["strategyProvider"] = essentialContracts.strategyProvider;
 
