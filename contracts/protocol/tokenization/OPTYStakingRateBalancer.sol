@@ -103,23 +103,20 @@ contract OPTYStakingRateBalancer is IOPTYStakingRateBalancer, OPTYStakingRateBal
         uint256 _stakingVault60DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault60DLockingTerm];
         uint256 _stakingVault180DLockingTermStakedOPTY = stakingVaultToStakedOPTY[stakingVault180DLockingTerm];
 
-        uint256 _weighted1DLockingTermStakedOPTY = stakingVaultMultipliers[stakingVault1DLockingTerm].mul(
-            _stakingVault1DLockingTermStakedOPTY
-        );
-        uint256 _weighted30DLockingTermStakedOPTY = stakingVaultMultipliers[stakingVault30DLockingTerm].mul(
-            _stakingVault30DLockingTermStakedOPTY
-        );
-        uint256 _weighted60DLockingTermStakedOPTY = stakingVaultMultipliers[stakingVault60DLockingTerm].mul(
-            _stakingVault60DLockingTermStakedOPTY
-        );
-        uint256 _weighted180DLockingTermStakedOPTY = stakingVaultMultipliers[stakingVault180DLockingTerm].mul(
-            _stakingVault180DLockingTermStakedOPTY
-        );
+        uint256 _weighted1DLockingTermStakedOPTY =
+            stakingVaultMultipliers[stakingVault1DLockingTerm].mul(_stakingVault1DLockingTermStakedOPTY);
+        uint256 _weighted30DLockingTermStakedOPTY =
+            stakingVaultMultipliers[stakingVault30DLockingTerm].mul(_stakingVault30DLockingTermStakedOPTY);
+        uint256 _weighted60DLockingTermStakedOPTY =
+            stakingVaultMultipliers[stakingVault60DLockingTerm].mul(_stakingVault60DLockingTermStakedOPTY);
+        uint256 _weighted180DLockingTermStakedOPTY =
+            stakingVaultMultipliers[stakingVault180DLockingTerm].mul(_stakingVault180DLockingTermStakedOPTY);
 
-        uint256 _totalWeightedStakedOPTY = _weighted1DLockingTermStakedOPTY
-            .add(_weighted30DLockingTermStakedOPTY)
-            .add(_weighted60DLockingTermStakedOPTY)
-            .add(_weighted180DLockingTermStakedOPTY);
+        uint256 _totalWeightedStakedOPTY =
+            _weighted1DLockingTermStakedOPTY
+                .add(_weighted30DLockingTermStakedOPTY)
+                .add(_weighted60DLockingTermStakedOPTY)
+                .add(_weighted180DLockingTermStakedOPTY);
         uint256 _rate1DLock;
         uint256 _rate30DLock;
         uint256 _rate60DLock;

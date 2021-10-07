@@ -15,8 +15,16 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
 import { IAaveV1PriceOracle } from "../../../interfaces/aave/v1/IAaveV1PriceOracle.sol";
-import { IAaveV1LendingPoolAddressesProvider } from "../../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";
-import { IAaveV1, UserReserveData, ReserveConfigurationData, ReserveDataV1, UserAccountData } from "../../../interfaces/aave/v1/IAaveV1.sol";
+import {
+    IAaveV1LendingPoolAddressesProvider
+} from "../../../interfaces/aave/v1/IAaveV1LendingPoolAddressesProvider.sol";
+import {
+    IAaveV1,
+    UserReserveData,
+    ReserveConfigurationData,
+    ReserveDataV1,
+    UserAccountData
+} from "../../../interfaces/aave/v1/IAaveV1.sol";
 import { IAaveV1Token } from "../../../interfaces/aave/v1/IAaveV1Token.sol";
 import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -130,10 +138,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _outputToken
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        ReserveConfigurationData memory _inputTokenReserveConfigurationData = IAaveV1(_lendingPool)
-            .getReserveConfigurationData(_underlyingToken);
-        ReserveConfigurationData memory _outputTokenReserveConfigurationData = IAaveV1(_lendingPool)
-            .getReserveConfigurationData(_outputToken);
+        ReserveConfigurationData memory _inputTokenReserveConfigurationData =
+            IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingToken);
+        ReserveConfigurationData memory _outputTokenReserveConfigurationData =
+            IAaveV1(_lendingPool).getReserveConfigurationData(_outputToken);
         require(
             _inputTokenReserveConfigurationData.isActive &&
                 _inputTokenReserveConfigurationData.usageAsCollateralEnabled &&
@@ -144,9 +152,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _borrow = _availableToBorrowReserve(_vault, _liquidityPoolAddressProvider, _outputToken);
         if (_borrow > 0) {
             bool _isUserCollateralEnabled = IAaveV1(_lendingPool).getUserReserveData(_underlyingToken, _vault).enabled;
-            uint256 _interestRateMode = _outputTokenReserveConfigurationData.stableBorrowRateEnabled
-                ? uint256(1)
-                : uint256(2);
+            uint256 _interestRateMode =
+                _outputTokenReserveConfigurationData.stableBorrowRateEnabled ? uint256(1) : uint256(2);
             if (_isUserCollateralEnabled) {
                 _codes = new bytes[](1);
                 _codes[0] = abi.encode(
@@ -190,30 +197,17 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     ) public view override returns (bytes[] memory _codes) {
         address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(
-            _vault,
-            _underlyingToken,
-            _liquidityPoolAddressProvider
-        );
+        uint256 _liquidityPoolTokenBalance =
+            getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
 
         // borrow token amount
         uint256 _borrowAmount = ERC20(_outputToken).balanceOf(_vault);
 
-        uint256 _aTokenAmount = _maxWithdrawal(
-            _vault,
-            _lendingPool,
-            _liquidityPoolTokenBalance,
-            _outputToken,
-            _borrowAmount
-        );
+        uint256 _aTokenAmount =
+            _maxWithdrawal(_vault, _lendingPool, _liquidityPoolTokenBalance, _outputToken, _borrowAmount);
 
-        uint256 _outputTokenRepayable = _over(
-            _vault,
-            _underlyingToken,
-            _liquidityPoolAddressProvider,
-            _outputToken,
-            _aTokenAmount
-        );
+        uint256 _outputTokenRepayable =
+            _over(_vault, _underlyingToken, _liquidityPoolAddressProvider, _outputToken, _aTokenAmount);
 
         if (_outputTokenRepayable > 0) {
             if (_outputTokenRepayable > _borrowAmount) {
@@ -287,11 +281,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _borrowToken,
         uint256 _borrowAmount
     ) public view override returns (uint256) {
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(
-            _vault,
-            _underlyingToken,
-            _liquidityPoolAddressProvider
-        );
+        uint256 _liquidityPoolTokenBalance =
+            getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
         return
             getSomeAmountInTokenBorrow(
                 _vault,
@@ -378,8 +369,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingToken, _amount);
         if (_depositAmount > 0) {
             address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-            ReserveConfigurationData memory _inputTokenReserveConfigurationData = IAaveV1(_lendingPool)
-                .getReserveConfigurationData(_underlyingToken);
+            ReserveConfigurationData memory _inputTokenReserveConfigurationData =
+                IAaveV1(_lendingPool).getReserveConfigurationData(_underlyingToken);
             require(_inputTokenReserveConfigurationData.isActive, "!isActive");
             address _lendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
             _codes = new bytes[](3);
@@ -464,20 +455,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _borrowAmount
     ) public view override returns (uint256) {
         address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-        uint256 _aTokenAmount = _maxWithdrawal(
-            _vault,
-            _lendingPool,
-            _liquidityPoolTokenBalance,
-            _borrowToken,
-            _borrowAmount
-        );
-        uint256 _outputTokenRepayable = _over(
-            _vault,
-            _underlyingToken,
-            _liquidityPoolAddressProvider,
-            _borrowToken,
-            _aTokenAmount
-        );
+        uint256 _aTokenAmount =
+            _maxWithdrawal(_vault, _lendingPool, _liquidityPoolTokenBalance, _borrowToken, _borrowAmount);
+        uint256 _outputTokenRepayable =
+            _over(_vault, _underlyingToken, _liquidityPoolAddressProvider, _borrowToken, _aTokenAmount);
         if (_outputTokenRepayable > _borrowAmount) {
             return _aTokenAmount;
         } else {
@@ -497,9 +478,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _limit = maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-            ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
-            : maxDepositAmount[_liquidityPool][_underlyingToken];
+        uint256 _limit =
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 
@@ -510,9 +492,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
-        uint256 _limit = _poolPct == 0
-            ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
-            : _poolValue.mul(_poolPct).div(uint256(10000));
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
         return _limit;
     }
 
@@ -537,8 +520,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
             uint256 availableBorrowsETH
         )
     {
-        UserAccountData memory _userAccountData = IAaveV1(_getLendingPool(_liquidityPoolAddressProvider))
-            .getUserAccountData(_vault);
+        UserAccountData memory _userAccountData =
+            IAaveV1(_getLendingPool(_liquidityPoolAddressProvider)).getUserAccountData(_vault);
         uint256 _totalBorrowsETH = _userAccountData.totalBorrowsETH;
         uint256 _availableBorrowsETH = _userAccountData.availableBorrowsETH;
         uint256 _maxBorrowETH = (_totalBorrowsETH.add(_availableBorrowsETH));
@@ -550,10 +533,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         view
         returns (uint256)
     {
-        (uint256 _maxSafeETH_, uint256 _totalBorrowsETH, uint256 _availableBorrowsETH) = _maxSafeETH(
-            _vault,
-            _liquidityPoolAddressProvider
-        );
+        (uint256 _maxSafeETH_, uint256 _totalBorrowsETH, uint256 _availableBorrowsETH) =
+            _maxSafeETH(_vault, _liquidityPoolAddressProvider);
         _maxSafeETH_ = _maxSafeETH_.mul(95).div(100); // 5% buffer so we don't go into a earn/rebalance loop
         if (_maxSafeETH_ > _totalBorrowsETH) {
             return _availableBorrowsETH.mul(_maxSafeETH_.sub(_totalBorrowsETH)).div(_availableBorrowsETH);

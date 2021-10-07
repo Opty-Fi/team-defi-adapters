@@ -14,7 +14,16 @@ import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
-import { IdYdX, AccountInfo, AssetAmount, AssetDenomination, AssetReference, ActionArgs, AssetReference, ActionType } from "../../../interfaces/dydx/IdYdX.sol";
+import {
+    IdYdX,
+    AccountInfo,
+    AssetAmount,
+    AssetDenomination,
+    AssetReference,
+    ActionArgs,
+    AssetReference,
+    ActionType
+} from "../../../interfaces/dydx/IdYdX.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
 
@@ -346,9 +355,10 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _limit = maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-            ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
-            : maxDepositAmount[_liquidityPool][_underlyingToken];
+        uint256 _limit =
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
+                : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 
@@ -359,9 +369,10 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     {
         uint256 _poolValue = getPoolValue(_liquidityPool, _underlyingToken);
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
-        uint256 _limit = _poolPct == 0
-            ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
-            : _poolValue.mul(_poolPct).div(uint256(10000));
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
         return _limit;
     }
 }

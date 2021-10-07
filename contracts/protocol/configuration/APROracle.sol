@@ -121,9 +121,8 @@ contract APROracle is IAPROracle, Modifiers {
     }
 
     function _getAaveV1APR(address token) internal view returns (address, uint256) {
-        IAaveV1LendingPoolCore core = IAaveV1LendingPoolCore(
-            IAaveV1LendingPoolAddressesProvider(aaveV1).getLendingPoolCore()
-        );
+        IAaveV1LendingPoolCore core =
+            IAaveV1LendingPoolCore(IAaveV1LendingPoolAddressesProvider(aaveV1).getLendingPoolCore());
         address aToken = core.getReserveATokenAddress(token);
         return (aToken, core.getReserveCurrentLiquidityRate(token).div(1e9));
     }

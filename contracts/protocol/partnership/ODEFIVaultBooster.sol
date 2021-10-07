@@ -82,19 +82,20 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
                     uint256 _supplyTokens = IERC20(_odefiVault).totalSupply();
                     uint256 _odefiAccrued = mul_(_deltaSeconds, odefiVaultRatePerSecond[_odefiVault]);
                     uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_odefiAccrued, 1e18), _supplyTokens) : uint256(0);
-                    uint256 _index = div_(
-                        add_(
-                            mul_(
-                                odefiVaultState[_odefiVault].index,
-                                sub_(
-                                    uint256(odefiVaultState[_odefiVault].timestamp),
-                                    odefiVaultStartTimestamp[_odefiVault]
-                                )
+                    uint256 _index =
+                        div_(
+                            add_(
+                                mul_(
+                                    odefiVaultState[_odefiVault].index,
+                                    sub_(
+                                        uint256(odefiVaultState[_odefiVault].timestamp),
+                                        odefiVaultStartTimestamp[_odefiVault]
+                                    )
+                                ),
+                                _ratio
                             ),
-                            _ratio
-                        ),
-                        _deltaSecondsSinceStart
-                    );
+                            _deltaSecondsSinceStart
+                        );
                     odefiVaultState[_odefiVault] = DataTypes.RewardsState({
                         index: safe224(_index, "new index exceeds 224 bits"),
                         timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
@@ -181,13 +182,14 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
                 }
                 uint256 _userTokens = IERC20(_odefiVault).balanceOf(_user);
                 uint256 _currentOdefiVaultIndex = currentOdefiVaultIndex(_odefiVault);
-                uint256 _userDelta = mul_(
-                    _userTokens,
-                    sub_(
-                        mul_(_currentOdefiVaultIndex, _deltaSecondsVault),
-                        mul_(odefiUserStateInVault[_odefiVault][_user].index, _deltaSecondsUser)
-                    )
-                );
+                uint256 _userDelta =
+                    mul_(
+                        _userTokens,
+                        sub_(
+                            mul_(_currentOdefiVaultIndex, _deltaSecondsVault),
+                            mul_(odefiUserStateInVault[_odefiVault][_user].index, _deltaSecondsUser)
+                        )
+                    );
                 uint256 _userAccrued = add_(odefiAccrued[_user], _userDelta);
                 odefiAccrued[_user] = _userAccrued;
             }
@@ -230,16 +232,17 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
                     );
                 }
                 uint256 _currentODEFIVaultIndex = currentOdefiVaultIndex(_odefiVault);
-                uint256 _userDelta = mul_(
-                    IERC20(_odefiVault).balanceOf(_holder),
-                    sub_(
-                        mul_(
-                            _currentODEFIVaultIndex,
-                            sub_(_getBlockTimestamp(), odefiVaultStartTimestamp[_odefiVault])
-                        ),
-                        mul_(odefiUserStateInVault[_odefiVault][_holder].index, _deltaSecondsUser)
-                    )
-                );
+                uint256 _userDelta =
+                    mul_(
+                        IERC20(_odefiVault).balanceOf(_holder),
+                        sub_(
+                            mul_(
+                                _currentODEFIVaultIndex,
+                                sub_(_getBlockTimestamp(), odefiVaultStartTimestamp[_odefiVault])
+                            ),
+                            mul_(odefiUserStateInVault[_odefiVault][_holder].index, _deltaSecondsUser)
+                        )
+                    );
                 claimableOdefiAmount = add_(claimableOdefiAmount, _userDelta);
             }
         }
@@ -255,16 +258,17 @@ contract ODEFIVaultBooster is IODEFIVaultBooster, ODEFIVaultBoosterStorage, Expo
         uint256 _supplyTokens = IERC20(_odefiVault).totalSupply();
         uint256 _odefiAccrued = mul_(_deltaSeconds, odefiVaultRatePerSecond[_odefiVault]);
         uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_odefiAccrued, 1e18), _supplyTokens) : uint256(0);
-        uint256 _index = div_(
-            add_(
-                mul_(
-                    odefiVaultState[_odefiVault].index,
-                    sub_(uint256(odefiVaultState[_odefiVault].timestamp), odefiVaultStartTimestamp[_odefiVault])
+        uint256 _index =
+            div_(
+                add_(
+                    mul_(
+                        odefiVaultState[_odefiVault].index,
+                        sub_(uint256(odefiVaultState[_odefiVault].timestamp), odefiVaultStartTimestamp[_odefiVault])
+                    ),
+                    _ratio
                 ),
-                _ratio
-            ),
-            _deltaSecondsSinceStart
-        );
+                _deltaSecondsSinceStart
+            );
         return _index;
     }
 

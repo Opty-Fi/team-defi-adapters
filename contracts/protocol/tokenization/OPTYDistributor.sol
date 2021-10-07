@@ -169,16 +169,17 @@ contract OPTYDistributor is IOPTYDistributor, OPTYDistributorStorage, Exponentia
                     uint256 _supplyTokens = IERC20(_vault).totalSupply();
                     uint256 _optyAccrued = mul_(_deltaSeconds, optyVaultRatePerSecond[_vault]);
                     uint256 _ratio = _supplyTokens > 0 ? div_(mul_(_optyAccrued, 1e18), _supplyTokens) : uint256(0);
-                    uint256 _index = div_(
-                        add_(
-                            mul_(
-                                optyVaultState[_vault].index,
-                                sub_(uint256(optyVaultState[_vault].timestamp), optyVaultStartTimestamp[_vault])
+                    uint256 _index =
+                        div_(
+                            add_(
+                                mul_(
+                                    optyVaultState[_vault].index,
+                                    sub_(uint256(optyVaultState[_vault].timestamp), optyVaultStartTimestamp[_vault])
+                                ),
+                                _ratio
                             ),
-                            _ratio
-                        ),
-                        _deltaSecondsSinceStart
-                    );
+                            _deltaSecondsSinceStart
+                        );
                     optyVaultState[_vault] = DataTypes.RewardsState({
                         index: safe224(_index, "new index exceeds 224 bits"),
                         timestamp: safe32(_getBlockTimestamp(), "block number exceeds 32 bits")
@@ -255,13 +256,14 @@ contract OPTYDistributor is IOPTYDistributor, OPTYDistributorStorage, Exponentia
                 }
                 uint256 _userTokens = IERC20(_vault).balanceOf(_user);
                 uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_vault);
-                uint256 _userDelta = mul_(
-                    _userTokens,
-                    sub_(
-                        mul_(_currentOptyVaultIndex, _deltaSecondsVault),
-                        mul_(optyUserStateInVault[_vault][_user].index, _deltaSecondsUser)
-                    )
-                );
+                uint256 _userDelta =
+                    mul_(
+                        _userTokens,
+                        sub_(
+                            mul_(_currentOptyVaultIndex, _deltaSecondsVault),
+                            mul_(optyUserStateInVault[_vault][_user].index, _deltaSecondsUser)
+                        )
+                    );
                 uint256 _userAccrued = add_(optyAccrued[_user], _userDelta);
                 optyAccrued[_user] = _userAccrued;
             }
@@ -297,13 +299,14 @@ contract OPTYDistributor is IOPTYDistributor, OPTYDistributorStorage, Exponentia
                     );
                 }
                 uint256 _currentOptyVaultIndex = currentOptyVaultIndex(_vault);
-                uint256 _userDelta = mul_(
-                    IERC20(_vault).balanceOf(_holder),
-                    sub_(
-                        mul_(_currentOptyVaultIndex, sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_vault])),
-                        mul_(optyUserStateInVault[_vault][_holder].index, _deltaSecondsUser)
-                    )
-                );
+                uint256 _userDelta =
+                    mul_(
+                        IERC20(_vault).balanceOf(_holder),
+                        sub_(
+                            mul_(_currentOptyVaultIndex, sub_(_getBlockTimestamp(), optyVaultStartTimestamp[_vault])),
+                            mul_(optyUserStateInVault[_vault][_holder].index, _deltaSecondsUser)
+                        )
+                    );
                 claimableOptyAmount = add_(claimableOptyAmount, _userDelta);
             }
         }

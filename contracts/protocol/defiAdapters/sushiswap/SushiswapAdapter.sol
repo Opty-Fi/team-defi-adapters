@@ -398,18 +398,20 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _limit = maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-            ? _getMaxDepositAmountByPct(_masterChef, _underlyingToken)
-            : maxDepositAmount[_masterChef][_underlyingToken];
+        uint256 _limit =
+            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+                ? _getMaxDepositAmountByPct(_masterChef, _underlyingToken)
+                : maxDepositAmount[_masterChef][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 
     function _getMaxDepositAmountByPct(address _masterChef, address _underlyingToken) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_masterChef, _underlyingToken);
         uint256 _poolPct = maxDepositPoolPct[_underlyingToken];
-        uint256 _limit = _poolPct == 0
-            ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
-            : _poolValue.mul(_poolPct).div(uint256(10000));
+        uint256 _limit =
+            _poolPct == 0
+                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+                : _poolValue.mul(_poolPct).div(uint256(10000));
         return _limit;
     }
 }
