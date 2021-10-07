@@ -78,11 +78,10 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                     sushiswapRouter
                 );
             } else {
-                uint256[] memory _amounts =
-                    IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
-                        _rewardTokenAmount,
-                        _getPath(_rewardToken, _underlyingToken)
-                    );
+                uint256[] memory _amounts = IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+                    _rewardTokenAmount,
+                    _getPath(_rewardToken, _underlyingToken)
+                );
                 if (_amounts[_amounts.length - 1] > 0) {
                     _codes = new bytes[](3);
                     _codes[0] = abi.encode(
@@ -187,8 +186,10 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                     uniswapV2Router02
                 );
         } else {
-            uint256[] memory _amountsA =
-                IUniswapV2Router02(uniswapV2Router02).getAmountsOut(_amount, _getPath(_rewardToken, _underlyingToken));
+            uint256[] memory _amountsA = IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+                _amount,
+                _getPath(_rewardToken, _underlyingToken)
+            );
             return _amountsA[_amountsA.length - 1];
         }
     }
@@ -201,8 +202,10 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         if (_underlyingToken == _weth) {
             return _amount;
         }
-        uint256[] memory _amounts =
-            IUniswapV2Router02(uniswapV2Router02).getAmountsOut(_amount, _getPath(_weth, _underlyingToken));
+        uint256[] memory _amounts = IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+            _amount,
+            _getPath(_weth, _underlyingToken)
+        );
         return _amounts[1];
     }
 
@@ -215,16 +218,14 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     ) internal view returns (bytes[] memory _codes) {
         address _token0 = IUniswapV2Pair(_underlyingToken).token0();
         address _token1 = IUniswapV2Pair(_underlyingToken).token1();
-        uint256[] memory _amounts0 =
-            IUniswapV2Router02(_router).getAmountsOut(
-                _rewardTokenAmount.div(uint256(2)),
-                _getPath(_rewardToken, _token0)
-            );
-        uint256[] memory _amounts1 =
-            IUniswapV2Router02(_router).getAmountsOut(
-                _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                _getPath(_rewardToken, _token1)
-            );
+        uint256[] memory _amounts0 = IUniswapV2Router02(_router).getAmountsOut(
+            _rewardTokenAmount.div(uint256(2)),
+            _getPath(_rewardToken, _token0)
+        );
+        uint256[] memory _amounts1 = IUniswapV2Router02(_router).getAmountsOut(
+            _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
+            _getPath(_rewardToken, _token1)
+        );
         if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
             _codes = new bytes[](4);
             _codes[0] = abi.encode(
@@ -271,8 +272,10 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
         address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
         _amountsA = IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA));
-        uint256[] memory _amountsB =
-            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB));
+        uint256[] memory _amountsB = IUniswapV2Router02(_router).getAmountsOut(
+            _amount.div(uint256(2)),
+            _getPath(_rewardToken, _tokenB)
+        );
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
         uint256 quoteAmount = IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
         if (quoteAmount >= _amountsB[_amountsB.length - 1]) {

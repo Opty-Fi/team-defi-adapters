@@ -104,15 +104,17 @@ contract Vault is
      * @inheritdoc IVault
      */
     function rebalance() external override ifNotPausedAndDiscontinued(address(this)) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
 
         uint256 _gasInitial = msg.sender == _vaultStrategyConfiguration.operator ? gasleft() : uint256(0);
 
         address[] memory _underlyingTokens = new address[](1);
         _underlyingTokens[0] = underlyingToken;
-        bytes32 _newInvestStrategyHash =
-            IRiskManager(_vaultStrategyConfiguration.riskManager).getBestStrategy(profile, _underlyingTokens);
+        bytes32 _newInvestStrategyHash = IRiskManager(_vaultStrategyConfiguration.riskManager).getBestStrategy(
+            profile,
+            _underlyingTokens
+        );
         if (
             keccak256(abi.encodePacked(_newInvestStrategyHash)) != keccak256(abi.encodePacked(investStrategyHash)) &&
             investStrategyHash != Constants.ZERO_BYTES32
@@ -150,8 +152,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function harvest(bytes32 _investStrategyHash) external override {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _harvest(_investStrategyHash, _vaultStrategyConfiguration);
     }
 
@@ -174,8 +176,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userDepositAllRebalance() external override {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
@@ -183,8 +185,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userDepositRebalance(uint256 _amount) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
         return true;
     }
@@ -193,8 +195,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userWithdrawAllRebalance() external override {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userWithdrawRebalance(balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
@@ -202,8 +204,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userWithdrawRebalance(uint256 _redeemAmount) external override returns (bool) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userWithdrawRebalance(_redeemAmount, _vaultStrategyConfiguration);
         return true;
     }
@@ -226,8 +228,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userDepositAllRebalanceWithCHI() external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userDepositRebalance(IERC20(underlyingToken).balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
@@ -235,8 +237,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userDepositRebalanceWithCHI(uint256 _amount) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userDepositRebalance(_amount, _vaultStrategyConfiguration);
     }
 
@@ -244,8 +246,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userWithdrawRebalanceWithCHI(uint256 _redeemAmount) external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userWithdrawRebalance(_redeemAmount, _vaultStrategyConfiguration);
     }
 
@@ -253,8 +255,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function userWithdrawAllRebalanceWithCHI() external override discountCHI {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         _userWithdrawRebalance(balanceOf(msg.sender), _vaultStrategyConfiguration);
     }
 
@@ -262,8 +264,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function discontinue() external override onlyRegistry {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         if (investStrategyHash != Constants.ZERO_BYTES32) {
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
@@ -274,8 +276,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function setUnpaused(bool _unpaused) external override onlyRegistry {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         if (!_unpaused && investStrategyHash != Constants.ZERO_BYTES32) {
             _withdrawAll(_vaultStrategyConfiguration);
             _harvest(investStrategyHash, _vaultStrategyConfiguration);
@@ -286,8 +288,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function getPricePerFullShareWrite() external override returns (uint256) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         if (totalSupply() != 0) {
             pricePerShareWrite = _calVaultValueInUnderlyingTokenWrite(_vaultStrategyConfiguration)
                 .mul(Constants.WEI_DECIMAL)
@@ -309,8 +311,8 @@ contract Vault is
      * @inheritdoc IVault
      */
     function getPricePerFullShare() public view override returns (uint256) {
-        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration =
-            registryContract.getVaultStrategyConfiguration();
+        DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration = registryContract
+            .getVaultStrategyConfiguration();
         if (totalSupply() != 0) {
             return
                 _calVaultValueInUnderlyingToken(_vaultStrategyConfiguration).mul(Constants.WEI_DECIMAL).div(
@@ -355,8 +357,9 @@ contract Vault is
      */
     function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMint(_vaultStrategyConfiguration);
-        uint256 _steps =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
+        uint256 _steps = IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(
+            investStrategyHash
+        );
         for (uint256 _i; _i < _steps; _i++) {
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolDepositAllCodes(
@@ -376,8 +379,9 @@ contract Vault is
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      */
     function _withdrawAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
-        uint256 _steps =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(investStrategyHash);
+        uint256 _steps = IStrategyManager(_vaultStrategyConfiguration.strategyManager).getWithdrawAllStepsCount(
+            investStrategyHash
+        );
         for (uint256 _i; _i < _steps; _i++) {
             uint256 _iterator = _steps - 1 - _i;
             executeCodes(
@@ -403,8 +407,9 @@ contract Vault is
         bytes32 _investStrategyHash,
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
     ) internal {
-        address _rewardToken =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getRewardToken(_investStrategyHash);
+        address _rewardToken = IStrategyManager(_vaultStrategyConfiguration.strategyManager).getRewardToken(
+            _investStrategyHash
+        );
         if (_rewardToken != address(0)) {
             // means rewards exists
             executeCodes(
@@ -656,12 +661,8 @@ contract Vault is
         returns (uint256 _vaultValue)
     {
         if (investStrategyHash != Constants.ZERO_BYTES32) {
-            uint256 balanceInUnderlyingToken =
-                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getBalanceInUnderlyingToken(
-                    payable(address(this)),
-                    underlyingToken,
-                    investStrategyHash
-                );
+            uint256 balanceInUnderlyingToken = IStrategyManager(_vaultStrategyConfiguration.strategyManager)
+                .getBalanceInUnderlyingToken(payable(address(this)), underlyingToken, investStrategyHash);
             _vaultValue = balanceInUnderlyingToken.add(_balance()).sub(depositQueue);
         } else {
             _vaultValue = _balance().sub(depositQueue);
@@ -680,12 +681,8 @@ contract Vault is
         DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration
     ) internal returns (uint256 _vaultValue) {
         if (investStrategyHash != Constants.ZERO_BYTES32) {
-            uint256 balanceInUnderlyingToken =
-                IStrategyManager(_vaultStrategyConfiguration.strategyManager).getBalanceInUnderlyingTokenWrite(
-                    payable(address(this)),
-                    underlyingToken,
-                    investStrategyHash
-                );
+            uint256 balanceInUnderlyingToken = IStrategyManager(_vaultStrategyConfiguration.strategyManager)
+                .getBalanceInUnderlyingTokenWrite(payable(address(this)), underlyingToken, investStrategyHash);
             _vaultValue = balanceInUnderlyingToken.add(_balance()).sub(depositQueue);
         } else {
             _vaultValue = _balance().sub(depositQueue);

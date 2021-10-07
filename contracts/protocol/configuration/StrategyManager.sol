@@ -14,9 +14,7 @@ import { Modifiers } from "./Modifiers.sol";
 
 // interfaces
 import { IAdapterFull } from "../../interfaces/opty/defiAdapters/IAdapterFull.sol";
-import {
-    IVaultStepInvestStrategyDefinitionRegistry
-} from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IVaultStepInvestStrategyDefinitionRegistry } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 import { IStrategyManager } from "../../interfaces/opty/IStrategyManager.sol";
 import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
 import { Constants } from "../../utils/Constants.sol";
@@ -249,8 +247,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
     }
 
     function _getStrategySteps(bytes32 _hash) internal view returns (DataTypes.StrategyStep[] memory _strategySteps) {
-        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry =
-            IVaultStepInvestStrategyDefinitionRegistry(registryContract.getVaultStepInvestStrategyDefinitionRegistry());
+        IVaultStepInvestStrategyDefinitionRegistry _vaultStepInvestStrategyDefinitionRegistry = IVaultStepInvestStrategyDefinitionRegistry(
+                registryContract.getVaultStepInvestStrategyDefinitionRegistry()
+            );
         (, _strategySteps) = _vaultStepInvestStrategyDefinitionRegistry.getStrategy(_hash);
     }
 
@@ -332,8 +331,9 @@ contract StrategyManager is IStrategyManager, Modifiers {
                 if (_stepIndex == _subStepCounter - 1) {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
                     uint256 _borrowTokenRemainingAmount = IERC20(_outputToken).balanceOf(_vault);
-                    IHarvestCodeProvider _harvestCodeProviderContract =
-                        IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
+                    IHarvestCodeProvider _harvestCodeProviderContract = IHarvestCodeProvider(
+                        registryContract.getHarvestCodeProvider()
+                    );
                     _codes = _harvestCodeProviderContract.getHarvestCodes(
                         _vault,
                         _outputToken,
@@ -381,15 +381,16 @@ contract StrategyManager is IStrategyManager, Modifiers {
         bytes32 _investStrategyHash,
         DataTypes.VaultRewardStrategy memory _vaultRewardStrategy
     ) internal view returns (bytes[] memory) {
-        (address _liquidityPool, address _adapter, address _rewardToken) =
-            _getLastStepLiquidityPool(_investStrategyHash);
+        (address _liquidityPool, address _adapter, address _rewardToken) = _getLastStepLiquidityPool(
+            _investStrategyHash
+        );
         //  get reward token balance for vault
         uint256 _rewardTokenBalance = IERC20(_rewardToken).balanceOf(_vault);
         //  calculation in basis points
-        uint256 _harvestableRewardTokens =
-            _vaultRewardStrategy.hold == uint256(0) && _vaultRewardStrategy.convert == uint256(0)
-                ? _rewardTokenBalance
-                : _rewardTokenBalance.mul(_vaultRewardStrategy.convert).div(10000);
+        uint256 _harvestableRewardTokens = _vaultRewardStrategy.hold == uint256(0) &&
+            _vaultRewardStrategy.convert == uint256(0)
+            ? _rewardTokenBalance
+            : _rewardTokenBalance.mul(_vaultRewardStrategy.convert).div(10000);
         return
             IAdapterFull(_adapter).getHarvestSomeCodes(
                 _vault,

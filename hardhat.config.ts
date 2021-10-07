@@ -7,9 +7,7 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
-import "hardhat-watcher";
 import "solidity-coverage";
-import "hardhat-deploy";
 import "hardhat-docgen";
 import {
   NETWORKS_RPC_URL,
@@ -49,10 +47,10 @@ const chainIds = {
 
 // Ensure that we have all the environment variables we need.
 let mnemonic: string;
-if (!process.env.MY_METAMASK_MNEMONIC) {
+if (!process.env.MNEMONIC) {
   throw new Error("Please set your MNEMONIC in a .env file");
 } else {
-  mnemonic = process.env.MY_METAMASK_MNEMONIC as string;
+  mnemonic = process.env.MNEMONIC as string;
 }
 
 let chainstackMainnetUrl: string;
@@ -135,35 +133,6 @@ const buidlerConfig: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API,
     excludeContracts: [],
     src: "./contracts",
-  },
-  watcher: {
-    compilation: {
-      tasks: ["compile"],
-      files: ["./contracts"],
-      verbose: true,
-    },
-    ci: {
-      tasks: [
-        "clean",
-        {
-          command: "compile",
-          params: {
-            quiet: true,
-          },
-        },
-        {
-          command: "test",
-          params: {
-            noCompile: true,
-            testFiles: ["test/test-opty/*.spec.ts"],
-          },
-        },
-      ],
-    },
-    test: {
-      tasks: ["test"],
-      files: ["./contracts", "./test/test-opty/invest-limitation.spec.ts"],
-    },
   },
   docgen: {
     path: "./specification_docs",

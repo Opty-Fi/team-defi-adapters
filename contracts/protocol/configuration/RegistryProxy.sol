@@ -71,12 +71,12 @@ contract RegistryProxy is RegistryStorage, ModifiersController {
             returndatacopy(free_mem_ptr, 0, returndatasize())
 
             switch success
-                case 0 {
-                    revert(free_mem_ptr, returndatasize())
-                }
-                default {
-                    return(free_mem_ptr, returndatasize())
-                }
+            case 0 {
+                revert(free_mem_ptr, returndatasize())
+            }
+            default {
+                return(free_mem_ptr, returndatasize())
+            }
         }
     }
 

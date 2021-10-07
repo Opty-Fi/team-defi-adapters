@@ -596,8 +596,9 @@ contract CurveDepositPoolAdapter is
         address _curveRegistry = _getCurveRegistry();
         address _swapPool = _getSwapPool(_liquidityPool);
 
-        uint256 _liquidityPoolTokenAmount =
-            ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(_vault);
+        uint256 _liquidityPoolTokenAmount = ICurveGauge(_getLiquidityGauge(_liquidityPool, _curveRegistry)).balanceOf(
+            _vault
+        );
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
@@ -605,8 +606,9 @@ contract CurveDepositPoolAdapter is
                 _getTokenIndex(_swapPool, _underlyingToken)
             );
         }
-        IHarvestCodeProvider _harvesCodeProviderContract =
-            IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
+        IHarvestCodeProvider _harvesCodeProviderContract = IHarvestCodeProvider(
+            registryContract.getHarvestCodeProvider()
+        );
         uint256 _unclaimedRewwardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         _b = _b.add(
             _harvesCodeProviderContract.rewardBalanceInUnderlyingTokens(
@@ -643,8 +645,12 @@ contract CurveDepositPoolAdapter is
         if (_redeemAmount > 0) {
             _codes = new bytes[](4);
             _codes[0] = getUnstakeSomeCodes(_liquidityPool, _redeemAmount)[0];
-            bytes[] memory _withdrawCodes =
-                getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
+            bytes[] memory _withdrawCodes = getWithdrawSomeCodes(
+                _vault,
+                _underlyingToken,
+                _liquidityPool,
+                _redeemAmount
+            );
             _codes[1] = _withdrawCodes[0];
             _codes[2] = _withdrawCodes[1];
             _codes[3] = _withdrawCodes[2];
@@ -703,8 +709,12 @@ contract CurveDepositPoolAdapter is
         address _liquidityPool,
         uint256 _amount
     ) internal view returns (bytes[] memory _codes) {
-        (uint256 _nCoins, address[8] memory _underlyingTokens, uint256[] memory _amounts, uint256 _codeLength) =
-            _getDepositCodeConfig(_underlyingToken, _liquidityPool, _amount);
+        (
+            uint256 _nCoins,
+            address[8] memory _underlyingTokens,
+            uint256[] memory _amounts,
+            uint256 _codeLength
+        ) = _getDepositCodeConfig(_underlyingToken, _liquidityPool, _amount);
         if (_codeLength > 1) {
             _codes = new bytes[](_codeLength);
             uint256 _j = 0;
@@ -810,8 +820,9 @@ contract CurveDepositPoolAdapter is
      * @return gauge address
      */
     function _getLiquidityGauge(address _liquidityPool, address _curveRegistry) internal view returns (address) {
-        (address[10] memory _liquidityGauges, ) =
-            ICurveRegistry(_curveRegistry).get_gauges(_getSwapPool(_liquidityPool));
+        (address[10] memory _liquidityGauges, ) = ICurveRegistry(_curveRegistry).get_gauges(
+            _getSwapPool(_liquidityPool)
+        );
         return _liquidityGauges[0];
     }
 
@@ -880,8 +891,9 @@ contract CurveDepositPoolAdapter is
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
         uint256 _decimals = ERC20(_underlyingToken).decimals();
         uint256 _actualAmount = _amount.mul(10**(uint256(18).sub(_decimals)));
-        uint256 _limit =
-            _poolPct == 0 ? _poolValue.mul(maxDepositProtocolPct).div(10000) : _poolValue.mul(_poolPct).div(10000);
+        uint256 _limit = _poolPct == 0
+            ? _poolValue.mul(maxDepositProtocolPct).div(10000)
+            : _poolValue.mul(_poolPct).div(10000);
         return _actualAmount > _limit ? _limit.div(10**(uint256(18).sub(_decimals))) : _amount;
     }
 

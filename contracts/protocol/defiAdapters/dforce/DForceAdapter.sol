@@ -550,20 +550,18 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
-                ? _getMaxDepositAmountByPct(_liquidityPool)
-                : maxDepositAmount[_liquidityPool][_underlyingToken];
+        uint256 _limit = maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            ? _getMaxDepositAmountByPct(_liquidityPool)
+            : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;
     }
 
     function _getMaxDepositAmountByPct(address _liquidityPool) internal view returns (uint256) {
         uint256 _poolValue = getPoolValue(_liquidityPool, address(0));
         uint256 _poolPct = maxDepositPoolPct[_liquidityPool];
-        uint256 _limit =
-            _poolPct == 0
-                ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
-                : _poolValue.mul(_poolPct).div(uint256(10000));
+        uint256 _limit = _poolPct == 0
+            ? _poolValue.mul(maxDepositProtocolPct).div(uint256(10000))
+            : _poolValue.mul(_poolPct).div(uint256(10000));
         return _limit;
     }
 }

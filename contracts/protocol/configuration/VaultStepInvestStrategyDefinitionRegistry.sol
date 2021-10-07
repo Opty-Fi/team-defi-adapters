@@ -10,9 +10,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Modifiers } from "./Modifiers.sol";
 
 //  interfaces
-import {
-    IVaultStepInvestStrategyDefinitionRegistry
-} from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
+import { IVaultStepInvestStrategyDefinitionRegistry } from "../../interfaces/opty/IVaultStepInvestStrategyDefinitionRegistry.sol";
 
 /**
  * @title VaultStepInvestStrategyDefinitionRegistry Contract

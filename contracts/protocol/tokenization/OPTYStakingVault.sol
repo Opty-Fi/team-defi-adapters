@@ -121,10 +121,9 @@ contract OPTYStakingVault is IOPTYStakingVault, ERC20, Modifiers, ReentrancyGuar
      */
     function balanceInOpty(address _user) public view override returns (uint256) {
         if (balanceOf(_user) != uint256(0)) {
-            uint256 _balanceInOpty =
-                balanceOf(_user).mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate)))).div(
-                    totalSupply()
-                );
+            uint256 _balanceInOpty = balanceOf(_user)
+                .mul(balance().add(optyRatePerSecond.mul(getBlockTimestamp().sub(lastPoolUpdate))))
+                .div(totalSupply());
             return _balanceInOpty;
         }
         return uint256(0);

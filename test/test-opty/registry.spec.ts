@@ -52,16 +52,8 @@ describe(scenario.title, () => {
   ];
   before(async () => {
     try {
-      [
-        owner,
-        financeOperator,
-        riskOperator,
-        strategyOperator,
-        operator,
-        optyDistributor,
-        user0,
-        user1,
-      ] = await hre.ethers.getSigners();
+      [owner, financeOperator, riskOperator, strategyOperator, operator, optyDistributor, user0, user1] =
+        await hre.ethers.getSigners();
       signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyDistributor, user0, user1 };
 
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
