@@ -139,7 +139,9 @@ describe(scenario.title, () => {
                   if (action.expect === "success") {
                     await registry[action.action](pools);
                   } else {
-                    await expect(contracts[action.contract][action.action](pools)).to.be.revertedWith(action.message);
+                    await expect(await contracts[action.contract][action.action](pools)).to.be.revertedWith(
+                      action.message,
+                    );
                   }
                 }
                 assert.isDefined(score, `args is wrong in ${action.action} testcase`);
