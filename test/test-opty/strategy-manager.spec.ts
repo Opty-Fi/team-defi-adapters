@@ -17,6 +17,7 @@ import {
   ADDRESS_ZERO,
   CURVE_SWAP_POOL_ADAPTER_NAME,
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
+  SUSHISWAP_ADAPTER_NAME,
 } from "../../helpers/constants";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import { deployAdapter } from "../../helpers/contracts-deployments";
@@ -31,9 +32,12 @@ describe(scenario.title, () => {
   let strategyManager: Contract;
   let testingStrategyManager: Contract;
   let owner: Signer;
+  let user1: Signer;
+  let ownerAddress: string;
   before(async () => {
     try {
-      [owner] = await hre.ethers.getSigners();
+      [owner, user1] = await hre.ethers.getSigners();
+      ownerAddress = await owner.getAddress();
       sideContracts["registry"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.REGISTRY, []);
       sideContracts["vaultStepInvestStrategyDefinitionRegistry"] = await deploySmockContract(
         smock,
@@ -45,6 +49,21 @@ describe(scenario.title, () => {
         ESSENTIAL_CONTRACTS.HARVEST_CODE_PROVIDER,
         [sideContracts["registry"].address],
       );
+      sideContracts["opty"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.OPTY, [
+        sideContracts["registry"].address,
+        100000000000000,
+      ]);
+      sideContracts["opty"].balanceOf.returns(100000000000000);
+      sideContracts["optyDistributor"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, [
+        sideContracts["registry"].address,
+        sideContracts["opty"].address,
+        1700000000,
+      ]);
+      sideContracts["vaultBooster"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.ODEFI_VAULT_BOOSTER, [
+        sideContracts["registry"].address,
+        sideContracts["opty"].address,
+      ]);
+
       strategyManager = await deployContract(
         hre,
         ESSENTIAL_CONTRACTS.STRATEGY_MANAGER,
@@ -60,10 +79,17 @@ describe(scenario.title, () => {
         [],
       );
       sideContracts["registry"].getRiskOperator.returns(await owner.getAddress());
+      sideContracts["registry"].getOperator.returns(await owner.getAddress());
       sideContracts["registry"].getVaultStepInvestStrategyDefinitionRegistry.returns(
         sideContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
       );
       sideContracts["registry"].getHarvestCodeProvider.returns(sideContracts["harvestCodeProvider"].address);
+      sideContracts["registry"].getOPTYDistributor.returns(sideContracts["optyDistributor"].address);
+      sideContracts["registry"].getODEFIVaultBooster.returns(sideContracts["vaultBooster"].address);
+      await sideContracts["vaultBooster"].setODEFIRewarder(sideContracts["opty"].address, ownerAddress);
+
+      await sideContracts["optyDistributor"].setOptyVaultRate(sideContracts["opty"].address, 1000);
+      await sideContracts["vaultBooster"].setOdefiVaultRate(sideContracts["opty"].address, 1000);
     } catch (error) {
       console.log(error);
     }
@@ -109,6 +135,12 @@ describe(scenario.title, () => {
         for (let i = 0; i < story.setActions.length; i++) {
           const action = story.setActions[i];
           switch (action.action) {
+            case "checkAddLiquidity()": {
+              if (!adapterNames.includes(SUSHISWAP_ADAPTER_NAME)) {
+                this.skip();
+              }
+              break;
+            }
             case "checkRewardToken": {
               let isAvailableRewardToken = false;
               for (let i = 0; i < steps; i++) {
@@ -157,6 +189,24 @@ describe(scenario.title, () => {
               }
               break;
             }
+            case "fundWalletWithRewardToken": {
+              if (rewardTokenAddress !== ADDRESS_ZERO) {
+                const balance: BigNumber = await RewardTokenInstance?.balanceOf(testingStrategyManager.address);
+                const decimals = await RewardTokenInstance?.decimals();
+                if (balance.lte(0)) {
+                  const value = await fundWalletToken(
+                    hre,
+                    underlyingToken,
+                    owner,
+                    getDefaultFundAmountInDecimal(rewardTokenAddress, decimals),
+                    timestamp,
+                    testingStrategyManager.address,
+                  );
+                  expect(value).to.be.gt(0);
+                }
+              }
+              break;
+            }
             case "testPoolDepositAllCode(address,address,bytes32,uint256,uint256)": {
               underlyingBalanceBefore = await ERC20Instance.balanceOf(testingStrategyManager.address);
               for (let i = 0; i < steps; i++) {
@@ -187,6 +237,74 @@ describe(scenario.title, () => {
             case "testPoolClaimAllRewardCodes(address,bytes32)": {
               rewardTokenBalanceBefore = await RewardTokenInstance?.balanceOf(testingStrategyManager.address);
               await testingStrategyManager[action.action](strategyManager.address, strategyHash);
+              break;
+            }
+            case "testPoolHarvestAllRewardCodes(address,address,bytes32)": {
+              await testingStrategyManager[action.action](strategyManager.address, underlyingToken, strategyHash);
+              break;
+            }
+            case "testPoolHarvestSomeRewardCodes(address,address,bytes32,(uint256,uint256))": {
+              await testingStrategyManager[action.action](strategyManager.address, underlyingToken, strategyHash, [
+                0,
+                0,
+              ]);
+              break;
+            }
+            case "testAddLiquidityCodes(address,address,bytes32)": {
+              await testingStrategyManager[action.action](strategyManager.address, underlyingToken, strategyHash);
+              break;
+            }
+            case "testSplitPaymentCode(address,address,address,uint256,(address,uint256)[])": {
+              const ownerAddress = await owner.getAddress();
+              const userAddress = await user1.getAddress();
+              const treasuryShare = [[userAddress, 5000]];
+              await testingStrategyManager[action.action](
+                strategyManager.address,
+                underlyingToken,
+                ownerAddress,
+                defaultFundAmount,
+                treasuryShare,
+              );
+              expect(await ERC20Instance.balanceOf(ownerAddress)).to.be.equal(defaultFundAmount.div(2));
+              expect(await ERC20Instance.balanceOf(userAddress)).to.be.equal(defaultFundAmount.div(2));
+              break;
+            }
+            case "testUpdateUserRewardsCodes(address,address,address)": {
+              const ownerAddress = await owner.getAddress();
+              await testingStrategyManager[action.action](
+                strategyManager.address,
+                sideContracts["opty"].address,
+                ownerAddress,
+              );
+              expect(await sideContracts["optyDistributor"].optyAccrued(ownerAddress)).to.be.gte(0);
+              expect(
+                await sideContracts["optyDistributor"].lastUserUpdate(sideContracts["opty"].address, ownerAddress),
+              ).to.be.gte(0);
+              expect(await sideContracts["vaultBooster"].odefiAccrued(ownerAddress)).to.be.gte(0);
+              expect(
+                await sideContracts["vaultBooster"].lastUserUpdate(sideContracts["opty"].address, ownerAddress),
+              ).to.be.gte(0);
+              break;
+            }
+            case "testUpdateUserStateInVaultCodes(address,address,address)": {
+              const ownerAddress = await owner.getAddress();
+              await testingStrategyManager[action.action](
+                strategyManager.address,
+                sideContracts["opty"].address,
+                ownerAddress,
+              );
+              expect(
+                await sideContracts["optyDistributor"].optyVaultRatePerSecondAndVaultToken(
+                  sideContracts["opty"].address,
+                ),
+              ).to.be.gte(0);
+              expect(
+                await sideContracts["optyDistributor"].lastUserUpdate(sideContracts["opty"].address, ownerAddress),
+              ).to.be.gte(0);
+              expect(await sideContracts["vaultBooster"].odefiAccrued(ownerAddress)).to.be.gte(0);
+              expect(
+                await sideContracts["vaultBooster"].lastUserUpdate(sideContracts["opty"].address, ownerAddress),
+              ).to.be.gte(0);
               break;
             }
           }

@@ -103,17 +103,40 @@ contract TestStrategyManager is MultiCall {
     function testSplitPaymentCode(
         address _strategyManager,
         address _underlyingToken,
+        address _account,
         uint256 _redeemAmountInToken,
         DataTypes.TreasuryShare[] memory _treasuryShares
     ) external {
         executeCodes(
             IStrategyManager(_strategyManager).getSplitPaymentCode(
                 _treasuryShares,
-                payable(address(this)),
+                _account,
                 _underlyingToken,
                 _redeemAmountInToken
             ),
             "splitPayment"
+        );
+    }
+
+    function testUpdateUserRewardsCodes(
+        address _strategyManager,
+        address _vault,
+        address _from
+    ) external {
+        executeCodes(
+            IStrategyManager(_strategyManager).getUpdateUserRewardsCodes(_vault, _from),
+            "updateUserRewardsCodes"
+        );
+    }
+
+    function testUpdateUserStateInVaultCodes(
+        address _strategyManager,
+        address _vault,
+        address _from
+    ) external {
+        executeCodes(
+            IStrategyManager(_strategyManager).getUpdateUserStateInVaultCodes(_vault, _from),
+            "updateUserStateInVaultCodes"
         );
     }
 }

@@ -392,19 +392,11 @@
       "cleanActions": []
     },
     {
-      "description": "[getAddLiquidityCodes] Should add liquidity successfully.",
+      "description": "[getSplitPaymentCode] Should split payment and transfer exact amounts to destinated accounts .",
       "setActions": [
         {
           "contract": "",
-          "action": "checkAddLiquidity()",
-          "args": {},
-          "executor": "",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "getStrategy()",
+          "action": "fundWallet",
           "args": {},
           "executor": "",
           "expect": "success",
@@ -412,7 +404,37 @@
         },
         {
           "contract": "testStrategyManager",
-          "action": "testAddLiquidityCodes(address,address,bytes32)",
+          "action": "testSplitPaymentCode(address,address,address,uint256,(address,uint256)[])",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[getUpdateUserRewardsCodes] Should update user rewards codes in OptyDistributor and OdefiVaultBooster.",
+      "setActions": [
+        {
+          "contract": "testStrategyManager",
+          "action": "testUpdateUserRewardsCodes(address,address,address)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[getUpdateUserStateInVaultCodes] Should update user state in vault codes in OptyDistributor and OdefiVaultBooster.",
+      "setActions": [
+        {
+          "contract": "testStrategyManager",
+          "action": "testUpdateUserStateInVaultCodes(address,address,address)",
           "args": {},
           "executor": "",
           "expect": "success",
