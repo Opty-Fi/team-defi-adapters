@@ -1,4 +1,5 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
+import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
@@ -11,6 +12,9 @@ import testDeFiAdaptersScenario from "../scenarios/fulcrum-test-defi-adapter.jso
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { to_10powNumber_BN } from "../../../helpers/utils";
+import { ERC20 } from "../../../typechain/ERC20";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -163,7 +167,7 @@ describe("FulcrumAdapter", () => {
             let limit: BigNumber = BigNumber.from(0);
             const timestamp = (await getBlockTimestamp(hre)) * 2;
             const liquidityPool = TypedDefiPools[FULCRUM_ADAPTER_NAME][pool].pool;
-            const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+            const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
             const decimals = await ERC20Instance.decimals();
             let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
             const LpERC20Instance = await hre.ethers.getContractAt("IFulcrum", liquidityPool);
@@ -338,7 +342,7 @@ describe("FulcrumAdapter", () => {
                 }
                 case "balanceOf(address)": {
                   const expectedValue = action.expectedValue;
-                  const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](testDeFiAdapter.address);
+                  const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                   if (underlyingBalanceBefore.lt(limit)) {
                     expectedValue == ">0"
                       ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)

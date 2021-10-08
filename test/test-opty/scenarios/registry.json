@@ -249,12 +249,12 @@
       "cleanActions": []
     },
     {
-      "description": "Operator should be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
+      "description": "Operator should be able to set investStrategyRegistry Contract address",
       "setActions": [
         {
-          "action": "setVaultStepInvestStrategyDefinitionRegistry(address)",
+          "action": "setInvestStrategyRegistry(address)",
           "args": {
-            "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+            "contractName": "investStrategyRegistry"
           },
           "executor": "operator",
           "expect": "success",
@@ -263,10 +263,10 @@
       ],
       "getActions": [
         {
-          "action": "getVaultStepInvestStrategyDefinitionRegistry()",
+          "action": "getInvestStrategyRegistry()",
           "args": {},
           "expectedValue": {
-            "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+            "contractName": "investStrategyRegistry"
           },
           "expectedMultiValues": {}
         }
@@ -274,12 +274,12 @@
       "cleanActions": []
     },
     {
-      "description": "Non-Operator shouldn't be able to set vaultStepInvestStrategyDefinitionRegistry Contract address",
+      "description": "Non-Operator shouldn't be able to set investStrategyRegistry Contract address",
       "setActions": [
         {
-          "action": "setVaultStepInvestStrategyDefinitionRegistry(address)",
+          "action": "setInvestStrategyRegistry(address)",
           "args": {
-            "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+            "contractName": "investStrategyRegistry"
           },
           "executor": "user0",
           "expect": "fail",
@@ -2463,9 +2463,9 @@
           "message": ""
         },
         {
-          "action": "setVaultStepInvestStrategyDefinitionRegistry(address)",
+          "action": "setInvestStrategyRegistry(address)",
           "args": {
-            "contractName": "vaultStepInvestStrategyDefinitionRegistry"
+            "contractName": "investStrategyRegistry"
           },
           "executor": "operator",
           "expect": "fail",

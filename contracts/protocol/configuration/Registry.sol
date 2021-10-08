@@ -48,15 +48,10 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
-        external
-        override
-        onlyOperator
-        returns (bool)
-    {
-        require(_vaultStepInvestStrategyDefinitionRegistry != address(0), "!address(0)");
-        require(_vaultStepInvestStrategyDefinitionRegistry.isContract(), "!isContract");
-        vaultStepInvestStrategyDefinitionRegistry = _vaultStepInvestStrategyDefinitionRegistry;
+    function setInvestStrategyRegistry(address _investStrategyRegistry) external override onlyOperator returns (bool) {
+        require(_investStrategyRegistry != address(0), "!address(0)");
+        require(_investStrategyRegistry.isContract(), "!isContract");
+        investStrategyRegistry = _investStrategyRegistry;
         return true;
     }
 
@@ -565,8 +560,8 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getVaultStepInvestStrategyDefinitionRegistry() public view override returns (address) {
-        return vaultStepInvestStrategyDefinitionRegistry;
+    function getInvestStrategyRegistry() public view override returns (address) {
+        return investStrategyRegistry;
     }
 
     /**
@@ -709,7 +704,7 @@ contract Registry is IRegistry, ModifiersController {
         override
         returns (DataTypes.StrategyConfiguration memory _strategyConfiguration)
     {
-        _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry = vaultStepInvestStrategyDefinitionRegistry;
+        _strategyConfiguration.investStrategyRegistry = investStrategyRegistry;
         _strategyConfiguration.strategyProvider = strategyProvider;
         _strategyConfiguration.aprOracle = aprOracle;
     }
