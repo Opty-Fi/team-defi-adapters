@@ -77,7 +77,7 @@
       "cleanActions": []
     },
     {
-      "description": "[getBalanceInUnderlyingToken] Should return correct balance in underlying token.",
+      "description": "[getBalanceInUnderlyingToken/getBalanceInUnderlyingTokenWrite] Should return correct balance in underlying token.",
       "setActions": [
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
@@ -92,28 +92,6 @@
         {
           "contract": "strategyManager",
           "action": "getBalanceInUnderlyingToken(address,address,bytes32)",
-          "args": {},
-          "expectedValue": ""
-        }
-      ],
-      "cleanActions": []
-    },
-    {
-      "description": "[getBalanceInUnderlyingTokenWrite] Should return correct balance.",
-      "setActions": [
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "getStrategy()",
-          "args": {},
-          "executor": "",
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "strategyProvider",
-          "action": "getBalanceInUnderlyingTokenWrite(address,address,bytes32)",
           "args": {},
           "expectedValue": ""
         }
@@ -215,12 +193,6 @@
           "action": "balanceOf(address)",
           "args": {},
           "expectedValue": ">0"
-        },
-        {
-          "contract": "strategyManager",
-          "action": "getBalanceInUnderlyingToken(address,address,bytes32)",
-          "args": {},
-          "expectedValue": "=0"
         }
       ],
       "cleanActions": []
@@ -281,6 +253,12 @@
           "action": "getRewardTokenBalance(address)",
           "args": {},
           "expectedValue": ">0"
+        },
+        {
+          "contract": "erc20",
+          "action": "rewardTokenBalanceOf",
+          "args": {},
+          "expectedValue": ">0"
         }
       ],
       "cleanActions": [
@@ -331,7 +309,7 @@
         },
         {
           "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
+          "action": "rewardTokenBalanceOf",
           "args": {},
           "expectedValue": "=0"
         }
@@ -375,7 +353,7 @@
         },
         {
           "contract": "erc20",
-          "action": "getRewardTokenBalance(address)",
+          "action": "rewardTokenBalanceOf",
           "args": {},
           "expectedValue": "=0"
         }
