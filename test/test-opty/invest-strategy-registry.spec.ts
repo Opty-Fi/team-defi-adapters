@@ -3,7 +3,7 @@ import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer } from "ethers";
 import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import scenario from "./scenarios/vault-step-invest-strategy-definition-registry.json";
+import scenario from "./scenarios/invest-strategy-registry.json";
 import { deployContract, deploySmockContract, generateTokenHash, generateStrategyHash } from "../../helpers/helpers";
 import { smock } from "@defi-wonderland/smock";
 import { TypedStrategies, TypedTokens } from "../../helpers/data";
@@ -42,7 +42,7 @@ describe(scenario.title, () => {
       ownerAddress = await owner.getAddress();
       const registryContract = await deploySmockContract(smock, ESSENTIAL_CONTRACTS_DATA.REGISTRY, []);
       registryContract.getOperator.returns(ownerAddress);
-      const investStrategyRegistryContract = await deployContract(
+      investStrategyRegistryContract = await deployContract(
         hre,
         ESSENTIAL_CONTRACTS_DATA.INVEST_STRATEGY_REGISTRY,
         TESTING_DEPLOYMENT_ONCE,

@@ -279,7 +279,7 @@
         {
           "action": "setInvestStrategyRegistry(address)",
           "args": {
-            "contractName": "vaultInvestStrategyRegistry"
+            "contractName": "investStrategyRegistry"
           },
           "executor": "user0",
           "expect": "fail",
