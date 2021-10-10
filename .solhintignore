@@ -1,10 +1,7 @@
-# folders
-node_modules/
-.yarn/
-build/
-dist/
+# directories
+**/artifacts
+**/node_modules
 
-additional-tests.sol
 contracts/libraries/
 contracts/utils/
 contracts/dependencies/

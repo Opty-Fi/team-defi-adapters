@@ -7,6 +7,7 @@ pragma experimental ABIEncoderV2;
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
@@ -29,6 +30,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 
 contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
+    using Address for address;
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
@@ -81,7 +83,6 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setRewardToken(address(0xa0246c9032bC3A600820415aE600c6388619A14D));
         setLiquidityPoolToStakingVault(TBTC_SBTC_CRV_DEPOSIT_POOL, TBTC_SBTC_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(THREE_CRV_DEPOSIT_POOL, THREE_CRV_STAKE_VAULT);
         setLiquidityPoolToStakingVault(YDAI_YUSDC_YUSDT_YTUSD_DEPOSIT_POOL, YDAI_YUSDC_YUSDT_YTUSD_STAKE_VAULT);
@@ -109,6 +110,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         override
         onlyRiskOperator
     {
+        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -121,6 +123,8 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -131,18 +135,13 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
      * @param _stakingVault staking vault address to be linked with liquidity pool
      */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_stakingVault.isContract(), "!_stakingVault.isContract()");
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
             "liquidityPoolToStakingVault already set"
         );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address _rewardToken) public override onlyOperator {
-        rewardToken = _rewardToken;
     }
 
     /**
@@ -441,8 +440,8 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        return IHarvestFarm(liquidityPoolToStakingVault[_liquidityPool]).rewardToken();
     }
 
     /**
@@ -541,7 +540,7 @@ contract HarvestAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAd
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    rewardToken,
+                    getRewardToken(_liquidityPool),
                     _underlyingToken,
                     _unclaimedReward
                 )

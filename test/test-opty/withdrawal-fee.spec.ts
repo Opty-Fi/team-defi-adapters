@@ -3,12 +3,12 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -50,18 +50,20 @@ describe(scenario.title, () => {
       let ERC20Instance: Contract;
 
       before(async () => {
+        await contracts["registry"].setWithdrawalFeeRange(["0", "1000"]);
         await approveLiquidityPoolAndMapAdapter(
           users["owner"],
           essentialContracts.registry,
           adapters["CompoundAdapter"].address,
           TOKEN_STRATEGY.strategy[0].contract,
         );
-        await setBestBasicStrategy(
+        await setBestStrategy(
           TOKEN_STRATEGY.strategy,
-          [TOKENS[token]],
-          essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+          TOKENS[token],
+          essentialContracts.investStrategyRegistry,
           essentialContracts.strategyProvider,
           "RP1",
+          false,
         );
         const timestamp = (await getBlockTimestamp(hre)) * 2;
         await fundWalletToken(hre, TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
@@ -141,7 +143,7 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action](
                           addressName.toString().toLowerCase() == "zero"
-                            ? ZERO_ADDRESS
+                            ? ADDRESS_ZERO
                             : addressName.toString().toLowerCase() == "eoa"
                             ? EOA
                             : contracts[addressName.toString().toLowerCase()].address,
@@ -169,7 +171,7 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action](
                           addressName.toString().toLowerCase() == "zero"
-                            ? ZERO_ADDRESS
+                            ? ADDRESS_ZERO
                             : addressName.toString().toLowerCase() == "eoa"
                             ? EOA
                             : contracts[addressName.toString().toLowerCase()].address,

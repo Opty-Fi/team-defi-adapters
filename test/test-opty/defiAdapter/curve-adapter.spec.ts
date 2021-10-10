@@ -2,11 +2,12 @@ import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
+import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../../helpers/type";
 import {
   TOKENS,
   TESTING_DEPLOYMENT_ONCE,
-  ZERO_ADDRESS,
+  ADDRESS_ZERO,
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
   CURVE_SWAP_POOL_ADAPTER_NAME,
 } from "../../../helpers/constants";
@@ -16,7 +17,7 @@ import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-a
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
-import { getAddress } from "ethers/lib/utils";
+import { ERC20 } from "../../../typechain/ERC20";
 
 chai.use(solidity);
 
@@ -80,7 +81,7 @@ describe("CurveAdapters Unit test", () => {
             const timestamp = (await getBlockTimestamp(hre)) * 2;
             nCoins = await curveAdapters[curveAdapterName].getUnderlyingTokens(
               strategy.strategy[0].contract,
-              ZERO_ADDRESS,
+              ADDRESS_ZERO,
             );
             for (let i = 0; i < nCoins.length; i++) {
               if (nCoins[i] === TOKENS["DAI"]) {
@@ -94,7 +95,7 @@ describe("CurveAdapters Unit test", () => {
               }
             }
             lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
-              ZERO_ADDRESS,
+              ADDRESS_ZERO,
               strategy.strategy[0].contract,
             );
           } catch (error: any) {
@@ -115,7 +116,7 @@ describe("CurveAdapters Unit test", () => {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
-                        ZERO_ADDRESS,
+                        ADDRESS_ZERO,
                         nCoins[0], // DAI
                         strategy.strategy[0].contract,
                         depositAmount[0],
@@ -172,7 +173,7 @@ describe("CurveAdapters Unit test", () => {
                     const { amount }: ARGUMENTS = action.args;
                     if (amount) {
                       codes = await curveAdapters[curveAdapterName][action.action](
-                        ZERO_ADDRESS,
+                        ADDRESS_ZERO,
                         nCoins[0],
                         strategy.strategy[0].contract,
                         withdrawalAmount,
@@ -185,6 +186,7 @@ describe("CurveAdapters Unit test", () => {
                       strategy.strategy[0].contract,
                     );
                   }
+
                   for (let i = 0; i < codes.length; i++) {
                     if (i < 2) {
                       const inter = new utils.Interface(["function approve(address,uint256)"]);
@@ -238,7 +240,7 @@ describe("CurveAdapters Unit test", () => {
           ) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const decimals = await ERC20Instance.decimals();
                 let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 let limit: BigNumber;
@@ -440,9 +442,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                        testDeFiAdapter.address,
-                      );
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                         expectedValue == ">0"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)

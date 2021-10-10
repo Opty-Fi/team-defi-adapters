@@ -7,6 +7,7 @@ pragma experimental ABIEncoderV2;
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
@@ -26,18 +27,16 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  */
 contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
+    using Address for address;
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
-    /** @notice Cream's Comptroller contract address */
-    address public comptroller;
-
-    /** @notice Cream's Reward token address */
-    address public rewardToken;
-
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+
+    /** @notice HFIL token contract address */
+    address public constant HFIL = address(0x9AFb950948c2370975fb91a441F36FDC02737cD4);
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -49,8 +48,6 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setComptroller(address(0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258));
-        setRewardToken(address(0x2ba592F78dB6436527729929AAf6c908497cB200));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
@@ -63,6 +60,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
         override
         onlyRiskOperator
     {
+        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -75,23 +73,10 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
-    }
-
-    /**
-     * @notice Sets the Comptroller of Cream protocol
-     * @param _comptroller Cream's Comptroller contract address
-     */
-    function setComptroller(address _comptroller) public onlyOperator {
-        comptroller = _comptroller;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address _rewardToken) public override onlyOperator {
-        rewardToken = _rewardToken;
     }
 
     /**
@@ -172,6 +157,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
+        require(_balanceInToken > 0, "!balance");
         // can have unintentional rounding errors
         return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
@@ -192,14 +178,17 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     /**
      * @inheritdoc IAdapterHarvestReward
      */
-    function getClaimRewardTokenCode(address payable _vault, address)
+    function getClaimRewardTokenCode(address payable _vault, address _liquidityPool)
         public
         view
         override
         returns (bytes[] memory _codes)
     {
         _codes = new bytes[](1);
-        _codes[0] = abi.encode(comptroller, abi.encodeWithSignature("claimComp(address)", _vault));
+        _codes[0] = abi.encode(
+            ICream(_liquidityPool).comptroller(),
+            abi.encodeWithSignature("claimComp(address)", _vault)
+        );
     }
 
     /**
@@ -232,7 +221,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     ) public view override returns (bytes[] memory _codes) {
         uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > 0) {
-            if (_underlyingToken == HBTC) {
+            if (_underlyingToken == HBTC || _underlyingToken == HFIL) {
                 _codes = new bytes[](2);
                 _codes[0] = abi.encode(
                     _underlyingToken,
@@ -305,7 +294,7 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    rewardToken,
+                    getRewardToken(_liquidityPool),
                     _underlyingToken,
                     _unclaimedReward
                 )
@@ -344,8 +333,8 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        return ICream(ICream(_liquidityPool).comptroller()).getCompAddress();
     }
 
     /**
@@ -353,10 +342,10 @@ contract CreamAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit, M
      */
     function getUnclaimedRewardTokenAmount(
         address payable _vault,
-        address,
+        address _liquidityPool,
         address
     ) public view override returns (uint256) {
-        return ICream(comptroller).compAccrued(_vault);
+        return ICream(ICream(_liquidityPool).comptroller()).compAccrued(_vault);
     }
 
     /**

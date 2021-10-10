@@ -7,6 +7,7 @@ pragma experimental ABIEncoderV2;
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
@@ -29,6 +30,7 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
 
 contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
+    using Address for address;
 
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
@@ -59,7 +61,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
         setLiquidityPoolToStakingVault(USDT_DEPOSIT_POOL, USDT_STAKING_VAULT);
         setLiquidityPoolToStakingVault(USDC_DEPOSIT_POOL, USDC_STAKING_VAULT);
         setLiquidityPoolToStakingVault(DAI_DEPOSIT_POOL, DAI_STAKING_VAULT);
@@ -75,6 +76,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         override
         onlyRiskOperator
     {
+        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -87,6 +89,8 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -97,18 +101,13 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      * @param _stakingVault staking vault address to be linked with liquidity pool
      */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_stakingVault.isContract(), "!_stakingVault.isContract()");
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
             "liquidityPoolToStakingVault already set"
         );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address _rewardToken) public override onlyOperator {
-        rewardToken = _rewardToken;
     }
 
     /**
@@ -205,6 +204,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     ) public view override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPool);
         uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
+        require(_balanceInToken > 0, "!balance");
         // can have unintentional rounding errors
         return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
@@ -285,13 +285,13 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      */
     function calculateRedeemableLPTokenAmountStake(
         address payable _vault,
-        address,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
     ) public view override returns (uint256) {
-        address _stakingVault = liquidityPoolToStakingVault[_liquidityPool];
-        uint256 _liquidityPoolTokenBalance = IERC20(_stakingVault).balanceOf(_vault);
-        uint256 _balanceInTokenStake = getAllAmountInTokenStake(_vault, address(0), _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInTokenStake = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
+        require(_balanceInTokenStake > 0, "!balance");
         // can have unintentional rounding errors
         return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStake).add(1);
     }
@@ -405,8 +405,8 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        return IDForceStake(liquidityPoolToStakingVault[_liquidityPool]).df();
     }
 
     /**
@@ -507,7 +507,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    rewardToken,
+                    getRewardToken(_liquidityPool),
                     _underlyingToken,
                     _unclaimedReward
                 )

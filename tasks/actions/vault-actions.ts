@@ -35,9 +35,10 @@ task(VAULT_ACTIONS, "perform actions in Vault")
       throw new Error("action is invalid");
     }
 
-    if (amount <= 0 && action.toUpperCase() != "REBALANCE") {
+    if (!useall && amount <= 0 && action.toUpperCase() != "REBALANCE") {
       throw new Error("amount is not set");
     }
+
     const userSigner = await hre.ethers.getSigner(user);
 
     const vaultContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.VAULT, vault);

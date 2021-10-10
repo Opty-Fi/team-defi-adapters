@@ -24,7 +24,8 @@ task(DEPLOY_ADAPTERS, "Deploy Adapter contracts")
           insertindb: insertindb,
           deployedonce: deployedonce,
         });
-      } catch (error: any) {
+        console.log("--------------------");
+      } catch (error) {
         console.log(adapter, error);
       }
     }

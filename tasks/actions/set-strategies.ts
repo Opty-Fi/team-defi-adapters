@@ -39,23 +39,17 @@ import { SET_STRATEGIES } from "../task-names";
     ]
  */
 task(SET_STRATEGIES, "Set strategies")
-  .addParam("strategyregistry", "the address of vaultStepInvestStrategyDefinitionRegistry", "", types.string)
+  .addParam("investstrategyregistry", "the address of investStrategyRegistry", "", types.string)
   .addParam("fromfile", "path to strategies json file", "", types.string)
-  .setAction(async ({ strategyregistry, fromfile }, hre) => {
-    if (strategyregistry === "") {
-      throw new Error("strategyregistry cannot be empty");
+  .setAction(async ({ investstrategyregistry, fromfile }, hre) => {
+    if (investstrategyregistry === "") {
+      throw new Error("investstrategyregistry cannot be empty");
     }
 
-    if (!isAddress(strategyregistry)) {
-      throw new Error("strategyregistry address is invalid");
+    if (!isAddress(investstrategyregistry)) {
+      throw new Error("investstrategyregistry address is invalid");
     }
-
-    const strategyRegistryContract = await hre.ethers.getContractAt(
-      ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
-      strategyregistry,
-    );
     let strategies: STRATEGY[] = TypedStrategies;
-
     if (fromfile) {
       const content = fs.readFileSync(fromfile);
       strategies = JSON.parse(content.toString());
@@ -64,10 +58,20 @@ task(SET_STRATEGIES, "Set strategies")
     if (!strategies.length) {
       throw new Error("strategies file is in wrong format");
     }
+
+    const investStrategyRegistryContract = await hre.ethers.getContractAt(
+      ESSENTIAL_CONTRACTS.INVEST_STRATEGY_REGISTRY,
+      investstrategyregistry,
+    );
+
     console.log("Started setting strategies");
     for (let i = 0; i < strategies.length; i++) {
       try {
-        const hash = await setStrategy(strategies[i].strategy, [TOKENS[strategies[i].token]], strategyRegistryContract);
+        const hash = await setStrategy(
+          strategies[i].strategy,
+          [TOKENS[strategies[i].token]],
+          investStrategyRegistryContract,
+        );
         console.log("-----------------");
         console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
         console.log(`Invest step strategy Hash : ${hash}`);
