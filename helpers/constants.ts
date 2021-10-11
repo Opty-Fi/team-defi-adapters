@@ -4,7 +4,7 @@ import { TypedTokens } from "./data";
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
-  VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY: "VaultStepInvestStrategyDefinitionRegistry",
+  INVEST_STRATEGY_REGISTRY: "InvestStrategyRegistry",
   STRATEGY_MANAGER: "StrategyManager",
   OPTY: "OPTY",
   OPTY_DISTRIBUTOR: "OPTYDistributor",

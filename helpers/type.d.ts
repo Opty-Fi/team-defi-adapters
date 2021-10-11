@@ -3,7 +3,7 @@ import { MockContract } from "@defi-wonderland/smock";
 
 export type ESSENTIAL_CONTRACTS = {
   registry: Contract;
-  vaultStepInvestStrategyDefinitionRegistry: Contract;
+  investStrategyRegistry: Contract;
   strategyProvider: Contract;
   harvestCodeProvider: Contract;
   riskManager: Contract;

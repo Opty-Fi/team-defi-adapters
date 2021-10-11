@@ -176,9 +176,9 @@ contract RegistryStorage is RegistryAdminStorage {
     address public strategyProvider;
 
     /**
-     * @notice vaultStepInvestStrategyDefinitionRegistry contract address
+     * @notice investStrategyRegistry contract address
      */
-    address public vaultStepInvestStrategyDefinitionRegistry;
+    address public investStrategyRegistry;
 
     /**
      * @notice riskManager contract address
