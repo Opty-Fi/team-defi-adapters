@@ -276,6 +276,14 @@
       "description": "[getPoolHarvestAllRewardCodes] Should harvest all reward tokens successfully.",
       "setActions": [
         {
+          "contract": "adapter",
+          "action": "checkHarvestability",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
+        {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "getStrategy()",
           "args": {},
@@ -319,6 +327,14 @@
     {
       "description": "[getPoolHarvestSomeRewardCodes] Should harvest all reward tokens successfully.",
       "setActions": [
+        {
+          "contract": "adapter",
+          "action": "checkHarvestability",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        },
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
           "action": "getStrategy()",
@@ -365,7 +381,7 @@
       "setActions": [
         {
           "contract": "",
-          "action": "checkAddLiquidity()",
+          "action": "checkAddLiquidity",
           "args": {},
           "executor": "",
           "expect": "success",
@@ -415,11 +431,41 @@
       "cleanActions": []
     },
     {
+      "description": "[getRewardToken] Should get correct reward token.",
+      "setActions": [],
+      "getActions": [
+        {
+          "contract": "strategyManager",
+          "action": "getRewardToken(bytes32)",
+          "args": {},
+          "expectedValue": ""
+        }
+      ],
+      "cleanActions": []
+    }
+  ],
+  "standaloneStories": [
+    {
       "description": "[getUpdateUserRewardsCodes] Should update user rewards codes in OptyDistributor and OdefiVaultBooster.",
       "setActions": [
         {
           "contract": "testStrategyManager",
           "action": "testUpdateUserRewardsCodes(address,address,address)",
+          "args": {},
+          "executor": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "[getUpdateRewardVaultRateAndIndexCodes(] Should update reward vault rate and index in vault codes in OptyDistributor and OdefiVaultBooster.",
+      "setActions": [
+        {
+          "contract": "testStrategyManager",
+          "action": "testUpdateRewardVaultRateAndIndexCodes(address,address)",
           "args": {},
           "executor": "",
           "expect": "success",

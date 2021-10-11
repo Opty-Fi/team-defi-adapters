@@ -216,7 +216,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
+                    if (IAdapterFull(_adapter).canStake(_liquidityPool) && _steps > 1) {
                         _balance = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
                             _vault,
                             _inputToken,
@@ -348,7 +348,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
                     _underlyingToken = (_iterator != 0) ? _strategySteps[_iterator - 1].outputToken : _underlyingToken;
                     address _adapter = registryContract.getLiquidityPoolToAdapter(_strategySteps[_iterator].pool);
                     _codes = (_iterator == (_strategySteps.length - 1) &&
-                        IAdapterFull(_adapter).canStake(_strategySteps[_iterator].pool))
+                        IAdapterFull(_adapter).canStake(_strategySteps[_iterator].pool)) && _strategySteps.length > 1
                         ? IAdapterFull(_adapter).getUnstakeAndWithdrawAllCodes(
                             _vault,
                             _underlyingToken,
@@ -436,7 +436,7 @@ contract StrategyManager is IStrategyManager, Modifiers {
             }
             if (!_strategySteps[_iterator].isBorrow) {
                 if (_iterator == (_steps - 1)) {
-                    if (IAdapterFull(_adapter).canStake(_liquidityPool)) {
+                    if (IAdapterFull(_adapter).canStake(_liquidityPool) && _steps > 1) {
                         _balance = IAdapterFull(_adapter).getAllAmountInTokenStake(_vault, _inputToken, _liquidityPool);
                     } else {
                         _balance = IAdapterFull(_adapter).getAllAmountInToken(_vault, _inputToken, _liquidityPool);

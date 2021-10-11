@@ -207,6 +207,8 @@ export function retrieveAdapterFromStrategyName(strategyName: string): string[] 
       adapterName = "DForce";
     } else if (strategySymbol[0].toUpperCase() === "DYDX") {
       adapterName = "DyDx";
+    } else if (strategySymbol[0].toUpperCase() === "YEARN") {
+      adapterName = "YVault";
     } else {
       adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
     }

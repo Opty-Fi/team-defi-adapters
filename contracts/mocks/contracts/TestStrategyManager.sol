@@ -139,4 +139,11 @@ contract TestStrategyManager is MultiCall {
             "updateUserStateInVaultCodes"
         );
     }
+
+    function testUpdateRewardVaultRateAndIndexCodes(address _strategyManager, address _vault) external {
+        executeCodes(
+            IStrategyManager(_strategyManager).getUpdateRewardVaultRateAndIndexCodes(_vault),
+            "updateRewardVaultRateAndIndexCodes"
+        );
+    }
 }
