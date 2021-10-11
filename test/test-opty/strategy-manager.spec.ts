@@ -252,10 +252,12 @@ describe(scenario.title, () => {
                 break;
               }
               case "testPoolHarvestSomeRewardCodes(address,address,bytes32,(uint256,uint256))": {
-                await testingStrategyManager[action.action](strategyManager.address, underlyingToken, strategyHash, [
-                  0,
-                  0,
-                ]);
+                await testingStrategyManager[action.action](
+                  strategyManager.address,
+                  underlyingToken,
+                  strategyHash,
+                  [0, 0],
+                );
                 break;
               }
               case "testAddLiquidityCodes(address,address,bytes32)": {
