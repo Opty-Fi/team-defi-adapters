@@ -3,7 +3,7 @@
   "description": "Test cases for strategy Manager",
   "stories": [
     {
-      "description": "[getDepositAllStepCount] Should return correct number of steps.",
+      "description": "[getDepositAllStepsCount] Should return correct number of steps.",
       "setActions": [
         {
           "contract": "vaultStepInvestStrategyDefinitionRegistry",
@@ -25,7 +25,7 @@
       "getActions": [
         {
           "contract": "strategyManager",
-          "action": "getDepositAllStepCount(bytes32)",
+          "action": "getDepositAllStepsCount(bytes32)",
           "args": {},
           "expectedValue": ""
         }

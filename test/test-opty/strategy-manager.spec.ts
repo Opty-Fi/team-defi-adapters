@@ -40,9 +40,9 @@ describe(scenario.title, () => {
       [owner, user1] = await hre.ethers.getSigners();
       ownerAddress = await owner.getAddress();
       sideContracts["registry"] = await deploySmockContract(smock, ESSENTIAL_CONTRACTS.REGISTRY, []);
-      sideContracts["vaultStepInvestStrategyDefinitionRegistry"] = await deploySmockContract(
+      sideContracts["investStrategyRegistry"] = await deploySmockContract(
         smock,
-        ESSENTIAL_CONTRACTS.VAULT_STEP_INVEST_STRATEGY_DEFINITION_REGISTRY,
+        ESSENTIAL_CONTRACTS.INVEST_STRATEGY_REGISTRY,
         [sideContracts["registry"].address],
       );
       sideContracts["harvestCodeProvider"] = await deploySmockContract(
@@ -81,9 +81,7 @@ describe(scenario.title, () => {
       );
       sideContracts["registry"].getRiskOperator.returns(await owner.getAddress());
       sideContracts["registry"].getOperator.returns(await owner.getAddress());
-      sideContracts["registry"].getVaultStepInvestStrategyDefinitionRegistry.returns(
-        sideContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
-      );
+      sideContracts["registry"].getInvestStrategyRegistry.returns(sideContracts["investStrategyRegistry"].address);
       sideContracts["registry"].getHarvestCodeProvider.returns(sideContracts["harvestCodeProvider"].address);
       sideContracts["registry"].getOPTYDistributor.returns(sideContracts["optyDistributor"].address);
       sideContracts["registry"].getODEFIVaultBooster.returns(sideContracts["vaultBooster"].address);
@@ -165,7 +163,7 @@ describe(scenario.title, () => {
                 break;
               }
               case "getStrategy()": {
-                sideContracts["vaultStepInvestStrategyDefinitionRegistry"].getStrategy.returns([
+                sideContracts["investStrategyRegistry"].getStrategy.returns([
                   0,
                   strategyDetail.strategy.map(s => ({
                     pool: s.contract,
@@ -217,27 +215,29 @@ describe(scenario.title, () => {
               }
               case "testPoolDepositAllCode(address,address,bytes32,uint256,uint256)": {
                 underlyingBalanceBefore = await ERC20Instance.balanceOf(testingStrategyManager.address);
-                for (let i = 0; i < steps; i++) {
+                const count = await strategyManager.getDepositAllStepsCount(strategyHash);
+                for (let i = 0; i < count; i++) {
                   await testingStrategyManager[action.action](
                     strategyManager.address,
                     underlyingToken,
                     strategyHash,
-                    0,
-                    steps,
+                    i,
+                    count,
                   );
                 }
                 break;
               }
               case "testPoolWithdrawAllCodes(address,address,bytes32,uint256,uint256)": {
                 underlyingBalanceBefore = await ERC20Instance.balanceOf(testingStrategyManager.address);
-                for (let i = 0; i < steps; i++) {
-                  const iterator = steps - 1 - i;
+                const count = await strategyManager.getWithdrawAllStepsCount(strategyHash);
+                for (let i = 0; i < count; i++) {
+                  const iterator = count - 1 - i;
                   await testingStrategyManager[action.action](
                     strategyManager.address,
                     underlyingToken,
                     strategyHash,
                     iterator,
-                    steps,
+                    count,
                   );
                 }
                 break;
@@ -309,7 +309,7 @@ describe(scenario.title, () => {
                 }
                 break;
               }
-              case "getDepositAllStepCount(bytes32)": {
+              case "getDepositAllStepsCount(bytes32)": {
                 let expectedCount = steps;
                 if (await adapters[adapterNames[steps - 1]].canStake(lastStrategyStep.contract)) {
                   expectedCount++;
@@ -347,10 +347,10 @@ describe(scenario.title, () => {
                     iterator === 0 ? underlyingToken : strategyDetail.strategy[iterator - 1].outputToken;
                   if (!strategyDetail.strategy[iterator].isBorrow) {
                     if (iterator === steps - 1) {
-                      if ((await adapter.canStake(liquidityPool)) && steps > 1) {
+                      if (await adapter.canStake(liquidityPool)) {
                         expectedValue =
                           action.action === "getBalanceInUnderlyingTokenWrite(address,address,bytes32)"
-                            ? await adapter.getAllAmountInTokenStakeWrite(
+                            ? await adapter.callStatic.getAllAmountInTokenStakeWrite(
                                 testingStrategyManager.address,
                                 inputToken,
                                 liquidityPool,
@@ -414,14 +414,15 @@ describe(scenario.title, () => {
             const action = story.cleanActions[i];
             switch (action.action) {
               case "testPoolWithdrawAllCodes(address,address,bytes32,uint256,uint256)": {
-                for (let i = 0; i < steps; i++) {
-                  const iterator = steps - 1 - i;
+                const count = await strategyManager.getWithdrawAllStepsCount(strategyHash);
+                for (let i = 0; i < count; i++) {
+                  const iterator = count - 1 - i;
                   await testingStrategyManager[action.action](
                     strategyManager.address,
                     underlyingToken,
                     strategyHash,
                     iterator,
-                    steps,
+                    count,
                   );
                 }
                 expect(await ERC20Instance.balanceOf(testingStrategyManager.address)).to.be.gt(0);
