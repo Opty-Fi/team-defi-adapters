@@ -28,7 +28,7 @@ describe(scenario.title, () => {
   const callers: { [key: string]: string } = {};
   const contractNames = [
     "treasury",
-    "vaultStepInvestStrategyDefinitionRegistry",
+    "investStrategyRegistry",
     "aprOracle",
     "strategyProvider",
     "riskManager",
@@ -52,16 +52,8 @@ describe(scenario.title, () => {
   ];
   before(async () => {
     try {
-      [
-        owner,
-        financeOperator,
-        riskOperator,
-        strategyOperator,
-        operator,
-        optyDistributor,
-        user0,
-        user1,
-      ] = await hre.ethers.getSigners();
+      [owner, financeOperator, riskOperator, strategyOperator, operator, optyDistributor, user0, user1] =
+        await hre.ethers.getSigners();
       signers = { owner, financeOperator, riskOperator, strategyOperator, operator, optyDistributor, user0, user1 };
 
       registryContract = await deployRegistry(hre, owner, TESTING_DEPLOYMENT_ONCE);
@@ -106,7 +98,7 @@ describe(scenario.title, () => {
         const action = story.getActions[i];
         switch (action.action) {
           case "treasury()":
-          case "getVaultStepInvestStrategyDefinitionRegistry()":
+          case "getInvestStrategyRegistry()":
           case "getAprOracle()":
           case "getStrategyProvider()":
           case "getRiskManager()":
@@ -309,7 +301,7 @@ describe(scenario.title, () => {
         assert.isDefined(contractName, `args is wrong in ${action.action} testcase`);
         break;
       }
-      case "setVaultStepInvestStrategyDefinitionRegistry(address)":
+      case "setInvestStrategyRegistry(address)":
       case "setAPROracle(address)":
       case "setStrategyProvider(address)":
       case "setRiskManager(address)":
@@ -833,11 +825,11 @@ const REGISTRY_TESTING_DEFAULT_DATA: TESTING_DEFAULT_DATA[] = [
     ],
   },
   {
-    setFunction: "setVaultStepInvestStrategyDefinitionRegistry(address)",
+    setFunction: "setInvestStrategyRegistry(address)",
     input: ["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
     getFunction: [
       {
-        name: "vaultStepInvestStrategyDefinitionRegistry()",
+        name: "investStrategyRegistry()",
         input: [],
         output: "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
       },
