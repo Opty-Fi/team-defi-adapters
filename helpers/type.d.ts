@@ -95,3 +95,10 @@ export type OPTY_STAKING_VAULT = {
   lockTime: number;
   multiplier: number;
 };
+
+export type SUPPORTED_TOKENS_DATA = {
+  [name: string]: {
+    address: string;
+    pair: boolean;
+  };
+};
