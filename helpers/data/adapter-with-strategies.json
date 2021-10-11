@@ -125,6 +125,20 @@
       ]
     }
   ],
+  "FulcrumAdapter": [
+    {
+      "strategyName": "DAI-deposit-FULCRUM-iDAI",
+      "token": "DAI",
+      "strategy": [
+        {
+          "contract": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+          "outputTokenSymbol": "iDAI",
+          "outputToken": "0x6b093998D36f2C7F0cc359441FBB24CC629D5FF0",
+          "isBorrow": false
+        }
+      ]
+    }
+  ],
   "SushiswapAdapter": [
     {
       "strategyName": "WETH-USDC-deposit-SUSHISWAP-SLP",

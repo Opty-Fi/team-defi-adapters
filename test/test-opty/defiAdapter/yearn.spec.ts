@@ -1,4 +1,5 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
+import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
@@ -11,6 +12,9 @@ import testDeFiAdaptersScenario from "../scenarios/yearn-temp-defi-adapter.json"
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { to_10powNumber_BN } from "../../../helpers/utils";
+import { ERC20 } from "../../../typechain/ERC20";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -170,7 +174,7 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
             it(`${pool} - ${testDeFiAdaptersScenario.stories[i].description}`, async function () {
               const story = testDeFiAdaptersScenario.stories[i];
               const liquidityPool = TypedDefiPools[YVAULT_ADAPTER_NAME][pool].pool;
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+              const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const LpContractInstance = await hre.ethers.getContractAt("IYVault", liquidityPool);
               const getCode = await LpContractInstance.provider.getCode(LpContractInstance.address);
               if (getCode === "0x") {
@@ -321,9 +325,7 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
                   }
                   case "balanceOf(address)": {
                     const expectedValue = action.expectedValue;
-                    const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                      testDeFiAdapter.address,
-                    );
+                    const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
 
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"

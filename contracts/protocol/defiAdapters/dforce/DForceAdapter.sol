@@ -61,7 +61,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setRewardToken(address(0x431ad2ff6a9C365805eBaD47Ee021148d6f7DBe0));
         setLiquidityPoolToStakingVault(USDT_DEPOSIT_POOL, USDT_STAKING_VAULT);
         setLiquidityPoolToStakingVault(USDC_DEPOSIT_POOL, USDC_STAKING_VAULT);
         setLiquidityPoolToStakingVault(DAI_DEPOSIT_POOL, DAI_STAKING_VAULT);
@@ -109,14 +108,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
             "liquidityPoolToStakingVault already set"
         );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
-    }
-
-    /**
-     * @inheritdoc IAdapterHarvestReward
-     */
-    function setRewardToken(address _rewardToken) public override onlyOperator {
-        require(_rewardToken.isContract(), "!isContract");
-        rewardToken = _rewardToken;
     }
 
     /**
@@ -414,8 +405,8 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     /**
      * @inheritdoc IAdapter
      */
-    function getRewardToken(address) public view override returns (address) {
-        return rewardToken;
+    function getRewardToken(address _liquidityPool) public view override returns (address) {
+        return IDForceStake(liquidityPoolToStakingVault[_liquidityPool]).df();
     }
 
     /**
@@ -516,7 +507,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         if (_unclaimedReward > 0) {
             b = b.add(
                 IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    rewardToken,
+                    getRewardToken(_liquidityPool),
                     _underlyingToken,
                     _unclaimedReward
                 )
