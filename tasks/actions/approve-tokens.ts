@@ -18,13 +18,21 @@ task(APPROVE_TOKENS, "Approve Tokens")
       throw new Error("registry address is invalid");
     }
 
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    const tokensAddresses = Object.values(TypedTokens).filter(addr => addr !== TypedTokens.ETH);
-
-    console.log(`Start approving tokens....`);
-
-    await approveAndSetTokenHashToTokens(owner, registryContract, tokensAddresses, true);
-
-    console.log(`Finished approving tokens`);
+    try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      const tokensAddresses = [
+        TypedTokens.DAI,
+        TypedTokens.USDC,
+        TypedTokens.USDT,
+        TypedTokens.WBTC,
+        TypedTokens.WETH,
+        TypedTokens.SLP_WETH_USDC,
+      ];
+      console.log(`Start approving tokens....`, tokensAddresses);
+      await approveAndSetTokenHashToTokens(owner, registryContract, tokensAddresses, true);
+      console.log(`Finished approving tokens`);
+    } catch (error) {
+      console.error(`${APPROVE_TOKENS} : `, error);
+      throw error;
+    }
   });

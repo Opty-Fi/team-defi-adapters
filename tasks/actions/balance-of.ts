@@ -23,11 +23,14 @@ task(BALANCE_OF, "Check token balance of address")
       throw new Error("token address is invalid");
     }
 
-    const erc20Contract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
-
-    const balance = await erc20Contract.balanceOf(user);
-
-    console.log(`Token: ${token}`);
-    console.log(`User: ${user}`);
-    console.log(`Balance : ${+balance}`);
+    try {
+      const erc20Contract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
+      const balance = await erc20Contract.balanceOf(user);
+      console.log(`Token: ${token}`);
+      console.log(`User: ${user}`);
+      console.log(`Balance : ${+balance}`);
+    } catch (error) {
+      console.error(`${BALANCE_OF}: `, error);
+      throw error;
+    }
   });
