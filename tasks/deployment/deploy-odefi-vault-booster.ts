@@ -10,8 +10,6 @@ task(DEPLOY_ODEFI_VAULT_BOOSTER, "Deploy Odefi Vault Booster")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb, registry, odefi }, hre) => {
-    const [owner] = await hre.ethers.getSigners();
-
     if (registry === "") {
       throw new Error("registry cannot be empty");
     }
@@ -28,23 +26,30 @@ task(DEPLOY_ODEFI_VAULT_BOOSTER, "Deploy Odefi Vault Booster")
       throw new Error("odefi address is invalid");
     }
 
-    const odefiVaultBooster = await deployContract(hre, ESSENTIAL_CONTRACTS.ODEFI_VAULT_BOOSTER, deployedonce, owner, [
-      registry,
-      odefi,
-    ]);
-
-    console.log("Finished deploying ODEFIVaultBooster");
-
-    console.log(`Contract ODEFIVaultBooster : ${odefiVaultBooster.address}`);
-
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    await executeFunc(registryContract, owner, "setODEFIVaultBooster(address)", [odefiVaultBooster.address]);
-
-    if (insertindb) {
-      const err = await insertContractIntoDB(`odefiVaultBooster`, odefiVaultBooster.address);
-      if (err !== "") {
-        console.log(err);
+    try {
+      const [owner] = await hre.ethers.getSigners();
+      console.log("Deploying ODEFIVaultBooster...");
+      const odefiVaultBooster = await deployContract(
+        hre,
+        ESSENTIAL_CONTRACTS.ODEFI_VAULT_BOOSTER,
+        deployedonce,
+        owner,
+        [registry, odefi],
+      );
+      console.log("Finished deploying ODEFIVaultBooster");
+      console.log(`Contract ODEFIVaultBooster : ${odefiVaultBooster.address}`);
+      console.log("Registering aprOracle...");
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      await executeFunc(registryContract, owner, "setODEFIVaultBooster(address)", [odefiVaultBooster.address]);
+      console.log("Registered aprOracle.");
+      if (insertindb) {
+        const err = await insertContractIntoDB(`odefiVaultBooster`, odefiVaultBooster.address);
+        if (err !== "") {
+          throw err;
+        }
       }
+    } catch (error) {
+      console.error(`${DEPLOY_ODEFI_VAULT_BOOSTER}: `, error);
+      throw error;
     }
   });
