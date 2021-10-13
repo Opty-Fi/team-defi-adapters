@@ -13,7 +13,12 @@ import {
 import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-import { deployContract, moveToNextBlock } from "../../../helpers/helpers";
+import {
+  deployContract,
+  moveToNextBlock,
+  getDefaultFundAmountInDecimal,
+  moveToSpecificBlock,
+} from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/aavev2-test-defi-adapter.json";
@@ -40,23 +45,24 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
   const BORROW_AMOUNT = BigNumber.from("20000000000000");
   const SNTToken = "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F";
   let adapterPrerequisites: CONTRACTS;
-  let adapter: Contract;
+  let aaveV2Adapter: Contract;
   let ownerAddress: string;
-  let owner: Signer;
+  let users: { [key: string]: Signer };
   before(async () => {
     try {
-      [owner] = await hre.ethers.getSigners();
+      const [owner, admin, user1] = await hre.ethers.getSigners();
+      users = { owner, admin, user1 };
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
-      adapter = await deployAdapter(
+      aaveV2Adapter = await deployAdapter(
         hre,
         owner,
         AAVE_V2_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(adapter, "Adapter not deployed");
+      assert.isDefined(aaveV2Adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
     }
@@ -80,16 +86,16 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
           lpProvider = await hre.ethers.getContractAt(
             "IAaveV2LendingPoolAddressesProvider",
             lpProviderAddress[0],
-            owner,
+            users["owner"],
           );
           lpAddress = await lpProvider.getLendingPool();
-          lpContract = await hre.ethers.getContractAt("IAaveV2", lpAddress, owner);
+          lpContract = await hre.ethers.getContractAt("IAaveV2", lpAddress, users["owner"]);
           const reserveData = await lpContract.getReserveData(token);
           lpToken = reserveData.aTokenAddress;
-          const tokenContract = await hre.ethers.getContractAt("IERC20", token, owner);
+          const tokenContract = await hre.ethers.getContractAt("IERC20", token, users["owner"]);
           const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
-          await fundWalletToken(hre, SNTToken, owner, MAX_AMOUNT, timestamp);
+          await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
+          await fundWalletToken(hre, SNTToken, users["owner"], MAX_AMOUNT, timestamp);
           await tokenContract.approve(lpAddress, BORROW_AMOUNT);
           await lpContract.deposit(token, BORROW_AMOUNT, ownerAddress, 0);
           await lpContract.setUserUseReserveAsCollateral(token, true);
@@ -111,7 +117,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](
+                    codes = await aaveV2Adapter[action.action](
                       ownerAddress,
                       token,
                       strategy.strategy[0].contract,
@@ -120,7 +126,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
+                  codes = await aaveV2Adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -154,7 +160,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](
+                    codes = await aaveV2Adapter[action.action](
                       ownerAddress,
                       token,
                       strategy.strategy[0].contract,
@@ -163,7 +169,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
+                  codes = await aaveV2Adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -192,7 +198,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                 break;
               }
               case "getBorrowAllCodes(address,address,address,address)": {
-                const codes = await adapter[action.action](
+                const codes = await aaveV2Adapter[action.action](
                   ownerAddress,
                   token,
                   strategy.strategy[0].contract,
@@ -229,612 +235,604 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
       }
     });
   }
-});
 
-describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
-  let adapterPrerequisites: CONTRACTS;
-  let users: { [key: string]: Signer };
-  const adapterNames = Object.keys(TypedDefiPools);
-  let testDeFiAdapter: Contract;
-  let aaveV2Adapter: Contract;
+  describe(`${testDeFiAdapterScenario.title} - AaveV2Adapter`, () => {
+    const adapterNames = Object.keys(TypedDefiPools);
+    let testDeFiAdapter: Contract;
 
-  before(async () => {
-    const [owner, admin, user1] = await hre.ethers.getSigners();
-    users = { owner, admin, user1 };
-    adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
-    testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    aaveV2Adapter = await deployAdapter(hre, owner, "AaveV2Adapter", adapterPrerequisites.registry.address, true);
-  });
+    before(async () => {
+      testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
+    });
 
-  for (const adapterName of adapterNames) {
-    // TODO: In future it can be leverage across all the adapters
-    if (adapterName == "AaveV2Adapter") {
-      const pools = Object.keys(TypedDefiPools[adapterName]);
-      for (const pool of pools) {
-        const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
-        if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
-          for (const story of testDeFiAdapterScenario.stories) {
-            it(`${pool} - ${story.description}`, async function () {
-              if (
-                underlyingTokenAddress == getAddress(TypedTokens["REP"]) ||
-                underlyingTokenAddress == getAddress(TypedTokens["ETH"])
-              ) {
-                this.skip();
-              }
-              let defaultFundAmount: BigNumber = BigNumber.from("2");
-              let limit: BigNumber = hre.ethers.BigNumber.from(0);
-              const uniswapInstance = new hre.ethers.Contract(
-                CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
-                IUniswapV2Router02.abi,
-                users["owner"],
-              );
-              const timestamp = (await getBlockTimestamp(hre)) * 2;
-              const liquidityPool = TypedDefiPools[adapterName][pool].pool;
-              const lpToken = TypedDefiPools[adapterName][pool].lpToken;
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-              const aTokenERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
-              const aTokenInstance = await hre.ethers.getContractAt("IAaveV2Token", lpToken);
-              const getCode = await aTokenInstance.provider.getCode(aTokenInstance.address);
-              if (getCode === "0x") {
-                this.skip();
-              }
-              const lendingPoolInstance = await hre.ethers.getContractAt(
-                "IAaveV2",
-                CONTRACT_ADDRESSES.AAVE_V2_LENDING_POOL,
-              );
-              const protocolDataProviderInstance = await hre.ethers.getContractAt(
-                "IAaveV2ProtocolDataProvider",
-                CONTRACT_ADDRESSES.AAVE_V2_PROTOCOL_DATA_PROVIDER,
-              );
-              const priceOracle = await hre.ethers.getContractAt(
-                "IAaveV2PriceOracle",
-                CONTRACT_ADDRESSES.AAVE_V2_PRICE_ORACLE,
-              );
-              const decimals = await ERC20Instance.decimals();
-              const adapterAddress = aaveV2Adapter.address;
-              let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-              let borrowTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-              let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-              let isWithdrawSome: boolean = false;
-              let borrowToken: string;
-              if (getAddress(underlyingTokenAddress) !== getAddress(TypedTokens.TUSD)) {
-                borrowToken = TypedTokens.TUSD;
-              } else {
-                borrowToken = TypedTokens.DAI;
-              }
-              const borrowTokenInstance = await hre.ethers.getContractAt("ERC20", borrowToken);
-              for (const action of story.setActions) {
-                switch (action.action) {
-                  case "setMaxDepositProtocolMode(uint8)": {
-                    const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                    const existingMode = await aaveV2Adapter.maxDepositProtocolMode();
-                    if (existingMode != mode) {
-                      await aaveV2Adapter[action.action](mode);
+    for (const adapterName of adapterNames) {
+      // TODO: In future it can be leverage across all the adapters
+      if (adapterName == "AaveV2Adapter") {
+        const pools = Object.keys(TypedDefiPools[adapterName]);
+        for (const pool of pools) {
+          const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
+          const liquidityPool = TypedDefiPools[adapterName][pool].pool;
+          const lpToken = TypedDefiPools[adapterName][pool].lpToken;
+          if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
+            for (const story of testDeFiAdapterScenario.stories) {
+              it(`${pool} - ${story.description}`, async function () {
+                const adapterAddress = aaveV2Adapter.address;
+                if (
+                  underlyingTokenAddress == getAddress(TypedTokens["REP"]) ||
+                  underlyingTokenAddress == getAddress(TypedTokens["ETH"])
+                ) {
+                  this.skip();
+                }
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+                const aTokenERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
+                const aTokenInstance = await hre.ethers.getContractAt("IAaveV2Token", lpToken);
+                const getCode = await aTokenInstance.provider.getCode(aTokenInstance.address);
+                if (getCode === "0x") {
+                  this.skip();
+                }
+                const borrowToken =
+                  getAddress(underlyingTokenAddress) !== getAddress(TypedTokens.TUSD)
+                    ? TypedTokens.TUSD
+                    : TypedTokens.DAI;
+                const borrowTokenInstance = await hre.ethers.getContractAt("ERC20", borrowToken);
+                const lendingPoolInstance = await hre.ethers.getContractAt(
+                  "IAaveV2",
+                  CONTRACT_ADDRESSES.AAVE_V2_LENDING_POOL,
+                );
+                const protocolDataProviderInstance = await hre.ethers.getContractAt(
+                  "IAaveV2ProtocolDataProvider",
+                  CONTRACT_ADDRESSES.AAVE_V2_PROTOCOL_DATA_PROVIDER,
+                );
+                const priceOracle = await hre.ethers.getContractAt(
+                  "IAaveV2PriceOracle",
+                  CONTRACT_ADDRESSES.AAVE_V2_PRICE_ORACLE,
+                );
+                const uniswapInstance = new hre.ethers.Contract(
+                  CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
+                  IUniswapV2Router02.abi,
+                  users["owner"],
+                );
+
+                const decimals = await ERC20Instance.decimals();
+                let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
+                let limit: BigNumber = hre.ethers.BigNumber.from(0);
+
+                let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let borrowTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let isWithdrawSome: boolean = false;
+                const timestamp = (await getBlockTimestamp(hre)) * 2;
+                for (const action of story.setActions) {
+                  switch (action.action) {
+                    case "setMaxDepositProtocolMode(uint8)": {
+                      const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      const existingMode = await aaveV2Adapter.maxDepositProtocolMode();
+                      if (existingMode != mode) {
+                        await aaveV2Adapter[action.action](mode);
+                      }
+                      break;
                     }
-                    break;
-                  }
-                  case "setMaxDepositProtocolPct(uint256)": {
-                    const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(BigNumber.from(0))) {
-                      await aaveV2Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
-                    }
-                    const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                    const existingProtocolPct: BigNumber = await aaveV2Adapter.maxDepositProtocolPct();
-                    if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                      await aaveV2Adapter[action.action](maxDepositProtocolPct);
-                    }
-                    const poolValue: BigNumber = await aaveV2Adapter.getPoolValue(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "setMaxDepositPoolPct(address,uint256)": {
-                    const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                    const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                      await aaveV2Adapter[action.action](liquidityPool, maxDepositPoolPct);
-                    }
-                    const poolValue: BigNumber = await aaveV2Adapter.getPoolValue(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "setMaxDepositAmount(address,address,uint256)": {
-                    const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                    const existingDepositAmount: BigNumber = await aaveV2Adapter.maxDepositAmount(
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    if (
-                      !existingDepositAmount.eq(
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
-                      )
-                    ) {
-                      await aaveV2Adapter[action.action](
+                    case "setMaxDepositProtocolPct(uint256)": {
+                      const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
+                      if (!existingPoolPct.eq(BigNumber.from(0))) {
+                        await aaveV2Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
+                      }
+                      const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      const existingProtocolPct: BigNumber = await aaveV2Adapter.maxDepositProtocolPct();
+                      if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
+                        await aaveV2Adapter[action.action](maxDepositProtocolPct);
+                      }
+                      const poolValue: BigNumber = await aaveV2Adapter.getPoolValue(
                         liquidityPool,
                         underlyingTokenAddress,
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
                       );
+                      limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                      break;
                     }
-                    limit = await aaveV2Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                    break;
-                  }
-                  case "fundTestDeFiAdapterContract": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    if (underlyingBalance.lt(defaultFundAmount)) {
-                      await fundWalletToken(
-                        hre,
+                    case "setMaxDepositPoolPct(address,uint256)": {
+                      const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
+                      if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
+                        await aaveV2Adapter[action.action](liquidityPool, maxDepositPoolPct);
+                      }
+                      const poolValue: BigNumber = await aaveV2Adapter.getPoolValue(
+                        liquidityPool,
                         underlyingTokenAddress,
-                        users["owner"],
-                        defaultFundAmount,
-                        timestamp,
-                        testDeFiAdapter.address,
                       );
+                      limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
+                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                      break;
                     }
-                    break;
-                  }
-                  case "testGetDepositAllCodes(address,address,address)": {
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                    break;
-                  }
-                  case "testGetDepositSomeCodes(address,address,address,uint256)": {
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](
-                      underlyingTokenAddress,
-                      liquidityPool,
-                      adapterAddress,
-                      underlyingBalanceBefore,
-                    );
-                    break;
-                  }
-                  case "testGetWithdrawAllCodes(address,address,address)": {
-                    isWithdrawSome = false;
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                    break;
-                  }
-                  case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
-                    isWithdrawSome = true;
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    const lpTokenBalance: BigNumber = await aaveV2Adapter.getLiquidityPoolTokenBalance(
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    lpTokenBalanceBefore = lpTokenBalance;
-                    await testDeFiAdapter[action.action](
-                      underlyingTokenAddress,
-                      liquidityPool,
-                      adapterAddress,
-                      lpTokenBalance,
-                    );
-                    break;
-                  }
-                  case "testGetBorrowAllCodes(address,address,address,address)": {
-                    const configuration = await lendingPoolInstance.getConfiguration(underlyingTokenAddress);
-                    const isActive = (configuration >> 56) % 2;
-                    const isFrozen = (isActive >> 1) % 2;
-                    const borrowEnabled = (isFrozen >> 1) % 2;
-                    const stableBorrowEnabled = (borrowEnabled >> 1) % 2;
-                    if (isActive == 0 || isFrozen == 1 || borrowEnabled == 0 || stableBorrowEnabled == 0) {
-                      this.skip();
-                    }
-                    underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    borrowTokenBalanceBefore = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
-                    await testDeFiAdapter[action.action](
-                      liquidityPool,
-                      underlyingTokenAddress,
-                      borrowToken,
-                      adapterAddress,
-                    );
-                    break;
-                  }
-                  case "wait10000Seconds": {
-                    const blockNumber = await hre.ethers.provider.getBlockNumber();
-                    const block = await hre.ethers.provider.getBlock(blockNumber);
-                    await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 10000]);
-                    await hre.network.provider.send("evm_mine");
-                    break;
-                  }
-                  case "getUnderlyingTokens(address,address)": {
-                    const expectedUnderlyingAddress = await aaveV2Adapter[action.action](ADDRESS_ZERO, lpToken);
-                    const underlyingAddress = await aTokenInstance.UNDERLYING_ASSET_ADDRESS();
-                    expect([getAddress(expectedUnderlyingAddress[0])]).to.have.members([getAddress(underlyingAddress)]);
-                    break;
-                  }
-                  case "calculateAmountInLPToken(address,address,uint256)": {
-                    const depositAmount: BigNumber = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
-                    const amountInLPToken = await aaveV2Adapter[action.action](
-                      ADDRESS_ZERO,
-                      liquidityPool,
-                      depositAmount,
-                    );
-                    expect(amountInLPToken).to.be.eq(depositAmount);
-                    break;
-                  }
-                  case "getPoolValue(address,address)": {
-                    const poolValue = await aaveV2Adapter[action.action](liquidityPool, underlyingTokenAddress);
-                    const expectedPoolValue = await ERC20Instance.balanceOf(lpToken);
-                    expect(poolValue).to.be.eq(expectedPoolValue);
-                    break;
-                  }
-                  case "getLiquidityPoolToken(address,address)": {
-                    const liquidityPoolFromAdapter = await aaveV2Adapter[action.action](
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    expect(getAddress(liquidityPoolFromAdapter)).to.be.eq(getAddress(lpToken));
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const expectedValue = action.expectedValue;
-                    const underlyingBalanceAfter = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    const lpTokenBalance = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    const poolValue = await aaveV2Adapter["getPoolValue(address,address)"](
-                      liquidityPool,
-                      underlyingTokenAddress,
-                    );
-                    const existingMode = await aaveV2Adapter.maxDepositProtocolMode();
-                    if (existingMode == 0) {
+                    case "setMaxDepositAmount(address,address,uint256)": {
+                      const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      let amount = BigNumber.from("0");
+                      if (maxDepositAmount === ">") {
+                        amount = defaultFundAmount.mul(BigNumber.from("10"));
+                      } else if (maxDepositAmount === "<") {
+                        amount = defaultFundAmount.div(BigNumber.from("10"));
+                      }
                       const existingDepositAmount: BigNumber = await aaveV2Adapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
-                      if (existingDepositAmount.eq(0)) {
-                        expect(+lpTokenBalance).to.be.eq(0);
-                      } else {
-                        expect(+lpTokenBalance).to.be.gt(0);
+                      if (!existingDepositAmount.eq(amount)) {
+                        await expect(aaveV2Adapter[action.action](liquidityPool, underlyingTokenAddress, amount))
+                          .to.emit(aaveV2Adapter, "LogMaxDepositAmount")
+                          .withArgs(amount, ownerAddress);
+                        expect(await aaveV2Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)).to.equal(
+                          amount,
+                        );
                       }
-                    } else {
-                      const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
-                      const existingProtocolPct: BigNumber = await aaveV2Adapter.maxDepositProtocolPct();
-                      if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
-                        expect(+lpTokenBalance).to.be.eq(0);
-                      } else {
-                        if (expectedValue == "=0") {
-                          if (isWithdrawSome === false) {
-                            expect(+lpTokenBalance).to.be.eq(0);
-                          } else {
-                            expect(lpTokenBalanceBefore).to.be.eq(underlyingBalanceAfter);
-                          }
+                      limit = await aaveV2Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
+                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                      break;
+                    }
+                    case "fundTestDeFiAdapterContract": {
+                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      if (underlyingBalance.lt(defaultFundAmount)) {
+                        await fundWalletToken(
+                          hre,
+                          underlyingTokenAddress,
+                          users["owner"],
+                          defaultFundAmount,
+                          timestamp,
+                          testDeFiAdapter.address,
+                        );
+                      }
+                      break;
+                    }
+                    case "testGetDepositAllCodes(address,address,address)": {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
+                    }
+                    case "testGetDepositSomeCodes(address,address,address,uint256)": {
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        underlyingBalanceBefore,
+                      );
+                      break;
+                    }
+                    case "testGetWithdrawAllCodes(address,address,address)": {
+                      isWithdrawSome = false;
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
+                    }
+                    case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
+                      isWithdrawSome = true;
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const lpTokenBalance: BigNumber = await aaveV2Adapter.getLiquidityPoolTokenBalance(
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      lpTokenBalanceBefore = lpTokenBalance;
+                      await testDeFiAdapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        adapterAddress,
+                        lpTokenBalance,
+                      );
+                      break;
+                    }
+                    case "testGetBorrowAllCodes(address,address,address,address)": {
+                      const configuration = await lendingPoolInstance.getConfiguration(underlyingTokenAddress);
+                      const isActive = (+configuration.data.toString() >> 56) % 2;
+                      const isFrozen = (isActive >> 1) % 2;
+                      const borrowEnabled = (isFrozen >> 1) % 2;
+                      const stableBorrowEnabled = (borrowEnabled >> 1) % 2;
+                      if (isActive == 0 || isFrozen == 1 || borrowEnabled == 0 || stableBorrowEnabled == 0) {
+                        this.skip();
+                      }
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      borrowTokenBalanceBefore = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        borrowToken,
+                        adapterAddress,
+                      );
+                      break;
+                    }
+                    case "wait10000Seconds": {
+                      const blockNumber = await hre.ethers.provider.getBlockNumber();
+                      const block = await hre.ethers.provider.getBlock(blockNumber);
+                      await moveToSpecificBlock(hre, block.timestamp + 10000);
+                      break;
+                    }
+                    case "getUnderlyingTokens(address,address)": {
+                      const expectedUnderlyingAddress = await aaveV2Adapter[action.action](ADDRESS_ZERO, lpToken);
+                      const underlyingAddress = await aTokenInstance.UNDERLYING_ASSET_ADDRESS();
+                      expect([getAddress(expectedUnderlyingAddress[0])]).to.have.members([
+                        getAddress(underlyingAddress),
+                      ]);
+                      break;
+                    }
+                    case "calculateAmountInLPToken(address,address,uint256)": {
+                      const depositAmount: BigNumber = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
+                      const amountInLPToken = await aaveV2Adapter[action.action](
+                        ADDRESS_ZERO,
+                        liquidityPool,
+                        depositAmount,
+                      );
+                      expect(amountInLPToken).to.be.eq(depositAmount);
+                      break;
+                    }
+                    case "getPoolValue(address,address)": {
+                      const poolValue = await aaveV2Adapter[action.action](liquidityPool, underlyingTokenAddress);
+                      const expectedPoolValue = await ERC20Instance.balanceOf(lpToken);
+                      expect(poolValue).to.be.eq(expectedPoolValue);
+                      break;
+                    }
+                    case "getLiquidityPoolToken(address,address)": {
+                      const liquidityPoolFromAdapter = await aaveV2Adapter[action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      expect(getAddress(liquidityPoolFromAdapter)).to.be.eq(getAddress(lpToken));
+                      break;
+                    }
+                  }
+                }
+                for (const action of story.getActions) {
+                  switch (action.action) {
+                    case "getLiquidityPoolTokenBalance(address,address,address)": {
+                      const expectedValue = action.expectedValue;
+                      const underlyingBalanceAfter = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const lpTokenBalance = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const poolValue = await aaveV2Adapter["getPoolValue(address,address)"](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
+                      const existingMode = await aaveV2Adapter.maxDepositProtocolMode();
+                      if (existingMode == 0) {
+                        const existingDepositAmount: BigNumber = await aaveV2Adapter.maxDepositAmount(
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        );
+                        if (existingDepositAmount.eq(0)) {
+                          expect(+lpTokenBalance).to.be.eq(0);
                         } else {
                           expect(+lpTokenBalance).to.be.gt(0);
                         }
+                      } else {
+                        const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
+                        const existingProtocolPct: BigNumber = await aaveV2Adapter.maxDepositProtocolPct();
+                        if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
+                          expect(+lpTokenBalance).to.be.eq(0);
+                        } else {
+                          if (expectedValue == "=0") {
+                            if (isWithdrawSome === false) {
+                              expect(+lpTokenBalance).to.be.eq(0);
+                            } else {
+                              expect(lpTokenBalanceBefore).to.be.eq(underlyingBalanceAfter);
+                            }
+                          } else {
+                            expect(+lpTokenBalance).to.be.gt(0);
+                          }
+                        }
                       }
+                      break;
                     }
-                    break;
-                  }
-                  case "balanceOf(address)": {
-                    const expectedValue = action.expectedValue;
-                    const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                      testDeFiAdapter.address,
-                    );
-                    if (underlyingBalanceBefore.lt(limit)) {
-                      expectedValue == ">0"
-                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(0);
-                    } else {
-                      expectedValue == ">0"
-                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                        : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
+                    case "balanceOf(address)": {
+                      const expectedValue = action.expectedValue;
+                      const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      if (underlyingBalanceBefore.lt(limit)) {
+                        expectedValue == ">0"
+                          ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                          : expect(+underlyingBalanceAfter).to.be.eq(0);
+                      } else {
+                        expectedValue == ">0"
+                          ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                          : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
+                      }
+                      break;
                     }
-                    break;
-                  }
-                  case "borrowTokenBalance": {
-                    const expectedValue = action.expectedValue;
-                    const borrowTokenBalanceAfter: BigNumber = await borrowTokenInstance.balanceOf(
-                      testDeFiAdapter.address,
-                    );
-                    expectedValue == ">0"
-                      ? expect(borrowTokenBalanceAfter).to.be.gt(borrowTokenBalanceBefore)
-                      : expect(+borrowTokenBalanceAfter).to.be.eq(0);
-                    break;
-                  }
-                  case "isRedeemableAmountSufficient(address,address,address,uint256)": {
-                    const expectedValue = action.expectedValue;
-                    const amountInUnderlyingToken: BigNumber = await aaveV2Adapter.getAllAmountInToken(
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    if (expectedValue == ">") {
-                      const isRedeemableAmountSufficient = await aaveV2Adapter[action.action](
+                    case "borrowTokenBalance": {
+                      const expectedValue = action.expectedValue;
+                      const borrowTokenBalanceAfter: BigNumber = await borrowTokenInstance.balanceOf(
+                        testDeFiAdapter.address,
+                      );
+                      expectedValue == ">0"
+                        ? expect(borrowTokenBalanceAfter).to.be.gt(borrowTokenBalanceBefore)
+                        : expect(+borrowTokenBalanceAfter).to.be.eq(0);
+                      break;
+                    }
+                    case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                      const expectedValue = action.expectedValue;
+                      const amountInUnderlyingToken: BigNumber = await aaveV2Adapter.getAllAmountInToken(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
-                        amountInUnderlyingToken.add(BigNumber.from(10)),
                       );
-                      expect(isRedeemableAmountSufficient).to.be.eq(false);
-                    } else if (expectedValue == "<") {
-                      const isRedeemableAmountSufficient = await aaveV2Adapter[action.action](
+                      if (expectedValue == ">") {
+                        const isRedeemableAmountSufficient = await aaveV2Adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          amountInUnderlyingToken.add(BigNumber.from(10)),
+                        );
+                        expect(isRedeemableAmountSufficient).to.be.eq(false);
+                      } else if (expectedValue == "<") {
+                        const isRedeemableAmountSufficient = await aaveV2Adapter[action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          +amountInUnderlyingToken > 0
+                            ? amountInUnderlyingToken.sub(BigNumber.from(1))
+                            : BigNumber.from(0),
+                        );
+                        expect(isRedeemableAmountSufficient).to.be.eq(true);
+                      }
+                      break;
+                    }
+                    case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                      const lpTokenBalance: BigNumber = await aaveV2Adapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
-                        +amountInUnderlyingToken > 0
-                          ? amountInUnderlyingToken.sub(BigNumber.from(1))
-                          : BigNumber.from(0),
                       );
-                      expect(isRedeemableAmountSufficient).to.be.eq(true);
-                    }
-                    break;
-                  }
-                  case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
-                    const lpTokenBalance: BigNumber = await aaveV2Adapter.getLiquidityPoolTokenBalance(
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    const testRedeemAmount: BigNumber = lpTokenBalance;
-                    const redeemableLpTokenAmt = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                      testRedeemAmount,
-                    );
-                    expect(redeemableLpTokenAmt).to.be.eq(lpTokenBalance);
-                    break;
-                  }
-                  case "getAllAmountInToken(address,address,address)": {
-                    const amountInUnderlyingToken = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                    expect(amountInUnderlyingToken).to.be.eq(lpTokenBalance);
-                    break;
-                  }
-                  case "getSomeAmountInToken(address,address,uint256)": {
-                    const lpTokenDecimals = await aTokenERC20Instance.decimals();
-                    const lpTokenAmount = defaultFundAmount.mul(BigNumber.from(10).pow(lpTokenDecimals));
-                    if (+lpTokenAmount > 0) {
-                      const _amountInUnderlyingToken = await aaveV2Adapter[action.action](
-                        ADDRESS_ZERO,
+                      const testRedeemAmount: BigNumber = lpTokenBalance;
+                      const redeemableLpTokenAmt = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
                         liquidityPool,
-                        lpTokenAmount,
+                        testRedeemAmount,
                       );
-                      expect(_amountInUnderlyingToken).to.be.eq(lpTokenAmount);
+                      expect(redeemableLpTokenAmt).to.be.eq(lpTokenBalance);
+                      break;
                     }
-                    break;
-                  }
-                  case "getAllAmountInTokenBorrow(address,address,address,address,uint256)": {
-                    const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
-                    const amountInUnderlyingToken = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                      borrowToken,
-                      borrowAmount,
-                    );
-                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                    const debt = (
-                      await protocolDataProviderInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
-                    )[1];
-                    const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
-                    const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
-                    const maxWithdrawal: BigNumber =
-                      safeWithdraw > lpTokenBalance
-                        ? lpTokenBalance
-                        : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
-                    const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
-                    const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
-                    const eth: BigNumber = maxWithdrawal
-                      .mul(underlyingPrice)
-                      .div(BigNumber.from(10).pow(decimals))
-                      .mul(65)
-                      .div(100)
-                      .div(2);
-                    const totalBorrows: BigNumber = (
-                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
-                    )[1];
-                    const availableBorrows: BigNumber = (
-                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
-                    )[2];
-                    let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
-                    maxSafeETH = maxSafeETH.mul(105).div(100);
-                    if (eth.gt(maxSafeETH)) {
-                      maxSafeETH = BigNumber.from(0);
-                    } else {
-                      maxSafeETH = maxSafeETH.sub(eth);
+                    case "getAllAmountInToken(address,address,address)": {
+                      const amountInUnderlyingToken = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
+                      expect(amountInUnderlyingToken).to.be.eq(lpTokenBalance);
+                      break;
                     }
-                    let over: BigNumber;
-                    if (maxSafeETH.lt(totalBorrows)) {
-                      over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
-                      over = over
-                        .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
-                        .div(borrowTokenPrice);
-                    } else {
-                      over = BigNumber.from(0);
+                    case "getSomeAmountInToken(address,address,uint256)": {
+                      const lpTokenDecimals = await aTokenERC20Instance.decimals();
+                      const lpTokenAmount = defaultFundAmount.mul(BigNumber.from(10).pow(lpTokenDecimals));
+                      if (lpTokenAmount.gt(0)) {
+                        const _amountInUnderlyingToken = await aaveV2Adapter[action.action](
+                          ADDRESS_ZERO,
+                          liquidityPool,
+                          lpTokenAmount,
+                        );
+                        expect(_amountInUnderlyingToken).to.be.eq(lpTokenAmount);
+                      }
+                      break;
                     }
-                    if (over > borrowAmount) {
-                      expect(amountInUnderlyingToken).to.be.eq(maxWithdrawal);
-                    } else {
-                      const optimalAmount: BigNumber = (
-                        await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
-                          borrowToken,
-                          TypedTokens.WETH,
-                          underlyingTokenAddress,
-                        ])
+                    case "getAllAmountInTokenBorrow(address,address,address,address,uint256)": {
+                      const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
+                      const amountInUnderlyingToken = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        borrowToken,
+                        borrowAmount,
+                      );
+                      const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const debt = (
+                        await protocolDataProviderInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
+                      )[1];
+                      const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
+                      const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
+                      const maxWithdrawal: BigNumber =
+                        safeWithdraw > lpTokenBalance
+                          ? lpTokenBalance
+                          : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
+                      const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
+                      const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
+                      const eth: BigNumber = maxWithdrawal
+                        .mul(underlyingPrice)
+                        .div(BigNumber.from(10).pow(decimals))
+                        .mul(65)
+                        .div(100)
+                        .div(2);
+                      const totalBorrows: BigNumber = (
+                        await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                      )[1];
+                      const availableBorrows: BigNumber = (
+                        await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
                       )[2];
-                      const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                      expect(amountInUnderlyingToken).to.be.eq(result);
+                      let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
+                      maxSafeETH = maxSafeETH.mul(105).div(100);
+                      if (eth.gt(maxSafeETH)) {
+                        maxSafeETH = BigNumber.from(0);
+                      } else {
+                        maxSafeETH = maxSafeETH.sub(eth);
+                      }
+                      let over: BigNumber;
+                      if (maxSafeETH.lt(totalBorrows)) {
+                        over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
+                        over = over
+                          .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
+                          .div(borrowTokenPrice);
+                      } else {
+                        over = BigNumber.from(0);
+                      }
+                      if (over > borrowAmount) {
+                        expect(amountInUnderlyingToken).to.be.eq(maxWithdrawal);
+                      } else {
+                        const optimalAmount: BigNumber = (
+                          await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
+                            borrowToken,
+                            TypedTokens.WETH,
+                            underlyingTokenAddress,
+                          ])
+                        )[2];
+                        const result: BigNumber = maxWithdrawal.add(optimalAmount);
+                        expect(amountInUnderlyingToken).to.be.eq(result);
+                      }
+                      break;
                     }
-                    break;
-                  }
-                  case "getSomeAmountInTokenBorrow(address,address,address,uint256,address,uint256)": {
-                    const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
-                    const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                    const amountInUnderlyingToken: BigNumber = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                      lpTokenBalance,
-                      borrowToken,
-                      borrowAmount,
-                    );
-                    const debt = (
-                      await protocolDataProviderInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
-                    )[1];
-                    const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
-                    const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
-                    const maxWithdrawal: BigNumber =
-                      safeWithdraw > lpTokenBalance
-                        ? lpTokenBalance
-                        : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
-                    const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
-                    const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
-                    const eth: BigNumber = maxWithdrawal
-                      .mul(underlyingPrice)
-                      .div(BigNumber.from(10).pow(decimals))
-                      .mul(65)
-                      .div(100)
-                      .div(2);
-                    const totalBorrows: BigNumber = (
-                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
-                    )[1];
-                    const availableBorrows: BigNumber = (
-                      await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
-                    )[2];
-                    let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
-                    maxSafeETH = maxSafeETH.mul(105).div(100);
-                    if (eth.gt(maxSafeETH)) {
-                      maxSafeETH = BigNumber.from(0);
-                    } else {
-                      maxSafeETH = maxSafeETH.sub(eth);
-                    }
-                    let over: BigNumber;
-                    if (maxSafeETH.lt(totalBorrows)) {
-                      over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
-                      over = over
-                        .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
-                        .div(borrowTokenPrice);
-                    } else {
-                      over = BigNumber.from(0);
-                    }
-                    if (over > borrowAmount) {
-                      expect(amountInUnderlyingToken).to.be.lt(maxWithdrawal);
-                    } else {
-                      const optimalAmount: BigNumber = (
-                        await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
-                          borrowToken,
-                          TypedTokens.WETH,
-                          underlyingTokenAddress,
-                        ])
+                    case "getSomeAmountInTokenBorrow(address,address,address,uint256,address,uint256)": {
+                      const borrowAmount = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
+                      const lpTokenBalance = await aTokenERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const amountInUnderlyingToken: BigNumber = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        lpTokenBalance,
+                        borrowToken,
+                        borrowAmount,
+                      );
+                      const debt = (
+                        await protocolDataProviderInstance.getUserReserveData(borrowToken, testDeFiAdapter.address)
+                      )[1];
+                      const locked: BigNumber = borrowAmount.mul(BigNumber.from(10).pow(18)).div(debt);
+                      const safeWithdraw: BigNumber = lpTokenBalance.mul(locked).div(BigNumber.from(10).pow(18));
+                      const maxWithdrawal: BigNumber =
+                        safeWithdraw > lpTokenBalance
+                          ? lpTokenBalance
+                          : lpTokenBalance.sub(lpTokenBalance.sub(safeWithdraw).mul(2));
+                      const underlyingPrice: BigNumber = await priceOracle.getAssetPrice(underlyingTokenAddress);
+                      const borrowTokenPrice: BigNumber = await priceOracle.getAssetPrice(borrowToken);
+                      const eth: BigNumber = maxWithdrawal
+                        .mul(underlyingPrice)
+                        .div(BigNumber.from(10).pow(decimals))
+                        .mul(65)
+                        .div(100)
+                        .div(2);
+                      const totalBorrows: BigNumber = (
+                        await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
+                      )[1];
+                      const availableBorrows: BigNumber = (
+                        await lendingPoolInstance.getUserAccountData(testDeFiAdapter.address)
                       )[2];
-                      const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                      expect(amountInUnderlyingToken).to.be.eq(result);
+                      let maxSafeETH: BigNumber = totalBorrows.add(availableBorrows).div(2);
+                      maxSafeETH = maxSafeETH.mul(105).div(100);
+                      if (eth.gt(maxSafeETH)) {
+                        maxSafeETH = BigNumber.from(0);
+                      } else {
+                        maxSafeETH = maxSafeETH.sub(eth);
+                      }
+                      let over: BigNumber;
+                      if (maxSafeETH.lt(totalBorrows)) {
+                        over = totalBorrows.mul(totalBorrows.sub(maxSafeETH)).div(totalBorrows);
+                        over = over
+                          .mul(BigNumber.from(10).pow(await borrowTokenInstance.decimals()))
+                          .div(borrowTokenPrice);
+                      } else {
+                        over = BigNumber.from(0);
+                      }
+                      if (over > borrowAmount) {
+                        expect(amountInUnderlyingToken).to.be.lt(maxWithdrawal);
+                      } else {
+                        const optimalAmount: BigNumber = (
+                          await uniswapInstance.getAmountsOut(borrowAmount.sub(over), [
+                            borrowToken,
+                            TypedTokens.WETH,
+                            underlyingTokenAddress,
+                          ])
+                        )[2];
+                        const result: BigNumber = maxWithdrawal.add(optimalAmount);
+                        expect(amountInUnderlyingToken).to.be.eq(result);
+                      }
+                      break;
                     }
-                    break;
                   }
                 }
-              }
-              for (const action of story.cleanActions) {
-                switch (action.action) {
-                  case "fundTestDeFiAdapterContract": {
-                    const underlyingBalance: BigNumber = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
-                    await fundWalletToken(
-                      hre,
-                      borrowToken,
-                      users["owner"],
-                      underlyingBalance.div(2),
-                      timestamp,
-                      testDeFiAdapter.address,
-                    );
-                    break;
-                  }
-                  case "testGetWithdrawAllCodes(address,address,address)": {
-                    await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
-                    break;
-                  }
-                  case "testGetRepayAndWithdrawAllCodes(address,address,address,address)": {
-                    await moveToNextBlock(hre);
-                    await testDeFiAdapter[action.action](
-                      liquidityPool,
-                      underlyingTokenAddress,
-                      borrowToken,
-                      adapterAddress,
-                    );
-                    break;
-                  }
-                  case "setMaxDepositProtocolMode(uint8)": {
-                    await aaveV2Adapter[action.action](0);
-                    break;
-                  }
-                  case "setMaxDepositPoolPct(address,uint256)": {
-                    const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(0)) {
-                      await aaveV2Adapter[action.action](liquidityPool, 0);
+                for (const action of story.cleanActions) {
+                  switch (action.action) {
+                    case "fundTestDeFiAdapterContract": {
+                      const underlyingBalance: BigNumber = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
+                      await fundWalletToken(
+                        hre,
+                        borrowToken,
+                        users["owner"],
+                        underlyingBalance.div(2),
+                        timestamp,
+                        testDeFiAdapter.address,
+                      );
+                      break;
                     }
-                    break;
-                  }
-                  case "setMaxDepositProtocolPct(uint256)": {
-                    const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
-                    if (!existingPoolPct.eq(BigNumber.from(0))) {
-                      await aaveV2Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
+                    case "testGetWithdrawAllCodes(address,address,address)": {
+                      await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
+                      break;
                     }
-                    break;
-                  }
-                  case "burnTokens": {
-                    await testDeFiAdapter.burnBorrowTokens(borrowToken);
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getLiquidityPoolTokenBalance(address,address,address)": {
-                    const lpTokenBalance = await aaveV2Adapter[action.action](
-                      testDeFiAdapter.address,
-                      underlyingTokenAddress,
-                      liquidityPool,
-                    );
-                    expect(+lpTokenBalance).to.be.eq(0);
-                    break;
-                  }
-                  case "balanceOf(address)": {
-                    const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    expect(+underlyingBalance).to.be.gt(0);
-                    break;
-                  }
-                }
-              }
-            });
-          }
-          for (let i = 0; i < testDeFiAdapterScenario.adapterStandaloneStories.length; i++) {
-            it(`${testDeFiAdapterScenario?.adapterStandaloneStories[i].description}`, async function () {
-              const story = testDeFiAdapterScenario.adapterStandaloneStories[i];
-              for (const action of story.setActions) {
-                switch (action.action) {
-                  case "canStake(address)": {
-                    const canStake = await aaveV2Adapter[action.action](ADDRESS_ZERO);
-                    expect(canStake).to.be.eq(false);
-                    break;
+                    case "testGetRepayAndWithdrawAllCodes(address,address,address,address)": {
+                      await moveToNextBlock(hre);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        borrowToken,
+                        adapterAddress,
+                      );
+                      break;
+                    }
+                    case "setMaxDepositProtocolMode(uint8)": {
+                      await aaveV2Adapter[action.action](0);
+                      break;
+                    }
+                    case "setMaxDepositPoolPct(address,uint256)": {
+                      const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
+                      if (!existingPoolPct.eq(0)) {
+                        await aaveV2Adapter[action.action](liquidityPool, 0);
+                      }
+                      break;
+                    }
+                    case "setMaxDepositProtocolPct(uint256)": {
+                      const existingPoolPct: BigNumber = await aaveV2Adapter.maxDepositPoolPct(liquidityPool);
+                      if (!existingPoolPct.eq(BigNumber.from(0))) {
+                        await aaveV2Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
+                      }
+                      break;
+                    }
+                    case "burnTokens": {
+                      await testDeFiAdapter.burnBorrowTokens(borrowToken);
+                      break;
+                    }
                   }
                 }
-              }
-            });
+                for (const action of story.getActions) {
+                  switch (action.action) {
+                    case "getLiquidityPoolTokenBalance(address,address,address)": {
+                      const lpTokenBalance = await aaveV2Adapter[action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                      );
+                      expect(+lpTokenBalance).to.be.eq(0);
+                      break;
+                    }
+                    case "balanceOf(address)": {
+                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      expect(+underlyingBalance).to.be.gt(0);
+                      break;
+                    }
+                  }
+                }
+              });
+            }
+            for (let i = 0; i < testDeFiAdapterScenario.adapterStandaloneStories.length; i++) {
+              it(`${testDeFiAdapterScenario?.adapterStandaloneStories[i].description}`, async function () {
+                const story = testDeFiAdapterScenario.adapterStandaloneStories[i];
+                for (const action of story.setActions) {
+                  switch (action.action) {
+                    case "canStake(address)": {
+                      const canStake = await aaveV2Adapter[action.action](ADDRESS_ZERO);
+                      expect(canStake).to.be.eq(false);
+                      break;
+                    }
+                  }
+                }
+              });
+            }
           }
         }
       }
     }
-  }
+  });
 });
