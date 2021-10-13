@@ -7,7 +7,7 @@ on:
         description: Git Ref (Required)    
         required: true
 
-
+jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
