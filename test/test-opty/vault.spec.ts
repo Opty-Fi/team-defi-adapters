@@ -145,7 +145,7 @@ describe(scenario.title, () => {
               await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
                 TOKENS[TOKEN_STRATEGY.token],
-                essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+                essentialContracts.investStrategyRegistry,
                 essentialContracts.strategyProvider,
                 profile,
                 false,

@@ -1,4 +1,5 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
+import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
@@ -17,6 +18,8 @@ import { getAddress } from "ethers/lib/utils";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/aavev2-test-defi-adapter.json";
 import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };

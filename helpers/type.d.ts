@@ -3,7 +3,7 @@ import { MockContract } from "@defi-wonderland/smock";
 
 export type ESSENTIAL_CONTRACTS = {
   registry: Contract;
-  vaultStepInvestStrategyDefinitionRegistry: Contract;
+  investStrategyRegistry: Contract;
   strategyProvider: Contract;
   harvestCodeProvider: Contract;
   riskManager: Contract;
@@ -94,4 +94,11 @@ export type OPTY_STAKING_VAULT = {
   numberOfDays: string;
   lockTime: number;
   multiplier: number;
+};
+
+export type SUPPORTED_TOKENS_DATA = {
+  [name: string]: {
+    address: string;
+    pair: boolean;
+  };
 };
