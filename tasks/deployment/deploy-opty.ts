@@ -29,7 +29,7 @@ task(DEPLOY_OPTY, "Deploy Opty")
       console.log("Registering OPTY...");
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setOPTY(address)", [opty.address]);
-      console.log("Registered OPTY...");
+      console.log("Registered OPTY.");
       if (insertindb) {
         const err = await insertContractIntoDB(`opty`, opty.address);
         if (err !== "") {

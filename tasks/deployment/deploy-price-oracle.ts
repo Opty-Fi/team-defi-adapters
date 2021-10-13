@@ -26,7 +26,7 @@ task(DEPLOY_PRICE_ORACLE, "Deploy Price Oracle")
       console.log("Registering PriceOracle...");
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setPriceOracle(address)", [priceOracle.address]);
-      console.log("Registering PriceOracle...");
+      console.log("Registered PriceOracle.");
       if (insertindb) {
         const err = await insertContractIntoDB(`priceOracle`, priceOracle.address);
         if (err !== "") {

@@ -20,12 +20,12 @@ task(DEPLOY_INVEST_STRATEGY_REGISTRY, "Deploy InvestStrategyRegistry")
         [registry],
       );
       console.log(`Contract investStrategyRegistry: ${investStrategyRegistry.address}`);
-      console.log("Registering aprOracle...");
+      console.log("Registering investStrategyRegistry...");
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setInvestStrategyRegistry(address)", [
         investStrategyRegistry.address,
       ]);
-      console.log("Registered aprOracle.");
+      console.log("Registered investStrategyRegistry.");
       if (insertindb) {
         const err = await insertContractIntoDB(`investStrategyRegistry`, investStrategyRegistry.address);
         if (err !== "") {

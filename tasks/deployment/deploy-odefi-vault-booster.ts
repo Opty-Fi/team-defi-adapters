@@ -38,10 +38,10 @@ task(DEPLOY_ODEFI_VAULT_BOOSTER, "Deploy Odefi Vault Booster")
       );
       console.log("Finished deploying ODEFIVaultBooster");
       console.log(`Contract ODEFIVaultBooster : ${odefiVaultBooster.address}`);
-      console.log("Registering aprOracle...");
+      console.log("Registering ODEFIVaultBooster...");
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setODEFIVaultBooster(address)", [odefiVaultBooster.address]);
-      console.log("Registered aprOracle.");
+      console.log("Registered ODEFIVaultBooster.");
       if (insertindb) {
         const err = await insertContractIntoDB(`odefiVaultBooster`, odefiVaultBooster.address);
         if (err !== "") {

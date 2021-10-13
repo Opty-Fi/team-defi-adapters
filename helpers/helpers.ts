@@ -27,12 +27,7 @@ export async function deployContract(
 async function _deployContract(contractFactory: ContractFactory, args: any[], owner?: Signer): Promise<Contract> {
   let contract: Contract;
   if (owner) {
-    try {
-      contract = await contractFactory.connect(owner).deploy(...args);
-    } catch (error) {
-      console.error("_deployContract: ", error);
-      throw error;
-    }
+    contract = await contractFactory.connect(owner).deploy(...args);
   } else {
     contract = await contractFactory.deploy(...args);
   }
