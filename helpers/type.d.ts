@@ -83,7 +83,7 @@ export type TESTING_DEFAULT_DATA = {
   }[];
 };
 
-export type PAIR_TOKEN_DATA = {
+export type MULTI_ASSET_TOKEN_DATA = {
   [token: string]: {
     address: string;
     path0?: string[];
@@ -105,11 +105,4 @@ export type OPTY_STAKING_VAULT = {
   numberOfDays: string;
   lockTime: number;
   multiplier: number;
-};
-
-export type SUPPORTED_TOKENS_DATA = {
-  [name: string]: {
-    address: string;
-    pair: boolean;
-  };
 };
