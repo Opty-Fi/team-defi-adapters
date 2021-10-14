@@ -112,7 +112,7 @@ export async function approveAndSetTokenHashToTokens(
       }
     }
   } catch (error) {
-    console.error(`approveAndSetTokenHashToTokens: `, error);
+    console.error(`contract-actions#approveAndSetTokenHashToTokens: `, error);
     throw error;
   }
 }
