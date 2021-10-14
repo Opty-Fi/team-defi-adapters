@@ -39,27 +39,31 @@ task(DEPLOY_VAULT, "Deploy Vault")
       throw new Error("registry address is invalid");
     }
 
-    const { name, symbol } = await getTokenInforWithAddress(hre, token);
-
-    const vault = await deployVaultWithHash(hre, registry, token, owner, admin, name, symbol, riskprofile);
-    console.log("----------------");
-    console.log(`Contract ${symbol}-${riskprofile} Vault`);
-    console.log(`Address : ${vault["vault"].contract.address}`);
-    console.log(`Hash : ${vault["vault"].hash}`);
-    console.log(`Contract ${symbol}-${riskprofile} Vault Proxy`);
-    console.log(`Address : ${vault["vaultProxy"].contract.address}`);
-    console.log(`Hash : ${vault["vaultProxy"].hash}`);
-    console.log("----------------");
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    if (unpause) {
-      await unpauseVault(owner, registryContract, vault["vaultProxy"].contract.address, true);
-    }
-
-    if (insertindb) {
-      const err = await insertContractIntoDB(`${symbol}-${riskprofile}`, vault["vaultProxy"].contract.address);
-      if (err !== "") {
-        console.log(err);
+    try {
+      console.log("----------------");
+      const { name, symbol } = await getTokenInforWithAddress(hre, token);
+      console.log(`Deploying ${symbol}-${riskprofile}-Vault...`);
+      const vault = await deployVaultWithHash(hre, registry, token, owner, admin, name, symbol, riskprofile);
+      console.log(`Deployed ${await vault["vaultProxy"].contract.symbol()}.`);
+      console.log(`Vault Address : ${vault["vault"].contract.address}`);
+      console.log(`Vault Tx Hash : ${vault["vault"].hash}`);
+      console.log(`VaultProxy Address : ${vault["vaultProxy"].contract.address}`);
+      console.log(`VaultProxy Tx Hash : ${vault["vaultProxy"].hash}`);
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      if (unpause) {
+        console.log(`Unpausing Vault...`);
+        await unpauseVault(owner, registryContract, vault["vaultProxy"].contract.address, true);
+        console.log(`Unpaused Vault.`);
       }
+      console.log("----------------");
+      if (insertindb) {
+        const err = await insertContractIntoDB(`${symbol}-${riskprofile}`, vault["vaultProxy"].contract.address);
+        if (err !== "") {
+          console.log(err);
+        }
+      }
+    } catch (error) {
+      console.error(`${DEPLOY_VAULT} : `, error);
+      throw error;
     }
   });

@@ -28,7 +28,8 @@ export async function approveLiquidityPoolAndMapAdapter(
       await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [lqPool]);
       await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [lqPool, adapter]);
     } catch (error) {
-      console.log(`Got error: ${error}`);
+      console.error(`contract-actions#approveLiquidityPoolAndMapAdapter: `, error);
+      throw error;
     }
   }
 }
@@ -52,7 +53,8 @@ export async function approveLiquidityPoolAndMapAdapters(
     }
     await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [lqPoolsMapToAdapter]);
   } catch (error) {
-    console.log(`Got error: ${error}`);
+    console.error(`contracts-actions#approveLiquidityPoolAndMapAdapters: `, error);
+    throw error;
   }
 }
 
@@ -70,7 +72,8 @@ export async function approveAndSetTokenHashToToken(
       await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[tokenAddress]]);
     }
   } catch (error) {
-    console.log(`Got error when executing approveAndSetTokenHashToToken : ${error}`);
+    console.error(`contract-actions#approveAndSetTokenHashToToken : `, error);
+    throw error;
   }
 }
 
@@ -107,18 +110,19 @@ export async function approveAndSetTokenHashToTokens(
       }
     }
   } catch (error) {
-    console.log(`Got error when executing approveAndSetTokenHashToTokens : ${error}`);
+    console.error(`contract-actions#approveAndSetTokenHashToTokens: `, error);
+    throw error;
   }
 }
 
 export async function setStrategy(
   strategy: STRATEGY_DATA[],
   tokens: string[],
-  vaultStepInvestStrategyDefinitionRegistry: Contract,
+  investStrategyRegistry: Contract,
 ): Promise<string> {
   const strategySteps: [string, string, boolean][] = generateStrategyStep(strategy);
   const tokensHash = generateTokenHash(tokens);
-  const strategies = await vaultStepInvestStrategyDefinitionRegistry["setStrategy(bytes32,(address,address,bool)[])"](
+  const strategies = await investStrategyRegistry["setStrategy(bytes32,(address,address,bool)[])"](
     tokensHash,
     strategySteps,
   );
@@ -130,7 +134,7 @@ export async function setStrategy(
 export async function setBestStrategy(
   strategy: STRATEGY_DATA[],
   tokenAddress: string,
-  vaultStepInvestStrategyDefinitionRegistry: Contract,
+  investStrategyRegistry: Contract,
   strategyProvider: Contract,
   riskProfile: string,
   isDefault: boolean,
@@ -139,10 +143,10 @@ export async function setBestStrategy(
 
   const tokenHash = generateTokenHash([tokenAddress]);
 
-  const strategyDetail = await vaultStepInvestStrategyDefinitionRegistry.getStrategy(strategyHash);
+  const strategyDetail = await investStrategyRegistry.getStrategy(strategyHash);
 
   if (strategyDetail[1].length === 0) {
-    await setStrategy(strategy, [tokenAddress], vaultStepInvestStrategyDefinitionRegistry);
+    await setStrategy(strategy, [tokenAddress], investStrategyRegistry);
   }
 
   if (isDefault) {

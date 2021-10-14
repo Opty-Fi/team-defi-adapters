@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { RISK_PROFILES, TOKENS } from "../../helpers/constants";
 import { isAddress } from "../../helpers/helpers";
-import { DEPLOY_VAULTS } from "../task-names";
+import { DEPLOY_VAULT, DEPLOY_VAULTS } from "../task-names";
 
 task(DEPLOY_VAULTS, "Deploy Core Vaults")
   .addParam("registry", "the address of registry", "", types.string)
@@ -16,20 +16,25 @@ task(DEPLOY_VAULTS, "Deploy Core Vaults")
       throw new Error("registry address is invalid");
     }
 
-    for (const token in TOKENS) {
-      if (token === "CHI") {
-        continue;
+    try {
+      console.log("Deploying Vaults...");
+      for (const token in TOKENS) {
+        if (token === "CHI") {
+          continue;
+        }
+        for (const riskProfile of Object.keys(RISK_PROFILES)) {
+          await hre.run(DEPLOY_VAULT, {
+            token: TOKENS[token],
+            riskprofile: riskProfile,
+            registry: registry,
+            unpause: unpause,
+            insertindb: insertindb,
+          });
+        }
       }
-      for (const riskProfile of Object.keys(RISK_PROFILES)) {
-        await hre.run("deploy-vault", {
-          token: TOKENS[token],
-          riskprofile: riskProfile,
-          registry: registry,
-          unpause: unpause,
-          insertindb: insertindb,
-        });
-      }
+      console.log("Finished deploying vaults");
+    } catch (error) {
+      console.error(`${DEPLOY_VAULTS}: `, error);
+      throw error;
     }
-
-    console.log("Finished deploying vaults");
   });

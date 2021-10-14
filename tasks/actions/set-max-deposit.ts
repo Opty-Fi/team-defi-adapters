@@ -49,8 +49,6 @@ task(SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
       }
     }
 
-    console.log(`Adapter: ${adapter}`);
-
     if (liquiditypool !== "") {
       console.log(`Liquidity pool: ${liquiditypool}`);
     }
@@ -63,10 +61,11 @@ task(SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
       console.log(`Mode: ${mode}`);
     }
 
-    console.log(`Max Deposit: ${amount}`);
-
-    const contract = await hre.ethers.getContractAt("IAdapterFull", adapter);
     try {
+      console.log(`Adapter: ${adapter}`);
+      console.log(`Max Deposit: ${amount}`);
+
+      const contract = await hre.ethers.getContractAt("IAdapterFull", adapter);
       if (setprotocol) {
         await contract.setMaxDepositProtocolPct(amount);
       } else {
@@ -81,9 +80,9 @@ task(SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
           }
         }
       }
+      console.log(`Finished setting max deposit`);
     } catch (error) {
-      console.log(`Got error : ${error}`);
+      console.error(`${SET_MAX_DEPOSIT}: `, error);
+      throw error;
     }
-
-    console.log(`Finished setting max deposit`);
   });

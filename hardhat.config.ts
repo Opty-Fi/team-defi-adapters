@@ -1,14 +1,17 @@
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "@nomiclabs/hardhat-etherscan";
-import "solidity-coverage";
-import "hardhat-docgen";
 import { HardhatUserConfig } from "hardhat/types";
 import { config as dotenvConfig } from "dotenv";
 import { resolve } from "path";
 import path from "path";
 import fs from "fs";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
+import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-etherscan";
+import "@typechain/hardhat";
+import "solidity-coverage";
+import "hardhat-docgen";
+import "hardhat-deploy";
 import {
   NETWORKS_RPC_URL,
   NETWORKS_DEFAULT_GAS,
@@ -47,10 +50,10 @@ const chainIds = {
 
 // Ensure that we have all the environment variables we need.
 let mnemonic: string;
-if (!process.env.MY_METAMASK_MNEMONIC) {
+if (!process.env.MNEMONIC) {
   throw new Error("Please set your MNEMONIC in a .env file");
 } else {
-  mnemonic = process.env.MY_METAMASK_MNEMONIC as string;
+  mnemonic = process.env.MNEMONIC as string;
 }
 
 let chainstackMainnetUrl: string;
@@ -93,7 +96,7 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   networks: {
-    staging: getCommonNetworkConfig(eEthereumNetwork.staging, chainIds.mainnet),
+    staging: getCommonNetworkConfig(eEthereumNetwork.staging, chainIds.ganache),
     localhost: {
       url: NETWORKS_RPC_URL[eEthereumNetwork.hardhat],
       chainId: chainIds.ganache,

@@ -21,6 +21,8 @@ import { ERC20 } from "../../../typechain/ERC20";
 
 chai.use(solidity);
 
+chai.use(solidity);
+
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };

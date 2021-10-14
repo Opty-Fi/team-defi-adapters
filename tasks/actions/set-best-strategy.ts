@@ -38,15 +38,10 @@ task(SET_BEST_STRATEGY, "Set best strategy")
       throw new Error("strategyhash cannot be empty");
     }
 
-    const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
-
-    const tokensHash = generateTokenHash([token]);
-
-    console.log(`Invest step strategy Hash : ${strategyhash}`);
-
-    console.log(`Invest step strategy Hash : ${strategyhash}`);
-
     try {
+      const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
+      const tokensHash = generateTokenHash([token]);
+      console.log(`Invest step strategy Hash : ${strategyhash}`);
       if (isdefault) {
         await strategyProvider.setBestDefaultStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
         console.log(`Set best default strategy successfully`);
@@ -54,8 +49,8 @@ task(SET_BEST_STRATEGY, "Set best strategy")
         await strategyProvider.setBestStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
         console.log(`Set best strategy successfully`);
       }
+      console.log("Finished setting best strategy");
     } catch (error: any) {
-      console.log(`Got error : `, error.message);
+      console.error(`${SET_BEST_STRATEGY}: `, error);
     }
-    console.log("Finished setting best strategy");
   });

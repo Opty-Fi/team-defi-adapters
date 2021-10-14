@@ -5,8 +5,9 @@ import { HARVEST_ADAPTER_NAME, ESSENTIAL_CONTRACTS } from "../../helpers/constan
 import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
 import { TypedDefiPools } from "../../helpers/data/index";
 import { removeDuplicateFromStringArray } from "../../helpers/utils";
+import { MAP_LIQUIDITYPOOLS_ADAPTER } from "../task-names";
 
-task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
+task(MAP_LIQUIDITYPOOLS_ADAPTER, "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("adaptername", "the name of defi adapter", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
@@ -41,19 +42,17 @@ task("map-liquiditypools-adapter", "Approve and map liquidity pool to adapter")
       throw new Error("wrong adapter name");
     }
 
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    const liquidityPools = removeDuplicateFromStringArray(
-      Object.keys(TypedDefiPools[adaptername]).map(name => TypedDefiPools[adaptername][name].pool),
-    );
-    const liquidityPoolsToAdapter = liquidityPools.map(lp => [lp, adapter as string]);
-
     try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      const liquidityPools = removeDuplicateFromStringArray(
+        Object.keys(TypedDefiPools[adaptername]).map(name => TypedDefiPools[adaptername][name].pool),
+      );
+      const liquidityPoolsToAdapter = liquidityPools.map(lp => [lp, adapter as string]);
       await approveLiquidityPoolAndMapAdapters(owner, registryContract, liquidityPools, liquidityPoolsToAdapter);
+      console.log(`Finished mapping liquidityPools to adapter : ${adaptername}`);
+      console.log("------------------");
     } catch (error) {
-      console.log(`Got error : ${error}`);
+      console.error(`${MAP_LIQUIDITYPOOLS_ADAPTER}: `, error);
+      throw error;
     }
-
-    console.log(`Finished mapping liquidityPools to adapter : ${adaptername}`);
-    console.log("------------------");
   });

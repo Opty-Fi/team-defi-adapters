@@ -12,8 +12,6 @@ task(DEPLOY_ADAPTER, "Deploy Adapter contract")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "insert the deployed contract addresses in DB", false, types.boolean)
   .setAction(async ({ registry, name, deployedonce, insertindb }, hre) => {
-    const [owner] = await hre.ethers.getSigners();
-
     if (name === "") {
       throw new Error("name cannot be empty");
     }
@@ -30,15 +28,19 @@ task(DEPLOY_ADAPTER, "Deploy Adapter contract")
       throw new Error("registry address is invalid");
     }
 
-    const adaptersContract: Contract = await deployAdapter(hre, owner, name, registry, deployedonce);
-
-    console.log("Finished deploying adapter");
-    console.log(`${name} address : ${adaptersContract.address}`);
-
-    if (insertindb) {
-      const err = await insertContractIntoDB(name, adaptersContract.address);
-      if (err !== "") {
-        console.log(err);
+    try {
+      const [owner] = await hre.ethers.getSigners();
+      const adaptersContract: Contract = await deployAdapter(hre, owner, name, registry, deployedonce);
+      console.log("Finished deploying adapter");
+      console.log(`${name} address : ${adaptersContract.address}`);
+      if (insertindb) {
+        const err = await insertContractIntoDB(name, adaptersContract.address);
+        if (err !== "") {
+          throw err;
+        }
       }
+    } catch (error) {
+      console.error(`${DEPLOY_ADAPTER}: `, error);
+      throw new Error();
     }
   });

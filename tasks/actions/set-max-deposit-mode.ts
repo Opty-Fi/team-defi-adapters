@@ -23,16 +23,14 @@ task(SET_MAX_DEPOSIT_MODE, "Set max deposit mode for adapter")
       throw new Error("type is invalid");
     }
 
-    console.log(`Adapter: ${adapter}`);
-    console.log(`Mode: ${mode}`);
-
-    const contract = await hre.ethers.getContractAt("IAdapterFull", adapter);
-
     try {
+      console.log(`Adapter: ${adapter}`);
+      console.log(`Mode: ${mode}`);
+      const contract = await hre.ethers.getContractAt("IAdapterFull", adapter);
       await contract.setMaxDepositProtocolMode(MAX_DEPOSIT_MODE[mode.toLowerCase()]);
+      console.log(`Finished setting max deposit mode`);
     } catch (error) {
-      console.log(`Got error : ${error}`);
+      console.error(`${SET_MAX_DEPOSIT_MODE}:`, error);
+      throw error;
     }
-
-    console.log(`Finished setting max deposit mode`);
   });
