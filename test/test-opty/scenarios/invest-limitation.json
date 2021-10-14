@@ -54,7 +54,7 @@
             },
             {
               "contract": "adapter",
-              "action": "getPoolValue(address,address)",
+              "action": "getLiquidityPoolTokenBalance(address,address,address)",
               "args": {},
               "expectedValue": {
                 "DAI": ">",
@@ -128,7 +128,7 @@
             },
             {
               "contract": "adapter",
-              "action": "getPoolValue(address,address)",
+              "action": "getLiquidityPoolTokenBalance(address,address,address)",
               "args": {},
               "expectedValue": {
                 "DAI": "<",
@@ -187,7 +187,7 @@
             },
             {
               "contract": "adapter",
-              "action": "getPoolValue(address,address)",
+              "action": "getLiquidityPoolTokenBalance(address,address,address)",
               "args": {},
               "expectedValue": {
                 "DAI": ">",
@@ -267,17 +267,6 @@
                 "USDC": "1500000",
                 "USDT": "1500000",
                 "SLP_WETH_USDC": "15000000000000"
-              }
-            },
-            {
-              "contract": "adapter",
-              "action": "getPoolValue(address,address)",
-              "args": {},
-              "expectedValue": {
-                "DAI": ">",
-                "USDC": ">",
-                "USDT": ">",
-                "SLP_WETH_USDC": ">"
               }
             }
           ]

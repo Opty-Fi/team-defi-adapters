@@ -7,6 +7,7 @@ pragma experimental ABIEncoderV2;
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { DataTypes } from "../../../libraries/types/DataTypes.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
@@ -33,18 +34,10 @@ import { IAdapterInvestLimit } from "../../../interfaces/opty/defiAdapters/IAdap
  */
 contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using SafeMath for uint256;
+    using Address for address;
 
-    /** @notice  Maps liquidityPool to max deposit value in percentage */
-    mapping(address => uint256) public maxDepositPoolPct; // basis points
-
-    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
-    mapping(address => mapping(address => uint256)) public maxDepositAmount;
-
-    /** @notice Maps underlyingToken address to its market index in dYdX protocol */
-    mapping(address => uint256) public marketToIndexes;
-
-    /** @notice Maps liquidityPool to the list of underlyingTokens */
-    mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
+    /** @notice max deposit value datatypes */
+    DataTypes.MaxExposure public maxDepositProtocolMode;
 
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -52,11 +45,20 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
-    /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
-
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
+
+    /** @notice  Maps liquidityPool to max deposit value in percentage */
+    mapping(address => uint256) public maxDepositPoolPct; // basis points
+
+    /** @notice Maps underlyingToken address to its market index in dYdX protocol */
+    mapping(address => uint256) public marketToIndexes;
+
+    /** @notice Maps liquidityPool to the list of underlyingTokens */
+    mapping(address => address[]) public liquidityPoolToUnderlyingTokens;
+
+    /** @notice  Maps liquidityPool to max deposit value in absolute value for a specific token */
+    mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
         address[] memory _dYdXUnderlyingTokens = new address[](4);
@@ -81,6 +83,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         override
         onlyRiskOperator
     {
+        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -93,6 +96,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -103,6 +108,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @param _marketIndex market index of the given underlying token
      */
     function addMarket(address _underlyingToken, uint256 _marketIndex) public onlyOperator {
+        require(_underlyingToken.isContract(), "!isContract");
         marketToIndexes[_underlyingToken] = _marketIndex;
     }
 
@@ -112,6 +118,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @param _tokens list of underlying tokens linked to the given liquidity pool
      */
     function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+        require(_liquidityPool.isContract(), "!isContract");
         liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
     }
 
@@ -136,16 +143,11 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      */
     function getDepositAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
-        uint256[] memory _amounts = new uint256[](liquidityPoolToUnderlyingTokens[_liquidityPool].length);
-        for (uint256 i = 0; i < liquidityPoolToUnderlyingTokens[_liquidityPool].length; i++) {
-            if (liquidityPoolToUnderlyingTokens[_liquidityPool][i] == _underlyingTokens[0]) {
-                _amounts[i] = ERC20(_underlyingTokens[0]).balanceOf(_vault);
-            }
-        }
-        return getDepositSomeCodes(_vault, liquidityPoolToUnderlyingTokens[_liquidityPool], _liquidityPool, _amounts);
+    ) public view override returns (bytes[] memory) {
+        uint256 _amount = ERC20(_underlyingToken).balanceOf(_vault);
+        return getDepositSomeCodes(_vault, _underlyingToken, _liquidityPool, _amount);
     }
 
     /**
@@ -153,11 +155,11 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      */
     function getWithdrawAllCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (bytes[] memory _codes) {
-        uint256 _redeemAmount = getAllAmountInToken(_vault, _underlyingTokens[0], _liquidityPool);
-        return getWithdrawSomeCodes(_vault, _underlyingTokens, _liquidityPool, _redeemAmount);
+    ) public view override returns (bytes[] memory) {
+        uint256 _redeemAmount = getAllAmountInToken(_vault, _underlyingToken, _liquidityPool);
+        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPool, _redeemAmount);
     }
 
     /**
@@ -170,13 +172,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapter
      */
-    function getUnderlyingTokens(address _liquidityPool, address)
-        public
-        view
-        override
-        returns (address[] memory _underlyingTokens)
-    {
-        _underlyingTokens = liquidityPoolToUnderlyingTokens[_liquidityPool];
+    function getUnderlyingTokens(address _liquidityPool, address) public view override returns (address[] memory) {
+        return liquidityPoolToUnderlyingTokens[_liquidityPool];
     }
 
     /**
@@ -258,23 +255,13 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      */
     function getDepositSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
-        uint256[] memory _amounts
+        uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        uint256 _underlyingTokenIndex;
-        for (uint256 i = 0; i < _amounts.length; i++) {
-            if (_amounts[i] > 0) {
-                _underlyingTokenIndex = marketToIndexes[_underlyingTokens[i]];
-            }
-        }
-        uint256 _depositAmount =
-            _getDepositAmount(
-                _liquidityPool,
-                _underlyingTokens[_underlyingTokenIndex],
-                _amounts[_underlyingTokenIndex]
-            );
+        uint256 _depositAmount = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
         if (_depositAmount > 0) {
+            uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
             _accountInfos[0] = AccountInfo(_vault, uint256(0));
             AssetAmount memory _amt = AssetAmount(true, AssetDenomination.Wei, AssetReference.Delta, _depositAmount);
@@ -288,12 +275,12 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
             _actionArgs[0] = _actionArg;
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
+                _underlyingToken,
                 abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, uint256(0))
             );
             _codes[1] = abi.encode(
-                _underlyingTokens[_underlyingTokenIndex],
-                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amounts[_underlyingTokenIndex])
+                _underlyingToken,
+                abi.encodeWithSignature("approve(address,uint256)", _liquidityPool, _amount)
             );
             _codes[2] = abi.encode(
                 _liquidityPool,
@@ -312,12 +299,12 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      */
     function getWithdrawSomeCodes(
         address payable _vault,
-        address[] memory _underlyingTokens,
+        address _underlyingToken,
         address _liquidityPool,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
-            uint256 _underlyingTokenIndex = marketToIndexes[_underlyingTokens[0]];
+            uint256 _underlyingTokenIndex = marketToIndexes[_underlyingToken];
             AccountInfo[] memory _accountInfos = new AccountInfo[](1);
             _accountInfos[0] = AccountInfo(_vault, uint256(0));
             AssetAmount memory _amt = AssetAmount(false, AssetDenomination.Wei, AssetReference.Delta, _amount);
@@ -367,7 +354,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _liquidityPool,
         address _underlyingToken,
         uint256 _amount
-    ) internal view returns (uint256 _depositAmount) {
+    ) internal view returns (uint256) {
         uint256 _limit =
             maxDepositProtocolMode == DataTypes.MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)

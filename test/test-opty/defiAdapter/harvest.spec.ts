@@ -1,4 +1,5 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
+import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
@@ -7,6 +8,8 @@ import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -59,20 +62,23 @@ describe(`${HARVEST_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < story.actions.length; i++) {
             const action = story.actions[i];
             switch (action.action) {
-              case "getDepositSomeCodes(address,address[],address,uint256[])":
-              case "getDepositAllCodes(address,address[],address)": {
+              case "getDepositSomeCodes(address,address,address,uint256)":
+              case "getDepositAllCodes(address,address,address)": {
                 let codes;
                 let depositAmount;
-                if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract, [
+                    codes = await adapter[action.action](
+                      ownerAddress,
+                      token,
+                      strategy.strategy[0].contract,
                       amount[strategy.token],
-                    ]);
+                    );
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -81,7 +87,7 @@ describe(`${HARVEST_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(token);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(strategy.strategy[0].contract);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
@@ -89,30 +95,30 @@ describe(`${HARVEST_ADAPTER_NAME} Unit test`, () => {
                     const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                     expect(address).to.equal(strategy.strategy[0].contract);
                     const value = inter.decodeFunctionData("deposit", abiCode);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[0]).to.equal(depositAmount);
                     }
                   }
                 }
                 break;
               }
-              case "getWithdrawAllCodes(address,address[],address)":
-              case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+              case "getWithdrawAllCodes(address,address,address)":
+              case "getWithdrawSomeCodes(address,address,address,uint256)": {
                 let codes;
                 let withdrawAmount;
-                if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
                     codes = await adapter[action.action](
                       ownerAddress,
-                      [token],
+                      token,
                       strategy.strategy[0].contract,
                       amount[strategy.token],
                     );
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], strategy.strategy[0].contract);
+                  codes = await adapter[action.action](ownerAddress, token, strategy.strategy[0].contract);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -120,7 +126,7 @@ describe(`${HARVEST_ADAPTER_NAME} Unit test`, () => {
                   const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                   expect(address).to.be.equal(lpToken);
                   const value = inter.decodeFunctionData("withdraw", abiCode);
-                  if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                  if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                     expect(value[0]).to.be.equal(withdrawAmount);
                   }
                 }

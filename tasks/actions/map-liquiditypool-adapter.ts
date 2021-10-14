@@ -1,9 +1,10 @@
 import { task, types } from "hardhat/config";
-import { isAddress, executeFunc, getContract } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { Contract } from "ethers";
+import { approveLiquidityPoolAndMapAdapter } from "../../helpers/contracts-actions";
+import { MAP_LIQUIDITYPOOL_ADAPTER } from "../task-names";
 
-task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
+task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("liquiditypool", "the address of liquidity", "", types.string)
@@ -34,26 +35,15 @@ task("map-liquiditypool-adapter", "Approve and map liquidity pool to adapter")
       throw new Error("adapter address is invalid");
     }
 
-    const registryContract = (await getContract(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry)) as Contract;
-
-    const { isLiquidityPool } = await registryContract.getLiquidityPool(liquiditypool);
-
-    if (!isLiquidityPool) {
-      await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [liquiditypool]);
-
-      try {
-        console.log(`Liquidity pool ${liquiditypool} approved`);
-      } catch (error) {
-        console.error("approve liquidity pool errored with ", error.message);
-      }
-    }
     try {
-      await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [
-        liquiditypool,
-        adapter,
-      ]);
-      console.log(`Mapped ${liquiditypool} to ${adapter}`);
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      console.log(`Start mapping liquidity pool to adapter.....`);
+      console.log(`Adapter: ${adapter}`);
+      console.log(`Liquidity pool: ${liquiditypool}`);
+      await approveLiquidityPoolAndMapAdapter(owner, registryContract, adapter, liquiditypool);
+      console.log(`Finished mapping liquidity pool to adapter`);
     } catch (error) {
-      console.error("map liquidity pool to adapter errored with ", error.message);
+      console.error(`${MAP_LIQUIDITYPOOL_ADAPTER}: `, error);
+      throw error;
     }
   });

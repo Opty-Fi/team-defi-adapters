@@ -1,9 +1,9 @@
 import { task, types } from "hardhat/config";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
+import { GET_BEST_STRATEGY } from "../task-names";
 
-task("get-best-strategy", "Get best strategy")
+task(GET_BEST_STRATEGY, "Get best strategy")
   .addParam("token", "the address of token", "", types.string)
   .addParam("riskprofile", "risk profile", "", types.string)
   .addParam("strategyprovider", "the address of strategyProvider", "", types.string)
@@ -33,11 +33,9 @@ task("get-best-strategy", "Get best strategy")
       throw new Error("risk profile is not available");
     }
 
-    const strategyProvider = await getContractInstance(hre, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
-
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-
     try {
+      const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
+      const tokensHash = generateTokenHash([token]);
       let strategyHash = "";
       if (isdefault) {
         strategyHash = await strategyProvider.rpToTokenToDefaultStrategy(riskprofile.toUpperCase(), tokensHash);
@@ -45,7 +43,8 @@ task("get-best-strategy", "Get best strategy")
         strategyHash = await strategyProvider.rpToTokenToBestStrategy(riskprofile.toUpperCase(), tokensHash);
       }
       console.log(`StrategyHash : ${strategyHash}`);
-    } catch (error) {
-      console.log(`Got error : `, error.message);
+    } catch (error: any) {
+      console.error(`${GET_BEST_STRATEGY}: `, error);
+      throw error;
     }
   });

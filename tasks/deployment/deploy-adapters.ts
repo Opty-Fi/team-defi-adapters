@@ -1,8 +1,9 @@
 import { task, types } from "hardhat/config";
-import { ADAPTER } from "../../helpers/constants";
+import { ADAPTERS } from "../../helpers/constants";
 import { isAddress } from "../../helpers/helpers";
+import { DEPLOY_ADAPTER, DEPLOY_ADAPTERS } from "../task-names";
 
-task("deploy-adapters", "Deploy Adapter contracts")
+task(DEPLOY_ADAPTERS, "Deploy Adapter contracts")
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "insert the deployed contract addresses in DB", false, types.boolean)
@@ -15,17 +16,23 @@ task("deploy-adapters", "Deploy Adapter contracts")
       throw new Error("registry address is invalid");
     }
 
-    for (const adapter of ADAPTER) {
-      try {
-        await hre.run("deploy-adapter", {
-          registry: registry,
-          name: adapter,
-          insertindb: insertindb,
-          deployedonce: deployedonce,
-        });
-      } catch (error) {
-        console.log(adapter, error);
+    try {
+      for (const adapter of ADAPTERS) {
+        try {
+          await hre.run(DEPLOY_ADAPTER, {
+            registry: registry,
+            name: adapter,
+            insertindb: insertindb,
+            deployedonce: deployedonce,
+          });
+          console.log("--------------------");
+        } catch (error) {
+          throw new Error(`${adapter}, ${error}`);
+        }
       }
+      console.log("Finished deploying adapters");
+    } catch (error) {
+      console.error(`${DEPLOY_ADAPTERS}: `, error);
+      throw error;
     }
-    console.log("Finished deploying adapters");
   });

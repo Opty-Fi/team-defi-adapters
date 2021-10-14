@@ -1,9 +1,11 @@
 import { task, types } from "hardhat/config";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
-import { approveTokens } from "../../helpers/contracts-actions";
+import { TypedTokens } from "../../helpers/data";
+import { approveAndSetTokenHashToTokens } from "../../helpers/contracts-actions";
+import { APPROVE_TOKENS } from "../task-names";
 
-task("approve-tokens", "Approve Tokens")
+task(APPROVE_TOKENS, "Approve Tokens")
   .addParam("registry", "the address of registry", "", types.string)
   .setAction(async ({ registry }, hre) => {
     const [owner] = await hre.ethers.getSigners();
@@ -16,9 +18,21 @@ task("approve-tokens", "Approve Tokens")
       throw new Error("registry address is invalid");
     }
 
-    const registryContract = await getContractInstance(hre, ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    await approveTokens(owner, registryContract);
-
-    console.log(`Finished approving tokens`);
+    try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      const tokensAddresses = [
+        TypedTokens.DAI,
+        TypedTokens.USDC,
+        TypedTokens.USDT,
+        TypedTokens.WBTC,
+        TypedTokens.WETH,
+        TypedTokens.SLP_WETH_USDC,
+      ];
+      console.log(`Start approving tokens....`, tokensAddresses);
+      await approveAndSetTokenHashToTokens(owner, registryContract, tokensAddresses, true);
+      console.log(`Finished approving tokens`);
+    } catch (error) {
+      console.error(`${APPROVE_TOKENS} : `, error);
+      throw error;
+    }
   });
