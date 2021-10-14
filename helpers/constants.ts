@@ -109,6 +109,7 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_HARVEST_CODE_PROVIDER: "TestHarvestCodeProvider",
   TEST_REGISTRY_NEW_IMPLEMENTATION: "TestRegistryNewImplementation",
   TEST_RISK_MANAGER_NEW_IMPLEMENTATION: "TestRiskManagerNewImplementation",
+  TEST_OPTY_STAKING_RATE_BALANCER_NEW_IMPLEMENTATION: "TestOptyStakingRateBalancerNewImplementation",
   TEST_VAULT_NEW_IMPLEMENTATION: "TestVaultNewImplementation",
 };
 

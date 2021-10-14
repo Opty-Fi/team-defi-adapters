@@ -187,6 +187,40 @@
           "message": ""
         }
       ]
+    },
+    {
+      "description": "[Upgradability] Should be able to use functions and variables in new contracts and maintains old variable states",
+      "setActions": [
+        {
+          "action": "initData()",
+          "args": {},
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "action": "become(address)",
+          "args": {},
+          "executor": "owner",
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "action": "isNewContract()",
+          "args": {},
+          "expectedValue": true,
+          "expectedMultiValues": {}
+        },
+        {
+          "action": "verifyOldValue()",
+          "args": {},
+          "expectedValue": "",
+          "expectedMultiValues": {}
+        }
+      ],
+      "cleanActions": []
     }
   ]
 }
