@@ -1,24 +1,25 @@
+import hre from "hardhat";
 import chai, { expect, assert } from "chai";
 import { solidity } from "ethereum-waffle";
-import hre from "hardhat";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
 import {
   TypedAdapterStrategies,
   TypedTokens,
-  TypedPairTokens,
   TypedCurveTokens,
   TypedDefiPools,
+  TypedMultiAssetTokens,
 } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
-import abis from "../../../helpers/data/abis.json";
-import pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
 import testDeFiAdapterScenario from "../scenarios/sushiswap-test-defi-adapter.json";
+import { ERC20 } from "../../../typechain/ERC20";
+
+chai.use(solidity);
 
 chai.use(solidity);
 
@@ -51,11 +52,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
         SUSHISWAP_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
-      );
-      await adapter.setUnderlyingTokenToMasterChefToPid(
-        TOKENS[strategies[0].token],
-        "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
-        1,
       );
       assert.isDefined(adapter, "Adapter not deployed");
     } catch (error) {
@@ -164,10 +160,13 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
       adapterPrerequisites.registry.address,
       true,
     );
-    masterChefInstance = await hre.ethers.getContractAt(abis.masterChef.abi, abis.masterChef.address);
+    masterChefInstance = await hre.ethers.getContractAt(
+      "ISushiswapMasterChef",
+      "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
+    );
   });
 
-  const ValidatedPairTokens = Object.values(TypedPairTokens)
+  const ValidatedPairTokens = Object.values(TypedMultiAssetTokens)
     .map(({ address }) => address)
     .map(t => getAddress(t));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens)
@@ -196,17 +195,16 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const liquidityPool = TypedDefiPools[adapterName][pool].pool;
-              const pairInstance = await hre.ethers.getContractAt(pair.abi, underlyingTokenAddress);
+              const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", underlyingTokenAddress);
               const token0Address = await pairInstance.token0();
               const token1Address = await pairInstance.token1();
               const token0Instance = await hre.ethers.getContractAt("ERC20", token0Address);
               const token1Instance = await hre.ethers.getContractAt("ERC20", token1Address);
-              const rewardTokenAddress = await sushiswapAdapter.getRewardToken(liquidityPool);
-              let rewardTokenERC20Instance: Contract;
-              if (rewardTokenAddress !== ADDRESS_ZERO) {
-                rewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
-              }
-              const rewardTokenDecimals = await rewardTokenERC20Instance!.decimals();
+              const rewardTokenAddress = getAddress(TypedTokens.SUSHI);
+              const rewardTokenERC20Instance: ERC20 = <ERC20>(
+                await hre.ethers.getContractAt("ERC20", rewardTokenAddress)
+              );
+              const rewardTokenDecimals: number = <number>await rewardTokenERC20Instance.decimals();
               const decimals = await pairInstance.decimals();
               const adapterAddress = sushiswapAdapter.address;
               let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
@@ -299,22 +297,20 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "fundTestDeFiAdapterContractWithRewardToken": {
-                    if (rewardTokenAddress !== ADDRESS_ZERO) {
-                      let rewardTokenBalance: BigNumber = await rewardTokenERC20Instance!.balanceOf(
+                    let rewardTokenBalance: BigNumber = await rewardTokenERC20Instance.balanceOf(
+                      testDeFiAdapter.address,
+                    );
+                    if (rewardTokenBalance.lte(0)) {
+                      await fundWalletToken(
+                        hre,
+                        rewardTokenERC20Instance.address,
+                        users["owner"],
+                        defaultFundAmount.mul(BigNumber.from(10).pow(rewardTokenDecimals)),
+                        timestamp,
                         testDeFiAdapter.address,
                       );
-                      if (rewardTokenBalance.lte(0)) {
-                        await fundWalletToken(
-                          hre,
-                          rewardTokenERC20Instance!.address,
-                          users["owner"],
-                          defaultFundAmount.mul(BigNumber.from(10).pow(rewardTokenDecimals)),
-                          timestamp,
-                          testDeFiAdapter.address,
-                        );
-                        rewardTokenBalance = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                        expect(rewardTokenBalance).to.be.gt(0);
-                      }
+                      rewardTokenBalance = await rewardTokenERC20Instance.balanceOf(testDeFiAdapter.address);
+                      expect(rewardTokenBalance).to.be.gt(0);
                     }
                     break;
                   }
@@ -355,7 +351,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                   }
                   case "testGetHarvestAllCodes(address,address,address)": {
                     underlyingBalanceBefore = await pairInstance.balanceOf(testDeFiAdapter.address);
-                    rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                    rewardTokenBalanceBefore = await rewardTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     token0BalanceBefore = await token0Instance.balanceOf(testDeFiAdapter.address);
                     token1BalanceBefore = await token1Instance.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
@@ -363,7 +359,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                   }
                   case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                     underlyingBalanceBefore = await pairInstance.balanceOf(testDeFiAdapter.address);
-                    rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                    rewardTokenBalanceBefore = await rewardTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     token0BalanceBefore = await token0Instance.balanceOf(testDeFiAdapter.address);
                     token1BalanceBefore = await token1Instance.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](
@@ -395,7 +391,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "testGetClaimRewardTokenCodes(address,address)": {
-                    rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                    rewardTokenBalanceBefore = await rewardTokenERC20Instance.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](liquidityPool, sushiswapAdapter.address);
                     break;
                   }
@@ -490,7 +486,7 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                     break;
                   }
                   case "getRewardTokenBalance(address)": {
-                    const rewardTokenBalanceAfter: BigNumber = await rewardTokenERC20Instance!.balanceOf(
+                    const rewardTokenBalanceAfter: BigNumber = await rewardTokenERC20Instance.balanceOf(
                       testDeFiAdapter.address,
                     );
                     const token0BalanceAfter: BigNumber = await token0Instance.balanceOf(testDeFiAdapter.address);
@@ -618,35 +614,6 @@ describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
                   case "canStake(address)": {
                     const canStake = await sushiswapAdapter[action.action](ADDRESS_ZERO);
                     expect(canStake).to.be.eq(false);
-                    break;
-                  }
-                  case "setRewardToken(address)": {
-                    if (action.expect == "success") {
-                      await sushiswapAdapter[action.action](TypedTokens.SUSHI);
-                    } else {
-                      await expect(
-                        sushiswapAdapter.connect(users[action.executer])[action.action](TypedTokens.SUSHI),
-                      ).to.be.revertedWith(action.message);
-                    }
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getRewardToken(address)": {
-                    const _rewardTokenAddress = await sushiswapAdapter[action.action](ADDRESS_ZERO);
-                    expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.SUSHI));
-                    break;
-                  }
-                }
-              }
-              for (const action of story.cleanActions) {
-                switch (action.action) {
-                  case "setRewardToken(address)": {
-                    await sushiswapAdapter[action.action](TypedTokens.SUSHI);
-                    const _rewardTokenAddress = await sushiswapAdapter.getRewardToken(ADDRESS_ZERO);
-                    expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.SUSHI));
                     break;
                   }
                 }
