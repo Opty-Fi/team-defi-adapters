@@ -39,51 +39,86 @@ task(VAULT_ACTIONS, "perform actions in Vault")
       throw new Error("amount is not set");
     }
 
-    const userSigner = await hre.ethers.getSigner(user);
+    try {
+      const userSigner = await hre.ethers.getSigner(user);
+      const vaultContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.VAULT, vault);
+      const vaultShareSymbol = await vaultContract.symbol();
+      const vaultShareDecimals = await vaultContract.decimals();
+      const tokenAddress = await vaultContract.underlyingToken();
+      const tokenContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, tokenAddress);
+      const tokenSymbol = await tokenContract.symbol();
+      const tokenDecimals = await tokenContract.decimals();
 
-    const vaultContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.VAULT, vault);
-    const vaultShareSymbol = await vaultContract.symbol();
-    const vaultShareDecimals = await vaultContract.decimals();
+      switch (action.toUpperCase()) {
+        case "DEPOSIT": {
+          let checkedAmount = amount;
+          let underlyingTokenBalance = await tokenContract.balanceOf(user);
+          const timestamp = (await getBlockTimestamp(hre)) * 2;
 
-    const tokenAddress = await vaultContract.underlyingToken();
-
-    const tokenContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, tokenAddress);
-    const tokenSymbol = await tokenContract.symbol();
-    const tokenDecimals = await tokenContract.decimals();
-
-    switch (action.toUpperCase()) {
-      case "DEPOSIT": {
-        let checkedAmount = amount;
-        let underlyingTokenBalance = await tokenContract.balanceOf(user);
-        const timestamp = (await getBlockTimestamp(hre)) * 2;
-
-        if (ethers.BigNumber.from(underlyingTokenBalance).lt(ethers.BigNumber.from(checkedAmount.toString()))) {
-          console.log("Funding user with underlying token...");
-          await fundWalletToken(hre, tokenAddress, owner, checkedAmount, timestamp, user);
-        }
-        underlyingTokenBalance = await tokenContract.balanceOf(user);
-        console.log(
-          `Underlying token : ${ethers.utils.formatUnits(
-            ethers.BigNumber.from(underlyingTokenBalance),
-            tokenDecimals,
-          )} ${tokenSymbol}`,
-        );
-        if (useall) {
-          checkedAmount = await tokenContract.balanceOf(user);
-        }
-        try {
-          const approveTx = await tokenContract.connect(userSigner).approve(vault, checkedAmount.toString());
-          await approveTx.wait(1);
-          const allowance = await tokenContract.allowance(user, vault);
+          if (ethers.BigNumber.from(underlyingTokenBalance).lt(ethers.BigNumber.from(checkedAmount.toString()))) {
+            console.log("Funding user with underlying token...");
+            await fundWalletToken(hre, tokenAddress, owner, checkedAmount, timestamp, user);
+          }
+          underlyingTokenBalance = await tokenContract.balanceOf(user);
           console.log(
-            `Allowance : ${ethers.utils.formatUnits(ethers.BigNumber.from(allowance), tokenDecimals)} ${tokenSymbol}`,
+            `Underlying token : ${ethers.utils.formatUnits(
+              ethers.BigNumber.from(underlyingTokenBalance),
+              tokenDecimals,
+            )} ${tokenSymbol}`,
           );
-          if (withrebalance) {
+          if (useall) {
+            checkedAmount = await tokenContract.balanceOf(user);
+          }
+          try {
+            const approveTx = await tokenContract.connect(userSigner).approve(vault, checkedAmount.toString());
+            await approveTx.wait(1);
+            const allowance = await tokenContract.allowance(user, vault);
+            console.log(
+              `Allowance : ${ethers.utils.formatUnits(ethers.BigNumber.from(allowance), tokenDecimals)} ${tokenSymbol}`,
+            );
+            if (withrebalance) {
+              let strategyHash = await vaultContract.investStrategyHash();
+              console.log(`Invest strategy : ${strategyHash}`);
+              console.log(`depositing ${checkedAmount.toString()} with rebalance..`);
+              const depositTx = await vaultContract.connect(userSigner).userDepositRebalance(checkedAmount.toString());
+              await depositTx.wait(1);
+              const vaultShareBalance = await vaultContract.balanceOf(user);
+              strategyHash = await vaultContract.investStrategyHash();
+              console.log(`Invest strategy : ${strategyHash}`);
+              console.log(
+                `Vault Shares : ${ethers.utils.formatUnits(
+                  ethers.BigNumber.from(vaultShareBalance),
+                  vaultShareDecimals,
+                )} ${vaultShareSymbol}`,
+              );
+              const underlyingTokenBalance = await tokenContract.balanceOf(user);
+              console.log(
+                `Underlying token : ${ethers.utils.formatUnits(
+                  ethers.BigNumber.from(underlyingTokenBalance),
+                  tokenDecimals,
+                )} ${tokenSymbol}`,
+              );
+            } else {
+              await vaultContract.connect(userSigner).userDeposit(checkedAmount.toString());
+              console.log("Deposit without rebalance successfully");
+            }
+          } catch (error) {
+            throw new Error(`#deposit : ${error}`);
+          }
+
+          break;
+        }
+        case "WITHDRAW": {
+          let checkedAmount = amount;
+          if (useall) {
+            checkedAmount = await vaultContract.balanceOf(user);
+          }
+          try {
             let strategyHash = await vaultContract.investStrategyHash();
             console.log(`Invest strategy : ${strategyHash}`);
-            console.log(`depositing ${checkedAmount.toString()} with rebalance..`);
-            const depositTx = await vaultContract.connect(userSigner).userDepositRebalance(checkedAmount.toString());
-            await depositTx.wait(1);
+            console.log(`withdrawing ${checkedAmount.toString()} with rebalance..`);
+            const withdrawTx = await vaultContract.connect(userSigner).userWithdrawRebalance(checkedAmount.toString());
+            await withdrawTx.wait(1);
             const vaultShareBalance = await vaultContract.balanceOf(user);
             strategyHash = await vaultContract.investStrategyHash();
             console.log(`Invest strategy : ${strategyHash}`);
@@ -100,64 +135,30 @@ task(VAULT_ACTIONS, "perform actions in Vault")
                 tokenDecimals,
               )} ${tokenSymbol}`,
             );
-          } else {
-            await vaultContract.connect(userSigner).userDeposit(checkedAmount.toString());
-            console.log("Deposit without rebalance successfully");
+          } catch (error) {
+            throw new Error(`#withdraw : ${error}`);
           }
-        } catch (error) {
-          console.log(`Got error when depositing : ${error}`);
-        }
 
-        break;
-      }
-      case "WITHDRAW": {
-        let checkedAmount = amount;
-        if (useall) {
-          checkedAmount = await vaultContract.balanceOf(user);
+          break;
         }
-        try {
-          let strategyHash = await vaultContract.investStrategyHash();
-          console.log(`Invest strategy : ${strategyHash}`);
-          console.log(`withdrawing ${checkedAmount.toString()} with rebalance..`);
-          const withdrawTx = await vaultContract.connect(userSigner).userWithdrawRebalance(checkedAmount.toString());
-          await withdrawTx.wait(1);
-          const vaultShareBalance = await vaultContract.balanceOf(user);
-          strategyHash = await vaultContract.investStrategyHash();
-          console.log(`Invest strategy : ${strategyHash}`);
-          console.log(
-            `Vault Shares : ${ethers.utils.formatUnits(
-              ethers.BigNumber.from(vaultShareBalance),
-              vaultShareDecimals,
-            )} ${vaultShareSymbol}`,
-          );
-          const underlyingTokenBalance = await tokenContract.balanceOf(user);
-          console.log(
-            `Underlying token : ${ethers.utils.formatUnits(
-              ethers.BigNumber.from(underlyingTokenBalance),
-              tokenDecimals,
-            )} ${tokenSymbol}`,
-          );
-        } catch (error) {
-          console.log(`Got error when withdrawing : ${error}`);
+        case "REBALANCE": {
+          try {
+            let strategyHash = await vaultContract.investStrategyHash();
+            console.log(`Invest strategy : ${strategyHash}`);
+            console.log("Rebalancing..");
+            await vaultContract.connect(userSigner).rebalance();
+            strategyHash = await vaultContract.investStrategyHash();
+            console.log(`Invest strategy : ${strategyHash}`);
+            console.log("Rebalance successfully");
+          } catch (error) {
+            throw new Error(`#rebalance : ${error}`);
+          }
+          break;
         }
-
-        break;
       }
-      case "REBALANCE": {
-        try {
-          let strategyHash = await vaultContract.investStrategyHash();
-          console.log(`Invest strategy : ${strategyHash}`);
-          console.log("Rebalancing..");
-          await vaultContract.connect(userSigner).rebalance();
-          strategyHash = await vaultContract.investStrategyHash();
-          console.log(`Invest strategy : ${strategyHash}`);
-          console.log("Rebalance successfully");
-        } catch (error) {
-          console.log(`Got error when rebalancing : ${error}`);
-        }
-        break;
-      }
+      console.log("Finished executing Vault actions");
+    } catch (error) {
+      console.error(`${VAULT_ACTIONS}: `, error);
+      throw error;
     }
-
-    console.log("Finished executing Vault actions");
   });

@@ -10,8 +10,6 @@ task(DEPLOY_RISK_MANAGER, "Deploy Risk Manager")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb, registry }, hre) => {
-    const [owner] = await hre.ethers.getSigners();
-
     if (registry === "") {
       throw new Error("registry cannot be empty");
     }
@@ -20,20 +18,24 @@ task(DEPLOY_RISK_MANAGER, "Deploy Risk Manager")
       throw new Error("registry address is invalid");
     }
 
-    const riskManagerContract = await deployRiskManager(hre, owner, deployedonce, registry);
-
-    console.log("Finished deploying riskManager");
-
-    console.log(`Contract riskManager : ${riskManagerContract.address}`);
-
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    await executeFunc(registryContract, owner, "setRiskManager(address)", [riskManagerContract.address]);
-
-    if (insertindb) {
-      const err = await insertContractIntoDB(`riskManager`, riskManagerContract.address);
-      if (err !== "") {
-        console.log(err);
+    try {
+      const [owner] = await hre.ethers.getSigners();
+      console.log("Deploying RiskManager...");
+      const riskManagerContract = await deployRiskManager(hre, owner, deployedonce, registry);
+      console.log("Finished deploying RiskManager");
+      console.log(`Contract RiskManager : ${riskManagerContract.address}`);
+      console.log("Registering RiskManager...");
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      await executeFunc(registryContract, owner, "setRiskManager(address)", [riskManagerContract.address]);
+      console.log("Registered RiskManager.");
+      if (insertindb) {
+        const err = await insertContractIntoDB(`riskManager`, riskManagerContract.address);
+        if (err !== "") {
+          throw err;
+        }
       }
+    } catch (error) {
+      console.error(`${DEPLOY_RISK_MANAGER}: `, error);
+      throw error;
     }
   });

@@ -13,8 +13,6 @@ task(DEPLOY_OPTY_STAKING_VAULTS, "Deploy Opty Staking Vault")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb, registry, opty, optydistributor, optystakingratebalancer }, hre) => {
-    const [owner] = await hre.ethers.getSigners();
-
     if (registry === "") {
       throw new Error("registry cannot be empty");
     }
@@ -47,40 +45,45 @@ task(DEPLOY_OPTY_STAKING_VAULTS, "Deploy Opty Staking Vault")
       throw new Error("optyStakingRateBalancer address is invalid");
     }
 
-    const optyDistributorInstance = await hre.ethers.getContractAt(
-      ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR,
-      optydistributor,
-    );
+    try {
+      const [owner] = await hre.ethers.getSigners();
+      console.log("Deploying OPTYStakingRateBalancer...");
+      const optyDistributorInstance = await hre.ethers.getContractAt(
+        ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR,
+        optydistributor,
+      );
+      const optyStakingRateBalancerInstance = await hre.ethers.getContractAt(
+        ESSENTIAL_CONTRACTS.OPTY_STAKING_RATE_BALANCER,
+        optydistributor,
+      );
+      console.log("Deployed OPTYStakingRateBalancer");
+      console.log("Deploying and configuring OPTYStakingVaults...");
+      const optyStakingVaults = await deployAndSetupOptyStakingVaults(
+        hre,
+        owner,
+        deployedonce,
+        registry,
+        opty,
+        optyStakingRateBalancerInstance,
+        optyDistributorInstance,
+      );
+      console.log("Finished deploying and configuring OPTYStakingVaults");
+      console.log(`OPTYStakingVault1D: ${optyStakingVaults["optyStakingVault1D"].address}`);
+      console.log(`OPTYStakingVault30D: ${optyStakingVaults["optyStakingVault30D"].address}`);
+      console.log(`OPTYStakingVault60D: ${optyStakingVaults["optyStakingVault60D"].address}`);
+      console.log(`OPTYStakingVault180D: ${optyStakingVaults["optyStakingVault180D"].address}`);
 
-    const optyStakingRateBalancerInstance = await hre.ethers.getContractAt(
-      ESSENTIAL_CONTRACTS.OPTY_STAKING_RATE_BALANCER,
-      optydistributor,
-    );
-
-    const optyStakingVaults = await deployAndSetupOptyStakingVaults(
-      hre,
-      owner,
-      deployedonce,
-      registry,
-      opty,
-      optyStakingRateBalancerInstance,
-      optyDistributorInstance,
-    );
-
-    console.log("Finished deploying OptyStakingVaults");
-
-    console.log(`optyStakingVault1D: ${optyStakingVaults["optyStakingVault1D"].address}`);
-    console.log(`optyStakingVault30D: ${optyStakingVaults["optyStakingVault30D"].address}`);
-    console.log(`optyStakingVault60D: ${optyStakingVaults["optyStakingVault60D"].address}`);
-    console.log(`optyStakingVault180D: ${optyStakingVaults["optyStakingVault180D"].address}`);
-
-    if (insertindb) {
-      let err = await insertContractIntoDB(`optyStakingVault1D`, optyStakingVaults["optyStakingVault1D"].address);
-      err = await insertContractIntoDB(`optyStakingVault30D`, optyStakingVaults["optyStakingVault30D"].address);
-      err = await insertContractIntoDB(`optyStakingVault60D`, optyStakingVaults["optyStakingVault60D"].address);
-      err = await insertContractIntoDB(`optyStakingVault180D`, optyStakingVaults["optyStakingVault180D"].address);
-      if (err !== "") {
-        console.log(err);
+      if (insertindb) {
+        let err = await insertContractIntoDB(`OPTYStakingVault1D`, optyStakingVaults["optyStakingVault1D"].address);
+        err = await insertContractIntoDB(`OPTYStakingVault30D`, optyStakingVaults["optyStakingVault30D"].address);
+        err = await insertContractIntoDB(`OPTYStakingVault60D`, optyStakingVaults["optyStakingVault60D"].address);
+        err = await insertContractIntoDB(`OPTYStakingVault180D`, optyStakingVaults["optyStakingVault180D"].address);
+        if (err !== "") {
+          throw err;
+        }
       }
+    } catch (error) {
+      console.error(`${DEPLOY_OPTY_STAKING_VAULTS}: `, error);
+      throw error;
     }
   });

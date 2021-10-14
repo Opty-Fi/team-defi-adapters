@@ -29,9 +29,9 @@ task(SET_INVEST_STRATEGY_REGISTRY, "Set InvestStrategyRegistry")
     try {
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
       await executeFunc(registryContract, owner, "setInvestStrategyRegistry(address)", [investstrategyregistry]);
-      console.log("Set InvestStrategyRegistry successfully");
+      console.log("Finished setting InvestStrategyRegistry");
     } catch (error) {
-      console.log("Got error", error);
+      console.error(`${SET_INVEST_STRATEGY_REGISTRY}: `, error);
+      throw error;
     }
-    console.log("Finished setting InvestStrategyRegistry");
   });

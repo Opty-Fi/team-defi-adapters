@@ -10,8 +10,6 @@ task(DEPLOY_OPTY_DISTRIBUTOR, "Deploy Opty Distributor")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb, registry, opty }, hre) => {
-    const [owner] = await hre.ethers.getSigners();
-
     if (registry === "") {
       throw new Error("registry cannot be empty");
     }
@@ -28,23 +26,27 @@ task(DEPLOY_OPTY_DISTRIBUTOR, "Deploy Opty Distributor")
       throw new Error("opty address is invalid");
     }
 
-    const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, deployedonce, owner, [
-      registry,
-      opty,
-    ]);
-
-    console.log("Finished deploying OPTYDistributor");
-
-    console.log(`Contract optyDistributor : ${optyDistributor.address}`);
-
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    await executeFunc(registryContract, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
-
-    if (insertindb) {
-      const err = await insertContractIntoDB(`optyDistributor`, optyDistributor.address);
-      if (err !== "") {
-        console.log(err);
+    try {
+      console.log("Deploying OPTYDistributor...");
+      const [owner] = await hre.ethers.getSigners();
+      const optyDistributor = await deployContract(hre, ESSENTIAL_CONTRACTS.OPTY_DISTRIBUTOR, deployedonce, owner, [
+        registry,
+        opty,
+      ]);
+      console.log("Finished deploying OPTYDistributor");
+      console.log(`Contract optyDistributor : ${optyDistributor.address}`);
+      console.log("Registering OPTYDistributor...");
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      await executeFunc(registryContract, owner, "setOPTYDistributor(address)", [optyDistributor.address]);
+      console.log("Registered OPTYDistributor.");
+      if (insertindb) {
+        const err = await insertContractIntoDB(`optyDistributor`, optyDistributor.address);
+        if (err !== "") {
+          throw err;
+        }
       }
+    } catch (error) {
+      console.error(`${DEPLOY_OPTY_DISTRIBUTOR}: `, error);
+      throw error;
     }
   });

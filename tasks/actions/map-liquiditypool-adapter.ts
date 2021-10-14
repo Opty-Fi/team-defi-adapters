@@ -35,17 +35,15 @@ task(MAP_LIQUIDITYPOOL_ADAPTER, "Approve and map liquidity pool to adapter")
       throw new Error("adapter address is invalid");
     }
 
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    console.log(`Start mapping liquidity pool to adapter.....`);
-    console.log(`Adapter: ${adapter}`);
-    console.log(`Liquidity pool: ${liquiditypool}`);
-
     try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      console.log(`Start mapping liquidity pool to adapter.....`);
+      console.log(`Adapter: ${adapter}`);
+      console.log(`Liquidity pool: ${liquiditypool}`);
       await approveLiquidityPoolAndMapAdapter(owner, registryContract, adapter, liquiditypool);
+      console.log(`Finished mapping liquidity pool to adapter`);
     } catch (error) {
-      console.log(`Got error: ${error}`);
+      console.error(`${MAP_LIQUIDITYPOOL_ADAPTER}: `, error);
+      throw error;
     }
-
-    console.log(`Finished mapping liquidity pool to adapter`);
   });
