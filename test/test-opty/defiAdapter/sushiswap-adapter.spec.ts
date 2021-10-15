@@ -21,8 +21,6 @@ import { ERC20 } from "../../../typechain/ERC20";
 
 chai.use(solidity);
 
-chai.use(solidity);
-
 type ARGUMENTS = {
   amount?: { [key: string]: string };
 };
@@ -149,7 +147,8 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       }
     });
   }
-
+  //sushi-susd-$based,sushi-cdai-dai,sushi-weth-meme,sushi-cro-weth,sushi-wbtc-renbtc
+  //sushi-wbtc-tbtc,sushi-core-weth
   describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
     const adapterNames = Object.keys(TypedDefiPools);
     let testDeFiAdapter: Contract;
@@ -163,32 +162,35 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       );
     });
 
-    const ValidatedPairTokens = Object.values(TypedMultiAssetTokens)
-      .map(({ address }) => address)
-      .map(t => getAddress(t));
-    const ValidatedCurveTokens = Object.values(TypedCurveTokens)
-      .map(({ address }) => address)
-      .map(t => getAddress(t));
     for (const adapterName of adapterNames) {
       // TODO: In future it can be leverage across all the adapters
       if (adapterName == SUSHISWAP_ADAPTER_NAME) {
         const pools = Object.keys(TypedDefiPools[adapterName]);
         for (const pool of pools) {
+          if (pool !== "sushi-susd-$based") {
+            continue;
+          }
+          //sushi-weth-renbtc
           const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
           const liquidityPool = TypedDefiPools[adapterName][pool].pool;
           const pid = TypedDefiPools[adapterName][pool].pid;
-          let alreadySet: boolean = false;
           if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
                 const adapterAddress = sushiswapAdapter.address;
-                if (alreadySet === false) {
+                if (
+                  (
+                    await sushiswapAdapter.underlyingTokenToMasterChefToPid(
+                      underlyingTokenAddress,
+                      masterChefInstance.address,
+                    )
+                  ).eq(0)
+                ) {
                   await sushiswapAdapter.setUnderlyingTokenToMasterChefToPid(
                     underlyingTokenAddress,
                     masterChefInstance.address,
                     pid,
                   );
-                  alreadySet = true;
                 }
                 const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", underlyingTokenAddress);
                 const token0Instance = await hre.ethers.getContractAt("ERC20", await pairInstance.token0());
@@ -207,6 +209,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 let token0BalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let token1BalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let isTestingAddLiquidity = false;
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
@@ -215,26 +218,30 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       if (existingMode != mode) {
                         await sushiswapAdapter[action.action](mode);
                       }
+
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(
-                        underlyingTokenAddress,
-                      );
+                      const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
-                        await sushiswapAdapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
+                        await sushiswapAdapter.setMaxDepositPoolPct(liquidityPool, 0);
+                        expect(await sushiswapAdapter.maxDepositPoolPct(liquidityPool)).to.be.eq(0);
                       }
-                      const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      const { maxDepositProtocolPct }: any = action.args!;
                       const existingProtocolPct: BigNumber = await sushiswapAdapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        await sushiswapAdapter[action.action](maxDepositProtocolPct);
+                        await expect(sushiswapAdapter[action.action](maxDepositProtocolPct))
+                          .to.emit(sushiswapAdapter, "LogMaxDepositProtocolPct")
+                          .withArgs(+maxDepositProtocolPct, ownerAddress);
+                        expect(await sushiswapAdapter.maxDepositProtocolPct()).to.equal(+maxDepositProtocolPct);
                       }
                       const poolValue: BigNumber = await sushiswapAdapter.getPoolValue(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
+
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                      defaultFundAmount = defaultFundAmount.lte(limit) || poolValue.eq(0) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
@@ -249,8 +256,9 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                         liquidityPool,
                         underlyingTokenAddress,
                       );
+
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                      defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
+                      defaultFundAmount = defaultFundAmount.lte(limit) || poolValue.eq(0) ? defaultFundAmount : limit;
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
@@ -278,11 +286,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "fundTestDeFiAdapterContract": {
                       const underlyingBalance: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
-                      if (ValidatedPairTokens.includes(underlyingTokenAddress)) {
-                        defaultFundAmount = defaultFundAmount.div(BigNumber.from(10).pow(3));
-                      } else if (ValidatedCurveTokens.includes(underlyingTokenAddress)) {
-                        defaultFundAmount = defaultFundAmount.div(BigNumber.from(10).pow(6));
-                      }
                       if (underlyingBalance.lt(defaultFundAmount)) {
                         await fundWalletToken(
                           hre,
@@ -293,6 +296,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                           testDeFiAdapter.address,
                         );
                       }
+
                       break;
                     }
                     case "fundTestDeFiAdapterContractWithRewardToken": {
@@ -304,7 +308,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                           hre,
                           rewardTokenERC20Instance.address,
                           users["owner"],
-                          defaultFundAmount.mul(BigNumber.from(10).pow(rewardTokenDecimals)),
+                          getDefaultFundAmountInDecimal(rewardTokenAddress, rewardTokenDecimals),
                           timestamp,
                           testDeFiAdapter.address,
                         );
@@ -374,6 +378,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       token0BalanceBefore = await token0Instance.balanceOf(testDeFiAdapter.address);
                       token1BalanceBefore = await token1Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](underlyingTokenAddress, adapterAddress);
+                      isTestingAddLiquidity = true;
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
@@ -457,31 +462,38 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                         const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(liquidityPool);
                         const existingProtocolPct: BigNumber = await sushiswapAdapter.maxDepositProtocolPct();
                         if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
-                          expect(+lpTokenBalance).to.be.eq(0);
+                          expect(lpTokenBalance).to.be.eq(0);
                         } else {
                           expectedValue == "=0"
-                            ? expect(+lpTokenBalance).to.be.eq(0)
-                            : expect(+lpTokenBalance).to.be.gt(0);
+                            ? expect(lpTokenBalance).to.be.eq(0)
+                            : expect(lpTokenBalance).to.be.gt(0);
                         }
                       }
                       break;
                     }
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
-                      const underlyingBalanceAfter: BigNumber = await pairInstance[action.action](
-                        testDeFiAdapter.address,
+                      const underlyingBalanceAfter: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
+                      const poolValue = await sushiswapAdapter["getPoolValue(address,address)"](
+                        liquidityPool,
+                        underlyingTokenAddress,
                       );
                       if (underlyingBalanceBefore.lt(limit)) {
                         expectedValue == ">0"
-                          ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
+                          ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                           : +rewardTokenBalanceBefore > 0
-                          ? expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore)
-                          : expect(+underlyingBalanceAfter).to.be.eq(0);
+                          ? expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore)
+                          : expect(underlyingBalanceAfter).to.be.eq(0);
+                      } else if (isTestingAddLiquidity) {
+                        expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore);
                       } else {
-                        expectedValue == ">0"
-                          ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                          : expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore.sub(limit));
+                        poolValue.eq(0)
+                          ? expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore)
+                          : expectedValue == ">0"
+                          ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                          : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                       }
+
                       break;
                     }
                     case "getRewardTokenBalance(address)": {
@@ -492,15 +504,20 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       const token1BalanceAfter: BigNumber = await token1Instance.balanceOf(testDeFiAdapter.address);
                       const expectedValue = action.expectedValue;
                       if (expectedValue == ">0") {
-                        expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore);
+                        expect(rewardTokenBalanceAfter).to.be.gt(rewardTokenBalanceBefore);
                       } else if (expectedValue == "=0") {
-                        expect(+token0BalanceAfter).to.be.gt(+token0BalanceBefore);
-                        expect(+token1BalanceAfter).to.be.gt(+token1BalanceBefore);
-                        expect(+rewardTokenBalanceAfter).to.be.eq(0);
+                        if (getAddress(token0Instance.address) !== getAddress(rewardTokenAddress)) {
+                          expect(token0BalanceAfter).to.be.gt(token0BalanceBefore);
+                        }
+                        if (getAddress(token0Instance.address) !== getAddress(rewardTokenAddress)) {
+                          expect(token1BalanceAfter).to.be.gt(token1BalanceBefore);
+                        }
+
+                        expect(rewardTokenBalanceAfter).to.be.lt(rewardTokenBalanceBefore);
                       } else {
-                        expect(+token0BalanceAfter).to.be.lt(+token0BalanceBefore);
-                        expect(+token1BalanceAfter).to.be.lt(+token1BalanceBefore);
-                        expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
+                        expect(token0BalanceAfter).to.be.lt(token0BalanceBefore);
+                        expect(token1BalanceAfter).to.be.lt(token1BalanceBefore);
+                        expect(rewardTokenBalanceAfter).to.be.lt(rewardTokenBalanceBefore);
                       }
                       break;
                     }
@@ -593,12 +610,12 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      expect(+lpTokenBalance).to.be.eq(0);
+                      expect(lpTokenBalance).to.be.eq(0);
                       break;
                     }
                     case "balanceOf(address)": {
                       const underlyingBalance: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
-                      expect(+underlyingBalance).to.be.gt(0);
+                      expect(underlyingBalance).to.be.gt(0);
                       break;
                     }
                   }
