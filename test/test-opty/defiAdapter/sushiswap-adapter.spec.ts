@@ -161,9 +161,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       if (adapterName == SUSHISWAP_ADAPTER_NAME) {
         const pools = Object.keys(TypedDefiPools[adapterName]);
         for (const pool of pools) {
-          if (pool !== "sushi-susd-$based") {
-            continue;
-          }
           //sushi-weth-renbtc
           const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
           const liquidityPool = TypedDefiPools[adapterName][pool].pool;
