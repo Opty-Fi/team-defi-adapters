@@ -4,13 +4,7 @@ import { solidity } from "ethereum-waffle";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME } from "../../../helpers/constants";
-import {
-  TypedAdapterStrategies,
-  TypedTokens,
-  TypedCurveTokens,
-  TypedDefiPools,
-  TypedMultiAssetTokens,
-} from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
