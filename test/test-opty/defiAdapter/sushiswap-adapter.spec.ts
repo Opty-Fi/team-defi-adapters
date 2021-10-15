@@ -7,6 +7,7 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, SUSHISWAP_ADAPTER_NAME }
 import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
+import { to_10powNumber_BN } from "../../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
@@ -161,7 +162,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       if (adapterName == SUSHISWAP_ADAPTER_NAME) {
         const pools = Object.keys(TypedDefiPools[adapterName]);
         for (const pool of pools) {
-          //sushi-weth-renbtc
           const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
           const liquidityPool = TypedDefiPools[adapterName][pool].pool;
           const pid = TypedDefiPools[adapterName][pool].pid;
@@ -193,7 +193,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 const rewardTokenDecimals: number = <number>await rewardTokenERC20Instance.decimals();
                 const decimals = await pairInstance.decimals();
 
-                let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
+                let defaultFundAmount: BigNumber = BigNumber.from("2").mul(to_10powNumber_BN(decimals));
                 let limit: BigNumber = hre.ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
