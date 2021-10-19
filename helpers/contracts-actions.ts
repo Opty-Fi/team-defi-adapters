@@ -30,7 +30,8 @@ export async function approveLiquidityPoolAndMapAdapter(
       await executeFunc(registryContract as Contract, owner, "approveLiquidityPool(address)", [lqPool]);
       await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter(address,address)", [lqPool, adapter]);
     } catch (error) {
-      console.log(`Got error: ${error}`);
+      console.error(`contract-actions#approveLiquidityPoolAndMapAdapter: `, error);
+      throw error;
     }
   }
 }
@@ -52,8 +53,10 @@ export async function approveLiquidityPoolAndMapAdapters(
     if (approveLpList.length > 0) {
       await executeFunc(registryContract, owner, "approveLiquidityPool(address[])", [approveLpList]);
     }
-  } catch (error: any) {
-    console.log(`Got error when executing approveLiquidityPoolAndMapAdapters : ${error}`);
+    await executeFunc(registryContract, owner, "setLiquidityPoolToAdapter((address,address)[])", [lqPoolsMapToAdapter]);
+  } catch (error) {
+    console.error(`contracts-actions#approveLiquidityPoolAndMapAdapters: `, error);
+    throw error;
   }
 }
 
@@ -71,7 +74,8 @@ export async function approveAndSetTokenHashToToken(
       await executeFunc(registryContract, owner, "setTokensHashToTokens(address[])", [[tokenAddress]]);
     }
   } catch (error) {
-    console.log(`Got error when executing approveAndSetTokenHashToToken : ${error}`);
+    console.error(`contract-actions#approveAndSetTokenHashToToken : `, error);
+    throw error;
   }
 }
 
@@ -107,8 +111,9 @@ export async function approveAndSetTokenHashToTokens(
         await executeFunc(registryContract, owner, "setTokensHashToTokens(address[][])", [[tokenAddresses]]);
       }
     }
-  } catch (error: any) {
-    console.log(`Got error when executing approveTokens for vault and reward tokens : ${error}`);
+  } catch (error) {
+    console.error(`contract-actions#approveAndSetTokenHashToTokens: `, error);
+    throw error;
   }
 }
 

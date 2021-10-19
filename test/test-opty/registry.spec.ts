@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { deployAdapters, deployRegistry } from "../../helpers/contracts-deployments";
-import { CONTRACTS } from "../../helpers/type";
+import { CONTRACTS, TESTING_DEFAULT_DATA } from "../../helpers/type";
 import { deployContract, executeFunc, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { getSoliditySHA3Hash } from "../../helpers/utils";
@@ -801,16 +801,6 @@ describe(scenario.title, () => {
     }
   }
 });
-
-type TESTING_DEFAULT_DATA = {
-  setFunction: string;
-  input: any[];
-  getFunction: {
-    name: string;
-    input: any[];
-    output: any;
-  }[];
-};
 
 const REGISTRY_TESTING_DEFAULT_DATA: TESTING_DEFAULT_DATA[] = [
   {

@@ -28,6 +28,7 @@ export const APPROVE_TOKENS: string = "approve-tokens";
 export const GET_STRATEGIES: string = "get-strategies";
 export const GET_BEST_STRATEGY: string = "get-best-strategy";
 export const MAP_LIQUIDITYPOOL_ADAPTER: string = "map-liquiditypool-adapter";
+export const MAP_LIQUIDITYPOOLS_ADAPTER: string = "map-liquiditypools-adapter";
 export const SET_BEST_STRATEGY: string = "set-best-strategy";
 export const SET_STRATEGIES: string = "set-strategies";
 export const SET_INVEST_STRATEGY_REGISTRY: string = "set-invest-strategy-registry";

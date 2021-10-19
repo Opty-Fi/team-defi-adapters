@@ -59,26 +59,30 @@ task(SET_STRATEGIES, "Set strategies")
       throw new Error("strategies file is in wrong format");
     }
 
-    const investStrategyRegistryContract = await hre.ethers.getContractAt(
-      ESSENTIAL_CONTRACTS.INVEST_STRATEGY_REGISTRY,
-      investstrategyregistry,
-    );
-
-    console.log("Started setting strategies");
-    for (let i = 0; i < strategies.length; i++) {
-      try {
-        const hash = await setStrategy(
-          strategies[i].strategy,
-          [TOKENS[strategies[i].token]],
-          investStrategyRegistryContract,
-        );
-        console.log("-----------------");
-        console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
-        console.log(`Invest step strategy Hash : ${hash}`);
-        console.log("-----------------");
-      } catch (error: any) {
-        console.error(`Got error with ${strategies[i].strategyName} : `, error.message);
+    try {
+      const investStrategyRegistryContract = await hre.ethers.getContractAt(
+        ESSENTIAL_CONTRACTS.INVEST_STRATEGY_REGISTRY,
+        investstrategyregistry,
+      );
+      console.log("Started setting strategies");
+      for (let i = 0; i < strategies.length; i++) {
+        try {
+          const hash = await setStrategy(
+            strategies[i].strategy,
+            [TOKENS[strategies[i].token]],
+            investStrategyRegistryContract,
+          );
+          console.log("-----------------");
+          console.log(`Invest step strategy Name : ${strategies[i].strategyName}`);
+          console.log(`Invest step strategy Hash : ${hash}`);
+          console.log("-----------------");
+        } catch (error: any) {
+          throw new Error(`${strategies[i].strategyName} : ${error.message}`);
+        }
       }
+      console.log("Finished setting strategies");
+    } catch (error: any) {
+      console.error(`${SET_STRATEGIES}: `, error);
+      throw error;
     }
-    console.log("Finished setting strategies");
   });
