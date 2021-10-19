@@ -192,8 +192,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 );
                 const rewardTokenDecimals: number = <number>await rewardTokenERC20Instance.decimals();
                 const decimals = await pairInstance.decimals();
-
-                let defaultFundAmount: BigNumber = BigNumber.from("2").mul(to_10powNumber_BN(decimals));
+                let defaultFundAmount: BigNumber = BigNumber.from("2").mul(to_10powNumber_BN(decimals - 10));
                 let limit: BigNumber = hre.ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
@@ -277,8 +276,9 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "fundTestDeFiAdapterContract": {
                       const underlyingBalance: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
-                      if (underlyingBalance.lt(defaultFundAmount)) {
-                        await fundWalletToken(
+                      const totalSupply: BigNumber = await pairInstance.totalSupply();
+                      if (underlyingBalance.lt(defaultFundAmount) && totalSupply.gt(defaultFundAmount)) {
+                        defaultFundAmount = await fundWalletToken(
                           hre,
                           underlyingTokenAddress,
                           users["owner"],
@@ -287,7 +287,6 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                           testDeFiAdapter.address,
                         );
                       }
-
                       break;
                     }
                     case "fundTestDeFiAdapterContractWithRewardToken": {
@@ -455,11 +454,12 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                         if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else {
-                          expectedValue == "=0"
+                          expectedValue == "=0" || limit.eq(0)
                             ? expect(lpTokenBalance).to.be.eq(0)
                             : expect(lpTokenBalance).to.be.gt(0);
                         }
                       }
+
                       break;
                     }
                     case "balanceOf(address)": {
