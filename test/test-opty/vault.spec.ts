@@ -123,6 +123,7 @@ describe(scenario.title, () => {
         describe(`${adapterName}`, async () => {
           for (let i = 0; i < strategies.length; i++) {
             const TOKEN_STRATEGY = strategies[i];
+            const tokenAddress = TOKENS[TOKEN_STRATEGY.token];
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
@@ -144,7 +145,7 @@ describe(scenario.title, () => {
 
               await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
-                TOKENS[TOKEN_STRATEGY.token],
+                tokenAddress,
                 essentialContracts.investStrategyRegistry,
                 essentialContracts.strategyProvider,
                 profile,
@@ -158,13 +159,13 @@ describe(scenario.title, () => {
                 ]);
               }
 
-              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", tokenAddress);
 
               const CHIInstance = await hre.ethers.getContractAt("IChi", TOKENS["CHI"]);
               Vault = await deployVault(
                 hre,
                 essentialContracts.registry.address,
-                TOKENS[TOKEN_STRATEGY.token],
+                tokenAddress,
                 users[0],
                 users[1],
                 underlyingTokenName,
@@ -176,6 +177,7 @@ describe(scenario.title, () => {
               contracts["vault"] = Vault;
               contracts["chi"] = CHIInstance;
               contracts["erc20"] = Token_ERC20Instance;
+              contracts["adapter"] = adapter;
             });
             for (let i = 0; i < vault.stories.length; i++) {
               const story = vault.stories[i];
@@ -249,10 +251,26 @@ describe(scenario.title, () => {
                             const timestamp = (await getBlockTimestamp(hre)) * 2;
                             await fundWalletToken(
                               hre,
-                              TOKENS[TOKEN_STRATEGY.token],
+                              tokenAddress,
                               users[userIndex],
                               BigNumber.from(amount[TOKEN_STRATEGY.token]),
                               timestamp,
+                            );
+                          }
+                          assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
+                          break;
+                        }
+                        case "fundVaultWallet": {
+                          const { amount }: ARGUMENTS = action.args;
+                          if (amount) {
+                            const timestamp = (await getBlockTimestamp(hre)) * 2;
+                            await fundWalletToken(
+                              hre,
+                              tokenAddress,
+                              users[userIndex],
+                              BigNumber.from(amount[TOKEN_STRATEGY.token]),
+                              timestamp,
+                              contracts["vault"].address,
                             );
                           }
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
@@ -331,6 +349,45 @@ describe(scenario.title, () => {
                         case "userWithdrawAllRebalanceWithCHI()":
                         case "rebalance()": {
                           await contracts[action.contract].connect(users[userIndex])[action.action]();
+                          break;
+                        }
+                        case "testGetDepositAllCodes": {
+                          const balanceBefore = await contracts["adapter"].getLiquidityPoolTokenBalance(
+                            contracts["vault"].address,
+                            tokenAddress,
+                            TOKEN_STRATEGY.strategy[0].contract,
+                          );
+                          if (action.expect === "success") {
+                            await contracts["vault"]
+                              .connect(users[userIndex])
+                              .adminCall(
+                                await contracts["adapter"].getDepositAllCodes(
+                                  contracts["vault"].address,
+                                  tokenAddress,
+                                  TOKEN_STRATEGY.strategy[0].contract,
+                                ),
+                              );
+                            expect(
+                              await contracts["adapter"].getLiquidityPoolTokenBalance(
+                                contracts["vault"].address,
+                                tokenAddress,
+                                TOKEN_STRATEGY.strategy[0].contract,
+                              ),
+                            ).to.be.gt(balanceBefore);
+                          } else {
+                            await expect(
+                              contracts["vault"]
+                                .connect(users[userIndex])
+                                .adminCall(
+                                  await contracts["adapter"].getDepositAllCodes(
+                                    contracts["vault"].address,
+                                    tokenAddress,
+                                    TOKEN_STRATEGY.strategy[0].contract,
+                                  ),
+                                ),
+                            ).to.be.revertedWith(action.message);
+                          }
+
                           break;
                         }
                       }

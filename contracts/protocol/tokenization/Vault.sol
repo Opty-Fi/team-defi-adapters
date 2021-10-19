@@ -350,6 +350,14 @@ contract Vault is
     }
 
     /**
+     * @inheritdoc IVault
+     */
+    function adminCall(bytes[] memory _codes) external override onlyOperator returns (bool) {
+        executeCodes(_codes, "!adminCall");
+        return true;
+    }
+
+    /**
      * @dev Deposit all the underlying assets to the current vault invest strategy
      * @param _vaultStrategyConfiguration the configuration for executing vault invest strategy
      */

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.12;
+pragma experimental ABIEncoderV2;
 
 /**
  * @title Interface for opty.fi's interest bearing vault
@@ -170,4 +171,11 @@ interface IVault {
      * @return bool returns true if vault value jump is within permissible limits
      */
     function isMaxVaultValueJumpAllowed(uint256 _diff, uint256 _currentVaultValue) external view returns (bool);
+
+    /**
+     * @notice Admin call to executes bunch of functionlaities and check if they are working or not
+     * @param _codes Array of encoded data in bytes which acts as code to execute
+     * @return return true on successful admin call
+     */
+    function adminCall(bytes[] memory _codes) external returns (bool);
 }
