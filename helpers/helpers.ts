@@ -142,7 +142,8 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.FTT):
     case getAddress(TypedTokens.SWAG):
     case getAddress(TypedTokens.COVER):
-    case getAddress(TypedTokens.IBBTC): {
+    case getAddress(TypedTokens.IBBTC):
+    case getAddress(TypedTokens.SUSHI): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
       break;
     }

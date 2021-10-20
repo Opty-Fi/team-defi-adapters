@@ -1,14 +1,17 @@
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "@nomiclabs/hardhat-etherscan";
-import "solidity-coverage";
-import "hardhat-docgen";
 import { HardhatUserConfig } from "hardhat/types";
 import { config as dotenvConfig } from "dotenv";
 import { resolve } from "path";
 import path from "path";
 import fs from "fs";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
+import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-etherscan";
+import "@typechain/hardhat";
+import "solidity-coverage";
+import "hardhat-docgen";
+import "hardhat-deploy";
 import {
   NETWORKS_RPC_URL,
   NETWORKS_DEFAULT_GAS,
