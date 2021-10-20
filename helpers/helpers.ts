@@ -153,7 +153,8 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
       break;
     }
-    case getAddress(TypedTokens.HBTC): {
+    case getAddress(TypedTokens.HBTC):
+    case getAddress(TypedTokens.CRV_REN_BTC_WBTC_SBTC): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 1));
       break;
     }
