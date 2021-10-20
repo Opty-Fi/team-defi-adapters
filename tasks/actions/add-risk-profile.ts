@@ -29,8 +29,12 @@ task(ADD_RISK_PROFILE, "Add Risk Profile")
       throw new Error("rating range is invalid");
     }
 
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-    await addRiskProfile(registryContract, owner, name, canborrow, [lowestrating, highestrating]);
-
-    console.log("Finished adding risk profile");
+    try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      await addRiskProfile(registryContract, owner, name, canborrow, [lowestrating, highestrating]);
+      console.log("Finished adding risk profile : ", name);
+    } catch (error) {
+      console.error(`${ADD_RISK_PROFILE}: `, error);
+      throw error;
+    }
   });

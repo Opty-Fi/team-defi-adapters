@@ -26,9 +26,12 @@ task(UNPAUSE_VAULT, "Unpause Vault")
       throw new Error("registry address is invalid");
     }
 
-    const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-
-    await unpauseVault(owner, registryContract, vault, true);
-
-    console.log("Finished unpausing Vault");
+    try {
+      const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
+      await unpauseVault(owner, registryContract, vault, true);
+      console.log("Finished unpausing Vault");
+    } catch (error) {
+      console.error(`${UNPAUSE_VAULT}: `, error);
+      throw error;
+    }
   });

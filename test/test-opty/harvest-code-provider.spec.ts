@@ -159,7 +159,7 @@ describe(scenario.title, () => {
                     const token0balance = await token0Instance.balanceOf(testHarvestCodeProvider.address);
                     const token1balance = await token1Instance.balanceOf(testHarvestCodeProvider.address);
                     expect(true).to.satisfy(function () {
-                      if (token0balance == 0 || token1balance == 0) {
+                      if (token0balance.eq(0) || token1balance.eq(0)) {
                         return true;
                       } else {
                         return false;
