@@ -33,14 +33,18 @@ task(GET_STRATEGY, "Get a specific strategy")
       investstrategyregistry,
     );
 
-    const strategyDetail = await investStrategyRegistryContract.getStrategy(strategyhash);
-    console.log(`StrategyHash: ${strategyhash}`);
-    for (let i = 0; i < strategyDetail[1].length; i++) {
-      console.log(`Step: ${i + 1}`);
-      console.log(`Pool: ${strategyDetail[1][i].pool}`);
-      console.log(`OutputToken: ${strategyDetail[1][i].outputToken}`);
-      console.log(`IsBorrow: ${strategyDetail[1][i].isBorrow}`);
+    try {
+      const strategyDetail = await investStrategyRegistryContract.getStrategy(strategyhash);
+      console.log(`StrategyHash: ${strategyhash}`);
+      for (let i = 0; i < strategyDetail[1].length; i++) {
+        console.log(`Step: ${i + 1}`);
+        console.log(`Pool: ${strategyDetail[1][i].pool}`);
+        console.log(`OutputToken: ${strategyDetail[1][i].outputToken}`);
+        console.log(`IsBorrow: ${strategyDetail[1][i].isBorrow}`);
+      }
+      console.log("Finished getting strategy");
+    } catch (error) {
+      console.error(`${GET_STRATEGY}: `, error);
+      throw error;
     }
-
-    console.log("Finished getting strategy");
   });

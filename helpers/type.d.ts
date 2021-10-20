@@ -72,6 +72,16 @@ export type ADAPTER_WITH_STRATEGIES_DATA = {
   [key: string]: STRATEGY[];
 };
 
+export type TESTING_DEFAULT_DATA = {
+  setFunction: string;
+  input: any[];
+  getFunction: {
+    name: string;
+    input: any[];
+    output: any;
+  }[];
+};
+
 export type PAIR_TOKEN_DATA = {
   [token: string]: {
     address: string;

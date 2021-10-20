@@ -17,14 +17,10 @@ export async function deployRegistry(
   isDeployedOnce: boolean,
 ): Promise<Contract> {
   let registry = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.REGISTRY, isDeployedOnce, owner, []);
-
   const registryProxy = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.REGISTRY_PROXY, isDeployedOnce, owner, []);
-
   await executeFunc(registryProxy, owner, "setPendingImplementation(address)", [registry.address]);
   await executeFunc(registry, owner, "become(address)", [registryProxy.address]);
-
   registry = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.REGISTRY, registryProxy.address, owner);
-
   return registry;
 }
 
@@ -133,7 +129,6 @@ export async function deployEssentialContracts(
 ): Promise<CONTRACTS> {
   const registry = await deployRegistry(hre, owner, isDeployedOnce);
   await addRiskProfiles(owner, registry);
-
   const investStrategyRegistry = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.INVEST_STRATEGY_REGISTRY,
@@ -143,7 +138,6 @@ export async function deployEssentialContracts(
   );
 
   await executeFunc(registry, owner, "setInvestStrategyRegistry(address)", [investStrategyRegistry.address]);
-
   const strategyProvider = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.STRATEGY_PROVIDER,
@@ -151,15 +145,11 @@ export async function deployEssentialContracts(
     owner,
     [registry.address],
   );
-
   await executeFunc(registry, owner, "setStrategyProvider(address)", [strategyProvider.address]);
-
   const aprOracle = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.APR_ORACLE, isDeployedOnce, owner, [
     registry.address,
   ]);
-
   await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
-
   const harvestCodeProvider = await deployContract(
     hre,
     ESSENTIAL_CONTRACTS_DATA.HARVEST_CODE_PROVIDER,
@@ -167,17 +157,12 @@ export async function deployEssentialContracts(
     owner,
     [registry.address],
   );
-
   await executeFunc(registry, owner, "setHarvestCodeProvider(address)", [harvestCodeProvider.address]);
-
   const riskManager = await deployRiskManager(hre, owner, isDeployedOnce, registry.address);
-
   await executeFunc(registry, owner, "setRiskManager(address)", [riskManager.address]);
-
   const strategyManager = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.STRATEGY_MANAGER, isDeployedOnce, owner, [
     registry.address,
   ]);
-
   await executeFunc(registry, owner, "setStrategyManager(address)", [strategyManager.address]);
 
   const opty = await deployContract(hre, ESSENTIAL_CONTRACTS_DATA.OPTY, isDeployedOnce, owner, [

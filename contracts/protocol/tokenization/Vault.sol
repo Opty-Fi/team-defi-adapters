@@ -407,6 +407,9 @@ contract Vault is
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getRewardToken(_investStrategyHash);
         if (_rewardToken != address(0)) {
             // means rewards exists
+            address[] memory _vaultRewardTokens = new address[](2);
+            _vaultRewardTokens[0] = address(this);
+            _vaultRewardTokens[1] = _rewardToken;
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolClaimAllRewardCodes(
                     payable(address(this)),
@@ -420,7 +423,7 @@ contract Vault is
                     underlyingToken,
                     _investStrategyHash,
                     IRiskManager(_vaultStrategyConfiguration.riskManager).getVaultRewardTokenStrategy(
-                        keccak256(abi.encodePacked([address(this), _rewardToken]))
+                        _vaultRewardTokens
                     )
                 ),
                 "!harvest"
