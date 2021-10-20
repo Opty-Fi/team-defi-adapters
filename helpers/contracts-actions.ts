@@ -247,7 +247,7 @@ export async function fundWalletToken(
       const pool = curveToken.pool;
       const swap = curveToken?.swap;
       const old = curveToken?.old;
-      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CURVE_REGISTRY);
+      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CONTRACT_ADDRESSES.CURVE_REGISTRY);
       const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
       const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
       const coin = swap
