@@ -8,8 +8,8 @@ import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-acti
 import {
   TESTING_DEPLOYMENT_ONCE,
   REWARD_TOKENS,
-  UNISWAP_ROUTER,
-  SUSHISWAP_ROUTER,
+  UNISWAPV2_ROUTER02_ADDRESS,
+  SUSHISWAP_ROUTER_ADDRESS,
   SUPPORTED_TOKENS,
 } from "../../helpers/constants";
 import { deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
@@ -129,12 +129,12 @@ describe(scenario.title, () => {
                     const symbol = await pairInstance.symbol();
                     symbol === "SLP"
                       ? await testHarvestCodeProvider[action.action](
-                          SUSHISWAP_ROUTER,
+                          SUSHISWAP_ROUTER_ADDRESS,
                           underlyingTokenAddress,
                           adapterPrerequisites.harvestCodeProvider.address,
                         )
                       : await testHarvestCodeProvider[action.action](
-                          UNISWAP_ROUTER,
+                          UNISWAPV2_ROUTER02_ADDRESS,
                           underlyingTokenAddress,
                           adapterPrerequisites.harvestCodeProvider.address,
                         );
@@ -197,7 +197,7 @@ describe(scenario.title, () => {
                     );
                     const uniswapRouterInstance = await hre.ethers.getContractAt(
                       IUniswapV2Router02.abi,
-                      UNISWAP_ROUTER,
+                      UNISWAPV2_ROUTER02_ADDRESS,
                     );
                     let amounts;
                     if (getAddress(underlyingTokenAddress) === getAddress(TypedTokens.WETH)) {
@@ -234,7 +234,7 @@ describe(scenario.title, () => {
                       let amountsB;
                       const sushiswapRouterInstance = await hre.ethers.getContractAt(
                         IUniswapV2Router02.abi,
-                        SUSHISWAP_ROUTER,
+                        SUSHISWAP_ROUTER_ADDRESS,
                       );
                       const token0 = await pairInstance.token0();
                       const token1 = await pairInstance.token1();
@@ -357,7 +357,7 @@ describe(scenario.title, () => {
                     } else {
                       const uniswapRouterInstance = await hre.ethers.getContractAt(
                         IUniswapV2Router02.abi,
-                        UNISWAP_ROUTER,
+                        UNISWAPV2_ROUTER02_ADDRESS,
                       );
                       const amounts = await uniswapRouterInstance.getAmountsOut(wethAmount, [
                         TypedTokens.WETH,
