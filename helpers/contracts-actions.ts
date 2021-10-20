@@ -1,5 +1,10 @@
-import { RISK_PROFILES, UNISWAP_ROUTER, SUSHISWAP_ROUTER, TOKEN_HOLDERS, CURVE_REGISTRY } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { abi as uniswapv2pairAbi } from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
+import { abi as uniswapv2router02Abi } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import { getAddress } from "ethers/lib/utils";
+import Compound from "@compound-finance/compound-js";
+import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 import { STRATEGY_DATA } from "./type";
 import { TypedTokens, TypedPairTokens, TypedCurveTokens } from "./data";
 import {
@@ -11,12 +16,13 @@ import {
   isAddress,
 } from "./helpers";
 import { amountInHex } from "./utils";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
-import router from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
-import { getAddress } from "ethers/lib/utils";
-import Compound from "@compound-finance/compound-js";
-import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import {
+  RISK_PROFILES,
+  UNISWAPV2_ROUTER02_ADDRESS,
+  SUSHISWAP_ROUTER_ADDRESS,
+  TOKEN_HOLDERS,
+  CURVE_REGISTRY,
+} from "./constants";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -171,11 +177,12 @@ export async function fundWalletToken(
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
   const ValidatedPairTokens = Object.values(TypedPairTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
-  const uniswapInstance = await hre.ethers.getContractAt(router.abi, UNISWAP_ROUTER);
+  const uniswapV2Router02Instance = await hre.ethers.getContractAt(uniswapv2router02Abi, UNISWAPV2_ROUTER02_ADDRESS);
+  const sushiswapRouterInstance = await hre.ethers.getContractAt(uniswapv2router02Abi, SUSHISWAP_ROUTER_ADDRESS);
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = await hre.ethers.getContractAt(pair.abi, tokenAddress);
+    const pairInstance = await hre.ethers.getContractAt(uniswapv2pairAbi, tokenAddress);
     const pairSymbol = await pairInstance.symbol();
     if (["SLP", "UNI-V2"].includes(pairSymbol)) {
       const TOKEN0 = await pairInstance.token0();
@@ -200,8 +207,8 @@ export async function fundWalletToken(
         }
       }
       const routerInstance = await hre.ethers.getContractAt(
-        router.abi,
-        pairSymbol === "SLP" ? SUSHISWAP_ROUTER : UNISWAP_ROUTER,
+        uniswapv2router02Abi,
+        pairSymbol === "SLP" ? SUSHISWAP_ROUTER_ADDRESS : UNISWAPV2_ROUTER02_ADDRESS,
       );
 
       if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
@@ -256,7 +263,7 @@ export async function fundWalletToken(
         ? await instance.underlying_coins(0)
         : await instance.base_coins(0);
       const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
-      await uniswapInstance
+      await uniswapV2Router02Instance
         .connect(wallet)
         .swapExactETHForTokens(
           1,
@@ -320,13 +327,23 @@ export async function fundWalletToken(
     if (tokenHolder.length > 0) {
       await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
     } else {
-      await uniswapInstance.swapETHForExactTokens(
-        amount,
-        [TypedTokens["WETH"], tokenAddress],
-        address,
-        deadlineTimestamp,
-        getEthValueGasOverrideOptions(hre, "9500"),
-      );
+      try {
+        await uniswapV2Router02Instance.swapETHForExactTokens(
+          amount,
+          [TypedTokens["WETH"], tokenAddress],
+          address,
+          deadlineTimestamp,
+          getEthValueGasOverrideOptions(hre, "9500"),
+        );
+      } catch (error) {
+        await sushiswapRouterInstance.swapETHForExactTokens(
+          amount,
+          [TypedTokens["WETH"], tokenAddress],
+          address,
+          deadlineTimestamp,
+          getEthValueGasOverrideOptions(hre, "9500"),
+        );
+      }
     }
   }
   return await tokenInstance.balanceOf(address);

@@ -229,15 +229,7 @@ describe("CurveAdapters Unit test", () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
           const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
-          // TODO: Get USDK,LINKUSD,SBTC from DEX
-          if (
-            TypedDefiPools[curveAdapterName][pool].tokens.length == 1 &&
-            getAddress(underlyingTokenAddress) != getAddress(TypedTokens.USDK) &&
-            getAddress(underlyingTokenAddress) != getAddress(TypedTokens.LINKUSD) &&
-            getAddress(underlyingTokenAddress) != getAddress(TypedTokens.SBTC) &&
-            getAddress(underlyingTokenAddress) != getAddress(TypedTokens.HBTC) &&
-            getAddress(underlyingTokenAddress) != getAddress(TypedTokens.THREE_CRV)
-          ) {
+          if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
                 const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
