@@ -173,7 +173,8 @@ interface IVault {
     function isMaxVaultValueJumpAllowed(uint256 _diff, uint256 _currentVaultValue) external view returns (bool);
 
     /**
-     * @notice Admin call to executes bunch of functionlaities and check if they are working or not
+     * @notice A function to be called in case vault needs to claim and harvest tokens in case a strategy
+     *         provides multiple reward tokens
      * @param _codes Array of encoded data in bytes which acts as code to execute
      * @return return true on successful admin call
      */

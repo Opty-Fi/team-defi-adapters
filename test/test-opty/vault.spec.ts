@@ -1,6 +1,6 @@
 import { expect, assert } from "chai";
 import hre from "hardhat";
-import { Contract, Signer, BigNumber } from "ethers";
+import { Contract, Signer, BigNumber, utils } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import {
@@ -9,6 +9,7 @@ import {
   REWARD_TOKENS,
   ESSENTIAL_CONTRACTS,
   TESTING_CONTRACTS,
+  COMPOUND_ADAPTER_NAME,
 } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { delay } from "../../helpers/utils";
@@ -177,11 +178,10 @@ describe(scenario.title, () => {
               contracts["vault"] = Vault;
               contracts["chi"] = CHIInstance;
               contracts["erc20"] = Token_ERC20Instance;
-              contracts["adapter"] = adapter;
             });
             for (let i = 0; i < vault.stories.length; i++) {
               const story = vault.stories[i];
-              it(story.description, async () => {
+              it(story.description, async function () {
                 for (let i = 0; i < story.activities.length; i++) {
                   const activity = story.activities[i];
                   const userIndexes = activity.userIndexes;
@@ -261,6 +261,10 @@ describe(scenario.title, () => {
                           break;
                         }
                         case "fundVaultWallet": {
+                          if (adapterName !== COMPOUND_ADAPTER_NAME) {
+                            //only test COMPOUND strategies for adminCall
+                            this.skip();
+                          }
                           const { amount }: ARGUMENTS = action.args;
                           if (amount) {
                             const timestamp = (await getBlockTimestamp(hre)) * 2;
@@ -352,42 +356,111 @@ describe(scenario.title, () => {
                           break;
                         }
                         case "testGetDepositAllCodes": {
-                          const balanceBefore = await contracts["adapter"].getLiquidityPoolTokenBalance(
-                            contracts["vault"].address,
-                            tokenAddress,
+                          const liquidityPoolInstace = await hre.ethers.getContractAt(
+                            "ERC20",
                             TOKEN_STRATEGY.strategy[0].contract,
                           );
-                          if (action.expect === "success") {
-                            await contracts["vault"]
-                              .connect(users[userIndex])
-                              .adminCall(
-                                await contracts["adapter"].getDepositAllCodes(
-                                  contracts["vault"].address,
-                                  tokenAddress,
-                                  TOKEN_STRATEGY.strategy[0].contract,
-                                ),
-                              );
-                            expect(
-                              await contracts["adapter"].getLiquidityPoolTokenBalance(
-                                contracts["vault"].address,
+                          const balanceBefore = await liquidityPoolInstace.balanceOf(contracts["vault"].address);
+                          const functionCodes = [];
+                          let iface = new utils.Interface(["function approve(address,uint256)"]);
+                          functionCodes.push(
+                            utils.defaultAbiCoder.encode(
+                              ["address", "bytes"],
+                              [
                                 tokenAddress,
+                                iface.encodeFunctionData("approve", [TOKEN_STRATEGY.strategy[0].contract, 0]),
+                              ],
+                            ),
+                          );
+                          functionCodes.push(
+                            utils.defaultAbiCoder.encode(
+                              ["address", "bytes"],
+                              [
+                                tokenAddress,
+                                iface.encodeFunctionData("approve", [
+                                  TOKEN_STRATEGY.strategy[0].contract,
+                                  await contracts["erc20"].balanceOf(contracts["vault"].address),
+                                ]),
+                              ],
+                            ),
+                          );
+                          iface = new utils.Interface(["function mint(uint256)"]);
+                          functionCodes.push(
+                            utils.defaultAbiCoder.encode(
+                              ["address", "bytes"],
+                              [
                                 TOKEN_STRATEGY.strategy[0].contract,
-                              ),
-                            ).to.be.gt(balanceBefore);
+                                iface.encodeFunctionData("mint", [
+                                  await contracts["erc20"].balanceOf(contracts["vault"].address),
+                                ]),
+                              ],
+                            ),
+                          );
+                          if (action.expect === "success") {
+                            await contracts["vault"].connect(users[userIndex]).adminCall(functionCodes);
+                            expect(await liquidityPoolInstace.balanceOf(contracts["vault"].address)).to.be.gt(
+                              balanceBefore,
+                            );
                           } else {
                             await expect(
-                              contracts["vault"]
-                                .connect(users[userIndex])
-                                .adminCall(
-                                  await contracts["adapter"].getDepositAllCodes(
-                                    contracts["vault"].address,
-                                    tokenAddress,
-                                    TOKEN_STRATEGY.strategy[0].contract,
-                                  ),
-                                ),
+                              contracts["vault"].connect(users[userIndex]).adminCall(functionCodes),
                             ).to.be.revertedWith(action.message);
                           }
 
+                          break;
+                        }
+                        case "testGetClaimRewardTokenCode": {
+                          const liquidityPoolInstance = await hre.ethers.getContractAt(
+                            "ICompound",
+                            TOKEN_STRATEGY.strategy[0].contract,
+                          );
+                          const comptroller = await hre.ethers.getContractAt(
+                            "ICompound",
+                            await liquidityPoolInstance.comptroller(),
+                          );
+                          const rewardTokenInstance = await hre.ethers.getContractAt(
+                            "ERC20",
+                            await comptroller.getCompAddress(),
+                          );
+                          const balanceBefore = await rewardTokenInstance.balanceOf(contracts["vault"].address);
+                          const functionCodes = [];
+                          const iface = new utils.Interface(["function claimComp(address)"]);
+                          functionCodes.push(
+                            utils.defaultAbiCoder.encode(
+                              ["address", "bytes"],
+                              [
+                                await liquidityPoolInstance.comptroller(),
+                                iface.encodeFunctionData("claimComp", [contracts["vault"].address]),
+                              ],
+                            ),
+                          );
+                          if (action.expect === "success") {
+                            await contracts["vault"].connect(users[userIndex]).adminCall(functionCodes);
+                            expect(await rewardTokenInstance.balanceOf(contracts["vault"].address)).to.be.gt(
+                              balanceBefore,
+                            );
+                          } else {
+                            await expect(
+                              contracts["vault"].connect(users[userIndex]).adminCall(functionCodes),
+                            ).to.be.revertedWith(action.message);
+                          }
+                          break;
+                        }
+                        case "testInvalidCodes": {
+                          const functionCodes = [];
+                          const iface = new utils.Interface(["function invalid(address)"]);
+                          functionCodes.push(
+                            utils.defaultAbiCoder.encode(
+                              ["address", "bytes"],
+                              [
+                                TOKEN_STRATEGY.strategy[0].contract,
+                                iface.encodeFunctionData("invalid", [contracts["vault"].address]),
+                              ],
+                            ),
+                          );
+                          await expect(
+                            contracts["vault"].connect(users[userIndex]).adminCall(functionCodes),
+                          ).to.be.revertedWith(action.message);
                           break;
                         }
                       }
