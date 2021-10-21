@@ -1247,7 +1247,7 @@
         },
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetClaimRewardTokenCodes(address,address)",
+          "action": "testGetClaimRewardTokenCode(address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""

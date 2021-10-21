@@ -394,7 +394,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       );
                       break;
                     }
-                    case "testGetClaimRewardTokenCodes(address,address)": {
+                    case "testGetClaimRewardTokenCode(address,address)": {
                       rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](liquidityPool, compoundAdapter.address);
                       break;

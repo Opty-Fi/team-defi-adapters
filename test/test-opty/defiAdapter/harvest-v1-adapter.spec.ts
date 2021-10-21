@@ -166,7 +166,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
     users = { owner, admin, user1 };
     adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
-    harvestV1Adapter = await deployAdapter(hre, owner, "harvestV1Adapter", adapterPrerequisites.registry.address, true);
+    harvestV1Adapter = await deployAdapter(hre, owner, "HarvestV1Adapter", adapterPrerequisites.registry.address, true);
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
       params: [governance],
@@ -192,7 +192,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
     .map(t => getAddress(t));
   for (const adapterName of adapterNames) {
     // TODO: In future it can be leverage across all the adapters
-    if (adapterName == "harvestV1Adapter") {
+    if (adapterName == "HarvestV1Adapter") {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
@@ -391,7 +391,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     expect(unclaimedRewardTokenAmount).to.be.eq(expectedUnclaimedRewardTokenAmount);
                     break;
                   }
-                  case "testGetClaimRewardTokenCodes(address,address)": {
+                  case "testGetClaimRewardTokenCode(address,address)": {
                     rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                     await testDeFiAdapter[action.action](liquidityPool, harvestV1Adapter.address);
                     break;
