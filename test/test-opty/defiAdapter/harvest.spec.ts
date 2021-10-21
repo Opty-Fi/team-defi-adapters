@@ -187,7 +187,10 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
         const stakingVaultAddress = getAddress(TypedDefiPools[adapterName][pool].stakingVault!);
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
           for (const story of testDeFiAdapterScenario.stories) {
-            it(`${pool} - ${story.description}`, async () => {
+            it(`${pool} - ${story.description}`, async function () {
+              if (TypedDefiPools[adapterName][pool].deprecated! === true) {
+                this.skip();
+              }
               let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
