@@ -223,7 +223,7 @@ describe(scenario.title, () => {
                   let expectedAmount;
                   const uniswapRouterInstance = await hre.ethers.getContractAt(
                     IUniswapV2Router02.abi,
-                    CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                    UNISWAPV2_ROUTER02_ADDRESS,
                   );
                   let amounts;
                   let finalAmount;
