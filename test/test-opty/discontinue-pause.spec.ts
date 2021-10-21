@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { TypedAdapterStrategies } from "../../helpers/data";
+import { TypedAdapterStrategies, TypedTokens } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestStrategy,
@@ -24,6 +24,14 @@ type ARGUMENTS = {
   spender?: string;
   stakedOPTY?: string;
 };
+const tokenAddresses = [
+  TypedTokens.DAI,
+  TypedTokens.USDC,
+  TypedTokens.USDT,
+  TypedTokens.WBTC,
+  TypedTokens.WETH,
+  TypedTokens.SLP_WETH_USDC,
+];
 describe(scenario.title, () => {
   const MAX_AMOUNT = "10000";
   let essentialContracts: CONTRACTS;
@@ -36,7 +44,7 @@ describe(scenario.title, () => {
     try {
       [owner, admin] = await hre.ethers.getSigners();
       users = { owner, admin };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
+      [essentialContracts, adapters] = await setUp(users["owner"], tokenAddresses);
       contracts = { ...essentialContracts };
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
