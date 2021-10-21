@@ -5,7 +5,7 @@ import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
-import { TypedStrategies } from "../../helpers/data";
+import { TypedStrategies, TypedTokens } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   fundWalletToken,
@@ -37,6 +37,15 @@ type ARGUMENTS = {
   score?: number;
 };
 
+const tokenAddresses = [
+  TypedTokens.DAI,
+  TypedTokens.USDC,
+  TypedTokens.USDT,
+  TypedTokens.WBTC,
+  TypedTokens.WETH,
+  TypedTokens.SLP_WETH_USDC,
+];
+
 describe(scenario.title, () => {
   let essentialContracts: CONTRACTS;
   let adapters: CONTRACTS;
@@ -46,7 +55,7 @@ describe(scenario.title, () => {
   before(async () => {
     try {
       [operator, admin] = await hre.ethers.getSigners();
-      [essentialContracts, adapters] = await setUp(operator);
+      [essentialContracts, adapters] = await setUp(operator, tokenAddresses);
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
     } catch (error: any) {
