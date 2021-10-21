@@ -325,7 +325,7 @@
       "cleanActions": []
     },
     {
-      "description": "[getPoolHarvestSomeRewardCodes] Should harvest all reward tokens successfully.",
+      "description": "[getPoolHarvestSomeRewardCodes] Should harvest specific amount of reward tokens successfully.",
       "setActions": [
         {
           "contract": "adapter",
