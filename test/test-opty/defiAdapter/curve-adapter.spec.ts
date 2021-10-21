@@ -1,7 +1,7 @@
 import chai, { expect, assert } from "chai";
 import hre from "hardhat";
 import { solidity } from "ethereum-waffle";
-import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
+import { Contract, Signer, BigNumber, utils, ethers, BigNumberish } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../../helpers/type";
 import {
@@ -11,13 +11,14 @@ import {
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
   CURVE_SWAP_POOL_ADAPTER_NAME,
 } from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { ERC20 } from "../../../typechain/ERC20";
+import { to_10powNumber_BN } from "../../../helpers/utils";
 
 chai.use(solidity);
 
@@ -26,10 +27,10 @@ type ARGUMENTS = {
 };
 
 type TEST_DEFI_ADAPTER_ARGUMENTS = {
-  maxDepositProtocolPct?: number;
-  maxDepositPoolPct?: number;
-  maxDepositAmount?: number;
-  mode?: number;
+  maxDepositProtocolPct?: string;
+  maxDepositPoolPct?: string;
+  maxDepositAmount?: string;
+  mode?: string;
 };
 const curveAdapters: CONTRACTS = {};
 describe("CurveAdapters Unit test", () => {
@@ -252,9 +253,10 @@ describe("CurveAdapters Unit test", () => {
                       const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                       const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
                       if (existingMode != mode) {
-                        await expect(curveAdapters[curveAdapterName][action.action](mode))
-                          .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositProtocolMode")
-                          .withArgs(mode, ownerAddress);
+                        mode &&
+                          (await expect(curveAdapters[curveAdapterName][action.action](mode))
+                            .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositProtocolMode")
+                            .withArgs(+mode, ownerAddress));
                       }
                       break;
                     }
@@ -280,7 +282,7 @@ describe("CurveAdapters Unit test", () => {
                         underlyingTokenAddress,
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
+                      limitInUnderlyingToken = limit.div(to_10powNumber_BN(BigNumber.from("18").sub(decimals)));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
@@ -302,41 +304,37 @@ describe("CurveAdapters Unit test", () => {
                         underlyingTokenAddress,
                       );
                       limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                      limitInUnderlyingToken = limit.div(BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)));
+                      limitInUnderlyingToken = limit.div(to_10powNumber_BN(BigNumber.from("18").sub(decimals)));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
                         : limitInUnderlyingToken;
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
-                      // Note: for curve maxDepositAmount will be in USD or BTC
-                      const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
+                      let amount = BigNumber.from("0");
+                      const defaultFundAmountInToken: BigNumberish = defaultFundAmount.div(to_10powNumber_BN(decimals));
+                      if (maxDepositAmount === ">") {
+                        amount = defaultFundAmountInToken.mul(BigNumber.from("10")).mul(to_10powNumber_BN("18"));
+                      } else if (maxDepositAmount === "<") {
+                        amount = defaultFundAmountInToken.mul(to_10powNumber_BN("18")).div(BigNumber.from("10"));
+                      }
                       const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
                         liquidityPool,
                       );
-                      if (
-                        !existingDepositAmount.eq(
-                          BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
-                        )
-                      ) {
+                      if (!existingDepositAmount.eq(amount)) {
+                        // Note: for curve amount for maxDepositAmount will be in USD or BTC
                         await expect(
-                          curveAdapters[curveAdapterName][action.action](
-                            liquidityPool,
-                            underlyingTokenAddress,
-                            BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
-                          ),
+                          curveAdapters[curveAdapterName][action.action](liquidityPool, underlyingTokenAddress, amount),
                         )
                           .to.emit(curveAdapters[curveAdapterName], "LogMaxDepositAmount")
-                          .withArgs(
-                            BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(18))),
-                            ownerAddress,
-                          );
+                          .withArgs(amount, ownerAddress);
                       }
                       const updatedDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
                         liquidityPool,
                       );
                       limitInUnderlyingToken = BigNumber.from(updatedDepositAmount).div(
-                        BigNumber.from(10).pow(BigNumber.from(18).sub(decimals)),
+                        to_10powNumber_BN(BigNumber.from("18").sub(decimals)),
                       );
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
@@ -436,14 +434,12 @@ describe("CurveAdapters Unit test", () => {
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                        expectedValue == ">0"
+                        expectedValue == ">"
                           ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
                           : expect(underlyingBalanceAfter).to.be.eq(0);
                       } else {
-                        expect(underlyingBalanceAfter.div(BigNumber.from(10).pow(BigNumber.from(decimals)))).to.be.eq(
-                          underlyingBalanceBefore
-                            .sub(limitInUnderlyingToken)
-                            .div(BigNumber.from(10).pow(BigNumber.from(decimals))),
+                        expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.eq(
+                          underlyingBalanceBefore.sub(limitInUnderlyingToken).div(to_10powNumber_BN(decimals)),
                         );
                       }
                       break;
