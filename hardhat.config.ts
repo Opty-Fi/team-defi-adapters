@@ -95,7 +95,7 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   networks: {
-    staging: getCommonNetworkConfig(eEthereumNetwork.staging, chainIds.mainnet),
+    staging: getCommonNetworkConfig(eEthereumNetwork.staging, chainIds.ganache),
     localhost: {
       url: NETWORKS_RPC_URL[eEthereumNetwork.hardhat],
       chainId: chainIds.ganache,

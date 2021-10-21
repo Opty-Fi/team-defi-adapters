@@ -30,12 +30,15 @@ task(APPROVE_ERC20, "Approve erc20 Token")
       throw new Error("amount is invalid");
     }
 
-    const erc20Instance = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
-
-    await executeFunc(erc20Instance, owner, "approve(address,uint256)", [spender, amount]);
-
-    const allowance = await erc20Instance.allowance(await owner.getAddress(), spender);
-    console.log("Finish approve erc20");
-    console.log(`Spender : ${spender}`);
-    console.log(`Allowance : ${allowance}`);
+    try {
+      const erc20Instance = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.ERC20, token);
+      await executeFunc(erc20Instance, owner, "approve(address,uint256)", [spender, amount]);
+      const allowance = await erc20Instance.allowance(await owner.getAddress(), spender);
+      console.log("Finish approve erc20");
+      console.log(`Spender : ${spender}`);
+      console.log(`Allowance : ${allowance}`);
+    } catch (error) {
+      console.error(`${APPROVE_ERC20}: `, error);
+      throw error;
+    }
   });

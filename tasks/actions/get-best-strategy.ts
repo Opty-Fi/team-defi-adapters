@@ -33,11 +33,9 @@ task(GET_BEST_STRATEGY, "Get best strategy")
       throw new Error("risk profile is not available");
     }
 
-    const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
-
-    const tokensHash = generateTokenHash([token]);
-
     try {
+      const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
+      const tokensHash = generateTokenHash([token]);
       let strategyHash = "";
       if (isdefault) {
         strategyHash = await strategyProvider.rpToTokenToDefaultStrategy(riskprofile.toUpperCase(), tokensHash);
@@ -46,6 +44,7 @@ task(GET_BEST_STRATEGY, "Get best strategy")
       }
       console.log(`StrategyHash : ${strategyHash}`);
     } catch (error: any) {
-      console.log(`Got error : `, error.message);
+      console.error(`${GET_BEST_STRATEGY}: `, error);
+      throw error;
     }
   });

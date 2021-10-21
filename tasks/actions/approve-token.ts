@@ -34,7 +34,8 @@ task(APPROVE_TOKEN, "Approve Token")
         await approveAndSetTokenHashToToken(owner, registryContract, token);
         console.log(`Finished approving token: ${token}`);
       } catch (error) {
-        console.log(`Got error : ${error}`);
+        console.error(`${APPROVE_TOKEN}:`, error);
+        throw error;
       }
     }
   });

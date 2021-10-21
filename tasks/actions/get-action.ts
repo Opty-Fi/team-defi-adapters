@@ -30,15 +30,17 @@ task(GET_ACTION, "execute a get action in smart contract")
       throw new Error("functionabi cannot be empty");
     }
 
-    const convertedParams = params === "" ? [] : params.split(",");
-
-    const contract = <Contract>await hre.ethers.getContractAt(name, address);
-
-    const value = await contract[functionabi](...convertedParams);
-
-    console.log(`Action: ${functionabi}`);
-    if (convertedParams.length > 0) {
-      console.log(`Params : ${convertedParams}`);
+    try {
+      const convertedParams = params === "" ? [] : params.split(",");
+      const contract = <Contract>await hre.ethers.getContractAt(name, address);
+      const value = await contract[functionabi](...convertedParams);
+      console.log(`Action: ${functionabi}`);
+      if (convertedParams.length > 0) {
+        console.log(`Params : ${convertedParams}`);
+      }
+      console.log(`Returned Value : ${value}`);
+    } catch (error) {
+      console.error(`${GET_ACTION}: `, error);
+      throw error;
     }
-    console.log(`Returned Value : ${value}`);
   });
