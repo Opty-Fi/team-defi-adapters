@@ -18,6 +18,7 @@ import scenarios from "../scenarios/adapters.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import abis from "../../../helpers/data/abis.json";
+import { ERC20 } from "../../../typechain/ERC20";
 
 chai.use(solidity);
 
@@ -163,6 +164,8 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
   const adapterNames = Object.keys(TypedDefiPools);
   let testDeFiAdapter: Contract;
   let harvestAdapter: Contract;
+  const governance = getAddress("0xf00dD244228F51547f0563e60bCa65a30FBF5f7f");
+  const controller = getAddress("0x3cC47874dC50D98425ec79e647d83495637C55e3");
 
   before(async () => {
     const [owner, admin, user1] = await hre.ethers.getSigners();
@@ -170,6 +173,21 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
     adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, true);
     testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
     harvestAdapter = await deployAdapter(hre, owner, "HarvestAdapter", adapterPrerequisites.registry.address, true);
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [governance],
+    });
+    const harvestController = await hre.ethers.getContractAt(
+      "IHarvestController",
+      controller,
+      await hre.ethers.getSigner(governance),
+    );
+    await admin.sendTransaction({
+      to: governance,
+      value: hre.ethers.utils.parseEther("1000"),
+    });
+    await harvestController.addToWhitelist(testDeFiAdapter.address);
+    await harvestController.addCodeToWhitelist(testDeFiAdapter.address);
   });
 
   const ValidatedPairTokens = Object.values(TypedPairTokens)
@@ -184,6 +202,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
       const pools = Object.keys(TypedDefiPools[adapterName]);
       for (const pool of pools) {
         if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
+          const liquidityPool = TypedDefiPools[adapterName][pool].pool;
           for (const story of testDeFiAdapterScenario.stories) {
             it(`${pool} - ${story.description}`, async function () {
               if (TypedDefiPools[adapterName][pool].deprecated! === true) {
@@ -194,11 +213,10 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
               let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
-              const liquidityPool = TypedDefiPools[adapterName][pool].pool;
-              const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
+              const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
               const vaultInstance = await hre.ethers.getContractAt(abis.vault, liquidityPool);
               const stakingVaultInstance = await hre.ethers.getContractAt(abis.stakingVault, stakingVaultAddress);
-              const rewardTokenAddress = await harvestAdapter.getRewardToken(ADDRESS_ZERO);
+              const rewardTokenAddress = await harvestAdapter.getRewardToken(liquidityPool);
               let rewardTokenERC20Instance: Contract;
               if (rewardTokenAddress !== ADDRESS_ZERO) {
                 rewardTokenERC20Instance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
@@ -546,9 +564,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                   }
                   case "balanceOf(address)": {
                     const expectedValue = action.expectedValue;
-                    const underlyingBalanceAfter: BigNumber = await ERC20Instance[action.action](
-                      testDeFiAdapter.address,
-                    );
+                    const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"
                         ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
@@ -812,35 +828,6 @@ describe(`${testDeFiAdapterScenario.title} - HarvestAdapter`, () => {
                   case "canStake(address)": {
                     const canStake = await harvestAdapter[action.action](ADDRESS_ZERO);
                     expect(canStake).to.be.eq(true);
-                    break;
-                  }
-                  case "setRewardToken(address)": {
-                    if (action.expect == "success") {
-                      await harvestAdapter[action.action](TypedTokens.FARM);
-                    } else {
-                      await expect(
-                        harvestAdapter.connect(users[action.executer])[action.action](TypedTokens.FARM),
-                      ).to.be.revertedWith(action.message);
-                    }
-                    break;
-                  }
-                }
-              }
-              for (const action of story.getActions) {
-                switch (action.action) {
-                  case "getRewardToken(address)": {
-                    const _rewardTokenAddress = await harvestAdapter[action.action](ADDRESS_ZERO);
-                    expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.FARM));
-                    break;
-                  }
-                }
-              }
-              for (const action of story.cleanActions) {
-                switch (action.action) {
-                  case "setRewardToken(address)": {
-                    await harvestAdapter[action.action](TypedTokens.FARM);
-                    const _rewardTokenAddress = await harvestAdapter.getRewardToken(ADDRESS_ZERO);
-                    expect(getAddress(_rewardTokenAddress)).to.be.eq(getAddress(TypedTokens.FARM));
                     break;
                   }
                 }
