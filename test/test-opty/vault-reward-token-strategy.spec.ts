@@ -5,23 +5,24 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  setAndApproveVaultRewardToken,
+  approveAndSetTokenHashToTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/vault-reward-token-strategy.json";
-import { getContractInstance } from "../../helpers/helpers";
+import { generateTokenHash } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
+  underlyingTokens?: string[];
   amount?: { [key: string]: string };
   hold?: number;
   convert?: number;
@@ -66,16 +67,15 @@ describe(scenario.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const TOKEN_STRATEGY = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
             const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
               rewardTokenAdapterName.toLowerCase(),
             );
-            let investStrategyHash: any;
+            let investStrategyHash: string;
             let vaultRewardTokenHash: string;
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
-            let RewardToken_ERC20Instance: any;
-
+            let RewardToken_ERC20Instance: Contract;
+            let vaultRewardTokens: string[] = [];
             before(async () => {
               underlyingTokenName = await getTokenName(hre, TOKEN_STRATEGY.token);
               underlyingTokenSymbol = await getTokenSymbol(hre, TOKEN_STRATEGY.token);
@@ -94,17 +94,17 @@ describe(scenario.title, () => {
               await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await setAndApproveVaultRewardToken(
+                await approveAndSetTokenHashToTokens(
                   users["owner"],
-                  Vault.address,
-                  <string>REWARD_TOKENS[adapterName].tokenAddress,
                   essentialContracts.registry,
+                  [Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress],
+                  false,
                 );
-                RewardToken_ERC20Instance = await getContractInstance(
-                  hre,
+                RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                   "ERC20",
                   <string>REWARD_TOKENS[adapterName].tokenAddress,
                 );
+                vaultRewardTokens = [Vault.address, <string>REWARD_TOKENS[adapterName].tokenAddress];
               }
 
               await approveLiquidityPoolAndMapAdapter(
@@ -114,15 +114,16 @@ describe(scenario.title, () => {
                 TOKEN_STRATEGY.strategy[0].contract,
               );
 
-              investStrategyHash = await setBestBasicStrategy(
+              investStrategyHash = await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
-                tokensHash,
-                essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+                TOKENS[TOKEN_STRATEGY.token],
+                essentialContracts.investStrategyRegistry,
                 essentialContracts.strategyProvider,
                 profile,
+                false,
               );
 
-              const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+              const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
 
               contracts["vault"] = Vault;
               contracts["registry"] = essentialContracts.registry;
@@ -144,10 +145,10 @@ describe(scenario.title, () => {
                       try {
                         if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
                           if (Array.isArray(vaultRewardStrategy) && vaultRewardStrategy.length > 0) {
-                            vaultRewardTokenHash = getSoliditySHA3Hash(
-                              ["address[]"],
-                              [[Vault.address, REWARD_TOKENS[adapterName].tokenAddress]],
-                            );
+                            vaultRewardTokenHash = generateTokenHash([
+                              Vault.address,
+                              REWARD_TOKENS[adapterName].tokenAddress as string,
+                            ]);
                             await contracts[action.contract]
                               .connect(users[action.executer])
                               [action.action](
@@ -160,12 +161,12 @@ describe(scenario.title, () => {
                             expect([+value[0]._hex, +value[1]._hex]).to.have.members(vaultRewardStrategy);
                           }
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }
@@ -186,12 +187,12 @@ describe(scenario.title, () => {
                             timestamp,
                           );
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }
@@ -207,12 +208,12 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](contracts[addressName].address, amount[TOKEN_STRATEGY.token]);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }
@@ -227,12 +228,12 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](investStrategyHash);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }
@@ -250,12 +251,12 @@ describe(scenario.title, () => {
                             .connect(users[action.executer])
                             [action.action](amount[TOKEN_STRATEGY.token]);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }
@@ -267,7 +268,25 @@ describe(scenario.title, () => {
                 for (let j = 0; j < story.getActions.length; j++) {
                   const action = story.getActions[j];
                   switch (action.action) {
-                    case "getVaultRewardTokenStrategy(bytes32)":
+                    case "getVaultRewardTokenStrategy(address[])": {
+                      if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
+                        const { underlyingTokens }: ARGUMENTS = action.args;
+                        const { vaultRewardStrategy }: EXPECTED_ARGUMENTS = action.expectedValue;
+                        if (action.expect === "success") {
+                          const value = await contracts[action.contract][action.action](
+                            underlyingTokens ? underlyingTokens : vaultRewardTokens,
+                          );
+                          expect([+value[0]._hex, +value[1]._hex]).to.have.members(<number[]>vaultRewardStrategy);
+                        } else {
+                          await expect(
+                            contracts[action.contract][action.action](
+                              underlyingTokens ? underlyingTokens : vaultRewardTokens,
+                            ),
+                          ).to.be.revertedWith(action.message);
+                        }
+                      }
+                      break;
+                    }
                     case "vaultRewardTokenHashToVaultRewardTokenStrategy(bytes32)": {
                       const { vaultRewardTokenInvalidHash }: ARGUMENTS = action.args;
                       const { vaultRewardStrategy }: EXPECTED_ARGUMENTS = action.expectedValue;
@@ -278,12 +297,12 @@ describe(scenario.title, () => {
                           );
                           expect([+value[0]._hex, +value[1]._hex]).to.have.members(<number[]>vaultRewardStrategy);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         if (action.expect === "success") {
                           assert.isUndefined(error);
                         } else {
                           expect(error.message).to.equal(
-                            `VM Exception while processing transaction: revert ${action.message}`,
+                            `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                           );
                         }
                       }

@@ -1,6 +1,7 @@
 {
   "title": "Gas fees owed to operator",
   "description": "Test cases for gas fees owed to operator in Vault contracts",
+  "usedTokens": ["dai"],
   "stories": [
     {
       "description": "Gas owed to operator should be reset to zero when the operator rebalances again",
@@ -9,7 +10,7 @@
           "contract": "",
           "action": "fundWallet",
           "args": {
-            "amount": "1500000000000000000000"
+            "amount": "1000"
           },
           "executor": "operator",
           "expect": "success",
@@ -20,7 +21,7 @@
           "action": "approve(address,uint256)",
           "args": {
             "contractName": "vault",
-            "amount": "1500000000000000000000"
+            "amount": "1000"
           },
           "executor": "operator",
           "expect": "success",
@@ -29,9 +30,7 @@
         {
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
-          "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C"
-          },
+          "args": {},
           "executor": "",
           "expect": "success",
           "message": ""
@@ -39,11 +38,16 @@
         {
           "contract": "registry",
           "action": "setLiquidityPoolToAdapter(address,address)",
-          "args": {
-            "liquidityPool": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-            "adapterName": "HarvestAdapter"
-          },
+          "args": {},
           "executor": "operator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "investStrategyRegistry",
+          "action": "setStrategy(bytes32,(address,address,bool)[])",
+          "args": {},
+          "executor": "",
           "expect": "success",
           "message": ""
         },
@@ -51,25 +55,7 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
             "score": 1
-          },
-          "executor": "",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
           },
           "executor": "",
           "expect": "success",
@@ -78,17 +64,7 @@
         {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "executor": "",
           "expect": "success",
           "message": ""
@@ -97,7 +73,7 @@
           "contract": "vault",
           "action": "userDeposit(uint256)",
           "args": {
-            "amount": "1500000000000000000000"
+            "amount": "1000"
           },
           "executor": "operator",
           "expect": "success",
@@ -113,9 +89,7 @@
         {
           "contract": "registry",
           "action": "approveLiquidityPool(address)",
-          "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"
-          },
+          "args": {},
           "executor": "operator",
           "expect": "success",
           "message": ""
@@ -123,11 +97,16 @@
         {
           "contract": "registry",
           "action": "setLiquidityPoolToAdapter(address,address)",
-          "args": {
-            "liquidityPool": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-            "adapterName": "CompoundAdapter"
-          },
+          "args": {},
           "executor": "operator",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "investStrategyRegistry",
+          "action": "setStrategy(bytes32,(address,address,bool)[])",
+          "args": {},
+          "executor": "",
           "expect": "success",
           "message": ""
         },
@@ -135,7 +114,6 @@
           "contract": "registry",
           "action": "rateLiquidityPool(address,uint8)",
           "args": {
-            "token": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
             "score": 2
           },
           "executor": "operator",
@@ -143,36 +121,9 @@
           "message": ""
         },
         {
-          "contract": "vaultStepInvestStrategyDefinitionRegistry",
-          "action": "setStrategy(bytes32,(address,address,bool)[])",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-          },
-          "executor": "",
-          "expect": "success",
-          "message": ""
-        },
-        {
           "contract": "strategyProvider",
           "action": "setBestStrategy(string,bytes32,bytes32)",
-          "args": {
-            "strategy": [
-              {
-                "contract": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "outputToken": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
-                "isBorrow": false
-              }
-            ],
-            "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-            "riskProfile": "RP1"
-          },
+          "args": {},
           "executor": "operator",
           "expect": "success",
           "message": ""

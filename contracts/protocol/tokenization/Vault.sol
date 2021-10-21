@@ -407,6 +407,9 @@ contract Vault is
             IStrategyManager(_vaultStrategyConfiguration.strategyManager).getRewardToken(_investStrategyHash);
         if (_rewardToken != address(0)) {
             // means rewards exists
+            address[] memory _vaultRewardTokens = new address[](2);
+            _vaultRewardTokens[0] = address(this);
+            _vaultRewardTokens[1] = _rewardToken;
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolClaimAllRewardCodes(
                     payable(address(this)),
@@ -420,7 +423,7 @@ contract Vault is
                     underlyingToken,
                     _investStrategyHash,
                     IRiskManager(_vaultStrategyConfiguration.riskManager).getVaultRewardTokenStrategy(
-                        keccak256(abi.encodePacked([address(this), _rewardToken]))
+                        _vaultRewardTokens
                     )
                 ),
                 "!harvest"
@@ -710,11 +713,8 @@ contract Vault is
      * @param _b value
      * @return _result absolute difference between _a and _b
      */
-    function _abs(uint256 _a, uint256 _b) internal pure returns (uint256 _result) {
-        if (_a > _b) {
-            _result = _a.sub(_b);
-        }
-        _result = _b.sub(_a);
+    function _abs(uint256 _a, uint256 _b) internal pure returns (uint256) {
+        return _a > _b ? _a.sub(_b) : _b.sub(_a);
     }
 
     /**

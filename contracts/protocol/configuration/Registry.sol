@@ -48,15 +48,10 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function setVaultStepInvestStrategyDefinitionRegistry(address _vaultStepInvestStrategyDefinitionRegistry)
-        external
-        override
-        onlyOperator
-        returns (bool)
-    {
-        require(_vaultStepInvestStrategyDefinitionRegistry != address(0), "!address(0)");
-        require(_vaultStepInvestStrategyDefinitionRegistry.isContract(), "!isContract");
-        vaultStepInvestStrategyDefinitionRegistry = _vaultStepInvestStrategyDefinitionRegistry;
+    function setInvestStrategyRegistry(address _investStrategyRegistry) external override onlyOperator returns (bool) {
+        require(_investStrategyRegistry != address(0), "!address(0)");
+        require(_investStrategyRegistry.isContract(), "!isContract");
+        investStrategyRegistry = _investStrategyRegistry;
         return true;
     }
 
@@ -65,6 +60,7 @@ contract Registry is IRegistry, ModifiersController {
      */
     function setAPROracle(address _aprOracle) external override onlyOperator returns (bool) {
         require(_aprOracle != address(0), "!address(0)");
+        require(_aprOracle.isContract(), "!isContract");
         aprOracle = _aprOracle;
         return true;
     }
@@ -364,13 +360,35 @@ contract Registry is IRegistry, ModifiersController {
         external
         override
         onlyFinanceOperator
-        returns (bool _success)
+        returns (bool)
     {
         require(_vault != address(0), "!address(0)");
         require(_vault.isContract(), "!isContract");
-        require(_withdrawalFee >= 0 && _withdrawalFee <= 10000, "!BasisRange");
+        require(
+            _withdrawalFee >= withdrawalFeeRange.lowerLimit && _withdrawalFee <= withdrawalFeeRange.upperLimit,
+            "!BasisRange"
+        );
         vaultToVaultConfiguration[_vault].withdrawalFee = _withdrawalFee;
-        _success = true;
+        return true;
+    }
+
+    /**
+     * @inheritdoc IRegistry
+     */
+    function setWithdrawalFeeRange(DataTypes.WithdrawalFeeRange memory _withdrawalFeeRange)
+        external
+        override
+        onlyFinanceOperator
+        returns (bool)
+    {
+        require(
+            _withdrawalFeeRange.lowerLimit >= 0 &&
+                _withdrawalFeeRange.lowerLimit < _withdrawalFeeRange.upperLimit &&
+                _withdrawalFeeRange.upperLimit <= 10000,
+            "!BasisRange"
+        );
+        withdrawalFeeRange = _withdrawalFeeRange;
+        return true;
     }
 
     /**
@@ -429,6 +447,7 @@ contract Registry is IRegistry, ModifiersController {
      */
     function discontinue(address _vault) external override onlyOperator returns (bool) {
         require(_vault != address(0), "!address(0)");
+        require(_vault.isContract(), "!isContract");
         vaultToVaultConfiguration[_vault].discontinued = true;
         IVault(_vault).discontinue();
         emit LogDiscontinueVault(_vault, vaultToVaultConfiguration[_vault].discontinued, msg.sender);
@@ -440,6 +459,7 @@ contract Registry is IRegistry, ModifiersController {
      */
     function unpauseVaultContract(address _vault, bool _unpaused) external override onlyOperator returns (bool) {
         require(_vault != address(0), "!address(0)");
+        require(_vault.isContract(), "!isContract");
         vaultToVaultConfiguration[_vault].unpaused = _unpaused;
         IVault(_vault).setUnpaused(vaultToVaultConfiguration[_vault].unpaused);
         emit LogUnpauseVault(_vault, vaultToVaultConfiguration[_vault].unpaused, msg.sender);
@@ -533,41 +553,36 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getVaultConfiguration(address _vault)
-        public
-        view
-        override
-        returns (DataTypes.VaultConfiguration memory _vaultConfiguration)
-    {
-        _vaultConfiguration = vaultToVaultConfiguration[_vault];
+    function getVaultConfiguration(address _vault) public view override returns (DataTypes.VaultConfiguration memory) {
+        return vaultToVaultConfiguration[_vault];
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getVaultStepInvestStrategyDefinitionRegistry() public view override returns (address) {
-        return vaultStepInvestStrategyDefinitionRegistry;
+    function getInvestStrategyRegistry() public view override returns (address) {
+        return investStrategyRegistry;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTokensHashIndexByHash(bytes32 _tokensHash) public view override returns (uint256 _index) {
-        _index = tokensHashToTokens[_tokensHash].index;
+    function getTokensHashIndexByHash(bytes32 _tokensHash) public view override returns (uint256) {
+        return tokensHashToTokens[_tokensHash].index;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function getTokensHashByIndex(uint256 _index) public view override returns (bytes32 _tokensHash) {
-        _tokensHash = tokensHashIndexes[_index];
+    function getTokensHashByIndex(uint256 _index) public view override returns (bytes32) {
+        return tokensHashIndexes[_index];
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function isApprovedToken(address _token) public view override returns (bool _isTokenApproved) {
-        _isTokenApproved = tokens[_token];
+    function isApprovedToken(address _token) public view override returns (bool) {
+        return tokens[_token];
     }
 
     /**
@@ -598,9 +613,9 @@ contract Registry is IRegistry, ModifiersController {
         public
         view
         override
-        returns (DataTypes.RiskProfile memory _riskProfile)
+        returns (DataTypes.RiskProfile memory)
     {
-        _riskProfile = riskProfiles[_riskProfileName];
+        return riskProfiles[_riskProfileName];
     }
 
     /**
@@ -676,13 +691,8 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getLiquidityPool(address _pool)
-        public
-        view
-        override
-        returns (DataTypes.LiquidityPool memory _liquidityPool)
-    {
-        _liquidityPool = liquidityPools[_pool];
+    function getLiquidityPool(address _pool) public view override returns (DataTypes.LiquidityPool memory) {
+        return liquidityPools[_pool];
     }
 
     /**
@@ -694,7 +704,7 @@ contract Registry is IRegistry, ModifiersController {
         override
         returns (DataTypes.StrategyConfiguration memory _strategyConfiguration)
     {
-        _strategyConfiguration.vaultStepInvestStrategyDefinitionRegistry = vaultStepInvestStrategyDefinitionRegistry;
+        _strategyConfiguration.investStrategyRegistry = investStrategyRegistry;
         _strategyConfiguration.strategyProvider = strategyProvider;
         _strategyConfiguration.aprOracle = aprOracle;
     }
@@ -718,8 +728,8 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function getLiquidityPoolToAdapter(address _pool) public view override returns (address _adapter) {
-        _adapter = liquidityPoolToAdapter[_pool];
+    function getLiquidityPoolToAdapter(address _pool) public view override returns (address) {
+        return liquidityPoolToAdapter[_pool];
     }
 
     /**
@@ -731,7 +741,7 @@ contract Registry is IRegistry, ModifiersController {
 
     function _approveToken(address _token) internal returns (bool) {
         require(_token != address(0), "!address(0)");
-        require(address(_token).isContract(), "!isContract");
+        require(_token.isContract(), "!isContract");
         require(!tokens[_token], "!tokens");
         tokens[_token] = true;
         emit LogToken(_token, tokens[_token], msg.sender);
@@ -747,7 +757,7 @@ contract Registry is IRegistry, ModifiersController {
 
     function _approveLiquidityPool(address _pool) internal returns (bool) {
         require(_pool != address(0), "!address(0)");
-        require(address(_pool).isContract(), "!isContract");
+        require(_pool.isContract(), "!isContract");
         require(!liquidityPools[_pool].isLiquidityPool, "!liquidityPools");
         liquidityPools[_pool].isLiquidityPool = true;
         emit LogLiquidityPool(_pool, liquidityPools[_pool].isLiquidityPool, msg.sender);
@@ -770,7 +780,7 @@ contract Registry is IRegistry, ModifiersController {
 
     function _approveCreditPool(address _pool) internal returns (bool) {
         require(_pool != address(0), "!address(0)");
-        require(address(_pool).isContract(), "!isContract");
+        require(_pool.isContract(), "!isContract");
         require(!creditPools[_pool].isLiquidityPool, "!creditPools");
         creditPools[_pool].isLiquidityPool = true;
         emit LogCreditPool(_pool, creditPools[_pool].isLiquidityPool, msg.sender);
@@ -795,7 +805,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_adapter.isContract(), "!_adapter.isContract()");
         require(liquidityPools[_pool].isLiquidityPool || creditPools[_pool].isLiquidityPool, "!liquidityPools");
         liquidityPoolToAdapter[_pool] = _adapter;
-        emit LogLiquidityPoolToDepositToken(_pool, _adapter, msg.sender);
+        emit LogLiquidityPoolToAdapter(_pool, _adapter, msg.sender);
         return true;
     }
 
@@ -822,7 +832,7 @@ contract Registry is IRegistry, ModifiersController {
         require(_underlyingAssetHash != Constants.ZERO_BYTES32, "!underlyingAssetHash");
         require(bytes(_riskProfile).length > 0, "RP_empty.");
         require(_vault != address(0), "!address(0)");
-        require(address(_vault).isContract(), "!isContract");
+        require(_vault.isContract(), "!isContract");
         require(riskProfiles[_riskProfile].exists, "!RP");
         underlyingAssetHashToRPToVaults[_underlyingAssetHash][_riskProfile] = _vault;
         emit LogUnderlyingAssetHashToRPToVaults(_underlyingAssetHash, _riskProfile, _vault, msg.sender);

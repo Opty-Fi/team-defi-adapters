@@ -1,9 +1,9 @@
 import { task, types } from "hardhat/config";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
-import { getContractInstance, isAddress } from "../../helpers/helpers";
+import { isAddress, generateTokenHash } from "../../helpers/helpers";
 import { ESSENTIAL_CONTRACTS, RISK_PROFILES } from "../../helpers/constants";
+import { SET_BEST_STRATEGY } from "../task-names";
 
-task("set-best-strategy", "Set best strategy")
+task(SET_BEST_STRATEGY, "Set best strategy")
   .addParam("token", "the address of token", "", types.string)
   .addParam("riskprofile", "risk profile", "", types.string)
   .addParam("strategyhash", "the keccak256 hash of strategy", "", types.string)
@@ -38,11 +38,10 @@ task("set-best-strategy", "Set best strategy")
       throw new Error("strategyhash cannot be empty");
     }
 
-    const strategyProvider = await getContractInstance(hre, ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
-
-    const tokensHash = getSoliditySHA3Hash(["address[]"], [[token]]);
-
     try {
+      const strategyProvider = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.STRATEGY_PROVIDER, strategyprovider);
+      const tokensHash = generateTokenHash([token]);
+      console.log(`Invest step strategy Hash : ${strategyhash}`);
       if (isdefault) {
         await strategyProvider.setBestDefaultStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
         console.log(`Set best default strategy successfully`);
@@ -50,8 +49,8 @@ task("set-best-strategy", "Set best strategy")
         await strategyProvider.setBestStrategy(riskprofile.toUpperCase(), tokensHash, strategyhash);
         console.log(`Set best strategy successfully`);
       }
-    } catch (error) {
-      console.log(`Got error : `, error.message);
+      console.log("Finished setting best strategy");
+    } catch (error: any) {
+      console.error(`${SET_BEST_STRATEGY}: `, error);
     }
-    console.log("Finished setting best strategy");
   });

@@ -5,10 +5,10 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
+import { generateTokenHash } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -17,6 +17,7 @@ import {
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/hold-tokens-sh-0x0.json";
+
 type ARGUMENTS = {
   amount?: { [key: string]: string };
   riskProfile?: string;
@@ -54,14 +55,14 @@ describe(scenarios.title, () => {
       const profile = vault.profile;
       const stories = vault.stories;
       const adaptersName = Object.keys(TypedAdapterStrategies);
+
       for (let i = 0; i < adaptersName.length; i++) {
         const adapterName = adaptersName[i];
         const strategies = TypedAdapterStrategies[adaptersName[i]];
-
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[strategy.token]]]);
+            const tokensHash = generateTokenHash([TOKENS[strategy.token]]);
             let bestStrategyHash: string;
             let vaultRiskProfile: string;
             const contracts: CONTRACTS = {};
@@ -89,12 +90,13 @@ describe(scenarios.title, () => {
                   strategy.strategy[0].contract,
                 );
                 vaultRiskProfile = await Vault.profile();
-                bestStrategyHash = await setBestBasicStrategy(
+                bestStrategyHash = await setBestStrategy(
                   strategy.strategy,
-                  tokensHash,
-                  essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+                  TOKENS[strategy.token],
+                  essentialContracts.investStrategyRegistry,
                   essentialContracts.strategyProvider,
                   vaultRiskProfile,
+                  false,
                 );
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 await fundWalletToken(
@@ -171,8 +173,9 @@ describe(scenarios.title, () => {
                       break;
                     }
                     case "balance()": {
-                      const balance = await contracts[action.contract][action.action]();
-                      expect(balance).to.equal(action.expectedValue[<keyof typeof action.expectedValue>strategy.token]);
+                      expect(await contracts[action.contract][action.action]()).to.equal(
+                        action.expectedValue[<keyof typeof action.expectedValue>strategy.token],
+                      );
                       break;
                     }
                     case "userWithdrawRebalance(uint256)": {

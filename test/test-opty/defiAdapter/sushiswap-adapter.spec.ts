@@ -1,4 +1,5 @@
-import { expect, assert } from "chai";
+import chai, { expect, assert } from "chai";
+import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
@@ -6,6 +7,8 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, SUSHISWAP_ADAPTER_NAME } from "../../.
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import scenarios from "../scenarios/adapters.json";
+
+chai.use(solidity);
 
 type ARGUMENTS = {
   amount?: { [key: string]: string };
@@ -48,18 +51,18 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
           for (let i = 0; i < story.actions.length; i++) {
             const action = story.actions[i];
             switch (action.action) {
-              case "getDepositSomeCodes(address,address[],address,uint256[])":
-              case "getDepositAllCodes(address,address[],address)": {
+              case "getDepositSomeCodes(address,address,address,uint256)":
+              case "getDepositAllCodes(address,address,address)": {
                 let codes;
                 let depositAmount;
-                if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], masterChef, [amount[strategy.token]]);
+                    codes = await adapter[action.action](ownerAddress, token, masterChef, amount[strategy.token]);
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], masterChef);
+                  codes = await adapter[action.action](ownerAddress, token, masterChef);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -68,7 +71,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     expect(address).to.equal(token);
                     const value = inter.decodeFunctionData("approve", abiCode);
                     expect(value[0]).to.equal(strategy.strategy[0].contract);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[1]).to.equal(i === 0 ? 0 : depositAmount);
                     }
                   } else {
@@ -76,7 +79,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                     expect(address).to.equal(masterChef);
                     const value = inter.decodeFunctionData("deposit", abiCode);
-                    if (action.action === "getDepositSomeCodes(address,address[],address,uint256[])") {
+                    if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                       expect(value[0]).to.equal(1);
                       expect(value[1]).to.equal(depositAmount);
                     }
@@ -84,18 +87,18 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 }
                 break;
               }
-              case "getWithdrawAllCodes(address,address[],address)":
-              case "getWithdrawSomeCodes(address,address[],address,uint256)": {
+              case "getWithdrawAllCodes(address,address,address)":
+              case "getWithdrawSomeCodes(address,address,address,uint256)": {
                 let codes;
                 let withdrawAmount;
-                if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await adapter[action.action](ownerAddress, [token], masterChef, amount[strategy.token]);
+                    codes = await adapter[action.action](ownerAddress, token, masterChef, amount[strategy.token]);
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await adapter[action.action](ownerAddress, [token], masterChef);
+                  codes = await adapter[action.action](ownerAddress, token, masterChef);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -103,7 +106,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                   const [address, abiCode] = utils.defaultAbiCoder.decode(["address", "bytes"], codes[i]);
                   expect(address).to.be.equal(masterChef);
                   const value = inter.decodeFunctionData("withdraw", abiCode);
-                  if (action.action === "getWithdrawSomeCodes(address,address[],address,uint256)") {
+                  if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                     expect(value[0]).to.equal(1);
                     expect(value[1]).to.equal(withdrawAmount);
                   }

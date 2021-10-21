@@ -3,20 +3,25 @@ import { config as dotenvConfig } from "dotenv";
 import { resolve } from "path";
 import path from "path";
 import fs from "fs";
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
-import "hardhat-watcher";
 import "solidity-coverage";
-import "hardhat-deploy";
 import "hardhat-docgen";
-import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, eEthereumNetwork } from "./helper-hardhat-config";
+import "hardhat-deploy";
+import {
+  NETWORKS_RPC_URL,
+  NETWORKS_DEFAULT_GAS,
+  eEthereumNetwork,
+  CURRENT_BLOCK_NUMBER,
+} from "./helper-hardhat-config";
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
 const DEFAULT_BLOCK_GAS_LIMIT = 0x1fffffffffffff;
 const DEFAULT_GAS_MUL = 5;
-const HARDFORK = "istanbul";
+const HARDFORK = "london";
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 
 if (!SKIP_LOAD) {
@@ -44,10 +49,10 @@ const chainIds = {
 
 // Ensure that we have all the environment variables we need.
 let mnemonic: string;
-if (!process.env.MY_METAMASK_MNEMONIC) {
+if (!process.env.MNEMONIC) {
   throw new Error("Please set your MNEMONIC in a .env file");
 } else {
-  mnemonic = process.env.MY_METAMASK_MNEMONIC as string;
+  mnemonic = process.env.MNEMONIC as string;
 }
 
 let chainstackMainnetUrl: string;
@@ -79,6 +84,11 @@ const buidlerConfig: HardhatUserConfig = {
     settings: {
       optimizer: { enabled: true, runs: 200 },
       evmVersion: "istanbul",
+      outputSelection: {
+        "*": {
+          "*": ["storageLayout"],
+        },
+      },
     },
   },
   etherscan: {
@@ -92,19 +102,20 @@ const buidlerConfig: HardhatUserConfig = {
     },
     kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, chainIds.kovan),
     hardhat: {
+      initialBaseFeePerGas: 1_00_000_000,
+      gasPrice: "auto",
       forking: {
-        blockNumber: 12200321,
+        blockNumber: CURRENT_BLOCK_NUMBER,
         url: chainstackMainnetUrl,
       },
       allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff,
       chainId: chainIds.ganache,
       accounts: {
         mnemonic,
         path: MNEMONIC_PATH,
         initialIndex: 0,
         count: 20,
-        accountsBalance: "10000000000000000000000000",
+        accountsBalance: "1000000000000000000000000000",
       },
     },
   },
@@ -124,35 +135,6 @@ const buidlerConfig: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API,
     excludeContracts: [],
     src: "./contracts",
-  },
-  watcher: {
-    compilation: {
-      tasks: ["compile"],
-      files: ["./contracts"],
-      verbose: true,
-    },
-    ci: {
-      tasks: [
-        "clean",
-        {
-          command: "compile",
-          params: {
-            quiet: true,
-          },
-        },
-        {
-          command: "test",
-          params: {
-            noCompile: true,
-            testFiles: ["test/test-opty/*.spec.ts"],
-          },
-        },
-      ],
-    },
-    test: {
-      tasks: ["test"],
-      files: ["./contracts", "./test/test-opty/invest-limitation.spec.ts"],
-    },
   },
   docgen: {
     path: "./specification_docs",

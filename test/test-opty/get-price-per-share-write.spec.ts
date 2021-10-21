@@ -5,20 +5,18 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
   getTokenName,
   getTokenSymbol,
-  setAndApproveVaultRewardToken,
+  approveAndSetTokenHashToTokens,
   unpauseVault,
 } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/get-price-per-share-write.json";
-import { getContractInstance } from "../../helpers/helpers";
 
 type ARGUMENTS = {
   addressName?: string;
@@ -58,7 +56,6 @@ describe(scenario.title, () => {
       for (let i = 0; i < strategies.length; i++) {
         describe(`${strategies[i].strategyName}`, async () => {
           const TOKEN_STRATEGY = strategies[i];
-          const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[TOKEN_STRATEGY.token]]]);
           const rewardTokenAdapterNames = Object.keys(REWARD_TOKENS).map(rewardTokenAdapterName =>
             rewardTokenAdapterName.toLowerCase(),
           );
@@ -84,14 +81,13 @@ describe(scenario.title, () => {
             await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
             if (rewardTokenAdapterNames.includes(ADAPTER_NAME.toLowerCase())) {
-              await setAndApproveVaultRewardToken(
+              await approveAndSetTokenHashToTokens(
                 users["owner"],
-                Vault.address,
-                <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
                 essentialContracts.registry,
+                [Vault.address, <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress],
+                false,
               );
-              RewardToken_ERC20Instance = await getContractInstance(
-                hre,
+              RewardToken_ERC20Instance = await hre.ethers.getContractAt(
                 "ERC20",
                 <string>REWARD_TOKENS[ADAPTER_NAME].tokenAddress,
               );
@@ -104,15 +100,16 @@ describe(scenario.title, () => {
               TOKEN_STRATEGY.strategy[0].contract,
             );
 
-            await setBestBasicStrategy(
+            await setBestStrategy(
               TOKEN_STRATEGY.strategy,
-              tokensHash,
-              essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+              TOKENS[TOKEN_STRATEGY.token],
+              essentialContracts.investStrategyRegistry,
               essentialContracts.strategyProvider,
               profile,
+              false,
             );
 
-            const Token_ERC20Instance = await getContractInstance(hre, "ERC20", TOKENS[TOKEN_STRATEGY.token]);
+            const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
             contracts["vault"] = Vault;
             contracts["registry"] = essentialContracts.registry;
             contracts["tokenErc20"] = Token_ERC20Instance;
@@ -141,12 +138,12 @@ describe(scenario.title, () => {
                           timestamp,
                         );
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
                         expect(error.message).to.equal(
-                          `VM Exception while processing transaction: revert ${action.message}`,
+                          `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                         );
                       }
                     }
@@ -162,12 +159,12 @@ describe(scenario.title, () => {
                           .connect(users[action.executer])
                           [action.action](contracts[addressName].address, amount[TOKEN_STRATEGY.token]);
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
                         expect(error.message).to.equal(
-                          `VM Exception while processing transaction: revert ${action.message}`,
+                          `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                         );
                       }
                     }
@@ -183,12 +180,12 @@ describe(scenario.title, () => {
                           .connect(users[action.executer])
                           [action.action](amount[TOKEN_STRATEGY.token]);
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
                         expect(error.message).to.equal(
-                          `VM Exception while processing transaction: revert ${action.message}`,
+                          `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                         );
                       }
                     }
@@ -201,12 +198,12 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action]();
                       await pricePerShare.wait();
-                    } catch (error) {
+                    } catch (error: any) {
                       if (action.expect === "success") {
                         assert.isUndefined(error);
                       } else {
                         expect(error.message).to.equal(
-                          `VM Exception while processing transaction: revert ${action.message}`,
+                          `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                         );
                       }
                     }
@@ -218,8 +215,7 @@ describe(scenario.title, () => {
                 const action = story.getActions[j];
                 switch (action.action) {
                   case "pricePerShareWrite()": {
-                    const balance = await contracts[action.contract][action.action]();
-                    expect(balance).to.be.gt(0);
+                    expect(+(await contracts[action.contract][action.action]())).to.be.gt(0);
                     break;
                   }
                 }

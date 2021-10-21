@@ -2,32 +2,50 @@ import { task, types } from "hardhat/config";
 
 import { CONTRACTS } from "../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../helpers/contracts-deployments";
-import { approveLiquidityPoolAndMapAdapters, approveTokens, approveToken } from "../helpers/contracts-actions";
 import { insertContractIntoDB } from "../helpers/db";
 import { TESTING_CONTRACTS } from "../helpers/constants";
 import { deployContract } from "../helpers/helpers";
+import {
+  APPROVE_TOKEN,
+  APPROVE_TOKENS,
+  DEPLOY_VAULT,
+  DEPLOY_VAULTS,
+  MAP_LIQUIDITYPOOLS_ADAPTER,
+  SETUP,
+  SET_STRATEGIES,
+} from "./task-names";
 
-task("setup", "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
+task(SETUP, "Deploy infrastructure, adapter and vault contracts and setup all necessary actions")
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {
     console.log(`\tDeploying Infrastructure contracts ...`);
     const [owner] = await hre.ethers.getSigners();
-    const essentialContracts: CONTRACTS = await deployEssentialContracts(hre, owner, deployedonce);
-    const essentialContractNames = Object.keys(essentialContracts);
-    for (let i = 0; i < essentialContractNames.length; i++) {
-      console.log(
-        `${essentialContractNames[i].toUpperCase()} address : ${essentialContracts[essentialContractNames[i]].address}`,
-      );
-      if (insertindb) {
-        const err = await insertContractIntoDB(
-          essentialContractNames[i],
-          essentialContracts[essentialContractNames[i]].address,
+    let essentialContracts: CONTRACTS;
+
+    try {
+      essentialContracts = await deployEssentialContracts(hre, owner, deployedonce);
+      const essentialContractNames = Object.keys(essentialContracts);
+      for (let i = 0; i < essentialContractNames.length; i++) {
+        console.log(
+          `${essentialContractNames[i].toUpperCase()} address : ${
+            essentialContracts[essentialContractNames[i]].address
+          }`,
         );
-        if (err !== "") {
-          console.log(err);
+        if (insertindb) {
+          const err = await insertContractIntoDB(
+            essentialContractNames[i],
+            essentialContracts[essentialContractNames[i]].address,
+          );
+          if (err !== "") {
+            console.log(err);
+          }
         }
       }
+      console.log("********************");
+    } catch (error) {
+      console.error(`deployEssentialContracts: `, error);
+      throw error;
     }
     console.log(`\tDeploying Adapter contracts ...`);
     const adaptersContracts: CONTRACTS = await deployAdapters(
@@ -51,15 +69,32 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
         }
       }
     }
-    await approveTokens(owner, essentialContracts["registry"]);
-    await approveLiquidityPoolAndMapAdapters(owner, essentialContracts["registry"], adaptersContracts);
+    console.log("********************");
+    console.log(`\tApproving Tokens...`);
 
-    await hre.run("set-strategies", {
-      strategyregistry: essentialContracts["vaultStepInvestStrategyDefinitionRegistry"].address,
+    await hre.run(APPROVE_TOKENS, {
+      registry: essentialContracts["registry"].address,
+    });
+    console.log("********************");
+    console.log(`\tMapping Liquidity Pools to Adapters ...`);
+
+    for (const adapterName in adaptersContracts) {
+      await hre.run(MAP_LIQUIDITYPOOLS_ADAPTER, {
+        adapter: adaptersContracts[adapterName].address,
+        adaptername: adapterName,
+        registry: essentialContracts["registry"].address,
+      });
+    }
+
+    console.log("********************");
+    console.log(`\t Setting strategies ...`);
+    await hre.run(SET_STRATEGIES, {
+      investstrategyregistry: essentialContracts["investStrategyRegistry"].address,
     });
 
+    console.log("********************");
     console.log(`\tDeploying Core Vault contracts ...`);
-    await hre.run("deploy-vaults", {
+    await hre.run(DEPLOY_VAULTS, {
       registry: essentialContracts["registry"].address,
       riskmanager: essentialContracts["riskManager"].address,
       strategymanager: essentialContracts["strategyManager"].address,
@@ -68,17 +103,21 @@ task("setup", "Deploy infrastructure, adapter and vault contracts and setup all 
       insertindb: insertindb,
     });
 
-    const erc20Contract = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
+    console.log("********************");
+    const balOdefiUSDCInstance = await deployContract(hre, TESTING_CONTRACTS.TEST_DUMMY_TOKEN, deployedonce, owner, [
       "BAL-ODEFI-USDC",
       "BAL-ODEFI-USDC",
       18,
       0,
     ]);
-    console.log(`BAL-ODEFI-USDC address : ${erc20Contract.address}`);
-    await approveToken(owner, essentialContracts["registry"], [erc20Contract.address]);
+    console.log(`BAL-ODEFI-USDC address : ${balOdefiUSDCInstance.address}`);
+    await hre.run(APPROVE_TOKEN, {
+      registry: essentialContracts["registry"].address,
+      token: balOdefiUSDCInstance.address,
+    });
 
-    await hre.run("deploy-vault", {
-      token: erc20Contract.address,
+    await hre.run(DEPLOY_VAULT, {
+      token: balOdefiUSDCInstance.address,
       riskprofile: "RP0",
       registry: essentialContracts["registry"].address,
       riskmanager: essentialContracts["riskManager"].address,

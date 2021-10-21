@@ -3,12 +3,12 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ZERO_ADDRESS } from "../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
-import { getSoliditySHA3Hash, delay } from "../../helpers/utils";
+import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
-  setBestBasicStrategy,
+  setBestStrategy,
   approveLiquidityPoolAndMapAdapter,
   fundWalletToken,
   getBlockTimestamp,
@@ -19,7 +19,6 @@ import {
 import scenario from "./scenarios/withdrawal-fee.json";
 
 describe(scenario.title, () => {
-  // TODO: ADD TEST SCENARIOES, ADVANCED PROFILE, STRATEGIES.
   const token = "DAI";
   const MAX_AMOUNT = "2000000000000000000";
   let essentialContracts: CONTRACTS;
@@ -48,49 +47,45 @@ describe(scenario.title, () => {
       const vault = scenario.vaults[i];
       const profile = vault.profile;
       const TOKEN_STRATEGY = TypedAdapterStrategies["CompoundAdapter"][0];
-      const tokensHash = getSoliditySHA3Hash(["address[]"], [[TOKENS[token]]]);
       let ERC20Instance: Contract;
 
       before(async () => {
+        await contracts["registry"].setWithdrawalFeeRange(["0", "1000"]);
         await approveLiquidityPoolAndMapAdapter(
           users["owner"],
           essentialContracts.registry,
           adapters["CompoundAdapter"].address,
           TOKEN_STRATEGY.strategy[0].contract,
         );
-        await setBestBasicStrategy(
+        await setBestStrategy(
           TOKEN_STRATEGY.strategy,
-          tokensHash,
-          essentialContracts.vaultStepInvestStrategyDefinitionRegistry,
+          TOKENS[token],
+          essentialContracts.investStrategyRegistry,
           essentialContracts.strategyProvider,
           "RP1",
+          false,
         );
         const timestamp = (await getBlockTimestamp(hre)) * 2;
         await fundWalletToken(hre, TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
-      });
-      beforeEach(async () => {
-        try {
-          underlyingTokenName = await getTokenName(hre, token);
-          underlyingTokenSymbol = await getTokenSymbol(hre, token);
-          Vault = await deployVault(
-            hre,
-            essentialContracts.registry.address,
-            TOKENS[token],
-            users["owner"],
-            users["admin"],
-            underlyingTokenName,
-            underlyingTokenSymbol,
-            profile,
-            TESTING_DEPLOYMENT_ONCE,
-          );
-          await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
-          ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
-          contracts["vault"] = Vault;
-          contracts["erc20"] = ERC20Instance;
-        } catch (error) {
-          console.error(error);
-        }
+        underlyingTokenName = await getTokenName(hre, token);
+        underlyingTokenSymbol = await getTokenSymbol(hre, token);
+        Vault = await deployVault(
+          hre,
+          essentialContracts.registry.address,
+          TOKENS[token],
+          users["owner"],
+          users["admin"],
+          underlyingTokenName,
+          underlyingTokenSymbol,
+          profile,
+          TESTING_DEPLOYMENT_ONCE,
+        );
+        await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
+
+        ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+        contracts["vault"] = Vault;
+        contracts["erc20"] = ERC20Instance;
       });
 
       for (let i = 0; i < vault.stories.length; i++) {
@@ -127,12 +122,12 @@ describe(scenario.title, () => {
                       const timestamp = (await getBlockTimestamp(hre)) * 2;
                       await fundWalletToken(hre, TOKENS[token], users[addressName], BigNumber.from(amount), timestamp);
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     if (action.expect === "success") {
                       assert.isUndefined(error);
                     } else {
                       expect(error.message).to.equal(
-                        `VM Exception while processing transaction: revert ${action.message}`,
+                        `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                       );
                     }
                   }
@@ -148,19 +143,19 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action](
                           addressName.toString().toLowerCase() == "zero"
-                            ? ZERO_ADDRESS
+                            ? ADDRESS_ZERO
                             : addressName.toString().toLowerCase() == "eoa"
                             ? EOA
                             : contracts[addressName.toString().toLowerCase()].address,
                           treasuryAccountsWithShares,
                         );
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     if (action.expect === "success") {
                       assert.isUndefined(error);
                     } else {
                       expect(error.message).to.equal(
-                        `VM Exception while processing transaction: revert ${action.message}`,
+                        `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                       );
                     }
                   }
@@ -176,19 +171,19 @@ describe(scenario.title, () => {
                         .connect(users[action.executer])
                         [action.action](
                           addressName.toString().toLowerCase() == "zero"
-                            ? ZERO_ADDRESS
+                            ? ADDRESS_ZERO
                             : addressName.toString().toLowerCase() == "eoa"
                             ? EOA
                             : contracts[addressName.toString().toLowerCase()].address,
                           fee,
                         );
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     if (action.expect === "success") {
                       assert.isUndefined(error);
                     } else {
                       expect(error.message).to.equal(
-                        `VM Exception while processing transaction: revert ${action.message}`,
+                        `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                       );
                     }
                   }
@@ -209,12 +204,12 @@ describe(scenario.title, () => {
                       }
                       await contracts[action.contract].connect(users[action.executer])[action.action](address, amount);
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     if (action.expect === "success") {
                       assert.isUndefined(error);
                     } else {
                       expect(error.message).to.equal(
-                        `VM Exception while processing transaction: revert ${action.message}`,
+                        `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                       );
                     }
                   }
@@ -233,12 +228,12 @@ describe(scenario.title, () => {
                     if (amount) {
                       await contracts[action.contract].connect(users[action.executer])[action.action](amount);
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     if (action.expect === "success") {
                       assert.isUndefined(error);
                     } else {
                       expect(error.message).to.equal(
-                        `VM Exception while processing transaction: revert ${action.message}`,
+                        `VM Exception while processing transaction: reverted with reason string '${action.message}'`,
                       );
                     }
                   }
@@ -275,12 +270,10 @@ describe(scenario.title, () => {
                 case "balanceOf(address)": {
                   const { address, addressName } = <any>action.args;
                   if (address) {
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   } else if (addressName) {
                     const address = users[addressName].getAddress();
-                    const value = await contracts[action.contract][action.action](address);
-                    expect(+value).to.gte(+action.expectedValue);
+                    expect(+(await contracts[action.contract][action.action](address))).to.gte(+action.expectedValue);
                   }
                   break;
                 }
