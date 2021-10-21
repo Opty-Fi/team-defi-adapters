@@ -153,18 +153,5 @@
       ]
     }
   ],
-  "HarvestV1Adapter": [
-    {
-      "strategyName": "DAI-deposit-HARVEST-fDAI",
-      "token": "DAI",
-      "strategy": [
-        {
-          "contract": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-          "outputTokenSymbol": "fDAI",
-          "outputToken": "0xab7FA2B2985BCcfC13c6D86b1D5A17486ab1e04C",
-          "isBorrow": false
-        }
-      ]
-    }
-  ]
+  "HarvestV1Adapter": []
 }
