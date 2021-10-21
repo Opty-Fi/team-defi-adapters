@@ -430,7 +430,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
                       );
                       break;
                     }
-                    case "testGetClaimRewardTokenCode(address,address)": {
+                    case "testGetClaimRewardTokenCodes(address,address)": {
                       if (lpStakingContract) {
                         rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                         await testDeFiAdapter[action.action](liquidityPool, adapter.address);

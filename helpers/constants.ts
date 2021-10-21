@@ -38,7 +38,7 @@ export const CURVE_SWAP_POOL_ADAPTER_NAME: string = "CurveSwapPoolAdapter";
 export const DYDX_ADAPTER_NAME = "DyDxAdapter";
 export const DFORCE_ADAPTER_NAME = "DForceAdapter";
 export const FULCRUM_ADAPTER_NAME = "FulcrumAdapter";
-export const HARVEST_ADAPTER_NAME = "HarvestAdapter";
+export const HARVEST_V1_ADAPTER_NAME = "HarvestV1Adapter";
 export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
 export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
 
@@ -52,7 +52,7 @@ export const ADAPTERS = [
   DYDX_ADAPTER_NAME,
   DFORCE_ADAPTER_NAME,
   FULCRUM_ADAPTER_NAME,
-  HARVEST_ADAPTER_NAME,
+  HARVEST_V1_ADAPTER_NAME,
   YVAULT_ADAPTER_NAME,
   SUSHISWAP_ADAPTER_NAME,
 ];
@@ -83,7 +83,7 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenAddress: TypedTokens["DF"],
     distributionActive: false,
   },
-  HarvestAdapter: {
+  HarvestV1Adapter: {
     tokenName: "FARM",
     tokenAddress: TypedTokens["FARM"],
     distributionActive: true,
