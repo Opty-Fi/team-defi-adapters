@@ -7,7 +7,7 @@ import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, HARVEST_V1_ADAPTER_NAME 
 import { TypedAdapterStrategies, TypedPairTokens, TypedCurveTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
-import testDeFiAdapterScenario from "../scenarios/harvest-test-defi-adapter.json";
+import testDeFiAdapterScenario from "../scenarios/harvest-v1-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
