@@ -364,7 +364,8 @@ contract Vault is
     function _supplyAll(DataTypes.VaultStrategyConfiguration memory _vaultStrategyConfiguration) internal {
         _batchMint(_vaultStrategyConfiguration);
         uint256 _steps =
-            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepCount(investStrategyHash);
+            IStrategyManager(_vaultStrategyConfiguration.strategyManager).getDepositAllStepsCount(investStrategyHash);
+
         for (uint256 _i; _i < _steps; _i++) {
             executeCodes(
                 IStrategyManager(_vaultStrategyConfiguration.strategyManager).getPoolDepositAllCodes(
@@ -535,7 +536,6 @@ contract Vault is
         uint256 _actualDepositAmount = _tokenBalanceAfter.sub(_tokenBalanceBefore);
 
         uint256 shares = 0;
-
         if (_tokenBalanceBefore == 0 || totalSupply() == 0) {
             shares = _actualDepositAmount;
         } else {
