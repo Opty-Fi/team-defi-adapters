@@ -21,7 +21,7 @@ import {
   UNISWAPV2_ROUTER02_ADDRESS,
   SUSHISWAP_ROUTER_ADDRESS,
   TOKEN_HOLDERS,
-  CURVE_REGISTRY,
+  CURVE_REGISTRY_ADDRESS,
 } from "./constants";
 
 export async function approveLiquidityPoolAndMapAdapter(
@@ -254,7 +254,7 @@ export async function fundWalletToken(
       const pool = curveToken.pool;
       const swap = curveToken?.swap;
       const old = curveToken?.old;
-      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CURVE_REGISTRY);
+      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CURVE_REGISTRY_ADDRESS);
       const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
       const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
       const coin = swap

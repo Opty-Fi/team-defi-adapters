@@ -221,7 +221,10 @@ describe(scenario.title, () => {
                 case "rewardBalanceInUnderlyingTokens(address,address,uint256)": {
                   const rewardTokenAmount = await rewardTokenInstance.balanceOf(testHarvestCodeProvider.address);
                   let expectedAmount;
-                  const uniswapRouterInstance = await hre.ethers.getContractAt(IUniswapV2Router02.abi, UNISWAP_ROUTER);
+                  const uniswapRouterInstance = await hre.ethers.getContractAt(
+                    IUniswapV2Router02.abi,
+                    CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                  );
                   let amounts;
                   let finalAmount;
                   if (getAddress(rewardTokenAddress) === getAddress(TypedTokens.SUSHI)) {
