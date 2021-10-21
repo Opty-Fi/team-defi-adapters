@@ -4,13 +4,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, HARVEST_ADAPTER_NAME } from "../../../helpers/constants";
-import {
-  TypedAdapterStrategies,
-  TypedPairTokens,
-  TypedCurveTokens,
-  TypedDefiPools,
-  TypedTokens,
-} from "../../../helpers/data";
+import { TypedAdapterStrategies, TypedPairTokens, TypedCurveTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import testDeFiAdapterScenario from "../scenarios/harvest-test-defi-adapter.json";
