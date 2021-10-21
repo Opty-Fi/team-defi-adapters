@@ -3,7 +3,7 @@ import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
+import { TOKENS, TESTING_DEPLOYMENT_ONCE, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
