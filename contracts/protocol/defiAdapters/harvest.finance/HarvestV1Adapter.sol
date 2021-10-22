@@ -13,8 +13,8 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Modifiers } from "../../configuration/Modifiers.sol";
 
 //  interfaces
-import { IHarvestDeposit } from "../../../interfaces/harvest.finance/IHarvestDeposit.sol";
-import { IHarvestFarm } from "../../../interfaces/harvest.finance/IHarvestFarm.sol";
+import { IHarvestDeposit } from "../../../interfaces/harvest.finance/v1/IHarvestDeposit.sol";
+import { IHarvestFarm } from "../../../interfaces/harvest.finance/v1/IHarvestFarm.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../../../interfaces/opty/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";

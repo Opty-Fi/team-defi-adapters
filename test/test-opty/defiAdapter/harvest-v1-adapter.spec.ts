@@ -9,7 +9,7 @@ import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/cont
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
 import testDeFiAdapterScenario from "../scenarios/harvest-v1-test-defi-adapter.json";
 import scenarios from "../scenarios/adapters.json";
-import { deployContract } from "../../../helpers/helpers";
+import { deployContract, getDefaultFundAmountInDecimal } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
 import { ERC20 } from "../../../typechain/ERC20";
 
@@ -203,7 +203,6 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
               }
               const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
               const stakingVaultAddress = getAddress(TypedDefiPools[adapterName][pool].stakingVault!);
-              let defaultFundAmount: BigNumber = BigNumber.from("2");
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
@@ -217,6 +216,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
               }
               const rewardTokenDecimals = await rewardTokenERC20Instance!.decimals();
               const decimals = await ERC20Instance.decimals();
+              let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
               const adapterAddress = harvestV1Adapter.address;
               let underlyingBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let liquidityPoolTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
@@ -248,7 +248,6 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       underlyingTokenAddress,
                     );
                     limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
@@ -263,29 +262,25 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       underlyingTokenAddress,
                     );
                     limit = poolValue.mul(BigNumber.from(maxDepositPoolPct)).div(BigNumber.from(10000));
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
                   case "setMaxDepositAmount(address,address,uint256)": {
                     const { maxDepositAmount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                    let amount = BigNumber.from("0");
+                    if (maxDepositAmount === ">") {
+                      amount = defaultFundAmount.mul(BigNumber.from("10"));
+                    } else if (maxDepositAmount === "<") {
+                      amount = defaultFundAmount.div(BigNumber.from("10"));
+                    }
                     const existingDepositAmount: BigNumber = await harvestV1Adapter.maxDepositAmount(
                       liquidityPool,
                       underlyingTokenAddress,
                     );
-                    if (
-                      !existingDepositAmount.eq(
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
-                      )
-                    ) {
-                      await harvestV1Adapter[action.action](
-                        liquidityPool,
-                        underlyingTokenAddress,
-                        BigNumber.from(maxDepositAmount).mul(BigNumber.from(10).pow(BigNumber.from(decimals))),
-                      );
+                    if (!existingDepositAmount.eq(amount)) {
+                      await harvestV1Adapter[action.action](liquidityPool, underlyingTokenAddress, amount);
                     }
                     limit = await harvestV1Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
-                    defaultFundAmount = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                     break;
                   }
@@ -318,7 +313,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                           hre,
                           rewardTokenERC20Instance!.address,
                           users["owner"],
-                          defaultFundAmount.mul(BigNumber.from(10).pow(rewardTokenDecimals)),
+                          getDefaultFundAmountInDecimal(rewardTokenAddress, rewardTokenDecimals),
                           timestamp,
                           testDeFiAdapter.address,
                         );
@@ -497,14 +492,13 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "calculateAmountInLPToken(address,address,uint256)": {
-                    const depositAmount: BigNumber = defaultFundAmount.mul(BigNumber.from(10).pow(decimals));
                     const amountInLPToken = await harvestV1Adapter[action.action](
                       ADDRESS_ZERO,
                       liquidityPool,
-                      depositAmount,
+                      defaultFundAmount,
                     );
                     const pricePerFullShare = await vaultInstance.getPricePerFullShare();
-                    const expectedAmountInLPToken = depositAmount
+                    const expectedAmountInLPToken = defaultFundAmount
                       .mul(BigNumber.from(10).pow(decimals))
                       .div(BigNumber.from(pricePerFullShare));
                     expect(amountInLPToken).to.be.eq(expectedAmountInLPToken);
@@ -828,7 +822,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       this.skip();
                     }
                     const lpTokenDecimals = await vaultInstance.decimals();
-                    const lpTokenAmount = defaultFundAmount.mul(BigNumber.from(10).pow(lpTokenDecimals));
+                    const lpTokenAmount = getDefaultFundAmountInDecimal(liquidityPool, lpTokenDecimals);
                     if (+lpTokenAmount > 0) {
                       const _amountInUnderlyingToken = await harvestV1Adapter[action.action](
                         ADDRESS_ZERO,
