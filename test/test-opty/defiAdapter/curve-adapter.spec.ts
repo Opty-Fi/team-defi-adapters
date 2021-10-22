@@ -408,10 +408,10 @@ describe("CurveAdapters Unit test", () => {
                         const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
                           liquidityPool,
                         );
-                        if (existingDepositAmount.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
+                        if (existingDepositAmount.eq(BigNumber.from("0"))) {
+                          expect(lpTokenBalance).to.be.eq(BigNumber.from("0"));
                         } else {
-                          expect(lpTokenBalance).to.be.gt(0);
+                          expect(lpTokenBalance).to.be.gt(BigNumber.from("0"));
                         }
                       } else {
                         const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
@@ -420,12 +420,15 @@ describe("CurveAdapters Unit test", () => {
                         const existingProtocolPct: BigNumber = await curveAdapters[
                           curveAdapterName
                         ].maxDepositProtocolPct();
-                        if (existingPoolPct.eq(0) && existingProtocolPct.eq(0)) {
-                          expect(lpTokenBalance).to.be.eq(0);
-                        } else if (!existingPoolPct.eq(0) || !existingProtocolPct.eq(0)) {
+                        if (existingPoolPct.eq(BigNumber.from("0")) && existingProtocolPct.eq(BigNumber.from("0"))) {
+                          expect(lpTokenBalance).to.be.eq(BigNumber.from("0"));
+                        } else if (
+                          !existingPoolPct.eq(BigNumber.from("0")) ||
+                          !existingProtocolPct.eq(BigNumber.from("0"))
+                        ) {
                           expectedValue == "=0"
-                            ? expect(lpTokenBalance).to.be.eq(0)
-                            : expect(lpTokenBalance).to.be.gt(0);
+                            ? expect(lpTokenBalance).to.be.eq(BigNumber.from("0"))
+                            : expect(lpTokenBalance).to.be.gt(BigNumber.from("0"));
                         }
                       }
                       break;
@@ -436,7 +439,7 @@ describe("CurveAdapters Unit test", () => {
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                         expectedValue == ">"
                           ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                          : expect(underlyingBalanceAfter).to.be.eq(0);
+                          : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
                       } else {
                         expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.eq(
                           underlyingBalanceBefore.sub(limitInUnderlyingToken).div(to_10powNumber_BN(decimals)),
@@ -462,12 +465,12 @@ describe("CurveAdapters Unit test", () => {
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      expect(lpTokenBalance).to.be.eq(0);
+                      expect(lpTokenBalance).to.be.eq(BigNumber.from("0"));
                       break;
                     }
                     case "balanceOf(address)": {
                       const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      expect(underlyingBalance).to.be.gt(0);
+                      expect(underlyingBalance).to.be.gt(BigNumber.from("0"));
                       break;
                     }
                   }
