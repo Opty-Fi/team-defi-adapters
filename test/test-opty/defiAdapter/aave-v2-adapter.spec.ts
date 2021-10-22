@@ -287,7 +287,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                   CONTRACT_ADDRESSES.AAVE_V2_PRICE_ORACLE,
                 );
                 const uniswapInstance = new hre.ethers.Contract(
-                  CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
+                  CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
                   IUniswapV2Router02.abi,
                   users["owner"],
                 );
