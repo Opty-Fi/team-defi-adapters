@@ -38,7 +38,7 @@ export const CURVE_SWAP_POOL_ADAPTER_NAME: string = "CurveSwapPoolAdapter";
 export const DYDX_ADAPTER_NAME = "DyDxAdapter";
 export const DFORCE_ADAPTER_NAME = "DForceAdapter";
 export const FULCRUM_ADAPTER_NAME = "FulcrumAdapter";
-export const HARVEST_ADAPTER_NAME = "HarvestAdapter";
+export const HARVEST_V1_ADAPTER_NAME = "HarvestV1Adapter";
 export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
 export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
 
@@ -52,7 +52,7 @@ export const ADAPTERS = [
   DYDX_ADAPTER_NAME,
   DFORCE_ADAPTER_NAME,
   FULCRUM_ADAPTER_NAME,
-  HARVEST_ADAPTER_NAME,
+  HARVEST_V1_ADAPTER_NAME,
   YVAULT_ADAPTER_NAME,
   SUSHISWAP_ADAPTER_NAME,
 ];
@@ -83,7 +83,7 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
     tokenAddress: TypedTokens["DF"],
     distributionActive: false,
   },
-  HarvestAdapter: {
+  HarvestV1Adapter: {
     tokenName: "FARM",
     tokenAddress: TypedTokens["FARM"],
     distributionActive: true,
@@ -190,6 +190,8 @@ export const TOKEN_HOLDERS: DATA_OBJECT = {
   SBTC: "0x7e935fac4448102c16fa83abc01ac57d38123dca",
   CRV_REN_BTC_WBTC_SBTC: "0x545946fcae98afb4333b788b8f530046eb8ed997",
   SEUR: "0x16b8cc5b1558b365d9844385425b13bde0ceaa49",
+  CRV_REN_WBTC: "0x1ddDf789Ca75AC8BB4C146FbcF60041d2af3327E",
+  STE_CRV: "0x56c915758ad3f76fd287fff7563ee313142fb663",
 };
 
 export enum MAX_DEPOSIT_MODE {
@@ -211,8 +213,11 @@ export const CONTRACT_ADDRESSES: DATA_OBJECT = {
   AAVE_V2_LENDING_POOL: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
   AAVE_V2_PROTOCOL_DATA_PROVIDER: "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d",
   CURVE_REGISTRY: "0x90E00ACe148ca3b23Ac1bC8C240C2a7Dd9c2d7f5",
+  HARVEST_CONTROLLER: "0x3cC47874dC50D98425ec79e647d83495637C55e3",
   SUSHI_MASTER_CHEF: "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd",
 };
+
+export const HARVEST_GOVERNANCE = "0xf00dD244228F51547f0563e60bCa65a30FBF5f7f";
 
 export const SUPPORTED_TOKENS: SUPPORTED_TOKENS_DATA = {
   DAI: {

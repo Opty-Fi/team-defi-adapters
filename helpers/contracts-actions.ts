@@ -1,7 +1,5 @@
 import { Contract, Signer, BigNumber } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { abi as uniswapv2pairAbi } from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
-import { abi as uniswapv2router02Abi } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
@@ -16,7 +14,7 @@ import {
   isAddress,
 } from "./helpers";
 import { amountInHex } from "./utils";
-import { RISK_PROFILES, TOKEN_HOLDERS, CONTRACT_ADDRESSES } from "./constants";
+import { RISK_PROFILES, TOKEN_HOLDERS, CONTRACT_ADDRESSES, HARVEST_GOVERNANCE } from "./constants";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -172,160 +170,158 @@ export async function fundWalletToken(
   const ValidatedPairTokens = Object.values(TypedMultiAssetTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
   const uniswapV2Router02Instance = await hre.ethers.getContractAt(
-    uniswapv2router02Abi,
+    "IUniswapV2Router02",
     CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
   );
   const sushiswapRouterInstance = await hre.ethers.getContractAt(
-    uniswapv2router02Abi,
+    "IUniswapV2Router02",
     CONTRACT_ADDRESSES.SUSHISWAP_ROUTER,
   );
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
-  if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = await hre.ethers.getContractAt(uniswapv2pairAbi, tokenAddress);
-    const pairSymbol = await pairInstance.symbol();
-    if (["SLP", "UNI-V2"].includes(pairSymbol)) {
-      const TOKEN0 = await pairInstance.token0();
-      const TOKEN1 = await pairInstance.token1();
-      let token0Path: string[] = [],
-        token1Path: string[] = [];
-      for (let i = 0; i < Object.values(TypedMultiAssetTokens).length; i++) {
-        const value = Object.values(TypedMultiAssetTokens)[i];
-        if (getAddress(value.address) === getAddress(tokenAddress)) {
-          if (value.path0) {
-            token0Path.push(getAddress(TypedTokens[value.path0[0]]));
-          }
-          if (value.path1) {
-            token1Path.push(getAddress(TypedTokens[value.path1[0]]));
-          }
-          if (token0Path.length > 0 || getAddress(TOKEN0) !== getAddress(TypedTokens["WETH"])) {
-            token0Path = [TypedTokens["WETH"], ...token0Path, getAddress(TOKEN0)];
-          }
-          if (token1Path.length > 0 || getAddress(TOKEN1) !== getAddress(TypedTokens["WETH"])) {
-            token1Path = [TypedTokens["WETH"], ...token1Path, getAddress(TOKEN1)];
+  try {
+    if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
+      const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", tokenAddress);
+      const pairSymbol = await pairInstance.symbol();
+      if (["SLP", "UNI-V2"].includes(pairSymbol)) {
+        const TOKEN0 = await pairInstance.token0();
+        const TOKEN1 = await pairInstance.token1();
+        let token0Path: string[] = [],
+          token1Path: string[] = [];
+        for (let i = 0; i < Object.values(TypedMultiAssetTokens).length; i++) {
+          const value = Object.values(TypedMultiAssetTokens)[i];
+          if (getAddress(value.address) === getAddress(tokenAddress)) {
+            if (value.path0) {
+              token0Path.push(getAddress(TypedTokens[value.path0[0]]));
+            }
+            if (value.path1) {
+              token1Path.push(getAddress(TypedTokens[value.path1[0]]));
+            }
+            if (token0Path.length > 0 || getAddress(TOKEN0) !== getAddress(TypedTokens["WETH"])) {
+              token0Path = [TypedTokens["WETH"], ...token0Path, getAddress(TOKEN0)];
+            }
+            if (token1Path.length > 0 || getAddress(TOKEN1) !== getAddress(TypedTokens["WETH"])) {
+              token1Path = [TypedTokens["WETH"], ...token1Path, getAddress(TOKEN1)];
+            }
           }
         }
-      }
-      const routerInstance = await hre.ethers.getContractAt(
-        uniswapv2router02Abi,
-        pairSymbol === "SLP" ? CONTRACT_ADDRESSES.SUSHISWAP_ROUTER : CONTRACT_ADDRESSES.UNISWAPV2_ROUTER02,
-      );
-
-      if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
-        await transferSLPOrUNI(
-          hre,
-          routerInstance,
-          pairInstance,
-          [{ path: token0Path, address: TOKEN0 }],
-          wallet,
-          deadlineTimestamp,
-          address,
-        );
-      } else if (getAddress(TOKEN0) === getAddress(TypedTokens["WETH"])) {
-        await transferSLPOrUNI(
-          hre,
-          routerInstance,
-          pairInstance,
-          [{ path: token1Path, address: TOKEN1 }],
-          wallet,
-          deadlineTimestamp,
-          address,
-        );
-      } else {
-        await transferSLPOrUNI(
-          hre,
-          routerInstance,
-          pairInstance,
-          [
-            { path: token0Path, address: TOKEN0 },
-            { path: token1Path, address: TOKEN1 },
-          ],
-          wallet,
-          deadlineTimestamp,
-          address,
-        );
-      }
-    }
-  } else if (ValidatedCurveTokens.includes(getAddress(tokenAddress))) {
-    const curveToken = Object.values(TypedCurveTokens).find(
-      ({ address }) => getAddress(tokenAddress) === getAddress(address),
-    );
-    if (curveToken) {
-      const pool = curveToken.pool;
-      const swap = curveToken?.swap;
-      const old = curveToken?.old;
-      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CONTRACT_ADDRESSES.CURVE_REGISTRY);
-      const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
-      const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
-      const coin = swap
-        ? await instance.coins(0)
-        : old
-        ? await instance.underlying_coins(0)
-        : await instance.base_coins(0);
-      const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
-      await uniswapV2Router02Instance
-        .connect(wallet)
-        .swapExactETHForTokens(
-          1,
-          [TypedTokens["WETH"], coin],
-          walletAddress,
-          deadlineTimestamp,
-          getEthValueGasOverrideOptions(hre, "9500"),
+        const routerInstance = await hre.ethers.getContractAt(
+          "IUniswapV2Router02",
+          pairSymbol === "SLP" ? CONTRACT_ADDRESSES.SUSHISWAP_ROUTER : CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
         );
 
-      await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(walletAddress));
-      const N_COINS = (
-        await curveRegistryInstance.get_n_coins(swap ? pool : old ? await instance.curve() : await instance.pool())
-      )[1];
-
-      if (N_COINS.toString() === "2") {
-        await instance
-          .connect(wallet)
-          ["add_liquidity(uint256[2],uint256)"]([await coinInstance.balanceOf(walletAddress), "0"], "1");
-        await tokenAddressInstance.connect(wallet).transfer(address, amount);
-      } else if (N_COINS.toString() === "3") {
-        await instance
-          .connect(wallet)
-          ["add_liquidity(uint256[3],uint256)"]([await coinInstance.balanceOf(walletAddress), "0", "0"], 1);
-        await tokenAddressInstance.connect(wallet).transfer(address, amount);
-      } else if (N_COINS.toString() === "4") {
-        if (old) {
-          await instance
-            .connect(wallet)
-            ["add_liquidity(uint256[4],uint256)"]([await coinInstance.balanceOf(walletAddress), 0, 0, 0], 1);
-          await tokenAddressInstance.connect(wallet).transfer(address, amount);
+        if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
+          await transferSLPOrUNI(
+            hre,
+            routerInstance,
+            pairInstance,
+            [{ path: token0Path, address: TOKEN0 }],
+            wallet,
+            deadlineTimestamp,
+            address,
+          );
+        } else if (getAddress(TOKEN0) === getAddress(TypedTokens["WETH"])) {
+          await transferSLPOrUNI(
+            hre,
+            routerInstance,
+            pairInstance,
+            [{ path: token1Path, address: TOKEN1 }],
+            wallet,
+            deadlineTimestamp,
+            address,
+          );
         } else {
+          await transferSLPOrUNI(
+            hre,
+            routerInstance,
+            pairInstance,
+            [
+              { path: token0Path, address: TOKEN0 },
+              { path: token1Path, address: TOKEN1 },
+            ],
+            wallet,
+            deadlineTimestamp,
+            address,
+          );
+        }
+      }
+    } else if (ValidatedCurveTokens.includes(getAddress(tokenAddress))) {
+      const curveToken = Object.values(TypedCurveTokens).find(
+        ({ address }) => getAddress(tokenAddress) === getAddress(address),
+      );
+      if (curveToken) {
+        const pool = curveToken.pool;
+        const swap = curveToken?.swap;
+        const old = curveToken?.old;
+        const curveRegistryInstance = await hre.ethers.getContractAt(
+          "ICurveRegistry",
+          CONTRACT_ADDRESSES.CURVE_REGISTRY,
+        );
+        const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
+        const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
+        const coin = swap
+          ? await instance.coins(0)
+          : old
+          ? await instance.underlying_coins(0)
+          : await instance.base_coins(0);
+        const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
+        await uniswapV2Router02Instance
+          .connect(wallet)
+          .swapExactETHForTokens(
+            1,
+            [TypedTokens["WETH"], coin],
+            walletAddress,
+            deadlineTimestamp,
+            getEthValueGasOverrideOptions(hre, "9500"),
+          );
+
+        await coinInstance.connect(wallet).approve(pool, await coinInstance.balanceOf(walletAddress));
+        const N_COINS = (
+          await curveRegistryInstance.get_n_coins(swap ? pool : old ? await instance.curve() : await instance.pool())
+        )[1];
+
+        if (N_COINS.toString() === "2") {
           await instance
             .connect(wallet)
-            ["add_liquidity(uint256[4],uint256)"]([0, await coinInstance.balanceOf(walletAddress), 0, 0], 1);
+            ["add_liquidity(uint256[2],uint256)"]([await coinInstance.balanceOf(walletAddress), "0"], "1");
           await tokenAddressInstance.connect(wallet).transfer(address, amount);
+        } else if (N_COINS.toString() === "3") {
+          await instance
+            .connect(wallet)
+            ["add_liquidity(uint256[3],uint256)"]([await coinInstance.balanceOf(walletAddress), "0", "0"], 1);
+          await tokenAddressInstance.connect(wallet).transfer(address, amount);
+        } else if (N_COINS.toString() === "4") {
+          if (old) {
+            await instance
+              .connect(wallet)
+              ["add_liquidity(uint256[4],uint256)"]([await coinInstance.balanceOf(walletAddress), 0, 0, 0], 1);
+            await tokenAddressInstance.connect(wallet).transfer(address, amount);
+          } else {
+            await instance
+              .connect(wallet)
+              ["add_liquidity(uint256[4],uint256)"]([0, await coinInstance.balanceOf(walletAddress), 0, 0], 1);
+            await tokenAddressInstance.connect(wallet).transfer(address, amount);
+          }
+        } else if (getAddress(coin) === getAddress(TypedTokens.ETH)) {
+          await instance
+            .connect(wallet)
+            ["add_liquidity(uint256[2],uint256)"](["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
+          await tokenAddressInstance
+            .connect(wallet)
+            .transfer(address, await tokenAddressInstance.balanceOf(walletAddress));
         }
-      } else if (getAddress(coin) === getAddress(TypedTokens.ETH)) {
-        await instance
-          .connect(wallet)
-          ["add_liquidity(uint256[2],uint256)"](["9500", "0"], "1", getEthValueGasOverrideOptions(hre, "9500"));
-        await tokenAddressInstance
-          .connect(wallet)
-          .transfer(address, await tokenAddressInstance.balanceOf(walletAddress));
       }
-    }
-  } else if (getAddress(tokenAddress) === getAddress(TypedTokens["WETH"])) {
-    const wEthInstance = await hre.ethers.getContractAt("IWETH", TypedTokens["WETH"]);
-    //  Funding user's wallet with WETH tokens
-    await wEthInstance.deposit({ value: amount });
-    await wEthInstance.transfer(address, amount);
-  } else if (getAddress(tokenAddress) === getAddress(TypedTokens["YWETH"])) {
-    const yEthInstance = await hre.ethers.getContractAt("IYWETH", TypedTokens["YWETH"]);
-    //  Funding user's wallet with WETH tokens
-    await yEthInstance.depositETH({ value: amount });
-    const balance = await yEthInstance.balanceOf(await wallet.getAddress());
-    await yEthInstance.transfer(address, balance);
-  } else {
-    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
-      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
-    );
-    if (tokenHolder.length > 0) {
-      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else if (getAddress(tokenAddress) === getAddress(TypedTokens["WETH"])) {
+      const wEthInstance = await hre.ethers.getContractAt("IWETH", TypedTokens["WETH"]);
+      //  Funding user's wallet with WETH tokens
+      await wEthInstance.deposit({ value: amount });
+      await wEthInstance.transfer(address, amount);
+    } else if (getAddress(tokenAddress) === getAddress(TypedTokens["YWETH"])) {
+      const yEthInstance = await hre.ethers.getContractAt("IYWETH", TypedTokens["YWETH"]);
+      //  Funding user's wallet with WETH tokens
+      await yEthInstance.depositETH({ value: amount });
+      const balance = await yEthInstance.balanceOf(await wallet.getAddress());
+      await yEthInstance.transfer(address, balance);
     } else {
       try {
         await uniswapV2Router02Instance.swapETHForExactTokens(
@@ -345,7 +341,17 @@ export async function fundWalletToken(
         );
       }
     }
+  } catch (error) {
+    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
+    );
+    if (tokenHolder.length > 0) {
+      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+    } else {
+      throw error;
+    }
   }
+
   return await tokenInstance.balanceOf(address);
 }
 
@@ -549,4 +555,26 @@ export async function executeComptrollerFunc(
   return await Compound.eth.read(comptrollerAddress, functionSignature, [...params], {
     provider: <Provider>(<unknown>hre.network.provider),
   });
+}
+
+export async function addWhiteListForHarvest(
+  hre: HardhatRuntimeEnvironment,
+  contractAddress: string,
+  admin: Signer,
+): Promise<void> {
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [HARVEST_GOVERNANCE],
+  });
+  const harvestController = await hre.ethers.getContractAt(
+    "IHarvestController",
+    CONTRACT_ADDRESSES.HARVEST_CONTROLLER,
+    await hre.ethers.getSigner(HARVEST_GOVERNANCE),
+  );
+  await admin.sendTransaction({
+    to: HARVEST_GOVERNANCE,
+    value: hre.ethers.utils.parseEther("1000"),
+  });
+  await harvestController.addToWhitelist(contractAddress);
+  await harvestController.addCodeToWhitelist(contractAddress);
 }

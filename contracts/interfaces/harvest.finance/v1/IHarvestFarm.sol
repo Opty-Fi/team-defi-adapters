@@ -12,4 +12,6 @@ interface IHarvestFarm {
     function balanceOf(address _holder) external view returns (uint256);
 
     function rewardToken() external view returns (address);
+
+    function lastTimeRewardApplicable() external view returns (uint256);
 }
