@@ -1,22 +1,21 @@
 import { RISK_PROFILES, TOKEN_HOLDERS, CONTRACT_ADDRESSES } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
-import { STRATEGY_DATA } from "./type";
-import { TypedTokens, TypedPairTokens, TypedCurveTokens } from "./data";
-import {
-  executeFunc,
-  generateStrategyStep,
-  getEthValueGasOverrideOptions,
-  generateStrategyHash,
-  generateTokenHash,
-  isAddress,
-} from "./helpers";
-import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
-import router from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import { STRATEGY_DATA } from "./type";
+import { TypedCurveTokens, TypedMultiAssetTokens, TypedTokens } from "./data";
+import {
+  executeFunc,
+  generateStrategyHash,
+  generateStrategyStep,
+  generateTokenHash,
+  getEthValueGasOverrideOptions,
+  isAddress,
+} from "./helpers";
+import { amountInHex } from "./utils";
+import router from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -169,21 +168,21 @@ export async function fundWalletToken(
 ): Promise<BigNumber> {
   const amount = amountInHex(fundAmount);
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
-  const ValidatedPairTokens = Object.values(TypedPairTokens).map(({ address }) => getAddress(address));
+  const ValidatedPairTokens = Object.values(TypedMultiAssetTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
   const uniswapInstance = await hre.ethers.getContractAt(router.abi, CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER);
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = await hre.ethers.getContractAt(pair.abi, tokenAddress);
+    const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", tokenAddress);
     const pairSymbol = await pairInstance.symbol();
     if (["SLP", "UNI-V2"].includes(pairSymbol)) {
       const TOKEN0 = await pairInstance.token0();
       const TOKEN1 = await pairInstance.token1();
       let token0Path: string[] = [],
         token1Path: string[] = [];
-      for (let i = 0; i < Object.values(TypedPairTokens).length; i++) {
-        const value = Object.values(TypedPairTokens)[i];
+      for (let i = 0; i < Object.values(TypedMultiAssetTokens).length; i++) {
+        const value = Object.values(TypedMultiAssetTokens)[i];
         if (getAddress(value.address) === getAddress(tokenAddress)) {
           if (value.path0) {
             token0Path.push(getAddress(TypedTokens[value.path0[0]]));
