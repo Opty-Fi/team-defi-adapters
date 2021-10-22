@@ -656,7 +656,7 @@ contract CurveDepositPoolAdapter is
      * @param _gauge the liquidity gauge address
      * @return address the address of the minter
      */
-    function _getMinter(address _gauge) public view returns (address) {
+    function _getMinter(address _gauge) internal view returns (address) {
         return ICurveGauge(_gauge).minter();
     }
 
