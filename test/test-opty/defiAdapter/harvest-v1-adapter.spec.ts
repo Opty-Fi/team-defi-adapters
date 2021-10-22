@@ -222,7 +222,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
               let liquidityPoolTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let liquidityPoolTokenBalanceStakeBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-              let previousBlockTimestamp = await getBlockTimestamp(hre);
+              const previousBlockTimestamp = await getBlockTimestamp(hre);
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositProtocolMode(uint8)": {
