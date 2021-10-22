@@ -4,7 +4,7 @@ import { Signer, BigNumber } from "ethers";
 import { solidity } from "ethereum-waffle";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -47,7 +47,7 @@ describe(scenarios.title, () => {
       userAddresses["owner"] = await users.owner.getAddress();
       userAddresses["admin"] = await users.admin.getAddress();
       userAddresses["riskOperator"] = await users.riskOperator.getAddress();
-      [essentialContracts, adapters] = await setUp(users["owner"]);
+      [essentialContracts, adapters] = await setUp(users["owner"], Object.values(VAULT_TOKENS));
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
     } catch (error: any) {
@@ -67,7 +67,7 @@ describe(scenarios.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const token = TOKENS[strategy.token];
+            const token = VAULT_TOKENS[strategy.token];
             const contracts: CONTRACTS = {};
             let underlyingTokenName: string;
             let underlyingTokenSymbol: string;
@@ -94,7 +94,7 @@ describe(scenarios.title, () => {
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 await fundWalletToken(
                   hre,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   users["owner"],
                   MAX_AMOUNT[strategy.token],
                   timestamp,
@@ -115,7 +115,7 @@ describe(scenarios.title, () => {
                 );
                 await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[strategy.token]);
 
                 contracts["adapter"] = adapter;
 
@@ -288,7 +288,7 @@ describe(scenarios.title, () => {
                         expect(
                           await contracts[getAction.contract][getAction.action](
                             strategy.strategy[0].contract,
-                            TOKENS[strategy.token],
+                            VAULT_TOKENS[strategy.token],
                           ),
                         ).to.equal(expectedValue[strategy.token]);
                       }

@@ -4,7 +4,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   ADDRESS_ZERO,
   TESTING_DEPLOYMENT_ONCE,
   AAVE_V1_ADAPTER_NAME,
@@ -72,7 +72,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpProvider: Contract;
       let lpContract: Contract;
       let lpCoreAddress: string;

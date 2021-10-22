@@ -5,7 +5,7 @@ import { Contract, Signer, BigNumber, utils, ethers, BigNumberish } from "ethers
 import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   TESTING_DEPLOYMENT_ONCE,
   ADDRESS_ZERO,
   CURVE_DEPOSIT_POOL_ADAPTER_NAME,
@@ -85,10 +85,10 @@ describe("CurveAdapters Unit test", () => {
               ADDRESS_ZERO,
             );
             for (let i = 0; i < nCoins.length; i++) {
-              if (nCoins[i] === TOKENS["DAI"]) {
+              if (nCoins[i] === VAULT_TOKENS["DAI"]) {
                 await fundWalletToken(hre, nCoins[i], users["owner"], MAX_AMOUNT["DAI"], timestamp);
                 depositAmount.push(MAX_AMOUNT["DAI"].div(BigNumber.from("2")).toString());
-              } else if (nCoins[i] === TOKENS["USDC"]) {
+              } else if (nCoins[i] === VAULT_TOKENS["USDC"]) {
                 await fundWalletToken(hre, nCoins[i], users["owner"], MAX_AMOUNT["USDC"], timestamp);
                 depositAmount.push(MAX_AMOUNT["USDC"].div(BigNumber.from("2")).toString());
               } else {

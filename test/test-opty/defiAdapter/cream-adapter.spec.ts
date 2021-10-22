@@ -6,7 +6,7 @@ import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   TESTING_DEPLOYMENT_ONCE,
   CREAM_ADAPTER_NAME,
   ADDRESS_ZERO,
@@ -70,7 +70,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpToken: string;
       before(async () => {
         try {

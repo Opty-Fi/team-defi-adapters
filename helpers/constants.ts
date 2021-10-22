@@ -57,7 +57,7 @@ export const ADAPTERS = [
   SUSHISWAP_ADAPTER_NAME,
 ];
 
-export const TOKENS: DATA_OBJECT = {
+export const VAULT_TOKENS: DATA_OBJECT = {
   DAI: TypedTokens["DAI"],
   USDC: TypedTokens["USDC"],
   USDT: TypedTokens["USDT"],

@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { delay } from "../../helpers/utils";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -30,7 +30,7 @@ describe(scenario.title, () => {
     try {
       const [owner, admin, user1, user2] = await hre.ethers.getSigners();
       users = { owner, admin, user1, user2 };
-      [essentialContracts, adapters] = await setUp(owner);
+      [essentialContracts, adapters] = await setUp(owner, Object.values(VAULT_TOKENS));
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
       contracts["registry"] = essentialContracts["registry"];
@@ -59,21 +59,21 @@ describe(scenario.title, () => {
         );
         await setBestStrategy(
           TOKEN_STRATEGY.strategy,
-          TOKENS[token],
+          VAULT_TOKENS[token],
           essentialContracts.investStrategyRegistry,
           essentialContracts.strategyProvider,
           "RP1",
           false,
         );
         const timestamp = (await getBlockTimestamp(hre)) * 2;
-        await fundWalletToken(hre, TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
+        await fundWalletToken(hre, VAULT_TOKENS[token], users["owner"], BigNumber.from(MAX_AMOUNT), timestamp);
 
         underlyingTokenName = await getTokenName(hre, token);
         underlyingTokenSymbol = await getTokenSymbol(hre, token);
         Vault = await deployVault(
           hre,
           essentialContracts.registry.address,
-          TOKENS[token],
+          VAULT_TOKENS[token],
           users["owner"],
           users["admin"],
           underlyingTokenName,
@@ -83,7 +83,7 @@ describe(scenario.title, () => {
         );
         await unpauseVault(users["owner"], essentialContracts.registry, Vault.address, true);
 
-        ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+        ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[token]);
         contracts["vault"] = Vault;
         contracts["erc20"] = ERC20Instance;
       });
@@ -120,7 +120,13 @@ describe(scenario.title, () => {
                   try {
                     if (addressName && amount) {
                       const timestamp = (await getBlockTimestamp(hre)) * 2;
-                      await fundWalletToken(hre, TOKENS[token], users[addressName], BigNumber.from(amount), timestamp);
+                      await fundWalletToken(
+                        hre,
+                        VAULT_TOKENS[token],
+                        users[addressName],
+                        BigNumber.from(amount),
+                        timestamp,
+                      );
                     }
                   } catch (error: any) {
                     if (action.expect === "success") {

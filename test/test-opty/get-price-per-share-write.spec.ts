@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, REWARD_TOKENS } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -70,7 +70,7 @@ describe(scenario.title, () => {
             Vault = await deployVault(
               hre,
               essentialContracts.registry.address,
-              TOKENS[TOKEN_STRATEGY.token],
+              VAULT_TOKENS[TOKEN_STRATEGY.token],
               users["owner"],
               users["admin"],
               underlyingTokenName,
@@ -102,14 +102,14 @@ describe(scenario.title, () => {
 
             await setBestStrategy(
               TOKEN_STRATEGY.strategy,
-              TOKENS[TOKEN_STRATEGY.token],
+              VAULT_TOKENS[TOKEN_STRATEGY.token],
               essentialContracts.investStrategyRegistry,
               essentialContracts.strategyProvider,
               profile,
               false,
             );
 
-            const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[TOKEN_STRATEGY.token]);
+            const Token_ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[TOKEN_STRATEGY.token]);
             contracts["vault"] = Vault;
             contracts["registry"] = essentialContracts.registry;
             contracts["tokenErc20"] = Token_ERC20Instance;
@@ -132,7 +132,7 @@ describe(scenario.title, () => {
                         const timestamp = (await getBlockTimestamp(hre)) * 2;
                         await fundWalletToken(
                           hre,
-                          TOKENS[TOKEN_STRATEGY.token],
+                          VAULT_TOKENS[TOKEN_STRATEGY.token],
                           users[addressName],
                           BigNumber.from(amount[TOKEN_STRATEGY.token]),
                           timestamp,

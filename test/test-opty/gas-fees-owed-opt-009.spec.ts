@@ -4,7 +4,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS, STRATEGY_DATA } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { TypedStrategies, TypedTokens } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -66,7 +66,7 @@ describe(scenario.title, () => {
   let Vault: Contract;
   let gasOwed = BigNumber.from("0");
   let gasOwedTotal = BigNumber.from("0");
-  const tokensName = Object.keys(TOKENS);
+  const tokensName = Object.keys(VAULT_TOKENS);
 
   for (let i = 0; i < tokensName.length; i++) {
     const token = tokensName[i];
@@ -76,7 +76,7 @@ describe(scenario.title, () => {
       continue;
     }
     let strategyIndex = 0;
-    const tokenHash = generateTokenHash([TOKENS[token]]);
+    const tokenHash = generateTokenHash([VAULT_TOKENS[token]]);
     let decimals: number;
     let underlyingTokenName: string;
     let underlyingTokenSymbol: string;
@@ -89,7 +89,7 @@ describe(scenario.title, () => {
         Vault = await deployVault(
           hre,
           essentialContracts.registry.address,
-          TOKENS[token],
+          VAULT_TOKENS[token],
           operator,
           admin,
           underlyingTokenName,
@@ -100,13 +100,13 @@ describe(scenario.title, () => {
 
         await unpauseVault(operator, essentialContracts.registry, Vault.address, true);
 
-        const Token_ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+        const Token_ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[token]);
 
         decimals = await Token_ERC20Instance.decimals();
 
         contracts["erc20"] = Token_ERC20Instance;
 
-        const CHIInstance = await hre.ethers.getContractAt("IChi", TOKENS["CHI"]);
+        const CHIInstance = await hre.ethers.getContractAt("IChi", VAULT_TOKENS["CHI"]);
 
         contracts["chi"] = CHIInstance;
 
@@ -226,7 +226,7 @@ describe(scenario.title, () => {
                     const timestamp = (await getBlockTimestamp(hre)) * 2;
                     await fundWalletToken(
                       hre,
-                      TOKENS[token],
+                      VAULT_TOKENS[token],
                       operator,
                       BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals)),
                       timestamp,
@@ -289,7 +289,7 @@ describe(scenario.title, () => {
                 break;
               }
               case "setBestStrategy(string,bytes32,bytes32)": {
-                const strategyHash = generateStrategyHash(strategies[strategyIndex].strategy, TOKENS[token]);
+                const strategyHash = generateStrategyHash(strategies[strategyIndex].strategy, VAULT_TOKENS[token]);
                 if (action.expect === "success") {
                   await contracts[action.contract][action.action](riskProfile, tokenHash, strategyHash);
                 } else {

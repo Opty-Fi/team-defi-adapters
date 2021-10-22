@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
   approveAndSetTokenHashToToken,
@@ -40,15 +40,15 @@ describe(scenario.title, () => {
       let emergencyBrake: Contract;
       before(async () => {
         try {
-          await approveAndSetTokenHashToToken(owner, essentialContracts.registry, TOKENS[token]);
+          await approveAndSetTokenHashToToken(owner, essentialContracts.registry, VAULT_TOKENS[token]);
           const timestamp = (await getBlockTimestamp(hre)) * 2;
-          await fundWalletToken(hre, TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
+          await fundWalletToken(hre, VAULT_TOKENS[token], owner, BigNumber.from(MAX_AMOUNT * 100), timestamp);
           underlyingTokenName = await getTokenName(hre, token);
           underlyingTokenSymbol = await getTokenSymbol(hre, token);
           Vault = await deployVault(
             hre,
             essentialContracts.registry.address,
-            TOKENS[token],
+            VAULT_TOKENS[token],
             owner,
             admin,
             underlyingTokenName,
@@ -61,9 +61,9 @@ describe(scenario.title, () => {
           await Vault.connect(owner).setMaxVaultValueJump(vault.maxJump);
 
           const EmergencyBrakeFactory = await hre.ethers.getContractFactory(TESTING_CONTRACTS.TESTING_EMERGENCY_BRAKE);
-          emergencyBrake = await EmergencyBrakeFactory.deploy(Vault.address, TOKENS[token]);
+          emergencyBrake = await EmergencyBrakeFactory.deploy(Vault.address, VAULT_TOKENS[token]);
 
-          ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[token]);
+          ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[token]);
           await ERC20Instance.connect(owner).transfer(emergencyBrake.address, MAX_AMOUNT * 2);
         } catch (error: any) {
           console.error(error);
