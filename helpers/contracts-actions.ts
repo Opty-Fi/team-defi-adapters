@@ -174,7 +174,12 @@ export async function fundWalletToken(
   const uniswapInstance = await hre.ethers.getContractAt(router.abi, UNISWAP_ROUTER);
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
-  if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
+  const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
+    holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
+  );
+  if (tokenHolder.length > 0) {
+    await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
+  } else if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
     const pairInstance = await hre.ethers.getContractAt(pair.abi, tokenAddress);
     const pairSymbol = await pairInstance.symbol();
     if (["SLP", "UNI-V2"].includes(pairSymbol)) {
@@ -314,20 +319,13 @@ export async function fundWalletToken(
     const balance = await yEthInstance.balanceOf(await wallet.getAddress());
     await yEthInstance.transfer(address, balance);
   } else {
-    const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
-      holder => getAddress(TypedTokens[holder]) === getAddress(tokenAddress),
+    await uniswapInstance.swapETHForExactTokens(
+      amount,
+      [TypedTokens["WETH"], tokenAddress],
+      address,
+      deadlineTimestamp,
+      getEthValueGasOverrideOptions(hre, "9500"),
     );
-    if (tokenHolder.length > 0) {
-      await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
-    } else {
-      await uniswapInstance.swapETHForExactTokens(
-        amount,
-        [TypedTokens["WETH"], tokenAddress],
-        address,
-        deadlineTimestamp,
-        getEthValueGasOverrideOptions(hre, "9500"),
-      );
-    }
   }
   return await tokenInstance.balanceOf(address);
 }

@@ -222,6 +222,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
               let liquidityPoolTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let liquidityPoolTokenBalanceStakeBefore: BigNumber = hre.ethers.BigNumber.from(0);
               let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+              let previousBlockTimestamp = await getBlockTimestamp(hre);
               for (const action of story.setActions) {
                 switch (action.action) {
                   case "setMaxDepositProtocolMode(uint8)": {
@@ -365,12 +366,30 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                   case "testGetHarvestAllCodes(address,address,address)": {
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        rewardTokenBalanceBefore,
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                     break;
                   }
                   case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                     underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     rewardTokenBalanceBefore = await rewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        rewardTokenBalanceBefore,
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     await testDeFiAdapter[action.action](
                       liquidityPool,
                       underlyingTokenAddress,
@@ -416,9 +435,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "wait10000Seconds": {
-                    const blockNumber = await hre.ethers.provider.getBlockNumber();
-                    const block = await hre.ethers.provider.getBlock(blockNumber);
-                    await hre.network.provider.send("evm_setNextBlockTimestamp", [block.timestamp + 10000]);
+                    await hre.network.provider.send("evm_setNextBlockTimestamp", [previousBlockTimestamp + 10000]);
                     await hre.network.provider.send("evm_mine");
                     break;
                   }
@@ -427,7 +444,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
                       testDeFiAdapter.address,
                     );
-                    expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
+                    expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     break;
                   }
                   case "testGetUnstakeSomeCodes(address,uint256,address)": {
@@ -448,8 +465,8 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       testDeFiAdapter.address,
                     );
                     const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
-                    expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
-                    expect(+liquidityPoolTokenBalanceAfter).to.be.eq(0);
+                    expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
+                    expect(liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
                   }
                   case "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)": {
@@ -466,8 +483,8 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       testDeFiAdapter.address,
                     );
                     const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
-                    expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
-                    expect(+liquidityPoolTokenBalanceAfter).to.be.eq(0);
+                    expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
+                    expect(liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
                   }
                   case "getUnderlyingTokens(address,address)": {
@@ -542,19 +559,17 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                         underlyingTokenAddress,
                       );
                       if (existingDepositAmount.eq(0)) {
-                        expect(+lpTokenBalance).to.be.eq(0);
+                        expect(lpTokenBalance).to.be.eq(0);
                       } else {
-                        expect(+lpTokenBalance).to.be.gt(0);
+                        expect(lpTokenBalance).to.be.gt(0);
                       }
                     } else {
                       const existingPoolPct: BigNumber = await harvestV1Adapter.maxDepositPoolPct(liquidityPool);
                       const existingProtocolPct: BigNumber = await harvestV1Adapter.maxDepositProtocolPct();
                       if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
-                        expect(+lpTokenBalance).to.be.eq(0);
+                        expect(lpTokenBalance).to.be.eq(0);
                       } else {
-                        expectedValue == "=0"
-                          ? expect(+lpTokenBalance).to.be.eq(0)
-                          : expect(+lpTokenBalance).to.be.gt(0);
+                        expectedValue == "=0" ? expect(lpTokenBalance).to.be.eq(0) : expect(lpTokenBalance).to.be.gt(0);
                       }
                     }
                     break;
@@ -564,12 +579,12 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     if (underlyingBalanceBefore.lt(limit)) {
                       expectedValue == ">0"
-                        ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(0);
+                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                        : expect(underlyingBalanceAfter).to.be.eq(0);
                     } else {
                       expectedValue == ">0"
-                        ? expect(+underlyingBalanceAfter).to.be.gt(+underlyingBalanceBefore)
-                        : expect(+underlyingBalanceAfter).to.be.eq(+underlyingBalanceBefore.sub(limit));
+                        ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                        : expect(underlyingBalanceAfter).to.be.eq(underlyingBalanceBefore.sub(limit));
                     }
                     break;
                   }
@@ -579,10 +594,12 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     );
                     const expectedValue = action.expectedValue;
                     expectedValue == ">0"
-                      ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
+                      ? previousBlockTimestamp < (await stakingVaultInstance.lastTimeRewardApplicable())
+                        ? expect(rewardTokenBalanceAfter).to.be.gt(rewardTokenBalanceBefore)
+                        : expect(rewardTokenBalanceAfter).to.be.eq(rewardTokenBalanceBefore)
                       : expectedValue == "=0"
-                      ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
-                      : expect(+rewardTokenBalanceAfter).to.be.lt(+rewardTokenBalanceBefore);
+                      ? expect(rewardTokenBalanceAfter).to.be.eq(0)
+                      : expect(rewardTokenBalanceAfter).to.be.lt(rewardTokenBalanceBefore);
                     break;
                   }
                   case "getLiquidityPoolTokenBalanceStake(address,address)": {
@@ -591,14 +608,27 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     );
                     const expectedValue = action.expectedValue;
                     expectedValue == ">0"
-                      ? expect(+liquidityPoolTokenBalanceStakeAfter).to.be.gt(+liquidityPoolTokenBalanceStakeBefore)
+                      ? expect(liquidityPoolTokenBalanceStakeAfter).to.be.gt(liquidityPoolTokenBalanceStakeBefore)
                       : expectedValue == "=0"
-                      ? expect(+liquidityPoolTokenBalanceStakeAfter).to.be.eq(0)
-                      : expect(+liquidityPoolTokenBalanceStakeAfter).to.be.lt(+liquidityPoolTokenBalanceStakeBefore);
+                      ? expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0)
+                      : expect(liquidityPoolTokenBalanceStakeAfter).to.be.lt(liquidityPoolTokenBalanceStakeBefore);
                     break;
                   }
                   case "isRedeemableAmountSufficient(address,address,address,uint256)": {
                     const expectedValue = action.expectedValue;
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const amountInUnderlyingToken: BigNumber = await harvestV1Adapter.getAllAmountInToken(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -627,6 +657,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                   }
                   case "isRedeemableAmountSufficientStake(address,address,address,uint256)": {
                     const expectedValue = action.expectedValue;
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const amountInUnderlyingToken: BigNumber = await harvestV1Adapter.getAllAmountInTokenStake(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -654,6 +697,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const lpTokenBalance: BigNumber = await harvestV1Adapter.getLiquidityPoolTokenBalance(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -679,6 +735,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)": {
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const lpTokenBalance: BigNumber = await harvestV1Adapter.getLiquidityPoolTokenBalance(
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -704,6 +773,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "getAllAmountInToken(address,address,address)": {
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const amountInUnderlyingToken = await harvestV1Adapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
@@ -732,6 +814,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "getSomeAmountInToken(address,address,uint256)": {
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const lpTokenDecimals = await vaultInstance.decimals();
                     const lpTokenAmount = defaultFundAmount.mul(BigNumber.from(10).pow(lpTokenDecimals));
                     if (+lpTokenAmount > 0) {
@@ -749,6 +844,19 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "getAllAmountInTokenStake(address,address,address)": {
+                    try {
+                      await adapterPrerequisites.harvestCodeProvider.rewardBalanceInUnderlyingTokens(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        await harvestV1Adapter.getUnclaimedRewardTokenAmount(
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                          underlyingTokenAddress,
+                        ),
+                      );
+                    } catch (e) {
+                      this.skip();
+                    }
                     const amountInUnderlyingToken = await harvestV1Adapter[action.action](
                       testDeFiAdapter.address,
                       underlyingTokenAddress,
