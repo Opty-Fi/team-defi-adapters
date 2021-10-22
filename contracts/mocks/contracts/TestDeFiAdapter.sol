@@ -195,4 +195,18 @@ contract TestDeFiAdapter is MultiCall {
             "unstakeAndWithdrawSome"
         );
     }
+
+    function testGetAddLiquidityCodes(address _underlyingToken, address _adapter) external {
+        executeCodes(
+            IAdapterFull(_adapter).getAddLiquidityCodes(payable(address(this)), _underlyingToken),
+            "addLiquidity"
+        );
+    }
+
+    function burnBorrowTokens(address _borrowToken) external {
+        ERC20(_borrowToken).transfer(
+            address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
+            ERC20(_borrowToken).balanceOf(address(this))
+        );
+    }
 }

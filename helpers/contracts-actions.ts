@@ -1,22 +1,22 @@
-import { RISK_PROFILES, UNISWAP_ROUTER, SUSHISWAP_ROUTER, TOKEN_HOLDERS, CURVE_REGISTRY } from "./constants";
+import { RISK_PROFILES, TOKEN_HOLDERS, CONTRACT_ADDRESSES } from "./constants";
 import { Contract, Signer, BigNumber } from "ethers";
-import { STRATEGY_DATA } from "./type";
-import { TypedTokens, TypedPairTokens, TypedCurveTokens } from "./data";
-import {
-  executeFunc,
-  generateStrategyStep,
-  getEthValueGasOverrideOptions,
-  generateStrategyHash,
-  generateTokenHash,
-  isAddress,
-} from "./helpers";
-import { amountInHex } from "./utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import pair from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
-import router from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
+import { abi as uniswapv2pairAbi } from "@uniswap/v2-periphery/build/IUniswapV2Pair.json";
+import { abi as uniswapv2router02Abi } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import { STRATEGY_DATA } from "./type";
+import { TypedCurveTokens, TypedMultiAssetTokens, TypedTokens } from "./data";
+import {
+  executeFunc,
+  generateStrategyHash,
+  generateStrategyStep,
+  generateTokenHash,
+  getEthValueGasOverrideOptions,
+  isAddress,
+} from "./helpers";
+import { amountInHex } from "./utils";
 
 export async function approveLiquidityPoolAndMapAdapter(
   owner: Signer,
@@ -169,9 +169,9 @@ export async function fundWalletToken(
 ): Promise<BigNumber> {
   const amount = amountInHex(fundAmount);
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
-  const ValidatedPairTokens = Object.values(TypedPairTokens).map(({ address }) => getAddress(address));
+  const ValidatedPairTokens = Object.values(TypedMultiAssetTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
-  const uniswapInstance = await hre.ethers.getContractAt(router.abi, UNISWAP_ROUTER);
+  const uniswapInstance = await hre.ethers.getContractAt(uniswapv2router02Abi, CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER);
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
   const tokenHolder = Object.keys(TOKEN_HOLDERS).filter(
@@ -180,15 +180,15 @@ export async function fundWalletToken(
   if (tokenHolder.length > 0) {
     await fundWalletFromImpersonatedAccount(hre, tokenAddress, TOKEN_HOLDERS[tokenHolder[0]], fundAmount, address);
   } else if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
-    const pairInstance = await hre.ethers.getContractAt(pair.abi, tokenAddress);
+    const pairInstance = await hre.ethers.getContractAt(uniswapv2pairAbi, tokenAddress);
     const pairSymbol = await pairInstance.symbol();
     if (["SLP", "UNI-V2"].includes(pairSymbol)) {
       const TOKEN0 = await pairInstance.token0();
       const TOKEN1 = await pairInstance.token1();
       let token0Path: string[] = [],
         token1Path: string[] = [];
-      for (let i = 0; i < Object.values(TypedPairTokens).length; i++) {
-        const value = Object.values(TypedPairTokens)[i];
+      for (let i = 0; i < Object.values(TypedMultiAssetTokens).length; i++) {
+        const value = Object.values(TypedMultiAssetTokens)[i];
         if (getAddress(value.address) === getAddress(tokenAddress)) {
           if (value.path0) {
             token0Path.push(getAddress(TypedTokens[value.path0[0]]));
@@ -205,8 +205,8 @@ export async function fundWalletToken(
         }
       }
       const routerInstance = await hre.ethers.getContractAt(
-        router.abi,
-        pairSymbol === "SLP" ? SUSHISWAP_ROUTER : UNISWAP_ROUTER,
+        uniswapv2router02Abi,
+        pairSymbol === "SLP" ? CONTRACT_ADDRESSES.SUSHISWAP_ROUTER : CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
       );
 
       if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
@@ -252,7 +252,7 @@ export async function fundWalletToken(
       const pool = curveToken.pool;
       const swap = curveToken?.swap;
       const old = curveToken?.old;
-      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CURVE_REGISTRY);
+      const curveRegistryInstance = await hre.ethers.getContractAt("ICurveRegistry", CONTRACT_ADDRESSES.CURVE_REGISTRY);
       const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
       const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
       const coin = swap
