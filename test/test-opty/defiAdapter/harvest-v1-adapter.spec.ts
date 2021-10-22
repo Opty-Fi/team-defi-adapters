@@ -11,7 +11,6 @@ import testDeFiAdapterScenario from "../scenarios/harvest-v1-test-defi-adapter.j
 import scenarios from "../scenarios/adapters.json";
 import { deployContract } from "../../../helpers/helpers";
 import { getAddress } from "ethers/lib/utils";
-import abis from "../../../helpers/data/abis.json";
 import { ERC20 } from "../../../typechain/ERC20";
 
 chai.use(solidity);
@@ -208,8 +207,9 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
               let limit: BigNumber = hre.ethers.BigNumber.from(0);
               const timestamp = (await getBlockTimestamp(hre)) * 2;
               const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
-              const vaultInstance = await hre.ethers.getContractAt(abis.vault, liquidityPool);
-              const stakingVaultInstance = await hre.ethers.getContractAt(abis.stakingVault, stakingVaultAddress);
+              const vaultInstance = await hre.ethers.getContractAt("IHarvestDeposit", liquidityPool);
+              const ERC20VaultInstance = await hre.ethers.getContractAt("ERC20", liquidityPool);
+              const stakingVaultInstance = await hre.ethers.getContractAt("IHarvestFarm", stakingVaultAddress);
               const rewardTokenAddress = await harvestV1Adapter.getRewardToken(liquidityPool);
               let rewardTokenERC20Instance: Contract;
               if (rewardTokenAddress !== ADDRESS_ZERO) {
@@ -423,7 +423,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "testGetStakeSomeCodes(address,uint256,address)": {
-                    liquidityPoolTokenBalanceBefore = await vaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceBefore = await ERC20VaultInstance.balanceOf(testDeFiAdapter.address);
                     liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
                       testDeFiAdapter.address,
                     );
@@ -448,7 +448,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     break;
                   }
                   case "testGetUnstakeSomeCodes(address,uint256,address)": {
-                    liquidityPoolTokenBalanceBefore = await vaultInstance.balanceOf(testDeFiAdapter.address);
+                    liquidityPoolTokenBalanceBefore = await ERC20VaultInstance.balanceOf(testDeFiAdapter.address);
                     liquidityPoolTokenBalanceStakeBefore = await stakingVaultInstance.balanceOf(
                       testDeFiAdapter.address,
                     );
@@ -464,7 +464,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
                       testDeFiAdapter.address,
                     );
-                    const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
+                    const liquidityPoolTokenBalanceAfter = await ERC20VaultInstance.balanceOf(testDeFiAdapter.address);
                     expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     expect(liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
@@ -482,7 +482,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     const liquidityPoolTokenBalanceStakeAfter = await stakingVaultInstance.balanceOf(
                       testDeFiAdapter.address,
                     );
-                    const liquidityPoolTokenBalanceAfter = await vaultInstance.balanceOf(testDeFiAdapter.address);
+                    const liquidityPoolTokenBalanceAfter = await ERC20VaultInstance.balanceOf(testDeFiAdapter.address);
                     expect(liquidityPoolTokenBalanceStakeAfter).to.be.eq(0);
                     expect(liquidityPoolTokenBalanceAfter).to.be.eq(0);
                     break;
@@ -594,7 +594,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                     );
                     const expectedValue = action.expectedValue;
                     expectedValue == ">0"
-                      ? previousBlockTimestamp < (await stakingVaultInstance.lastTimeRewardApplicable())
+                      ? BigNumber.from(previousBlockTimestamp).lt(await stakingVaultInstance.lastTimeRewardApplicable())
                         ? expect(rewardTokenBalanceAfter).to.be.gt(rewardTokenBalanceBefore)
                         : expect(rewardTokenBalanceAfter).to.be.eq(rewardTokenBalanceBefore)
                       : expectedValue == "=0"
@@ -792,7 +792,7 @@ describe(`${testDeFiAdapterScenario.title} - HarvestV1Adapter`, () => {
                       liquidityPool,
                     );
                     const pricePerFullShare = await vaultInstance.getPricePerFullShare();
-                    const lpTokenBalance = await vaultInstance.balanceOf(testDeFiAdapter.address);
+                    const lpTokenBalance = await ERC20VaultInstance.balanceOf(testDeFiAdapter.address);
                     let expectedAmountInUnderlyingToken: BigNumber = lpTokenBalance
                       .mul(BigNumber.from(pricePerFullShare))
                       .div(BigNumber.from(10).pow(decimals));
