@@ -128,7 +128,7 @@ describe(scenario.title, () => {
                           adapterPrerequisites.harvestCodeProvider.address,
                         )
                       : await testHarvestCodeProvider[action.action](
-                          CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                          CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
                           underlyingTokenAddress,
                           adapterPrerequisites.harvestCodeProvider.address,
                         );
@@ -191,7 +191,7 @@ describe(scenario.title, () => {
                     );
                     const uniswapRouterInstance = await hre.ethers.getContractAt(
                       IUniswapV2Router02.abi,
-                      CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                      CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
                     );
                     let amounts;
                     if (getAddress(underlyingTokenAddress) === getAddress(TypedTokens.WETH)) {
@@ -217,7 +217,7 @@ describe(scenario.title, () => {
                   let expectedAmount;
                   const uniswapRouterInstance = await hre.ethers.getContractAt(
                     IUniswapV2Router02.abi,
-                    CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                    CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
                   );
                   let amounts;
                   let finalAmount;
@@ -354,7 +354,7 @@ describe(scenario.title, () => {
                     } else {
                       const uniswapRouterInstance = await hre.ethers.getContractAt(
                         IUniswapV2Router02.abi,
-                        CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+                        CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
                       );
                       const amounts = await uniswapRouterInstance.getAmountsOut(wethAmount, [
                         TypedTokens.WETH,

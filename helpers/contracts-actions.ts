@@ -171,7 +171,7 @@ export async function fundWalletToken(
   const address = toAddress === undefined ? await wallet.getAddress() : toAddress;
   const ValidatedPairTokens = Object.values(TypedPairTokens).map(({ address }) => getAddress(address));
   const ValidatedCurveTokens = Object.values(TypedCurveTokens).map(({ address }) => getAddress(address));
-  const uniswapInstance = await hre.ethers.getContractAt(router.abi, CONTRACT_ADDRESSES.UNISWAPV2_ROUTER);
+  const uniswapInstance = await hre.ethers.getContractAt(router.abi, CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER);
   const tokenInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
   const walletAddress = await wallet.getAddress();
   if (ValidatedPairTokens.includes(getAddress(tokenAddress))) {
@@ -201,7 +201,7 @@ export async function fundWalletToken(
       }
       const routerInstance = await hre.ethers.getContractAt(
         router.abi,
-        pairSymbol === "SLP" ? CONTRACT_ADDRESSES.SUSHISWAP_ROUTER : CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
+        pairSymbol === "SLP" ? CONTRACT_ADDRESSES.SUSHISWAP_ROUTER : CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
       );
 
       if (getAddress(TOKEN1) === getAddress(TypedTokens["WETH"])) {
