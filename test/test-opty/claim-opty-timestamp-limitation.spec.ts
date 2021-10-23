@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
 import { executeFunc } from "../../helpers/helpers";
 import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
@@ -26,7 +26,7 @@ type ARGUMENTS = {
 };
 describe(scenario.title, () => {
   const token = "DAI";
-  const tokenAddr = TOKENS["DAI"];
+  const tokenAddr = VAULT_TOKENS["DAI"];
   const MAX_AMOUNT = "100000000000000000000000";
   let contracts: CONTRACTS = {};
   let users: { [key: string]: Signer };
@@ -60,7 +60,7 @@ describe(scenario.title, () => {
       contracts["vault"] = Vault;
 
       contracts["erc20"] = ERC20Instance;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

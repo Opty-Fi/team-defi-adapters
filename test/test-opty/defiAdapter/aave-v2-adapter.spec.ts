@@ -2,13 +2,14 @@ import chai, { expect, assert } from "chai";
 import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
+import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
-  ADDRESS_ZERO,
+  VAULT_TOKENS,
   TESTING_DEPLOYMENT_ONCE,
   AAVE_V2_ADAPTER_NAME,
   CONTRACT_ADDRESSES,
+  ADDRESS_ZERO,
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
@@ -22,7 +23,6 @@ import {
 import { getAddress } from "ethers/lib/utils";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/aave-temp-defi-adapter.json";
-import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 
 chai.use(solidity);
 
@@ -71,7 +71,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpProvider: Contract;
       let lpContract: Contract;
       let lpAddress: string;
@@ -99,7 +99,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
           await tokenContract.approve(lpAddress, BORROW_AMOUNT);
           await lpContract.deposit(token, BORROW_AMOUNT, ownerAddress, 0);
           await lpContract.setUserUseReserveAsCollateral(token, true);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });
@@ -287,7 +287,7 @@ describe(`${AAVE_V2_ADAPTER_NAME} Unit test`, () => {
                   CONTRACT_ADDRESSES.AAVE_V2_PRICE_ORACLE,
                 );
                 const uniswapInstance = new hre.ethers.Contract(
-                  CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
+                  CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
                   IUniswapV2Router02.abi,
                   users["owner"],
                 );

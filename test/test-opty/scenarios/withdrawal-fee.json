@@ -7,6 +7,78 @@
       "profile": "RP1",
       "stories": [
         {
+          "description": "User don't have to pay withdrawal fee when no treasury address is set even if withdrawal fee is set",
+          "activities": [
+            {
+              "setActions": [
+                {
+                  "contract": "registry",
+                  "action": "setWithdrawalFee(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "fee": "500"
+                  },
+                  "executer": "owner",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "",
+                  "action": "fundWallet",
+                  "args": {
+                    "addressName": "user1",
+                    "amount": "1000000000000000000"
+                  },
+                  "executer": "",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "erc20",
+                  "action": "approve(address,uint256)",
+                  "args": {
+                    "addressName": "vault",
+                    "amount": "1000000000000000000"
+                  },
+                  "executer": "user1",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userDepositRebalance(uint256)",
+                  "args": {
+                    "amount": "1000000000000000000"
+                  },
+                  "executer": "user1",
+                  "expect": "success",
+                  "message": ""
+                },
+                {
+                  "contract": "vault",
+                  "action": "userWithdrawRebalance(uint256)",
+                  "args": {
+                    "amount": "1000000000000000000"
+                  },
+                  "executer": "user1",
+                  "expect": "success",
+                  "message": ""
+                }
+              ],
+              "getActions": [
+                {
+                  "contract": "erc20",
+                  "action": "balanceOf(address)",
+                  "args": {
+                    "addressName": "user1"
+                  },
+                  "expectedValue": "1000000000000000000"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "description": "User have to pay withdrawal fee and it will be given to 1 treasury account when they do userWithdrawRebalance",
           "activities": [
             {
@@ -1004,78 +1076,7 @@
             }
           ]
         },
-        {
-          "description": "User don't have to pay withdrawal fee when no treasury address is set even if withdrawal fee is set",
-          "activities": [
-            {
-              "setActions": [
-                {
-                  "contract": "registry",
-                  "action": "setWithdrawalFee(address,uint256)",
-                  "args": {
-                    "addressName": "vault",
-                    "fee": "500"
-                  },
-                  "executer": "owner",
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "",
-                  "action": "fundWallet",
-                  "args": {
-                    "addressName": "user1",
-                    "amount": "1000000000000000000"
-                  },
-                  "executer": "",
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "erc20",
-                  "action": "approve(address,uint256)",
-                  "args": {
-                    "addressName": "vault",
-                    "amount": "1000000000000000000"
-                  },
-                  "executer": "user1",
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "vault",
-                  "action": "userDepositRebalance(uint256)",
-                  "args": {
-                    "amount": "1000000000000000000"
-                  },
-                  "executer": "user1",
-                  "expect": "success",
-                  "message": ""
-                },
-                {
-                  "contract": "vault",
-                  "action": "userWithdrawRebalance(uint256)",
-                  "args": {
-                    "amount": "1000000000000000000"
-                  },
-                  "executer": "user1",
-                  "expect": "success",
-                  "message": ""
-                }
-              ],
-              "getActions": [
-                {
-                  "contract": "erc20",
-                  "action": "balanceOf(address)",
-                  "args": {
-                    "addressName": "user1"
-                  },
-                  "expectedValue": "1000000000000000000"
-                }
-              ]
-            }
-          ]
-        },
+
         {
           "description": "User don't have to pay withdrawal fee when no treasury address is set even if No withdrawal fee is set",
           "activities": [

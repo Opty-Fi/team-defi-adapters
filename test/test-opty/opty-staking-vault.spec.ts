@@ -44,7 +44,7 @@ describe(scenario.title, () => {
         await unpauseVault(owner, essentialContracts.registry, contracts[stakingVaultNames[i]].address, true);
       }
       contracts["opty"] = essentialContracts.opty;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

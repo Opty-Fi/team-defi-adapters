@@ -5,6 +5,7 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { executeFunc } from "../../helpers/helpers";
 import scenario from "./scenarios/mint-opty-protection-opt-001.json";
+import { VAULT_TOKENS } from "../../helpers/constants";
 type ARGUMENTS = {
   contractName?: string;
   amount?: string;
@@ -19,13 +20,13 @@ describe(scenario.title, () => {
     try {
       const [owner] = await hre.ethers.getSigners();
       users = { owner };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
+      [essentialContracts, adapters] = await setUp(users["owner"], Object.values(VAULT_TOKENS));
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
       contracts["priceOracle"] = essentialContracts.priceOracle;
 
       contracts["optyDistributor"] = essentialContracts.optyDistributor;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

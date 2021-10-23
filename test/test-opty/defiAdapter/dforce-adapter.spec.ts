@@ -5,7 +5,7 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   TESTING_CONTRACTS,
   TESTING_DEPLOYMENT_ONCE,
   DFORCE_ADAPTER_NAME,
@@ -57,7 +57,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -65,14 +65,14 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpToken: string;
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
           lpToken = await adapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

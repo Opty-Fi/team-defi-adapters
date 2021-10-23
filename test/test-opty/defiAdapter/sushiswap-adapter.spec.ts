@@ -4,11 +4,11 @@ import { solidity } from "ethereum-waffle";
 import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   TESTING_DEPLOYMENT_ONCE,
-  ADDRESS_ZERO,
   SUSHISWAP_ADAPTER_NAME,
   CONTRACT_ADDRESSES,
+  ADDRESS_ZERO,
 } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
@@ -62,7 +62,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       const masterChef = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd";
       for (let i = 0; i < scenarios.stories.length; i++) {
         it(scenarios.stories[i].description, async () => {

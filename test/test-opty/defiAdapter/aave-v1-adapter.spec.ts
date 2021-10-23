@@ -4,7 +4,7 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   ADDRESS_ZERO,
   TESTING_DEPLOYMENT_ONCE,
   AAVE_V1_ADAPTER_NAME,
@@ -23,6 +23,7 @@ import { getAddress } from "ethers/lib/utils";
 import scenarios from "../scenarios/adapters.json";
 import testDeFiAdapterScenario from "../scenarios/aave-temp-defi-adapter.json";
 import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import { IAaveV1LendingPoolCore } from "../../../typechain";
 
 chai.use(solidity);
 
@@ -71,7 +72,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpProvider: Contract;
       let lpContract: Contract;
       let lpCoreAddress: string;
@@ -92,7 +93,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
           await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
           await fundWalletToken(hre, SNTToken, users["owner"], MAX_AMOUNT, timestamp);
           await lpContract.setUserUseReserveAsCollateral(token, true);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });
@@ -279,12 +280,11 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                   "IAaveV1PriceOracle",
                   CONTRACT_ADDRESSES.AAVE_V1_PRICE_ORACLE,
                 );
-                const lendingPoolCoreInstance = await hre.ethers.getContractAt(
-                  "IAaveV1LendingPoolCore",
-                  CONTRACT_ADDRESSES.AAVE_V1_LENDING_POOL_CORE,
+                const lendingPoolCoreInstance = <IAaveV1LendingPoolCore>(
+                  await hre.ethers.getContractAt("IAaveV1LendingPoolCore", CONTRACT_ADDRESSES.AAVE_V1_LENDING_POOL_CORE)
                 );
                 const uniswapInstance = new hre.ethers.Contract(
-                  CONTRACT_ADDRESSES.UNISWAP_V2_ROUTER,
+                  CONTRACT_ADDRESSES.UNISWAPV2_ROUTER,
                   IUniswapV2Router02.abi,
                   users["owner"],
                 );

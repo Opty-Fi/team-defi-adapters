@@ -45,7 +45,7 @@ describe(scenario.title, () => {
       contracts["strategyProvider"] = essentialContracts.strategyProvider;
       contracts["erc20"] = dummyToken;
       contracts["vault"] = Vault;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

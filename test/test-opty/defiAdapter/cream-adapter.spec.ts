@@ -6,7 +6,7 @@ import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { CONTRACTS } from "../../../helpers/type";
 import {
-  TOKENS,
+  VAULT_TOKENS,
   TESTING_DEPLOYMENT_ONCE,
   CREAM_ADAPTER_NAME,
   ADDRESS_ZERO,
@@ -62,7 +62,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -70,14 +70,14 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpToken: string;
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
           lpToken = await adapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

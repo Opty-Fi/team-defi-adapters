@@ -296,7 +296,7 @@ contract CurveDepositPoolAdapter is
         if (_liquidityGauge != address(0)) {
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
-                getMinter(_liquidityGauge),
+                _getMinter(_liquidityGauge),
                 abi.encodeWithSignature("mint(address)", _liquidityGauge)
             );
         }
@@ -494,7 +494,7 @@ contract CurveDepositPoolAdapter is
         address _curveRegistry = _getCurveRegistry();
         address _liquidityGauge = _getLiquidityGauge(_liquidityPool, _curveRegistry);
         if (_liquidityGauge != address(0)) {
-            return ITokenMinter(getMinter(_liquidityGauge)).token();
+            return ITokenMinter(_getMinter(_liquidityGauge)).token();
         }
         return address(0);
     }
@@ -653,8 +653,10 @@ contract CurveDepositPoolAdapter is
 
     /**
      * @notice Get the Curve Minter's address
+     * @param _gauge the liquidity gauge address
+     * @return address the address of the minter
      */
-    function getMinter(address _gauge) public view returns (address) {
+    function _getMinter(address _gauge) internal view returns (address) {
         return ICurveGauge(_gauge).minter();
     }
 

@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { Signer, BigNumber } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { generateTokenHash } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
@@ -40,10 +40,10 @@ describe(scenarios.title, () => {
     try {
       const [owner, admin] = await hre.ethers.getSigners();
       users = { owner, admin };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
+      [essentialContracts, adapters] = await setUp(users["owner"], Object.values(VAULT_TOKENS));
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -63,7 +63,7 @@ describe(scenarios.title, () => {
         for (let i = 0; i < strategies.length; i++) {
           describe(`${strategies[i].strategyName}`, async () => {
             const strategy = strategies[i];
-            const tokensHash = generateTokenHash([TOKENS[strategy.token]]);
+            const tokensHash = generateTokenHash([VAULT_TOKENS[strategy.token]]);
             let bestStrategyHash: string;
             let vaultRiskProfile: string;
             const contracts: CONTRACTS = {};
@@ -75,7 +75,7 @@ describe(scenarios.title, () => {
                 const Vault = await deployVault(
                   hre,
                   essentialContracts.registry.address,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   users["owner"],
                   users["admin"],
                   underlyingTokenName,
@@ -96,7 +96,7 @@ describe(scenarios.title, () => {
                 vaultRiskProfile = await Vault.profile();
                 bestStrategyHash = await setBestStrategy(
                   strategy.strategy,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   essentialContracts.investStrategyRegistry,
                   essentialContracts.strategyProvider,
                   vaultRiskProfile,
@@ -106,13 +106,13 @@ describe(scenarios.title, () => {
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 await fundWalletToken(
                   hre,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   users["owner"],
                   MAX_AMOUNT[strategy.token],
                   timestamp,
                 );
 
-                const ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                const ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[strategy.token]);
 
                 contracts["strategyProvider"] = essentialContracts.strategyProvider;
                 contracts["adapter"] = adapter;
@@ -120,7 +120,7 @@ describe(scenarios.title, () => {
                 contracts["vault"] = Vault;
 
                 contracts["erc20"] = ERC20Instance;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });

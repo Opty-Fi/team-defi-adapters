@@ -134,8 +134,8 @@ const buidlerConfig: HardhatUserConfig = {
     gasPrice: 21,
     enabled: process.env.REPORT_GAS == "true" ? true : false,
     coinmarketcap: process.env.COINMARKETCAP_API,
-    excludeContracts: [],
-    src: "./contracts",
+    excludeContracts: ["dependencies/", "mocks/"],
+    src: "contracts",
   },
   docgen: {
     path: "./specification_docs",

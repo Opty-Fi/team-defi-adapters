@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
@@ -37,11 +37,11 @@ describe(scenario.title, () => {
     try {
       [owner, admin] = await hre.ethers.getSigners();
       users = { owner, admin };
-      [essentialContracts, adapters] = await setUp(users["owner"]);
+      [essentialContracts, adapters] = await setUp(users["owner"], Object.values(VAULT_TOKENS));
       contracts = { ...essentialContracts };
       assert.isDefined(essentialContracts, "Essential contracts not deployed");
       assert.isDefined(adapters, "Adapters not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -82,7 +82,7 @@ describe(scenario.title, () => {
                 vault = await deployVault(
                   hre,
                   essentialContracts.registry.address,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   owner,
                   admin,
                   underlyingTokenName,
@@ -93,7 +93,7 @@ describe(scenario.title, () => {
 
                 await setBestStrategy(
                   strategy.strategy,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   essentialContracts.investStrategyRegistry,
                   essentialContracts.strategyProvider,
                   profile,
@@ -102,11 +102,11 @@ describe(scenario.title, () => {
 
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
 
-                ERC20Instance = await hre.ethers.getContractAt("ERC20", TOKENS[strategy.token]);
+                ERC20Instance = await hre.ethers.getContractAt("ERC20", VAULT_TOKENS[strategy.token]);
                 decimals = await ERC20Instance.decimals();
                 await fundWalletToken(
                   hre,
-                  TOKENS[strategy.token],
+                  VAULT_TOKENS[strategy.token],
                   owner,
                   BigNumber.from(MAX_AMOUNT).mul(BigNumber.from(10).pow(decimals)),
                   timestamp,
@@ -117,7 +117,7 @@ describe(scenario.title, () => {
                 }
                 contracts["vault"] = vault;
                 contracts["erc20"] = ERC20Instance;
-              } catch (error) {
+              } catch (error: any) {
                 console.error(error);
               }
             });

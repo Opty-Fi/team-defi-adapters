@@ -69,7 +69,7 @@ describe(scenario.title, () => {
         false,
       );
       contracts = { registry, strategyProvider };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });

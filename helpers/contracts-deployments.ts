@@ -2,7 +2,7 @@ import {
   ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
   RISK_PROFILES,
   ADAPTERS,
-  TOKENS,
+  VAULT_TOKENS,
   OPTY_STAKING_VAULTS,
 } from "./constants";
 import { Contract, Signer } from "ethers";
@@ -266,7 +266,7 @@ export async function deployAdapters(
   for (const adapter of ADAPTERS) {
     try {
       data[adapter] = await deployAdapter(hre, owner, adapter, registryAddr, isDeployedOnce);
-    } catch (error) {
+    } catch (error: any) {
       console.log(adapter, error);
     }
   }
@@ -327,11 +327,20 @@ export async function deployVaultsWithHash(
   admin: Signer,
 ): Promise<CONTRACTS_WITH_HASH> {
   const vaults: CONTRACTS_WITH_HASH = {};
-  for (const token in TOKENS) {
+  for (const token in VAULT_TOKENS) {
     const name = await getTokenName(hre, token);
     const symbol = await getTokenSymbol(hre, token);
     for (const riskProfile of Object.keys(RISK_PROFILES)) {
-      const vault = await deployVaultWithHash(hre, registry, TOKENS[token], owner, admin, name, symbol, riskProfile);
+      const vault = await deployVaultWithHash(
+        hre,
+        registry,
+        VAULT_TOKENS[token],
+        owner,
+        admin,
+        name,
+        symbol,
+        riskProfile,
+      );
       vaults[`${symbol}-${riskProfile}`] = vault["vaultProxy"];
     }
   }

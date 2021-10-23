@@ -4,7 +4,7 @@ import { solidity } from "ethereum-waffle";
 import { Contract, Signer, BigNumber, utils, ethers } from "ethers";
 import Compound from "@compound-finance/compound-js";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO, COMPOUND_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies, TypedTokens } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import {
@@ -57,7 +57,7 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(compoundAdapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -65,14 +65,14 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       let lpToken: string;
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, users["owner"], MAX_AMOUNT, timestamp);
           lpToken = await compoundAdapter.getLiquidityPoolToken(token, strategy.strategy[0].contract);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });

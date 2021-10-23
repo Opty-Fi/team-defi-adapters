@@ -3,7 +3,7 @@ import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../../helpers/type";
-import { TOKENS, TESTING_DEPLOYMENT_ONCE, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
+import { VAULT_TOKENS, TESTING_DEPLOYMENT_ONCE, DYDX_ADAPTER_NAME } from "../../../helpers/constants";
 import { TypedAdapterStrategies } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../../helpers/contracts-actions";
@@ -36,7 +36,7 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(adapter, "Adapter not deployed");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   });
@@ -44,12 +44,12 @@ describe(`${DYDX_ADAPTER_NAME} Unit test`, () => {
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
-      const token = TOKENS[strategy.token];
+      const token = VAULT_TOKENS[strategy.token];
       before(async () => {
         try {
           const timestamp = (await getBlockTimestamp(hre)) * 2;
           await fundWalletToken(hre, token, owner, MAX_AMOUNT, timestamp);
-        } catch (error) {
+        } catch (error: any) {
           console.error(error);
         }
       });
