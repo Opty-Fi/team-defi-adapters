@@ -731,19 +731,20 @@ contract CurveSwapPoolAdapter is
             _codes = new bytes[](_codeLength);
             uint256 _j = 0;
             for (uint256 i = 0; i < _nCoins; i++) {
+                address _inputToken = _underlyingTokens[i] == ETH ? WETH : _underlyingTokens[i];
                 if (_amounts[i] > 0) {
-                    if (_underlyingTokens[i] == HBTC) {
+                    if (_inputToken == HBTC) {
                         _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
+                            _inputToken,
                             abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _amounts[i])
                         );
                     } else {
                         _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
+                            _inputToken,
                             abi.encodeWithSignature("approve(address,uint256)", _lendingPool, uint256(0))
                         );
                         _codes[_j++] = abi.encode(
-                            _underlyingTokens[i],
+                            _inputToken,
                             abi.encodeWithSignature("approve(address,uint256)", _lendingPool, _amounts[i])
                         );
                     }
