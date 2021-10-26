@@ -121,21 +121,25 @@ export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000
 
 export const RISK_PROFILES: RISK_PROFILE_DATA = {
   RP0: {
+    code: 0,
     name: "RP0",
     canBorrow: false,
     poolRating: [0, 0],
   },
   RP1: {
+    code: 1,
     name: "RP1",
     canBorrow: false,
     poolRating: [0, 10],
   },
   RP2: {
+    code: 2,
     name: "RP2",
     canBorrow: true,
     poolRating: [0, 20],
   },
   RP3: {
+    code: 3,
     name: "RP3",
     canBorrow: true,
     poolRating: [0, 30],
