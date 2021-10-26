@@ -3,11 +3,11 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title Interface of ETH gateway for opty-fi's Compound adapter
+ * @title Interface of ETH gateway for opty-fi  adapter
  * @author Opty.fi
  * @dev Inspired from Aave WETH gateway
  */
-interface ICompoundETHGateway {
+interface IETHGateway {
     /**
      * @dev deposits ETH into the reserve, using native ETH. A corresponding amount of the overlying asset (cTokens)
      *      is minted.

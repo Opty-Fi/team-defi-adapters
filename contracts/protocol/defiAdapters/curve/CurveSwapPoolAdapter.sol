@@ -12,6 +12,7 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 //  helper contracts
 import { Modifiers } from "../../configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { CurveSwapETHGateway } from "./CurveSwapETHGateway.sol";
 
 //  interfaces
 import { IAdapter } from "../../../interfaces/opty/defiAdapters/IAdapter.sol";
@@ -49,11 +50,29 @@ contract CurveSwapPoolAdapter is
     /** @notice max deposit value datatypes */
     DataTypes.MaxExposure public maxDepositProtocolMode;
 
+    /** @dev ETH gateway contract for curveSwap adapter */
+    address public immutable curveSwapETHGatewayContract;
+
     /** @notice  Curve Registry Address Provider */
     address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
 
     /** @notice HBTC token contract address */
     address public constant HBTC = address(0x0316EB71485b0Ab14103307bf65a021042c6d380);
+
+    /** @notice Curve ETH/sETH StableSwap contract address*/
+    address public constant ETH_sETH_STABLESWAP = address(0xc5424B857f758E906013F3555Dad202e4bdB4567);
+
+    /** @notice Curve ETH/ankrETH StableSwap contract address*/
+    address public constant ETH_ankrETH_STABLESWAP = address(0xA96A65c051bF88B4095Ee1f2451C2A9d43F53Ae2);
+
+    /** @notice Curve ETH/rETH StableSwap contract address*/
+    address public constant ETH_rETH_STABLESWAP = address(0xF9440930043eb3997fc70e1339dBb11F341de7A8);
+
+    /** @notice Curve ETH/stETH StableSwap contract address*/
+    address public constant ETH_stETH_STABLESWAP = address(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
+
+    /** WETH ERC20 token address */
+    address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
     /** @notice max deposit's default value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -68,6 +87,13 @@ contract CurveSwapPoolAdapter is
      * @dev mapp coins and tokens to curve deposit pool
      */
     constructor(address _registry) public Modifiers(_registry) {
+        curveSwapETHGatewayContract = address(
+            new CurveSwapETHGateway(
+                WETH,
+                _registry,
+                [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP]
+            )
+        );
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
         setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
     }
