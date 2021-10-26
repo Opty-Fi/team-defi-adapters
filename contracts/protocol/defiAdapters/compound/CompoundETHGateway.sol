@@ -53,6 +53,17 @@ contract CompoundETHGateway is IETHGateway, Modifiers {
     /**
      * @inheritdoc IETHGateway
      */
+    function depositETH(
+        address,
+        address,
+        address,
+        uint256[2] memory,
+        int128
+    ) external override {}
+
+    /**
+     * @inheritdoc IETHGateway
+     */
     function withdrawETH(
         address _vault,
         address _liquidityPool,

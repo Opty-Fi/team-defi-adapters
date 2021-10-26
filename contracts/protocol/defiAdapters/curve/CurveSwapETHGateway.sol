@@ -47,11 +47,22 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
         address _vault,
         address _liquidityPool,
         uint256 _amount
+    ) external override {}
+
+    /**
+     * @inheritdoc IETHGateway
+     */
+    function depositETH(
+        address _vault,
+        address _liquidityPool,
+        address _liquidityPoolToken,
+        uint256[2] memory _amounts,
+        int128 _tokenIndex
     ) external override {
-        IERC20(address(WETH)).transferFrom(_vault, address(this), _amount);
-        WETH.withdraw(_amount);
-        ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }([_amount, 0], 0);
-        IERC20(_liquidityPool).transfer(_vault, IERC20(_liquidityPool).balanceOf(address(this)));
+        IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[uint256(_tokenIndex)]);
+        WETH.withdraw(_amounts[uint256(_tokenIndex)]);
+        ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, 0);
+        IERC20(_liquidityPoolToken).transfer(_vault, IERC20(_liquidityPoolToken).balanceOf(address(this)));
     }
 
     /**

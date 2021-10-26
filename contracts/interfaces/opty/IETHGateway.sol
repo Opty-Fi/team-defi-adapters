@@ -9,15 +9,33 @@ pragma experimental ABIEncoderV2;
  */
 interface IETHGateway {
     /**
-     * @dev deposits ETH into the reserve, using native ETH. A corresponding amount of the overlying asset (cTokens)
+     * @dev deposits ETH into the reserve, using native ETH. A corresponding amount of the overlying asset
      *      is minted.
-     * @param _liquidityPool address of the targeted cToken pool
-     * @param _amount address of the user who will receive the aTokens representing the deposit
+     * @param _vault address of the user who will receive the lpTokens representing the deposit
+     * @param _liquidityPool address of the targeted lending pool
+     * @param _amount amount of ETH to be deposited into _liquidityPool
      **/
     function depositETH(
         address _vault,
         address _liquidityPool,
         uint256 _amount
+    ) external;
+
+    /**
+     * @dev deposits ETH into the reserve, using native ETH. A corresponding amount of the overlying asset
+     *      is minted.
+     * @param _vault address of the user who will receive the lpTokens representing the deposit
+     * @param _liquidityPool address of the targeted lending pool
+     * @param _liquidityPoolToken address of the targeted lending pool
+     * @param _amounts list of amounts of coins.
+     * @param _tokenIndex index of the ETH in _amounts
+     **/
+    function depositETH(
+        address _vault,
+        address _liquidityPool,
+        address _liquidityPoolToken,
+        uint256[2] memory _amounts,
+        int128 _tokenIndex
     ) external;
 
     /**
