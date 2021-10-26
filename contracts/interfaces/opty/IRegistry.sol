@@ -248,13 +248,13 @@ interface IRegistry {
     /**
      * @notice Maps the Vault contract with underlying assets and riskProfile
      * @param _vault Vault contract address
-     * @param _riskProfile Risk profile mapped to the vault contract
+     * @param _riskProfileCode Risk profile mapped to the vault contract
      * @param _underlyingAssets List of token addresses to map with the riskProfile and Vault contract
      * @return A boolean value indicating whether the operation succeeded
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[] memory _underlyingAssets,
-        string memory _riskProfile,
+        uint256 _riskProfileCode,
         address _vault
     ) external returns (bool);
 
@@ -278,13 +278,13 @@ interface IRegistry {
     /**
      * @notice Maps mulitple underlying tokens to risk profiles to vault contracts address
      * @param _vaults List of Vault contract address
-     * @param _riskProfiles List of Risk profile mapped to the vault contract
+     * @param _riskProfileCodes List of Risk profile codes mapped to the vault contract
      * @param _underlyingAssets List of paired token addresses to map with the riskProfile and Vault contract
      * @return A boolean value indicating whether the operation succeeded
      */
     function setUnderlyingAssetHashToRPToVaults(
         address[][] memory _underlyingAssets,
-        string[] memory _riskProfiles,
+        uint256[] memory _riskProfileCodes,
         address[][] memory _vaults
     ) external returns (bool);
 
@@ -305,46 +305,40 @@ interface IRegistry {
 
     /**
      * @notice Adds the risk profile in Registry contract Storage
-     * @param _riskProfile Risk Profile to add in Registry Storage
-     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
-     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
+     * @param _riskProfileCode code of riskProfile
+     * @param _riskProfile the riskProfile details
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(
-        string memory _riskProfile,
-        bool _canBorrow,
-        DataTypes.PoolRatingsRange memory _poolRatingRange
-    ) external returns (bool);
+    function addRiskProfile(uint256 _riskProfileCode, DataTypes.RiskProfile memory _riskProfile)
+        external
+        returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
      * @dev All parameters must be in the same order.
-     * @param _riskProfiles List of Risk Profiles to add in Registry Storage
-     * @param _canBorrow List of boolean values indicating whether the riskProfile allows borrow step
-     * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
+     * @param _riskProfileCodes codes of riskProfile
+     * @param _riskProfiles the riskProfiles details
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(
-        string[] memory _riskProfiles,
-        bool[] memory _canBorrow,
-        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
-    ) external returns (bool);
+    function addRiskProfile(uint256[] memory _riskProfileCodes, DataTypes.RiskProfile[] memory _riskProfiles)
+        external
+        returns (bool);
 
     /**
      * @notice Change the borrow permission for existing risk profile
-     * @param _riskProfile Risk Profile to update with strategy steps
+     * @param _riskProfileCode Risk Profile code to update with strategy steps
      * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
      * @return A boolean value indicating whether the operation succeeded
      */
-    function updateRiskProfileBorrow(string memory _riskProfile, bool _canBorrow) external returns (bool);
+    function updateRiskProfileBorrow(uint256 _riskProfileCode, bool _canBorrow) external returns (bool);
 
     /**
      * @notice Update the pool ratings for existing risk profile
-     * @param _riskProfile Risk profile to update with pool rating range
+     * @param _riskProfileCode Risk profile code to update with pool rating range
      * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) to update for given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
-    function updateRPPoolRatings(string memory _riskProfile, DataTypes.PoolRatingsRange memory _poolRatingRange)
+    function updateRPPoolRatings(uint256 _riskProfileCode, DataTypes.PoolRatingsRange memory _poolRatingRange)
         external
         returns (bool);
 
@@ -371,7 +365,7 @@ interface IRegistry {
      * @notice Get the list of all the riskProfiles
      * @return Returns the list of all riskProfiles stored in Registry Storage
      */
-    function getRiskProfileList() external view returns (string[] memory);
+    function getRiskProfileList() external view returns (uint256[] memory);
 
     /**
      * @notice Retrieve the StrategyManager contract address
@@ -470,7 +464,7 @@ interface IRegistry {
      * @notice Get the properties corresponding to riskProfile provided
      * @return _riskProfile Returns the properties corresponding to riskProfile provided
      */
-    function getRiskProfile(string memory) external view returns (DataTypes.RiskProfile memory _riskProfile);
+    function getRiskProfile(uint256) external view returns (DataTypes.RiskProfile memory _riskProfile);
 
     /**
      * @notice Get the index corresponding to tokensHash provided

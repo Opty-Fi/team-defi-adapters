@@ -15,11 +15,11 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 interface IRiskManager {
     /**
      * @notice Get the best strategy for respective RiskProfiles
-     * @param _profile risk profile corresponding to which get the best strategy
+     * @param _riskProfileCode risk profile code corresponding to which get the best strategy
      * @param _underlyingTokens array of underlying token addresses
      * @return Returns the hash of the best strategy corresponding to the riskProfile provided
      */
-    function getBestStrategy(string memory _profile, address[] memory _underlyingTokens)
+    function getBestStrategy(uint256 _riskProfileCode, address[] memory _underlyingTokens)
         external
         view
         returns (bytes32);
