@@ -482,31 +482,37 @@ contract Registry is IRegistry, ModifiersController {
     /**
      * @inheritdoc IRegistry
      */
-    function addRiskProfile(uint256 _riskProfileCode, DataTypes.RiskProfile memory _riskProfile)
-        external
-        override
-        onlyRiskOperator
-        returns (bool)
-    {
-        _addRiskProfile(_riskProfileCode, _riskProfile);
+    function addRiskProfile(
+        uint256 _riskProfileCode,
+        string memory _name,
+        string memory _symbol,
+        bool _canBorrow,
+        DataTypes.PoolRatingsRange memory _poolRatingRange
+    ) external override onlyRiskOperator returns (bool) {
+        _addRiskProfile(_riskProfileCode, _name, _symbol, _canBorrow, _poolRatingRange);
         return true;
     }
 
     /**
      * @inheritdoc IRegistry
      */
-    function addRiskProfile(uint256[] memory _riskProfileCodes, DataTypes.RiskProfile[] memory _riskProfiles)
-        external
-        override
-        onlyRiskOperator
-        returns (bool)
-    {
+    function addRiskProfile(
+        uint256[] memory _riskProfileCodes,
+        string[] memory _names,
+        string[] memory _symbols,
+        bool[] memory _canBorrow,
+        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
+    ) external override onlyRiskOperator returns (bool) {
         require(_riskProfileCodes.length > 0, "!length>0");
-        require(_riskProfileCodes.length == _riskProfiles.length, "!PoolRatingsLength");
+        require(_riskProfileCodes.length == _poolRatingRanges.length, "!PoolRatingsLength.poolRatingRanges");
+        require(_riskProfileCodes.length == _canBorrow.length, "!PoolRatingsLength.canBorrow");
+        require(_riskProfileCodes.length == _names.length, "!PoolRatingsLength.names");
+        require(_riskProfileCodes.length == _symbols.length, "!PoolRatingsLength.symbols");
 
         for (uint256 _i = 0; _i < _riskProfileCodes.length; _i++) {
-            _addRiskProfile(_riskProfileCodes[_i], _riskProfiles[_i]);
+            _addRiskProfile(_riskProfileCodes[_i], _names[_i], _symbols[_i], _canBorrow[_i], _poolRatingRanges[_i]);
         }
+
         return true;
     }
 
@@ -835,13 +841,23 @@ contract Registry is IRegistry, ModifiersController {
         return true;
     }
 
-    function _addRiskProfile(uint256 _riskProfileCode, DataTypes.RiskProfile memory _riskProfile)
-        internal
-        returns (bool)
-    {
+    function _addRiskProfile(
+        uint256 _riskProfileCode,
+        string memory _name,
+        string memory _symbol,
+        bool _canBorrow,
+        DataTypes.PoolRatingsRange memory _poolRatingRange
+    ) internal returns (bool) {
         require(!riskProfiles[_riskProfileCode].exists, "RP_already_exists");
         riskProfilesArray.push(_riskProfileCode);
-        riskProfiles[_riskProfileCode] = _riskProfile;
+        riskProfiles[_riskProfileCode].name = _name;
+        riskProfiles[_riskProfileCode].symbol = _symbol;
+        riskProfiles[_riskProfileCode].canBorrow = _canBorrow;
+        riskProfiles[_riskProfileCode].poolRatingsRange.lowerLimit = _poolRatingRange.lowerLimit;
+        riskProfiles[_riskProfileCode].poolRatingsRange.upperLimit = _poolRatingRange.upperLimit;
+        riskProfiles[_riskProfileCode].index = riskProfilesArray.length - 1;
+        riskProfiles[_riskProfileCode].exists = true;
+
         emit LogRiskProfile(
             riskProfiles[_riskProfileCode].index,
             riskProfiles[_riskProfileCode].exists,

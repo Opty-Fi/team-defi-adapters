@@ -306,23 +306,37 @@ interface IRegistry {
     /**
      * @notice Adds the risk profile in Registry contract Storage
      * @param _riskProfileCode code of riskProfile
-     * @param _riskProfile the riskProfile details
+     * @param _name name of riskProfile
+     * @param _symbol symbol of riskProfile
+     * @param _canBorrow A boolean value indicating whether the riskProfile allows borrow step
+     * @param _poolRatingRange pool rating range ([lowerLimit, upperLimit]) supported by given risk profile
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(uint256 _riskProfileCode, DataTypes.RiskProfile memory _riskProfile)
-        external
-        returns (bool);
+    function addRiskProfile(
+        uint256 _riskProfileCode,
+        string memory _name,
+        string memory _symbol,
+        bool _canBorrow,
+        DataTypes.PoolRatingsRange memory _poolRatingRange
+    ) external returns (bool);
 
     /**
      * @notice Adds list of the risk profiles in Registry contract Storage in one transaction
      * @dev All parameters must be in the same order.
-     * @param _riskProfileCodes codes of riskProfile
-     * @param _riskProfiles the riskProfiles details
+     * @param _riskProfileCodes codes of riskProfiles
+     * @param _names names of riskProfiles
+     * @param _symbols symbols of riskProfiles
+     * @param _canBorrow List of boolean values indicating whether the riskProfile allows borrow step
+     * @param _poolRatingRanges List of pool rating range supported by given list of risk profiles
      * @return A boolean value indicating whether the operation succeeded
      */
-    function addRiskProfile(uint256[] memory _riskProfileCodes, DataTypes.RiskProfile[] memory _riskProfiles)
-        external
-        returns (bool);
+    function addRiskProfile(
+        uint256[] memory _riskProfileCodes,
+        string[] memory _names,
+        string[] memory _symbols,
+        bool[] memory _canBorrow,
+        DataTypes.PoolRatingsRange[] memory _poolRatingRanges
+    ) external returns (bool);
 
     /**
      * @notice Change the borrow permission for existing risk profile
