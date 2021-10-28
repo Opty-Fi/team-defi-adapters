@@ -113,10 +113,10 @@ describe(scenario.title, () => {
   });
 
   for (let i = 0; i < scenario.vaults.length; i++) {
-    describe(`${scenario.vaults[i].profile}`, async () => {
+    describe(`RP-${scenario.vaults[i].profileCode}`, async () => {
       let Vault: Contract;
       const vault = scenario.vaults[i];
-      const profile = vault.profile;
+      const profile = vault.profileCode;
       const adaptersName = Object.keys(TypedAdapterStrategies);
 
       for (let i = 0; i < adaptersName.length; i++) {
@@ -232,7 +232,12 @@ describe(scenario.title, () => {
                             TESTING_CONTRACTS.TEST_VAULT_NEW_IMPLEMENTATION,
                             TESTING_DEPLOYMENT_ONCE,
                             users[0],
-                            [essentialContracts.registry.address, underlyingTokenName, underlyingTokenSymbol, profile],
+                            [
+                              essentialContracts.registry.address,
+                              underlyingTokenName,
+                              underlyingTokenSymbol,
+                              `RP-${profile}`,
+                            ],
                           );
 
                           await expect(vaultProxy.connect(users[1])["upgradeTo(address)"](vault.address))

@@ -119,32 +119,36 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-export const RISK_PROFILES: RISK_PROFILE_DATA = {
-  RP0: {
+export const RISK_PROFILES: RISK_PROFILE_DATA = [
+  {
     code: 0,
     name: "RP0",
+    symbol: "RP0",
     canBorrow: false,
-    poolRating: [0, 0],
+    poolRating: [0, 5],
   },
-  RP1: {
+  {
     code: 1,
-    name: "RP1",
+    name: "Basic",
+    symbol: "Bsc",
     canBorrow: false,
     poolRating: [0, 10],
   },
-  RP2: {
+  {
     code: 2,
-    name: "RP2",
+    name: "Intermediate",
+    symbol: "Inter",
     canBorrow: true,
     poolRating: [0, 20],
   },
-  RP3: {
+  {
     code: 3,
-    name: "RP3",
+    name: "Advanced",
+    symbol: "Adv",
     canBorrow: true,
     poolRating: [0, 30],
   },
-};
+];
 
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 

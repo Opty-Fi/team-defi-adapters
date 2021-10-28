@@ -6,11 +6,13 @@ import { ADD_RISK_PROFILE } from "../task-names";
 
 task(ADD_RISK_PROFILE, "Add Risk Profile")
   .addParam("registry", "the address of registry", "", types.string)
+  .addParam("code", "the code of risk profile", 0, types.int)
   .addParam("name", "the name of risk profile", "", types.string)
+  .addParam("symbol", "the code of risk profile", "", types.string)
   .addParam("canborrow", "whether risk profile can borrow or not", false, types.boolean)
   .addParam("lowestrating", "the lowest rating", 0, types.int)
   .addParam("highestrating", "the highest rating", 0, types.int)
-  .setAction(async ({ name, canborrow, lowestrating, highestrating, registry }, hre) => {
+  .setAction(async ({ code, name, symbol, canborrow, lowestrating, highestrating, registry }, hre) => {
     const [owner] = await hre.ethers.getSigners();
 
     if (registry === "") {
@@ -25,13 +27,17 @@ task(ADD_RISK_PROFILE, "Add Risk Profile")
       throw new Error("name cannot be empty");
     }
 
+    if (symbol === "") {
+      throw new Error("symbol cannot be empty");
+    }
+
     if (highestrating < lowestrating) {
       throw new Error("rating range is invalid");
     }
 
     try {
       const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS.REGISTRY, registry);
-      await addRiskProfile(registryContract, owner, name, canborrow, [lowestrating, highestrating]);
+      await addRiskProfile(registryContract, owner, code, name, symbol, canborrow, [lowestrating, highestrating]);
       console.log("Finished adding risk profile : ", name);
     } catch (error) {
       console.error(`${ADD_RISK_PROFILE}: `, error);
