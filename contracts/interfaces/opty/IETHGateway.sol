@@ -13,22 +13,9 @@ interface IETHGateway {
      *      is minted.
      * @param _vault address of the user who will receive the lpTokens representing the deposit
      * @param _liquidityPool address of the targeted lending pool
-     * @param _amount amount of ETH to be deposited into _liquidityPool
-     **/
-    function depositETH(
-        address _vault,
-        address _liquidityPool,
-        uint256 _amount
-    ) external;
-
-    /**
-     * @dev deposits ETH into the reserve, using native ETH. A corresponding amount of the overlying asset
-     *      is minted.
-     * @param _vault address of the user who will receive the lpTokens representing the deposit
-     * @param _liquidityPool address of the targeted lending pool
-     * @param _liquidityPoolToken address of the targeted lending pool
+     * @param _liquidityPoolToken address of the targeted lpToken
      * @param _amounts list of amounts of coins.
-     * @param _tokenIndex index of the ETH in _amounts
+     * @param _tokenIndex index of the coin to redeem
      **/
     function depositETH(
         address _vault,
@@ -42,12 +29,16 @@ interface IETHGateway {
      * @dev withdraws the ETH _reserves of vault.
      * @param _vault address that will receive WETH
      * @param _liquidityPool address of the targeted cToken pool
-     * @param _amount amount of cETH to withdraw and receive native ETH
+     * @param _liquidityPoolToken address of the targeted lpToken
+     * @param _amount amount of lpToken to redeem
+     * @param _tokenIndex index of the coin to redeem
      */
     function withdrawETH(
         address _vault,
         address _liquidityPool,
-        uint256 _amount
+        address _liquidityPoolToken,
+        uint256 _amount,
+        int128 _tokenIndex
     ) external;
 
     /**

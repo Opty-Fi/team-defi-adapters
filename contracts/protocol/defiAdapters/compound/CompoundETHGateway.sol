@@ -42,10 +42,12 @@ contract CompoundETHGateway is IETHGateway, Modifiers {
     function depositETH(
         address _vault,
         address _liquidityPool,
-        uint256 _amount
+        address,
+        uint256[2] memory _amounts,
+        int128
     ) external override {
-        IERC20(address(WETH)).transferFrom(_vault, address(this), _amount);
-        WETH.withdraw(_amount);
+        IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[0]);
+        WETH.withdraw(_amounts[0]);
         ICompound(_liquidityPool).mint{ value: address(this).balance }();
         IERC20(_liquidityPool).transfer(_vault, IERC20(_liquidityPool).balanceOf(address(this)));
     }
@@ -53,21 +55,12 @@ contract CompoundETHGateway is IETHGateway, Modifiers {
     /**
      * @inheritdoc IETHGateway
      */
-    function depositETH(
-        address,
-        address,
-        address,
-        uint256[2] memory,
-        int128
-    ) external override {}
-
-    /**
-     * @inheritdoc IETHGateway
-     */
     function withdrawETH(
         address _vault,
         address _liquidityPool,
-        uint256 _amount
+        address,
+        uint256 _amount,
+        int128
     ) external override {
         IERC20(_liquidityPool).transferFrom(_vault, address(this), _amount);
         ICompound(_liquidityPool).redeem(_amount);
