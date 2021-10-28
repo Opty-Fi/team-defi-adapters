@@ -3,15 +3,11 @@ import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
-import {
-  VAULT_TOKENS,
-  TESTING_DEPLOYMENT_ONCE,
-  REWARD_TOKENS,
-  ESSENTIAL_CONTRACTS,
-  TESTING_CONTRACTS,
-  COMPOUND_ADAPTER_NAME,
-  HARVEST_V1_ADAPTER_NAME,
-} from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants/utils";
+import { VAULT_TOKENS, REWARD_TOKENS } from "../../helpers/constants/tokens";
+
+import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants/contracts-names";
+import { COMPOUND_ADAPTER_NAME, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { delay } from "../../helpers/utils";
 import { executeFunc, deployContract } from "../../helpers/helpers";

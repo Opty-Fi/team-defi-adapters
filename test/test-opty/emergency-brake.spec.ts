@@ -2,7 +2,9 @@ import { expect, assert } from "chai";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import { VAULT_TOKENS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants/utils";
+import { VAULT_TOKENS } from "../../helpers/constants/tokens";
+import { TESTING_CONTRACTS } from "../../helpers/constants/contracts-names";
 import { deployVault, deployEssentialContracts } from "../../helpers/contracts-deployments";
 import {
   approveAndSetTokenHashToToken,

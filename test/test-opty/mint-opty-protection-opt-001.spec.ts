@@ -5,7 +5,7 @@ import { setUp } from "./setup";
 import { CONTRACTS } from "../../helpers/type";
 import { executeFunc } from "../../helpers/helpers";
 import scenario from "./scenarios/mint-opty-protection-opt-001.json";
-import { VAULT_TOKENS } from "../../helpers/constants";
+import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 type ARGUMENTS = {
   contractName?: string;
   amount?: string;

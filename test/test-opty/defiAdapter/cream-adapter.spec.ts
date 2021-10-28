@@ -5,14 +5,10 @@ import { Contract, Signer, BigNumber, utils } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { CONTRACTS } from "../../../helpers/type";
-import {
-  VAULT_TOKENS,
-  TESTING_DEPLOYMENT_ONCE,
-  CREAM_ADAPTER_NAME,
-  ADDRESS_ZERO,
-  TOKEN_HOLDERS,
-} from "../../../helpers/constants";
-import { TypedAdapterStrategies, TypedTokens, TypedDefiPools } from "../../../helpers/data";
+import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../../helpers/constants/utils";
+import { VAULT_TOKENS } from "../../../helpers/constants/tokens";
+import { CREAM_ADAPTER_NAME } from "../../../helpers/constants/adapters";
+import { TypedAdapterStrategies, TypedTokens, TypedDefiPools, TypedTokenHolders } from "../../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../../helpers/contracts-deployments";
 import {
   fundWalletToken,
@@ -313,7 +309,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                     case "fundTestDefiContractWithRewardToken()": {
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                        TOKEN_HOLDERS[pool.toUpperCase()]
+                        TypedTokenHolders[pool.toUpperCase()]
                       ) {
                         this.skip();
                       }
@@ -398,7 +394,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                        TOKEN_HOLDERS[pool.toUpperCase()]
+                        TypedTokenHolders[pool.toUpperCase()]
                       ) {
                         this.skip();
                       }
@@ -413,7 +409,7 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
                       //  TODO: This condition has to be added in the contract (OPTY-339)
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                        TOKEN_HOLDERS[pool.toUpperCase()]
+                        TypedTokenHolders[pool.toUpperCase()]
                       ) {
                         this.skip();
                       }

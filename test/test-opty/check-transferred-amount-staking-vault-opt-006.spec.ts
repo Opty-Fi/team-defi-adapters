@@ -9,7 +9,8 @@ import {
   deployAndSetupOptyStakingVaults,
   deployOptyStakingRateBalancer,
 } from "../../helpers/contracts-deployments";
-import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants/utils";
+import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants/contracts-names";
 import { deployContract, executeFunc } from "../../helpers/helpers";
 
 type ARGUMENTS = {

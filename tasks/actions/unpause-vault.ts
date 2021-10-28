@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/contracts-names";
 import { unpauseVault } from "../../helpers/contracts-actions";
 import { UNPAUSE_VAULT } from "../task-names";
 
