@@ -267,8 +267,13 @@ describe(scenario.title, () => {
           ESSENTIAL_CONTRACTS.REGISTRY_PROXY,
           registryContract.address,
         );
+        const oldRegistry = await registryProxy.pendingRegistryImplementation();
 
-        await executeFunc(registryProxy, owner, "setPendingImplementation(address)", [newRegistry.address]);
+        await expect(
+          await executeFunc(registryProxy, owner, "setPendingImplementation(address)", [newRegistry.address]),
+        )
+          .to.emit(registryProxy, "NewPendingImplementation")
+          .withArgs(oldRegistry, newRegistry.address);
         await executeFunc(newRegistry, owner, "become(address)", [registryProxy.address]);
 
         registryContract = await hre.ethers.getContractAt(
@@ -598,7 +603,7 @@ describe(scenario.title, () => {
             if (action.action == "setTokensHashToTokens(address[])") {
               await expect(registryContract.connect(signers[action.executor])[action.action](tokensHash))
                 .to.emit(registryContract, "LogTokensToTokensHash")
-                .withArgs(getSoliditySHA3Hash(["address[]"], [tokensHash]), callers[action.executor]);
+                .withArgs(generateTokenHash(tokensHash), callers[action.executor]);
             } else {
               await registryContract.connect(signers[action.executor])[action.action](tokensHash);
             }
@@ -719,7 +724,9 @@ describe(scenario.title, () => {
         const { tokens, riskProfile, vault }: ARGUMENTS = action.args;
         if (tokens && riskProfile && vault) {
           if (action.expect === "success") {
-            await registryContract.connect(signers[action.executor])[action.action](tokens, riskProfile, vault);
+            await expect(registryContract.connect(signers[action.executor])[action.action](tokens, riskProfile, vault))
+              .to.emit(registryContract, "LogUnderlyingAssetHashToRPToVaults")
+              .withArgs(generateTokenHash(tokens), riskProfile, vault, callers[action.executor]);
           } else {
             await expect(
               registryContract.connect(signers[action.executor])[action.action](tokens, riskProfile, vault),

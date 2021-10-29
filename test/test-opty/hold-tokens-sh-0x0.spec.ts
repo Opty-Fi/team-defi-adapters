@@ -98,6 +98,7 @@ describe(scenarios.title, () => {
                 vaultRiskProfile = await Vault.profile();
                 bestStrategyHash = await setBestStrategy(
                   strategy.strategy,
+                  users["owner"],
                   VAULT_TOKENS[strategy.token],
                   essentialContracts.investStrategyRegistry,
                   essentialContracts.strategyProvider,

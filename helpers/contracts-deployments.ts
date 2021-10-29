@@ -6,7 +6,8 @@ import { Contract, Signer } from "ethers";
 import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
 import { getTokenName, getTokenSymbol, addRiskProfiles } from "./contracts-actions";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { deployContract, executeFunc, deployContractWithHash } from "./helpers";
+import { deployContract, executeFunc, deployContractWithHash, generateTokenHash } from "./helpers";
+import { expect } from "chai";
 
 export async function deployRegistry(
   hre: HardhatRuntimeEnvironment,
@@ -307,12 +308,13 @@ export async function deployVault(
   ]);
 
   const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.REGISTRY, registry, owner);
-
-  await executeFunc(registryContract, owner, "setUnderlyingAssetHashToRPToVaults(address[],string,address)", [
-    [underlyingToken],
-    riskProfile,
-    vault.address,
-  ]);
+  await expect(
+    registryContract
+      .connect(owner)
+      ["setUnderlyingAssetHashToRPToVaults(address[],string,address)"]([underlyingToken], riskProfile, vault.address),
+  )
+    .to.emit(registryContract, "LogUnderlyingAssetHashToRPToVaults")
+    .withArgs(generateTokenHash([underlyingToken]), riskProfile, vault.address, await owner.getAddress());
 
   return vault;
 }
@@ -383,11 +385,17 @@ export async function deployVaultWithHash(
 
   const registryContract = await hre.ethers.getContractAt(ESSENTIAL_CONTRACTS_DATA.REGISTRY, registry, owner);
 
-  await executeFunc(registryContract, owner, "setUnderlyingAssetHashToRPToVaults(address[],string,address)", [
-    [underlyingToken],
-    riskProfile,
-    vaultProxy.contract.address,
-  ]);
+  await expect(
+    registryContract
+      .connect(owner)
+      ["setUnderlyingAssetHashToRPToVaults(address[],string,address)"](
+        [underlyingToken],
+        riskProfile,
+        vaultProxy.contract.address,
+      ),
+  )
+    .to.emit(registryContract, "LogUnderlyingAssetHashToRPToVaults")
+    .withArgs(generateTokenHash([underlyingToken]), riskProfile, vaultProxy.contract.address, await owner.getAddress());
 
   return { vault, vaultProxy };
 }

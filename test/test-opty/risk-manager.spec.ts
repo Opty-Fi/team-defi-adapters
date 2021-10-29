@@ -14,7 +14,7 @@ import {
 import { TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants/utils";
 import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants/contracts-names";
 import { deployRegistry, deployRiskManager } from "../../helpers/contracts-deployments";
-import { approveAndSetTokenHashToToken } from "../../helpers/contracts-actions";
+import { approveAndSetTokenHashToToken, addRiskProfile } from "../../helpers/contracts-actions";
 import scenario from "./scenarios/risk-manager.json";
 import { smock } from "@defi-wonderland/smock";
 type ARGUMENTS = {
@@ -50,7 +50,7 @@ describe(scenario.title, () => {
     await executeFunc(registry, owner, "setAPROracle(address)", [aprOracle.address]);
     await executeFunc(registry, owner, "setInvestStrategyRegistry(address)", [investStrategyRegistry.address]);
 
-    await registry["addRiskProfile(string,bool,(uint8,uint8))"](riskProfile, false, [0, 10]);
+    await addRiskProfile(registry, owner, riskProfile, false, [0, 10]);
 
     const usedTokens = TypedStrategies.map(item => item.token).filter(
       (value, index, self) => self.indexOf(value) === index,
@@ -110,7 +110,11 @@ describe(scenario.title, () => {
               case "updateRPPoolRatings(string,(uint8,uint8))": {
                 const { poolRatingRange }: ARGUMENTS = action.args;
                 if (riskProfile && poolRatingRange) {
-                  await registry[action.action](riskProfile, poolRatingRange);
+                  const value = await contracts[action.contract].getRiskProfile(riskProfile);
+                  const riskProfileIndex = value.index;
+                  await expect(contracts[action.contract][action.action](riskProfile, poolRatingRange))
+                    .to.emit(contracts[action.contract], "LogRPPoolRatings")
+                    .withArgs(riskProfileIndex, poolRatingRange[0], poolRatingRange[1], await owner.getAddress());
                 }
                 assert.isDefined(poolRatingRange, `args is wrong in ${action.action} testcase`);
                 break;

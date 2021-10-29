@@ -10,7 +10,7 @@ import { ESSENTIAL_CONTRACTS, TESTING_CONTRACTS } from "../../helpers/constants/
 import { COMPOUND_ADAPTER_NAME, HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { TypedAdapterStrategies } from "../../helpers/data";
 import { delay } from "../../helpers/utils";
-import { executeFunc, deployContract } from "../../helpers/helpers";
+import { executeFunc, deployContract, generateTokenHash } from "../../helpers/helpers";
 import { deployVault } from "../../helpers/contracts-deployments";
 import {
   setBestStrategy,
@@ -144,6 +144,7 @@ describe(scenario.title, () => {
 
               await setBestStrategy(
                 TOKEN_STRATEGY.strategy,
+                users[0],
                 tokenAddress,
                 essentialContracts.investStrategyRegistry,
                 essentialContracts.strategyProvider,
@@ -170,10 +171,22 @@ describe(scenario.title, () => {
               }
               await unpauseVault(users[0], essentialContracts.registry, Vault.address, true);
               if (rewardTokenAdapterNames.includes(adapterName.toLowerCase())) {
-                await executeFunc(essentialContracts.registry, users[0], "approveToken(address)", [Vault.address]);
-                await executeFunc(essentialContracts.registry, users[0], "setTokensHashToTokens(address[])", [
-                  [Vault.address, REWARD_TOKENS[adapterName].tokenAddress.toString()],
-                ]);
+                await expect(essentialContracts.registry.connect(users[0])["approveToken(address)"](Vault.address))
+                  .to.emit(essentialContracts.registry, "LogToken")
+                  .withArgs(hre.ethers.utils.getAddress(Vault.address), true, await users[0].getAddress());
+                await expect(
+                  essentialContracts.registry
+                    .connect(users[0])
+                    ["setTokensHashToTokens(address[])"]([
+                      Vault.address,
+                      REWARD_TOKENS[adapterName].tokenAddress.toString(),
+                    ]),
+                )
+                  .to.emit(essentialContracts.registry, "LogTokensToTokensHash")
+                  .withArgs(
+                    generateTokenHash([Vault.address, REWARD_TOKENS[adapterName].tokenAddress.toString()]),
+                    await users[0].getAddress(),
+                  );
               }
               contracts["vault"] = Vault;
               contracts["chi"] = CHIInstance;
@@ -340,7 +353,30 @@ describe(scenario.title, () => {
                             } else {
                               investedAmount = amount[TOKEN_STRATEGY.token];
                             }
-                            await contracts[action.contract].connect(users[userIndex])[action.action](investedAmount);
+                            if (action.action === "userDeposit(uint256)") {
+                              const queue = await contracts[action.contract].getQueueList();
+                              const balanceBefore = await contracts["erc20"].balanceOf(
+                                contracts[action.contract].address,
+                              );
+                              const _tx = await contracts[action.contract]
+                                .connect(users[userIndex])
+                                [action.action](investedAmount);
+                              const balanceAfter = await contracts["erc20"].balanceOf(
+                                contracts[action.contract].address,
+                              );
+
+                              const tx = await _tx.wait(1);
+                              expect(tx.events[0].event).to.equal("Transfer");
+                              expect(tx.events[0].args[0]).to.equal(await users[userIndex].getAddress());
+                              expect(tx.events[0].args[1]).to.equal(contracts[action.contract].address);
+                              expect(tx.events[0].args[2]).to.equal(balanceAfter.sub(balanceBefore));
+                              expect(tx.events[1].event).to.equal("DepositQueue");
+                              expect(tx.events[1].args[0]).to.equal(await users[userIndex].getAddress());
+                              expect(tx.events[1].args[1]).to.equal(queue.length + 1);
+                              expect(tx.events[1].args[2]).to.equal(balanceAfter.sub(balanceBefore));
+                            } else {
+                              await contracts[action.contract].connect(users[userIndex])[action.action](investedAmount);
+                            }
                           }
                           assert.isDefined(amount, `args is wrong in ${action.action} testcase`);
                           break;
