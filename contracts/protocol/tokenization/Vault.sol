@@ -301,6 +301,13 @@ contract Vault is
     /**
      * @inheritdoc IVault
      */
+    function getQueueList() public view override returns (DataTypes.UserDepositOperation[] memory) {
+        return queue;
+    }
+
+    /**
+     * @inheritdoc IVault
+     */
     function balance() public view override returns (uint256) {
         return _balance();
     }
