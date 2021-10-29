@@ -442,7 +442,7 @@ describe("CurveAdapters Unit test", () => {
                         POOLED_TOKENS.includes(underlyingTokenAddress)
                           ? expectedValue == ">"
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                            : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), 600000000000)
+                            : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), 1200000000000)
                           : expectedValue == ">"
                           ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                           : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
