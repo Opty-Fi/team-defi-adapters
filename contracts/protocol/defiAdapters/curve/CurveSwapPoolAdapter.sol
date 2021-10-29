@@ -771,10 +771,10 @@ contract CurveSwapPoolAdapter is
                     ? abi.encode(
                         curveSwapETHGatewayContract,
                         abi.encodeWithSignature(
-                            "depositETH(address,address,address,uint256[2],uint128)",
+                            "depositETH(address,address,address,uint256[2],int128)",
                             _vault,
                             _swapPool,
-                            getLiquidityPoolToken(_swapPool, address(0)),
+                            getLiquidityPoolToken(address(0), _swapPool),
                             _depositAmounts,
                             _underlyingTokenIndex
                         )
