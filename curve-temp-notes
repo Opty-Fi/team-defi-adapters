@@ -71,3 +71,6 @@ ETHPools
       "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]
     }
 }
+
+multiple reward tokens:
+pools:["0xc5424B857f758E906013F3555Dad202e4bdB4567"]
