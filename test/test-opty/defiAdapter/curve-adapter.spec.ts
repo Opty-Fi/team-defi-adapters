@@ -34,7 +34,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
 };
 const curveAdapters: CONTRACTS = {};
 
-const ATOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD];
+const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, TypedTokens.AUSDT, TypedTokens.STETH];
 describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
@@ -439,7 +439,7 @@ describe("CurveAdapters Unit test", () => {
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
-                        ATOKENS.includes(underlyingTokenAddress)
+                        POOLED_TOKENS.includes(underlyingTokenAddress)
                           ? expectedValue == ">"
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                             : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), 600000000000)

@@ -1,9 +1,4 @@
 {
-  "steth_eth+steth": {
-    "pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
-    "lpToken": "0x06325440D014e39736583c165C2963BA99fAf14E",
-    "tokens": ["0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"]
-  },
   "dai_dai+usdc+usdt_yearn": {
     "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
     "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
@@ -26,30 +21,6 @@
       "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "0xdAC17F958D2ee523a2206206994597C13D831ec7"
-    ]
-  },
-  "adai_adai+ausdc+ausdt": {
-    "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
-    "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-    "tokens": ["0x028171bCA77440897B824Ca71D1c56caC55b68A3"]
-  },
-  "ausdc_adai+ausdc+ausdt": {
-    "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
-    "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-    "tokens": ["0xBcca60bB61934080951369a648Fb03DF4F96263C"]
-  },
-  "ausdt_adai+ausdc+ausdt": {
-    "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
-    "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-    "tokens": ["0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811"]
-  },
-  "adai+ausdc+ausdt": {
-    "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
-    "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
-    "tokens": [
-      "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-      "0xBcca60bB61934080951369a648Fb03DF4F96263C",
-      "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811"
     ]
   },
   "dai_dai+usdc+usdt_aave": {
