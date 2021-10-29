@@ -1,4 +1,9 @@
 {
+  "steth_eth+steth": {
+    "pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
+    "lpToken": "0x06325440D014e39736583c165C2963BA99fAf14E",
+    "tokens": ["0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"]
+  },
   "dai_dai+usdc+usdt_yearn": {
     "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
     "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
@@ -22,30 +27,6 @@
       "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "0xdAC17F958D2ee523a2206206994597C13D831ec7"
     ]
-  },
-  "cydai+cyusdc+cyusdt": {
-    "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
-    "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
-    "tokens": [
-      "0x8e595470Ed749b85C6F7669de83EAe304C2ec68F",
-      "0x76Eb2FE28b36B3ee97F3Adae0C69606eeDB2A37c",
-      "0x48759F220ED983dB51fA7A8C0D2AAb8f3ce4166a"
-    ]
-  },
-  "cydai_cydai+cyusdc+cyusdt": {
-    "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
-    "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
-    "tokens": ["0x8e595470Ed749b85C6F7669de83EAe304C2ec68F"]
-  },
-  "cyusdc_cydai+cyusdc+cyusdt": {
-    "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
-    "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
-    "tokens": ["0x76Eb2FE28b36B3ee97F3Adae0C69606eeDB2A37c"]
-  },
-  "cyusdt_cydai+cyusdc+cyusdt": {
-    "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
-    "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
-    "tokens": ["0x48759F220ED983dB51fA7A8C0D2AAb8f3ce4166a"]
   },
   "adai_adai+ausdc+ausdt": {
     "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
@@ -94,11 +75,6 @@
       "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "0xdac17f958d2ee523a2206206994597c13d831ec7"
     ]
-  },
-  "steth_eth+steth": {
-    "pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
-    "lpToken": "0x06325440D014e39736583c165C2963BA99fAf14E",
-    "tokens": ["0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"]
   },
   "adai_adai+asusd": {
     "pool": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733",

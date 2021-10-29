@@ -1546,6 +1546,30 @@
       "pool": "0xF9440930043eb3997fc70e1339dBb11F341de7A8",
       "lpToken": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
       "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593"]
+    },
+    "cydai+cyusdc+cyusdt": {
+      "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
+      "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+      "tokens": [
+        "0x8e595470Ed749b85C6F7669de83EAe304C2ec68F",
+        "0x76Eb2FE28b36B3ee97F3Adae0C69606eeDB2A37c",
+        "0x48759F220ED983dB51fA7A8C0D2AAb8f3ce4166a"
+      ]
+    },
+    "cydai_cydai+cyusdc+cyusdt": {
+      "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
+      "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+      "tokens": ["0x8e595470Ed749b85C6F7669de83EAe304C2ec68F"]
+    },
+    "cyusdc_cydai+cyusdc+cyusdt": {
+      "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
+      "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+      "tokens": ["0x76Eb2FE28b36B3ee97F3Adae0C69606eeDB2A37c"]
+    },
+    "cyusdt_cydai+cyusdc+cyusdt": {
+      "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
+      "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+      "tokens": ["0x48759F220ED983dB51fA7A8C0D2AAb8f3ce4166a"]
     }
   },
   "DyDxAdapter": {
