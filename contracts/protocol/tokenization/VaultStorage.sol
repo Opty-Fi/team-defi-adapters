@@ -56,7 +56,7 @@ contract VaultStorage {
     /**
      * @dev The risk profile name of the vault
      */
-    string public profile;
+    uint256 public profile;
 
     /**
      * @dev The pricePerShare of the vault
