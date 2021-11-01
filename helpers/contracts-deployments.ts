@@ -1,10 +1,7 @@
-import {
-  ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA,
-  RISK_PROFILES,
-  ADAPTERS,
-  VAULT_TOKENS,
-  OPTY_STAKING_VAULTS,
-} from "./constants";
+import { RISK_PROFILES, OPTY_STAKING_VAULTS } from "./constants/contracts-data";
+import { VAULT_TOKENS } from "./constants/tokens";
+import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA } from "./constants/contracts-names";
+import { ADAPTERS } from "./constants/adapters";
 import { Contract, Signer } from "ethers";
 import { CONTRACTS, CONTRACTS_WITH_HASH } from "./type";
 import { getTokenName, getTokenSymbol, addRiskProfiles } from "./contracts-actions";

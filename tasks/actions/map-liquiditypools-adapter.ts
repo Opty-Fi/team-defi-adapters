@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
 
-import { HARVEST_V1_ADAPTER_NAME, ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/contracts-names";
+import { HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { approveLiquidityPoolAndMapAdapters } from "../../helpers/contracts-actions";
 import { TypedDefiPools } from "../../helpers/data/index";
 import { removeDuplicateFromStringArray } from "../../helpers/utils";

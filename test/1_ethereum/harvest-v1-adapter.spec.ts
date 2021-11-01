@@ -3,13 +3,10 @@ import { solidity } from "ethereum-waffle";
 import hre from "hardhat";
 import { Contract, Signer, BigNumber, utils } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
-import {
-  VAULT_TOKENS,
-  TESTING_DEPLOYMENT_ONCE,
-  ADDRESS_ZERO,
-  HARVEST_V1_ADAPTER_NAME,
-  TESTING_CONTRACTS,
-} from "../../helpers/constants";
+import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
+import { VAULT_TOKENS } from "../../helpers/constants/tokens";
+import { TESTING_CONTRACTS } from "../../helpers/constants/contracts-names";
+import { HARVEST_V1_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { TypedAdapterStrategies, TypedMultiAssetTokens, TypedCurveTokens, TypedDefiPools } from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp, addWhiteListForHarvest } from "../../helpers/contracts-actions";

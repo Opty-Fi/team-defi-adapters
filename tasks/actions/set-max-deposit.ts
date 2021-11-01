@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
-import { MAX_DEPOSIT_MODE, ADDRESS_ZERO } from "../../helpers/constants";
+import { MAX_DEPOSIT_MODE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { SET_MAX_DEPOSIT } from "../task-names";
 
 task(SET_MAX_DEPOSIT, "Set max deposit amount for adapter")

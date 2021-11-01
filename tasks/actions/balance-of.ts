@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/contracts-names";
 import { BALANCE_OF } from "../task-names";
 
 task(BALANCE_OF, "Check token balance of address")

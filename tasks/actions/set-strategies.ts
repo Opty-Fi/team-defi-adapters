@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS, VAULT_TOKENS } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/contracts-names";
+import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 import { TypedStrategies } from "../../helpers/data";
 import { STRATEGY } from "../../helpers/type";
 import fs from "fs";
