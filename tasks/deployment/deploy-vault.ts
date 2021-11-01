@@ -3,7 +3,7 @@ import { deployVaultWithHash } from "../../helpers/contracts-deployments";
 import { getTokenInforWithAddress, unpauseVault } from "../../helpers/contracts-actions";
 import { insertContractIntoDB } from "../../helpers/db";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/contracts-names";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/essential-contracts-name";
 import { RISK_PROFILES } from "../../helpers/constants/contracts-data";
 import { DEPLOY_VAULT } from "../task-names";
 
