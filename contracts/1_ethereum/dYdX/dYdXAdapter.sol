@@ -24,8 +24,8 @@ import {
     AssetReference,
     ActionType
 } from "./interfaces/IdYdX.sol";
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for dYdX protocol

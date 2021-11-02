@@ -15,17 +15,17 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { CurveSwapETHGateway } from "./CurveSwapETHGateway.sol";
 
 //  interfaces
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/opty/defiAdapters/IAdapterStaking.sol";
-import { IAdapterInvestLimit } from "../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
-import { IAdapterStakingCurve } from "../../interfaces/opty/defiAdapters/IAdapterStakingCurve.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
+import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapterStakingCurve } from "../../interfaces/defiAdapters/IAdapterStakingCurve.sol";
 import { ICurveDeposit } from "./interfaces/ICurveDeposit.sol";
 import { ICurveSwap } from "./interfaces/ICurveSwap.sol";
 import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
 import { ICurveAddressProvider } from "./interfaces/ICurveAddressProvider.sol";
 import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
-import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { ITokenMinter } from "./interfaces/ITokenMinter.sol";
 
 /**
