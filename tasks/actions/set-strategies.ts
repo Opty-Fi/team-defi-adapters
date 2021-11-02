@@ -1,8 +1,8 @@
 import { task, types } from "hardhat/config";
 import { setStrategy } from "../../helpers/contracts-actions";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/essential-contracts-name";
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/essential-contracts-name";
 import { TypedStrategies } from "../../helpers/data";
 import { STRATEGY } from "../../helpers/type";
 import fs from "fs";
@@ -43,6 +43,8 @@ task(SET_STRATEGIES, "Set strategies")
   .addParam("investstrategyregistry", "the address of investStrategyRegistry", "", types.string)
   .addParam("fromfile", "path to strategies json file", "", types.string)
   .setAction(async ({ investstrategyregistry, fromfile }, hre) => {
+    const [owner] = await hre.ethers.getSigners();
+
     if (investstrategyregistry === "") {
       throw new Error("investstrategyregistry cannot be empty");
     }
@@ -70,6 +72,7 @@ task(SET_STRATEGIES, "Set strategies")
         try {
           const hash = await setStrategy(
             strategies[i].strategy,
+            owner,
             [VAULT_TOKENS[strategies[i].token]],
             investStrategyRegistryContract,
           );
