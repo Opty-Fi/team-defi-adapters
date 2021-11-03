@@ -60,6 +60,5 @@ task(ETHEREUM_SETUP, "Deploy Registry, HarvestCodeProvider and Adapter contracts
       }
     }
     console.log("********************");
-    console.log(`\tApproving Tokens...`);
     console.log("Finished setup task");
   });
