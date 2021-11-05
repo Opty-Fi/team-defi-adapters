@@ -50,7 +50,7 @@ Usage: deploy all available adapter contracts
 - Example:
 
 ```
-  yarn hardhat deploy-adapters \
+  yarn hardhat ethereum-deploy-adapters \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --deployedonce false \
@@ -72,7 +72,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat deploy-harvest-code-provider \
+  yarn hardhat ethereum-deploy-harvest-code-provider \
   --network localhost \
   --registry 0x0000000000000000000000000000000000000000 \
   --deployedonce false \
@@ -93,7 +93,7 @@ Options:
 - Example:
 
 ```
-  yarn hardhat deploy-registry \
+  yarn hardhat ethereum-deploy-registry \
   --deployedonce false \
   --network localhost
 ```
@@ -172,7 +172,7 @@ Options:
 - Example:
 
 ```
-yarn hardhat set-max-deposit
+yarn hardhat ethereum-set-max-deposit
 --adapter 0xA38FdF6d6D3E6dff80F416Fa6C1649b317A70595 \
 --amount 1000000000000000000000000 \
 --mode pct \
@@ -196,7 +196,7 @@ Options:
 - Example:
 
 ```
-yarn hardhat set-max-deposit-mode
+yarn hardhat etheruem-set-max-deposit-mode
 --adapter 0xA38FdF6d6D3E6dff80F416Fa6C1649b317A70595 \
 --mode pct \
 --network localhost
