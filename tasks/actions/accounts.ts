@@ -1,9 +1,8 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import { task } from "hardhat/config";
+import TASKS from "../task-names";
 
-import { TASK_ACCOUNTS } from "../task-names";
-
-task(TASK_ACCOUNTS, "Prints the list of accounts", async (_taskArgs, hre) => {
+task(TASKS.ACTION_TASKS.LIST_ACCOUNTS.NAME, TASKS.ACTION_TASKS.LIST_ACCOUNTS.DESCRIPTION, async (_taskArgs, hre) => {
   const accounts: Signer[] = await hre.ethers.getSigners();
 
   for (const account of accounts) {

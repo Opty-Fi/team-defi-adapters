@@ -1,9 +1,13 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../../helpers/helpers";
 import { MAX_DEPOSIT_MODE, ADDRESS_ZERO } from "../../../helpers/constants";
-import { ETHEREUM_SET_MAX_DEPOSIT } from "../../task-names";
+import TASKS from "../../task-names";
+import { eEthereumNetwork } from "../../../helper-hardhat-config";
 
-task(ETHEREUM_SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
+task(
+  `${eEthereumNetwork.ethereum}-${TASKS.ACTION_TASKS.SET_MAX_DEPOSIT.NAME}`,
+  TASKS.ACTION_TASKS.SET_MAX_DEPOSIT.DESCRIPTION,
+)
   .addParam("adapter", "the address of defi adapter", "", types.string)
   .addParam("amount", "the max deposit amount", "0", types.string)
   .addParam("liquiditypool", "the address of liquiditypool", "", types.string)
@@ -82,7 +86,7 @@ task(ETHEREUM_SET_MAX_DEPOSIT, "Set max deposit amount for adapter")
       }
       console.log(`Finished setting max deposit`);
     } catch (error) {
-      console.error(`${ETHEREUM_SET_MAX_DEPOSIT}: `, error);
+      console.error(`${eEthereumNetwork.ethereum}-${TASKS.ACTION_TASKS.SET_MAX_DEPOSIT.NAME} : `, error);
       throw error;
     }
   });

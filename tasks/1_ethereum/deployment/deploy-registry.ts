@@ -1,9 +1,13 @@
 import { task, types } from "hardhat/config";
 import { deployRegistry } from "../../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../../helpers/db";
-import { ETHEREUM_DEPLOY_REGISTRY } from "../../task-names";
+import TASKS from "../../task-names";
+import { eEthereumNetwork } from "../../../helper-hardhat-config";
 
-task(ETHEREUM_DEPLOY_REGISTRY, "Deploy Registry")
+task(
+  `${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_REGISTRY.NAME}`,
+  TASKS.DEPLOYMENT_TASKS.DEPLOY_REGISTRY.DESCRIPTION,
+)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {
@@ -20,7 +24,7 @@ task(ETHEREUM_DEPLOY_REGISTRY, "Deploy Registry")
         }
       }
     } catch (error) {
-      console.error(`${ETHEREUM_DEPLOY_REGISTRY}: `, error);
+      console.error(`${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_REGISTRY.NAME} : `, error);
       throw error;
     }
   });

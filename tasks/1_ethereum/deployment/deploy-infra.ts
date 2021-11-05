@@ -2,9 +2,13 @@ import { task, types } from "hardhat/config";
 import { CONTRACTS } from "../../../helpers/type";
 import { deployEssentialContracts } from "../../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../../helpers/db";
-import { ETHEREUM_DEPLOY_INFRA } from "../../task-names";
+import TASKS from "../../task-names";
+import { eEthereumNetwork } from "../../../helper-hardhat-config";
 
-task(ETHEREUM_DEPLOY_INFRA, "Deploy infrastructure contracts")
+task(
+  `${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_INFRA.NAME}`,
+  TASKS.DEPLOYMENT_TASKS.DEPLOY_INFRA.DESCRIPTION,
+)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {
@@ -31,7 +35,7 @@ task(ETHEREUM_DEPLOY_INFRA, "Deploy infrastructure contracts")
       }
       console.log("Finished deploying infrastructure contracts");
     } catch (error) {
-      console.error(`${ETHEREUM_DEPLOY_INFRA}: `, error);
+      console.error(`${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_INFRA.NAME} : `, error);
       throw error;
     }
   });

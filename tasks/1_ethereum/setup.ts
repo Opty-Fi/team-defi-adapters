@@ -3,9 +3,10 @@ import { task, types } from "hardhat/config";
 import { CONTRACTS } from "../../helpers/type";
 import { deployEssentialContracts, deployAdapters } from "../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../helpers/db";
-import { ETHEREUM_SETUP } from "../task-names";
+import TASKS from "../task-names";
+import { eEthereumNetwork } from "../../helper-hardhat-config";
 
-task(ETHEREUM_SETUP, "Deploy Registry, HarvestCodeProvider and Adapter contracts and setup all necessary actions")
+task(`${eEthereumNetwork.ethereum}-${TASKS.SETUP.NAME}`, TASKS.SETUP.DESCRIPTION)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", false, types.boolean)
   .addParam("insertindb", "allow inserting to database", false, types.boolean)
   .setAction(async ({ deployedonce, insertindb }, hre) => {

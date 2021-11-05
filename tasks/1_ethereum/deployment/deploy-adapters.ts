@@ -1,9 +1,13 @@
 import { task, types } from "hardhat/config";
 import { ADAPTERS } from "../../../helpers/constants";
 import { isAddress } from "../../../helpers/helpers";
-import { ETHEREUM_DEPLOY_ADAPTER, ETHEREUM_DEPLOY_ADAPTERS } from "../../task-names";
+import TASKS from "../../task-names";
+import { eEthereumNetwork } from "../../../helper-hardhat-config";
 
-task(ETHEREUM_DEPLOY_ADAPTERS, "Deploy Adapter contracts")
+task(
+  `${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_ADAPTERS.NAME}`,
+  TASKS.DEPLOYMENT_TASKS.DEPLOY_ADAPTERS.DESCRIPTION,
+)
   .addParam("registry", "the address of registry", "", types.string)
   .addParam("deployedonce", "allow checking whether contracts were deployed previously", true, types.boolean)
   .addParam("insertindb", "insert the deployed contract addresses in DB", false, types.boolean)
@@ -19,7 +23,7 @@ task(ETHEREUM_DEPLOY_ADAPTERS, "Deploy Adapter contracts")
     try {
       for (const adapter of ADAPTERS) {
         try {
-          await hre.run(ETHEREUM_DEPLOY_ADAPTER, {
+          await hre.run(`${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_ADAPTER}`, {
             registry: registry,
             name: adapter,
             insertindb: insertindb,
@@ -32,7 +36,7 @@ task(ETHEREUM_DEPLOY_ADAPTERS, "Deploy Adapter contracts")
       }
       console.log("Finished deploying adapters");
     } catch (error) {
-      console.error(`${ETHEREUM_DEPLOY_ADAPTERS}: `, error);
+      console.error(`${eEthereumNetwork.ethereum}-${TASKS.DEPLOYMENT_TASKS.DEPLOY_ADAPTERS.NAME} : `, error);
       throw error;
     }
   });
