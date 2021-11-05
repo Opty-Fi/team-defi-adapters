@@ -185,10 +185,6 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
         require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
         require(_stakingVault.isContract(), "!_stakingVault.isContract()");
-        require(
-            liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
-            "liquidityPoolToStakingVault already set"
-        );
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
     }
 
