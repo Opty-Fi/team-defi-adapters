@@ -15,10 +15,10 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 //  interfaces
 import { ICream } from "./interfaces/ICream.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/opty/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterInvestLimit } from "../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
+import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Cream protocol
