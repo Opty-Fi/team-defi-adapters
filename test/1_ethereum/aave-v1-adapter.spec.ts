@@ -672,7 +672,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                           ])
                         )[2];
                         const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                        expect(amountInUnderlyingToken).to.be.eq(result);
+                        expect(amountInUnderlyingToken).to.be.closeTo(result, 500);
                       }
                       break;
                     }

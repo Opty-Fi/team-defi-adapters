@@ -27,11 +27,11 @@ import {
     ReserveDataProtocol,
     ReserveConfigurationData
 } from "./interfaces/v2/IAaveV2ProtocolDataProvider.sol";
-import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterBorrow } from "../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterBorrow } from "../../interfaces/defiAdapters/IAdapterBorrow.sol";
 
 /**
  * @title Adapter for AaveV2 protocol

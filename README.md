@@ -1,6 +1,6 @@
-# Earn protocol
+# Team DeFi Adapters
 
-Core smart contract of OptyFi's Earn protocol
+DeFi Adapters build by core dev team of opty.fi
 
 ## Prerequisite
 
@@ -9,19 +9,19 @@ To run the project :
 - <a href="https://nodejs.org/en/" target="_blank">Node.js</a> - >v8
 - <a href="https://yarnpkg.com/lang/en/docs/install/" target="_blank">Yarn</a>
 - Local env variables following [format](.env.example)
-- API keys from Ethereum node Providers like <a href="https://chainstack.com" target="_blank">chainstack.com</a>
+- API keys from Blockchain node Providers like <a href="https://chainstack.com" target="_blank">chainstack.com</a>
 
 ## Installation
 
-Clone earn-protocol
+Clone team-defi-adapters
 
 ```bash
-git clone https://github.com/Opty-Fi/earn-protocol.git
+git clone https://github.com/Opty-Fi/team-defi-adapters.git
 ```
 
 Run `yarn install` to install necessary dependencies.
 
-Run `yarn run` to view all available tasks.
+Run `yarn hardhat` to view all available tasks.
 
 ## Compile and Test
 

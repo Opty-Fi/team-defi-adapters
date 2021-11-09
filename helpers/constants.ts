@@ -1,31 +1,10 @@
-import {
-  DATA_OBJECT,
-  REWARD_TOKEN_DATA_OBJECT,
-  RISK_PROFILE_DATA,
-  OPTY_STAKING_VAULT,
-  SUPPORTED_TOKENS_DATA,
-} from "./type";
+import { DATA_OBJECT, REWARD_TOKEN_DATA_OBJECT, SUPPORTED_TOKENS_DATA } from "./type";
 import { TypedTokens } from "./data";
 
 export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   REGISTRY: "Registry",
   REGISTRY_PROXY: "RegistryProxy",
-  INVEST_STRATEGY_REGISTRY: "InvestStrategyRegistry",
-  STRATEGY_MANAGER: "StrategyManager",
-  OPTY: "OPTY",
-  OPTY_DISTRIBUTOR: "OPTYDistributor",
-  RISK_MANAGER: "RiskManager",
-  STRATEGY_PROVIDER: "StrategyProvider",
   HARVEST_CODE_PROVIDER: "HarvestCodeProvider",
-  VAULT_PROXY: "InitializableImmutableAdminUpgradeabilityProxy",
-  VAULT: "Vault",
-  RISK_MANAGER_PROXY: "RiskManagerProxy",
-  PRICE_ORACLE: "PriceOracle",
-  OPTY_STAKING_VAULT: "OPTYStakingVault",
-  OPTY_STAKING_RATE_BALANCER: "OPTYStakingRateBalancer",
-  OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
-  APR_ORACLE: "APROracle",
-  ODEFI_VAULT_BOOSTER: "ODEFIVaultBooster",
   ERC20: "ERC20",
 };
 
@@ -101,83 +80,15 @@ export const REWARD_TOKENS: REWARD_TOKEN_DATA_OBJECT = {
 };
 
 export const TESTING_CONTRACTS: DATA_OBJECT = {
-  TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
-  TEST_DUMMY_TOKEN: "TestDummyToken",
-  TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
-  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
   TESTING_DEFI_ADAPTER: "TestDeFiAdapter",
   TESTING_HARVEST_CODE_PROVIDER: "TestHarvestCodeProvider",
-  TEST_REGISTRY_NEW_IMPLEMENTATION: "TestRegistryNewImplementation",
-  TEST_RISK_MANAGER_NEW_IMPLEMENTATION: "TestRiskManagerNewImplementation",
-  TEST_OPTY_STAKING_RATE_BALANCER_NEW_IMPLEMENTATION: "TestOptyStakingRateBalancerNewImplementation",
-  TEST_VAULT_NEW_IMPLEMENTATION: "TestVaultNewImplementation",
-  TEST_STRATEGY_MANAGER: "TestStrategyManager",
-  TEST_STAKING_RATE_BALANCER: "TestOPTYStakingRateBalancer",
+  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-export const RISK_PROFILES: RISK_PROFILE_DATA = [
-  {
-    code: 0,
-    name: "RP0",
-    symbol: "RP0",
-    canBorrow: false,
-    poolRating: [0, 5],
-  },
-  {
-    code: 1,
-    name: "Basic",
-    symbol: "bas",
-    canBorrow: false,
-    poolRating: [0, 10],
-  },
-  {
-    code: 2,
-    name: "Intermediate",
-    symbol: "int",
-    canBorrow: true,
-    poolRating: [0, 20],
-  },
-  {
-    code: 3,
-    name: "Advanced",
-    symbol: "adv",
-    canBorrow: true,
-    poolRating: [0, 30],
-  },
-];
-
 export const TESTING_DEPLOYMENT_ONCE = false; // accept deploy contracts once for testing
 
-export const OPTY_STAKING_VAULTS: OPTY_STAKING_VAULT[] = [
-  {
-    name: "optyStakingVault1D",
-    numberOfDays: "1D",
-    lockTime: 86400,
-    multiplier: 10000,
-  },
-  {
-    name: "optyStakingVault30D",
-    numberOfDays: "30D",
-    lockTime: 2592000,
-    multiplier: 12000,
-  },
-  {
-    name: "optyStakingVault60D",
-    numberOfDays: "60D",
-    lockTime: 5184000,
-    multiplier: 15000,
-  },
-  {
-    name: "optyStakingVault180D",
-    numberOfDays: "180D",
-    lockTime: 15552000,
-    multiplier: 20000,
-  },
-];
 export const TOKEN_HOLDERS: DATA_OBJECT = {
   CRETH2: "0x66692b8e2a9543e1f83d681f6ef535ca60a0a655",
   UNI_V2_ETH_USDT: "0x888e1b67bfb11d6a68c43a6af939b89d8defb2bb",
@@ -215,8 +126,6 @@ export enum MAX_DEPOSIT_MODE {
   number,
   pct,
 }
-
-export const UPGRADABLE_CONTRACTS = [ESSENTIAL_CONTRACTS.REGISTRY, ESSENTIAL_CONTRACTS.RISK_MANAGER];
 
 export const CONTRACT_ADDRESSES: DATA_OBJECT = {
   COMPOUND_COMPTROLLER: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",

@@ -1,5 +1,4 @@
 import { Contract } from "ethers";
-import { MockContract } from "@defi-wonderland/smock";
 
 export type ESSENTIAL_CONTRACTS = {
   registry: Contract;
@@ -17,25 +16,9 @@ export type CONTRACTS = {
   [name: string]: Contract;
 };
 
-export type MOCK_CONTRACTS = {
-  [name: string]: MockContract<Contract>;
-};
-
-export type CONTRACTS_WITH_HASH = {
-  [name: string]: { contract: Contract; hash: string };
-};
-
 export type DATA_OBJECT = {
   [name: string]: string;
 };
-
-export type RISK_PROFILE_DATA = {
-  code: number;
-  name: string;
-  symbol: string;
-  canBorrow: boolean;
-  poolRating: number[];
-}[];
 
 export type REWARD_TOKEN_DATA_OBJECT = {
   [name: string]: {
@@ -73,16 +56,6 @@ export type ADAPTER_WITH_STRATEGIES_DATA = {
   [key: string]: STRATEGY[];
 };
 
-export type TESTING_DEFAULT_DATA = {
-  setFunction: string;
-  input: any[];
-  getFunction: {
-    name: string;
-    input: any[];
-    output: any;
-  }[];
-};
-
 export type MULTI_ASSET_TOKEN_DATA = {
   [token: string]: {
     address: string;
@@ -98,13 +71,6 @@ export type CURVE_TOKEN_DATA = {
     swap?: boolean;
     old?: boolean;
   };
-};
-
-export type OPTY_STAKING_VAULT = {
-  name: string;
-  numberOfDays: string;
-  lockTime: number;
-  multiplier: number;
 };
 
 export type SUPPORTED_TOKENS_DATA = {
