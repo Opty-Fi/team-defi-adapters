@@ -24,10 +24,10 @@ import {
     UserAccountData
 } from "./interfaces/v1/IAaveV1.sol";
 import { IAaveV1Token } from "./interfaces/v1/IAaveV1Token.sol";
-import { IHarvestCodeProvider } from "../../interfaces/opty/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/opty/defiAdapters/IAdapter.sol";
-import { IAdapterBorrow } from "../../interfaces/opty/defiAdapters/IAdapterBorrow.sol";
-import { IAdapterInvestLimit } from "../../interfaces/opty/defiAdapters/IAdapterInvestLimit.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
+import { IAdapterBorrow } from "../../interfaces/defiAdapters/IAdapterBorrow.sol";
+import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for AaveV1 protocol

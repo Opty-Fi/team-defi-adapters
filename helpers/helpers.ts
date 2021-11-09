@@ -1,10 +1,8 @@
 import { Contract, Signer, ContractFactory, utils, BigNumber, BigNumberish } from "ethers";
 import { Artifact, HardhatRuntimeEnvironment } from "hardhat/types";
-import { STRATEGY_DATA } from "./type";
-import { getSoliditySHA3Hash, capitalizeFirstLetter, to_10powNumber_BN } from "./utils";
+import { to_10powNumber_BN } from "./utils";
 import { getAddress } from "ethers/lib/utils";
 import { TypedTokens } from "./data";
-import { MockContract } from "@defi-wonderland/smock";
 
 export async function deployContract(
   hre: HardhatRuntimeEnvironment,
@@ -45,51 +43,10 @@ async function _deployContractOnce(
   return hre.waffle.deployContract(await hre.ethers.getSigner(owner), contractArtifact, args);
 }
 
-export async function deployContractWithHash(
-  contractFactory: ContractFactory,
-  args: any[],
-  owner?: Signer,
-): Promise<{ contract: Contract; hash: string }> {
-  let contract: Contract;
-  if (owner) {
-    contract = await contractFactory.connect(owner).deploy(...args);
-  } else {
-    contract = await contractFactory.deploy(...args);
-  }
-  const hash = contract.deployTransaction.hash;
-  await contract.deployTransaction.wait();
-  return { contract, hash };
-}
-
 export async function executeFunc(contract: Contract, executer: Signer, funcAbi: string, args: any[]): Promise<void> {
   const tx = await contract.connect(executer)[funcAbi](...args);
   await tx.wait();
   return tx;
-}
-
-export function generateStrategyHash(strategy: STRATEGY_DATA[], tokenAddress: string): string {
-  const strategyStepsHash: string[] = [];
-  const tokensHash = generateTokenHash([tokenAddress]);
-  for (let index = 0; index < strategy.length; index++) {
-    strategyStepsHash[index] = getSoliditySHA3Hash(
-      ["address", "address", "bool"],
-      [strategy[index].contract, strategy[index].outputToken, strategy[index].isBorrow],
-    );
-  }
-  return getSoliditySHA3Hash(["bytes32", "bytes32[]"], [tokensHash, strategyStepsHash]);
-}
-
-export function generateStrategyStep(strategy: STRATEGY_DATA[]): [string, string, boolean][] {
-  const strategySteps: [string, string, boolean][] = [];
-  for (let index = 0; index < strategy.length; index++) {
-    const tempArr: [string, string, boolean] = [
-      strategy[index].contract,
-      strategy[index].outputToken,
-      strategy[index].isBorrow,
-    ];
-    strategySteps.push(tempArr);
-  }
-  return strategySteps;
 }
 
 export function isAddress(address: string): boolean {
@@ -193,45 +150,4 @@ export function getEthValueGasOverrideOptions(
     gasLimit: 6721975,
   };
   return ETH_VALUE_GAS_OVERRIDE_OPTIONS;
-}
-
-//  function to generate the token/list of tokens's hash
-export function generateTokenHash(addresses: string[]): string {
-  return getSoliditySHA3Hash(["address[]"], [addresses]);
-}
-
-export function retrieveAdapterFromStrategyName(strategyName: string): string[] {
-  // strategyName should follow format TOKEN-DEPOSIT-STRATEGY-TOKEN
-  // For Ex: DAI-deposit-COMPOUND-cDAI
-  const strategyStep = strategyName.split("-deposit-");
-  const adapterNames: string[] = [];
-  for (let i = 1; i < strategyStep.length; i++) {
-    const strategySymbol = strategyStep[i].split("-");
-    let adapterName;
-    if (strategySymbol[0].toUpperCase() === "AAVE") {
-      adapterName = "AaveV1";
-    } else if (strategySymbol[0].toUpperCase() === "AAVE_V2") {
-      adapterName = "AaveV2";
-    } else if (strategySymbol[0].toUpperCase() === "CURVE") {
-      adapterName = strategySymbol[1].toUpperCase() === "3Crv" ? "CurveSwapPool" : "CurveDepositPool";
-    } else if (strategySymbol[0].toUpperCase() === "DFORCE") {
-      adapterName = "DForce";
-    } else if (strategySymbol[0].toUpperCase() === "DYDX") {
-      adapterName = "DyDx";
-    } else if (strategySymbol[0].toUpperCase() === "YEARN") {
-      adapterName = "YVault";
-    } else {
-      adapterName = capitalizeFirstLetter(strategySymbol[0].toLowerCase());
-    }
-    if (adapterName) {
-      adapterNames.push(`${adapterName}Adapter`);
-    }
-  }
-  return adapterNames;
-}
-
-export async function deploySmockContract(smock: any, contractName: any, args: any[]): Promise<MockContract<Contract>> {
-  const factory = await smock.mock(contractName);
-  const contract = await factory.deploy(...args);
-  return contract;
 }

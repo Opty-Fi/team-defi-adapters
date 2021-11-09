@@ -24,7 +24,6 @@
     "@commitlint/cli": "^13.2.0",
     "@commitlint/config-conventional": "^13.2.0",
     "@compound-finance/compound-js": "^0.4.0",
-    "@defi-wonderland/smock": "^2.0.7",
     "@ethersproject/abi": "^5.4.1",
     "@ethersproject/abstract-signer": "^5.4.1",
     "@ethersproject/bignumber": "^5.4.2",
@@ -110,14 +109,14 @@
     "hardhat:local": "hardhat --network localhost",
     "hardhat:staging": "hardhat --network staging",
     "hardhat:kovan": "hardhat --network kovan",
-    "deploy-infra": "hardhat deploy-infra",
-    "deploy-infra:local": "npm run hardhat:local deploy-infra",
-    "deploy-infra:staging": "npm run hardhat:staging deploy-infra",
-    "deploy-adapters": "hardhat deploy-adapters",
-    "deploy-adapters:kovan": "npm run hardhat:kovan deploy-adapters --",
-    "setup": "hardhat setup",
-    "setup:local": "npm run hardhat:local setup",
-    "setup:staging": "npm run hardhat:staging setup"
+    "deploy-infra": "hardhat ethereum-deploy-infra",
+    "deploy-infra:local": "npm run hardhat:local ethereum-deploy-infra",
+    "deploy-infra:staging": "npm run hardhat:staging ethereum-deploy-infra",
+    "deploy-adapters": "hardhat ethereum-deploy-adapters",
+    "deploy-adapters:kovan": "npm run hardhat:kovan ethereum-deploy-adapters --",
+    "setup": "hardhat ethereum-setup",
+    "setup:local": "npm run hardhat:local ethereum-setup",
+    "setup:staging": "npm run hardhat:staging ethereum-setup"
   },
   "publishConfig": {
     "access": "public"

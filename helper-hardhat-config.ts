@@ -12,6 +12,7 @@ export enum eEthereumNetwork {
   hardhat = "hardhat",
   staging = "staging",
   tenderlyMain = "tenderlyMain",
+  ethereum = "ethereum",
 }
 
 export type iEthereumParamsPerNetwork<T> = {
@@ -22,6 +23,7 @@ export const NETWORKS_RPC_URL: iEthereumParamsPerNetwork<string> = {
   [eEthereumNetwork.kovan]: process.env.KOVAN_NODE_URL ? process.env.KOVAN_NODE_URL : "",
   [eEthereumNetwork.ropsten]: "",
   [eEthereumNetwork.main]: "",
+  [eEthereumNetwork.ethereum]: "",
   [eEthereumNetwork.staging]: process.env.STAGING_NETWORK_URL ? process.env.STAGING_NETWORK_URL : "",
   [eEthereumNetwork.coverage]: "http://localhost:8555",
   [eEthereumNetwork.hardhat]: "http://localhost:8545",
@@ -33,6 +35,7 @@ export const NETWORKS_DEFAULT_GAS: iEthereumParamsPerNetwork<number> = {
   [eEthereumNetwork.kovan]: 65 * GWEI,
   [eEthereumNetwork.ropsten]: 65 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,
+  [eEthereumNetwork.ethereum]: 65 * GWEI,
   [eEthereumNetwork.coverage]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
   [eEthereumNetwork.staging]: 65 * GWEI,
