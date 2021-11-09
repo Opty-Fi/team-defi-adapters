@@ -4,7 +4,14 @@ import { getAddress } from "ethers/lib/utils";
 import Compound from "@compound-finance/compound-js";
 import { Provider } from "@compound-finance/compound-js/dist/nodejs/types";
 import { STRATEGY_DATA } from "./type";
-import { TypedCurveTokens, TypedMultiAssetTokens, TypedTokens, TypedTokenHolders, TypedContracts } from "./data";
+import {
+  TypedCurveTokens,
+  TypedMultiAssetTokens,
+  TypedTokens,
+  TypedTokenHolders,
+  TypedContracts,
+  TypedEOA,
+} from "./data";
 import {
   executeFunc,
   generateStrategyHash,
@@ -14,7 +21,6 @@ import {
   isAddress,
 } from "./helpers";
 import { amountInHex } from "./utils";
-import { HARVEST_GOVERNANCE } from "./constants/utils";
 import { RISK_PROFILES } from "./constants/contracts-data";
 import { expect } from "chai";
 export async function approveLiquidityPoolAndMapAdapter(
@@ -589,15 +595,15 @@ export async function addWhiteListForHarvest(
 ): Promise<void> {
   await hre.network.provider.request({
     method: "hardhat_impersonateAccount",
-    params: [HARVEST_GOVERNANCE],
+    params: [TypedEOA.HARVEST_GOVERNANCE],
   });
   const harvestController = await hre.ethers.getContractAt(
     "IHarvestController",
     TypedContracts.HARVEST_CONTROLLER,
-    await hre.ethers.getSigner(HARVEST_GOVERNANCE),
+    await hre.ethers.getSigner(TypedEOA.HARVEST_GOVERNANCE),
   );
   await admin.sendTransaction({
-    to: HARVEST_GOVERNANCE,
+    to: TypedEOA.HARVEST_GOVERNANCE,
     value: hre.ethers.utils.parseEther("1000"),
   });
   await harvestController.addToWhitelist(contractAddress);
