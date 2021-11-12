@@ -2009,7 +2009,9 @@
           "message": ""
         }
       ]
-    },
+    }
+  ],
+  "adapterStandaloneStories": [
     {
       "description": "setLiquidityPoolToStakingVault() - Non-Operator shouldn't be able to set liquidityPoolToStakingVault mapping",
       "setActions": [
@@ -2122,9 +2124,7 @@
       ],
       "getActions": [],
       "cleanActions": []
-    }
-  ],
-  "adapterStandaloneStories": [
+    },
     {
       "description": "[canStake()] - should return whether stake is allowed or not",
       "setActions": [
