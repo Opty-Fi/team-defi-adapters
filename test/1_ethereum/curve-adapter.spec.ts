@@ -227,7 +227,7 @@ describe("CurveAdapters Unit test", () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
@@ -247,7 +247,9 @@ describe("CurveAdapters Unit test", () => {
                   underlyingTokenAddress,
                   liquidityPool,
                 );
-                gaugeContract = await hre.ethers.getContractAt("ICurveGauge", <string>TypedDefiPools[curveAdapterName][pool].gauge);
+                if (TypedDefiPools[curveAdapterName][pool].gauge != ADDRESS_ZERO) {
+                  gaugeContract = await hre.ethers.getContractAt("ICurveGauge", <string>TypedDefiPools[curveAdapterName][pool].gauge);
+                }
                 let gaugeTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let isTestingStakingFunction = false;
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
@@ -469,51 +471,51 @@ describe("CurveAdapters Unit test", () => {
                     //   break;
                     // }
                     case "testGetStakeAllCodes(address,address,address)": {
-                      // if (gaugeContract) {
-                      gaugeTokenBalanceBefore = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
-                      // }
+                      if (gaugeContract) {
+                        gaugeTokenBalanceBefore = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
+                      }
                       isTestingStakingFunction = true;
                       break;
                     }
                     case "testGetStakeSomeCodes(address,uint256,address)": {
-                      // if (gaugeContract) {
-                      gaugeTokenBalanceBefore = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                      const balanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, balanceFromPool, adapterAddress);
-                      // }
+                      if (gaugeContract) {
+                        gaugeTokenBalanceBefore = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        const balanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](liquidityPool, balanceFromPool, adapterAddress);
+                      }
                       isTestingStakingFunction = true;
                       break;
                     }
                     case "testGetUnstakeAllCodes(address,address)": {
-                      // if (gaugeContract) {
-                      await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
-                      // }
+                      if (gaugeContract) {
+                        await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
+                      }
                       break;
                     }
                     case "testGetUnstakeSomeCodes(address,uint256,address)": {
-                      // if (lpStakingContract) {
-                      const stakingBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, stakingBalance, adapterAddress);
-                      // }
+                      if (gaugeContract) {
+                        const stakingBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](liquidityPool, stakingBalance, adapterAddress);
+                      }
                       break;
                     }
                     case "testGetUnstakeAndWithdrawAllCodes(address,address,address)": {
-                      // if (lpStakingContract) {
-                      await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
-                      // }
+                      if (gaugeContract) {
+                        await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
+                      }
                       break;
                     }
                     case "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)": {
-                      // if (lpStakingContract) {
-                      const stakingBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](
-                        liquidityPool,
-                        underlyingTokenAddress,
-                        stakingBalance,
-                        adapterAddress,
-                      );
-                      // }
+                      if (gaugeContract) {
+                        const stakingBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](
+                          liquidityPool,
+                          underlyingTokenAddress,
+                          stakingBalance,
+                          adapterAddress,
+                        );
+                      }
                       break;
                     }
                   }
@@ -592,35 +594,38 @@ describe("CurveAdapters Unit test", () => {
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      expect(+lpTokenBalanceAfter).to.be.eq(+expectedLpBalanceFromPool);
-                      const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
-                      if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
-                          liquidityPool,
-                        );
-                        if (existingDepositAmount.eq(BigNumber.from("0"))) {
-                          expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"));
-                        } else {
-                          expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from(+lpTokenBalanceBefore));
-                        }
+                      if (!gaugeContract && isTestingStakingFunction) {
+                        expect(+lpTokenBalanceAfter).to.be.eq(+expectedLpBalanceFromPool);
                       } else {
-                        const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
-                          liquidityPool,
-                        );
-                        const existingProtocolPct: BigNumber = await curveAdapters[
-                          curveAdapterName
-                        ].maxDepositProtocolPct();
-                        if (existingPoolPct.eq(BigNumber.from("0")) && existingProtocolPct.eq(BigNumber.from("0"))) {
-                          expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"));
-                        } else if (
-                          !existingPoolPct.eq(BigNumber.from("0")) ||
-                          !existingProtocolPct.eq(BigNumber.from("0"))
-                        ) {
-                          expectedValue == "=0"
-                            ? expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"))
-                            : expectedValue == "<"
-                              ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
-                              : expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from("0"));
+                        const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
+                        if (existingMode == 0) {
+                          const existingDepositAmount: BigNumber = await curveAdapters[curveAdapterName].maxDepositAmount(
+                            liquidityPool,
+                          );
+                          if (existingDepositAmount.eq(BigNumber.from("0"))) {
+                            expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"));
+                          } else {
+                            expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from(+lpTokenBalanceBefore));
+                          }
+                        } else {
+                          const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
+                            liquidityPool,
+                          );
+                          const existingProtocolPct: BigNumber = await curveAdapters[
+                            curveAdapterName
+                          ].maxDepositProtocolPct();
+                          if (existingPoolPct.eq(BigNumber.from("0")) && existingProtocolPct.eq(BigNumber.from("0"))) {
+                            expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"));
+                          } else if (
+                            !existingPoolPct.eq(BigNumber.from("0")) ||
+                            !existingProtocolPct.eq(BigNumber.from("0"))
+                          ) {
+                            expectedValue == "=0"
+                              ? expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"))
+                              : expectedValue == "<"
+                                ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
+                                : expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from("0"));
+                          }
                         }
                       }
                       break;
@@ -628,7 +633,7 @@ describe("CurveAdapters Unit test", () => {
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      if (isTestingStakingFunction) {
+                      if (!gaugeContract && isTestingStakingFunction) {
                         expect(+underlyingBalanceAfter).to.be.lte(+underlyingBalanceBefore);
                       } else {
                         if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
@@ -647,6 +652,202 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
+                    // case "getRewardTokenBalance(address)": {
+                    //   const rewardTokenBalanceAfter: BigNumber = lpStakingContract
+                    //     ? await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address)
+                    //     : BigNumber.from("0");
+
+                    //   if (
+                    //     (!lpStakingContract && isTestingStakingFunction) ||
+                    //     (stopReward && isTestingClaimRewardFunction)
+                    //   ) {
+                    //     expect(+rewardTokenBalanceAfter).to.be.eq(+rewardTokenBalanceBefore);
+                    //   } else {
+                    //     const expectedValue = action.expectedValue;
+
+                    //     expectedValue == ">"
+                    //       ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
+                    //       : expectedValue == "=0"
+                    //       ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
+                    //       : expect(+rewardTokenBalanceAfter).to.be.lte(+rewardTokenBalanceBefore);
+                    //   }
+
+                    //   break;
+                    // }
+                    case "getLiquidityPoolTokenBalanceStake(address,address)": {
+                      const expectedValue = action.expectedValue;
+                      if (gaugeContract) {
+                        const expectedStakingBalanceFromPool: BigNumber = await gaugeContract.balanceOf(
+                          testDeFiAdapter.address,
+                        );
+                        const stakingTokenBalanceAfter: BigNumber = await curveAdapters[curveAdapterName][action.action](
+                          testDeFiAdapter.address,
+                          liquidityPool,
+                        );
+
+                        expect(+stakingTokenBalanceAfter).to.be.eq(+expectedStakingBalanceFromPool);
+
+                        expectedValue == ">"
+                          ? expect(+stakingTokenBalanceAfter).to.be.gt(+gaugeTokenBalanceBefore)
+                          : expectedValue == "=0"
+                            ? expect(+stakingTokenBalanceAfter).to.be.eq(0)
+                            : expect(+stakingTokenBalanceAfter).to.be.lte(+gaugeTokenBalanceBefore);
+                      }
+                      else {
+                        await expect(curveAdapters[curveAdapterName][action.action](testDeFiAdapter.address, liquidityPool)).to.be.revertedWith(
+                          "function call to a non-contract account",
+                        );
+                      }
+                      break;
+                    }
+                    // case "getAllAmountInToken(address,address,address)": {
+                    //   const _amountInUnderlyingToken = await adapter[action.action](
+                    //     testDeFiAdapter.address,
+                    //     ADDRESS_ZERO,
+                    //     liquidityPool,
+                    //   );
+
+                    //   const expectedAmountInUnderlyingToken: BigNumber = await lpContract.getTokenBalance(
+                    //     testDeFiAdapter.address,
+                    //   );
+
+                    //   expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                    //   break;
+                    // }
+                    // case "isRedeemableAmountSufficient(address,address,address,uint256)": {
+                    //   const expectedValue = action.expectedValue;
+                    //   const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInToken(
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //   );
+                    //   if (expectedValue == ">") {
+                    //     const _isRedeemableAmountSufficient = await adapter[action.action](
+                    //       testDeFiAdapter.address,
+                    //       underlyingTokenAddress,
+                    //       liquidityPool,
+                    //       _amountInUnderlyingToken.add(BigNumber.from(10)),
+                    //     );
+                    //     expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                    //   } else if (expectedValue == "<") {
+                    //     const _isRedeemableAmountSufficient = await adapter[action.action](
+                    //       testDeFiAdapter.address,
+                    //       underlyingTokenAddress,
+                    //       liquidityPool,
+                    //       +_amountInUnderlyingToken > 0
+                    //         ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                    //         : BigNumber.from(0),
+                    //     );
+                    //     expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                    //   }
+                    //   break;
+                    // }
+                    // case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                    //   const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalance(
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //   );
+                    //   const _balanceInToken: BigNumber = await adapter.getAllAmountInToken(
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //   );
+
+                    //   const _testRedeemAmount: BigNumber = _lpTokenBalance;
+
+                    //   const _redeemableLpTokenAmt = await adapter[action.action](
+                    //     testDeFiAdapter.address,
+                    //     underlyingTokenAddress,
+                    //     liquidityPool,
+                    //     _testRedeemAmount,
+                    //   );
+                    //   const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                    //     .mul(_testRedeemAmount)
+                    //     .div(_balanceInToken)
+                    //     .add(BigNumber.from(1));
+                    //   expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
+
+                    //   break;
+                    // }
+                    // case "isRedeemableAmountSufficientStake(address,address,address,uint256)": {
+                    //   const expectedValue = action.expectedValue;
+
+                    //   if (lpStakingContract) {
+                    //     const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInTokenStake(
+                    //       testDeFiAdapter.address,
+                    //       underlyingTokenAddress,
+                    //       liquidityPool,
+                    //     );
+                    //     if (expectedValue == ">") {
+                    //       const _isRedeemableAmountSufficient = await adapter[action.action](
+                    //         testDeFiAdapter.address,
+                    //         underlyingTokenAddress,
+                    //         liquidityPool,
+                    //         _amountInUnderlyingToken.add(BigNumber.from(10)),
+                    //       );
+                    //       expect(_isRedeemableAmountSufficient).to.be.eq(false);
+                    //     } else if (expectedValue == "<") {
+                    //       const _isRedeemableAmountSufficient = await adapter[action.action](
+                    //         testDeFiAdapter.address,
+                    //         underlyingTokenAddress,
+                    //         liquidityPool,
+                    //         +_amountInUnderlyingToken > 0
+                    //           ? _amountInUnderlyingToken.sub(BigNumber.from(10))
+                    //           : BigNumber.from(0),
+                    //       );
+                    //       expect(_isRedeemableAmountSufficient).to.be.eq(true);
+                    //     }
+                    //   } else {
+                    //     await expect(
+                    //       adapter[action.action](
+                    //         testDeFiAdapter.address,
+                    //         underlyingTokenAddress,
+                    //         liquidityPool,
+                    //         BigNumber.from(0),
+                    //       ),
+                    //     ).to.be.revertedWith("function call to a non-contract account");
+                    //   }
+
+                    //   break;
+                    // }
+                    // case "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)": {
+                    //   if (lpStakingContract) {
+                    //     const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalanceStake(
+                    //       testDeFiAdapter.address,
+                    //       liquidityPool,
+                    //     );
+                    //     const _balanceInToken: BigNumber = await adapter.getAllAmountInTokenStake(
+                    //       testDeFiAdapter.address,
+                    //       underlyingTokenAddress,
+                    //       liquidityPool,
+                    //     );
+                    //     const _testRedeemAmount: BigNumber = _lpTokenBalance;
+
+                    //     const _redeemableLpTokenAmt = await adapter[action.action](
+                    //       testDeFiAdapter.address,
+                    //       underlyingTokenAddress,
+                    //       liquidityPool,
+                    //       _testRedeemAmount,
+                    //     );
+                    //     const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                    //       .mul(_testRedeemAmount)
+                    //       .div(_balanceInToken)
+                    //       .add(BigNumber.from(1));
+                    //     expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
+                    //   } else {
+                    //     await expect(
+                    //       adapter[action.action](
+                    //         testDeFiAdapter.address,
+                    //         underlyingTokenAddress,
+                    //         liquidityPool,
+                    //         BigNumber.from("0"),
+                    //       ),
+                    //     ).to.be.revertedWith("function call to a non-contract account");
+                    //   }
+
+                    //   break;
+                    // }
                   }
                 }
                 for (const action of story.cleanActions) {
@@ -656,10 +857,9 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "testGetUnstakeAllCodes(address,address)": {
-                      // if (lpStakingContract) {
-                      await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
-                      // }
-
+                      if (gaugeContract) {
+                        await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
+                      }
                       break;
                     }
                   }
