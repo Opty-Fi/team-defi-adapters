@@ -645,7 +645,7 @@ describe("CurveAdapters Unit test", () => {
                               ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                               : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
                         } else {
-                          expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.eq(
+                          expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.lte(
                             underlyingBalanceBefore.sub(limitInUnderlyingToken).div(to_10powNumber_BN(decimals)),
                           );
                         }
