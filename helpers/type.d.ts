@@ -49,6 +49,7 @@ export type DEFI_POOLS_DATA = {
       stakingVault?: string;
       pid?: string;
       deprecated?: boolean;
+      swap?: string
     };
   };
 };

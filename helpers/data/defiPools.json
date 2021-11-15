@@ -645,43 +645,50 @@
       "pool": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
       "lpToken": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
       "tokens": ["0x0000000000085d4780B73119b644AE5ecd22b376"],
-      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1"
+      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",
+      "swap": "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"
     },
     "dai_dai+usdc": {
       "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
       "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575"
+      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575",
+      "swap": "0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56"
     },
     "usdc_dai+usdc": {
       "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
       "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575"
+      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575",
+      "swap": "0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56"
     },
     "dai+usdc": {
       "pool": "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
       "lpToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575"
+      "gauge": "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575",
+      "swap": "0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56"
     },
     "dai_dai+usdc+usdt": {
       "pool": "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
       "lpToken": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53"
+      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53",
+      "swap": "0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C"
     },
     "usdc_dai+usdc+usdt": {
       "pool": "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
       "lpToken": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53"
+      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53",
+      "swap": "0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C"
     },
     "usdt_dai+usdc+usdt": {
       "pool": "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
       "lpToken": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53"
+      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53",
+      "swap": "0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C"
     },
     "dai+usdc+usdt": {
       "pool": "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
@@ -691,43 +698,50 @@
         "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "0xdac17f958d2ee523a2206206994597c13d831ec7"
       ],
-      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53"
+      "gauge": "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53",
+      "swap": "0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C"
     },
     "dai_ypaxCrv": {
       "pool": "0xA50cCc70b6a011CffDdf45057E39679379187287",
       "lpToken": "0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d"
+      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d",
+      "swap": "0x06364f10B501e868329afBc005b3492902d6C763"
     },
     "usdc_ypaxCrv": {
       "pool": "0xA50cCc70b6a011CffDdf45057E39679379187287",
       "lpToken": "0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d"
+      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d",
+      "swap": "0x06364f10B501e868329afBc005b3492902d6C763"
     },
     "usdt_ypaxCrv": {
       "pool": "0xA50cCc70b6a011CffDdf45057E39679379187287",
       "lpToken": "0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d"
+      "gauge": "0x64E3C23bfc40722d3B649844055F1D51c1ac041d",
+      "swap": "0x06364f10B501e868329afBc005b3492902d6C763"
     },
     "dai_dai+usdc+usdt+tusd": {
       "pool": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
       "lpToken": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1"
+      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",
+      "swap": "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"
     },
     "usdc_dai+usdc+usdt+tusd": {
       "pool": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
       "lpToken": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1"
+      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",
+      "swap": "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"
     },
     "usdt_dai+usdc+usdt+tusd": {
       "pool": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
       "lpToken": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1"
+      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",
+      "swap": "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"
     },
     "dai+usdc+usdt+tusd": {
       "pool": "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
@@ -738,55 +752,64 @@
         "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "0x0000000000085d4780B73119b644AE5ecd22b376"
       ],
-      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1"
+      "gauge": "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",
+      "swap": "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"
     },
     "dai_crvPlain3andSUSD": {
       "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
       "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0xA90996896660DEcC6E997655E065b23788857849"
+      "gauge": "0xA90996896660DEcC6E997655E065b23788857849",
+      "swap": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
     },
     "usdc_crvPlain3andSUSD": {
       "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
       "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0xA90996896660DEcC6E997655E065b23788857849"
+      "gauge": "0xA90996896660DEcC6E997655E065b23788857849",
+      "swap": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
     },
     "usdt_crvPlain3andSUSD": {
       "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
       "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0xA90996896660DEcC6E997655E065b23788857849"
+      "gauge": "0xA90996896660DEcC6E997655E065b23788857849",
+      "swap": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
     },
     "susd_crvPlain3andSUSD": {
       "pool": "0xFCBa3E75865d2d561BE8D220616520c171F12851",
       "lpToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
       "tokens": ["0x57ab1ec28d129707052df4df418d58a2d46d5f51"],
-      "gauge": "0xA90996896660DEcC6E997655E065b23788857849"
+      "gauge": "0xA90996896660DEcC6E997655E065b23788857849",
+      "swap": "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
     },
     "dai_dai+usdc+usdt+busd": {
       "pool": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
       "lpToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840"
+      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",
+      "swap": "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"
     },
     "usdc_dai+usdc+usdt+busd": {
       "pool": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
       "lpToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840"
+      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",
+      "swap": "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"
     },
     "usdt_dai+usdc+usdt+busd": {
       "pool": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
       "lpToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840"
+      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",
+      "swap": "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"
     },
     "busd_dai+usdc+usdt+busd": {
       "pool": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
       "lpToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
       "tokens": ["0x4Fabb145d64652a948d72533023f6E7A623C7C53"],
-      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840"
+      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",
+      "swap": "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"
     },
     "dai+usdc+usdt+busd": {
       "pool": "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
@@ -797,31 +820,36 @@
         "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "0x4Fabb145d64652a948d72533023f6E7A623C7C53"
       ],
-      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840"
+      "gauge": "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",
+      "swap": "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"
     },
     "gusd_dai+usdc+usdt+gusd": {
       "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
       "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
       "tokens": ["0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"],
-      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023"
+      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",
+      "swap": "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956"
     },
     "dai_dai+usdc+usdt+gusd": {
       "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
       "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023"
+      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",
+      "swap": "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956"
     },
     "usdc_dai+usdc+usdt+gusd": {
       "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
       "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023"
+      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",
+      "swap": "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956"
     },
     "usdt_dai+usdc+usdt+gusd": {
       "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
       "lpToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023"
+      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",
+      "swap": "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956"
     },
     "dai+usdc+usdt+gusd": {
       "pool": "0x0aE274c98c0415C0651AF8cF52b010136E4a0082",
@@ -832,31 +860,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023"
+      "gauge": "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",
+      "swap": "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956"
     },
     "husd_dai+usdc+usdt+husd": {
       "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
       "lpToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
       "tokens": ["0xdF574c24545E5FfEcb9a659c229253D4111d87e1"],
-      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840"
+      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",
+      "swap": "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604"
     },
     "dai_dai+usdc+usdt+husd": {
       "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
       "lpToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840"
+      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",
+      "swap": "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604"
     },
     "usdc_dai+usdc+usdt+husd": {
       "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
       "lpToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840"
+      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",
+      "swap": "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604"
     },
     "usdt_dai+usdc+usdt+husd": {
       "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
       "lpToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840"
+      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",
+      "swap": "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604"
     },
     "dai+usdc+usdt+husd": {
       "pool": "0x0a53FaDa2d943057C47A301D25a4D9b3B8e01e8E",
@@ -867,31 +900,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840"
+      "gauge": "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",
+      "swap": "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604"
     },
     "usdk_dai+usdc+usdt+usdk": {
       "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
       "lpToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
       "tokens": ["0x1c48f86ae57291F7686349F12601910BD8D470bb"],
-      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627"
+      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627",
+      "swap": "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"
     },
     "dai_dai+usdc+usdt+usdk": {
       "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
       "lpToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627"
+      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627",
+      "swap": "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"
     },
     "usdc_dai+usdc+usdt+usdk": {
       "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
       "lpToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627"
+      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627",
+      "swap": "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"
     },
     "usdt_dai+usdc+usdt+usdk": {
       "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
       "lpToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627"
+      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627",
+      "swap": "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"
     },
     "dai+usdc+usdt+usdk": {
       "pool": "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb",
@@ -902,31 +940,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627"
+      "gauge": "0xC2b1DF84112619D190193E48148000e3990Bf627",
+      "swap": "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"
     },
     "usdn_dai+usdc+usdt+usdn": {
       "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
       "lpToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
       "tokens": ["0x674C6Ad92Fd080e4004b2312b45f796a192D27a0"],
-      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4"
+      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",
+      "swap": "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"
     },
     "dai_dai+usdc+usdt+usdn": {
       "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
       "lpToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4"
+      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",
+      "swap": "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"
     },
     "usdc_dai+usdc+usdt+usdn": {
       "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
       "lpToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4"
+      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",
+      "swap": "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"
     },
     "usdt_dai+usdc+usdt+usdn": {
       "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
       "lpToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4"
+      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",
+      "swap": "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"
     },
     "dai+usdc+usdt+usdn": {
       "pool": "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39",
@@ -937,31 +980,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4"
+      "gauge": "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",
+      "swap": "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"
     },
     "linkusd_dai+usdc+usdt+linkusd": {
       "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0x0E2EC54fC0B509F445631Bf4b91AB8168230C752"],
-      "gauge": "0x0000000000000000000000000000000000000000"
+      "gauge": "0x0000000000000000000000000000000000000000",
+      "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
     },
     "dai_dai+usdc+usdt+linkusd": {
       "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x0000000000000000000000000000000000000000"
+      "gauge": "0x0000000000000000000000000000000000000000",
+      "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
     },
     "usdc_dai+usdc+usdt+linkusd": {
       "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0x0000000000000000000000000000000000000000"
+      "gauge": "0x0000000000000000000000000000000000000000",
+      "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
     },
     "usdt_dai+usdc+usdt+linkusd": {
       "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x0000000000000000000000000000000000000000"
+      "gauge": "0x0000000000000000000000000000000000000000",
+      "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
     },
     "dai+usdc+usdt+linkusd": {
       "pool": "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9",
@@ -972,31 +1020,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0x0000000000000000000000000000000000000000"
+      "gauge": "0x0000000000000000000000000000000000000000",
+      "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"
     },
     "musd_dai+usdc+usdt+musd": {
       "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
       "lpToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
       "tokens": ["0xe2f2a5C287993345a840Db3B0845fbC70f5935a5"],
-      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352"
+      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",
+      "swap": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
     },
     "dai_dai+usdc+usdt+musd": {
       "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
       "lpToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352"
+      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",
+      "swap": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
     },
     "usdc_dai+usdc+usdt+musd": {
       "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
       "lpToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352"
+      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",
+      "swap": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
     },
     "usdt_dai+usdc+usdt+musd": {
       "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
       "lpToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352"
+      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",
+      "swap": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
     },
     "dai+usdc+usdt+musd": {
       "pool": "0x78CF256256C8089d68Cde634Cf7cDEFb39286470",
@@ -1007,31 +1060,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352"
+      "gauge": "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",
+      "swap": "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6"
     },
     "rsv_dai+usdc+usdt+rsv": {
       "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
       "lpToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
       "tokens": ["0x196f4727526eA7FB1e17b2071B3d8eAA38486988"],
-      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7"
+      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",
+      "swap": "0xC18cC39da8b11dA8c3541C598eE022258F9744da"
     },
     "dai_dai+usdc+usdt+rsv": {
       "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
       "lpToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7"
+      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",
+      "swap": "0xC18cC39da8b11dA8c3541C598eE022258F9744da"
     },
     "usdc_dai+usdc+usdt+rsv": {
       "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
       "lpToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7"
+      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",
+      "swap": "0xC18cC39da8b11dA8c3541C598eE022258F9744da"
     },
     "usdt_dai+usdc+usdt+rsv": {
       "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
       "lpToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7"
+      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",
+      "swap": "0xC18cC39da8b11dA8c3541C598eE022258F9744da"
     },
     "dai+usdc+usdt+rsv": {
       "pool": "0x459eAA680b47D27c8561708C96c949e0018dF5d9",
@@ -1042,31 +1100,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7"
+      "gauge": "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",
+      "swap": "0xC18cC39da8b11dA8c3541C598eE022258F9744da"
     },
     "dusd_dai+usdc+usdt+dusd": {
       "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
       "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
       "tokens": ["0x5BC25f649fc4e26069dDF4cF4010F9f706c23831"],
-      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D"
+      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",
+      "swap": "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c"
     },
     "dai_dai+usdc+usdt+dusd": {
       "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
       "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D"
+      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",
+      "swap": "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c"
     },
     "usdc_dai+usdc+usdt+dusd": {
       "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
       "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D"
+      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",
+      "swap": "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c"
     },
     "usdt_dai+usdc+usdt+dusd": {
       "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
       "lpToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D"
+      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",
+      "swap": "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c"
     },
     "dai+usdc+usdt+dusd": {
       "pool": "0x61E10659fe3aa93d036d099405224E4Ac24996d0",
@@ -1077,31 +1140,36 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D"
+      "gauge": "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",
+      "swap": "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c"
     },
     "tbtc_renbtc+wbtc+sbtc+tbtc": {
       "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
       "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
       "tokens": ["0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa"],
-      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6"
+      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",
+      "swap": "0xC25099792E9349C7DD09759744ea681C7de2cb66"
     },
     "renbtc_renbtc+wbtc+sbtc+tbtc": {
       "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
       "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
       "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"],
-      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6"
+      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",
+      "swap": "0xC25099792E9349C7DD09759744ea681C7de2cb66"
     },
     "wbtc_renbtc+wbtc+sbtc+tbtc": {
       "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
       "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
       "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6"
+      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",
+      "swap": "0xC25099792E9349C7DD09759744ea681C7de2cb66"
     },
     "sbtc_renbtc+wbtc+sbtc+tbtc": {
       "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
       "lpToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
       "tokens": ["0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"],
-      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6"
+      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",
+      "swap": "0xC25099792E9349C7DD09759744ea681C7de2cb66"
     },
     "renbtc+wbtc+sbtc+tbtc": {
       "pool": "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",
@@ -1112,7 +1180,8 @@
         "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
         "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"
       ],
-      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6"
+      "gauge": "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",
+      "swap": "0xC25099792E9349C7DD09759744ea681C7de2cb66"
     },
     "pbtc+renbtc+wbtc+sbtc": {
       "pool": "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",
@@ -1123,31 +1192,36 @@
         "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
         "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"
       ],
-      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416"
+      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",
+      "swap": "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF"
     },
     "pbtc_pbtc+renbtc+wbtc+sbtc": {
       "pool": "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",
       "lpToken": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
       "tokens": ["0x5228a22e72ccC52d415EcFd199F99D0665E7733b"],
-      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416"
+      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",
+      "swap": "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF"
     },
     "renbtc_pbtc+renbtc+wbtc+sbtc": {
       "pool": "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",
       "lpToken": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
       "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"],
-      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416"
+      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",
+      "swap": "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF"
     },
     "wbtc_pbtc+renbtc+wbtc+sbtc": {
       "pool": "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",
       "lpToken": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
       "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416"
+      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",
+      "swap": "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF"
     },
     "sbtc_pbtc+renbtc+wbtc+sbtc": {
       "pool": "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",
       "lpToken": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
       "tokens": ["0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"],
-      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416"
+      "gauge": "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",
+      "swap": "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF"
     },
     "bbtc+renbtc+wbtc+sbtc": {
       "pool": "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",
@@ -1158,55 +1232,64 @@
         "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
         "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"
       ],
-      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE"
+      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",
+      "swap": "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b"
     },
     "bbtc_bbtc+renbtc+wbtc+sbtc": {
       "pool": "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",
       "lpToken": "0x410e3E86ef427e30B9235497143881f717d93c2A",
       "tokens": ["0x9BE89D2a4cd102D8Fecc6BF9dA793be995C22541"],
-      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE"
+      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",
+      "swap": "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b"
     },
     "renbtc_bbtc+renbtc+wbtc+sbtc": {
       "pool": "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",
       "lpToken": "0x410e3E86ef427e30B9235497143881f717d93c2A",
       "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"],
-      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE"
+      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",
+      "swap": "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b"
     },
     "wbtc_bbtc+renbtc+wbtc+sbtc": {
       "pool": "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",
       "lpToken": "0x410e3E86ef427e30B9235497143881f717d93c2A",
       "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE"
+      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",
+      "swap": "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b"
     },
     "sbtc_bbtc+renbtc+wbtc+sbtc": {
       "pool": "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",
       "lpToken": "0x410e3E86ef427e30B9235497143881f717d93c2A",
       "tokens": ["0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"],
-      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE"
+      "gauge": "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",
+      "swap": "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b"
     },
     "obtc_obtc+renbtc+wbtc+sbtc": {
       "pool": "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68"],
-      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1"
+      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1",
+      "swap": "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd"
     },
     "renbtc_obtc+renbtc+wbtc+sbtc": {
       "pool": "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D"],
-      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1"
+      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1",
+      "swap": "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd"
     },
     "wbtc_obtc+renbtc+wbtc+sbtc": {
       "pool": "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
-      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1"
+      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1",
+      "swap": "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd"
     },
     "sbtc_obtc+renbtc+wbtc+sbtc": {
       "pool": "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"],
-      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1"
+      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1",
+      "swap": "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd"
     },
     "obtc+renbtc+wbtc+sbtc": {
       "pool": "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",
@@ -1217,7 +1300,8 @@
         "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
         "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6"
       ],
-      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1"
+      "gauge": "0x11137B10C210b579405c21A07489e28F3c040AB1",
+      "swap": "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd"
     },
     "ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
@@ -1228,55 +1312,64 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855"
+      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
+      "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f"
     },
     "ust_ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0xa47c8bf37f92aBed4A126BDA807A7b7498661acD"],
-      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855"
+      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
+      "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f"
     },
     "dai_ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855"
+      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
+      "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f"
     },
     "usdc_ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855"
+      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
+      "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f"
     },
     "usdt_ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
       "lpToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855"
+      "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
+      "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f"
     },
     "usdp_usdp+dai+usdc+usdt": {
       "pool": "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
       "lpToken": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
       "tokens": ["0x1456688345527be1f37e9e627da0837d6f08c925"],
-      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222"
+      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",
+      "swap": "0x42d7025938bEc20B69cBae5A77421082407f053A"
     },
     "dai_usdp+dai+usdc+usdt": {
       "pool": "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
       "lpToken": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222"
+      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",
+      "swap": "0x42d7025938bEc20B69cBae5A77421082407f053A"
     },
     "usdc_usdp+dai+usdc+usdt": {
       "pool": "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
       "lpToken": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222"
+      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",
+      "swap": "0x42d7025938bEc20B69cBae5A77421082407f053A"
     },
     "usdt_usdp+dai+usdc+usdt": {
       "pool": "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
       "lpToken": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222"
+      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",
+      "swap": "0x42d7025938bEc20B69cBae5A77421082407f053A"
     },
     "usdp+dai+usdc+usdt": {
       "pool": "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
@@ -1287,25 +1380,29 @@
         "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "0xdac17f958d2ee523a2206206994597c13d831ec7"
       ],
-      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222"
+      "gauge": "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",
+      "swap": "0x42d7025938bEc20B69cBae5A77421082407f053A"
     },
     "dai_dai+usdc+usdt_aave": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
       "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
       "tokens": ["0x6b175474e89094c44da98b954eedeac495271d0f"],
-      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d"
+      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d",
+      "swap": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"
     },
     "usdc_dai+usdc+usdt_aave": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
       "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
       "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
-      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d"
+      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d",
+      "swap": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"
     },
     "usdt_dai+usdc+usdt_aave": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
       "lpToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
       "tokens": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
-      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d"
+      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d",
+      "swap": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"
     },
     "dai+usdc+usdt_aave": {
       "pool": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",
@@ -1315,43 +1412,50 @@
         "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "0xdac17f958d2ee523a2206206994597c13d831ec7"
       ],
-      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d"
+      "gauge": "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d",
+      "swap": "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"
     },
     "dai_dai+susd_aave": {
       "pool": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733",
       "lpToken": "0x02d341CcB60fAaf662bC0554d13778015d1b285C",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39"
+      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39",
+      "swap": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733"
     },
     "susd_dai+susd_aave": {
       "pool": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733",
       "lpToken": "0x02d341CcB60fAaf662bC0554d13778015d1b285C",
       "tokens": ["0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"],
-      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39"
+      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39",
+      "swap": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733"
     },
     "dai+susd_aave": {
       "pool": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733",
       "lpToken": "0x02d341CcB60fAaf662bC0554d13778015d1b285C",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F", "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"],
-      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39"
+      "gauge": "0x462253b8F74B72304c145DB0e4Eebd326B22ca39",
+      "swap": "0xEB16Ae0052ed37f479f7fe63849198Df1765a733"
     },
     "dai_dai+usdc+usdt_yearn": {
       "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
       "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
-      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F"
+      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F",
+      "swap": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF"
     },
     "usdc_dai+usdc+usdt_yearn": {
       "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
       "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
-      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F"
+      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F",
+      "swap": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF"
     },
     "usdt_dai+usdc+usdt_yearn": {
       "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
       "lpToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
-      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F"
+      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F",
+      "swap": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF"
     },
     "dai+usdc+usdt_yearn": {
       "pool": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",
@@ -1361,7 +1465,8 @@
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       ],
-      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F"
+      "gauge": "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F",
+      "swap": "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF"
     }
   },
   "CurveSwapPoolAdapter": {
