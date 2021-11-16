@@ -1,4 +1,5 @@
-import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA, ADAPTERS } from "./constants";
+import { ESSENTIAL_CONTRACTS as ESSENTIAL_CONTRACTS_DATA } from "./constants/essential-contracts-name";
+import { ADAPTERS } from "./constants/adapters";
 import { Contract, Signer } from "ethers";
 import { CONTRACTS } from "./type";
 import { HardhatRuntimeEnvironment } from "hardhat/types";

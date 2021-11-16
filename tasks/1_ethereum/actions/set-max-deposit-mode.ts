@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../../helpers/helpers";
-import { MAX_DEPOSIT_MODE } from "../../../helpers/constants";
+import { MAX_DEPOSIT_MODE } from "../../../helpers/constants/utils";
 import TASKS from "../../task-names";
 import { eEthereumNetwork } from "../../../helper-hardhat-config";
 

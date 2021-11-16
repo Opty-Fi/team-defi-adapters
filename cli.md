@@ -137,7 +137,7 @@ Usage: approve spender to use specific amount of erc20 token
 Options:
 --spender   required <address> the address of spender
 --token     required <address> the address of token
---amount    required <int>     the amount of token
+--amount    required <number>     the amount of token
 --network   optional <string>  name of the network provider (default: hardhat)
 ```
 

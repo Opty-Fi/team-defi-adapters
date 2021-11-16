@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { insertContractIntoDB } from "../../../helpers/db";
 import { deployContract, isAddress, executeFunc } from "../../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../../helpers/constants/essential-contracts-name";
 import TASKS from "../../task-names";
 import { eEthereumNetwork } from "../../../helper-hardhat-config";
 
