@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { isAddress } from "../../helpers/helpers";
-import { ESSENTIAL_CONTRACTS } from "../../helpers/constants";
+import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/essential-contracts-name";
 import TASKS from "../task-names";
 
 task(TASKS.ACTION_TASKS.BALANCE_OF.NAME, TASKS.ACTION_TASKS.BALANCE_OF.DESCRIPTION)

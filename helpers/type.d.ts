@@ -73,7 +73,7 @@ export type CURVE_TOKEN_DATA = {
   };
 };
 
-export type SUPPORTED_TOKENS_DATA = {
+export type TOKENS_DATA = {
   [name: string]: {
     address: string;
     pair: boolean;
