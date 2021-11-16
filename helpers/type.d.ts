@@ -50,6 +50,8 @@ export type DEFI_POOLS_DATA = {
       pid?: string;
       deprecated?: boolean;
       swap?: string;
+      rewardToken: string;
+      rewardedTokens?: string[];
     };
   };
 };
