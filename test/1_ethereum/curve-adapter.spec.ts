@@ -228,7 +228,7 @@ describe("CurveAdapters Unit test", () => {
     });
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
-      describe.only(`Test-${curveAdapterName}`, () => {
+      describe(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
           const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
@@ -248,13 +248,12 @@ describe("CurveAdapters Unit test", () => {
                 const _underlyingTokens = TypedDefiPools[curveAdapterName][pool].tokens;
                 const checksumedUnderlyingTokens = _underlyingTokens.map((x: any) => getAddress(<string>x));
                 const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
-                if (swapPool) {
-                  swapPoolContract = await hre.ethers.getContractAt("ICurveSwap", swapPool);
-                }
-                // const lpToken = await curveAdapters[curveAdapterName].getLiquidityPoolToken(
-                //   underlyingTokenAddress,
-                //   liquidityPool,
-                // );
+
+                // if swapPool is undefined, it is assumed that liquidityPool is the swap pool.
+                swapPoolContract = swapPool
+                  ? await hre.ethers.getContractAt("ICurveSwap", swapPool)
+                  : await hre.ethers.getContractAt("ICurveSwap", liquidityPool);
+
                 if (TypedDefiPools[curveAdapterName][pool].gauge != ADDRESS_ZERO) {
                   gaugeContract = await hre.ethers.getContractAt(
                     "ICurveGauge",
@@ -443,7 +442,6 @@ describe("CurveAdapters Unit test", () => {
                     //   ) {
                     //     this.skip();
                     //   }
-
                     //   underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                     //   rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
                     //   await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapter.address);
@@ -643,8 +641,8 @@ describe("CurveAdapters Unit test", () => {
                             expectedValue == "=0"
                               ? expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"))
                               : expectedValue == "<"
-                                ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
-                                : expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from("0"));
+                              ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
+                              : expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from("0"));
                           }
                         }
                       }
@@ -662,8 +660,8 @@ describe("CurveAdapters Unit test", () => {
                               ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                               : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), 1200000000000)
                             : expectedValue == ">"
-                              ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                              : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
+                            ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                            : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
                         } else {
                           expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.lte(
                             underlyingBalanceBefore.sub(limitInUnderlyingToken).div(to_10powNumber_BN(decimals)),
@@ -709,8 +707,8 @@ describe("CurveAdapters Unit test", () => {
                         expectedValue == ">"
                           ? expect(+stakingTokenBalanceAfter).to.be.gt(+gaugeTokenBalanceBefore)
                           : expectedValue == "=0"
-                            ? expect(+stakingTokenBalanceAfter).to.be.eq(0)
-                            : expect(+stakingTokenBalanceAfter).to.be.lte(+gaugeTokenBalanceBefore);
+                          ? expect(+stakingTokenBalanceAfter).to.be.eq(0)
+                          : expect(+stakingTokenBalanceAfter).to.be.lte(+gaugeTokenBalanceBefore);
                       } else {
                         await expect(
                           curveAdapters[curveAdapterName][action.action](testDeFiAdapter.address, liquidityPool),
