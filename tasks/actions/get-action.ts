@@ -32,7 +32,7 @@ task(TASKS.ACTION_TASKS.GET_ACTION.NAME, TASKS.ACTION_TASKS.GET_ACTION.DESCRIPTI
 
     try {
       const convertedParams = params === "" ? [] : params.split(",");
-      const contract = <Contract>await hre.ethers.getContractAt(name, address);
+      const contract: any = await hre.ethers.getContractAt(name, address);
       const value = await contract[functionabi](...convertedParams);
       console.log(`Action: ${functionabi}`);
       if (convertedParams.length > 0) {
