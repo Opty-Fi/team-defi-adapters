@@ -14,7 +14,8 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 import { CompoundETHGateway } from "./CompoundETHGateway.sol";
 
 //  interfaces
-import { ICompound } from "./interfaces/ICompound.sol";
+//import { ICompound } from "./interfaces/ICompound.sol";
+import { ICompound } from "@optyfi/defi-legos/ethereum/compound/contracts/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";

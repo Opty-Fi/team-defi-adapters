@@ -14,7 +14,8 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IFulcrum } from "./interfaces/IFulcrum.sol";
+//import { IFulcrum } from "./interfaces/IFulcrum.sol";
+import { IFulcrum } from "@optyfi/defi-legos/ethereum/fulcrum/contracts/IFulcrum.sol";
 import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
 

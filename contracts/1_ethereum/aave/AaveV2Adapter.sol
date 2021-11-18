@@ -14,19 +14,34 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  interfaces
-import { IAaveV2PriceOracle } from "./interfaces/v2/IAaveV2PriceOracle.sol";
-import { IAaveV2LendingPoolAddressesProvider } from "./interfaces/v2/IAaveV2LendingPoolAddressesProvider.sol";
+//import { IAaveV2PriceOracle } from "./interfaces/v2/IAaveV2PriceOracle.sol";
+import { IPriceOracle } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IPriceOracle.sol";
+//import { IAaveV2LendingPoolAddressesProvider } from "./interfaces/v2/IAaveV2LendingPoolAddressesProvider.sol";
 import {
-    IAaveV2LendingPoolAddressProviderRegistry
-} from "./interfaces/v2/IAaveV2LendingPoolAddressProviderRegistry.sol";
-import { IAaveV2, ReserveDataV2, UserAccountData } from "./interfaces/v2/IAaveV2.sol";
-import { IAaveV2Token } from "./interfaces/v2/IAaveV2Token.sol";
+    ILendingPoolAddressesProvider
+} from "@optyfi/defi-legos/ethereum/aavev2/contracts/ILendingPoolAddressesProvider.sol";
+// import {
+//     IAaveV2LendingPoolAddressProviderRegistry
+// } from "./interfaces/v2/IAaveV2LendingPoolAddressProviderRegistry.sol";
+import {
+    ILendingPoolAddressesProviderRegistry
+} from "@optyfi/defi-legos/ethereum/aavev2/contracts/ILendingPoolAddressProviderRegistry.sol";
+//import { IAaveV2, ReserveDataV2, UserAccountData } from "./interfaces/v2/IAaveV2.sol";
+import { IAaveV2, ReserveDataV2, UserAccountData } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2.sol";
+//import { IAaveV2Token } from "./interfaces/v2/IAaveV2Token.sol";
+import { IAToken } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAToken.sol";
 import {
     IAaveV2ProtocolDataProvider,
     UserReserveData,
     ReserveDataProtocol,
     ReserveConfigurationData
 } from "./interfaces/v2/IAaveV2ProtocolDataProvider.sol";
+// import {
+//     IAaveV2ProtocolDataProvider,
+//     UserReserveData,
+//     ReserveDataProtocol,
+//     ReserveConfigurationData
+// } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2ProtocolDataProvider.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
 import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
@@ -293,7 +308,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         returns (address[] memory _underlyingTokens)
     {
         _underlyingTokens = new address[](1);
-        _underlyingTokens[0] = IAaveV2Token(_liquidityPoolToken).UNDERLYING_ASSET_ADDRESS();
+        _underlyingTokens[0] = IAToken(_liquidityPoolToken).UNDERLYING_ASSET_ADDRESS();
     }
 
     /**
@@ -528,13 +543,13 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
 
     function _getLendingPool(address _lendingPoolAddressProviderRegistry) internal view returns (address) {
         return
-            IAaveV2LendingPoolAddressesProvider(_getLendingPoolAddressProvider(_lendingPoolAddressProviderRegistry))
+            ILendingPoolAddressesProvider(_getLendingPoolAddressProvider(_lendingPoolAddressProviderRegistry))
                 .getLendingPool();
     }
 
     function _getPriceOracle(address _lendingPoolAddressProviderRegistry) internal view returns (address) {
         return
-            IAaveV2LendingPoolAddressesProvider(_getLendingPoolAddressProvider(_lendingPoolAddressProviderRegistry))
+            ILendingPoolAddressesProvider(_getLendingPoolAddressProvider(_lendingPoolAddressProviderRegistry))
                 .getPriceOracle();
     }
 
@@ -609,7 +624,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         view
         returns (uint256)
     {
-        return IAaveV2PriceOracle(_getPriceOracle(_liquidityPoolAddressProviderRegistry)).getAssetPrice(_token);
+        return IPriceOracle(_getPriceOracle(_liquidityPoolAddressProviderRegistry)).getAssetPrice(_token);
     }
 
     function _availableToBorrowReserve(
@@ -743,13 +758,12 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         returns (address)
     {
         return
-            IAaveV2LendingPoolAddressProviderRegistry(_liquidityPoolAddressProviderRegistry)
-                .getAddressesProvidersList()[0];
+            ILendingPoolAddressesProviderRegistry(_liquidityPoolAddressProviderRegistry).getAddressesProvidersList()[0];
     }
 
     function _getProtocolDataProvider(address _liquidityPoolAddressProviderRegistry) internal view returns (address) {
         return
-            IAaveV2LendingPoolAddressesProvider(_getLendingPoolAddressProvider(_liquidityPoolAddressProviderRegistry))
+            ILendingPoolAddressesProvider(_getLendingPoolAddressProvider(_liquidityPoolAddressProviderRegistry))
                 .getAddress(PROTOCOL_DATA_PROVIDER_ID);
     }
 }

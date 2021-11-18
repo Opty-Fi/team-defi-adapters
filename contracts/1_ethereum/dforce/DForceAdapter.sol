@@ -13,8 +13,10 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
-import { IDForceDeposit } from "./interfaces/IDForceDeposit.sol";
-import { IDForceStake } from "./interfaces/IDForceStake.sol";
+// import { IDForceDeposit } from "./interfaces/IDForceDeposit.sol";
+// import { IDForceStake } from "./interfaces/IDForceStake.sol";
+import { IDForceDeposit } from "@optyfi/defi-legos/ethereum/dforce/contracts/IDForceDeposit.sol";
+import { IDForceStake } from "@optyfi/defi-legos/ethereum/dforce/contracts/IDForceStake.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";

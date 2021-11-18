@@ -13,8 +13,10 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
-import { IHarvestDeposit } from "./interfaces/v1/IHarvestDeposit.sol";
-import { IHarvestFarm } from "./interfaces/v1/IHarvestFarm.sol";
+// import { IHarvestDeposit } from "./interfaces/v1/IHarvestDeposit.sol";
+// import { IHarvestFarm } from "./interfaces/v1/IHarvestFarm.sol";
+import { IHarvestDeposit } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestDeposit.sol";
+import { IHarvestFarm } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestFarm.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";

@@ -20,10 +20,15 @@ import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.s
 import { IAdapterStakingCurve } from "../../interfaces/defiAdapters/IAdapterStakingCurve.sol";
 import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
 import { ICurveDeposit } from "./interfaces/ICurveDeposit.sol";
-import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
+//import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
 import { ICurveAddressProvider } from "./interfaces/ICurveAddressProvider.sol";
-import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
+//import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
 import { ICurveSwap } from "./interfaces/ICurveSwap.sol";
+import { ICurveLiquidityGaugeV3 } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGaugeV3.sol";
+// import {
+//     ICurveAddressProvider
+// } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveAddressProvider.sol";
+import { ICurveRegistry } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveRegistry.sol";
 import { ITokenMinter } from "./interfaces/ITokenMinter.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 
@@ -155,7 +160,7 @@ contract CurveDepositPoolAdapter is
             address _curveRegistry = _getCurveRegistry();
             _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
             address _gauge = _getLiquidityGauge(_swapPool, _curveRegistry);
-            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
+            _liquidityPoolTokenAmount = ICurveLiquidityGaugeV3(_gauge).balanceOf(_vault);
         }
         uint256 _b;
         if (_liquidityPoolTokenAmount > 0) {
@@ -620,7 +625,7 @@ contract CurveDepositPoolAdapter is
         address _swapPool = _getSwapPool(_liquidityPool);
 
         uint256 _liquidityPoolTokenAmount =
-            ICurveGauge(_getLiquidityGauge(_swapPool, _getCurveRegistry())).balanceOf(_vault);
+            ICurveLiquidityGaugeV3(_getLiquidityGauge(_swapPool, _getCurveRegistry())).balanceOf(_vault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
@@ -650,7 +655,10 @@ contract CurveDepositPoolAdapter is
         override
         returns (uint256)
     {
-        return ICurveGauge(_getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry())).balanceOf(_vault);
+        return
+            ICurveLiquidityGaugeV3(_getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry())).balanceOf(
+                _vault
+            );
     }
 
     /**
@@ -679,7 +687,7 @@ contract CurveDepositPoolAdapter is
      * @return address the address of the minter
      */
     function _getMinter(address _gauge) internal view returns (address) {
-        return ICurveGauge(_gauge).minter();
+        return ICurveLiquidityGaugeV3(_gauge).minter();
     }
 
     /**
@@ -710,7 +718,7 @@ contract CurveDepositPoolAdapter is
     {
         address _liquidityGauge = _getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry());
         if (_liquidityGauge != address(0)) {
-            return ICurveGauge(_liquidityGauge).claimable_tokens(_vault);
+            return ICurveLiquidityGaugeV3(_liquidityGauge).claimable_tokens(_vault);
         }
         return uint256(0);
     }
