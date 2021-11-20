@@ -52,6 +52,7 @@ export type DEFI_POOLS_DATA = {
       swap?: string;
       rewardToken?: string;
       rewardedTokens?: string[];
+      tokenIndexes?: string[];
     };
   };
 };
