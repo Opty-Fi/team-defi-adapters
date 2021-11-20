@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 
 // libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 // helper contracts
@@ -14,23 +14,20 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // interfaces
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
-import { IAdapterStakingCurve } from "../../interfaces/defiAdapters/IAdapterStakingCurve.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
-import { ICurveDeposit } from "./interfaces/ICurveDeposit.sol";
-//import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
-import { ICurveAddressProvider } from "./interfaces/ICurveAddressProvider.sol";
-//import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
-import { ICurveSwap } from "./interfaces/ICurveSwap.sol";
-import { ICurveLiquidityGaugeV3 } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGaugeV3.sol";
-// import {
-//     ICurveAddressProvider
-// } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveAddressProvider.sol";
-import { ICurveRegistry } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveRegistry.sol";
-import { ITokenMinter } from "./interfaces/ITokenMinter.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
+import { ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveDeposit.sol";
+import { ICurveGauge } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveGauge.sol";
+import {
+    ICurveAddressProvider
+} from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveAddressProvider.sol";
+import { ICurveSwap } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveSwap.sol";
+import { ICurveRegistry } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveRegistry.sol";
+import { ITokenMinter } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ITokenMinter.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 
 /**
  * @title Adapter for Curve Deposit pools
@@ -160,7 +157,7 @@ contract CurveDepositPoolAdapter is
             address _curveRegistry = _getCurveRegistry();
             _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
             address _gauge = _getLiquidityGauge(_swapPool, _curveRegistry);
-            _liquidityPoolTokenAmount = ICurveLiquidityGaugeV3(_gauge).balanceOf(_vault);
+            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
         }
         uint256 _b;
         if (_liquidityPoolTokenAmount > 0) {
@@ -625,7 +622,7 @@ contract CurveDepositPoolAdapter is
         address _swapPool = _getSwapPool(_liquidityPool);
 
         uint256 _liquidityPoolTokenAmount =
-            ICurveLiquidityGaugeV3(_getLiquidityGauge(_swapPool, _getCurveRegistry())).balanceOf(_vault);
+            ICurveGauge(_getLiquidityGauge(_swapPool, _getCurveRegistry())).balanceOf(_vault);
         uint256 _b = 0;
         if (_liquidityPoolTokenAmount > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
@@ -655,10 +652,7 @@ contract CurveDepositPoolAdapter is
         override
         returns (uint256)
     {
-        return
-            ICurveLiquidityGaugeV3(_getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry())).balanceOf(
-                _vault
-            );
+        return ICurveGauge(_getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry())).balanceOf(_vault);
     }
 
     /**
@@ -687,7 +681,7 @@ contract CurveDepositPoolAdapter is
      * @return address the address of the minter
      */
     function _getMinter(address _gauge) internal view returns (address) {
-        return ICurveLiquidityGaugeV3(_gauge).minter();
+        return ICurveGauge(_gauge).minter();
     }
 
     /**
@@ -718,7 +712,7 @@ contract CurveDepositPoolAdapter is
     {
         address _liquidityGauge = _getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry());
         if (_liquidityGauge != address(0)) {
-            return ICurveLiquidityGaugeV3(_liquidityGauge).claimable_tokens(_vault);
+            return ICurveGauge(_liquidityGauge).claimable_tokens(_vault);
         }
         return uint256(0);
     }

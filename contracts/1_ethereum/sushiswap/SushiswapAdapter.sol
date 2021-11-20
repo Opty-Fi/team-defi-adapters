@@ -5,20 +5,19 @@ pragma experimental ABIEncoderV2;
 
 // libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 // helper contracts
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 // interfaces
-//import { ISushiswapMasterChef } from "./interfaces/ISushiswapMasterChef.sol";
 import { ISushiswapMasterChef } from "@optyfi/defi-legos/ethereum/sushiswap/contracts/ISushiswapMasterChef.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Sushiswap protocol

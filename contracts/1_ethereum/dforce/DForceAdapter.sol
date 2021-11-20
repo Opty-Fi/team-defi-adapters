@@ -6,23 +6,21 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
-// import { IDForceDeposit } from "./interfaces/IDForceDeposit.sol";
-// import { IDForceStake } from "./interfaces/IDForceStake.sol";
 import { IDForceDeposit } from "@optyfi/defi-legos/ethereum/dforce/contracts/IDForceDeposit.sol";
 import { IDForceStake } from "@optyfi/defi-legos/ethereum/dforce/contracts/IDForceStake.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 
 /**
  * @title Adapter for DForce protocol

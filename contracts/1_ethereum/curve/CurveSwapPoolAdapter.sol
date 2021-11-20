@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
@@ -15,23 +15,20 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { CurveSwapETHGateway } from "./CurveSwapETHGateway.sol";
 
 //  interfaces
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
-import { IAdapterStakingCurve } from "../../interfaces/defiAdapters/IAdapterStakingCurve.sol";
-import { ICurveDeposit } from "./interfaces/ICurveDeposit.sol";
-import { ICurveSwap } from "./interfaces/ICurveSwap.sol";
-// import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
-import { ICurveAddressProvider } from "./interfaces/ICurveAddressProvider.sol";
-// import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
-import { ICurveLiquidityGaugeV3 } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGaugeV3.sol";
-// import {
-//     ICurveAddressProvider
-// } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveAddressProvider.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
+import { ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveDeposit.sol";
+import { ICurveSwap } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveSwap.sol";
+import { ICurveGauge } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveGauge.sol";
+import {
+    ICurveAddressProvider
+} from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveAddressProvider.sol";
 import { ICurveRegistry } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveRegistry.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { ITokenMinter } from "./interfaces/ITokenMinter.sol";
+import { ITokenMinter } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ITokenMinter.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 
 /**
  * @title Adapter for Curve Swap pools
@@ -619,7 +616,7 @@ contract CurveSwapPoolAdapter is
         override
         returns (uint256)
     {
-        return ICurveLiquidityGaugeV3(_getLiquidityGauge(_liquidityPool, _getCurveRegistry())).balanceOf(_vault);
+        return ICurveGauge(_getLiquidityGauge(_liquidityPool, _getCurveRegistry())).balanceOf(_vault);
     }
 
     /**
@@ -646,7 +643,7 @@ contract CurveSwapPoolAdapter is
      * @notice Get the Curve Minter's address
      */
     function _getMinter(address _gauge) internal view returns (address) {
-        return ICurveLiquidityGaugeV3(_gauge).minter();
+        return ICurveGauge(_gauge).minter();
     }
 
     /**
@@ -721,7 +718,7 @@ contract CurveSwapPoolAdapter is
      */
     function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _swapPool) internal returns (uint256) {
         if (_getLiquidityGauge(_swapPool, _getCurveRegistry()) != address(0)) {
-            return ICurveLiquidityGaugeV3(_swapPool).claimable_tokens(_vault);
+            return ICurveGauge(_swapPool).claimable_tokens(_vault);
         }
         return uint256(0);
     }

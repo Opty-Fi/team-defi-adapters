@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
@@ -23,9 +23,9 @@ import {
     ActionArgs,
     AssetReference,
     ActionType
-} from "./interfaces/IdYdX.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+} from "@optyfi/defi-legos/ethereum/dydx/contracts/IdYdX.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for dYdX protocol

@@ -8,8 +8,6 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 //  interfaces
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IWETH } from "../../interfaces/misc/IWETH.sol";
-//import { IETHGateway } from "../interfaces/IETHGateway.sol";
-//import { ICompound } from "./interfaces/ICompound.sol";
 import { ICompound } from "@optyfi/defi-legos/ethereum/compound/contracts/ICompound.sol";
 import { IETHGateway } from "@optyfi/defi-legos/ethereum/compound/contracts/IETHGateway.sol";
 

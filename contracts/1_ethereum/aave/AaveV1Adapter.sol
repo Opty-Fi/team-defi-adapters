@@ -5,7 +5,7 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 //  libraries
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -14,20 +14,22 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 //  interfaces
-import { IAaveV1PriceOracle } from "./interfaces/v1/IAaveV1PriceOracle.sol";
-import { IAaveV1LendingPoolAddressesProvider } from "./interfaces/v1/IAaveV1LendingPoolAddressesProvider.sol";
+import { IAaveV1PriceOracle } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1PriceOracle.sol";
+import {
+    IAaveV1LendingPoolAddressesProvider
+} from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1LendingPoolAddressesProvider.sol";
 import {
     IAaveV1,
     UserReserveData,
     ReserveConfigurationData,
     ReserveDataV1,
     UserAccountData
-} from "./interfaces/v1/IAaveV1.sol";
-import { IAaveV1Token } from "./interfaces/v1/IAaveV1Token.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterBorrow } from "../../interfaces/defiAdapters/IAdapterBorrow.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+} from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1.sol";
+import { IAaveV1Token } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1Token.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
+import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for AaveV1 protocol
