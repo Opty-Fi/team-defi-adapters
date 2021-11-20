@@ -223,27 +223,33 @@ describe("CurveAdapters Unit test", () => {
     });
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
-      describe(`Test-${curveAdapterName}`, () => {
+      describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
-          const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
           if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
             let gaugeContract: Contract;
             let swapPoolContract: Contract;
+            let liquidityPoolContract: Contract;
+            let lpTokenContract: Contract;
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
+                let limit: BigNumber;
+                let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
+                let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
+                const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
                 const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const decimals = await ERC20Instance.decimals();
                 let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
-                let limit: BigNumber;
-                let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
                 const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
                 const lpToken = TypedDefiPools[curveAdapterName][pool].lpToken;
                 const _underlyingTokens = TypedDefiPools[curveAdapterName][pool].tokens;
+                const tokenIndexArr = TypedDefiPools[curveAdapterName][pool].tokenIndexes as string[];
                 const checksumedUnderlyingTokens = _underlyingTokens.map((x: any) => getAddress(<string>x));
                 const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
-
+                liquidityPoolContract = await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
+                lpTokenContract = await hre.ethers.getContractAt("ERC20", lpToken);
                 // if swapPool is undefined, it is assumed that liquidityPool is the swap pool.
                 swapPoolContract = swapPool
                   ? await hre.ethers.getContractAt("ICurveSwap", swapPool)
@@ -259,8 +265,6 @@ describe("CurveAdapters Unit test", () => {
                 let isTestingStakingFunction = false;
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
                 const adapterAddress = curveAdapters[curveAdapterName].address;
-                let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
-                let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
@@ -711,20 +715,25 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
-                    // case "getAllAmountInToken(address,address,address)": {
-                    //   const _amountInUnderlyingToken = await adapter[action.action](
-                    //     testDeFiAdapter.address,
-                    //     ADDRESS_ZERO,
-                    //     liquidityPool,
-                    //   );
+                    case "getAllAmountInToken(address,address,address)": {
+                      const _amountInUnderlyingToken = await curveAdapters[curveAdapterName][action.action](
+                        testDeFiAdapter.address,
+                        _underlyingTokens[0],
+                        liquidityPool,
+                      );
+                      const lpTokenBalanceOfTestDeFiAdapter: BigNumber = await lpTokenContract.balanceOf(
+                        testDeFiAdapter.address,
+                      );
 
-                    //   const expectedAmountInUnderlyingToken: BigNumber = await lpContract.getTokenBalance(
-                    //     testDeFiAdapter.address,
-                    //   );
+                      const expectedAmountInUnderlyingToken: BigNumber =
+                        await liquidityPoolContract.calc_withdraw_one_coin(
+                          lpTokenBalanceOfTestDeFiAdapter,
+                          tokenIndexArr[0],
+                        );
 
-                    //   expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
-                    //   break;
-                    // }
+                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      break;
+                    }
                     // case "isRedeemableAmountSufficient(address,address,address,uint256)": {
                     //   const expectedValue = action.expectedValue;
                     //   const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInToken(
