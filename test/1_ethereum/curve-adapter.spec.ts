@@ -576,22 +576,28 @@ describe("CurveAdapters Unit test", () => {
                       expect(getAddress(_liquidityPool)).to.be.eq(getAddress(lpToken));
                       break;
                     }
-                    // case "getSomeAmountInToken(address,address,uint256)": {
-                    //   const _lpTokenAmount = getDefaultFundAmountInDecimal(liquidityPool, decimals);
-                    //   if (+_lpTokenAmount > 0) {
-                    //     const _amountInUnderlyingToken = await adapter[action.action](
-                    //       ADDRESS_ZERO,
-                    //       liquidityPool,
-                    //       _lpTokenAmount,
-                    //     );
-                    //     const exchangeRateStored = await lpContract.getExchangeRate();
-                    //     const expectedAmountInUnderlyingToken = _lpTokenAmount
-                    //       .mul(exchangeRateStored)
-                    //       .div(to_10powNumber_BN(decimals));
-                    //     expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
-                    //   }
-                    //   break;
-                    // }
+                    case "getSomeAmountInToken(address,address,uint256)": {
+                      const lpTokenBalanceOfTestDeFiAdapter: BigNumber = await lpTokenContract.balanceOf(
+                        testDeFiAdapter.address,
+                      );
+                      const _amountInUnderlyingToken = await curveAdapters[curveAdapterName][action.action](
+                        _underlyingTokens[0],
+                        liquidityPool,
+                        lpTokenBalanceOfTestDeFiAdapter,
+                      );
+                      const expectedAmountInUnderlyingToken: BigNumber =
+                        await liquidityPoolContract.calc_withdraw_one_coin(
+                          lpTokenBalanceOfTestDeFiAdapter,
+                          tokenIndexArr[0],
+                        );
+                      if (lpTokenBalanceOfTestDeFiAdapter.gt(BigNumber.from("0"))) {
+                        expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      } else {
+                        expect(+_amountInUnderlyingToken).to.be.eq(BigNumber.from("0"));
+                      }
+                      break;
+                      break;
+                    }
                     case "getUnderlyingTokens(address,address)": {
                       const _underlyingAddressFromAdapter = await curveAdapters[curveAdapterName][action.action](
                         liquidityPool,
@@ -730,8 +736,11 @@ describe("CurveAdapters Unit test", () => {
                           lpTokenBalanceOfTestDeFiAdapter,
                           tokenIndexArr[0],
                         );
-
-                      expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      if (lpTokenBalanceOfTestDeFiAdapter.gt(BigNumber.from("0"))) {
+                        expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                      } else {
+                        expect(+_amountInUnderlyingToken).to.be.eq(BigNumber.from("0"));
+                      }
                       break;
                     }
                     // case "isRedeemableAmountSufficient(address,address,address,uint256)": {
