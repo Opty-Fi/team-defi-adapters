@@ -541,20 +541,12 @@ describe("CurveAdapters Unit test", () => {
 
                     //   break;
                     // }
-                    // case "calculateAmountInLPToken(address,address,uint256)": {
-                    //   const _depositAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
-                    //   const _amountInLPToken = await adapter[action.action](
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //     _depositAmount,
-                    //   );
-                    //   const exchangeRateStored = await lpContract.getExchangeRate();
-                    //   const expectedAmountInLPToken = _depositAmount
-                    //     .mul(to_10powNumber_BN(decimals))
-                    //     .div(BigNumber.from(exchangeRateStored));
-                    //   expect(_amountInLPToken).to.be.eq(expectedAmountInLPToken);
-                    //   break;
-                    // }
+                    case "calculateAmountInLPToken(address,address,uint256)": {
+                      await expect(
+                        curveAdapters[curveAdapterName][action.action](ADDRESS_ZERO, ADDRESS_ZERO, "0"),
+                      ).to.revertedWith("!empty");
+                      break;
+                    }
                     case "getPoolValue(address,address)": {
                       const _poolValue = await curveAdapters[curveAdapterName][action.action](
                         liquidityPool,
