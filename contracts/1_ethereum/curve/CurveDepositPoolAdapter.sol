@@ -630,12 +630,12 @@ contract CurveDepositPoolAdapter is
         }
         IHarvestCodeProvider _harvesCodeProviderContract =
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider());
-        uint256 _unclaimedRewwardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
+        uint256 _unclaimedRewardTokenAmount = getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken);
         _b = _b.add(
             _harvesCodeProviderContract.rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
                 _underlyingToken,
-                _unclaimedRewwardTokenAmount
+                _unclaimedRewardTokenAmount
             )
         );
         return _b;
