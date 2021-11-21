@@ -152,22 +152,46 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
-        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        uint256 _b;
-        if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
-                _liquidityPoolTokenAmount,
-                _getTokenIndex(_liquidityPool, _underlyingToken)
-            );
-        }
-        _b = _b.add(
-            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                getRewardToken(_liquidityPool),
-                _underlyingToken,
-                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
-            )
-        );
-        return _b;
+        return _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function getUnclaimedRewardTokenAmountWrite(
+        address payable _vault,
+        address _liquidityPool,
+        address
+    ) external override returns (uint256) {
+        return _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool);
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function calculateRedeemableLPTokenAmountStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external override returns (uint256) {
+        uint256 _stakedLiquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInTokenStaked = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        // can have unintentional rounding errors
+        return (_stakedLiquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStaked).add(1);
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function isRedeemableAmountSufficientStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external override returns (bool) {
+        uint256 _balanceInTokenStaked = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        return _balanceInTokenStaked >= _redeemAmount;
     }
 
     /**
@@ -331,6 +355,7 @@ contract CurveSwapPoolAdapter is
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
@@ -339,12 +364,7 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256) {
-        uint256 _stakedLiquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
-        // can have unintentional rounding errors
-        return (_stakedLiquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInTokenStaked).add(1);
-    }
+    ) public view override returns (uint256) {}
 
     /**
      * @inheritdoc IAdapterStaking
@@ -354,10 +374,9 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {
-        uint256 _balanceInTokenStaked = getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool);
-        return _balanceInTokenStaked >= _redeemAmount;
-    }
+    ) public view override returns (bool) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -493,6 +512,7 @@ contract CurveSwapPoolAdapter is
         return address(0);
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterHarvestReward
      */
@@ -500,14 +520,9 @@ contract CurveSwapPoolAdapter is
         address payable,
         address _liquidityPool,
         address
-    ) public view override returns (uint256) {
-        /* solhint-disable no-empty-blocks */
-        if (_getLiquidityGauge(_liquidityPool, _getCurveRegistry()) != address(0)) {
-            // TODO : get the amount of unclaimed CRV tokens
-        }
-        /* solhint-disable no-empty-blocks */
-        return uint256(0);
-    }
+    ) public view override returns (uint256) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterHarvestReward
@@ -528,7 +543,6 @@ contract CurveSwapPoolAdapter is
     }
 
     /* solhint-disable no-empty-blocks */
-
     /**
      * @inheritdoc IAdapterHarvestReward
      */
@@ -579,6 +593,7 @@ contract CurveSwapPoolAdapter is
         }
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
@@ -586,24 +601,9 @@ contract CurveSwapPoolAdapter is
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (uint256) {
-        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        uint256 _b = 0;
-        if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
-                _liquidityPoolTokenAmount,
-                _getTokenIndex(_liquidityPool, _underlyingToken)
-            );
-        }
-        _b = _b.add(
-            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                getRewardToken(_liquidityPool),
-                _underlyingToken,
-                getUnclaimedRewardTokenAmount(_vault, _liquidityPool, _underlyingToken)
-            )
-        );
-        return _b;
-    }
+    ) public view override returns (uint256) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -635,6 +635,29 @@ contract CurveSwapPoolAdapter is
             _codes[2] = _withdrawCodes[1];
             _codes[3] = _withdrawCodes[2];
         }
+    }
+
+    function _getAllAmountInTokenStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool
+    ) internal returns (uint256) {
+        uint256 _liquidityPoolTokenAmount = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _b;
+        if (_liquidityPoolTokenAmount > 0) {
+            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                _liquidityPoolTokenAmount,
+                _getTokenIndex(_liquidityPool, _underlyingToken)
+            );
+        }
+        _b = _b.add(
+            IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
+                getRewardToken(_liquidityPool),
+                _underlyingToken,
+                _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool)
+            )
+        );
+        return _b;
     }
 
     /**

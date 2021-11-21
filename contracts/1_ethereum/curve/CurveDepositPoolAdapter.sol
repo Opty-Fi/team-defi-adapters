@@ -143,12 +143,51 @@ contract CurveDepositPoolAdapter is
     /**
      * @inheritdoc IAdapterStakingCurve
      */
+    function isRedeemableAmountSufficientStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external override returns (bool) {
+        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        return _balanceInToken >= _redeemAmount;
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
     function getAllAmountInTokenStakeWrite(
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
         return _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function calculateRedeemableLPTokenAmountStakeWrite(
+        address payable _vault,
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _redeemAmount
+    ) external override returns (uint256) {
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        // can have unintentional rounding errors
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+    }
+
+    /**
+     * @inheritdoc IAdapterStakingCurve
+     */
+    function getUnclaimedRewardTokenAmountWrite(
+        address payable _vault,
+        address _liquidityPool,
+        address
+    ) external override returns (uint256) {
+        return _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool);
     }
 
     /**
@@ -346,47 +385,28 @@ contract CurveDepositPoolAdapter is
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
     function calculateRedeemableLPTokenAmountStake(
-        address payable _vault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
+        address payable,
+        address,
+        address,
+        uint256
     ) public view override returns (uint256) {}
-
-    function calculateRedeemableLPTokenAmountStakeWrite(
-        address payable _vault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
-    ) external returns (uint256) {
-        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
-        // can have unintentional rounding errors
-        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
-    }
 
     /**
      * @inheritdoc IAdapterStaking
      */
     function isRedeemableAmountSufficientStake(
-        address payable _vault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
+        address payable,
+        address,
+        address,
+        uint256
     ) public view override returns (bool) {}
 
-    function isRedeemableAmountSufficientStakeWrite(
-        address payable _vault,
-        address _underlyingToken,
-        address _liquidityPool,
-        uint256 _redeemAmount
-    ) external returns (bool) {
-        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
-        return _balanceInToken >= _redeemAmount;
-    }
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -517,22 +537,17 @@ contract CurveDepositPoolAdapter is
         return address(0);
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterHarvestReward
      */
     function getUnclaimedRewardTokenAmount(
         address payable,
-        address _liquidityPool,
+        address,
         address
     ) public view override returns (uint256) {}
 
-    function getUnclaimedRewardTokenAmountWrite(
-        address payable _vault,
-        address _liquidityPool,
-        address
-    ) external returns (uint256) {
-        return _getUnclaimedRewardTokenAmountWrite(_vault, _liquidityPool);
-    }
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterHarvestReward
@@ -553,7 +568,6 @@ contract CurveDepositPoolAdapter is
     }
 
     /* solhint-disable no-empty-blocks */
-
     /**
      * @inheritdoc IAdapterHarvestReward
      */
@@ -602,6 +616,7 @@ contract CurveDepositPoolAdapter is
         }
     }
 
+    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
@@ -610,6 +625,8 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) public view override returns (uint256) {}
+
+    /* solhint-enable no-empty-blocks */
 
     /**
      * @inheritdoc IAdapterStaking
@@ -674,6 +691,23 @@ contract CurveDepositPoolAdapter is
         return _b;
     }
 
+    /*
+     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
+     * @param _vault Address of the OptyFi's vault contract
+     * @param _liquidityPool Address of the pool deposit contract
+     * @return Returns the amount of accrued reward tokens
+     */
+    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
+        internal
+        returns (uint256)
+    {
+        address _liquidityGauge = _getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry());
+        if (_liquidityGauge != address(0)) {
+            return ICurveGauge(_liquidityGauge).claimable_tokens(_vault);
+        }
+        return uint256(0);
+    }
+
     /**
      * @notice Get the Curve Minter's address
      * @param _gauge the liquidity gauge address
@@ -697,23 +731,6 @@ contract CurveDepositPoolAdapter is
             }
         }
         return int128(0);
-    }
-
-    /*
-     * @dev Returns the amount of accrued reward tokens for a specific OptyFi's vault
-     * @param _vault Address of the OptyFi's vault contract
-     * @param _liquidityPool Address of the pool deposit contract
-     * @return Returns the amount of accrued reward tokens
-     */
-    function _getUnclaimedRewardTokenAmountWrite(address payable _vault, address _liquidityPool)
-        internal
-        returns (uint256)
-    {
-        address _liquidityGauge = _getLiquidityGauge(_getSwapPool(_liquidityPool), _getCurveRegistry());
-        if (_liquidityGauge != address(0)) {
-            return ICurveGauge(_liquidityGauge).claimable_tokens(_vault);
-        }
-        return uint256(0);
     }
 
     /**
