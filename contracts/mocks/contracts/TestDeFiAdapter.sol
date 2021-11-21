@@ -6,8 +6,11 @@ pragma experimental ABIEncoderV2;
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapterFull } from "../../interfaces/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
+import "../../1_ethereum/curve/interfaces/ICurveGaugeRead.sol";
 
 contract TestDeFiAdapter is MultiCall {
+    uint256 public allAmountInTokenStakeWrite;
+
     function testGetDepositAllCodes(
         address _underlyingToken,
         address _liquidityPool,
@@ -70,6 +73,18 @@ contract TestDeFiAdapter is MultiCall {
         address _adapter
     ) external {
         executeCodes(IAdapterFull(_adapter).getStakeSomeCodes(_liquidityPool, _stakeAmount), "stakeSome!");
+    }
+
+    function testGetAllAmountInTokenStakeWrite(
+        address _underlyingToken,
+        address _liquidityPool,
+        address _adapter
+    ) external {
+        allAmountInTokenStakeWrite = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
+            payable(address(this)),
+            _underlyingToken,
+            _liquidityPool
+        );
     }
 
     function testGetClaimRewardTokenCode(address _liquidityPool, address _adapter) external {
