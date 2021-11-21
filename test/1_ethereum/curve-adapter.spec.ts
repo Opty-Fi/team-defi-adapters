@@ -222,7 +222,7 @@ describe("CurveAdapters Unit test", () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
       describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
@@ -773,34 +773,27 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
-                    // case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
-                    //   const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalance(
-                    //     testDeFiAdapter.address,
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //   );
-                    //   const _balanceInToken: BigNumber = await adapter.getAllAmountInToken(
-                    //     testDeFiAdapter.address,
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //   );
-
-                    //   const _testRedeemAmount: BigNumber = _lpTokenBalance;
-
-                    //   const _redeemableLpTokenAmt = await adapter[action.action](
-                    //     testDeFiAdapter.address,
-                    //     underlyingTokenAddress,
-                    //     liquidityPool,
-                    //     _testRedeemAmount,
-                    //   );
-                    //   const expectedRedeemableLpTokenAmt = _lpTokenBalance
-                    //     .mul(_testRedeemAmount)
-                    //     .div(_balanceInToken)
-                    //     .add(BigNumber.from(1));
-                    //   expect(_redeemableLpTokenAmt).to.be.eq(expectedRedeemableLpTokenAmt);
-
-                    //   break;
-                    // }
+                    case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
+                      const _lpTokenBalance: BigNumber = await lpTokenContract.balanceOf(testDeFiAdapter.address);
+                      const amountInUnderlyingToken: BigNumber = await liquidityPoolContract.calc_withdraw_one_coin(
+                        _lpTokenBalance,
+                        tokenIndexArr[0],
+                      );
+                      const _testRedeemAmount = amountInUnderlyingToken.sub(
+                        BigNumber.from("1").mul(to_10powNumber_BN(decimals - 3)),
+                      );
+                      const _redeemableLpTokenAmt = await curveAdapters[curveAdapterName][action.action](
+                        testDeFiAdapter.address,
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        _testRedeemAmount,
+                      );
+                      const expectedRedeemableLpTokenAmt = BigNumber.from(_lpTokenBalance.mul(amountInUnderlyingToken))
+                        .div(_testRedeemAmount)
+                        .add(BigNumber.from(1));
+                      expect(_redeemableLpTokenAmt).to.be.closeTo(expectedRedeemableLpTokenAmt, 5000000000000000);
+                      break;
+                    }
                     // case "isRedeemableAmountSufficientStake(address,address,address,uint256)": {
                     //   const expectedValue = action.expectedValue;
 
