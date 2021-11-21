@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
-import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
+import { IMultiCall } from "@optyfi/defi-legos/interfaces/opty/contracts/IMultiCall.sol";
 
 /**
  * @title MultiCall Contract

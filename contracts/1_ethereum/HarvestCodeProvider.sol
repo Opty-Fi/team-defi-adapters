@@ -14,7 +14,7 @@ import { Modifiers } from "../protocol/configuration/Modifiers.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IHarvestCodeProvider } from "./interfaces/IHarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 
 /**
  * @title HarvestCodeProvider Contract

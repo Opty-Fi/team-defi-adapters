@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 
 contract TestHarvestCodeProvider is MultiCall {
