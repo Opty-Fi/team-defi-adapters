@@ -823,47 +823,51 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
-                    // case "isRedeemableAmountSufficientStakeWrite(address,address,address,uint256)": {
-                    //   const expectedValue = action.expectedValue;
-
-                    //   if (lpStakingContract) {
-                    //     const _amountInUnderlyingToken: BigNumber = await adapter.getAllAmountInTokenStake(
-                    //       testDeFiAdapter.address,
-                    //       underlyingTokenAddress,
-                    //       liquidityPool,
-                    //     );
-                    //     if (expectedValue == ">") {
-                    //       const _isRedeemableAmountSufficient = await adapter[action.action](
-                    //         testDeFiAdapter.address,
-                    //         underlyingTokenAddress,
-                    //         liquidityPool,
-                    //         _amountInUnderlyingToken.add(BigNumber.from(10)),
-                    //       );
-                    //       expect(_isRedeemableAmountSufficient).to.be.eq(false);
-                    //     } else if (expectedValue == "<") {
-                    //       const _isRedeemableAmountSufficient = await adapter[action.action](
-                    //         testDeFiAdapter.address,
-                    //         underlyingTokenAddress,
-                    //         liquidityPool,
-                    //         +_amountInUnderlyingToken > 0
-                    //           ? _amountInUnderlyingToken.sub(BigNumber.from(10))
-                    //           : BigNumber.from(0),
-                    //       );
-                    //       expect(_isRedeemableAmountSufficient).to.be.eq(true);
-                    //     }
-                    //   } else {
-                    //     await expect(
-                    //       adapter[action.action](
-                    //         testDeFiAdapter.address,
-                    //         underlyingTokenAddress,
-                    //         liquidityPool,
-                    //         BigNumber.from(0),
-                    //       ),
-                    //     ).to.be.revertedWith("function call to a non-contract account");
-                    //   }
-
-                    //   break;
-                    // }
+                    case "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)": {
+                      if (gaugeContract) {
+                        const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        let amountInToken: BigNumber = BigNumber.from("0");
+                        if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
+                          amountInToken = await liquidityPoolContract.calc_withdraw_one_coin(
+                            stakedlpTokenBalance,
+                            tokenIndexArr[0],
+                          );
+                        }
+                        const unclaimedRewardTokenAmount = await gaugeContract.claimable_tokens(
+                          testDeFiAdapter.address,
+                        );
+                        const amountInTokenAfterHarvest =
+                          await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
+                            rewardToken,
+                            underlyingTokenAddress,
+                            unclaimedRewardTokenAmount,
+                          );
+                        const testAllAmountInToken = amountInToken.add(amountInTokenAfterHarvest);
+                        await testDeFiAdapter.testIsRedeemableAmountSufficientStakeWrite(
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          testAllAmountInToken,
+                          curveAdapters[curveAdapterName].address,
+                        );
+                        const actualIsRedeemableAmountSufficientStake =
+                          await testDeFiAdapter.isRedeemableAmountSufficientStakeWrite();
+                        expect(actualIsRedeemableAmountSufficientStake).to.true;
+                        // === negative test case
+                        const testAllAmountInTokenLess = amountInToken.add(
+                          BigNumber.from("1").mul(to_10powNumber_BN(decimals)),
+                        );
+                        await testDeFiAdapter.testIsRedeemableAmountSufficientStakeWrite(
+                          underlyingTokenAddress,
+                          liquidityPool,
+                          testAllAmountInTokenLess,
+                          curveAdapters[curveAdapterName].address,
+                        );
+                        const actualIsRedeemableAmountSufficientStakeLess =
+                          await testDeFiAdapter.isRedeemableAmountSufficientStakeWrite();
+                        expect(actualIsRedeemableAmountSufficientStakeLess).to.false;
+                      }
+                      break;
+                    }
                     // case "calculateRedeemableLPTokenAmountStakeWrite(address,address,address,uint256)": {
                     //   if (lpStakingContract) {
                     //     const _lpTokenBalance: BigNumber = await adapter.getLiquidityPoolTokenBalanceStake(
