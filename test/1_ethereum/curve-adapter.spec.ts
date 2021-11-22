@@ -225,7 +225,7 @@ describe("CurveAdapters Unit test", () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
       describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
@@ -448,6 +448,14 @@ describe("CurveAdapters Unit test", () => {
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                      const optimalAmount: BigNumber = await harvestCodeProviderContract.getOptimalTokenAmount(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        rewardTokenBalanceBefore,
+                      );
+                      if (optimalAmount.eq(BigNumber.from("0"))) {
+                        this.skip();
+                      }
                       await testDeFiAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
@@ -465,11 +473,20 @@ describe("CurveAdapters Unit test", () => {
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                      const testRewardAmount =  rewardTokenBalanceBefore.mul(BigNumber.from("3")).div(BigNumber.from("4"))
+                      const optimalAmount: BigNumber = await harvestCodeProviderContract.getOptimalTokenAmount(
+                        rewardTokenAddress,
+                        underlyingTokenAddress,
+                        testRewardAmount,
+                      );
+                      if (optimalAmount.eq(BigNumber.from("0"))) {
+                        this.skip();
+                      }
                       await testDeFiAdapter[action.action](
                         liquidityPool,
                         underlyingTokenAddress,
                         curveAdapters[curveAdapterName].address,
-                        rewardTokenBalanceBefore.mul(BigNumber.from("3")).div(BigNumber.from("4")),
+                        testRewardAmount,
                       );
                       break;
                     }
@@ -787,7 +804,8 @@ describe("CurveAdapters Unit test", () => {
                       const expectedRedeemableLpTokenAmt = BigNumber.from(_lpTokenBalance.mul(amountInUnderlyingToken))
                         .div(_testRedeemAmount)
                         .add(BigNumber.from(1));
-                      const delta = BigNumber.from("9").mul(to_10powNumber_BN(decimals - Math.floor(decimals / 5)));
+                      // Curve's lp tokens has 18 decimals, so using 15 decimals for delta
+                      const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
                       expect(_redeemableLpTokenAmt).to.be.closeTo(expectedRedeemableLpTokenAmt, delta.toNumber());
                       break;
                     }
@@ -900,7 +918,8 @@ describe("CurveAdapters Unit test", () => {
                           _testRedeemAmount,
                           curveAdapters[curveAdapterName].address,
                         );
-                        const delta = BigNumber.from("9").mul(to_10powNumber_BN(decimals - Math.floor(decimals / 4)));
+                        // Curve's lp tokens has 18 decimals, so using 15 decimals for delta
+                        const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
                         const actual = await testDeFiAdapter.calculateRedeemableLPTokenAmountStakeWrite();
                         expect(actual).to.be.closeTo(calculated, delta.toNumber());
                       }

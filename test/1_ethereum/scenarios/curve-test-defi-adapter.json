@@ -1044,7 +1044,7 @@
       "cleanActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetWithdrawAllCodes(address,address,address)",
+          "action": "testGetHarvestAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -1082,15 +1082,7 @@
           "expectedValue": "=0"
         }
       ],
-      "cleanActions": [
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetWithdrawAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ]
+      "cleanActions": []
     },
     {
       "description": "getClaimRewardTokenCode() should be able claim reward tokens",
@@ -1178,6 +1170,13 @@
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetWithdrawAllCodes(address,address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetHarvestAllCodes(address,address,address)",
           "executer": "owner",
           "expect": "success",
           "message": ""
@@ -1463,6 +1462,13 @@
         }
       ],
       "cleanActions": [
+        {
+          "contract": "TestDeFiAdapter",
+          "action": "testGetUnstakeAllCodes(address,address)",
+          "executer": "owner",
+          "expect": "success",
+          "message": ""
+        },
         {
           "contract": "TestDeFiAdapter",
           "action": "testGetWithdrawAllCodes(address,address,address)",
