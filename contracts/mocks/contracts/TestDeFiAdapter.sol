@@ -10,8 +10,9 @@ import "../../1_ethereum/curve/interfaces/ICurveGaugeRead.sol";
 
 contract TestDeFiAdapter is MultiCall {
     uint256 public allAmountInTokenStakeWrite;
-    bool public isRedeemableAmountSufficientStakeWrite;
     uint256 public calculateRedeemableLPTokenAmountStakeWrite;
+    uint256 public unclaimedRewardTokenAmountWrite;
+    bool public isRedeemableAmountSufficientStakeWrite;
 
     function testGetDepositAllCodes(
         address _underlyingToken,
@@ -114,6 +115,18 @@ contract TestDeFiAdapter is MultiCall {
             _underlyingToken,
             _liquidityPool,
             _redeemAmount
+        );
+    }
+
+    function testGetUnclaimedRewardTokenAmountWrite(
+        address _liquidityPool,
+        address _underlyingToken,
+        address _adapter
+    ) external {
+        unclaimedRewardTokenAmountWrite = IAdapterFull(_adapter).getUnclaimedRewardTokenAmountWrite(
+            payable(address(this)),
+            _liquidityPool,
+            _underlyingToken
         );
     }
 

@@ -6,11 +6,11 @@ import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { CURVE_SWAP_POOL_ADAPTER_NAME, CURVE_DEPOSIT_POOL_ADAPTER_NAME } from "../../helpers/constants/adapters";
-import { TypedAdapterStrategies, TypedDefiPools, TypedTokens } from "../../helpers/data";
+import { TypedAdapterStrategies, TypedDefiPools, TypedTokenHolders, TypedTokens } from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/adapters.json";
-import testDeFiAdapterScenario from "./scenarios/test-defi-adapter.json";
+import testDeFiAdapterScenario from "./scenarios/curve-test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/helpers";
 import { ERC20 } from "../../typechain/ERC20";
 import { to_10powNumber_BN } from "../../helpers/utils";
@@ -235,11 +235,14 @@ describe("CurveAdapters Unit test", () => {
             let liquidityPoolContract: Contract;
             let lpTokenContract: Contract;
             for (const story of testDeFiAdapterScenario.stories) {
-              it(`${pool} - ${story.description}`, async () => {
+              it(`${pool} - ${story.description}`, async function () {
                 let limit: BigNumber;
                 let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
                 let limitInUnderlyingToken: BigNumber = ethers.BigNumber.from(0);
+                let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let gaugeTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
+                let isTestingStakingFunction = false;
                 const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
                 const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const decimals = await ERC20Instance.decimals();
@@ -250,7 +253,8 @@ describe("CurveAdapters Unit test", () => {
                 const _underlyingTokens = TypedDefiPools[curveAdapterName][pool].tokens;
                 const tokenIndexArr = TypedDefiPools[curveAdapterName][pool].tokenIndexes as string[];
                 const checksumedUnderlyingTokens = _underlyingTokens.map((x: any) => getAddress(<string>x));
-                const rewardToken = TypedDefiPools[curveAdapterName][pool].rewardToken;
+                const rewardTokenAddress = TypedDefiPools[curveAdapterName][pool].rewardToken as string;
+                const rewardTokenInstance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
                 liquidityPoolContract = await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
                 lpTokenContract = await hre.ethers.getContractAt("ERC20", lpToken);
@@ -265,8 +269,6 @@ describe("CurveAdapters Unit test", () => {
                     <string>TypedDefiPools[curveAdapterName][pool].gauge,
                   );
                 }
-                let gaugeTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
-                let isTestingStakingFunction = false;
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
                 const adapterAddress = curveAdapters[curveAdapterName].address;
                 for (const action of story.setActions) {
@@ -377,32 +379,32 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
-                    // case "fundTestDefiContractWithRewardToken()": {
-                    //   if (
-                    //     getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                    //     TOKEN_HOLDERS[pool.toUpperCase()]
-                    //   ) {
-                    //     this.skip();
-                    //   }
-                    //   if (!(rewardTokenAddress == ADDRESS_ZERO)) {
-                    //     let rewardUnderlyingBalance: BigNumber = await RewardTokenERC20Instance!.balanceOf(
-                    //       testDeFiAdapter.address,
-                    //     );
-                    //     if (+rewardUnderlyingBalance.lte(+0)) {
-                    //       await fundWalletToken(
-                    //         hre,
-                    //         RewardTokenERC20Instance!.address,
-                    //         users["owner"],
-                    //         getDefaultFundAmountInDecimal(rewardTokenAddress, "18"),
-                    //         timestamp,
-                    //         testDeFiAdapter.address,
-                    //       );
-                    //       rewardUnderlyingBalance = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                    //       expect(+rewardUnderlyingBalance).to.be.gt(+0);
-                    //     }
-                    //   }
-                    //   break;
-                    // }
+                    case "fundTestDefiContractWithRewardToken()": {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        TypedTokenHolders[pool.toUpperCase()]
+                      ) {
+                        this.skip();
+                      }
+                      if (!(rewardTokenAddress == ADDRESS_ZERO)) {
+                        let rewardUnderlyingBalance: BigNumber = await rewardTokenInstance.balanceOf(
+                          testDeFiAdapter.address,
+                        );
+                        if (+rewardUnderlyingBalance.lte(+0)) {
+                          await fundWalletToken(
+                            hre,
+                            rewardTokenInstance.address,
+                            users["owner"],
+                            getDefaultFundAmountInDecimal(rewardTokenAddress, "18"),
+                            timestamp,
+                            testDeFiAdapter.address,
+                          );
+                          rewardUnderlyingBalance = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                          expect(+rewardUnderlyingBalance).to.be.gt(+0);
+                        }
+                      }
+                      break;
+                    }
                     case "testGetDepositAllCodes(address,address,address)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
@@ -436,47 +438,48 @@ describe("CurveAdapters Unit test", () => {
                       );
                       break;
                     }
-                    // case "testGetHarvestAllCodes(address,address,address)": {
-                    //   //  TODO: This condition has to be added in the contract (OPTY-339)
-                    //   if (
-                    //     getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                    //     rewardTokenAddress === ADDRESS_ZERO ||
-                    //     TOKEN_HOLDERS[pool.toUpperCase()]
-                    //   ) {
-                    //     this.skip();
-                    //   }
-                    //   underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    //   rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                    //   await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapter.address);
-                    //   break;
-                    // }
-                    // case "testGetHarvestSomeCodes(address,address,address,uint256)": {
-                    //   //  TODO: This condition has to be added in the contract (OPTY-339)
-                    //   if (
-                    //     getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
-                    //     rewardTokenAddress === ADDRESS_ZERO ||
-                    //     TOKEN_HOLDERS[pool.toUpperCase()]
-                    //   ) {
-                    //     this.skip();
-                    //   }
-                    //   underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                    //   rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                    //   await testDeFiAdapter[action.action](
-                    //     liquidityPool,
-                    //     underlyingTokenAddress,
-                    //     adapter.address,
-                    //     rewardTokenBalanceBefore,
-                    //   );
-                    //   break;
-                    // }
-                    // case "testGetClaimRewardTokenCode(address,address)": {
-                    //   if (lpStakingContract) {
-                    //     rewardTokenBalanceBefore = await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address);
-                    //     await testDeFiAdapter[action.action](liquidityPool, adapter.address);
-                    //     isTestingClaimRewardFunction = true;
-                    //   }
-                    //   break;
-                    // }
+                    case "testGetHarvestAllCodes(address,address,address)": {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        rewardTokenAddress === ADDRESS_ZERO ||
+                        TypedTokenHolders[pool.toUpperCase()]
+                      ) {
+                        this.skip();
+                      }
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        curveAdapters[curveAdapterName].address,
+                      );
+                      break;
+                    }
+                    case "testGetHarvestSomeCodes(address,address,address,uint256)": {
+                      if (
+                        getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
+                        rewardTokenAddress === ADDRESS_ZERO ||
+                        TypedTokenHolders[pool.toUpperCase()]
+                      ) {
+                        this.skip();
+                      }
+                      underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                      await testDeFiAdapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                        curveAdapters[curveAdapterName].address,
+                        rewardTokenBalanceBefore.mul(BigNumber.from("3")).div(BigNumber.from("4")),
+                      );
+                      break;
+                    }
+                    case "testGetClaimRewardTokenCode(address,address)": {
+                      if (gaugeContract) {
+                        rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                        await testDeFiAdapter[action.action](liquidityPool, curveAdapters[curveAdapterName].address);
+                      }
+                      break;
+                    }
                     case "testGetStakeAllCodes(address,address,address)": {
                       if (gaugeContract) {
                         gaugeTokenBalanceBefore = await gaugeContract.balanceOf(testDeFiAdapter.address);
@@ -509,6 +512,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testGetUnstakeAndWithdrawAllCodes(address,address,address)": {
                       if (gaugeContract) {
+                        underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                         await testDeFiAdapter[action.action](liquidityPool, underlyingTokenAddress, adapterAddress);
                       }
                       break;
@@ -516,6 +520,7 @@ describe("CurveAdapters Unit test", () => {
                     case "testGetUnstakeAndWithdrawSomeCodes(address,address,uint256,address)": {
                       if (gaugeContract) {
                         const stakingBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                         await testDeFiAdapter[action.action](
                           liquidityPool,
                           underlyingTokenAddress,
@@ -529,22 +534,22 @@ describe("CurveAdapters Unit test", () => {
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
-                    // case "getUnclaimedRewardTokenAmountWrite(address,address,address)": {
-                    //   if (lpStakingContract) {
-                    //     const expectedUnclaimedRewardTokenAmount = await lpStakingContract.earned(
-                    //       testDeFiAdapter.address,
-                    //     );
-                    //     expect(
-                    //       await adapter[action.action](testDeFiAdapter.address, liquidityPool, ADDRESS_ZERO),
-                    //     ).to.be.eq(expectedUnclaimedRewardTokenAmount);
-                    //   } else {
-                    //     await expect(
-                    //       adapter[action.action](testDeFiAdapter.address, liquidityPool, ADDRESS_ZERO),
-                    //     ).to.be.revertedWith("function call to a non-contract account");
-                    //   }
-
-                    //   break;
-                    // }
+                    case "testGetUnclaimedRewardTokenAmountWrite(address,address,address)": {
+                      if (gaugeContract) {
+                        const expectedUnclaimedRewardTokenAmount = await gaugeContract.claimable_tokens(
+                          testDeFiAdapter.address,
+                        );
+                        await curveAdapters[curveAdapterName][action.action](
+                          liquidityPool,
+                          underlyingTokenAddress,
+                          curveAdapters[curveAdapterName].address,
+                        );
+                        expect(await testDeFiAdapter.unclaimedRewardTokenAmountWrite()).to.be.equal(
+                          expectedUnclaimedRewardTokenAmount,
+                        );
+                      }
+                      break;
+                    }
                     case "calculateAmountInLPToken(address,address,uint256)": {
                       await expect(
                         curveAdapters[curveAdapterName][action.action](ADDRESS_ZERO, ADDRESS_ZERO, "0"),
@@ -663,35 +668,31 @@ describe("CurveAdapters Unit test", () => {
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                             : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
                         } else {
-                          expect(underlyingBalanceAfter.div(to_10powNumber_BN(decimals))).to.be.lte(
-                            underlyingBalanceBefore.sub(limitInUnderlyingToken).div(to_10powNumber_BN(decimals)),
-                          );
+                          expectedValue == ">"
+                            ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                            : expect(underlyingBalanceAfter).to.be.lte(
+                                underlyingBalanceBefore.sub(limitInUnderlyingToken),
+                              );
                         }
                       }
                       break;
                     }
-                    // case "getRewardTokenBalance(address)": {
-                    //   const rewardTokenBalanceAfter: BigNumber = lpStakingContract
-                    //     ? await RewardTokenERC20Instance!.balanceOf(testDeFiAdapter.address)
-                    //     : BigNumber.from("0");
-
-                    //   if (
-                    //     (!lpStakingContract && isTestingStakingFunction) ||
-                    //     (stopReward && isTestingClaimRewardFunction)
-                    //   ) {
-                    //     expect(+rewardTokenBalanceAfter).to.be.eq(+rewardTokenBalanceBefore);
-                    //   } else {
-                    //     const expectedValue = action.expectedValue;
-
-                    //     expectedValue == ">"
-                    //       ? expect(+rewardTokenBalanceAfter).to.be.gt(+rewardTokenBalanceBefore)
-                    //       : expectedValue == "=0"
-                    //       ? expect(+rewardTokenBalanceAfter).to.be.eq(0)
-                    //       : expect(+rewardTokenBalanceAfter).to.be.lte(+rewardTokenBalanceBefore);
-                    //   }
-
-                    //   break;
-                    // }
+                    case "getRewardTokenBalance(address)": {
+                      if (gaugeContract) {
+                        const rewardTokenBalance: BigNumber = await rewardTokenInstance.balanceOf(
+                          testDeFiAdapter.address,
+                        );
+                        const expectedValue = action.expectedValue;
+                        expectedValue == ">"
+                          ? expect(rewardTokenBalance).to.gt(rewardTokenBalanceBefore)
+                          : expectedValue == "<"
+                          ? expect(rewardTokenBalance).to.lt(rewardTokenBalanceBefore)
+                          : expectedValue == "=0"
+                          ? expect(rewardTokenBalance).to.be.eq(0)
+                          : expect(rewardTokenBalance).to.be.lte(+rewardTokenBalanceBefore);
+                      }
+                      break;
+                    }
                     case "getLiquidityPoolTokenBalanceStake(address,address)": {
                       const expectedValue = action.expectedValue;
                       if (gaugeContract) {
@@ -805,7 +806,7 @@ describe("CurveAdapters Unit test", () => {
                         );
                         const amountInTokenAfterHarvest =
                           await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardToken,
+                            rewardTokenAddress,
                             underlyingTokenAddress,
                             unclaimedRewardTokenAmount,
                           );
@@ -839,7 +840,7 @@ describe("CurveAdapters Unit test", () => {
                         );
                         const amountInTokenAfterHarvest =
                           await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardToken,
+                            rewardTokenAddress,
                             underlyingTokenAddress,
                             unclaimedRewardTokenAmount,
                           );
@@ -884,7 +885,7 @@ describe("CurveAdapters Unit test", () => {
                         );
                         const amountInTokenAfterHarvest =
                           await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardToken,
+                            rewardTokenAddress,
                             underlyingTokenAddress,
                             unclaimedRewardTokenAmount,
                           );
