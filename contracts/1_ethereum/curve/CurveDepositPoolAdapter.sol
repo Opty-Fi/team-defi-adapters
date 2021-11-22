@@ -660,6 +660,15 @@ contract CurveDepositPoolAdapter is
         }
     }
 
+    /**
+     * @notice Returns the balance in underlying for staked liquidityPoolToken balance of holder
+     * @dev It should only be implemented in Curve adapters
+     * @param _vault Vault contract address
+     * @param _underlyingToken Underlying token address for the given liquidity pool
+     * @param _liquidityPool Liquidity pool's contract address where the vault has deposited and which is associated
+     * to a staking pool where to stake all lpTokens
+     * @return Returns the equivalent amount of underlying tokens to the staked amount of liquidityPoolToken
+     */
     function _getAllAmountInTokenStakeWrite(
         address payable _vault,
         address _underlyingToken,
