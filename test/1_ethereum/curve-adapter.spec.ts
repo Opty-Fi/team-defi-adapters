@@ -794,18 +794,17 @@ describe("CurveAdapters Unit test", () => {
                         _lpTokenBalance,
                         tokenIndexArr[0],
                       );
-                      const _testRedeemAmount = amountInUnderlyingToken.sub(
-                        BigNumber.from("1").mul(to_10powNumber_BN(decimals - 3)),
-                      );
+                      const _testRedeemAmount = amountInUnderlyingToken
+                        .mul(BigNumber.from("3"))
+                        .div(BigNumber.from("4"));
                       const _redeemableLpTokenAmt = await curveAdapters[curveAdapterName][action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                         _testRedeemAmount,
                       );
-                      const expectedRedeemableLpTokenAmt = BigNumber.from(_lpTokenBalance.mul(amountInUnderlyingToken))
-                        .div(_testRedeemAmount)
-                        .add(BigNumber.from(1));
+                      const expectedRedeemableLpTokenAmt = _lpTokenBalance.mul(_testRedeemAmount)
+                        .div(amountInUnderlyingToken).add(BigNumber.from("1"));
                       // Curve's lp tokens has 18 decimals, so using 15 decimals for delta
                       const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
                       expect(_redeemableLpTokenAmt).to.be.closeTo(expectedRedeemableLpTokenAmt, delta.toNumber());
@@ -910,9 +909,7 @@ describe("CurveAdapters Unit test", () => {
                             unclaimedRewardTokenAmount,
                           );
                         const allAmountInToken = amountInToken.add(amountInTokenAfterHarvest);
-                        const _testRedeemAmount = allAmountInToken.sub(
-                          BigNumber.from("1").mul(to_10powNumber_BN(decimals - 3)),
-                        );
+                        const _testRedeemAmount = allAmountInToken.mul(BigNumber.from("3")).div(BigNumber.from("4"));
                         const calculated = stakedlpTokenBalance.mul(_testRedeemAmount).div(allAmountInToken).add(1);
                         await testDeFiAdapter.testCalculateRedeemableLPTokenAmountStakeWrite(
                           underlyingTokenAddress,
