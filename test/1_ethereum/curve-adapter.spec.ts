@@ -473,7 +473,9 @@ describe("CurveAdapters Unit test", () => {
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
-                      const testRewardAmount =  rewardTokenBalanceBefore.mul(BigNumber.from("3")).div(BigNumber.from("4"))
+                      const testRewardAmount = rewardTokenBalanceBefore
+                        .mul(BigNumber.from("3"))
+                        .div(BigNumber.from("4"));
                       const optimalAmount: BigNumber = await harvestCodeProviderContract.getOptimalTokenAmount(
                         rewardTokenAddress,
                         underlyingTokenAddress,
