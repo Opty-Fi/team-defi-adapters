@@ -74,7 +74,7 @@ import { ISushiswapMasterChef } from "@optyfi/defi-legos/ethereum/sushiswap/cont
 import { IYearn } from "@optyfi/defi-legos/ethereum/yearn/contracts/IYearn.sol";
 import { IYVault } from "@optyfi/defi-legos/ethereum/yvault/contracts/IYVault.sol";
 
-contract DefiLegosArtifactWorkaround {
+contract Imports {
     /* solhint-disable no-empty-blocks */
     constructor() public {}
     /* solhint-disable no-empty-blocks */
