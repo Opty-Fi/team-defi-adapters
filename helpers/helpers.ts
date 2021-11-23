@@ -88,7 +88,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
       break;
     }
-    case getAddress(TypedTokens.REN_BTC):
+
     case getAddress(TypedTokens.TBTC):
     case getAddress(TypedTokens.WBTC):
     case getAddress(TypedTokens.YFI):
@@ -121,7 +121,8 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       break;
     }
     case getAddress(TypedTokens.OBTC):
-    case getAddress(TypedTokens.SBTC): {
+    case getAddress(TypedTokens.SBTC):
+    case getAddress(TypedTokens.REN_BTC): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 3));
       break;
     }
