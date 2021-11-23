@@ -244,6 +244,7 @@ describe("CurveAdapters Unit test", () => {
             let swapPoolContract: Contract;
             let liquidityPoolContract: Contract;
             let lpTokenContract: Contract;
+            let rewardTokenInstance: Contract;
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async function () {
                 let limit: BigNumber;
@@ -264,7 +265,6 @@ describe("CurveAdapters Unit test", () => {
                 const tokenIndexArr = TypedDefiPools[curveAdapterName][pool].tokenIndexes as string[];
                 const checksumedUnderlyingTokens = _underlyingTokens.map((x: any) => getAddress(<string>x));
                 const rewardTokenAddress = TypedDefiPools[curveAdapterName][pool].rewardToken as string;
-                const rewardTokenInstance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
                 liquidityPoolContract = await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
                 lpTokenContract = await hre.ethers.getContractAt("ERC20", lpToken);
@@ -278,6 +278,9 @@ describe("CurveAdapters Unit test", () => {
                     "ICurveGaugeRead",
                     <string>TypedDefiPools[curveAdapterName][pool].gauge,
                   );
+                }
+                if (rewardTokenAddress != ADDRESS_ZERO) {
+                  rewardTokenInstance = await hre.ethers.getContractAt("ERC20", rewardTokenAddress);
                 }
                 const LpERC20Instance = await hre.ethers.getContractAt("ERC20", lpToken);
                 const adapterAddress = curveAdapters[curveAdapterName].address;
