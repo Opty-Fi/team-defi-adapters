@@ -446,11 +446,12 @@ describe("CurveAdapters Unit test", () => {
                     case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       lpTokenBalanceBefore = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const somelpToken = lpTokenBalanceBefore.mul(BigNumber.from("3")).div(BigNumber.from("4"));
                       await testDeFiAdapter[action.action](
                         underlyingTokenAddress,
                         liquidityPool,
                         adapterAddress,
-                        lpTokenBalanceBefore,
+                        somelpToken,
                       );
                       break;
                     }
@@ -622,7 +623,7 @@ describe("CurveAdapters Unit test", () => {
                       const lpTokenBalanceOfTestDeFiAdapter: BigNumber = await lpTokenContract.balanceOf(
                         testDeFiAdapter.address,
                       );
-                      const _amountInUnderlyingToken = await curveAdapters[curveAdapterName][action.action](
+                      const _amountInUnderlyingToken: BigNumber = await curveAdapters[curveAdapterName][action.action](
                         _underlyingTokens[0],
                         liquidityPool,
                         lpTokenBalanceOfTestDeFiAdapter,
@@ -633,9 +634,9 @@ describe("CurveAdapters Unit test", () => {
                             lpTokenBalanceOfTestDeFiAdapter,
                             tokenIndexArr[0],
                           );
-                        expect(+_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
+                        expect(_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
                       } else {
-                        expect(+_amountInUnderlyingToken).to.be.eq(BigNumber.from("0"));
+                        expect(_amountInUnderlyingToken).to.be.eq(BigNumber.from("0"));
                       }
                       break;
                     }

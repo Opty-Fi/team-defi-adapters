@@ -991,7 +991,7 @@
           "contract": "adapter",
           "action": "getLiquidityPoolTokenBalance(address,address,address)",
           "executer": "owner",
-          "expectedValue": "=0"
+          "expectedValue": "<"
         },
         {
           "contract": "erc20",
