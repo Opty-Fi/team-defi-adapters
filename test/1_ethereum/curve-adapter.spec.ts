@@ -6,7 +6,13 @@ import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { CURVE_SWAP_POOL_ADAPTER_NAME, CURVE_DEPOSIT_POOL_ADAPTER_NAME } from "../../helpers/constants/adapters";
-import { TypedAdapterStrategies, TypedDefiPools, TypedTokenHolders, TypedTokens } from "../../helpers/data";
+import {
+  TypedAdapterStrategies,
+  TypedContracts,
+  TypedDefiPools,
+  TypedTokenHolders,
+  TypedTokens,
+} from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/adapters.json";
@@ -14,6 +20,7 @@ import testDeFiAdapterScenario from "./scenarios/curve-test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/helpers";
 import { ERC20 } from "../../typechain/ERC20";
 import { to_10powNumber_BN } from "../../helpers/utils";
+import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 
 chai.use(solidity);
 
@@ -30,6 +37,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
 const curveAdapters: CONTRACTS = {};
 
 const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, TypedTokens.AUSDT, TypedTokens.STETH];
+const vaultUnderlyingTokens = Object.values(VAULT_TOKENS).map(x => getAddress(x.address));
 describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
     DAI: BigNumber.from("1000000000000000000000"),
@@ -220,12 +228,14 @@ describe("CurveAdapters Unit test", () => {
 
   describe("CurveAdapters pools test", () => {
     let testDeFiAdapter: Contract;
+    let uniswapV2FactoryInstance: Contract;
 
     before(async () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
+      uniswapV2FactoryInstance = await hre.ethers.getContractAt("IUniswapV2Factory", TypedContracts.UNISWAPV2_FACTORY);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
@@ -380,6 +390,9 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "fundTestDefiContractWithRewardToken()": {
+                      if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        this.skip();
+                      }
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
                         TypedTokenHolders[pool.toUpperCase()]
@@ -439,6 +452,9 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "testGetHarvestAllCodes(address,address,address)": {
+                      if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        this.skip();
+                      }
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
                         rewardTokenAddress === ADDRESS_ZERO ||
@@ -464,6 +480,9 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "testGetHarvestSomeCodes(address,address,address,uint256)": {
+                      if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        this.skip();
+                      }
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
                         rewardTokenAddress === ADDRESS_ZERO ||
@@ -803,8 +822,10 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                         _testRedeemAmount,
                       );
-                      const expectedRedeemableLpTokenAmt = _lpTokenBalance.mul(_testRedeemAmount)
-                        .div(amountInUnderlyingToken).add(BigNumber.from("1"));
+                      const expectedRedeemableLpTokenAmt = _lpTokenBalance
+                        .mul(_testRedeemAmount)
+                        .div(amountInUnderlyingToken)
+                        .add(BigNumber.from("1"));
                       // Curve's lp tokens has 18 decimals, so using 15 decimals for delta
                       const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
                       expect(_redeemableLpTokenAmt).to.be.closeTo(expectedRedeemableLpTokenAmt, delta.toNumber());
@@ -812,6 +833,31 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testGetAllAmountInTokenStakeWrite(address,address,address)": {
                       if (gaugeContract) {
+                        if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          this.skip();
+                        }
+                        if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                          const pairWeth = await uniswapV2FactoryInstance.getPair(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                          );
+                          if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            this.skip();
+                          }
+                        }
+                        const pairAddress1 = await uniswapV2FactoryInstance.getPair(
+                          rewardTokenAddress,
+                          TypedTokens.WETH,
+                        );
+                        const pairAddress2 = await uniswapV2FactoryInstance.getPair(
+                          TypedTokens.WETH,
+                          underlyingTokenAddress,
+                        );
+
+                        if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          this.skip();
+                        }
+
                         const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
                         let amountInToken: BigNumber = BigNumber.from("0");
                         if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
@@ -846,6 +892,30 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)": {
                       if (gaugeContract) {
+                        if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          this.skip();
+                        }
+                        if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                          const pairWeth = await uniswapV2FactoryInstance.getPair(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                          );
+                          if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            this.skip();
+                          }
+                        }
+                        const pairAddress1 = await uniswapV2FactoryInstance.getPair(
+                          rewardTokenAddress,
+                          TypedTokens.WETH,
+                        );
+                        const pairAddress2 = await uniswapV2FactoryInstance.getPair(
+                          TypedTokens.WETH,
+                          underlyingTokenAddress,
+                        );
+
+                        if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          this.skip();
+                        }
                         const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
                         let amountInToken: BigNumber = BigNumber.from("0");
                         if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
@@ -891,6 +961,30 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,uint256,address)": {
                       if (gaugeContract) {
+                        if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          this.skip();
+                        }
+                        if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
+                          const pairWeth = await uniswapV2FactoryInstance.getPair(
+                            rewardTokenAddress,
+                            underlyingTokenAddress,
+                          );
+                          if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            this.skip();
+                          }
+                        }
+                        const pairAddress1 = await uniswapV2FactoryInstance.getPair(
+                          rewardTokenAddress,
+                          TypedTokens.WETH,
+                        );
+                        const pairAddress2 = await uniswapV2FactoryInstance.getPair(
+                          TypedTokens.WETH,
+                          underlyingTokenAddress,
+                        );
+
+                        if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          this.skip();
+                        }
                         const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
                         let amountInToken: BigNumber = BigNumber.from("0");
                         if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {

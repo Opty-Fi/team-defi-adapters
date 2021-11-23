@@ -8,6 +8,10 @@ import { IAdapterFull } from "../../interfaces/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 import "../../1_ethereum/curve/interfaces/ICurveGaugeRead.sol";
 
+interface IUniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
 contract TestDeFiAdapter is MultiCall {
     uint256 public allAmountInTokenStakeWrite;
     uint256 public calculateRedeemableLPTokenAmountStakeWrite;
