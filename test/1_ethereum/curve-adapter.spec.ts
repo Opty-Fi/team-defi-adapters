@@ -627,13 +627,13 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                         lpTokenBalanceOfTestDeFiAdapter,
                       );
-                      const expectedAmountInUnderlyingToken: BigNumber =
-                        await liquidityPoolContract.calc_withdraw_one_coin(
-                          lpTokenBalanceOfTestDeFiAdapter,
-                          tokenIndexArr[0],
-                        );
                       if (lpTokenBalanceOfTestDeFiAdapter.gt(BigNumber.from("0"))) {
-                        expect(+_amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
+                        const expectedAmountInUnderlyingToken: BigNumber =
+                          await liquidityPoolContract.calc_withdraw_one_coin(
+                            lpTokenBalanceOfTestDeFiAdapter,
+                            tokenIndexArr[0],
+                          );
+                        expect(+_amountInUnderlyingToken).to.be.eq(expectedAmountInUnderlyingToken);
                       } else {
                         expect(+_amountInUnderlyingToken).to.be.eq(BigNumber.from("0"));
                       }
