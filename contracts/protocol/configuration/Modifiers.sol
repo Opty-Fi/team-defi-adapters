@@ -9,7 +9,7 @@ import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 //  interfaces
 import { IRegistry } from "../../interfaces/opty/IRegistry.sol";
-import { IModifiers } from "@optyfi/defi-legos/interfaces/opty/contracts/IModifiers.sol";
+import { IModifiers } from "../../interfaces/opty/IModifiers.sol";
 
 /**
  * @title Modifiers Contract

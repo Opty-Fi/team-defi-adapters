@@ -415,9 +415,7 @@ contract Registry is IRegistry, ModifiersController {
             delete vaultToVaultConfiguration[_vault].treasuryShares;
         }
         for (uint256 _i = 0; _i < _treasuryShares.length; _i++) {
-            //vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryShares[_i].treasury);
-            vaultToVaultConfiguration[_vault].treasuryShares[_i].treasury = _treasuryShares[_i].treasury;
-            vaultToVaultConfiguration[_vault].treasuryShares[_i].share = _treasuryShares[_i].share;
+            vaultToVaultConfiguration[_vault].treasuryShares.push(_treasuryShares[_i]);
         }
         return true;
     }

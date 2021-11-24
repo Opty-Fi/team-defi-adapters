@@ -3,7 +3,6 @@
 pragma solidity ^0.6.12;
 
 import { DataTypes } from "../../libraries/types/DataTypes.sol";
-import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
@@ -13,9 +12,6 @@ import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters
 import { IAdapterFull } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterFull.sol";
 import { IWETH } from "@optyfi/defi-legos/interfaces/misc/contracts/IWETH.sol";
 import { IYWETH } from "@optyfi/defi-legos/interfaces/misc/contracts/IYWETH.sol";
-import { IModifiers } from "@optyfi/defi-legos/interfaces/opty/contracts/IModifiers.sol";
-import { IModifiersController } from "@optyfi/defi-legos/interfaces/opty/contracts/IModifiersController.sol";
-import { IMultiCall } from "@optyfi/defi-legos/interfaces/opty/contracts/IMultiCall.sol";
 import { IAaveV1PriceOracle } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1PriceOracle.sol";
 import {
     IAaveV1LendingPoolAddressesProvider

@@ -15,7 +15,7 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 //  interfaces
 import { ICream } from "@optyfi/defi-legos/ethereum/cream/contracts/ICream.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";

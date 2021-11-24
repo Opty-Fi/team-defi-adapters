@@ -20,7 +20,7 @@ import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/I
 import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
-import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
+import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 
 /**
  * @title Adapter for DForce protocol
