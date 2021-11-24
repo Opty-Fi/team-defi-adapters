@@ -1077,7 +1077,7 @@
       "tokens": ["0x0E2EC54fC0B509F445631Bf4b91AB8168230C752"],
       "gauge": "0x0000000000000000000000000000000000000000",
       "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["0"]
     },
     "dai_dai+usdc+usdt+linkusd": {
@@ -1086,7 +1086,7 @@
       "tokens": ["0x6B175474E89094C44Da98b954EedeAC495271d0F"],
       "gauge": "0x0000000000000000000000000000000000000000",
       "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["1"]
     },
     "usdc_dai+usdc+usdt+linkusd": {
@@ -1095,7 +1095,7 @@
       "tokens": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
       "gauge": "0x0000000000000000000000000000000000000000",
       "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["2"]
     },
     "usdt_dai+usdc+usdt+linkusd": {
@@ -1104,7 +1104,7 @@
       "tokens": ["0xdAC17F958D2ee523a2206206994597C13D831ec7"],
       "gauge": "0x0000000000000000000000000000000000000000",
       "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["3"]
     },
     "dai+usdc+usdt+linkusd": {
@@ -1118,7 +1118,7 @@
       ],
       "gauge": "0x0000000000000000000000000000000000000000",
       "swap": "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["0", "1", "2", "3"]
     },
     "musd_dai+usdc+usdt+musd": {
@@ -1920,7 +1920,7 @@
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0x0E2EC54fC0B509F445631Bf4b91AB8168230C752"],
       "gauge": "0x0000000000000000000000000000000000000000",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["0"]
     },
     "3crv_LinkUSD3CRV": {
@@ -1928,7 +1928,7 @@
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"],
       "gauge": "0x0000000000000000000000000000000000000000",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["1"]
     },
     "linkusd+3crv_LinkUSD3CRV": {
@@ -1936,7 +1936,7 @@
       "lpToken": "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",
       "tokens": ["0x0E2EC54fC0B509F445631Bf4b91AB8168230C752", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490"],
       "gauge": "0x0000000000000000000000000000000000000000",
-      "rewardToken": "undefined",
+      "rewardToken": "0x0000000000000000000000000000000000000000",
       "tokenIndexes": ["0", "1"]
     },
     "musd_musd3CRV": {
