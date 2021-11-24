@@ -263,7 +263,12 @@ describe("CurveAdapters Unit test", () => {
                 const lpToken = TypedDefiPools[curveAdapterName][pool].lpToken;
                 const _underlyingTokens = TypedDefiPools[curveAdapterName][pool].tokens;
                 const tokenIndexArr = TypedDefiPools[curveAdapterName][pool].tokenIndexes as string[];
-                const checksumedUnderlyingTokens = _underlyingTokens.map((x: any) => getAddress(<string>x));
+                const checksumedUnderlyingTokens = _underlyingTokens.map((x: string) => {
+                  if (getAddress(x) == getAddress(TypedTokens.WETH)) {
+                    return "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+                  }
+                  return getAddress(x);
+                });
                 const rewardTokenAddress = TypedDefiPools[curveAdapterName][pool].rewardToken as string;
                 const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
                 liquidityPoolContract = await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
@@ -318,7 +323,7 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                         underlyingTokenAddress,
                       );
-                      limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
+                      limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from("10000"));
                       limitInUnderlyingToken = limit.div(to_10powNumber_BN(BigNumber.from("18").sub(decimals)));
                       defaultFundAmount = defaultFundAmount.lte(limitInUnderlyingToken)
                         ? defaultFundAmount
@@ -348,7 +353,9 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "setMaxDepositAmount(address,address,uint256)": {
-                      const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = action.args!;
+                      const { maxDepositAmount }: TEST_DEFI_ADAPTER_ARGUMENTS = <TEST_DEFI_ADAPTER_ARGUMENTS>(
+                        action.args
+                      );
                       let amount = BigNumber.from("0");
                       const defaultFundAmountInToken: BigNumberish = defaultFundAmount.div(to_10powNumber_BN(decimals));
                       if (maxDepositAmount === ">") {
@@ -652,8 +659,8 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                         ADDRESS_ZERO,
                       );
-                      const _checkSumedUnderlyingAddressFromAdapter = _underlyingAddressFromAdapter.map((x: any) =>
-                        getAddress(<string>x),
+                      const _checkSumedUnderlyingAddressFromAdapter = _underlyingAddressFromAdapter.map((x: string) =>
+                        getAddress(x),
                       );
                       expect(_checkSumedUnderlyingAddressFromAdapter).to.include.members(checksumedUnderlyingTokens);
                       break;
@@ -667,7 +674,7 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                       );
                       if (!gaugeContract && isTestingStakingFunction) {
-                        expect(+lpTokenBalanceAfter).to.be.eq(+expectedLpBalanceFromPool);
+                        expect(lpTokenBalanceAfter).to.be.eq(expectedLpBalanceFromPool);
                       } else {
                         const existingMode = await curveAdapters[curveAdapterName].maxDepositProtocolMode();
                         if (existingMode == 0) {
@@ -677,7 +684,7 @@ describe("CurveAdapters Unit test", () => {
                           if (existingDepositAmount.eq(BigNumber.from("0"))) {
                             expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"));
                           } else {
-                            expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from(+lpTokenBalanceBefore));
+                            expect(lpTokenBalanceAfter).to.be.gt(lpTokenBalanceBefore);
                           }
                         } else {
                           const existingPoolPct: BigNumber = await curveAdapters[curveAdapterName].maxDepositPoolPct(
@@ -695,7 +702,7 @@ describe("CurveAdapters Unit test", () => {
                             expectedValue == "=0"
                               ? expect(lpTokenBalanceAfter).to.be.eq(BigNumber.from("0"))
                               : expectedValue == "<"
-                              ? expect(+lpTokenBalanceAfter).to.be.lte(+lpTokenBalanceBefore)
+                              ? expect(lpTokenBalanceAfter).to.be.lte(lpTokenBalanceBefore)
                               : expect(lpTokenBalanceAfter).to.be.gt(BigNumber.from("0"));
                           }
                         }
@@ -706,7 +713,7 @@ describe("CurveAdapters Unit test", () => {
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (!gaugeContract && isTestingStakingFunction) {
-                        expect(+underlyingBalanceAfter).to.be.lte(+underlyingBalanceBefore);
+                        expect(underlyingBalanceAfter).to.be.lte(underlyingBalanceBefore);
                       } else {
                         if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
                           POOLED_TOKENS.includes(underlyingTokenAddress)
@@ -865,20 +872,35 @@ describe("CurveAdapters Unit test", () => {
                           TypedTokens.WETH,
                           underlyingTokenAddress,
                         );
-
-                        if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
-                          console.log("skipping as required path is not available on uniswapV2");
-                          this.skip();
+                        if (
+                          getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH) &&
+                          getAddress(pairAddress1) !== ADDRESS_ZERO
+                        ) {
+                          await testDeFiAdapter.testGetAllAmountInTokenStakeWrite(
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            gaugeContract.address,
+                            rewardTokenAddress,
+                            harvestCodeProviderContract.address,
+                            tokenIndexArr[0],
+                            curveAdapters[curveAdapterName].address,
+                          );
+                        } else {
+                          if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                            console.log("skipping as required path is not available on uniswapV2");
+                            this.skip();
+                          } else {
+                            await testDeFiAdapter.testGetAllAmountInTokenStakeWrite(
+                              underlyingTokenAddress,
+                              liquidityPool,
+                              gaugeContract.address,
+                              rewardTokenAddress,
+                              harvestCodeProviderContract.address,
+                              tokenIndexArr[0],
+                              curveAdapters[curveAdapterName].address,
+                            );
+                          }
                         }
-                        await testDeFiAdapter.testGetAllAmountInTokenStakeWrite(
-                          underlyingTokenAddress,
-                          liquidityPool,
-                          gaugeContract.address,
-                          rewardTokenAddress,
-                          harvestCodeProviderContract.address,
-                          tokenIndexArr[0],
-                          curveAdapters[curveAdapterName].address,
-                        );
                       }
                       break;
                     }
