@@ -39,7 +39,7 @@ import {
     ReserveDataProtocol
 } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2ProtocolDataProvider.sol";
 import { ICompound } from "@optyfi/defi-legos/ethereum/compound/contracts/ICompound.sol";
-import { IETHGateway } from "@optyfi/defi-legos/ethereum/compound/contracts/IETHGateway.sol";
+import { IETHGateway } from "@optyfi/defi-legos/interfaces/misc/contracts/IETHGateway.sol";
 import { ICream } from "@optyfi/defi-legos/ethereum/cream/contracts/ICream.sol";
 import { ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveDeposit.sol";
 import { ICurveGauge } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveGauge.sol";
