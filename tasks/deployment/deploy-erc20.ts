@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 import { deployContract } from "../../helpers/helpers";
 import { insertContractIntoDB } from "../../helpers/db";
-import { TESTING_CONTRACTS } from "../../helpers/constants";
+import { TESTING_CONTRACTS } from "../../helpers/constants/test-contracts-name";
 import TASKS from "../task-names";
 
 task(TASKS.DEPLOYMENT_TASKS.DEPLOY_ERC20.NAME, TASKS.DEPLOYMENT_TASKS.DEPLOY_ERC20.DESCRIPTION)

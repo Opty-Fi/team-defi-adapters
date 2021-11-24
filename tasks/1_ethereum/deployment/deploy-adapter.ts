@@ -3,7 +3,7 @@ import { Contract } from "ethers";
 import { deployAdapter } from "../../../helpers/contracts-deployments";
 import { insertContractIntoDB } from "../../../helpers/db";
 import { isAddress } from "../../../helpers/helpers";
-import { ADAPTERS } from "../../../helpers/constants";
+import { ADAPTERS } from "../../../helpers/constants/adapters";
 import TASKS from "../../task-names";
 import { eEthereumNetwork } from "../../../helper-hardhat-config";
 

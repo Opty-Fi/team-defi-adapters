@@ -10,7 +10,7 @@ import { IMultiCall } from "@optyfi/defi-legos/interfaces/opty/contracts/IMultiC
  * @dev Provides functions used commonly for decoding codes and execute
  * the code calls for Opty.fi contracts
  */
-abstract contract MultiCall is IMultiCall {
+contract MultiCall is IMultiCall {
     /**
      * @inheritdoc IMultiCall
      */

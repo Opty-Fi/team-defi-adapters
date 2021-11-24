@@ -2,11 +2,11 @@
 
 pragma solidity ^0.6.12;
 
-import { DataTypes } from "@optyfi/defi-legos/libraries/types/DataTypes.sol";
+import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { IHarvestCodeProvider } from "@optyfi/defi-legos/ethereum/interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
-import { IAdapterInvestLimit } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
 import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
 import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
@@ -16,8 +16,6 @@ import { IYWETH } from "@optyfi/defi-legos/interfaces/misc/contracts/IYWETH.sol"
 import { IModifiers } from "@optyfi/defi-legos/interfaces/opty/contracts/IModifiers.sol";
 import { IModifiersController } from "@optyfi/defi-legos/interfaces/opty/contracts/IModifiersController.sol";
 import { IMultiCall } from "@optyfi/defi-legos/interfaces/opty/contracts/IMultiCall.sol";
-import { IRegistry } from "@optyfi/defi-legos/interfaces/opty/contracts/IRegistry.sol";
-import { IVault } from "@optyfi/defi-legos/interfaces/opty/contracts/IVault.sol";
 import { IAaveV1PriceOracle } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1PriceOracle.sol";
 import {
     IAaveV1LendingPoolAddressesProvider
@@ -68,6 +66,7 @@ import {
     ActionType
 } from "@optyfi/defi-legos/ethereum/dydx/contracts/IdYdX.sol";
 import { IFulcrum } from "@optyfi/defi-legos/ethereum/fulcrum/contracts/IFulcrum.sol";
+import { IHarvestController } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestController.sol";
 import { IHarvestDeposit } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestDeposit.sol";
 import { IHarvestFarm } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestFarm.sol";
 import { ISushiswapMasterChef } from "@optyfi/defi-legos/ethereum/sushiswap/contracts/ISushiswapMasterChef.sol";
