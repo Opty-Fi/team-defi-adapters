@@ -394,19 +394,21 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "fundTestDefiContractWithRewardToken()": {
                       if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        console.log("skipping as underlying token is not a vault token");
                         this.skip();
                       }
                       if (
                         getAddress(underlyingTokenAddress) === getAddress(rewardTokenAddress) ||
                         TypedTokenHolders[pool.toUpperCase()]
                       ) {
+                        console.log("skipping as underlying token is same as reward token");
                         this.skip();
                       }
                       if (!(rewardTokenAddress == ADDRESS_ZERO)) {
                         let rewardUnderlyingBalance: BigNumber = await rewardTokenInstance.balanceOf(
                           testDeFiAdapter.address,
                         );
-                        if (+rewardUnderlyingBalance.lte(+0)) {
+                        if (rewardUnderlyingBalance.lte(BigNumber.from("0"))) {
                           await fundWalletToken(
                             hre,
                             rewardTokenInstance.address,
@@ -416,7 +418,7 @@ describe("CurveAdapters Unit test", () => {
                             testDeFiAdapter.address,
                           );
                           rewardUnderlyingBalance = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
-                          expect(+rewardUnderlyingBalance).to.be.gt(+0);
+                          expect(rewardUnderlyingBalance).to.be.gt(BigNumber.from("0"));
                         }
                       }
                       break;
@@ -457,6 +459,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testGetHarvestAllCodes(address,address,address)": {
                       if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        console.log("skipping as underlying token is not a vault token");
                         this.skip();
                       }
                       if (
@@ -464,6 +467,7 @@ describe("CurveAdapters Unit test", () => {
                         rewardTokenAddress === ADDRESS_ZERO ||
                         TypedTokenHolders[pool.toUpperCase()]
                       ) {
+                        console.log("skipping as underlying token is same as reward token");
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
@@ -474,6 +478,7 @@ describe("CurveAdapters Unit test", () => {
                         rewardTokenBalanceBefore,
                       );
                       if (optimalAmount.eq(BigNumber.from("0"))) {
+                        console.log("skipping as swap optimal token amount is zero");
                         this.skip();
                       }
                       await testDeFiAdapter[action.action](
@@ -485,6 +490,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                       if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                        console.log("Skipping as underlying token is not vault token");
                         this.skip();
                       }
                       if (
@@ -492,6 +498,7 @@ describe("CurveAdapters Unit test", () => {
                         rewardTokenAddress === ADDRESS_ZERO ||
                         TypedTokenHolders[pool.toUpperCase()]
                       ) {
+                        console.log("Skipping as underlying token is same as reward token");
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
@@ -505,6 +512,7 @@ describe("CurveAdapters Unit test", () => {
                         testRewardAmount,
                       );
                       if (optimalAmount.eq(BigNumber.from("0"))) {
+                        console.log("Skipping as optimal amount is zero");
                         this.skip();
                       }
                       await testDeFiAdapter[action.action](
@@ -836,6 +844,7 @@ describe("CurveAdapters Unit test", () => {
                     case "testGetAllAmountInTokenStakeWrite(address,address,address)": {
                       if (gaugeContract) {
                         if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          console.log("Skipping as underlying token is not vault token");
                           this.skip();
                         }
                         if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
@@ -844,6 +853,7 @@ describe("CurveAdapters Unit test", () => {
                             underlyingTokenAddress,
                           );
                           if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            console.log("skipping as pair is not available with weth on uniswapV2");
                             this.skip();
                           }
                         }
@@ -857,43 +867,25 @@ describe("CurveAdapters Unit test", () => {
                         );
 
                         if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          console.log("skipping as required path is not available on uniswapV2");
                           this.skip();
                         }
-
-                        const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                        let amountInToken: BigNumber = BigNumber.from("0");
-                        if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
-                          amountInToken = await liquidityPoolContract.calc_withdraw_one_coin(
-                            stakedlpTokenBalance,
-                            tokenIndexArr[0],
-                          );
-                        }
-                        await testDeFiAdapter.getCurveClaimableTokensWrite(gaugeContract.address);
-                        const unclaimedRewardTokenAmount = await testDeFiAdapter.curveClaimableTokensWrite();
-                        const amountInTokenAfterHarvest =
-                          await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            unclaimedRewardTokenAmount,
-                          );
-                        const expectedAllAmountInTokenStake = amountInToken.add(amountInTokenAfterHarvest);
                         await testDeFiAdapter.testGetAllAmountInTokenStakeWrite(
                           underlyingTokenAddress,
                           liquidityPool,
+                          gaugeContract.address,
+                          rewardTokenAddress,
+                          harvestCodeProviderContract.address,
+                          tokenIndexArr[0],
                           curveAdapters[curveAdapterName].address,
-                        );
-                        const actualAllAmountInTokenStake = await testDeFiAdapter.allAmountInTokenStakeWrite();
-                        const delta = BigNumber.from(9).mul(to_10powNumber_BN(decimals - Math.floor(decimals / 4)));
-                        expect(actualAllAmountInTokenStake).to.be.closeTo(
-                          expectedAllAmountInTokenStake,
-                          delta.toNumber(),
                         );
                       }
                       break;
                     }
-                    case "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)": {
+                    case "testIsRedeemableAmountSufficientStakeWrite(address,address,address,address,address,int128,address)": {
                       if (gaugeContract) {
                         if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          console.log("skipping as underlying token is not a vault token");
                           this.skip();
                         }
                         if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
@@ -902,6 +894,7 @@ describe("CurveAdapters Unit test", () => {
                             underlyingTokenAddress,
                           );
                           if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            console.log("skipping as pair is not available with weth on uniswapV2");
                             this.skip();
                           }
                         }
@@ -915,60 +908,25 @@ describe("CurveAdapters Unit test", () => {
                         );
 
                         if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          console.log("skipping as required path is not available on uniswapV2");
                           this.skip();
                         }
-                        // TODO : Test case for usdt_dai+usdc+usdt_yearn fails
-                        if (
-                          getAddress(liquidityPool) ==
-                          getAddress(TypedDefiPools[CURVE_DEPOSIT_POOL_ADAPTER_NAME]["usdt_dai+usdc+usdt_yearn"].pool)
-                        ) {
-                          this.skip();
-                        }
-                        const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                        let amountInToken: BigNumber = BigNumber.from("0");
-                        if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
-                          amountInToken = await liquidityPoolContract.calc_withdraw_one_coin(
-                            stakedlpTokenBalance,
-                            tokenIndexArr[0],
-                          );
-                        }
-                        await testDeFiAdapter.getCurveClaimableTokensWrite(gaugeContract.address);
-                        const unclaimedRewardTokenAmount = await testDeFiAdapter.curveClaimableTokensWrite();
-                        const amountInTokenAfterHarvest =
-                          await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            unclaimedRewardTokenAmount,
-                          );
-                        const testAllAmountInToken = amountInToken.add(amountInTokenAfterHarvest);
                         await testDeFiAdapter.testIsRedeemableAmountSufficientStakeWrite(
                           underlyingTokenAddress,
                           liquidityPool,
-                          testAllAmountInToken,
+                          gaugeContract.address,
+                          rewardTokenAddress,
+                          harvestCodeProviderContract.address,
+                          tokenIndexArr[0],
                           curveAdapters[curveAdapterName].address,
                         );
-                        const actualIsRedeemableAmountSufficientStake =
-                          await testDeFiAdapter.isRedeemableAmountSufficientStakeWrite();
-                        expect(actualIsRedeemableAmountSufficientStake).to.true;
-                        // === negative test case
-                        const testAllAmountInTokenLess = amountInToken.add(
-                          BigNumber.from("1").mul(to_10powNumber_BN(decimals)),
-                        );
-                        await testDeFiAdapter.testIsRedeemableAmountSufficientStakeWrite(
-                          underlyingTokenAddress,
-                          liquidityPool,
-                          testAllAmountInTokenLess,
-                          curveAdapters[curveAdapterName].address,
-                        );
-                        const actualIsRedeemableAmountSufficientStakeLess =
-                          await testDeFiAdapter.isRedeemableAmountSufficientStakeWrite();
-                        expect(actualIsRedeemableAmountSufficientStakeLess).to.false;
                       }
                       break;
                     }
-                    case "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,uint256,address)": {
+                    case "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,address,address,address,int128,address)": {
                       if (gaugeContract) {
                         if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
+                          console.log("skipping as underlying token is not a vault token");
                           this.skip();
                         }
                         if (getAddress(underlyingTokenAddress) == getAddress(TypedTokens.WETH)) {
@@ -977,6 +935,7 @@ describe("CurveAdapters Unit test", () => {
                             underlyingTokenAddress,
                           );
                           if (getAddress(pairWeth) == ADDRESS_ZERO) {
+                            console.log("skipping as pair is not available with weth on uniswapV2");
                             this.skip();
                           }
                         }
@@ -990,45 +949,18 @@ describe("CurveAdapters Unit test", () => {
                         );
 
                         if (getAddress(pairAddress1) == ADDRESS_ZERO || getAddress(pairAddress2) == ADDRESS_ZERO) {
+                          console.log("skipping as required is not available on uniswapV2");
                           this.skip();
                         }
-
-                        // TODO : Test case for dai_dai+usdc+usdt_yearn fails
-                        if (
-                          getAddress(liquidityPool) ==
-                          getAddress(TypedDefiPools[CURVE_DEPOSIT_POOL_ADAPTER_NAME]["dai_dai+usdc+usdt_yearn"].pool)
-                        ) {
-                          this.skip();
-                        }
-                        const stakedlpTokenBalance = await gaugeContract.balanceOf(testDeFiAdapter.address);
-                        let amountInToken: BigNumber = BigNumber.from("0");
-                        if (stakedlpTokenBalance.gt(BigNumber.from("0"))) {
-                          amountInToken = await liquidityPoolContract.calc_withdraw_one_coin(
-                            stakedlpTokenBalance,
-                            tokenIndexArr[0],
-                          );
-                        }
-                        await testDeFiAdapter.getCurveClaimableTokensWrite(gaugeContract.address);
-                        const unclaimedRewardTokenAmount = await testDeFiAdapter.curveClaimableTokensWrite();
-                        const amountInTokenAfterHarvest =
-                          await harvestCodeProviderContract.rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            unclaimedRewardTokenAmount,
-                          );
-                        const allAmountInToken = amountInToken.add(amountInTokenAfterHarvest);
-                        const _testRedeemAmount = allAmountInToken.mul(BigNumber.from("3")).div(BigNumber.from("4"));
-                        const calculated = stakedlpTokenBalance.mul(_testRedeemAmount).div(allAmountInToken).add(1);
                         await testDeFiAdapter.testCalculateRedeemableLPTokenAmountStakeWrite(
                           underlyingTokenAddress,
                           liquidityPool,
-                          _testRedeemAmount,
+                          gaugeContract.address,
+                          rewardTokenAddress,
+                          harvestCodeProviderContract.address,
+                          tokenIndexArr[0],
                           curveAdapters[curveAdapterName].address,
                         );
-                        // Curve's lp tokens has 18 decimals, so using 15 decimals for delta
-                        const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
-                        const actual = await testDeFiAdapter.calculateRedeemableLPTokenAmountStakeWrite();
-                        expect(actual).to.be.closeTo(calculated, delta.toNumber());
                       }
                       break;
                     }

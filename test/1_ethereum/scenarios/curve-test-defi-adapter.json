@@ -1230,13 +1230,13 @@
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)",
+          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": "<"
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,uint256,address)",
+          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": {}
         },
@@ -1311,13 +1311,13 @@
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)",
+          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": "<"
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,uint256,address)",
+          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": {}
         },
@@ -1928,7 +1928,7 @@
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,uint256,address)",
+          "action": "testIsRedeemableAmountSufficientStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": "<"
         },
@@ -2079,7 +2079,7 @@
         },
         {
           "contract": "testDeFiAdapter",
-          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,uint256,address)",
+          "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": {}
         }

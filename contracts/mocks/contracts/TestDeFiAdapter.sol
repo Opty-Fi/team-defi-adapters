@@ -3,20 +3,22 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapterFull } from "../../interfaces/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
 import "../../1_ethereum/curve/interfaces/ICurveGaugeRead.sol";
+import "../../1_ethereum/curve/interfaces/ICurveGauge.sol";
+import "../../1_ethereum/curve/interfaces/ICurveDeposit.sol";
+
+import "../../1_ethereum/interfaces/IHarvestCodeProvider.sol";
 
 interface IUniswapV2Factory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
 
-interface ICurveGauge {
-    function claimable_tokens(address _holder) external returns (uint256);
-}
-
 contract TestDeFiAdapter is MultiCall {
+    using SafeMath for uint256;
     uint256 public allAmountInTokenStakeWrite;
     uint256 public calculateRedeemableLPTokenAmountStakeWrite;
     uint256 public unclaimedRewardTokenAmountWrite;
@@ -90,41 +92,103 @@ contract TestDeFiAdapter is MultiCall {
     function testGetAllAmountInTokenStakeWrite(
         address _underlyingToken,
         address _liquidityPool,
+        address _liquidityGauge,
+        address _rewardToken,
+        address _harvestCodeProvider,
+        int128 _tokenIndex,
         address _adapter
     ) external {
+        uint256 _stakedLpTokenBalance = ERC20(_liquidityGauge).balanceOf(address(this));
+        uint256 _amountInToken = 0;
+        if (_stakedLpTokenBalance > 0) {
+            _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+        }
+        curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
+        uint256 _amountInTokenHarvest =
+            IHarvestCodeProvider(_harvestCodeProvider).rewardBalanceInUnderlyingTokens(
+                _rewardToken,
+                _underlyingToken,
+                curveClaimableTokensWrite
+            );
+        uint256 _allAmountInToken = _amountInToken.add(_amountInTokenHarvest);
         allAmountInTokenStakeWrite = IAdapterFull(_adapter).getAllAmountInTokenStakeWrite(
             payable(address(this)),
             _underlyingToken,
             _liquidityPool
         );
+        assert(_allAmountInToken == allAmountInTokenStakeWrite);
     }
 
     function testIsRedeemableAmountSufficientStakeWrite(
         address _underlyingToken,
         address _liquidityPool,
-        uint256 _redeemAmount,
+        address _liquidityGauge,
+        address _rewardToken,
+        address _harvestCodeProvider,
+        int128 _tokenIndex,
         address _adapter
     ) external {
+        uint256 _stakedLpTokenBalance = ERC20(_liquidityGauge).balanceOf(address(this));
+        uint256 _amountInToken = 0;
+        if (_stakedLpTokenBalance > 0) {
+            _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+        }
+        curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
+        uint256 _amountInTokenHarvest =
+            IHarvestCodeProvider(_harvestCodeProvider).rewardBalanceInUnderlyingTokens(
+                _rewardToken,
+                _underlyingToken,
+                curveClaimableTokensWrite
+            );
+        uint256 _allAmountInToken = _amountInToken.add(_amountInTokenHarvest);
+        isRedeemableAmountSufficientStakeWrite = IAdapterFull(_adapter).isRedeemableAmountSufficientStakeWrite(
+            payable(address(this)),
+            _underlyingToken,
+            _liquidityPool,
+            _allAmountInToken
+        );
+        assert(isRedeemableAmountSufficientStakeWrite == true);
+        uint256 _redeemAmount = _allAmountInToken.mul(2);
         isRedeemableAmountSufficientStakeWrite = IAdapterFull(_adapter).isRedeemableAmountSufficientStakeWrite(
             payable(address(this)),
             _underlyingToken,
             _liquidityPool,
             _redeemAmount
         );
+        assert(isRedeemableAmountSufficientStakeWrite == false);
     }
 
     function testCalculateRedeemableLPTokenAmountStakeWrite(
         address _underlyingToken,
         address _liquidityPool,
-        uint256 _redeemAmount,
+        address _liquidityGauge,
+        address _rewardToken,
+        address _harvestCodeProvider,
+        int128 _tokenIndex,
         address _adapter
     ) external {
+        uint256 _stakedLpTokenBalance = ERC20(_liquidityGauge).balanceOf(address(this));
+        uint256 _amountInToken = 0;
+        if (_stakedLpTokenBalance > 0) {
+            _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+        }
+        curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
+        uint256 _amountInTokenHarvest =
+            IHarvestCodeProvider(_harvestCodeProvider).rewardBalanceInUnderlyingTokens(
+                _rewardToken,
+                _underlyingToken,
+                curveClaimableTokensWrite
+            );
+        uint256 _allAmountInToken = _amountInToken.add(_amountInTokenHarvest);
+        uint256 _redeemAmount = _allAmountInToken.mul(3).div(4);
+        uint256 _calculated = _stakedLpTokenBalance.mul(_redeemAmount).div(_allAmountInToken).add(1);
         calculateRedeemableLPTokenAmountStakeWrite = IAdapterFull(_adapter).calculateRedeemableLPTokenAmountStakeWrite(
             payable(address(this)),
             _underlyingToken,
             _liquidityPool,
             _redeemAmount
         );
+        assert(_calculated == calculateRedeemableLPTokenAmountStakeWrite);
     }
 
     function testGetUnclaimedRewardTokenAmountWrite(
