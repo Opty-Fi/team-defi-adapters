@@ -12,10 +12,15 @@ interface IUniswapV2Factory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
 
+interface ICurveGauge {
+    function claimable_tokens(address _holder) external returns (uint256);
+}
+
 contract TestDeFiAdapter is MultiCall {
     uint256 public allAmountInTokenStakeWrite;
     uint256 public calculateRedeemableLPTokenAmountStakeWrite;
     uint256 public unclaimedRewardTokenAmountWrite;
+    uint256 public curveClaimableTokensWrite;
     bool public isRedeemableAmountSufficientStakeWrite;
 
     function testGetDepositAllCodes(
@@ -270,5 +275,9 @@ contract TestDeFiAdapter is MultiCall {
             address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
             ERC20(_borrowToken).balanceOf(address(this))
         );
+    }
+
+    function getCurveClaimableTokensWrite(address _liquidityGauge) external {
+        curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
     }
 }

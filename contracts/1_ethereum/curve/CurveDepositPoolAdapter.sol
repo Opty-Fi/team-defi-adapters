@@ -149,7 +149,9 @@ contract CurveDepositPoolAdapter is
         address _liquidityPool,
         uint256 _redeemAmount
     ) external override returns (bool) {
-        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInToken =
+            _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool, _liquidityPoolTokenBalance);
         return _balanceInToken >= _redeemAmount;
     }
 
@@ -161,7 +163,8 @@ contract CurveDepositPoolAdapter is
         address _underlyingToken,
         address _liquidityPool
     ) external override returns (uint256) {
-        return _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        return _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool, _liquidityPoolTokenBalance);
     }
 
     /**
@@ -174,7 +177,8 @@ contract CurveDepositPoolAdapter is
         uint256 _redeemAmount
     ) external override returns (uint256) {
         uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        uint256 _balanceInToken = _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool);
+        uint256 _balanceInToken =
+            _getAllAmountInTokenStakeWrite(_vault, _underlyingToken, _liquidityPool, _liquidityPoolTokenBalance);
         // can have unintentional rounding errors
         return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
     }
@@ -672,21 +676,14 @@ contract CurveDepositPoolAdapter is
     function _getAllAmountInTokenStakeWrite(
         address payable _vault,
         address _underlyingToken,
-        address _liquidityPool
+        address _liquidityPool,
+        uint256 _liquidityPoolTokenBalanceStake
     ) internal returns (uint256) {
-        address[8] memory _underlyingTokens;
-        uint256 _liquidityPoolTokenAmount;
         address _swapPool = _getSwapPool(_liquidityPool);
-        {
-            address _curveRegistry = _getCurveRegistry();
-            _underlyingTokens = _getUnderlyingTokens(_swapPool, _curveRegistry);
-            address _gauge = _getLiquidityGauge(_swapPool, _curveRegistry);
-            _liquidityPoolTokenAmount = ICurveGauge(_gauge).balanceOf(_vault);
-        }
         uint256 _b;
-        if (_liquidityPoolTokenAmount > 0) {
+        if (_liquidityPoolTokenBalanceStake > 0) {
             _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
-                _liquidityPoolTokenAmount,
+                _liquidityPoolTokenBalanceStake,
                 _getTokenIndex(_swapPool, _underlyingToken)
             );
         }
