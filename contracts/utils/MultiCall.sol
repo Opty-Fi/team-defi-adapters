@@ -10,7 +10,7 @@ import { IMultiCall } from "../interfaces/opty/IMultiCall.sol";
  * @dev Provides functions used commonly for decoding codes and execute
  * the code calls for Opty.fi contracts
  */
-contract MultiCall is IMultiCall {
+abstract contract MultiCall is IMultiCall {
     /**
      * @inheritdoc IMultiCall
      */
