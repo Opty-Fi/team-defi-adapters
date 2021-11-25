@@ -14,21 +14,6 @@ import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/cont
 import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
 import { IAdapterFull } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterFull.sol";
 
-// /* solhint-disable no-empty-blocks */
-// interface IAdapterFull is
-//     IAdapter,
-//     IAdapterBorrow,
-//     IAdapterHarvestReward,
-//     IAdapterStaking,
-//     IAdapterStakingCurve,
-//     IAdapterInvestLimit
-// {
-//     /* solhint-disable no-empty-blocks */
-//     /* solhint-disable no-empty-blocks */
-// }
-
-/* solhint-disable no-empty-blocks */
-
 contract TestDeFiAdapter is MultiCall {
     function testGetDepositAllCodes(
         address _underlyingToken,
