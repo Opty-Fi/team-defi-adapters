@@ -711,7 +711,7 @@ describe("CurveAdapters Unit test", () => {
                     }
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
-                      const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const underlyingBalanceAfter: BigNumber = await testDeFiAdapter.underlyingTokenBalance();
                       if (!gaugeContract && isTestingStakingFunction) {
                         expect(underlyingBalanceAfter).to.be.lte(underlyingBalanceBefore);
                       } else {
@@ -724,7 +724,14 @@ describe("CurveAdapters Unit test", () => {
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                             : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
                         } else {
-                          expectedValue == ">"
+                          POOLED_TOKENS.includes(underlyingTokenAddress)
+                            ? expectedValue == ">"
+                              ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
+                              : // 9999999999999 is the delta for aToken like pools
+                                expect(underlyingBalanceAfter).to.be.lte(
+                                  underlyingBalanceBefore.sub(limitInUnderlyingToken).add("9999999999999"),
+                                )
+                            : expectedValue == ">"
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                             : expect(underlyingBalanceAfter).to.be.lte(
                                 underlyingBalanceBefore.sub(limitInUnderlyingToken),

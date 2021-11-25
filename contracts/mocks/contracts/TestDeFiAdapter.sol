@@ -24,6 +24,7 @@ contract TestDeFiAdapter is MultiCall {
     uint256 public unclaimedRewardTokenAmountWrite;
     uint256 public curveClaimableTokensWrite;
     bool public isRedeemableAmountSufficientStakeWrite;
+    uint256 public underlyingTokenBalance;
 
     function testGetDepositAllCodes(
         address _underlyingToken,
@@ -34,6 +35,7 @@ contract TestDeFiAdapter is MultiCall {
             IAdapterFull(_adapter).getDepositAllCodes(payable(address(this)), _underlyingToken, _liquidityPool),
             "depositAll"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetDepositSomeCodes(
@@ -51,6 +53,7 @@ contract TestDeFiAdapter is MultiCall {
             ),
             "depositSome"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetBorrowAllCodes(
@@ -79,6 +82,7 @@ contract TestDeFiAdapter is MultiCall {
             IAdapterFull(_adapter).getStakeAllCodes(payable(address(this)), _underlyingToken, _liquidityPool),
             "stakeAll!"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetStakeSomeCodes(
@@ -117,6 +121,7 @@ contract TestDeFiAdapter is MultiCall {
             _liquidityPool
         );
         assert(_allAmountInToken == allAmountInTokenStakeWrite);
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testIsRedeemableAmountSufficientStakeWrite(
@@ -156,6 +161,7 @@ contract TestDeFiAdapter is MultiCall {
             _redeemAmount
         );
         assert(isRedeemableAmountSufficientStakeWrite == false);
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testCalculateRedeemableLPTokenAmountStakeWrite(
@@ -189,6 +195,7 @@ contract TestDeFiAdapter is MultiCall {
             _redeemAmount
         );
         assert(_calculated == calculateRedeemableLPTokenAmountStakeWrite);
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetUnclaimedRewardTokenAmountWrite(
@@ -201,6 +208,7 @@ contract TestDeFiAdapter is MultiCall {
             _liquidityPool,
             _underlyingToken
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetClaimRewardTokenCode(address _liquidityPool, address _adapter) external {
@@ -219,6 +227,7 @@ contract TestDeFiAdapter is MultiCall {
             IAdapterFull(_adapter).getHarvestAllCodes(payable(address(this)), _underlyingToken, _liquidityPool),
             "harvestAll"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetHarvestSomeCodes(
@@ -236,6 +245,7 @@ contract TestDeFiAdapter is MultiCall {
             ),
             "harvestSome"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetUnstakeAllCodes(address _liquidityPool, address _adapter) external {
@@ -259,6 +269,7 @@ contract TestDeFiAdapter is MultiCall {
             IAdapterFull(_adapter).getWithdrawAllCodes(payable(address(this)), _underlyingToken, _liquidityPool),
             "withdrawAll"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetWithdrawSomeCodes(
@@ -276,6 +287,7 @@ contract TestDeFiAdapter is MultiCall {
             ),
             "withdrawSome"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetRepayAndWithdrawAllCodes(
@@ -308,6 +320,7 @@ contract TestDeFiAdapter is MultiCall {
             ),
             "unstakeAndWithdrawAll"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetUnstakeAndWithdrawSomeCodes(
@@ -325,6 +338,7 @@ contract TestDeFiAdapter is MultiCall {
             ),
             "unstakeAndWithdrawSome"
         );
+        underlyingTokenBalance = ERC20(_underlyingToken).balanceOf(address(this));
     }
 
     function testGetAddLiquidityCodes(address _underlyingToken, address _adapter) external {
