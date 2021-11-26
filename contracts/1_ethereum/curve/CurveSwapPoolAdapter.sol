@@ -446,7 +446,7 @@ contract CurveSwapPoolAdapter is
                         "remove_liquidity_one_coin(uint256,int128,uint256)",
                         _amount,
                         _getTokenIndex(_liquidityPool, _underlyingToken),
-                        uint256(0)
+                        getSomeAmountInToken(_underlyingToken, _liquidityPool, _amount).mul(95).div(100)
                     )
                 );
         }
@@ -699,7 +699,8 @@ contract CurveSwapPoolAdapter is
             uint256 _nCoins,
             address[8] memory _underlyingTokens,
             uint256[] memory _amounts,
-            uint256 _codeLength
+            uint256 _codeLength,
+            uint256 _minAmount
         )
     {
         address _curveRegistry = _getCurveRegistry();
@@ -712,6 +713,10 @@ contract CurveSwapPoolAdapter is
         for (uint256 _i = 0; _i < _nCoins; _i++) {
             if (_underlyingTokens[_i] == _curveishCoin) {
                 _amounts[_i] = _getDepositAmount(_swapPool, _underlyingToken, _amount);
+                uint256 _decimals = ERC20(_underlyingToken).decimals();
+                _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
+                    ICurveSwap(_swapPool).get_virtual_price().mul(100)
+                );
                 if (_amounts[_i] > 0) {
                     if (_underlyingTokens[_i] == HBTC) {
                         _codeLength++;
@@ -772,7 +777,8 @@ contract CurveSwapPoolAdapter is
             uint256 _nCoins,
             address[8] memory _underlyingTokens,
             uint256[] memory _amounts,
-            uint256 _codeLength
+            uint256 _codeLength,
+            uint256 _minAmount
         ) = _getDepositCodeConfig(_underlyingToken, _swapPool, _amount);
         address _lendingPool = _underlyingToken == WETH ? curveSwapETHGatewayContract : _swapPool;
         if (_codeLength > 1) {
@@ -800,6 +806,7 @@ contract CurveSwapPoolAdapter is
             }
             if (_nCoins == uint256(2)) {
                 uint256[2] memory _depositAmounts = [_amounts[0], _amounts[1]];
+                address _liquidityPoolToken = getLiquidityPoolToken(address(0), _swapPool);
                 _codes[_j] = _underlyingToken == WETH
                     ? abi.encode(
                         curveSwapETHGatewayContract,
@@ -807,26 +814,26 @@ contract CurveSwapPoolAdapter is
                             "depositETH(address,address,address,uint256[2],int128)",
                             _vault,
                             _swapPool,
-                            getLiquidityPoolToken(address(0), _swapPool),
+                            _liquidityPoolToken,
                             _depositAmounts,
                             _underlyingTokenIndex
                         )
                     )
                     : abi.encode(
                         _lendingPool,
-                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
+                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, _minAmount)
                     );
             } else if (_nCoins == uint256(3)) {
                 uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
                 _codes[_j] = abi.encode(
                     _lendingPool,
-                    abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
+                    abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, _minAmount)
                 );
             } else if (_nCoins == uint256(4)) {
                 uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
                 _codes[_j] = abi.encode(
                     _lendingPool,
-                    abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, uint256(0))
+                    abi.encodeWithSignature("add_liquidity(uint256[4],uint256)", _depositAmounts, _minAmount)
                 );
             }
         }
