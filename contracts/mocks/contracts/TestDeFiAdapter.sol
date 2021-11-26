@@ -7,7 +7,6 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IAdapterFull } from "../../interfaces/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
-import "../../1_ethereum/curve/interfaces/ICurveGaugeRead.sol";
 import "../../1_ethereum/curve/interfaces/ICurveGauge.sol";
 import "../../1_ethereum/curve/interfaces/ICurveDeposit.sol";
 

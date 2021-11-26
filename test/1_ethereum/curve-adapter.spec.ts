@@ -286,7 +286,7 @@ describe("CurveAdapters Unit test", () => {
 
                 if (TypedDefiPools[curveAdapterName][pool].gauge != ADDRESS_ZERO) {
                   gaugeContract = await hre.ethers.getContractAt(
-                    "ICurveGaugeRead",
+                    "ICurveGauge",
                     <string>TypedDefiPools[curveAdapterName][pool].gauge,
                   );
                 }
