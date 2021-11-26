@@ -522,10 +522,16 @@ contract CurveDepositPoolAdapter is
     ) public view override returns (uint256) {
         if (_liquidityPoolTokenAmount > 0) {
             return
-                ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
-                    _liquidityPoolTokenAmount,
-                    _getTokenIndex(_getSwapPool(_liquidityPool), _underlyingToken)
-                );
+                _liquidityPool == Y_SWAP_POOL
+                    ? ICurveSwap(_liquidityPool).calc_withdraw_one_coin(
+                        _liquidityPoolTokenAmount,
+                        _getTokenIndex(_getSwapPool(_liquidityPool), _underlyingToken),
+                        true
+                    )
+                    : ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                        _liquidityPoolTokenAmount,
+                        _getTokenIndex(_getSwapPool(_liquidityPool), _underlyingToken)
+                    );
         }
         return 0;
     }
@@ -810,7 +816,7 @@ contract CurveDepositPoolAdapter is
                     )
                     : abi.encode(
                         _liquidityPool,
-                        abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, uint256(0))
+                        abi.encodeWithSignature("add_liquidity(uint256[3],uint256)", _depositAmounts, _minAmount)
                     );
             } else if (_nCoins == uint256(4)) {
                 uint256[4] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2], _amounts[3]];
