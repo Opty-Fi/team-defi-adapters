@@ -181,7 +181,7 @@ describe(`${DFORCE_ADAPTER_NAME} Unit test`, () => {
 
     const pools = Object.keys(TypedDefiPools[DFORCE_ADAPTER_NAME]);
 
-    describe(`Test-${DFORCE_ADAPTER_NAME}`, () => {
+    describe.only(`Test-${DFORCE_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
         const poolDetail = TypedDefiPools[DFORCE_ADAPTER_NAME][pool];
         const liquidityPool = poolDetail.pool;
