@@ -1118,19 +1118,6 @@
           "message": ""
         },
         {
-          "contract": "",
-          "action": "fundTestDeFiAdapterContract",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetDepositAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        },
-        {
           "contract": "TestDeFiAdapter",
           "action": "testGetStakeAllCodes(address,address,address)",
           "executer": "owner",
