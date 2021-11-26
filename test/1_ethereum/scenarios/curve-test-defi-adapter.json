@@ -1333,7 +1333,7 @@
       ]
     },
     {
-      "description": "getUnStakeAllCodes() should unstake all available staking balance",
+      "description": "getUnstakeAllCodes() should unstake all available staking balance",
       "setActions": [
         {
           "contract": "",
@@ -1396,7 +1396,7 @@
       ]
     },
     {
-      "description": "getUnStakeSomeCodes() should unstake successfully",
+      "description": "getUnstakeSomeCodes() should unstake successfully",
       "setActions": [
         {
           "contract": "",
