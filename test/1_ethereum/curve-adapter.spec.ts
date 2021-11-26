@@ -6,13 +6,7 @@ import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { CURVE_SWAP_POOL_ADAPTER_NAME, CURVE_DEPOSIT_POOL_ADAPTER_NAME } from "../../helpers/constants/adapters";
-import {
-  TypedAdapterStrategies,
-  TypedContracts,
-  TypedDefiPools,
-  TypedTokenHolders,
-  TypedTokens,
-} from "../../helpers/data";
+import { TypedAdapterStrategies, TypedContracts, TypedDefiPools, TypedTokens } from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/adapters.json";
@@ -34,12 +28,18 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositAmount?: string;
   mode?: string;
 };
+
+type ACTION_TYPES = {
+  contract: string;
+  action: string;
+  executer: string;
+  expectedValue: any;
+};
+
 const curveAdapters: CONTRACTS = {};
 
 const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, TypedTokens.AUSDT, TypedTokens.STETH];
 const YEARN_POOL = getAddress("0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF");
-const ATOKEN_POOL = getAddress("0xDeBF20617708857ebe4F679508E7b7863a8A8EeE");
-const SATOKEN_POOL = getAddress("0xEB16Ae0052ed37f479f7fe63849198Df1765a733");
 const vaultUnderlyingTokens = Object.values(VAULT_TOKENS).map(x => getAddress(x.address));
 describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -239,7 +239,7 @@ describe("CurveAdapters Unit test", () => {
     });
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
-      describe(`Test-${curveAdapterName}`, () => {
+      describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
           if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
@@ -575,17 +575,13 @@ describe("CurveAdapters Unit test", () => {
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
-                    case "testGetUnclaimedRewardTokenAmountWrite(address,address,address)": {
+                    case "testGetUnclaimedRewardTokenAmountWrite(address,address,address,address)": {
                       if (gaugeContract) {
-                        await testDeFiAdapter.getCurveClaimableTokensWrite(gaugeContract.address);
-                        const expectedUnclaimedRewardTokenAmount = await testDeFiAdapter.curveClaimableTokensWrite();
-                        await curveAdapters[curveAdapterName][action.action](
+                        await testDeFiAdapter[action.action](
                           liquidityPool,
                           underlyingTokenAddress,
+                          gaugeContract.address,
                           curveAdapters[curveAdapterName].address,
-                        );
-                        expect(await testDeFiAdapter.unclaimedRewardTokenAmountWrite()).to.be.equal(
-                          expectedUnclaimedRewardTokenAmount,
                         );
                       }
                       break;
@@ -656,7 +652,7 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const expectedValue = action.expectedValue;
+                      const { expectedValue }: ACTION_TYPES = <ACTION_TYPES>action;
                       const expectedLpBalanceFromPool = await LpERC20Instance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalanceAfter = await curveAdapters[curveAdapterName][action.action](
                         testDeFiAdapter.address,
@@ -700,7 +696,7 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "balanceOf(address)": {
-                      const expectedValue = action.expectedValue;
+                      const { expectedValue }: ACTION_TYPES = <ACTION_TYPES>action;
                       const underlyingBalanceAfter: BigNumber = await testDeFiAdapter.underlyingTokenBalance();
                       if (!gaugeContract && isTestingStakingFunction) {
                         expect(underlyingBalanceAfter).to.be.lte(underlyingBalanceBefore);
@@ -735,7 +731,7 @@ describe("CurveAdapters Unit test", () => {
                         const rewardTokenBalance: BigNumber = await rewardTokenInstance.balanceOf(
                           testDeFiAdapter.address,
                         );
-                        const expectedValue = action.expectedValue;
+                        const { expectedValue }: ACTION_TYPES = <ACTION_TYPES>action;
                         expectedValue == ">"
                           ? expect(rewardTokenBalance).to.gt(rewardTokenBalanceBefore)
                           : expectedValue == "<"
@@ -745,7 +741,7 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "getLiquidityPoolTokenBalanceStake(address,address)": {
-                      const expectedValue = action.expectedValue;
+                      const { expectedValue }: ACTION_TYPES = <ACTION_TYPES>action;
                       if (gaugeContract) {
                         const expectedStakingBalanceFromPool: BigNumber = await gaugeContract.balanceOf(
                           testDeFiAdapter.address,
@@ -796,7 +792,7 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "isRedeemableAmountSufficient(address,address,address,uint256)": {
-                      const expectedValue = action.expectedValue;
+                      const { expectedValue }: ACTION_TYPES = <ACTION_TYPES>action;
                       const lpTokenBalanceOfTestDeFiAdapter: BigNumber = await lpTokenContract.balanceOf(
                         testDeFiAdapter.address,
                       );
@@ -998,6 +994,14 @@ describe("CurveAdapters Unit test", () => {
                       }
                       break;
                     }
+                    case "canStake(address)": {
+                      if (gaugeContract) {
+                        expect(await curveAdapters[curveAdapterName][action.action](liquidityPool)).to.be.true;
+                      } else {
+                        expect(await curveAdapters[curveAdapterName][action.action](liquidityPool)).to.be.false;
+                      }
+                      break;
+                    }
                   }
                 }
                 for (const action of story.cleanActions) {
@@ -1010,24 +1014,6 @@ describe("CurveAdapters Unit test", () => {
                       if (gaugeContract) {
                         await testDeFiAdapter[action.action](liquidityPool, adapterAddress);
                       }
-                      break;
-                    }
-                  }
-                }
-                for (const action of story.getActions) {
-                  switch (action.action) {
-                    case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const lpTokenBalance = await curveAdapters[curveAdapterName][action.action](
-                        testDeFiAdapter.address,
-                        underlyingTokenAddress,
-                        liquidityPool,
-                      );
-                      expect(lpTokenBalance).to.be.eq(BigNumber.from("0"));
-                      break;
-                    }
-                    case "balanceOf(address)": {
-                      const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      expect(underlyingBalance).to.be.gt(BigNumber.from("0"));
                       break;
                     }
                   }

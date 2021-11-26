@@ -2043,19 +2043,6 @@
           "message": ""
         },
         {
-          "contract": "",
-          "action": "fundTestDeFiAdapterContract",
-          "expect": "success",
-          "message": ""
-        },
-        {
-          "contract": "TestDeFiAdapter",
-          "action": "testGetDepositAllCodes(address,address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        },
-        {
           "contract": "TestDeFiAdapter",
           "action": "testGetStakeAllCodes(address,address,address)",
           "executer": "owner",
@@ -2066,7 +2053,7 @@
       "getActions": [
         {
           "contract": "TestDeFiAdapter",
-          "action": "testGetUnclaimedRewardTokenAmountWrite(address,address,address)",
+          "action": "testGetUnclaimedRewardTokenAmountWrite(address,address,address,address)",
           "executer": "owner",
           "expectedValue": {}
         }
@@ -2100,12 +2087,11 @@
         }
       ],
       "cleanActions": []
-    }
-  ],
-  "adapterStandloneStories": [
+    },
     {
       "description": "[canStake()] - should return whether stake is allowed or not",
-      "setActions": [
+      "setActions": [],
+      "getActions": [
         {
           "contract": "adapter",
           "action": "canStake(address)",
@@ -2115,42 +2101,6 @@
           "message": ""
         }
       ],
-      "getActions": [],
-      "cleanActions": []
-    },
-    {
-      "description": "[setLiquidityPoolToStakingVault()] - Operator should be able to map liquidity pool to staking pool",
-      "setActions": [
-        {
-          "contract": "adapter",
-          "action": "setLiquidityPoolToStakingVault(address,address)",
-          "executer": "owner",
-          "expect": "success",
-          "message": ""
-        }
-      ],
-      "getActions": [
-        {
-          "contract": "adapter",
-          "action": "liquidityPoolToStakingVault(address)",
-          "executer": "owner",
-          "expectedValue": {}
-        }
-      ],
-      "cleanActions": []
-    },
-    {
-      "description": "[setLiquidityPoolToStakingVault()] - Non-Operator should be able to map liquidity pool to staking pool",
-      "setActions": [
-        {
-          "contract": "adapter",
-          "action": "setLiquidityPoolToStakingVault(address,address)",
-          "executer": "user1",
-          "expect": "fail",
-          "message": "caller is not the operator"
-        }
-      ],
-      "getActions": [],
       "cleanActions": []
     }
   ]
