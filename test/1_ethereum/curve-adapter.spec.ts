@@ -740,9 +740,7 @@ describe("CurveAdapters Unit test", () => {
                           ? expect(rewardTokenBalance).to.gt(rewardTokenBalanceBefore)
                           : expectedValue == "<"
                           ? expect(rewardTokenBalance).to.lt(rewardTokenBalanceBefore)
-                          : expectedValue == "=0"
-                          ? expect(rewardTokenBalance).to.be.eq(0)
-                          : expect(rewardTokenBalance).to.be.lte(+rewardTokenBalanceBefore);
+                          : expect(rewardTokenBalance).to.be.eq(0);
                       }
                       break;
                     }
