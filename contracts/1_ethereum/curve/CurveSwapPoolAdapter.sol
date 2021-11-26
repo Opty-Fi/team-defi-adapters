@@ -71,6 +71,9 @@ contract CurveSwapPoolAdapter is
     /** @notice Curve ETH/stETH StableSwap contract address*/
     address public constant ETH_stETH_STABLESWAP = address(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
 
+    /** @notice Curve's iron bank swap contract address */
+    address public constant Y_SWAP_POOL = address(0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF);
+
     /** WETH ERC20 token address */
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
@@ -718,9 +721,11 @@ contract CurveSwapPoolAdapter is
             if (_underlyingTokens[_i] == _curveishCoin) {
                 _amounts[_i] = _getDepositAmount(_swapPool, _underlyingToken, _amount);
                 uint256 _decimals = ERC20(_underlyingToken).decimals();
-                _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
-                    ICurveSwap(_swapPool).get_virtual_price().mul(100)
-                );
+                _minAmount = _swapPool == Y_SWAP_POOL
+                    ? 0
+                    : (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
+                        ICurveSwap(_swapPool).get_virtual_price().mul(100)
+                    );
                 if (_amounts[_i] > 0) {
                     if (_underlyingTokens[_i] == HBTC) {
                         _codeLength++;

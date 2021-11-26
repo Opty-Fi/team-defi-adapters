@@ -78,7 +78,7 @@ contract CurveDepositPoolAdapter is
     /** @notice Curve's saToken swap contract address */
     address public constant SA_SWAP_POOL = address(0xEB16Ae0052ed37f479f7fe63849198Df1765a733);
 
-    /** @notice Curve's saToken swap contract address */
+    /** @notice Curve's iron bank swap contract address */
     address public constant Y_SWAP_POOL = address(0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF);
 
     /** @notice max deposit's default value in percentage */
