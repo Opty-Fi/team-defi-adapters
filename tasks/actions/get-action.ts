@@ -1,4 +1,3 @@
-import { Contract } from "@ethersproject/contracts";
 import { task, types } from "hardhat/config";
 import { ESSENTIAL_CONTRACTS } from "../../helpers/constants/essential-contracts-name";
 import { isAddress } from "../../helpers/helpers";
@@ -32,7 +31,7 @@ task(TASKS.ACTION_TASKS.GET_ACTION.NAME, TASKS.ACTION_TASKS.GET_ACTION.DESCRIPTI
 
     try {
       const convertedParams = params === "" ? [] : params.split(",");
-      const contract = <Contract>await hre.ethers.getContractAt(name, address);
+      const contract = (await hre.ethers.getContractAt(name, address)) as any;
       const value = await contract[functionabi](...convertedParams);
       console.log(`Action: ${functionabi}`);
       if (convertedParams.length > 0) {

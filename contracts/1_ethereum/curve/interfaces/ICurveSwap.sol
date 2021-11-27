@@ -30,4 +30,10 @@ interface ICurveSwap {
     function get_virtual_price() external view returns (uint256);
 
     function coins(uint256 arg0) external view returns (address);
+
+    function calc_withdraw_one_coin(
+        uint256 _balance,
+        int128 _tokenIndex,
+        bool _useUnderlying
+    ) external view returns (uint256);
 }

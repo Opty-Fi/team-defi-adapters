@@ -3,6 +3,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 //  helper contracts
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
@@ -17,6 +18,7 @@ import { ICurveETHSwap } from "./interfaces/ICurveETHSwap.sol";
  * @dev Inspired from Aave WETH gateway
  */
 contract CurveSwapETHGateway is IETHGateway, Modifiers {
+    using SafeMath for uint256;
     // solhint-disable-next-line var-name-mixedcase
     IWETH internal immutable WETH;
 
@@ -52,7 +54,11 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
     ) external override {
         IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[uint256(_tokenIndex)]);
         WETH.withdraw(_amounts[uint256(_tokenIndex)]);
-        ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, 0);
+        uint256 _minAmount =
+            (_amounts[uint256(_tokenIndex)].mul(10**18).mul(95)).div(
+                ICurveETHSwap(_liquidityPool).get_virtual_price().mul(100)
+            );
+        ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, _minAmount);
         IERC20(_liquidityPoolToken).transfer(_vault, IERC20(_liquidityPoolToken).balanceOf(address(this)));
     }
 
@@ -67,7 +73,9 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
         int128 _tokenIndex
     ) external override {
         IERC20(_liquidityPoolToken).transferFrom(_vault, address(this), _amount);
-        ICurveETHSwap(_liquidityPool).remove_liquidity_one_coin(_amount, _tokenIndex, 0);
+        uint256 _minAmount =
+            ICurveETHSwap(_liquidityPool).calc_withdraw_one_coin(_amount, _tokenIndex).mul(95).div(100);
+        ICurveETHSwap(_liquidityPool).remove_liquidity_one_coin(_amount, _tokenIndex, _minAmount);
         WETH.deposit{ value: address(this).balance }();
         IERC20(address(WETH)).transfer(_vault, IERC20(address(WETH)).balanceOf(address(this)));
     }
