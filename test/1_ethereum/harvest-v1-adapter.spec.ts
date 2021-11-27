@@ -951,15 +951,6 @@ describe(`${HARVEST_V1_ADAPTER_NAME} Unit test`, () => {
                             isInvalidAddress === "zero" ? ADDRESS_ZERO : ownerAddress,
                           ),
                       ).to.be.revertedWith(action.message);
-                    } else {
-                      await expect(
-                        harvestV1Adapter
-                          .connect(users[action.executer!])
-                          [action.action](
-                            dummyContracts["liquidityPool"].address,
-                            dummyContracts["stakingVault"].address,
-                          ),
-                      ).to.be.revertedWith(action.message!);
                     }
                   }
                   break;

@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
@@ -14,12 +13,12 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 import { CompoundETHGateway } from "./CompoundETHGateway.sol";
 
 //  interfaces
-import { ICompound } from "./interfaces/ICompound.sol";
+import { ICompound } from "@optyfi/defi-legos/ethereum/compound/contracts/ICompound.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Compound protocol
@@ -32,7 +31,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     /** @dev ETH gateway contract for compound adapter */
     address public immutable compoundETHGatewayContract;
@@ -59,7 +58,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     constructor(address _registry) public Modifiers(_registry) {
         compoundETHGatewayContract = address(new CompoundETHGateway(WETH, _registry, CETH));
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -92,7 +91,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -417,7 +416,7 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;

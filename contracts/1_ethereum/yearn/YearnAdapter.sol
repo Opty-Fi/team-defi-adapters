@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
@@ -14,9 +13,9 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IYearn } from "./interfaces/IYearn.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IYearn } from "@optyfi/defi-legos/ethereum/yearn/contracts/IYearn.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for Yearn protocol
@@ -28,7 +27,7 @@ contract YearnAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -41,7 +40,7 @@ contract YearnAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -74,7 +73,7 @@ contract YearnAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -282,7 +281,7 @@ contract YearnAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;

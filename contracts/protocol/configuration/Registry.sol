@@ -410,7 +410,7 @@ contract Registry is IRegistry, ModifiersController {
         }
         require(_sharesSum == vaultToVaultConfiguration[_vault].withdrawalFee, "FeeShares!=WithdrawalFee");
 
-        //  delete the existing the treasury accounts if any to reset them
+        //  delete the existing treasury accounts if any to reset them
         if (vaultToVaultConfiguration[_vault].treasuryShares.length > 0) {
             delete vaultToVaultConfiguration[_vault].treasuryShares;
         }

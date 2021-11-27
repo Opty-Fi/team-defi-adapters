@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
@@ -23,9 +22,9 @@ import {
     ActionArgs,
     AssetReference,
     ActionType
-} from "./interfaces/IdYdX.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+} from "@optyfi/defi-legos/ethereum/dydx/contracts/IdYdX.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for dYdX protocol
@@ -37,7 +36,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     address public constant DYDX_LIQUIIDTY_POOL = address(0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e);
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -72,7 +71,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         addMarket(USDC, 2);
         addMarket(DAI, 3);
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -125,7 +124,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -356,7 +355,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;

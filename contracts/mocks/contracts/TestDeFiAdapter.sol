@@ -5,16 +5,24 @@ pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IAdapterFull } from "../../interfaces/defiAdapters/IAdapterFull.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
-import "../../1_ethereum/curve/interfaces/ICurveGauge.sol";
-import "../../1_ethereum/curve/interfaces/ICurveDeposit.sol";
-
+import {
+    ICurveLiquidityGauge as ICurveGauge
+} from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGauge.sol";
+import { ICurveZap as ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveZap.sol";
 import "../../1_ethereum/interfaces/IHarvestCodeProvider.sol";
 
 interface IUniswapV2Factory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 }
+
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
+import { IAdapterFull } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterFull.sol";
 
 contract TestDeFiAdapter is MultiCall {
     using SafeMath for uint256;

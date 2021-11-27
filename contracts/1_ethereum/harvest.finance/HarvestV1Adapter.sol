@@ -6,21 +6,20 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  helper contracts
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 
 //  interfaces
-import { IHarvestDeposit } from "./interfaces/v1/IHarvestDeposit.sol";
-import { IHarvestFarm } from "./interfaces/v1/IHarvestFarm.sol";
+import { IHarvestDeposit } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestDeposit.sol";
+import { IHarvestFarm } from "@optyfi/defi-legos/ethereum/harvest.finance/contracts/IHarvestFarm.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
 
 /**
  * @title Adapter for Harvest.finance protocol
@@ -33,7 +32,7 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     // deposit pools
     address public constant TBTC_SBTC_CRV_DEPOSIT = address(0x640704D106E79e105FDA424f05467F005418F1B5);
@@ -147,7 +146,7 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
         setLiquidityPoolToStakingVault(UNI_UST_MTSLA_DEPOSIT, UNI_UST_MTSLA_STAKE);
 
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -191,7 +190,7 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -641,7 +640,7 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;

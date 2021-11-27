@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.12;
+pragma experimental ABIEncoderV2;
 
 //  libraries
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
@@ -17,7 +18,7 @@ import { IModifiersController } from "../../interfaces/opty/IModifiersController
  * @notice Contract used by registry contract and acts as source of truth
  * @dev It manages operator, optyDistributor addresses as well as modifiers
  */
-abstract contract ModifiersController is IModifiersController, RegistryStorage {
+contract ModifiersController is IModifiersController, RegistryStorage {
     using Address for address;
 
     /**
