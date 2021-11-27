@@ -15,27 +15,13 @@ library DataTypes {
     }
 
     /**
-     * @notice Container for token balance in vault contract in a specific block
-     * @param actualVaultValue current balance of the vault contract
-     * @param blockMinVaultValue minimum balance recorded for vault contract in the same block
-     * @param blockMaxVaultValue maximum balance recorded for vault contract in the same block
+     * @notice Container for all Tokens
+     * @param index Index at which token is stored
+     * @param tokens List of token addresses
      */
-    struct BlockVaultValue {
-        uint256 actualVaultValue;
-        uint256 blockMinVaultValue;
-        uint256 blockMaxVaultValue;
-    }
-
-    /**
-     * @notice Container for Strategy Steps used by Strategy
-     * @param pool Liquidity Pool address
-     * @param outputToken Output token of the liquidity pool
-     * @param isBorrow If borrow is allowed or not for the liquidity pool
-     */
-    struct StrategyStep {
-        address pool;
-        address outputToken;
-        bool isBorrow;
+    struct Token {
+        uint256 index;
+        address[] tokens;
     }
 
     /**
@@ -46,26 +32,6 @@ library DataTypes {
     struct LiquidityPool {
         uint8 rating;
         bool isLiquidityPool;
-    }
-
-    /**
-     * @notice Container for Strategy used by Vault contract
-     * @param index Index at which strategy is stored
-     * @param strategySteps StrategySteps consisting pool, outputToken and isBorrow
-     */
-    struct Strategy {
-        uint256 index;
-        StrategyStep[] strategySteps;
-    }
-
-    /**
-     * @notice Container for all Tokens
-     * @param index Index at which token is stored
-     * @param tokens List of token addresses
-     */
-    struct Token {
-        uint256 index;
-        address[] tokens;
     }
 
     /**
@@ -122,32 +88,6 @@ library DataTypes {
         bool exists;
         string name;
         string symbol;
-    }
-
-    /**
-     * @notice Container for holding percentage of reward token to hold and convert
-     * @param hold reward token hold percentage in basis point
-     * @param convert reward token convert percentage in basis point
-     */
-    struct VaultRewardStrategy {
-        uint256 hold; //  should be in basis eg: 50% means 5000
-        uint256 convert; //  should be in basis eg: 50% means 5000
-    }
-
-    /** @notice Named Constants for defining max exposure state */
-    enum MaxExposure { Number, Pct }
-
-    /** @notice Named Constants for defining default strategy state */
-    enum DefaultStrategyState { Zero, CompoundOrAave }
-
-    /**
-     * @notice Container for persisting ODEFI contract's state
-     * @param index The market's last index
-     * @param timestamp The block number the index was last updated at
-     */
-    struct RewardsState {
-        uint224 index;
-        uint32 timestamp;
     }
 
     /**
