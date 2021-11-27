@@ -6,9 +6,10 @@ pragma experimental ABIEncoderV2;
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { MultiCall } from "../../utils/MultiCall.sol";
-import "../../1_ethereum/curve/interfaces/ICurveGauge.sol";
-import "../../1_ethereum/curve/interfaces/ICurveDeposit.sol";
-
+import {
+    ICurveLiquidityGauge as ICurveGauge
+} from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGauge.sol";
+import { ICurveZap as ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveZap.sol";
 import "../../1_ethereum/interfaces/IHarvestCodeProvider.sol";
 
 interface IUniswapV2Factory {
