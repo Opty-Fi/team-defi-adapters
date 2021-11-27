@@ -45,9 +45,14 @@ export type DEFI_POOLS_DATA = {
       pool: string;
       lpToken: string;
       tokens: string[];
+      gauge?: string;
       stakingVault?: string;
       pid?: string;
       deprecated?: boolean;
+      swap?: string;
+      rewardToken?: string;
+      rewardedTokens?: string[];
+      tokenIndexes?: string[];
     };
   };
 };
