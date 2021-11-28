@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 
 // libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 // helper contracts
@@ -14,17 +13,19 @@ import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // interfaces
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterHarvestReward } from "../../interfaces/defiAdapters/IAdapterHarvestReward.sol";
-import { IAdapterStaking } from "../../interfaces/defiAdapters/IAdapterStaking.sol";
-import { IAdapterStakingCurve } from "../../interfaces/defiAdapters/IAdapterStakingCurve.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
-import { ICurveDeposit } from "./interfaces/ICurveDeposit.sol";
-import { ICurveGauge } from "./interfaces/ICurveGauge.sol";
-import { ICurveAddressProvider } from "./interfaces/ICurveAddressProvider.sol";
-import { ICurveRegistry } from "./interfaces/ICurveRegistry.sol";
-import { ICurveSwap } from "./interfaces/ICurveSwap.sol";
-import { ITokenMinter } from "./interfaces/ITokenMinter.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterHarvestReward } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterHarvestReward.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
+import { IAdapterStaking } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStaking.sol";
+import { IAdapterStakingCurve } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterStakingCurve.sol";
+import { ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveDeposit.sol";
+import { ICurveGauge } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveGauge.sol";
+import {
+    ICurveAddressProvider
+} from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveAddressProvider.sol";
+import { ICurveSwap } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveSwap.sol";
+import { ICurveRegistry } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveRegistry.sol";
+import { ITokenMinter } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ITokenMinter.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 
 /**
@@ -46,7 +47,7 @@ contract CurveDepositPoolAdapter is
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     /** @notice  Curve Registry Address Provider */
     address public constant ADDRESS_PROVIDER = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
@@ -110,7 +111,7 @@ contract CurveDepositPoolAdapter is
         setIsSwapPool(SA_SWAP_POOL, true); // saToken
         setIsSwapPool(Y_SWAP_POOL, true); // yToken
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -223,7 +224,7 @@ contract CurveDepositPoolAdapter is
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -952,7 +953,7 @@ contract CurveDepositPoolAdapter is
         uint256 _amount
     ) internal view returns (uint256) {
         return
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountPct(_liquidityPool, _underlyingToken, _amount)
                 : _getMaxDepositAmount(_liquidityPool, _underlyingToken, _amount);
     }

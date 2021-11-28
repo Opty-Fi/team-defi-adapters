@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 
 //  libraries
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
 
 //  helper contracts
 import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
@@ -14,24 +13,25 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 //  interfaces
-import { IAaveV2PriceOracle } from "./interfaces/v2/IAaveV2PriceOracle.sol";
-import { IAaveV2LendingPoolAddressesProvider } from "./interfaces/v2/IAaveV2LendingPoolAddressesProvider.sol";
+import { IAaveV2PriceOracle } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2PriceOracle.sol";
+import {
+    IAaveV2LendingPoolAddressesProvider
+} from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2LendingPoolAddressesProvider.sol";
 import {
     IAaveV2LendingPoolAddressProviderRegistry
-} from "./interfaces/v2/IAaveV2LendingPoolAddressProviderRegistry.sol";
-import { IAaveV2, ReserveDataV2, UserAccountData } from "./interfaces/v2/IAaveV2.sol";
-import { IAaveV2Token } from "./interfaces/v2/IAaveV2Token.sol";
+} from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2LendingPoolAddressProviderRegistry.sol";
+import { IAaveV2, ReserveDataV2, UserAccountData } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2.sol";
+import { IAaveV2Token } from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2Token.sol";
 import {
     IAaveV2ProtocolDataProvider,
     UserReserveData,
     ReserveDataProtocol,
     ReserveConfigurationData
-} from "./interfaces/v2/IAaveV2ProtocolDataProvider.sol";
+} from "@optyfi/defi-legos/ethereum/aavev2/contracts/IAaveV2ProtocolDataProvider.sol";
 import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterInvestLimit } from "../../interfaces/defiAdapters/IAdapterInvestLimit.sol";
-import { IAdapter } from "../../interfaces/defiAdapters/IAdapter.sol";
-import { IAdapterBorrow } from "../../interfaces/defiAdapters/IAdapterBorrow.sol";
+import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
+import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
+import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 
 /**
  * @title Adapter for AaveV2 protocol
@@ -43,7 +43,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     using Address for address;
 
     /** @notice max deposit value datatypes */
-    DataTypes.MaxExposure public maxDepositProtocolMode;
+    MaxExposure public maxDepositProtocolMode;
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -75,7 +75,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
 
     constructor(address _registry) public Modifiers(_registry) {
         setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(DataTypes.MaxExposure.Pct);
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -108,7 +108,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(DataTypes.MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -544,7 +544,7 @@ contract AaveV2Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _amount
     ) internal view returns (uint256) {
         uint256 _limit =
-            maxDepositProtocolMode == DataTypes.MaxExposure.Pct
+            maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
         return _amount > _limit ? _limit : _amount;

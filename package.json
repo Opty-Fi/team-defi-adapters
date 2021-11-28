@@ -1,7 +1,7 @@
 {
   "name": "@optyfi/team-defi-adapters",
   "description": "DeFi adapters build by core team of opty.fi",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "homepage": "https://opty.fi",
   "repository": {
     "type": "git",
@@ -120,6 +120,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "3.4.0",
+    "@optyfi/defi-legos": "0.1.0-rc.9",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "^1.1.0-beta.0"
   }
