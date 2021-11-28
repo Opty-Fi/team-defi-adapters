@@ -619,7 +619,7 @@ contract CurveSwapPoolAdapter is
     ) public view override returns (uint256) {
         // Note : This function does not take into account unclaimed reward tokens
         uint256 _liquidityPoolTokenBalanceStake = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
-        return _getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool, _liquidityPoolTokenBalanceStake);
+        return getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenBalanceStake);
     }
 
     /**

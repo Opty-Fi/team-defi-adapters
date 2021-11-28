@@ -239,7 +239,7 @@ describe("CurveAdapters Unit test", () => {
     });
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
-      describe(`Test-${curveAdapterName}`, () => {
+      describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
           if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
@@ -583,6 +583,95 @@ describe("CurveAdapters Unit test", () => {
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
+                    case "getAllAmountInTokenStake(address,address,address)": {
+                      if (gaugeContract) {
+                        const actual = await curveAdapters[curveAdapterName][action.action](
+                          testDeFiAdapter.address,
+                          underlyingTokenAddress,
+                          liquidityPool,
+                        );
+                        const lpTokenStakedBalance: BigNumber = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        let expected: BigNumber;
+                        if (lpTokenStakedBalance.gt(BigNumber.from("0"))) {
+                          expected = await liquidityPoolContract["calc_withdraw_one_coin"](
+                            lpTokenStakedBalance,
+                            tokenIndexArr[0],
+                          );
+                          expect(actual).to.equal(expected);
+                        } else {
+                          expect(actual).to.equal(BigNumber.from("0"));
+                        }
+                      }
+                      break;
+                    }
+                    case "isRedeemableAmountSufficientStake(address,address,address,uint256)": {
+                      if (gaugeContract) {
+                        const lpTokenStakedBalance: BigNumber = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        let amountInToken: BigNumber = BigNumber.from("0");
+                        if (lpTokenStakedBalance.gt(BigNumber.from("0"))) {
+                          amountInToken = await liquidityPoolContract["calc_withdraw_one_coin"](
+                            lpTokenStakedBalance,
+                            tokenIndexArr[0],
+                          );
+                          let actual = await curveAdapters[curveAdapterName][action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            amountInToken,
+                          );
+                          expect(actual).to.be.true;
+                          actual = await curveAdapters[curveAdapterName][action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            amountInToken.mul(BigNumber.from("2")),
+                          );
+                          expect(actual).to.be.false;
+                        } else {
+                          const actual = await curveAdapters[curveAdapterName][action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            amountInToken,
+                          );
+                          expect(actual).to.be.true;
+                        }
+                      }
+                      break;
+                    }
+                    case "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)": {
+                      if (gaugeContract) {
+                        const lpTokenStakedBalance: BigNumber = await gaugeContract.balanceOf(testDeFiAdapter.address);
+                        let amountInToken: BigNumber = BigNumber.from("0");
+                        if (lpTokenStakedBalance.gt(BigNumber.from("0"))) {
+                          amountInToken = await liquidityPoolContract["calc_withdraw_one_coin"](
+                            lpTokenStakedBalance,
+                            tokenIndexArr[0],
+                          );
+                          const redeemAmount = amountInToken.mul(BigNumber.from("3")).div(BigNumber.from("4"));
+                          const calculated = lpTokenStakedBalance
+                            .mul(redeemAmount)
+                            .div(amountInToken)
+                            .add(BigNumber.from("1"));
+                          const actual = await curveAdapters[curveAdapterName][action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            redeemAmount,
+                          );
+                          expect(actual).to.equal(calculated);
+                        } else {
+                          const actual = await curveAdapters[curveAdapterName][action.action](
+                            testDeFiAdapter.address,
+                            underlyingTokenAddress,
+                            liquidityPool,
+                            amountInToken,
+                          );
+                          expect(actual).to.equal(BigNumber.from("0"));
+                        }
+                      }
+                      break;
+                    }
                     case "testGetUnclaimedRewardTokenAmountWrite(address,address,address,address)": {
                       if (gaugeContract) {
                         await testDeFiAdapter[action.action](
