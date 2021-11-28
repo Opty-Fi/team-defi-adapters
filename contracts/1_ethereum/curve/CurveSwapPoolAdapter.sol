@@ -363,7 +363,6 @@ contract CurveSwapPoolAdapter is
         return getUnstakeSomeCodes(_liquidityPool, _unstakeAmount);
     }
 
-    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
@@ -372,7 +371,13 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (uint256) {}
+    ) public view override returns (uint256) {
+        // Note : This function does not take into account unclaimed reward tokens
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInToken = getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenBalance);
+        // can have unintentional rounding errors
+        return (_liquidityPoolTokenBalance.mul(_redeemAmount)).div(_balanceInToken).add(1);
+    }
 
     /**
      * @inheritdoc IAdapterStaking
@@ -382,9 +387,12 @@ contract CurveSwapPoolAdapter is
         address _underlyingToken,
         address _liquidityPool,
         uint256 _redeemAmount
-    ) public view override returns (bool) {}
-
-    /* solhint-enable no-empty-blocks */
+    ) public view override returns (bool) {
+        // Note : This function does not take into account unclaimed reward tokens
+        uint256 _liquidityPoolTokenBalance = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        uint256 _balanceInToken = getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenBalance);
+        return _balanceInToken >= _redeemAmount;
+    }
 
     /**
      * @inheritdoc IAdapterStaking
@@ -601,7 +609,6 @@ contract CurveSwapPoolAdapter is
         }
     }
 
-    /* solhint-disable no-empty-blocks */
     /**
      * @inheritdoc IAdapterStaking
      */
@@ -609,9 +616,11 @@ contract CurveSwapPoolAdapter is
         address payable _vault,
         address _underlyingToken,
         address _liquidityPool
-    ) public view override returns (uint256) {}
-
-    /* solhint-enable no-empty-blocks */
+    ) public view override returns (uint256) {
+        // Note : This function does not take into account unclaimed reward tokens
+        uint256 _liquidityPoolTokenBalanceStake = getLiquidityPoolTokenBalanceStake(_vault, _liquidityPool);
+        return _getAllAmountInTokenStake(_vault, _underlyingToken, _liquidityPool, _liquidityPoolTokenBalanceStake);
+    }
 
     /**
      * @inheritdoc IAdapterStaking
@@ -660,13 +669,7 @@ contract CurveSwapPoolAdapter is
         address _liquidityPool,
         uint256 _liquidityPoolTokenAmount
     ) internal returns (uint256) {
-        uint256 _b;
-        if (_liquidityPoolTokenAmount > 0) {
-            _b = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
-                _liquidityPoolTokenAmount,
-                _getTokenIndex(_liquidityPool, _underlyingToken)
-            );
-        }
+        uint256 _b = getSomeAmountInToken(_underlyingToken, _liquidityPool, _liquidityPoolTokenAmount);
         _b = _b.add(
             IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
                 getRewardToken(_liquidityPool),
