@@ -172,7 +172,7 @@ describe("CurveAdapters Unit test", () => {
                       expect(value[0].length).to.equal(depositAmount.length);
                       expect(value[0][0]).to.equal(depositAmount[0]);
                     }
-                    expect(value[1]).to.equal(0);
+                    expect(value[1]).to.be.gte(0);
                   }
 
                   break;
