@@ -288,8 +288,8 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "fundTestDeFiAdapterContract": {
-                      let underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                      if (underlyingBalance.lt(defaultFundAmount)) {
+                      const underlyingBalanceBefore: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      if (underlyingBalanceBefore.lt(defaultFundAmount)) {
                         await fundWalletToken(
                           hre,
                           underlyingTokenAddress,
@@ -298,8 +298,8 @@ describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
                           timestamp,
                           testDeFiAdapter.address,
                         );
-                        underlyingBalance = await ERC20Instance.balanceOf(testDeFiAdapter.address);
-                        expect(underlyingBalance).to.be.gte(defaultFundAmount);
+                        const underlyingBalanceAfter = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                        expect(underlyingBalanceAfter).to.gte(underlyingBalanceBefore);
                       }
                       break;
                     }
