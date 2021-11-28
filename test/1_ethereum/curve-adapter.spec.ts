@@ -468,6 +468,10 @@ describe("CurveAdapters Unit test", () => {
                         console.log("skipping as underlying token is not a vault token");
                         this.skip();
                       }
+                      if (rewardTokenAddress == ADDRESS_ZERO) {
+                        console.log("skipping as the pool does not have reward token");
+                        this.skip();
+                      }
 
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
@@ -490,6 +494,10 @@ describe("CurveAdapters Unit test", () => {
                     case "testGetHarvestSomeCodes(address,address,address,uint256)": {
                       if (!vaultUnderlyingTokens.includes(getAddress(underlyingTokenAddress))) {
                         console.log("Skipping as underlying token is not vault token");
+                        this.skip();
+                      }
+                      if (rewardTokenAddress == ADDRESS_ZERO) {
+                        console.log("skipping as the pool does not have reward token");
                         this.skip();
                       }
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
