@@ -239,7 +239,7 @@ describe("CurveAdapters Unit test", () => {
     });
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
-      describe(`Test-${curveAdapterName}`, () => {
+      describe.only(`Test-${curveAdapterName}`, () => {
         const pools = Object.keys(TypedDefiPools[curveAdapterName]);
         for (const pool of pools) {
           if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
@@ -805,10 +805,11 @@ describe("CurveAdapters Unit test", () => {
                         expect(underlyingBalanceAfter).to.be.lte(underlyingBalanceBefore);
                       } else {
                         if (underlyingBalanceBefore.lt(limitInUnderlyingToken)) {
+                          const delta = BigNumber.from("9").mul(to_10powNumber_BN(decimals - Math.floor(decimals / 6)));
                           POOLED_TOKENS.includes(underlyingTokenAddress)
                             ? expectedValue == ">"
                               ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
-                              : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), 1200000000000)
+                              : expect(underlyingBalanceAfter).to.be.closeTo(BigNumber.from("0"), delta.toNumber())
                             : expectedValue == ">"
                             ? expect(underlyingBalanceAfter).to.be.gt(underlyingBalanceBefore)
                             : expect(underlyingBalanceAfter).to.be.eq(BigNumber.from("0"));
