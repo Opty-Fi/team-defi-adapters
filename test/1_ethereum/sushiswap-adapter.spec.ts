@@ -15,6 +15,7 @@ import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-acti
 import scenarios from "./scenarios/adapters.json";
 import testDeFiAdapterScenario from "./scenarios/sushiswap-test-defi-adapter.json";
 import { ERC20 } from "../../typechain/ERC20";
+import { WebSocketProvider } from "@ethersproject/providers";
 
 chai.use(solidity);
 

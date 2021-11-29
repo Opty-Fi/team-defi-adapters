@@ -90,7 +90,10 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     }
 
     case getAddress(TypedTokens.TBTC):
-    case getAddress(TypedTokens.WBTC):
+    case getAddress(TypedTokens.WBTC): {
+      defaultFundAmount = BigNumber.from("5").mul(to_10powNumber_BN(decimal));
+      break;
+    }
     case getAddress(TypedTokens.YFI):
     case getAddress(TypedTokens.CREAM):
     case getAddress(TypedTokens.WNXM):
