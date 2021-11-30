@@ -68,7 +68,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
 
   for (let i = 0; i < strategies.length; i++) {
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
-      // console.log("Running 1st describe");
       const strategy = strategies[i];
       const token = VAULT_TOKENS[strategy.token].address;
       let lpProvider: Contract;
@@ -240,7 +239,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
   describe.only(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
     const adapterNames = Object.keys(TypedDefiPools);
     let testDeFiAdapter: Contract;
-    // console.log("Running 2nd describe");
 
     before(async () => {
       testDeFiAdapter = await deployContract(hre, "TestDeFiAdapter", false, users["owner"], []);
@@ -251,26 +249,14 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
       if (adapterName == "AaveV1Adapter") {
         const pools = Object.keys(TypedDefiPools[adapterName]);
         for (const pool of pools) {
-          // if (pool !== "weth") {
-          //   continue;
-          // }
           const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
           const liquidityPool = TypedDefiPools[adapterName][pool].pool;
           const lpToken = TypedDefiPools[adapterName][pool].lpToken;
           if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
             for (const story of testDeFiAdapterScenario.stories) {
-              // for (let i = 0; i <= testDeFiAdapterScenario.stories.length; i++ ) {
-
-              // for (let i = 0; i < 1; i++) {
-              //   const story = testDeFiAdapterScenario.stories[i];
-
               it(`${pool} - ${story.description}`, async function () {
                 const adapterAddress = aaveV1Adapter.address;
-                if (
-                  underlyingTokenAddress == getAddress(TypedTokens["REP"])
-                  // ||
-                  // underlyingTokenAddress == getAddress(TypedTokens["ETH"])
-                ) {
+                if (underlyingTokenAddress == getAddress(TypedTokens["REP"])) {
                   this.skip();
                 }
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
@@ -314,10 +300,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                 let isWithdrawSome: boolean = false;
 
                 for (const action of story.setActions) {
-                  // console.log("Set Actions");
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
-                      // console.log("Set action 1");
                       const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                       const existingMode = await aaveV1Adapter.maxDepositProtocolMode();
                       if (mode) {
@@ -331,41 +315,27 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      // console.log("Set Action 2");
                       const existingPoolPct: BigNumber = await aaveV1Adapter.maxDepositPoolPct(liquidityPool);
-                      // console.log("Step-1");
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
-                        // console.log("Step-2");
-                        // await aaveV1Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
                         await aaveV1Adapter.setMaxDepositPoolPct(liquidityPool, 0);
                       }
-                      // console.log("Step-3");
                       const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                       const existingProtocolPct: BigNumber = await aaveV1Adapter.maxDepositProtocolPct();
-                      // console.log("Step-4");
 
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        // console.log("Step-5");
                         await aaveV1Adapter[action.action](maxDepositProtocolPct);
-                        // console.log("Step-6");
                         await expect(aaveV1Adapter[action.action](maxDepositProtocolPct))
                           .to.emit(aaveV1Adapter, "LogMaxDepositProtocolPct")
                           .withArgs(maxDepositProtocolPct, ownerAddress);
-                        // console.log("Step-7");
                         expect(await aaveV1Adapter.maxDepositProtocolPct()).to.equal(maxDepositProtocolPct);
-                        // console.log("Step-8");
                       }
 
-                      // console.log("Step-9");
                       const poolValue: BigNumber = await aaveV1Adapter.getPoolValue(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
-                      // console.log("Step-10");
                       limit = poolValue.mul(BigNumber.from(maxDepositProtocolPct)).div(BigNumber.from(10000));
-                      // console.log("Step-11");
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      // console.log("Step-12");
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
@@ -394,18 +364,14 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       } else if (maxDepositAmount === "<") {
                         amount = defaultFundAmount.div(BigNumber.from("10"));
                       }
-                      // console.log("T: Set Max Deposit Amount: ", +amount);
                       const existingDepositAmount: BigNumber = await aaveV1Adapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
                       );
-                      // console.log("T: Existing Max Deposit Amount: ", +existingDepositAmount);
                       if (!existingDepositAmount.eq(amount)) {
-                        // console.log("T: Coming in if condition if existing and cal. max deposit amount is not same");
                         await expect(aaveV1Adapter[action.action](liquidityPool, underlyingTokenAddress, amount))
                           .to.emit(aaveV1Adapter, "LogMaxDepositAmount")
                           .withArgs(amount, ownerAddress);
-                        // console.log("Check-1 done");
                         expect(
                           await aaveV1Adapter.maxDepositAmount(
                             liquidityPool,
@@ -417,13 +383,10 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                         liquidityPool,
                         underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
                       );
-                      // console.log("Limit: ", limit);
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
-                      // console.log("Default fund amt: ", defaultFundAmount);
                       break;
                     }
                     case "fundTestDeFiAdapterContract": {
-                      // console.log("Set Action 3");
                       const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalance.lt(defaultFundAmount)) {
                         await fundWalletToken(
@@ -438,7 +401,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "testGetDepositAllCodes(address,address,address)": {
-                      // console.log("Set Action 4");
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
@@ -460,7 +422,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
-                      // console.log("Set Action 5");
                       isWithdrawSome = true;
                       underlyingBalanceBefore = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalance: BigNumber = await aaveV1Adapter.getLiquidityPoolTokenBalance(
@@ -516,7 +477,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getPoolValue(address,address)": {
-                      // console.log("Step-1");
                       const poolValue = await aaveV1Adapter[action.action](liquidityPool, underlyingTokenAddress);
                       const expectedPoolValue = (
                         await lendingPoolInstance.getReserveData(
@@ -539,7 +499,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      // console.log("Set Action 4.1");
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       const lpTokenBalance = await aaveV1Adapter[action.action](
@@ -547,26 +506,22 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      // console.log("Lp Token balance: ", +lpTokenBalance);
                       const poolValue = await aaveV1Adapter["getPoolValue(address,address)"](
                         liquidityPool,
                         underlyingTokenAddress,
                       );
                       const existingMode = await aaveV1Adapter.maxDepositProtocolMode();
-                      // console.log("Existing mode: ", existingMode);
                       if (existingMode == 0) {
                         const existingDepositAmount: BigNumber = await aaveV1Adapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
                         );
-                        // console.log("Existing Deposit amount: ", +existingDepositAmount);
                         if (existingDepositAmount.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else {
                           expect(lpTokenBalance).to.be.gt(0);
                         }
                       } else {
-                        // console.log("Else condition");
                         const existingPoolPct: BigNumber = await aaveV1Adapter.maxDepositPoolPct(liquidityPool);
                         const existingProtocolPct: BigNumber = await aaveV1Adapter.maxDepositProtocolPct();
                         if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
@@ -576,11 +531,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                             if (isWithdrawSome === false) {
                               expect(lpTokenBalance).to.be.eq(0);
                             } else {
-                              // console.log("Expected > 0");
                               const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
                               expect(lpTokenBalanceBefore).to.be.closeTo(underlyingBalanceAfter, delta.toNumber());
-                              // console.log("Check passed..");
-                              // expect(lpTokenBalanceBefore).to.be.eq(underlyingBalanceAfter);
                             }
                           } else {
                             expect(lpTokenBalance).to.be.gt(0);
@@ -590,7 +542,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "balanceOf(address)": {
-                      // console.log("Set Action 4.2");
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       if (underlyingBalanceBefore.lt(limit)) {
@@ -741,7 +692,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                           ])
                         )[2];
                         const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                        expect(amountInUnderlyingToken).to.be.closeTo(result, 500);
+                        const delta = BigNumber.from("9").mul(to_10powNumber_BN(5));
+                        expect(amountInUnderlyingToken).to.be.closeTo(result, delta.toNumber());
                       }
                       break;
                     }
@@ -815,7 +767,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.cleanActions) {
                   switch (action.action) {
                     case "fundTestDeFiAdapterContract": {
-                      // console.log("Clean Action: 1");
                       const underlyingBalance: BigNumber = await borrowTokenInstance.balanceOf(testDeFiAdapter.address);
                       await fundWalletToken(
                         hre,
@@ -828,12 +779,10 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "testGetWithdrawAllCodes(address,address,address)": {
-                      // console.log("Clean Action: 2");
                       await testDeFiAdapter[action.action](underlyingTokenAddress, liquidityPool, adapterAddress);
                       break;
                     }
                     case "testGetRepayAndWithdrawAllCodes(address,address,address,address)": {
-                      // console.log("Clean Action: 3");
                       await moveToNextBlock(hre);
                       await testDeFiAdapter[action.action](
                         liquidityPool,
@@ -844,12 +793,10 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "setMaxDepositProtocolMode(uint8)": {
-                      // console.log("Clean Action: 4");
                       await aaveV1Adapter[action.action](0);
                       break;
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
-                      // console.log("Clean Action: 5");
                       const existingPoolPct: BigNumber = await aaveV1Adapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(0)) {
                         await aaveV1Adapter[action.action](liquidityPool, 0);
@@ -857,7 +804,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      // console.log("Clean Action: 6");
                       const existingPoolPct: BigNumber = await aaveV1Adapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
                         await aaveV1Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
@@ -865,7 +811,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "burnTokens": {
-                      // console.log("Clean Action: 7");
                       await testDeFiAdapter.burnBorrowTokens(borrowToken);
                       break;
                     }
@@ -874,7 +819,6 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      // console.log("Set Action 5.1");
                       const lpTokenBalance = await aaveV1Adapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
@@ -884,10 +828,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "balanceOf(address)": {
-                      // console.log("Set Action 5.2");
                       const underlyingBalance: BigNumber = await ERC20Instance.balanceOf(testDeFiAdapter.address);
                       expect(underlyingBalance).to.be.gt(0);
-                      // console.log("Set Action 5.3");
                       break;
                     }
                   }
