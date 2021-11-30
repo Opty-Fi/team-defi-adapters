@@ -43,11 +43,7 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
         address weth,
         address _registry,
         address _aeth
-    )
-        public
-        // ) public {
-        Modifiers(_registry)
-    {
+    ) public Modifiers(_registry) {
         WETH = IWETH(weth);
         AETH = _aeth;
     }
