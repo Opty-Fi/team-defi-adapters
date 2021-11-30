@@ -62,7 +62,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
       );
       assert.isDefined(aaveV1Adapter, "Adapter not deployed");
     } catch (error) {
-      // console.log(error);
+      console.log(error);
     }
   });
 
