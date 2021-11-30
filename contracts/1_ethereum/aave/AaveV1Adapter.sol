@@ -31,8 +31,6 @@ import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contr
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
 import { AaveV1ETHGateway } from "./AaveV1ETHGateway.sol";
 
-// import "hardhat/console.sol";
-
 /**
  * @title Adapter for AaveV1 protocol
  * @author Opty.fi
@@ -144,11 +142,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory) {
-        // console.log("Step:1.1", _vault);
-        // console.log("Step:1.2", _underlyingToken);
-        // console.log("Step:1.3", _liquidityPoolAddressProvider);
         uint256 _amount = ERC20(_underlyingToken).balanceOf(_vault);
-        // console.log("Step2:", _amount);
         return getDepositSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, _amount);
     }
 
@@ -394,17 +388,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _liquidityPoolAddressProvider,
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
-        // console.log("Step-3.1: _vault = ", _vault);
-        // console.log("Step-3.2: _underlyingToken = ", _underlyingToken);
-        // console.log("Step-3.3: _liquidityPoolAddressProvider = ", _liquidityPoolAddressProvider);
-
-        // _underlyingToken = address(_underlyingToken) == WETH ? ETH : _underlyingToken;
         _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
-
-        // console.log("Step-4.1: _underlyingToken = ", _underlyingToken);
-
         uint256 _depositAmount = _getDepositAmount(_liquidityPoolAddressProvider, _underlyingToken, _amount);
-        // console.log("Step-4.2: _depositAmount = ", _depositAmount);
         if (_depositAmount > 0) {
             address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
             ReserveConfigurationData memory _inputTokenReserveConfigurationData =
@@ -430,15 +415,6 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
             );
 
             if (address(_underlyingToken) == ETH) {
-                // console.log("Coming in ETH condition");
-                // _codes[0] = abi.encode(
-                //     WETH,
-                //     abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, uint256(0))
-                // );
-                // _codes[1] = abi.encode(
-                //     WETH,
-                //     abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, _depositAmount)
-                // );
                 _codes[2] = abi.encode(
                     aaveV1ETHGatewayContract,
                     abi.encodeWithSignature(
@@ -450,19 +426,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                         int128(0)
                     )
                 );
-                // console.log("Received deposit codes ");
-                // console.logBytes(_codes[0]);
-                // console.logBytes(_codes[1]);
-                // console.logBytes(_codes[2]);
             } else {
-                // _codes[0] = abi.encode(
-                //     _underlyingToken,
-                //     abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, uint256(0))
-                // );
-                // _codes[1] = abi.encode(
-                //     _underlyingToken,
-                //     abi.encodeWithSignature("approve(address,uint256)", _lendingPoolCore, _depositAmount)
-                // );
                 _codes[2] = abi.encode(
                     _lendingPool,
                     abi.encodeWithSignature(
@@ -473,12 +437,6 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                     )
                 );
             }
-
-            // _codes[2] = abi.encode(
-            //     _lendingPool,
-            //     abi.encodeWithSignature("deposit(address,uint256,uint16)", _underlyingToken,
-            // _depositAmount, uint16(0))
-            // );
         }
     }
 
@@ -493,15 +451,8 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     ) public view override returns (bytes[] memory _codes) {
         _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
         uint256 _vaultBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
-        // console.log("Amount: ", _amount);
-        // console.log("_vaultBalance: ", _vaultBalance);
         if (_amount > 0 && _vaultBalance != uint256(0)) {
             if (_underlyingToken == ETH) {
-                // console.log("Coming in Withdraw ETH condition");
-
-                // address _lendingPool = _getLendingPool(_liquidityPoolAddressProvider);
-                // console.log("Lending Pool: ", _lendingPool);
-
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
                     AETH,
@@ -522,35 +473,13 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                         int128(0)
                     )
                 );
-                // _codes[2] = abi.encode(
-                //     aaveV1ETHGatewayContract,
-                //     abi.encodeWithSignature(
-                //         "withdrawETH(address,address,address,uint256,int128)",
-                //         _vault,
-                //         AETH,
-                //         AETH,
-                //         uint256(_amount),
-                //         int128(0)
-                //     )
-                // );
-                // console.log("Receiced withdraw codes");
-                // console.logBytes(_codes[0]);
-                // console.logBytes(_codes[1]);
-                // console.logBytes(_codes[2]);
             } else {
-                // console.log("Else condition");
                 _codes = new bytes[](1);
                 _codes[0] = abi.encode(
                     getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
                     abi.encodeWithSignature("redeem(uint256)", _amount)
                 );
             }
-
-            // _codes = new bytes[](1);
-            // _codes[0] = abi.encode(
-            //     getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
-            //     abi.encodeWithSignature("redeem(uint256)", _amount)
-            // );
         }
     }
 
@@ -588,14 +517,6 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (uint256) {
-        // console.log("Checking balance");
-        // uint256 _vaultLpBal = ERC20(address(AETH)).balanceOf(_vault);
-        // console.log("_Vault Lp Balance: ", _vaultLpBal);
-
-        // console.log(
-        //     "Aeth: ",
-        //     getLiquidityPoolToken(_getToggledUnderlyingToken(_underlyingToken), _liquidityPoolAddressProvider)
-        // );
         return
             ERC20(getLiquidityPoolToken(_getToggledUnderlyingToken(_underlyingToken), _liquidityPoolAddressProvider))
                 .balanceOf(_vault);
@@ -637,19 +558,11 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         uint256 _amount
     ) internal view returns (uint256) {
-        // console.log("C: maxDepositProtocolMode = ", maxDepositProtocolMode);
-        // console.log("C: MaxExposurePct = ", MaxExposure.Pct);
-        // console.log(
-        //     "C: _limit before = ",
-        //     maxDepositAmount[_liquidityPool][_getToggledUnderlyingToken(_underlyingToken)]
-        // );
         _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
         uint256 _limit =
             maxDepositProtocolMode == MaxExposure.Pct
                 ? _getMaxDepositAmountByPct(_liquidityPool, _underlyingToken)
                 : maxDepositAmount[_liquidityPool][_underlyingToken];
-        // console.log("C: _limit after conditional = ", _limit);
-        // console.log("C: _amount after conditional = ", _amount);
         return _amount > _limit ? _limit : _amount;
     }
 

@@ -12,8 +12,6 @@ import { ILendingPool } from "@optyfi/defi-legos/ethereum/aave/contracts/ILendin
 import { IAaveV1Token } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1Token.sol";
 import { IETHGateway } from "@optyfi/defi-legos/interfaces/misc/contracts/IETHGateway.sol";
 
-// import "hardhat/console.sol";
-
 /**
  * @title ETH gateway for opty-fi's AaveV1 adapter
  * @author Opty.fi
@@ -64,72 +62,10 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
         uint256[2] memory _amounts,
         int128
     ) external override {
-        // //------//
-        // console.log("Gateway Step-1: _vault = ", _vault);
-        // console.log("Gateway Step-1: _lendingPool = ", _lendingPool);
-        // console.log("Gateway Step-1: _liquidityPool = ", _liquidityPool);
-        // console.log("This address Step-1: ThisAddress = ", address(this));
-        // uint256 _vaultWethBalBefore = IERC20(address(WETH)).balanceOf(_vault);
-        // uint256 _gatewayWethBalBefore = IERC20(address(WETH)).balanceOf(address(this));
-        // console.log("Vault WETH bal before: ", _vaultWethBalBefore);
-        // console.log("Gateway WETH bal before: ", _gatewayWethBalBefore);
-        // console.log("Amounts[0]: ", _amounts[0]);
-        // //------//
-
-        // //------//
-        // uint256 _allowanceBefore = IERC20(address(WETH)).allowance(_vault, address(this));
-        // console.log("Allowance before: ", _allowanceBefore);
-        // //------//
-
         IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[0]);
-
-        // //------//
-        // uint256 _allowanceAfter = IERC20(address(WETH)).allowance(_vault, address(this));
-        // console.log("Allowance after: ", _allowanceAfter);
-        // //------//
-        // //------//
-        // uint256 _vaultWethBalAfter = IERC20(address(WETH)).balanceOf(_vault);
-        // uint256 _gatewayWethBalAfter = IERC20(address(WETH)).balanceOf(address(this));
-        // console.log("Vault WETH bal after: ", _vaultWethBalAfter);
-        // console.log("Gateway WETH bal after: ", _gatewayWethBalAfter);
-        // //------//
-
         WETH.withdraw(_amounts[0]);
-
-        // //------//
-        // uint256 _vaultWethBalAfterWithdraw = IERC20(address(WETH)).balanceOf(_vault);
-        // uint256 _gatewayWethBalAfterWithdraw = IERC20(address(WETH)).balanceOf(address(this));
-        // console.log("Vault WETH bal after Withdraw: ", _vaultWethBalAfterWithdraw);
-        // console.log("Gateway WETH bal after Withdraw: ", _gatewayWethBalAfterWithdraw);
-        // //------//
-
-        // uint256 _ethValue = address(this).balance;
-        // console.log("_ETH value: ", _ethValue);
-
         ILendingPool(_lendingPool).deposit{ value: address(this).balance }(ETH, _amounts[0], uint16(0));
-
-        // console.log("Transferred");
-
-        // //------//
-        // uint256 _vaultLpBalBefore = IERC20(_liquidityPool).balanceOf(_vault);
-        // uint256 _gatewayLpBalBefore = IERC20(_liquidityPool).balanceOf(address(this));
-        // console.log("Vault Lp bal before: ", _vaultLpBalBefore);
-        // console.log("Gateway Lp bal before: ", _gatewayLpBalBefore);
-        // //------//
-
         IERC20(_liquidityPool).transfer(_vault, IERC20(_liquidityPool).balanceOf(address(this)));
-
-        // //------//
-        // uint256 _vaultLpBalAfter = IERC20(_liquidityPool).balanceOf(_vault);
-        // uint256 _gatewayLpBalAfter = IERC20(_liquidityPool).balanceOf(address(this));
-        // console.log("Vault Lp bal after: ", _vaultLpBalAfter);
-        // console.log("Gateway Lp bal after: ", _gatewayLpBalAfter);
-        // //------//
-
-        // IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[0]);
-        // WETH.withdraw(_amounts[0]);
-        // ICompound(_liquidityPool).mint{ value: address(this).balance }();
-        // IERC20(_liquidityPool).transfer(_vault, IERC20(_liquidityPool).balanceOf(address(this)));
     }
 
     /**
@@ -142,29 +78,10 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
         uint256 _amount,
         int128
     ) external override {
-        // console.log("_amount = ", _amount);
         IERC20(_liquidityPool).transferFrom(_vault, address(this), _amount);
-
-        // //--------//
-        // uint256 _vaultLpBalBefore = IERC20(_liquidityPool).balanceOf(_vault);
-        // uint256 _gatewayLpBalBefore = IERC20(_liquidityPool).balanceOf(address(this));
-        // console.log("Vault Lp Before redeem: ", _vaultLpBalBefore);
-        // console.log("Gateway Lp Before redeem: ", _gatewayLpBalBefore);
-        // //--------//
-
         IAaveV1Token(_liquidityPool).redeem(_amount);
-        // ILendingPool(_lendingPool).redeemUnderlying(ETH, address(this) , _amount);
-        // console.log("Redeem finished");
-        // ILendingPool(_lendingPool).redeem(_amount);
         WETH.deposit{ value: address(this).balance }();
-        // console.log("Eth with completed");
         IERC20(address(WETH)).transfer(_vault, IERC20(address(WETH)).balanceOf(address(this)));
-        // console.log("Withdraw finished");
-
-        // IERC20(_liquidityPool).transferFrom(_vault, address(this), _amount);
-        // ICompound(_liquidityPool).redeem(_amount);
-        // WETH.deposit{ value: address(this).balance }();
-        // IERC20(address(WETH)).transfer(_vault, IERC20(address(WETH)).balanceOf(address(this)));
     }
 
     /**
