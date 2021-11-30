@@ -25,7 +25,7 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
     address public immutable AETH;
 
     // solhint-disable-next-line var-name-mixedcase
-    address public immutable ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+    address public constant ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     // solhint-disable-next-line var-name-mixedcase
     address public AaveV1LendingPool = address(0x398eC7346DcD622eDc5ae82352F02bE94C62d119);

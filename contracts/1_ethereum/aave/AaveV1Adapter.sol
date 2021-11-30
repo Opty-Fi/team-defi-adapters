@@ -79,7 +79,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
     // solhint-disable-next-line var-name-mixedcase
-    address public immutable ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+    address public constant ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     /** @dev ETH gateway contract for aavev1 adapter */
     address public immutable aaveV1ETHGatewayContract;
@@ -746,7 +746,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         }
     }
 
-    function _getToggledUnderlyingToken(address _underlyingToken) internal view returns (address) {
+    function _getToggledUnderlyingToken(address _underlyingToken) internal pure returns (address) {
         return _underlyingToken == WETH ? ETH : _underlyingToken;
     }
 }
