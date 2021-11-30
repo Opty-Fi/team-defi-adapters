@@ -746,7 +746,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         }
     }
 
-    function _getToggledUnderlyingToken(address _underlyingToken) internal view returns (address) {
+    function _getToggledUnderlyingToken(address _underlyingToken) internal pure returns (address) {
         return _underlyingToken == WETH ? ETH : _underlyingToken;
     }
 }
