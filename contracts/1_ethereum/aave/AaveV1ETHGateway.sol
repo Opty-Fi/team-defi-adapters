@@ -28,10 +28,10 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
     address public immutable ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     // solhint-disable-next-line var-name-mixedcase
-    address public AaveLendingPool = address(0x398eC7346DcD622eDc5ae82352F02bE94C62d119);
+    address public AaveV1LendingPool = address(0x398eC7346DcD622eDc5ae82352F02bE94C62d119);
 
     // solhint-disable-next-line var-name-mixedcase
-    address public AaveLendingPoolCore = address(0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3);
+    address public AaveV1LendingPoolCore = address(0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3);
 
     /**
      * @dev Sets the WETH and AETH (AaveV1 Eth pool) addresses along with registry.
@@ -106,6 +106,24 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
     }
 
     /**
+     *  @notice Function to set the AaveV1's Lending pool
+     *  @param _aaveV1LendingPool AaveV1's Lending pool contract address
+     */
+    function setAaveV1LendingPool(address _aaveV1LendingPool) public onlyOperator {
+        require(_aaveV1LendingPool.isContract(), "!isContract");
+        AaveV1LendingPool = _aaveV1LendingPool;
+    }
+
+    /**
+     *  @notice Function to set the AaveV1's Lending pool core
+     *  @param _aaveV1LendingPoolCore AaveV1's Lending pool core contract address
+     */
+    function setAaveV1LendingPoolCore(address _aaveV1LendingPoolCore) public onlyOperator {
+        require(_aaveV1LendingPoolCore.isContract(), "!isContract");
+        AaveV1LendingPoolCore = _aaveV1LendingPoolCore;
+    }
+
+    /**
      * @dev transfer ETH to an address, revert if it fails.
      * @param _to recipient of the transfer
      * @param _value the amount to send
@@ -124,8 +142,8 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
         require(
             msg.sender == address(WETH) ||
                 msg.sender == address(AETH) ||
-                msg.sender == AaveLendingPool ||
-                msg.sender == AaveLendingPoolCore,
+                msg.sender == AaveV1LendingPool ||
+                msg.sender == AaveV1LendingPoolCore,
             "Receive not allowed"
         );
     }

@@ -236,7 +236,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
     });
   }
 
-  describe(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
+  describe.only(`${testDeFiAdapterScenario.title} - AaveV1Adapter`, () => {
     const adapterNames = Object.keys(TypedDefiPools);
     let testDeFiAdapter: Contract;
 
