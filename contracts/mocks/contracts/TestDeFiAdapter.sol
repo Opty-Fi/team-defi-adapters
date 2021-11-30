@@ -10,6 +10,8 @@ import {
     ICurveLiquidityGauge as ICurveGauge
 } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveLiquidityGauge.sol";
 import { ICurveZap as ICurveDeposit } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveZap.sol";
+import { ICurveSwap } from "@optyfi/defi-legos/ethereum/curve/contracts/interfacesV0/ICurveSwap.sol";
+
 import "../../1_ethereum/interfaces/IHarvestCodeProvider.sol";
 
 interface IUniswapV2Factory {
@@ -26,11 +28,25 @@ import { IAdapterFull } from "@optyfi/defi-legos/interfaces/defiAdapters/contrac
 
 contract TestDeFiAdapter is MultiCall {
     using SafeMath for uint256;
+
+    /** @notice Curve's iron bank swap contract address */
+    address public constant Y_SWAP_POOL = address(0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF);
+    address public constant DAI = address(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    address public constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    address public constant USDT = address(0xdAC17F958D2ee523a2206206994597C13D831ec7);
     uint256 public allAmountInTokenStakeWrite;
     uint256 public calculateRedeemableLPTokenAmountStakeWrite;
     uint256 public unclaimedRewardTokenAmountWrite;
     uint256 public underlyingTokenBalance;
     bool public isRedeemableAmountSufficientStakeWrite;
+
+    mapping(address => bool) public yearnCurveStableCoin;
+
+    constructor() public {
+        yearnCurveStableCoin[DAI] = true;
+        yearnCurveStableCoin[USDC] = true;
+        yearnCurveStableCoin[USDT] = true;
+    }
 
     function testGetDepositAllCodes(
         address _underlyingToken,
@@ -111,7 +127,7 @@ contract TestDeFiAdapter is MultiCall {
         uint256 _stakedLpTokenBalance = ERC20(_liquidityGauge).balanceOf(address(this));
         uint256 _amountInToken = 0;
         if (_stakedLpTokenBalance > 0) {
-            _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+            _amountInToken = _getAmountInToken(_liquidityPool, _underlyingToken, _stakedLpTokenBalance, _tokenIndex);
         }
         uint256 _curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
         uint256 _amountInTokenHarvest =
@@ -142,7 +158,7 @@ contract TestDeFiAdapter is MultiCall {
         uint256 _stakedLpTokenBalance = ERC20(_liquidityGauge).balanceOf(address(this));
         uint256 _amountInToken = 0;
         if (_stakedLpTokenBalance > 0) {
-            _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+            _amountInToken = _getAmountInToken(_liquidityPool, _underlyingToken, _stakedLpTokenBalance, _tokenIndex);
         }
         uint256 _curveClaimableTokensWrite = ICurveGauge(_liquidityGauge).claimable_tokens(address(this));
         uint256 _amountInTokenHarvest =
@@ -184,7 +200,9 @@ contract TestDeFiAdapter is MultiCall {
         uint256 _allAmountInToken;
         {
             if (_stakedLpTokenBalance > 0) {
-                _amountInToken = ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(
+                _amountInToken = _getAmountInToken(
+                    _liquidityPool,
+                    _underlyingToken,
                     _stakedLpTokenBalance,
                     _tokenIndex
                 );
@@ -373,5 +391,18 @@ contract TestDeFiAdapter is MultiCall {
             address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
             ERC20(_borrowToken).balanceOf(address(this))
         );
+    }
+
+    function _getAmountInToken(
+        address _liquidityPool,
+        address _underlyingToken,
+        uint256 _stakedLpTokenBalance,
+        int128 _tokenIndex
+    ) internal view returns (uint256) {
+        if (yearnCurveStableCoin[_underlyingToken] && _liquidityPool == Y_SWAP_POOL) {
+            return ICurveSwap(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex, true);
+        } else {
+            return ICurveDeposit(_liquidityPool).calc_withdraw_one_coin(_stakedLpTokenBalance, _tokenIndex);
+        }
     }
 }

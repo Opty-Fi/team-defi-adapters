@@ -1232,6 +1232,24 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": {}
+        },
+        {
+          "contract": "adapter",
+          "action": "getAllAmountInTokenStake(address,address,address)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficientStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
         }
       ],
       "cleanActions": [
@@ -1313,6 +1331,24 @@
           "action": "balanceOf(address)",
           "executer": "owner",
           "expectedValue": {}
+        },
+        {
+          "contract": "adapter",
+          "action": "getAllAmountInTokenStake(address,address,address)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficientStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
         }
       ],
       "cleanActions": [
@@ -1924,6 +1960,24 @@
           "action": "testCalculateRedeemableLPTokenAmountStakeWrite(address,address,address,address,address,int128,address)",
           "executer": "owner",
           "expectedValue": {}
+        },
+        {
+          "contract": "adapter",
+          "action": "getAllAmountInTokenStake(address,address,address)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "isRedeemableAmountSufficientStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
+        },
+        {
+          "contract": "adapter",
+          "action": "calculateRedeemableLPTokenAmountStake(address,address,address,uint256)",
+          "executer": "owner",
+          "expectedValue": ""
         }
       ],
       "cleanActions": [
