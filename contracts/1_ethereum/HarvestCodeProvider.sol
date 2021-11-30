@@ -157,12 +157,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256 _borrowTokenAmount
     ) public view override returns (uint256) {
         if (_borrowTokenAmount > 0) {
-            uint256[] memory _amounts;
-            _amounts = IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
-                _borrowTokenAmount,
-                _getPath(_borrowToken, _underlyingToken)
-            );
-            return _amounts[_amounts.length - 1];
+            try
+                IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+                    _borrowTokenAmount,
+                    _getPath(_borrowToken, _underlyingToken)
+                )
+            returns (uint256[] memory _amounts) {
+                return _amounts[_amounts.length - 1];
+            } catch {
+                return uint256(0);
+            }
         }
         return uint256(0);
     }
@@ -193,12 +197,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         uniswapV2Router02
                     );
             } else {
-                uint256[] memory _amountsA =
+                try
                     IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
                         _amount,
                         _getPath(_rewardToken, _underlyingToken)
-                    );
-                return _amountsA[_amountsA.length - 1];
+                    )
+                returns (uint256[] memory _amountsA) {
+                    return _amountsA[_amountsA.length - 1];
+                } catch {
+                    return uint256(0);
+                }
             }
         }
     }
