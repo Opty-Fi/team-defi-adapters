@@ -78,6 +78,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.DUSD):
     case getAddress(TypedTokens.HUSD):
     case getAddress(TypedTokens.MUSD):
+    case getAddress(TypedTokens.FARM):
     case getAddress(TypedTokens.BUSD):
     case getAddress(TypedTokens.RSV):
     case getAddress(TypedTokens.YCRV):
@@ -88,7 +89,6 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
       break;
     }
-
     case getAddress(TypedTokens.TBTC):
     case getAddress(TypedTokens.WBTC): {
       defaultFundAmount = BigNumber.from("5").mul(to_10powNumber_BN(decimal));
@@ -110,6 +110,7 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.STETH):
     case getAddress(TypedTokens.RETH):
     case getAddress(TypedTokens.CRV):
+    case getAddress(TypedTokens.YVCURVE_SETH):
     case getAddress(TypedTokens.AETHC): {
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
       break;
@@ -130,7 +131,6 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 3));
       break;
     }
-
     case getAddress(TypedTokens.UNI_V2_WBTC_ETH):
     case getAddress(TypedTokens.UNI_V2_ETH_USDT):
     case getAddress(TypedTokens.UNI_V2_USDC_ETH):

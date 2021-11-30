@@ -172,9 +172,6 @@ describe(`${CREAM_ADAPTER_NAME} Unit Test`, () => {
 
     describe(`Test-${CREAM_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
-        if (pool !== "yvcurve_seth") {
-          continue;
-        }
         const poolDetail = TypedDefiPools[CREAM_ADAPTER_NAME][pool];
         const liquidityPool = poolDetail.pool;
         const underlyingTokenAddress =
