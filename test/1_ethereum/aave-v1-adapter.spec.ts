@@ -37,7 +37,7 @@ interface TEST_DEFI_ADAPTER_ARGUMENTS {
   mode?: string | null;
 }
 
-describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
+describe.only(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
   const strategies = TypedAdapterStrategies[AAVE_V1_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   const BORROW_AMOUNT = BigNumber.from("200000000000000000");

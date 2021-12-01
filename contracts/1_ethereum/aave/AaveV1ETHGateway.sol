@@ -11,6 +11,9 @@ import { IWETH } from "@optyfi/defi-legos/interfaces/misc/contracts/IWETH.sol";
 import { ILendingPool } from "@optyfi/defi-legos/ethereum/aave/contracts/ILendingPool.sol";
 import { IAaveV1Token } from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1Token.sol";
 import { IETHGateway } from "@optyfi/defi-legos/interfaces/misc/contracts/IETHGateway.sol";
+import {
+    IAaveV1LendingPoolAddressesProvider
+} from "@optyfi/defi-legos/ethereum/aave/contracts/IAaveV1LendingPoolAddressesProvider.sol";
 
 /**
  * @title ETH gateway for opty-fi's AaveV1 adapter
@@ -28,10 +31,10 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
     address public constant ETH = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     // solhint-disable-next-line var-name-mixedcase
-    address public AaveV1LendingPool = address(0x398eC7346DcD622eDc5ae82352F02bE94C62d119);
+    address public AaveV1LendingPool;
 
     // solhint-disable-next-line var-name-mixedcase
-    address public AaveV1LendingPoolCore = address(0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3);
+    address public AaveV1LendingPoolCore;
 
     /**
      * @dev Sets the WETH and AETH (AaveV1 Eth pool) addresses along with registry.
@@ -53,14 +56,17 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
      */
     function depositETH(
         address _vault,
-        address _lendingPool,
+        address _liquidityPoolAddressProvider,
         address _liquidityPool,
         uint256[2] memory _amounts,
         int128
     ) external override {
+        //  Setting AaveV1LendingPool and AaveV1LendingPoolCore as these are used in receive ETH function
+        AaveV1LendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+        AaveV1LendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         IERC20(address(WETH)).transferFrom(_vault, address(this), _amounts[0]);
         WETH.withdraw(_amounts[0]);
-        ILendingPool(_lendingPool).deposit{ value: address(this).balance }(ETH, _amounts[0], uint16(0));
+        ILendingPool(AaveV1LendingPool).deposit{ value: address(this).balance }(ETH, _amounts[0], uint16(0));
         IERC20(_liquidityPool).transfer(_vault, IERC20(_liquidityPool).balanceOf(address(this)));
     }
 
@@ -69,11 +75,14 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
      */
     function withdrawETH(
         address _vault,
-        address,
+        address _liquidityPoolAddressProvider,
         address _liquidityPool,
         uint256 _amount,
         int128
     ) external override {
+        //  Setting AaveV1LendingPool and AaveV1LendingPoolCore as these are used in receive ETH function
+        AaveV1LendingPool = _getLendingPool(_liquidityPoolAddressProvider);
+        AaveV1LendingPoolCore = _getLendingPoolCore(_liquidityPoolAddressProvider);
         IERC20(_liquidityPool).transferFrom(_vault, address(this), _amount);
         IAaveV1Token(_liquidityPool).redeem(_amount);
         WETH.deposit{ value: address(this).balance }();
@@ -106,24 +115,6 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
     }
 
     /**
-     *  @notice Function to set the AaveV1's Lending pool
-     *  @param _aaveV1LendingPool AaveV1's Lending pool contract address
-     */
-    function setAaveV1LendingPool(address _aaveV1LendingPool) public onlyOperator {
-        require(_aaveV1LendingPool.isContract(), "!isContract");
-        AaveV1LendingPool = _aaveV1LendingPool;
-    }
-
-    /**
-     *  @notice Function to set the AaveV1's Lending pool core
-     *  @param _aaveV1LendingPoolCore AaveV1's Lending pool core contract address
-     */
-    function setAaveV1LendingPoolCore(address _aaveV1LendingPoolCore) public onlyOperator {
-        require(_aaveV1LendingPoolCore.isContract(), "!isContract");
-        AaveV1LendingPoolCore = _aaveV1LendingPoolCore;
-    }
-
-    /**
      * @dev transfer ETH to an address, revert if it fails.
      * @param _to recipient of the transfer
      * @param _value the amount to send
@@ -132,6 +123,22 @@ contract AaveV1ETHGateway is IETHGateway, Modifiers {
         // solhint-disable-next-line avoid-low-level-calls
         (bool _success, ) = _to.call{ value: _value }(new bytes(0));
         require(_success, "ETH_TRANSFER_FAILED");
+    }
+
+    /**
+     * @dev Function to get the AaveV1's Lending Pool's address
+     * @param _lendingPoolAddressProvider AaveV1's Lending pool address provider contract's address
+     */
+    function _getLendingPool(address _lendingPoolAddressProvider) internal view returns (address) {
+        return IAaveV1LendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPool();
+    }
+
+    /**
+     * @dev Function to get the AaveV1's Lending Pool Core's address
+     * @param _lendingPoolAddressProvider AaveV1's Lending pool address provider contract's address
+     */
+    function _getLendingPoolCore(address _lendingPoolAddressProvider) internal view returns (address) {
+        return IAaveV1LendingPoolAddressesProvider(_lendingPoolAddressProvider).getLendingPoolCore();
     }
 
     /**

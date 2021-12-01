@@ -420,7 +420,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                     abi.encodeWithSignature(
                         "depositETH(address,address,address,uint256[2],int128)",
                         _vault,
-                        _lendingPool,
+                        _liquidityPoolAddressProvider,
                         AETH,
                         [uint256(_depositAmount), uint256(0)],
                         int128(0)
@@ -467,7 +467,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                     abi.encodeWithSignature(
                         "withdrawETH(address,address,address,uint256,int128)",
                         _vault,
-                        address(0),
+                        _liquidityPoolAddressProvider,
                         AETH,
                         _vaultBalance,
                         int128(0)
