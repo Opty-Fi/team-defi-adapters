@@ -20,6 +20,7 @@ import scenarios from "./scenarios/adapters.json";
 import testDeFiAdapterScenario from "./scenarios/aave-temp-defi-adapter.json";
 import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { IAaveV1LendingPoolCore } from "../../typechain";
+import { to_10powNumber_BN } from "../../helpers/utils";
 
 chai.use(solidity);
 
@@ -255,10 +256,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async function () {
                 const adapterAddress = aaveV1Adapter.address;
-                if (
-                  underlyingTokenAddress == getAddress(TypedTokens["REP"]) ||
-                  underlyingTokenAddress == getAddress(TypedTokens["ETH"])
-                ) {
+                if (underlyingTokenAddress == getAddress(TypedTokens["REP"])) {
                   this.skip();
                 }
                 const ERC20Instance = await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
@@ -319,7 +317,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                     case "setMaxDepositProtocolPct(uint256)": {
                       const existingPoolPct: BigNumber = await aaveV1Adapter.maxDepositPoolPct(liquidityPool);
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
-                        await aaveV1Adapter.setMaxDepositPoolPct(underlyingTokenAddress, 0);
+                        await aaveV1Adapter.setMaxDepositPoolPct(liquidityPool, 0);
                       }
                       const { maxDepositProtocolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
                       const existingProtocolPct: BigNumber = await aaveV1Adapter.maxDepositProtocolPct();
@@ -368,17 +366,23 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       }
                       const existingDepositAmount: BigNumber = await aaveV1Adapter.maxDepositAmount(
                         liquidityPool,
-                        underlyingTokenAddress,
+                        underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(amount)) {
                         await expect(aaveV1Adapter[action.action](liquidityPool, underlyingTokenAddress, amount))
                           .to.emit(aaveV1Adapter, "LogMaxDepositAmount")
                           .withArgs(amount, ownerAddress);
-                        expect(await aaveV1Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)).to.equal(
-                          amount,
-                        );
+                        expect(
+                          await aaveV1Adapter.maxDepositAmount(
+                            liquidityPool,
+                            underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
+                          ),
+                        ).to.equal(amount);
                       }
-                      limit = await aaveV1Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress);
+                      limit = await aaveV1Adapter.maxDepositAmount(
+                        liquidityPool,
+                        underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
+                      );
                       defaultFundAmount = defaultFundAmount.lte(limit) ? defaultFundAmount : limit;
                       break;
                     }
@@ -474,7 +478,11 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "getPoolValue(address,address)": {
                       const poolValue = await aaveV1Adapter[action.action](liquidityPool, underlyingTokenAddress);
-                      const expectedPoolValue = (await lendingPoolInstance.getReserveData(underlyingTokenAddress))[1];
+                      const expectedPoolValue = (
+                        await lendingPoolInstance.getReserveData(
+                          underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
+                        )
+                      )[1];
                       expect(poolValue).to.be.eq(expectedPoolValue);
                       break;
                     }
@@ -506,7 +514,7 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                       if (existingMode == 0) {
                         const existingDepositAmount: BigNumber = await aaveV1Adapter.maxDepositAmount(
                           liquidityPool,
-                          underlyingTokenAddress,
+                          underlyingTokenAddress == TypedTokens.WETH ? TypedTokens.ETH : underlyingTokenAddress,
                         );
                         if (existingDepositAmount.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
@@ -523,7 +531,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                             if (isWithdrawSome === false) {
                               expect(lpTokenBalance).to.be.eq(0);
                             } else {
-                              expect(lpTokenBalanceBefore).to.be.eq(underlyingBalanceAfter);
+                              const delta = BigNumber.from("9").mul(to_10powNumber_BN(15));
+                              expect(lpTokenBalanceBefore).to.be.closeTo(underlyingBalanceAfter, delta.toNumber());
                             }
                           } else {
                             expect(lpTokenBalance).to.be.gt(0);
@@ -683,7 +692,8 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
                           ])
                         )[2];
                         const result: BigNumber = maxWithdrawal.add(optimalAmount);
-                        expect(amountInUnderlyingToken).to.be.closeTo(result, 500);
+                        const delta = BigNumber.from("9").mul(to_10powNumber_BN(5));
+                        expect(amountInUnderlyingToken).to.be.closeTo(result, delta.toNumber());
                       }
                       break;
                     }
