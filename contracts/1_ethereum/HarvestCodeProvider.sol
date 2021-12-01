@@ -157,12 +157,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256 _borrowTokenAmount
     ) public view override returns (uint256) {
         if (_borrowTokenAmount > 0) {
-            uint256[] memory _amounts;
-            _amounts = IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
-                _borrowTokenAmount,
-                _getPath(_borrowToken, _underlyingToken)
-            );
-            return _amounts[_amounts.length - 1];
+            try
+                IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+                    _borrowTokenAmount,
+                    _getPath(_borrowToken, _underlyingToken)
+                )
+            returns (uint256[] memory _amounts) {
+                return _amounts[_amounts.length - 1];
+            } catch {
+                return uint256(0);
+            }
         }
         return uint256(0);
     }
@@ -193,12 +197,16 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         uniswapV2Router02
                     );
             } else {
-                uint256[] memory _amountsA =
+                try
                     IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
                         _amount,
                         _getPath(_rewardToken, _underlyingToken)
-                    );
-                return _amountsA[_amountsA.length - 1];
+                    )
+                returns (uint256[] memory _amountsA) {
+                    return _amountsA[_amountsA.length - 1];
+                } catch {
+                    return uint256(0);
+                }
             }
         }
     }
@@ -286,23 +294,29 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256 _amount,
         address _router
     ) internal view returns (uint256) {
-        uint256[] memory _amountsA;
         uint256 _finalAmount;
         address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
         address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
-        _amountsA = IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA));
-        uint256[] memory _amountsB =
-            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB));
-        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
-        uint256 quoteAmount = IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
-        if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
-            _finalAmount = _amountsB[_amountsB.length - 1].mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(
-                reserve1
-            );
-        } else {
-            _finalAmount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
-        }
-        return _finalAmount;
+
+        try
+            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA))
+        returns (uint256[] memory _amountsA) {
+            try
+                IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB))
+            returns (uint256[] memory _amountsB) {
+                (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
+                uint256 quoteAmount =
+                    IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
+                if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
+                    _finalAmount = _amountsB[_amountsB.length - 1]
+                        .mul(IUniswapV2Pair(_underlyingToken).totalSupply())
+                        .div(reserve1);
+                } else {
+                    _finalAmount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
+                }
+                return _finalAmount;
+            } catch {}
+        } catch {}
     }
 
     function _getPath(address _initialToken, address _finalToken) internal pure returns (address[] memory _path) {
