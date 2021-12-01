@@ -57,6 +57,9 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
   });
 
   for (let i = 0; i < strategies.length; i++) {
+    if (i >= 0) {
+      continue;
+    }
     describe(`test getCodes() for ${strategies[i].strategyName}`, async () => {
       const strategy = strategies[i];
       const token = VAULT_TOKENS[strategy.token].address;
@@ -166,6 +169,9 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
     const pools = Object.keys(TypedDefiPools[YVAULT_ADAPTER_NAME]);
     describe(`Test-${YVAULT_ADAPTER_NAME}`, () => {
       for (const pool of pools) {
+        if (pool !== "") {
+          continue;
+        }
         //  @reason: ETH: This is an exception as input is not considered in ETH rather it is replaced with WETH.
         const underlyingTokenAddress =
           getAddress(TypedDefiPools[YVAULT_ADAPTER_NAME][pool].tokens[0]) == getAddress(TypedTokens.ETH)
@@ -484,6 +490,9 @@ describe(`${YVAULT_ADAPTER_NAME} Unit test`, () => {
       }
 
       for (let i = 0; i < testDeFiAdaptersScenario?.adapterStandaloneStories.length; i++) {
+        if (i >= 0) {
+          continue;
+        }
         it(`${testDeFiAdaptersScenario?.adapterStandaloneStories[i].description}`, async function () {
           const story = testDeFiAdaptersScenario.adapterStandaloneStories[i];
           for (const action of story.setActions) {
