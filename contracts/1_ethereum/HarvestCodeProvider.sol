@@ -78,33 +78,35 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                     sushiswapRouter
                 );
             } else if (_rewardToken != _underlyingToken) {
-                uint256[] memory _amounts =
+                try
                     IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
                         _rewardTokenAmount,
                         _getPath(_rewardToken, _underlyingToken)
-                    );
-                if (_amounts[_amounts.length - 1] > 0) {
-                    _codes = new bytes[](3);
-                    _codes[0] = abi.encode(
-                        _rewardToken,
-                        abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, uint256(0))
-                    );
-                    _codes[1] = abi.encode(
-                        _rewardToken,
-                        abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, _rewardTokenAmount)
-                    );
-                    _codes[2] = abi.encode(
-                        uniswapV2Router02,
-                        abi.encodeWithSignature(
-                            "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                            _rewardTokenAmount,
-                            uint256(0),
-                            _getPath(_rewardToken, _underlyingToken),
-                            _vault,
-                            uint256(-1)
-                        )
-                    );
-                }
+                    )
+                returns (uint256[] memory _amounts) {
+                    if (_amounts[_amounts.length - 1] > 0) {
+                        _codes = new bytes[](3);
+                        _codes[0] = abi.encode(
+                            _rewardToken,
+                            abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, uint256(0))
+                        );
+                        _codes[1] = abi.encode(
+                            _rewardToken,
+                            abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, _rewardTokenAmount)
+                        );
+                        _codes[2] = abi.encode(
+                            uniswapV2Router02,
+                            abi.encodeWithSignature(
+                                "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+                                _rewardTokenAmount,
+                                uint256(0),
+                                _getPath(_rewardToken, _underlyingToken),
+                                _vault,
+                                uint256(-1)
+                            )
+                        );
+                    }
+                } catch {}
             }
         }
     }
@@ -233,59 +235,63 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     ) internal view returns (bytes[] memory _codes) {
         address _token0 = IUniswapV2Pair(_underlyingToken).token0();
         address _token1 = IUniswapV2Pair(_underlyingToken).token1();
-        uint256[] memory _amounts0 =
+        try
             IUniswapV2Router02(_router).getAmountsOut(
                 _rewardTokenAmount.div(uint256(2)),
                 _getPath(_rewardToken, _token0)
-            );
-        uint256[] memory _amounts1 =
-            IUniswapV2Router02(_router).getAmountsOut(
-                _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                _getPath(_rewardToken, _token1)
-            );
-        if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
-            uint8 maxLength = 4;
-            if (_token0 == _rewardToken || _token1 == _rewardToken) {
-                maxLength--;
-            }
-            _codes = new bytes[](maxLength);
-            _codes[0] = abi.encode(
-                _rewardToken,
-                abi.encodeWithSignature("approve(address,uint256)", _router, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _rewardToken,
-                abi.encodeWithSignature("approve(address,uint256)", _router, _rewardTokenAmount)
-            );
-            uint8 count = 2;
-            if (_token0 != _rewardToken) {
-                _codes[count] = abi.encode(
-                    _router,
-                    abi.encodeWithSignature(
-                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                        _rewardTokenAmount.div(uint256(2)),
-                        uint256(0),
-                        _getPath(_rewardToken, _token0),
-                        _vault,
-                        uint256(-1)
-                    )
-                );
-                count++;
-            }
-            if (_token1 != _rewardToken) {
-                _codes[count] = abi.encode(
-                    _router,
-                    abi.encodeWithSignature(
-                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                        _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                        uint256(0),
-                        _getPath(_rewardToken, _token1),
-                        _vault,
-                        uint256(-1)
-                    )
-                );
-            }
-        }
+            )
+        returns (uint256[] memory _amounts0) {
+            try
+                IUniswapV2Router02(_router).getAmountsOut(
+                    _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
+                    _getPath(_rewardToken, _token1)
+                )
+            returns (uint256[] memory _amounts1) {
+                if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
+                    uint8 maxLength = 4;
+                    if (_token0 == _rewardToken || _token1 == _rewardToken) {
+                        maxLength--;
+                    }
+                    _codes = new bytes[](maxLength);
+                    _codes[0] = abi.encode(
+                        _rewardToken,
+                        abi.encodeWithSignature("approve(address,uint256)", _router, uint256(0))
+                    );
+                    _codes[1] = abi.encode(
+                        _rewardToken,
+                        abi.encodeWithSignature("approve(address,uint256)", _router, _rewardTokenAmount)
+                    );
+                    uint8 count = 2;
+                    if (_token0 != _rewardToken) {
+                        _codes[count] = abi.encode(
+                            _router,
+                            abi.encodeWithSignature(
+                                "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+                                _rewardTokenAmount.div(uint256(2)),
+                                uint256(0),
+                                _getPath(_rewardToken, _token0),
+                                _vault,
+                                uint256(-1)
+                            )
+                        );
+                        count++;
+                    }
+                    if (_token1 != _rewardToken) {
+                        _codes[count] = abi.encode(
+                            _router,
+                            abi.encodeWithSignature(
+                                "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+                                _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
+                                uint256(0),
+                                _getPath(_rewardToken, _token1),
+                                _vault,
+                                uint256(-1)
+                            )
+                        );
+                    }
+                }
+            } catch {}
+        } catch {}
     }
 
     function _getRewardBalanceInUnderlyingTokensSushiOrUni(
@@ -294,23 +300,29 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256 _amount,
         address _router
     ) internal view returns (uint256) {
-        uint256[] memory _amountsA;
         uint256 _finalAmount;
         address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
         address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
-        _amountsA = IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA));
-        uint256[] memory _amountsB =
-            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB));
-        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
-        uint256 quoteAmount = IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
-        if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
-            _finalAmount = _amountsB[_amountsB.length - 1].mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(
-                reserve1
-            );
-        } else {
-            _finalAmount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
-        }
-        return _finalAmount;
+
+        try
+            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA))
+        returns (uint256[] memory _amountsA) {
+            try
+                IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB))
+            returns (uint256[] memory _amountsB) {
+                (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
+                uint256 quoteAmount =
+                    IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
+                if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
+                    _finalAmount = _amountsB[_amountsB.length - 1]
+                        .mul(IUniswapV2Pair(_underlyingToken).totalSupply())
+                        .div(reserve1);
+                } else {
+                    _finalAmount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
+                }
+                return _finalAmount;
+            } catch {}
+        } catch {}
     }
 
     function _getPath(address _initialToken, address _finalToken) internal pure returns (address[] memory _path) {
