@@ -380,7 +380,8 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
         address _liquidityPool,
         address
     ) public view override returns (uint256) {
-        return ICompound(ICompound(_liquidityPool).comptroller()).compAccrued(_vault);
+        // Requires write call to get unclaimed COMP tokens
+        return uint256(0);
     }
 
     /**
