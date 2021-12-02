@@ -37,7 +37,7 @@ type TEST_DEFI_ADAPTER_ARGUMENTS = {
   maxDepositAmount?: string;
 };
 
-describe.only(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
+describe(`${COMPOUND_ADAPTER_NAME} Unit test`, () => {
   const strategies = TypedAdapterStrategies[COMPOUND_ADAPTER_NAME];
   const MAX_AMOUNT = BigNumber.from("20000000000000000000");
   let adapterPrerequisites: CONTRACTS;

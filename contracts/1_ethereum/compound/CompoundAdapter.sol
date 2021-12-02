@@ -376,8 +376,8 @@ contract CompoundAdapter is IAdapter, IAdapterHarvestReward, IAdapterInvestLimit
      * @inheritdoc IAdapterHarvestReward
      */
     function getUnclaimedRewardTokenAmount(
-        address payable _vault,
-        address _liquidityPool,
+        address payable,
+        address,
         address
     ) public view override returns (uint256) {
         // Requires write call to get unclaimed COMP tokens
