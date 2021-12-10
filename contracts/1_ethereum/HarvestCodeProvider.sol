@@ -304,17 +304,25 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
             try
                 IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB))
             returns (uint256[] memory _amountsB) {
-                (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_underlyingToken).getReserves();
-                uint256 quoteAmount =
-                    IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1);
-                if (quoteAmount >= _amountsB[_amountsB.length - 1]) {
-                    _finalAmount = _amountsB[_amountsB.length - 1]
-                        .mul(IUniswapV2Pair(_underlyingToken).totalSupply())
-                        .div(reserve1);
-                } else {
-                    _finalAmount = quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(reserve1);
-                }
-                return _finalAmount;
+                try IUniswapV2Pair(_underlyingToken).getReserves() returns (
+                    uint112 reserve0,
+                    uint112 reserve1,
+                    uint32
+                ) {
+                    try IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1) returns (
+                        uint256 _quoteAmount
+                    ) {
+                        if (_quoteAmount >= _amountsB[_amountsB.length - 1]) {
+                            _finalAmount = _amountsB[_amountsB.length - 1]
+                                .mul(IUniswapV2Pair(_underlyingToken).totalSupply())
+                                .div(reserve1);
+                        } else {
+                            _finalAmount = _quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(
+                                reserve1
+                            );
+                        }
+                    } catch {}
+                } catch {}
             } catch {}
         } catch {}
     }
