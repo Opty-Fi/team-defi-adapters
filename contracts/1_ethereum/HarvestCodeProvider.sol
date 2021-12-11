@@ -293,8 +293,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _underlyingToken,
         uint256 _amount,
         address _router
-    ) internal view returns (uint256) {
-        uint256 _finalAmount;
+    ) internal view returns (uint256 _finalAmount) {
         address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
         address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
 
