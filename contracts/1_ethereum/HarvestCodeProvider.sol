@@ -8,7 +8,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 //  helper contracts
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { Modifiers } from "../protocol/configuration/Modifiers.sol";
+import { Modifiers } from "../earn-protocol-configuration/contracts/Modifiers.sol";
 
 // interfaces
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";

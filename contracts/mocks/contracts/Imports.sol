@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.12;
 
-import { DataTypes } from "../../libraries/types/DataTypes.sol";
+import { DataTypes } from "../../earn-protocol-configuration/contracts/libraries/types/DataTypes.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
