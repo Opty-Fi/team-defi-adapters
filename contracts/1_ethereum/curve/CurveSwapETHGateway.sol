@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 //  helper contracts
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
+import { Modifiers } from "../../earn-protocol-configuration/contracts/Modifiers.sol";
 
 //  interfaces
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";

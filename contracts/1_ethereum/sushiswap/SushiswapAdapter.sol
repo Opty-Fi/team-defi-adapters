@@ -8,7 +8,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 // helper contracts
-import { Modifiers } from "../../protocol/configuration/Modifiers.sol";
+import { Modifiers } from "../../earn-protocol-configuration/contracts/Modifiers.sol";
 
 // interfaces
 import { ISushiswapMasterChef } from "@optyfi/defi-legos/ethereum/sushiswap/contracts/ISushiswapMasterChef.sol";
