@@ -1539,7 +1539,7 @@
       "gauge": "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",
       "swap": "0x890f4e345B1dAED0367A877a1612f86A1f86985f",
       "rewardToken": "0xD533a949740bb3306d119CC777fa900bA034cd52",
-      "tokenIndexes": ["3"]
+      "tokenIndexes": ["2"]
     },
     "usdt_ust+dai+usdc+usdt": {
       "pool": "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",
