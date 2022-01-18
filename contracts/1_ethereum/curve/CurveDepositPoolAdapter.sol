@@ -803,7 +803,7 @@ contract CurveDepositPoolAdapter is
                     )
                     : abi.encode(
                         _liquidityPool,
-                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
+                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, _minAmount)
                     );
             } else if (_nCoins == uint256(3)) {
                 uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];

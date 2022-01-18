@@ -6,7 +6,7 @@ import { getAddress } from "ethers/lib/utils";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { CURVE_SWAP_POOL_ADAPTER_NAME, CURVE_DEPOSIT_POOL_ADAPTER_NAME } from "../../helpers/constants/adapters";
-import { TypedAdapterStrategies, TypedContracts, TypedDefiPools, TypedTokens } from "../../helpers/data";
+import { TypedAdapterStrategies, TypedContracts, TypedTokens } from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/adapters.json";
@@ -15,6 +15,7 @@ import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/hel
 import { ERC20 } from "../../typechain/ERC20";
 import { to_10powNumber_BN } from "../../helpers/utils";
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
+import { default as CurveExports } from "@optyfi/defi-legos/ethereum/curve/contracts";
 
 chai.use(solidity);
 
@@ -35,6 +36,22 @@ type ACTION_TYPES = {
   executer: string;
   expectedValue: any;
 };
+
+interface PoolItem {
+  pool: string;
+  lpToken: string;
+  stakingVault?: string;
+  rewardToken?: string;
+  tokens: string[];
+  swap?: string;
+  gauge?: string;
+  deprecated?: boolean;
+  tokenIndexes?: string[];
+}
+
+interface LiquidityPool {
+  [name: string]: PoolItem;
+}
 
 const curveAdapters: CONTRACTS = {};
 
@@ -240,9 +257,12 @@ describe("CurveAdapters Unit test", () => {
 
     for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
-        const pools = Object.keys(TypedDefiPools[curveAdapterName]);
+        const key: "CurveDepositPool" | "CurveSwapPool" =
+          curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME ? "CurveDepositPool" : "CurveSwapPool";
+        const typedPools = CurveExports[key] || [];
+        const pools = Object.keys(typedPools);
         for (const pool of pools) {
-          if (TypedDefiPools[curveAdapterName][pool].tokens.length == 1) {
+          if ((CurveExports[key] as LiquidityPool)[pool].tokens.length == 1) {
             let gaugeContract: Contract;
             let swapPoolContract: Contract;
             let liquidityPoolContract: Contract;
@@ -257,23 +277,23 @@ describe("CurveAdapters Unit test", () => {
                 let rewardTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let gaugeTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let isTestingStakingFunction = false;
-                const underlyingTokenAddress = getAddress(TypedDefiPools[curveAdapterName][pool].tokens[0]);
+                const underlyingTokenAddress = getAddress((CurveExports[key] as LiquidityPool)[pool].tokens[0]);
                 const ERC20Instance = <ERC20>await hre.ethers.getContractAt("ERC20", underlyingTokenAddress);
                 const decimals = await ERC20Instance.decimals();
                 let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
-                const liquidityPool = TypedDefiPools[curveAdapterName][pool].pool;
-                const lpToken = TypedDefiPools[curveAdapterName][pool].lpToken;
-                const _underlyingTokens = TypedDefiPools[curveAdapterName][pool].tokens;
-                const tokenIndexArr = TypedDefiPools[curveAdapterName][pool].tokenIndexes as string[];
+                const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+                const lpToken = (CurveExports[key] as LiquidityPool)[pool].lpToken;
+                const _underlyingTokens = (CurveExports[key] as LiquidityPool)[pool].tokens;
+                const tokenIndexArr = (CurveExports[key] as LiquidityPool)[pool].tokenIndexes as string[];
                 const checksumedUnderlyingTokens = _underlyingTokens.map((x: string) => {
                   if (getAddress(x) == getAddress(TypedTokens.WETH)) {
                     return "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
                   }
                   return getAddress(x);
                 });
-                const rewardTokenAddress = TypedDefiPools[curveAdapterName][pool].rewardToken as string;
-                const swapPool = TypedDefiPools[curveAdapterName][pool].swap;
+                const rewardTokenAddress = (CurveExports[key] as LiquidityPool)[pool].rewardToken as string;
+                const swapPool = (CurveExports[key] as LiquidityPool)[pool].swap;
                 liquidityPoolContract =
                   curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME && YEARN_POOL == getAddress(liquidityPool)
                     ? await hre.ethers.getContractAt("ICurveSwap", liquidityPool)
@@ -284,10 +304,10 @@ describe("CurveAdapters Unit test", () => {
                   ? await hre.ethers.getContractAt("ICurveSwap", swapPool)
                   : await hre.ethers.getContractAt("ICurveSwap", liquidityPool);
 
-                if (TypedDefiPools[curveAdapterName][pool].gauge != ADDRESS_ZERO) {
+                if ((CurveExports[key] as LiquidityPool)[pool].gauge != ADDRESS_ZERO) {
                   gaugeContract = await hre.ethers.getContractAt(
                     "ICurveGauge",
-                    <string>TypedDefiPools[curveAdapterName][pool].gauge,
+                    <string>(CurveExports[key] as LiquidityPool)[pool].gauge,
                   );
                 }
                 if (rewardTokenAddress != ADDRESS_ZERO) {
