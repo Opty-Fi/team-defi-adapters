@@ -289,11 +289,30 @@ contract CurveDepositPoolAdapter is
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function calculateAmountInLPToken(
-        address,
-        address,
-        uint256
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _underlyingTokenAmount
     ) public view override returns (uint256) {
-        revert("!empty");
+        if (!isOldDepositZap[_liquidityPool]) {
+            if (_underlyingTokenAmount > 0) {
+                uint256 _nCoins = _getNCoins(_liquidityPool, _getCurveRegistry());
+                address[8] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool, _getCurveRegistry());
+                uint256[] memory _amounts = new uint256[](_nCoins);
+                for (uint256 _i; _i < _nCoins; _i++) {
+                    if (_underlyingTokens[_i] == _underlyingToken) {
+                        _amounts[_i] = _underlyingTokenAmount;
+                    }
+                }
+                return
+                    ICurveDeposit(_liquidityPool).calc_token_amount(
+                        [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
+                        true
+                    );
+            }
+            return uint256(0);
+        } else {
+            revert("!empty");
+        }
     }
 
     /**
