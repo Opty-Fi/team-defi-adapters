@@ -754,14 +754,17 @@ contract CurveSwapPoolAdapter is
             }
         }
         if (_nCoins == uint256(2)) {
-            _minMintAmount = ICurveSwap(_swapPool).calc_token_amount([_amounts[0], _amounts[1]], true);
+            _minMintAmount = ICurveSwap(_swapPool).calc_token_amount([_amounts[0], _amounts[1]], true).mul(95).div(100);
         } else if (_nCoins == uint256(3)) {
-            _minMintAmount = ICurveSwap(_swapPool).calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true);
+            _minMintAmount = ICurveSwap(_swapPool)
+                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
+                .mul(95)
+                .div(100);
         } else if (_nCoins == uint256(4)) {
-            _minMintAmount = ICurveSwap(_swapPool).calc_token_amount(
-                [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
-                true
-            );
+            _minMintAmount = ICurveSwap(_swapPool)
+                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
+                .mul(95)
+                .div(100);
         }
     }
 
