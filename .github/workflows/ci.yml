@@ -55,7 +55,7 @@ jobs:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
         uses: actions/checkout@v2
         with:
-         token: ${{secrets.EARN_PROTOCOL_CONFIGURATION}}
+         token: ${{secrets.PAT}}
          submodules: recursive
 
       - name: Cache node modules
@@ -95,7 +95,7 @@ jobs:
       - name: Checkout Use Node.js ${{ matrix.node-version}}
         uses: actions/checkout@v2
         with:
-         token: ${{secrets.EARN_PROTOCOL_CONFIGURATION}}
+         token: ${{secrets.PAT}}
          submodules: recursive
       - name: Cache node modules
         uses: actions/cache@v2
