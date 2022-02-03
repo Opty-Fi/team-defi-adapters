@@ -1655,8 +1655,17 @@
       "cleanActions": []
     },
     {
-      "description": "calculateAmountInLPToken() should fail",
-      "setActions": [],
+      "description": "calculateAmountInLPToken() should return the amount of LP tokens that the user receives after depositing",
+      "setActions": [
+        {
+          "contract": "",
+          "action": "fundTestDeFiAdapterContract",
+          "args": {},
+          "executer": "",
+          "expect": "success",
+          "message": ""
+        }
+      ],
       "getActions": [
         {
           "contract": "adapter",

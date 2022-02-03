@@ -55,6 +55,15 @@ interface LiquidityPool {
 
 const curveAdapters: CONTRACTS = {};
 
+const OLD_DEPOSIT_POOLS = [
+  "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",
+  "0xac795D2c97e60DF6a99ff1c814727302fD747a80",
+  "0xA50cCc70b6a011CffDdf45057E39679379187287",
+  "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",
+  "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",
+  "0xFCBa3E75865d2d561BE8D220616520c171F12851",
+];
+
 const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, TypedTokens.AUSDT, TypedTokens.STETH];
 const YEARN_POOL = getAddress("0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF");
 const vaultUnderlyingTokens = Object.values(VAULT_TOKENS).map(x => getAddress(x.address));
@@ -270,6 +279,11 @@ describe("CurveAdapters Unit test", () => {
             let rewardTokenInstance: Contract;
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async function () {
+                const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+                if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME && OLD_DEPOSIT_POOLS.includes(liquidityPool)) {
+                  console.log("Skipping... --> Old deposit pool");
+                  this.skip();
+                }
                 let limit: BigNumber;
                 let lpTokenBalanceBefore: BigNumber = hre.ethers.BigNumber.from(0);
                 let underlyingBalanceBefore: BigNumber = ethers.BigNumber.from(0);
@@ -282,7 +296,6 @@ describe("CurveAdapters Unit test", () => {
                 const decimals = await ERC20Instance.decimals();
                 let defaultFundAmount: BigNumber = getDefaultFundAmountInDecimal(underlyingTokenAddress, decimals);
                 const timestamp = (await getBlockTimestamp(hre)) * 2;
-                const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
                 const lpToken = (CurveExports[key] as LiquidityPool)[pool].lpToken;
                 const _underlyingTokens = (CurveExports[key] as LiquidityPool)[pool].tokens;
                 const tokenIndexArr = (CurveExports[key] as LiquidityPool)[pool].tokenIndexes as string[];
@@ -714,9 +727,61 @@ describe("CurveAdapters Unit test", () => {
                       break;
                     }
                     case "calculateAmountInLPToken(address,address,uint256)": {
-                      await expect(
-                        curveAdapters[curveAdapterName][action.action](ADDRESS_ZERO, ADDRESS_ZERO, "0"),
-                      ).to.revertedWith("!empty");
+                      const underlyingBalance = await ERC20Instance.balanceOf(testDeFiAdapter.address);
+                      const amountInLPToken = await curveAdapters[curveAdapterName][action.action](
+                        underlyingTokenAddress,
+                        liquidityPool,
+                        underlyingBalance,
+                      );
+                      let underlyingCoins = [];
+                      for (let i = 0; i < 4; i++) {
+                        try {
+                          let coin;
+                          if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME) {
+                            if (i == 0) {
+                              coin = await swapPoolContract.coins(i);
+                            } else {
+                              coin = await liquidityPoolContract.base_coins(i - 1);
+                            }
+                          } else {
+                            coin = await swapPoolContract.coins(i);
+                          }
+                          underlyingCoins.push(coin);
+                        } catch {}
+                      }
+                      let amounts = [];
+                      for (let i = 0; i < underlyingCoins.length; i++) {
+                        if (getAddress(underlyingCoins[i]) == getAddress(underlyingTokenAddress)) {
+                          amounts[i] = underlyingBalance;
+                        } else {
+                          amounts[i] = BigNumber.from(0);
+                        }
+                      }
+                      let expectedAmountInLPToken;
+                      switch (underlyingCoins.length) {
+                        case 2: {
+                          expectedAmountInLPToken = await swapPoolContract["calc_token_amount(uint256[2],bool)"](
+                            [amounts[0], amounts[1]],
+                            true,
+                          );
+                          break;
+                        }
+                        case 3: {
+                          expectedAmountInLPToken = await swapPoolContract["calc_token_amount(uint256[3],bool)"](
+                            [amounts[0], amounts[1], amounts[2]],
+                            true,
+                          );
+                          break;
+                        }
+                        case 4: {
+                          expectedAmountInLPToken = await liquidityPoolContract["calc_token_amount(uint256[4],bool)"](
+                            [amounts[0], amounts[1], amounts[2], amounts[3]],
+                            true,
+                          );
+                          break;
+                        }
+                      }
+                      expect(amountInLPToken).to.be.eq(expectedAmountInLPToken);
                       break;
                     }
                     case "getPoolValue(address,address)": {

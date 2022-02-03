@@ -295,8 +295,9 @@ contract CurveDepositPoolAdapter is
     ) public view override returns (uint256) {
         if (!isOldDepositZap[_liquidityPool]) {
             if (_underlyingTokenAmount > 0) {
-                uint256 _nCoins = _getNCoins(_liquidityPool, _getCurveRegistry());
-                address[8] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool, _getCurveRegistry());
+                address _swapPool = _getSwapPool(_liquidityPool);
+                uint256 _nCoins = _getNCoins(_swapPool, _getCurveRegistry());
+                address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
                 uint256[] memory _amounts = new uint256[](_nCoins);
                 for (uint256 _i; _i < _nCoins; _i++) {
                     if (_underlyingTokens[_i] == _underlyingToken) {
