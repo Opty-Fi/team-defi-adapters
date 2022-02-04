@@ -733,7 +733,7 @@ describe("CurveAdapters Unit test", () => {
                         liquidityPool,
                         underlyingBalance,
                       );
-                      let underlyingCoins = [];
+                      const underlyingCoins = [];
                       for (let i = 0; i < 4; i++) {
                         try {
                           let coin;
@@ -747,9 +747,9 @@ describe("CurveAdapters Unit test", () => {
                             coin = await swapPoolContract.coins(i);
                           }
                           underlyingCoins.push(coin);
-                        } catch {}
+                        } catch {} // eslint-disable-line no-empty
                       }
-                      let amounts = [];
+                      const amounts = [];
                       for (let i = 0; i < underlyingCoins.length; i++) {
                         if (getAddress(underlyingCoins[i]) == getAddress(underlyingTokenAddress)) {
                           amounts[i] = underlyingBalance;
