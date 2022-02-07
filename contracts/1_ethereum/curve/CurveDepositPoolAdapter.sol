@@ -304,11 +304,17 @@ contract CurveDepositPoolAdapter is
                         _amounts[_i] = _underlyingTokenAmount;
                     }
                 }
-                return
-                    ICurveDeposit(_liquidityPool).calc_token_amount(
-                        [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
-                        true
-                    );
+                if (_nCoins == 2) {
+                    return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1]], true);
+                } else if (_nCoins == 3) {
+                    return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true);
+                } else if (_nCoins == 4) {
+                    return
+                        ICurveDeposit(_liquidityPool).calc_token_amount(
+                            [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
+                            true
+                        );
+                }
             }
             return uint256(0);
         } else {
@@ -901,10 +907,19 @@ contract CurveDepositPoolAdapter is
                         ICurveSwap(_swapPool).get_virtual_price().mul(100)
                     );
                 } else {
-                    ICurveDeposit(_liquidityPool)
-                        .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
-                        .mul(95)
-                        .div(100);
+                    if (_nCoins == 2) {
+                        ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1]], true).mul(95).div(100);
+                    } else if (_nCoins == 3) {
+                        ICurveSwap(_liquidityPool)
+                            .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
+                            .mul(95)
+                            .div(100);
+                    } else if (_nCoins == 4) {
+                        ICurveDeposit(_liquidityPool)
+                            .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
+                            .mul(95)
+                            .div(100);
+                    }
                 }
 
                 if (_amounts[_i] > 0) {

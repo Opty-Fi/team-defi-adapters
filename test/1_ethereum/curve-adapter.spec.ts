@@ -66,6 +66,8 @@ const OLD_DEPOSIT_POOLS = [
 
 const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, TypedTokens.AUSDT, TypedTokens.STETH];
 const YEARN_POOL = getAddress("0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF");
+const A_POOL = getAddress("0xDeBF20617708857ebe4F679508E7b7863a8A8EeE");
+const SA_POOL = getAddress("0xEB16Ae0052ed37f479f7fe63849198Df1765a733");
 const vaultUnderlyingTokens = Object.values(VAULT_TOKENS).map(x => getAddress(x.address));
 describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -308,7 +310,10 @@ describe("CurveAdapters Unit test", () => {
                 const rewardTokenAddress = (CurveExports[key] as LiquidityPool)[pool].rewardToken as string;
                 const swapPool = (CurveExports[key] as LiquidityPool)[pool].swap;
                 liquidityPoolContract =
-                  curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME && YEARN_POOL == getAddress(liquidityPool)
+                  curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME &&
+                  (YEARN_POOL == getAddress(liquidityPool) ||
+                    A_POOL == getAddress(liquidityPool) ||
+                    SA_POOL == getAddress(liquidityPool))
                     ? await hre.ethers.getContractAt("ICurveSwap", liquidityPool)
                     : await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
                 lpTokenContract = await hre.ethers.getContractAt("ERC20", lpToken);
@@ -737,7 +742,14 @@ describe("CurveAdapters Unit test", () => {
                       for (let i = 0; i < 4; i++) {
                         try {
                           let coin;
-                          if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME) {
+                          if (
+                            YEARN_POOL == getAddress(liquidityPool) ||
+                            A_POOL == getAddress(liquidityPool) ||
+                            SA_POOL == getAddress(liquidityPool)
+                          ) {
+                            const tempContract = await hre.ethers.getContractAt("ICurveDeposit", liquidityPool);
+                            coin = await tempContract["underlying_coins(uint256)"](i);
+                          } else if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME) {
                             if (i == 0) {
                               coin = await swapPoolContract.coins(i);
                             } else {
