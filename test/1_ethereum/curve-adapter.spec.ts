@@ -68,6 +68,8 @@ const POOLED_TOKENS = [TypedTokens.ADAI, TypedTokens.ASUSD, TypedTokens.AUSDC, T
 const YEARN_POOL = getAddress("0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF");
 const A_POOL = getAddress("0xDeBF20617708857ebe4F679508E7b7863a8A8EeE");
 const SA_POOL = getAddress("0xEB16Ae0052ed37f479f7fe63849198Df1765a733");
+const REN_WBTC_POOL = getAddress("0x93054188d876f558f4a66B2EF1d97d16eDf0895B");
+const REN_WSBTC_POOL = getAddress("0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714");
 const vaultUnderlyingTokens = Object.values(VAULT_TOKENS).map(x => getAddress(x.address));
 describe("CurveAdapters Unit test", () => {
   const MAX_AMOUNT: { [key: string]: BigNumber } = {
@@ -756,7 +758,14 @@ describe("CurveAdapters Unit test", () => {
                               coin = await liquidityPoolContract.base_coins(i - 1);
                             }
                           } else {
-                            coin = await swapPoolContract.coins(i);
+                            if (
+                              REN_WBTC_POOL == getAddress(liquidityPool) ||
+                              REN_WSBTC_POOL == getAddress(liquidityPool)
+                            ) {
+                              coin = await swapPoolContract["coins(int128)"](i);
+                            } else {
+                              coin = await swapPoolContract["coins(uint256)"](i);
+                            }
                           }
                           underlyingCoins.push(coin);
                         } catch {} // eslint-disable-line no-empty
