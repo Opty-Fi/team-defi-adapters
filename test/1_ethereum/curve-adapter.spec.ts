@@ -753,7 +753,7 @@ describe("CurveAdapters Unit test", () => {
                             coin = await tempContract["underlying_coins(uint256)"](i);
                           } else if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME) {
                             if (i == 0) {
-                              coin = await swapPoolContract.coins(i);
+                              coin = await swapPoolContract["coins(uint256)"](i);
                             } else {
                               coin = await liquidityPoolContract.base_coins(i - 1);
                             }
