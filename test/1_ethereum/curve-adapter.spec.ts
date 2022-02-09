@@ -259,7 +259,7 @@ describe("CurveAdapters Unit test", () => {
     }
   }
 
-  describe("CurveAdapters pools test", () => {
+  describe.only("CurveAdapters pools test", () => {
     let testDeFiAdapter: Contract;
     let uniswapV2FactoryInstance: Contract;
 
@@ -268,7 +268,7 @@ describe("CurveAdapters Unit test", () => {
       uniswapV2FactoryInstance = await hre.ethers.getContractAt("IUniswapV2Factory", TypedContracts.UNISWAPV2_FACTORY);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
         const key: "CurveDepositPool" | "CurveSwapPool" =
           curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME ? "CurveDepositPool" : "CurveSwapPool";
@@ -1237,9 +1237,18 @@ describe("CurveAdapters Unit test", () => {
       lpTokenBalanceOfTestDeFiAdapter: BigNumber,
       tokenIndex: BigNumber,
     ): Promise<BigNumber> {
-      return curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME && YEARN_POOL == getAddress(liquidityPool)
-        ? await liquidityPoolContract["calc_withdraw_one_coin"](lpTokenBalanceOfTestDeFiAdapter, tokenIndex, true)
-        : await liquidityPoolContract["calc_withdraw_one_coin"](lpTokenBalanceOfTestDeFiAdapter, tokenIndex);
+      if (curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME && YEARN_POOL == getAddress(liquidityPool)) {
+        return await liquidityPoolContract["calc_withdraw_one_coin(uint256,int128,bool)"](
+          lpTokenBalanceOfTestDeFiAdapter,
+          tokenIndex,
+          true,
+        );
+      } else {
+        return await liquidityPoolContract["calc_withdraw_one_coin(uint256,int128)"](
+          lpTokenBalanceOfTestDeFiAdapter,
+          tokenIndex,
+        );
+      }
     }
   });
 });
