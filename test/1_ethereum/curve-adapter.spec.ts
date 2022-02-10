@@ -259,7 +259,7 @@ describe("CurveAdapters Unit test", () => {
     }
   }
 
-  describe.only("CurveAdapters pools test", () => {
+  describe("CurveAdapters pools test", () => {
     let testDeFiAdapter: Contract;
     let uniswapV2FactoryInstance: Contract;
 
@@ -268,7 +268,7 @@ describe("CurveAdapters Unit test", () => {
       uniswapV2FactoryInstance = await hre.ethers.getContractAt("IUniswapV2Factory", TypedContracts.UNISWAPV2_FACTORY);
     });
 
-    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME]) {
+    for (const curveAdapterName of [CURVE_DEPOSIT_POOL_ADAPTER_NAME, CURVE_SWAP_POOL_ADAPTER_NAME]) {
       describe(`Test-${curveAdapterName}`, () => {
         const key: "CurveDepositPool" | "CurveSwapPool" =
           curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME ? "CurveDepositPool" : "CurveSwapPool";
