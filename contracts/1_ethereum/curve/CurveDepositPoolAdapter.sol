@@ -908,14 +908,17 @@ contract CurveDepositPoolAdapter is
                     );
                 } else {
                     if (_nCoins == 2) {
-                        ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1]], true).mul(95).div(100);
+                        _minAmount = ICurveSwap(_liquidityPool)
+                            .calc_token_amount([_amounts[0], _amounts[1]], true)
+                            .mul(95)
+                            .div(100);
                     } else if (_nCoins == 3) {
-                        ICurveSwap(_liquidityPool)
+                        _minAmount = ICurveSwap(_liquidityPool)
                             .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
                             .mul(95)
                             .div(100);
                     } else if (_nCoins == 4) {
-                        ICurveDeposit(_liquidityPool)
+                        _minAmount = ICurveDeposit(_liquidityPool)
                             .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
                             .mul(95)
                             .div(100);
