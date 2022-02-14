@@ -901,8 +901,8 @@ contract CurveDepositPoolAdapter is
         for (uint256 _i = 0; _i < _nCoins; _i++) {
             if (_underlyingTokens[_i] == _underlyingToken) {
                 _amounts[_i] = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
+                uint256 _decimals = ERC20(_underlyingToken).decimals();
                 if (isOldDepositZap[_liquidityPool]) {
-                    uint256 _decimals = ERC20(_underlyingToken).decimals();
                     _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
                         ICurveSwap(_swapPool).get_virtual_price().mul(100)
                     );
@@ -913,10 +913,16 @@ contract CurveDepositPoolAdapter is
                             .mul(95)
                             .div(100);
                     } else if (_nCoins == 3) {
-                        _minAmount = ICurveSwap(_liquidityPool)
-                            .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
-                            .mul(95)
-                            .div(100);
+                        if (_liquidityPool == Y_SWAP_POOL) {
+                            _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
+                                ICurveSwap(_swapPool).get_virtual_price().mul(100)
+                            );
+                        } else {
+                            _minAmount = ICurveSwap(_liquidityPool)
+                                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
+                                .mul(95)
+                                .div(100);
+                        }
                     } else if (_nCoins == 4) {
                         _minAmount = ICurveDeposit(_liquidityPool)
                             .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
