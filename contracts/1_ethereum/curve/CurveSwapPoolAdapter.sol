@@ -257,14 +257,34 @@ contract CurveSwapPoolAdapter is
 
     /**
      * @inheritdoc IAdapter
-     * @dev Reverting '!empty' message as there is no related functionality for this in CurveSwap pool
      */
     function calculateAmountInLPToken(
-        address,
-        address,
-        uint256
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _underlyingTokenAmount
     ) public view override returns (uint256) {
-        revert("!empty");
+        if (_underlyingTokenAmount > 0) {
+            uint256 _nCoins = _getNCoins(_liquidityPool, _getCurveRegistry());
+            address[8] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool, _getCurveRegistry());
+            uint256[] memory _amounts = new uint256[](_nCoins);
+            for (uint256 _i; _i < _nCoins; _i++) {
+                if (_underlyingTokens[_i] == _underlyingToken) {
+                    _amounts[_i] = _underlyingTokenAmount;
+                }
+            }
+            if (_nCoins == 2) {
+                return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1]], true);
+            } else if (_nCoins == 3) {
+                return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true);
+            } else if (_nCoins == 4) {
+                return
+                    ICurveSwap(_liquidityPool).calc_token_amount(
+                        [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
+                        true
+                    );
+            }
+        }
+        return uint256(0);
     }
 
     /**
@@ -711,7 +731,7 @@ contract CurveSwapPoolAdapter is
             address[8] memory _underlyingTokens,
             uint256[] memory _amounts,
             uint256 _codeLength,
-            uint256 _minAmount
+            uint256 _minMintAmount
         )
     {
         address _curveRegistry = _getCurveRegistry();
@@ -724,12 +744,6 @@ contract CurveSwapPoolAdapter is
         for (uint256 _i = 0; _i < _nCoins; _i++) {
             if (_underlyingTokens[_i] == _curveishCoin) {
                 _amounts[_i] = _getDepositAmount(_swapPool, _underlyingToken, _amount);
-                uint256 _decimals = ERC20(_underlyingToken).decimals();
-                _minAmount = _swapPool == Y_SWAP_POOL
-                    ? 0
-                    : (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
-                        ICurveSwap(_swapPool).get_virtual_price().mul(100)
-                    );
                 if (_amounts[_i] > 0) {
                     if (_underlyingTokens[_i] == HBTC) {
                         _codeLength++;
@@ -738,6 +752,19 @@ contract CurveSwapPoolAdapter is
                     }
                 }
             }
+        }
+        if (_nCoins == uint256(2)) {
+            _minMintAmount = ICurveSwap(_swapPool).calc_token_amount([_amounts[0], _amounts[1]], true).mul(95).div(100);
+        } else if (_nCoins == uint256(3)) {
+            _minMintAmount = ICurveSwap(_swapPool)
+                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
+                .mul(95)
+                .div(100);
+        } else if (_nCoins == uint256(4)) {
+            _minMintAmount = ICurveSwap(_swapPool)
+                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
+                .mul(95)
+                .div(100);
         }
     }
 

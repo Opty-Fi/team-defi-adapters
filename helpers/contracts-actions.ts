@@ -111,9 +111,9 @@ export async function fundWalletToken(
         const tokenAddressInstance = await hre.ethers.getContractAt("ERC20", tokenAddress);
         const instance = await hre.ethers.getContractAt(swap ? "ICurveSwap" : "ICurveDeposit", pool);
         const coin = swap
-          ? await instance.coins(0)
+          ? await instance["coins(uint256)"](0)
           : old
-          ? await instance.underlying_coins(0)
+          ? await instance["underlying_coins(int128)"](0)
           : await instance.base_coins(0);
         const coinInstance = await hre.ethers.getContractAt("ERC20", coin);
         await uniswapV2Router02Instance

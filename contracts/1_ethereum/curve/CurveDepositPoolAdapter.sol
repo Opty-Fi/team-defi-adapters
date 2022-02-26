@@ -289,11 +289,37 @@ contract CurveDepositPoolAdapter is
      * @dev Reverting '!empty' message as there is no related functionality for this in CurveDeposit pool
      */
     function calculateAmountInLPToken(
-        address,
-        address,
-        uint256
+        address _underlyingToken,
+        address _liquidityPool,
+        uint256 _underlyingTokenAmount
     ) public view override returns (uint256) {
-        revert("!empty");
+        if (!isOldDepositZap[_liquidityPool]) {
+            if (_underlyingTokenAmount > 0) {
+                address _swapPool = _getSwapPool(_liquidityPool);
+                uint256 _nCoins = _getNCoins(_swapPool, _getCurveRegistry());
+                address[8] memory _underlyingTokens = _getUnderlyingTokens(_swapPool, _getCurveRegistry());
+                uint256[] memory _amounts = new uint256[](_nCoins);
+                for (uint256 _i; _i < _nCoins; _i++) {
+                    if (_underlyingTokens[_i] == _underlyingToken) {
+                        _amounts[_i] = _underlyingTokenAmount;
+                    }
+                }
+                if (_nCoins == 2) {
+                    return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1]], true);
+                } else if (_nCoins == 3) {
+                    return ICurveSwap(_liquidityPool).calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true);
+                } else if (_nCoins == 4) {
+                    return
+                        ICurveDeposit(_liquidityPool).calc_token_amount(
+                            [_amounts[0], _amounts[1], _amounts[2], _amounts[3]],
+                            true
+                        );
+                }
+            }
+            return uint256(0);
+        } else {
+            revert("!empty");
+        }
     }
 
     /**
@@ -803,7 +829,7 @@ contract CurveDepositPoolAdapter is
                     )
                     : abi.encode(
                         _liquidityPool,
-                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, uint256(0))
+                        abi.encodeWithSignature("add_liquidity(uint256[2],uint256)", _depositAmounts, _minAmount)
                     );
             } else if (_nCoins == uint256(3)) {
                 uint256[3] memory _depositAmounts = [_amounts[0], _amounts[1], _amounts[2]];
@@ -876,9 +902,34 @@ contract CurveDepositPoolAdapter is
             if (_underlyingTokens[_i] == _underlyingToken) {
                 _amounts[_i] = _getDepositAmount(_liquidityPool, _underlyingToken, _amount);
                 uint256 _decimals = ERC20(_underlyingToken).decimals();
-                _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
-                    ICurveSwap(_swapPool).get_virtual_price().mul(100)
-                );
+                if (isOldDepositZap[_liquidityPool]) {
+                    _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
+                        ICurveSwap(_swapPool).get_virtual_price().mul(100)
+                    );
+                } else {
+                    if (_nCoins == 2) {
+                        _minAmount = ICurveSwap(_liquidityPool)
+                            .calc_token_amount([_amounts[0], _amounts[1]], true)
+                            .mul(95)
+                            .div(100);
+                    } else if (_nCoins == 3) {
+                        if (_liquidityPool == Y_SWAP_POOL) {
+                            _minAmount = (_amounts[_i].mul(10**(uint256(36).sub(_decimals))).mul(95)).div(
+                                ICurveSwap(_swapPool).get_virtual_price().mul(100)
+                            );
+                        } else {
+                            _minAmount = ICurveSwap(_liquidityPool)
+                                .calc_token_amount([_amounts[0], _amounts[1], _amounts[2]], true)
+                                .mul(95)
+                                .div(100);
+                        }
+                    } else if (_nCoins == 4) {
+                        _minAmount = ICurveDeposit(_liquidityPool)
+                            .calc_token_amount([_amounts[0], _amounts[1], _amounts[2], _amounts[3]], true)
+                            .mul(95)
+                            .div(100);
+                    }
+                }
 
                 if (_amounts[_i] > 0) {
                     if (_underlyingTokens[_i] == HBTC) {

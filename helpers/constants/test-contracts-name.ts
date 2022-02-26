@@ -4,7 +4,7 @@ export const TESTING_CONTRACTS: DATA_OBJECT = {
   TESTING_EMERGENCY_BRAKE: "TestEmergencyBrake",
   TEST_DUMMY_TOKEN: "TestDummyToken",
   TEST_DUMMY_TOKEN_TRANSFER_FEE: "TestDummyTokenTransferFee",
-  TEST_DUMMY_EMPTY_CONTRACT: "TestDummyEmptyContract",
+  TEST_DUMMY_EMPTY_CONTRACT: "contracts/mocks/contracts/TestDummyEmptyContract.sol:TestDummyEmptyContract",
   TESTING_DEFI_ADAPTER: "TestDeFiAdapter",
   TESTING_HARVEST_CODE_PROVIDER: "TestHarvestCodeProvider",
   TEST_REGISTRY_NEW_IMPLEMENTATION: "TestRegistryNewImplementation",
