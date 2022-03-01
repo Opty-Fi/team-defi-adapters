@@ -101,17 +101,17 @@ contract CurveDepositPoolAdapter is
      * @dev Configures the CurveDeposit pools according old and new API
      */
     constructor(address _registry) public Modifiers(_registry) {
-        setIsOldDepositZap(COMPOUND_DEPOSIT_POOL, true); // curve-compound
-        setIsOldDepositZap(USDT_DEPOSIT_POOL, true); // curve-usdt
-        setIsOldDepositZap(PAX_DEPOSIT_POOL, true); // curve-pax
-        setIsOldDepositZap(Y_DEPOSIT_POOL, true); // curve-y
-        setIsOldDepositZap(BUSD_DEPOSIT_POOL, true); // curve-busd
-        setIsOldDepositZap(SUSD_DEPOSIT_POOL, true); // curve-susd
-        setIsSwapPool(A_SWAP_POOL, true); // aToken
-        setIsSwapPool(SA_SWAP_POOL, true); // saToken
-        setIsSwapPool(Y_SWAP_POOL, true); // yToken
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+        isOldDepositZap[COMPOUND_DEPOSIT_POOL] = true; // curve-compound
+        isOldDepositZap[USDT_DEPOSIT_POOL] = true; // curve-usdt
+        isOldDepositZap[PAX_DEPOSIT_POOL] = true; // curve-pax
+        isOldDepositZap[Y_DEPOSIT_POOL] = true; // curve-y
+        isOldDepositZap[BUSD_DEPOSIT_POOL] = true; // curve-busd
+        isOldDepositZap[SUSD_DEPOSIT_POOL] = true; // curve-susd
+        isSwapPool[A_SWAP_POOL] = true; // aToken
+        isSwapPool[SA_SWAP_POOL] = true; // saToken
+        isSwapPool[Y_SWAP_POOL] = true; // yToken
+        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**
@@ -122,7 +122,6 @@ contract CurveDepositPoolAdapter is
         override
         onlyRiskOperator
     {
-        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -135,7 +134,6 @@ contract CurveDepositPoolAdapter is
         address,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
-        require(_liquidityPool.isContract(), "!isContract");
         // Note: We are using 18 as decimals for USD and BTC
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool], msg.sender);

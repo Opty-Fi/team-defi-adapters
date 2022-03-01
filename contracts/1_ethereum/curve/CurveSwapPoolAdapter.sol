@@ -101,8 +101,8 @@ contract CurveSwapPoolAdapter is
                 [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP]
             )
         );
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**
@@ -113,7 +113,6 @@ contract CurveSwapPoolAdapter is
         override
         onlyRiskOperator
     {
-        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -126,7 +125,6 @@ contract CurveSwapPoolAdapter is
         address,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
-        require(_liquidityPool.isContract(), "!isContract");
         // Note : use 18 as decimals for USD, BTC and ETH
         maxDepositAmount[_liquidityPool] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool], msg.sender);
