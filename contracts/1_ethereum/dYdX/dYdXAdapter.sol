@@ -65,13 +65,13 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         _dYdXUnderlyingTokens[1] = SAI;
         _dYdXUnderlyingTokens[2] = USDC;
         _dYdXUnderlyingTokens[3] = DAI;
-        liquidityPoolToUnderlyingTokens[DYDX_LIQUIIDTY_POOL] = _dYdXUnderlyingTokens;
-        marketToIndexes[WETH] = 0;
-        marketToIndexes[SAI] = 1;
-        marketToIndexes[USDC] = 2;
-        marketToIndexes[DAI] = 3;
-        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
-        maxDepositProtocolMode = MaxExposure.Pct;
+        setLiquidityPoolToUnderlyingTokens(DYDX_LIQUIIDTY_POOL, _dYdXUnderlyingTokens);
+        addMarket(WETH, 0);
+        addMarket(SAI, 1);
+        addMarket(USDC, 2);
+        addMarket(DAI, 3);
+        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
+        setMaxDepositProtocolMode(MaxExposure.Pct);
     }
 
     /**
@@ -82,6 +82,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         override
         onlyRiskOperator
     {
+        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -94,6 +95,8 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
+        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
+        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -104,6 +107,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @param _marketIndex market index of the given underlying token
      */
     function addMarket(address _underlyingToken, uint256 _marketIndex) public onlyOperator {
+        require(_underlyingToken.isContract(), "!isContract");
         marketToIndexes[_underlyingToken] = _marketIndex;
     }
 
@@ -113,6 +117,7 @@ contract DyDxAdapter is IAdapter, IAdapterInvestLimit, Modifiers {
      * @param _tokens list of underlying tokens linked to the given liquidity pool
      */
     function setLiquidityPoolToUnderlyingTokens(address _liquidityPool, address[] memory _tokens) public onlyOperator {
+        require(_liquidityPool.isContract(), "!isContract");
         liquidityPoolToUnderlyingTokens[_liquidityPool] = _tokens;
     }
 
