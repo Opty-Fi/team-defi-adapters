@@ -113,40 +113,40 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setLiquidityPoolToStakingVault(TBTC_SBTC_CRV_DEPOSIT, TBTC_SBTC_CRV_STAKE);
-        setLiquidityPoolToStakingVault(THREE_CRV_DEPOSIT, THREE_CRV_STAKE);
-        setLiquidityPoolToStakingVault(Y_CRV_DEPOSIT, Y_CRV_STAKE);
-        setLiquidityPoolToStakingVault(DAI_DEPOSIT, DAI_STAKE);
-        setLiquidityPoolToStakingVault(USDC_DEPOSIT, USDC_STAKE);
-        setLiquidityPoolToStakingVault(USDT_DEPOSIT, USDT_STAKE);
-        setLiquidityPoolToStakingVault(TUSD_DEPOSIT, TUSD_STAKE);
-        setLiquidityPoolToStakingVault(REN_WBTC_CRV_DEPOSIT, REN_WBTC_CRV_STAKE);
-        setLiquidityPoolToStakingVault(WBTC_DEPOSIT, WBTC_STAKE);
-        setLiquidityPoolToStakingVault(RENBTC_DEPOSIT, RENBTC_STAKE);
-        setLiquidityPoolToStakingVault(WETH_DEPOSIT, WETH_STAKE);
-        setLiquidityPoolToStakingVault(COMPOUND_CRV_DEPOSIT, COMPOUND_CRV_STAKE);
-        setLiquidityPoolToStakingVault(USDN_3CRV_DEPOSIT, USDN_3CRV_STAKE);
-        setLiquidityPoolToStakingVault(BUSD_CRV_DEPOSIT, BUSD_CRV_STAKE);
-        setLiquidityPoolToStakingVault(HCRV_DEPOSIT, HCRV_STAKE);
-        setLiquidityPoolToStakingVault(OBTC_SBTC_CRV_DEPOSIT, OBTC_SBTC_CRV_STAKE);
-        setLiquidityPoolToStakingVault(STE_CRV_DEPOSIT, STE_CRV_STAKE);
-        setLiquidityPoolToStakingVault(UNI_ETH_DPI_DEPOSIT, UNI_ETH_DPI_STAKE);
-        setLiquidityPoolToStakingVault(SUSHI_ETH_SUSHI_DEPOSIT, SUSHI_ETH_SUSHI_STAKE);
-        setLiquidityPoolToStakingVault(SUSHI_ETH_DAI_DEPOSIT, SUSHI_ETH_DAI_STAKE);
-        setLiquidityPoolToStakingVault(SUSHI_ETH_USDC_DEPOSIT, SUSHI_ETH_USDC_STAKE);
-        setLiquidityPoolToStakingVault(SUSHI_ETH_USDT_DEPOSIT, SUSHI_ETH_USDT_STAKE);
-        setLiquidityPoolToStakingVault(SUSHI_ETH_WBTC_DEPOSIT, SUSHI_ETH_WBTC_STAKE);
-        setLiquidityPoolToStakingVault(HUSD_3CRV_DEPOSIT, HUSD_3CRV_STAKE);
-        setLiquidityPoolToStakingVault(EURS_CRV_DEPOSIT, EURS_CRV_STAKE);
-        setLiquidityPoolToStakingVault(GUSD_3CRV_DEPOSIT, GUSD_3CRV_STAKE);
-        setLiquidityPoolToStakingVault(UST_3CRV_DEPOSIT, UST_3CRV_STAKE);
-        setLiquidityPoolToStakingVault(UNI_UST_MAAPLE_DEPOSIT, UNI_UST_MAAPLE_STAKE);
-        setLiquidityPoolToStakingVault(UNI_UST_MAMZN_DEPOSIT, UNI_UST_MAMZN_STAKE);
-        setLiquidityPoolToStakingVault(UNI_UST_MGOOGL_DEPOSIT, UNI_UST_MGOOGL_STAKE);
-        setLiquidityPoolToStakingVault(UNI_UST_MTSLA_DEPOSIT, UNI_UST_MTSLA_STAKE);
+        liquidityPoolToStakingVault[TBTC_SBTC_CRV_DEPOSIT] = TBTC_SBTC_CRV_STAKE;
+        liquidityPoolToStakingVault[THREE_CRV_DEPOSIT] = THREE_CRV_STAKE;
+        liquidityPoolToStakingVault[Y_CRV_DEPOSIT] = Y_CRV_STAKE;
+        liquidityPoolToStakingVault[DAI_DEPOSIT] = DAI_STAKE;
+        liquidityPoolToStakingVault[USDC_DEPOSIT] = USDC_STAKE;
+        liquidityPoolToStakingVault[USDT_DEPOSIT] = USDT_STAKE;
+        liquidityPoolToStakingVault[TUSD_DEPOSIT] = TUSD_STAKE;
+        liquidityPoolToStakingVault[REN_WBTC_CRV_DEPOSIT] = REN_WBTC_CRV_STAKE;
+        liquidityPoolToStakingVault[WBTC_DEPOSIT] = WBTC_STAKE;
+        liquidityPoolToStakingVault[RENBTC_DEPOSIT] = RENBTC_STAKE;
+        liquidityPoolToStakingVault[WETH_DEPOSIT] = WETH_STAKE;
+        liquidityPoolToStakingVault[COMPOUND_CRV_DEPOSIT] = COMPOUND_CRV_STAKE;
+        liquidityPoolToStakingVault[USDN_3CRV_DEPOSIT] = USDN_3CRV_STAKE;
+        liquidityPoolToStakingVault[BUSD_CRV_DEPOSIT] = BUSD_CRV_STAKE;
+        liquidityPoolToStakingVault[HCRV_DEPOSIT] = HCRV_STAKE;
+        liquidityPoolToStakingVault[OBTC_SBTC_CRV_DEPOSIT] = OBTC_SBTC_CRV_STAKE;
+        liquidityPoolToStakingVault[STE_CRV_DEPOSIT] = STE_CRV_STAKE;
+        liquidityPoolToStakingVault[UNI_ETH_DPI_DEPOSIT] = UNI_ETH_DPI_STAKE;
+        liquidityPoolToStakingVault[SUSHI_ETH_SUSHI_DEPOSIT] = SUSHI_ETH_SUSHI_STAKE;
+        liquidityPoolToStakingVault[SUSHI_ETH_DAI_DEPOSIT] = SUSHI_ETH_DAI_STAKE;
+        liquidityPoolToStakingVault[SUSHI_ETH_USDC_DEPOSIT] = SUSHI_ETH_USDC_STAKE;
+        liquidityPoolToStakingVault[SUSHI_ETH_USDT_DEPOSIT] = SUSHI_ETH_USDT_STAKE;
+        liquidityPoolToStakingVault[SUSHI_ETH_WBTC_DEPOSIT] = SUSHI_ETH_WBTC_STAKE;
+        liquidityPoolToStakingVault[HUSD_3CRV_DEPOSIT] = HUSD_3CRV_STAKE;
+        liquidityPoolToStakingVault[EURS_CRV_DEPOSIT] = EURS_CRV_STAKE;
+        liquidityPoolToStakingVault[GUSD_3CRV_DEPOSIT] = GUSD_3CRV_STAKE;
+        liquidityPoolToStakingVault[UST_3CRV_DEPOSIT] = UST_3CRV_STAKE;
+        liquidityPoolToStakingVault[UNI_UST_MAAPLE_DEPOSIT] = UNI_UST_MAAPLE_STAKE;
+        liquidityPoolToStakingVault[UNI_UST_MAMZN_DEPOSIT] = UNI_UST_MAMZN_STAKE;
+        liquidityPoolToStakingVault[UNI_UST_MGOOGL_DEPOSIT] = UNI_UST_MGOOGL_STAKE;
+        liquidityPoolToStakingVault[UNI_UST_MTSLA_DEPOSIT] = UNI_UST_MTSLA_STAKE;
 
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**
@@ -157,7 +157,6 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
         override
         onlyRiskOperator
     {
-        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -170,8 +169,6 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
-        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
-        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -182,15 +179,13 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
      * @param _stakingVault staking vault address to be linked with liquidity pool
      */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
-        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
-        require(_stakingVault.isContract(), "!_stakingVault.isContract()");
         liquidityPoolToStakingVault[_liquidityPool] = _stakingVault;
     }
 
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) external override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -198,7 +193,7 @@ contract HarvestV1Adapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, I
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) external override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
         emit LogMaxDepositProtocolPct(maxDepositProtocolPct, msg.sender);
     }

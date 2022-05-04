@@ -60,11 +60,11 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setLiquidityPoolToStakingVault(USDT_DEPOSIT_POOL, USDT_STAKING_VAULT);
-        setLiquidityPoolToStakingVault(USDC_DEPOSIT_POOL, USDC_STAKING_VAULT);
-        setLiquidityPoolToStakingVault(DAI_DEPOSIT_POOL, DAI_STAKING_VAULT);
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+        liquidityPoolToStakingVault[USDT_DEPOSIT_POOL] = USDT_STAKING_VAULT;
+        liquidityPoolToStakingVault[USDC_DEPOSIT_POOL] = USDC_STAKING_VAULT;
+        liquidityPoolToStakingVault[DAI_DEPOSIT_POOL] = DAI_STAKING_VAULT;
+        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**
@@ -75,7 +75,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         override
         onlyRiskOperator
     {
-        require(_liquidityPool.isContract(), "!isContract");
         maxDepositPoolPct[_liquidityPool] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_liquidityPool], msg.sender);
     }
@@ -88,8 +87,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
-        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
-        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_liquidityPool][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_liquidityPool][_underlyingToken], msg.sender);
     }
@@ -100,8 +97,6 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
      * @param _stakingVault staking vault address to be linked with liquidity pool
      */
     function setLiquidityPoolToStakingVault(address _liquidityPool, address _stakingVault) public onlyOperator {
-        require(_liquidityPool.isContract(), "!_liquidityPool.isContract()");
-        require(_stakingVault.isContract(), "!_stakingVault.isContract()");
         require(
             liquidityPoolToStakingVault[_liquidityPool] != _stakingVault,
             "liquidityPoolToStakingVault already set"
@@ -112,7 +107,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) external override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -120,7 +115,7 @@ contract DForceAdapter is IAdapter, IAdapterHarvestReward, IAdapterStaking, IAda
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) external override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
         emit LogMaxDepositProtocolPct(maxDepositProtocolPct, msg.sender);
     }

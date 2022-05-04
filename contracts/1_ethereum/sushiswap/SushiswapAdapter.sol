@@ -56,13 +56,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
 
     constructor(address _registry) public Modifiers(_registry) {
-        setMaxDepositProtocolPct(uint256(10000)); // 100%
-        setMaxDepositProtocolMode(MaxExposure.Pct);
-        setUnderlyingTokenToMasterChefToPid(
-            SUSHI_WETH_USDC,
-            MASTERCHEF_V1, // MasterChef V1 contract address
-            uint256(1)
-        );
+        maxDepositProtocolPct = uint256(10000); // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
+        underlyingTokenToMasterChefToPid[SUSHI_WETH_USDC][MASTERCHEF_V1] = uint256(1);
     }
 
     /**
@@ -73,7 +69,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         override
         onlyRiskOperator
     {
-        require(_underlyingToken.isContract(), "!isContract");
         maxDepositPoolPct[_underlyingToken] = _maxDepositPoolPct;
         emit LogMaxDepositPoolPct(maxDepositPoolPct[_underlyingToken], msg.sender);
     }
@@ -86,8 +81,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         uint256 _maxDepositAmount
     ) external override onlyRiskOperator {
-        require(_masterChef.isContract(), "!_masterChef.isContract()");
-        require(_underlyingToken.isContract(), "!_underlyingToken.isContract()");
         maxDepositAmount[_masterChef][_underlyingToken] = _maxDepositAmount;
         emit LogMaxDepositAmount(maxDepositAmount[_masterChef][_underlyingToken], msg.sender);
     }
@@ -220,7 +213,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolMode(MaxExposure _mode) public override onlyRiskOperator {
+    function setMaxDepositProtocolMode(MaxExposure _mode) external override onlyRiskOperator {
         maxDepositProtocolMode = _mode;
         emit LogMaxDepositProtocolMode(maxDepositProtocolMode, msg.sender);
     }
@@ -228,7 +221,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     /**
      * @inheritdoc IAdapterInvestLimit
      */
-    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) public override onlyRiskOperator {
+    function setMaxDepositProtocolPct(uint256 _maxDepositProtocolPct) external override onlyRiskOperator {
         maxDepositProtocolPct = _maxDepositProtocolPct;
         emit LogMaxDepositProtocolPct(maxDepositProtocolPct, msg.sender);
     }
