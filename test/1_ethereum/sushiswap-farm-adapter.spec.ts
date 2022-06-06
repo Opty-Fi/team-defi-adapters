@@ -5,7 +5,7 @@ import { Contract, Signer, utils, BigNumber } from "ethers";
 import { CONTRACTS } from "../../helpers/type";
 import { TESTING_DEPLOYMENT_ONCE, ADDRESS_ZERO } from "../../helpers/constants/utils";
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
-import { SUSHISWAP_ADAPTER_NAME } from "../../helpers/constants/adapters";
+import { SUSHISWAP_FARM_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { TypedAdapterStrategies, TypedTokens, TypedDefiPools, TypedContracts } from "../../helpers/data";
 import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/helpers";
@@ -13,7 +13,7 @@ import { to_10powNumber_BN } from "../../helpers/utils";
 import { getAddress } from "ethers/lib/utils";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import scenarios from "./scenarios/adapters.json";
-import testDeFiAdapterScenario from "./scenarios/sushiswap-test-defi-adapter.json";
+import testDeFiAdapterScenario from "./scenarios/sushiswap-farm-test-defi-adapter.json";
 import { ERC20 } from "../../typechain/ERC20";
 
 chai.use(solidity);
@@ -26,13 +26,14 @@ interface TEST_DEFI_ADAPTER_ARGUMENTS {
   maxDepositProtocolPct?: string | null;
   maxDepositPoolPct?: string | null;
   maxDepositAmount?: string | null;
+  amount?: string | null;
   mode?: string | null;
 }
 
-describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
-  const strategies = TypedAdapterStrategies[SUSHISWAP_ADAPTER_NAME];
+describe(`${SUSHISWAP_FARM_ADAPTER_NAME} Unit test`, () => {
+  const strategies = TypedAdapterStrategies[SUSHISWAP_FARM_ADAPTER_NAME];
   let adapterPrerequisites: CONTRACTS;
-  let sushiswapAdapter: Contract;
+  let sushiswapMasterChefV1Adapter: Contract;
   let ownerAddress: string;
   let users: { [key: string]: Signer };
   before(async () => {
@@ -42,14 +43,14 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
-      sushiswapAdapter = await deployAdapter(
+      sushiswapMasterChefV1Adapter = await deployAdapter(
         hre,
         owner,
-        SUSHISWAP_ADAPTER_NAME,
+        SUSHISWAP_FARM_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
         TESTING_DEPLOYMENT_ONCE,
       );
-      assert.isDefined(sushiswapAdapter, "Adapter not deployed");
+      assert.isDefined(sushiswapMasterChefV1Adapter, "Adapter not deployed");
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +74,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getDepositSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await sushiswapAdapter[action.action](
+                    codes = await sushiswapMasterChefV1Adapter[action.action](
                       ownerAddress,
                       token,
                       masterChef,
@@ -82,7 +83,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     depositAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await sushiswapAdapter[action.action](ownerAddress, token, masterChef);
+                  codes = await sushiswapMasterChefV1Adapter[action.action](ownerAddress, token, masterChef);
                 }
                 for (let i = 0; i < codes.length; i++) {
                   if (i < 2) {
@@ -114,7 +115,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 if (action.action === "getWithdrawSomeCodes(address,address,address,uint256)") {
                   const { amount }: ARGUMENTS = action.args;
                   if (amount) {
-                    codes = await sushiswapAdapter[action.action](
+                    codes = await sushiswapMasterChefV1Adapter[action.action](
                       ownerAddress,
                       token,
                       masterChef,
@@ -123,7 +124,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     withdrawAmount = amount[strategy.token];
                   }
                 } else {
-                  codes = await sushiswapAdapter[action.action](ownerAddress, token, masterChef);
+                  codes = await sushiswapMasterChefV1Adapter[action.action](ownerAddress, token, masterChef);
                 }
 
                 for (let i = 0; i < codes.length; i++) {
@@ -145,7 +146,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
     });
   }
 
-  describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_ADAPTER_NAME}`, () => {
+  describe(`${testDeFiAdapterScenario.title} - ${SUSHISWAP_FARM_ADAPTER_NAME}`, () => {
     const adapterNames = Object.keys(TypedDefiPools);
     let testDeFiAdapter: Contract;
     let masterChefInstance: Contract;
@@ -157,7 +158,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
 
     for (const adapterName of adapterNames) {
       // TODO: In future it can be leverage across all the adapters
-      if (adapterName == SUSHISWAP_ADAPTER_NAME) {
+      if (adapterName == SUSHISWAP_FARM_ADAPTER_NAME) {
         const pools = Object.keys(TypedDefiPools[adapterName]);
         for (const pool of pools) {
           const underlyingTokenAddress = getAddress(TypedDefiPools[adapterName][pool].tokens[0]);
@@ -166,20 +167,9 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
           if (TypedDefiPools[adapterName][pool].tokens.length == 1) {
             for (const story of testDeFiAdapterScenario.stories) {
               it(`${pool} - ${story.description}`, async () => {
-                const adapterAddress = sushiswapAdapter.address;
-                if (
-                  (
-                    await sushiswapAdapter.underlyingTokenToMasterChefToPid(
-                      underlyingTokenAddress,
-                      masterChefInstance.address,
-                    )
-                  ).eq(0)
-                ) {
-                  await sushiswapAdapter.setUnderlyingTokenToMasterChefToPid(
-                    underlyingTokenAddress,
-                    masterChefInstance.address,
-                    pid,
-                  );
+                const adapterAddress = sushiswapMasterChefV1Adapter.address;
+                if ((await sushiswapMasterChefV1Adapter.underlyingTokenToPid(underlyingTokenAddress)).eq(0)) {
+                  await sushiswapMasterChefV1Adapter.setUnderlyingTokenToPid(underlyingTokenAddress, pid);
                 }
                 const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", underlyingTokenAddress);
                 const token0Instance = await hre.ethers.getContractAt("ERC20", await pairInstance.token0());
@@ -202,33 +192,37 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                   switch (action.action) {
                     case "setMaxDepositProtocolMode(uint8)": {
                       const { mode } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                      const existingMode = await sushiswapAdapter.maxDepositProtocolMode();
+                      const existingMode = await sushiswapMasterChefV1Adapter.maxDepositProtocolMode();
                       if (mode) {
                         if (existingMode != mode) {
-                          await expect(sushiswapAdapter[action.action](mode))
-                            .to.emit(sushiswapAdapter, "LogMaxDepositProtocolMode")
+                          await expect(sushiswapMasterChefV1Adapter[action.action](mode))
+                            .to.emit(sushiswapMasterChefV1Adapter, "LogMaxDepositProtocolMode")
                             .withArgs(+mode, ownerAddress);
-                          expect(await sushiswapAdapter.maxDepositProtocolMode()).to.equal(+mode);
+                          expect(await sushiswapMasterChefV1Adapter.maxDepositProtocolMode()).to.equal(+mode);
                         }
                       }
 
                       break;
                     }
                     case "setMaxDepositProtocolPct(uint256)": {
-                      const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(liquidityPool);
+                      const existingPoolPct: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositPoolPct(
+                        liquidityPool,
+                      );
                       if (!existingPoolPct.eq(BigNumber.from(0))) {
-                        await sushiswapAdapter.setMaxDepositPoolPct(liquidityPool, 0);
-                        expect(await sushiswapAdapter.maxDepositPoolPct(liquidityPool)).to.be.eq(0);
+                        await sushiswapMasterChefV1Adapter.setMaxDepositPoolPct(liquidityPool, 0);
+                        expect(await sushiswapMasterChefV1Adapter.maxDepositPoolPct(liquidityPool)).to.be.eq(0);
                       }
                       const { maxDepositProtocolPct }: any = action.args!;
-                      const existingProtocolPct: BigNumber = await sushiswapAdapter.maxDepositProtocolPct();
+                      const existingProtocolPct: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositProtocolPct();
                       if (!existingProtocolPct.eq(BigNumber.from(maxDepositProtocolPct))) {
-                        await expect(sushiswapAdapter[action.action](maxDepositProtocolPct))
-                          .to.emit(sushiswapAdapter, "LogMaxDepositProtocolPct")
+                        await expect(sushiswapMasterChefV1Adapter[action.action](maxDepositProtocolPct))
+                          .to.emit(sushiswapMasterChefV1Adapter, "LogMaxDepositProtocolPct")
                           .withArgs(maxDepositProtocolPct, ownerAddress);
-                        expect(await sushiswapAdapter.maxDepositProtocolPct()).to.equal(maxDepositProtocolPct);
+                        expect(await sushiswapMasterChefV1Adapter.maxDepositProtocolPct()).to.equal(
+                          maxDepositProtocolPct,
+                        );
                       }
-                      const poolValue: BigNumber = await sushiswapAdapter.getPoolValue(
+                      const poolValue: BigNumber = await sushiswapMasterChefV1Adapter.getPoolValue(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
@@ -239,19 +233,21 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "setMaxDepositPoolPct(address,uint256)": {
                       const { maxDepositPoolPct } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
-                      const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(
+                      const existingPoolPct: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositPoolPct(
                         underlyingTokenAddress,
                       );
 
                       if (!existingPoolPct.eq(BigNumber.from(maxDepositPoolPct))) {
-                        await expect(sushiswapAdapter[action.action](underlyingTokenAddress, maxDepositPoolPct))
-                          .to.emit(sushiswapAdapter, "LogMaxDepositPoolPct")
+                        await expect(
+                          sushiswapMasterChefV1Adapter[action.action](underlyingTokenAddress, maxDepositPoolPct),
+                        )
+                          .to.emit(sushiswapMasterChefV1Adapter, "LogMaxDepositPoolPct")
                           .withArgs(maxDepositPoolPct, ownerAddress);
-                        expect(await sushiswapAdapter.maxDepositPoolPct(underlyingTokenAddress)).to.equal(
+                        expect(await sushiswapMasterChefV1Adapter.maxDepositPoolPct(underlyingTokenAddress)).to.equal(
                           maxDepositPoolPct,
                         );
                       }
-                      const poolValue: BigNumber = await sushiswapAdapter.getPoolValue(
+                      const poolValue: BigNumber = await sushiswapMasterChefV1Adapter.getPoolValue(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
@@ -268,17 +264,19 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       } else if (maxDepositAmount === "<") {
                         amount = defaultFundAmount.div(BigNumber.from("10"));
                       }
-                      const existingDepositAmount: BigNumber = await sushiswapAdapter.maxDepositAmount(
+                      const existingDepositAmount: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositAmount(
                         liquidityPool,
                         underlyingTokenAddress,
                       );
                       if (!existingDepositAmount.eq(amount)) {
-                        await expect(sushiswapAdapter[action.action](liquidityPool, underlyingTokenAddress, amount))
-                          .to.emit(sushiswapAdapter, "LogMaxDepositAmount")
+                        await expect(
+                          sushiswapMasterChefV1Adapter[action.action](liquidityPool, underlyingTokenAddress, amount),
+                        )
+                          .to.emit(sushiswapMasterChefV1Adapter, "LogMaxDepositAmount")
                           .withArgs(amount, ownerAddress);
-                        expect(await sushiswapAdapter.maxDepositAmount(liquidityPool, underlyingTokenAddress)).to.equal(
-                          amount,
-                        );
+                        expect(
+                          await sushiswapMasterChefV1Adapter.maxDepositAmount(liquidityPool, underlyingTokenAddress),
+                        ).to.equal(amount);
                       }
                       limit = amount;
                       break;
@@ -338,7 +336,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetWithdrawSomeCodes(address,address,address,uint256)": {
                       underlyingBalanceBefore = await pairInstance.balanceOf(testDeFiAdapter.address);
-                      const lpTokenBalance = await await sushiswapAdapter.getLiquidityPoolTokenBalance(
+                      const lpTokenBalance = await await sushiswapMasterChefV1Adapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
@@ -381,7 +379,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getUnclaimedRewardTokenAmount(address,address,address)": {
-                      const unclaimedRewardTokenAmount = await sushiswapAdapter[action.action](
+                      const unclaimedRewardTokenAmount = await sushiswapMasterChefV1Adapter[action.action](
                         testDeFiAdapter.address,
                         liquidityPool,
                         underlyingTokenAddress,
@@ -395,29 +393,37 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "testGetClaimRewardTokenCodes(address,address)": {
                       rewardTokenBalanceBefore = await rewardTokenERC20Instance.balanceOf(testDeFiAdapter.address);
-                      await testDeFiAdapter[action.action](liquidityPool, sushiswapAdapter.address);
+                      await testDeFiAdapter[action.action](liquidityPool, sushiswapMasterChefV1Adapter.address);
                       break;
                     }
                     case "getUnderlyingTokens(address,address)": {
-                      await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO)).to.be.revertedWith(
-                        "!empty",
-                      );
+                      await expect(
+                        sushiswapMasterChefV1Adapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO),
+                      ).to.be.revertedWith("!empty");
                       break;
                     }
                     case "calculateAmountInLPToken(address,address,uint256)": {
-                      await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0)).to.be.revertedWith(
-                        "!empty",
-                      );
+                      const { amount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      expect(
+                        await sushiswapMasterChefV1Adapter[action.action](
+                          ADDRESS_ZERO,
+                          ADDRESS_ZERO,
+                          BigNumber.from(amount),
+                        ),
+                      ).to.be.eq(BigNumber.from(amount));
                       break;
                     }
                     case "getPoolValue(address,address)": {
-                      const poolValue = await sushiswapAdapter[action.action](liquidityPool, underlyingTokenAddress);
+                      const poolValue = await sushiswapMasterChefV1Adapter[action.action](
+                        liquidityPool,
+                        underlyingTokenAddress,
+                      );
                       const expectedPoolValue = await pairInstance.balanceOf(masterChefInstance.address);
                       expect(poolValue).to.be.eq(expectedPoolValue);
                       break;
                     }
                     case "getLiquidityPoolToken(address,address)": {
-                      const liquidityPoolFromAdapter = await sushiswapAdapter[action.action](
+                      const liquidityPoolFromAdapter = await sushiswapMasterChefV1Adapter[action.action](
                         underlyingTokenAddress,
                         ADDRESS_ZERO,
                       );
@@ -431,24 +437,35 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       await hre.network.provider.send("evm_mine");
                       break;
                     }
+                    case "getSomeAmountInToken(address,address,uint256)": {
+                      const { amount } = action.args as TEST_DEFI_ADAPTER_ARGUMENTS;
+                      expect(
+                        await sushiswapMasterChefV1Adapter[action.action](
+                          ADDRESS_ZERO,
+                          ADDRESS_ZERO,
+                          BigNumber.from(amount),
+                        ),
+                      ).to.be.eq(BigNumber.from(amount));
+                      break;
+                    }
                   }
                 }
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
                       const expectedValue = action.expectedValue;
-                      const lpTokenBalance = await sushiswapAdapter[action.action](
+                      const lpTokenBalance = await sushiswapMasterChefV1Adapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      const poolValue = await sushiswapAdapter["getPoolValue(address,address)"](
+                      const poolValue = await sushiswapMasterChefV1Adapter["getPoolValue(address,address)"](
                         liquidityPool,
                         underlyingTokenAddress,
                       );
-                      const existingMode = await sushiswapAdapter.maxDepositProtocolMode();
+                      const existingMode = await sushiswapMasterChefV1Adapter.maxDepositProtocolMode();
                       if (existingMode == 0) {
-                        const existingDepositAmount: BigNumber = await sushiswapAdapter.maxDepositAmount(
+                        const existingDepositAmount: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositAmount(
                           liquidityPool,
                           underlyingTokenAddress,
                         );
@@ -458,8 +475,11 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                           expect(+lpTokenBalance).to.be.gt(0);
                         }
                       } else {
-                        const existingPoolPct: BigNumber = await sushiswapAdapter.maxDepositPoolPct(liquidityPool);
-                        const existingProtocolPct: BigNumber = await sushiswapAdapter.maxDepositProtocolPct();
+                        const existingPoolPct: BigNumber = await sushiswapMasterChefV1Adapter.maxDepositPoolPct(
+                          liquidityPool,
+                        );
+                        const existingProtocolPct: BigNumber =
+                          await sushiswapMasterChefV1Adapter.maxDepositProtocolPct();
                         if ((existingPoolPct.eq(0) && existingProtocolPct.eq(0)) || poolValue.eq(0)) {
                           expect(lpTokenBalance).to.be.eq(0);
                         } else {
@@ -474,7 +494,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     case "balanceOf(address)": {
                       const expectedValue = action.expectedValue;
                       const underlyingBalanceAfter: BigNumber = await pairInstance.balanceOf(testDeFiAdapter.address);
-                      const poolValue = await sushiswapAdapter["getPoolValue(address,address)"](
+                      const poolValue = await sushiswapMasterChefV1Adapter["getPoolValue(address,address)"](
                         liquidityPool,
                         underlyingTokenAddress,
                       );
@@ -523,13 +543,13 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                     }
                     case "isRedeemableAmountSufficient(address,address,address,uint256)": {
                       const expectedValue = action.expectedValue;
-                      const amountInUnderlyingToken: BigNumber = await sushiswapAdapter.getAllAmountInToken(
+                      const amountInUnderlyingToken: BigNumber = await sushiswapMasterChefV1Adapter.getAllAmountInToken(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
                       );
                       if (expectedValue == ">") {
-                        const isRedeemableAmountSufficient = await sushiswapAdapter[action.action](
+                        const isRedeemableAmountSufficient = await sushiswapMasterChefV1Adapter[action.action](
                           testDeFiAdapter.address,
                           underlyingTokenAddress,
                           liquidityPool,
@@ -537,7 +557,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                         );
                         expect(isRedeemableAmountSufficient).to.be.eq(false);
                       } else if (expectedValue == "<") {
-                        const isRedeemableAmountSufficient = await sushiswapAdapter[action.action](
+                        const isRedeemableAmountSufficient = await sushiswapMasterChefV1Adapter[action.action](
                           testDeFiAdapter.address,
                           underlyingTokenAddress,
                           liquidityPool,
@@ -550,7 +570,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "calculateRedeemableLPTokenAmount(address,address,address,uint256)": {
-                      const lpTokenBalance: BigNumber = await sushiswapAdapter.getLiquidityPoolTokenBalance(
+                      const lpTokenBalance: BigNumber = await sushiswapMasterChefV1Adapter.getLiquidityPoolTokenBalance(
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
@@ -562,7 +582,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       break;
                     }
                     case "getAllAmountInToken(address,address,address)": {
-                      const amountInUnderlyingToken = await sushiswapAdapter[action.action](
+                      const amountInUnderlyingToken = await sushiswapMasterChefV1Adapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
@@ -570,26 +590,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                       let expectedAmountInUnderlyingToken = (
                         await masterChefInstance.userInfo(pid, testDeFiAdapter.address)
                       )[0];
-                      const expectedUnclaimedRewardTokenAmount = await masterChefInstance.pendingSushi(
-                        pid,
-                        testDeFiAdapter.address,
-                      );
-                      if (+expectedUnclaimedRewardTokenAmount > 0) {
-                        expectedAmountInUnderlyingToken = expectedAmountInUnderlyingToken.add(
-                          await adapterPrerequisites["harvestCodeProvider"].rewardBalanceInUnderlyingTokens(
-                            rewardTokenAddress,
-                            underlyingTokenAddress,
-                            expectedUnclaimedRewardTokenAmount,
-                          ),
-                        );
-                      }
                       expect(+amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
-                      break;
-                    }
-                    case "getSomeAmountInToken(address,address,uint256)": {
-                      await expect(sushiswapAdapter[action.action](ADDRESS_ZERO, ADDRESS_ZERO, 0)).to.be.revertedWith(
-                        "!empty",
-                      );
                       break;
                     }
                   }
@@ -605,7 +606,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.getActions) {
                   switch (action.action) {
                     case "getLiquidityPoolTokenBalance(address,address,address)": {
-                      const lpTokenBalance = await sushiswapAdapter[action.action](
+                      const lpTokenBalance = await sushiswapMasterChefV1Adapter[action.action](
                         testDeFiAdapter.address,
                         underlyingTokenAddress,
                         liquidityPool,
@@ -628,7 +629,7 @@ describe(`${SUSHISWAP_ADAPTER_NAME} Unit test`, () => {
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "canStake(address)": {
-                      const canStake = await sushiswapAdapter[action.action](ADDRESS_ZERO);
+                      const canStake = await sushiswapMasterChefV1Adapter[action.action](ADDRESS_ZERO);
                       expect(canStake).to.be.eq(false);
                       break;
                     }

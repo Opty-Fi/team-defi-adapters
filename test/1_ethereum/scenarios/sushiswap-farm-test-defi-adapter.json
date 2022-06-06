@@ -1120,6 +1120,9 @@
         {
           "contract": "adapter",
           "action": "calculateAmountInLPToken(address,address,uint256)",
+          "args": {
+            "amount": "1000000000000000000"
+          },
           "expect": "success",
           "message": ""
         }
@@ -1159,6 +1162,9 @@
         {
           "contract": "adapter",
           "action": "getSomeAmountInToken(address,address,uint256)",
+          "args": {
+            "amount": "1000000000000000000"
+          },
           "expect": "success",
           "message": ""
         }
