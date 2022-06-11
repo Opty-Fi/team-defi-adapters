@@ -587,7 +587,7 @@ describe(`${SUSHISWAP_FARM_ADAPTER_NAME} Unit test`, () => {
                         underlyingTokenAddress,
                         liquidityPool,
                       );
-                      let expectedAmountInUnderlyingToken = (
+                      const expectedAmountInUnderlyingToken = (
                         await masterChefInstance.userInfo(pid, testDeFiAdapter.address)
                       )[0];
                       expect(+amountInUnderlyingToken).to.be.eq(+expectedAmountInUnderlyingToken);
