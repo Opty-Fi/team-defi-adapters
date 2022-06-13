@@ -40,6 +40,9 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
     /** @notice Sushiswap WETH-USDC pair contract address */
     address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
 
+    /** @notice Sushiswap AAVE-WETH pair contract address */
+    address public constant SUSHI_AAVE_WETH = address(0xD75EA151a61d06868E31F8988D28DFE5E9df57B4);
+
     /** @notice Sushiswap MasterChef V1 contract address */
     address public constant MASTERCHEF_V1 = address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
 
@@ -59,6 +62,7 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
         maxDepositProtocolPct = uint256(10000); // 100% (basis points)
         maxDepositProtocolMode = MaxExposure.Pct;
         underlyingTokenToPid[SUSHI_WETH_USDC] = uint256(1);
+        underlyingTokenToPid[SUSHI_AAVE_WETH] = uint256(37);
     }
 
     /**
