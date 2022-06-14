@@ -55,14 +55,16 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
     /** @notice List of Sushiswap pairs */
     address public constant USDC_WETH = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
     address public constant DAI_WETH = address(0xC3D03e4F041Fd4cD388c549Ee2A29a9E5075882f);
+    address public constant COMP_WETH = address(0x31503dcb60119A812feE820bb7042752019F2355);
+    address public constant SNX_WETH = address(0xA1d7b2d891e3A1f9ef4bBC5be20630C2FEB1c470);
     address public constant LINK_WETH = address(0xC40D16476380e4037e6b1A2594cAF6a6cc8Da967);
     address public constant SUSHI_WETH = address(0x795065dCc9f64b5614C407a6EFDC400DA6221FB0);
     address public constant UNI_WETH = address(0xDafd66636E2561b0284EDdE37e42d192F2844D40);
     address public constant XSUSHI_WETH = address(0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7);
     address public constant WBTC_WETH = address(0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58);
     address public constant AAVE_WETH = address(0xD75EA151a61d06868E31F8988D28DFE5E9df57B4);
-    address public constant XSUSHI_USDC = address(0xd597924b16Cc1904d808285bC9044fd51CEEEaD7);
-    address public constant TUSD_WETH = address(0x760166FA4f227dA29ecAC3BeC348f5fA853a1f3C);
+    address public constant LDO_WETH = address(0xC558F600B34A5f69dD2f0D06Cb8A88d829B7420a);
+    address public constant MANA_WETH = address(0x1bEC4db6c3Bc499F3DbF289F5499C30d541FEc97);
     address public constant ILV_WETH = address(0x6a091a3406E0073C3CD6340122143009aDac0EDa);
 
     constructor(address _registry) public Modifiers(_registry) {
@@ -70,14 +72,16 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
         maxDepositProtocolMode = MaxExposure.Pct;
         underlyingTokenToPid[USDC_WETH] = uint256(1);
         underlyingTokenToPid[DAI_WETH] = uint256(2);
+        underlyingTokenToPid[COMP_WETH] = uint256(4);
+        underlyingTokenToPid[SNX_WETH] = uint256(6);
         underlyingTokenToPid[LINK_WETH] = uint256(8);
         underlyingTokenToPid[SUSHI_WETH] = uint256(12);
         underlyingTokenToPid[UNI_WETH] = uint256(18);
         underlyingTokenToPid[XSUSHI_WETH] = uint256(19);
         underlyingTokenToPid[WBTC_WETH] = uint256(21);
         underlyingTokenToPid[AAVE_WETH] = uint256(37);
-        underlyingTokenToPid[XSUSHI_USDC] = uint256(39);
-        underlyingTokenToPid[TUSD_WETH] = uint256(112);
+        underlyingTokenToPid[LDO_WETH] = uint256(109);
+        underlyingTokenToPid[MANA_WETH] = uint256(240);
         underlyingTokenToPid[ILV_WETH] = uint256(244);
     }
 
