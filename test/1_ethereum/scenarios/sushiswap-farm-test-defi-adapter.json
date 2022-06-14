@@ -1403,6 +1403,41 @@
       ],
       "getActions": [],
       "cleanActions": []
+    },
+    {
+      "description": "setUnderlyingTokenToPid() should fail if the number of given addresses doesn't match the number of given pids",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setUnderlyingTokenToPid(address[],uint256[])",
+          "args": {},
+          "expect": "fail",
+          "message": ""
+        }
+      ],
+      "getActions": [],
+      "cleanActions": []
+    },
+    {
+      "description": "setUnderlyingTokenToPid() should map given addresses to the given pids",
+      "setActions": [
+        {
+          "contract": "adapter",
+          "action": "setUnderlyingTokenToPid(address[],uint256[])",
+          "args": {},
+          "expect": "success",
+          "message": ""
+        }
+      ],
+      "getActions": [
+        {
+          "contract": "adapter",
+          "action": "underlyingTokenToPid(address)",
+          "executer": "",
+          "expectedValue": {}
+        }
+      ],
+      "cleanActions": []
     }
   ]
 }

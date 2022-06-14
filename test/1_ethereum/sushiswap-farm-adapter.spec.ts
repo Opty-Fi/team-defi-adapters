@@ -169,7 +169,7 @@ describe(`${SUSHISWAP_FARM_ADAPTER_NAME} Unit test`, () => {
               it(`${pool} - ${story.description}`, async () => {
                 const adapterAddress = sushiswapMasterChefV1Adapter.address;
                 if ((await sushiswapMasterChefV1Adapter.underlyingTokenToPid(underlyingTokenAddress)).eq(0)) {
-                  await sushiswapMasterChefV1Adapter.setUnderlyingTokenToPid(underlyingTokenAddress, pid);
+                  await sushiswapMasterChefV1Adapter.setUnderlyingTokenToPid([underlyingTokenAddress], [pid]);
                 }
                 const pairInstance = await hre.ethers.getContractAt("IUniswapV2Pair", underlyingTokenAddress);
                 const token0Instance = await hre.ethers.getContractAt("ERC20", await pairInstance.token0());
@@ -626,11 +626,37 @@ describe(`${SUSHISWAP_FARM_ADAPTER_NAME} Unit test`, () => {
             for (let i = 0; i < testDeFiAdapterScenario.adapterStandaloneStories.length; i++) {
               it(`${testDeFiAdapterScenario?.adapterStandaloneStories[i].description}`, async function () {
                 const story = testDeFiAdapterScenario.adapterStandaloneStories[i];
+                const addresses: string[] = [];
                 for (const action of story.setActions) {
                   switch (action.action) {
                     case "canStake(address)": {
                       const canStake = await sushiswapMasterChefV1Adapter[action.action](ADDRESS_ZERO);
                       expect(canStake).to.be.eq(false);
+                      break;
+                    }
+                    case "setUnderlyingTokenToPid(address[],uint256[])": {
+                      if (action.expect == "success") {
+                        for (let i = 0; i < 5; i++) {
+                          addresses.push(hre.ethers.Wallet.createRandom().address);
+                        }
+                        const pids = [...Array(5).keys()];
+                        await sushiswapMasterChefV1Adapter.connect(users["owner"])[action.action](addresses, pids);
+                      } else if (action.expect == "fail") {
+                        const pids = [...Array(4).keys()];
+                        await expect(
+                          sushiswapMasterChefV1Adapter.connect(users["owner"])[action.action](addresses, pids),
+                        ).to.be.revertedWith("inequal length of underlyingtokens and pids");
+                      }
+                      break;
+                    }
+                  }
+                }
+                for (const action of story.getActions) {
+                  switch (action.action) {
+                    case "underlyingTokenToPid(address)": {
+                      for (let i = 0; i < 5; i++) {
+                        expect(await sushiswapMasterChefV1Adapter[action.action](addresses[i])).to.be.eq(i);
+                      }
                       break;
                     }
                   }
