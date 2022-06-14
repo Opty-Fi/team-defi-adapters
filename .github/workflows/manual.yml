@@ -118,6 +118,10 @@ jobs:
       - name: Test sushiswapfarm
         run: |
           SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 yarn hardhat --max-memory 4096 test ./test/1_ethereum/sushiswap-farm-adapter.spec.ts
+          SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 yarn hardhat --max-memory 4096 test ./test/1_ethereum/aave-v1-adapter.spec.ts
+          SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 yarn hardhat --max-memory 4096 test ./test/1_ethereum/aave-v2-adapter.spec.ts
+          SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 yarn hardhat --max-memory 4096 test ./test/1_ethereum/compound-adapter.spec.ts
+          SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 yarn hardhat --max-memory 4096 test ./test/1_ethereum/curve-adapter.spec.ts
 #       - name: Add public IP to AWS security group
 #         uses: sohelamin/aws-security-group-add-ip-action@master
 #         with:
