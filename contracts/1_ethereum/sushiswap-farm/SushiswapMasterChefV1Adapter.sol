@@ -24,24 +24,15 @@ import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit
  * @dev Abstraction layer to Sushiswap's MasterChef contract
  */
 
-contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
+contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestReward, Modifiers {
     using SafeMath for uint256;
     using Address for address;
 
     /** @notice max deposit value datatypes */
     MaxExposure public maxDepositProtocolMode;
 
-    /** @notice Sushiswap's reward token address */
-    address public rewardToken;
-
     /** @notice Sushiswap router contract address */
     address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
-
-    /** @notice Sushiswap WETH-USDC pair contract address */
-    address public constant SUSHI_WETH_USDC = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
-
-    /** @notice Sushiswap MasterChef V1 contract address */
-    address public constant MASTERCHEF_V1 = address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
 
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
@@ -53,12 +44,39 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     mapping(address => mapping(address => uint256)) public maxDepositAmount;
 
     /** @notice Maps underlyingToken to the ID of its pool */
-    mapping(address => mapping(address => uint256)) public underlyingTokenToMasterChefToPid;
+    mapping(address => uint256) public underlyingTokenToPid;
+
+    /** @notice List of Sushiswap pairs */
+    address public constant USDC_WETH = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
+    address public constant DAI_WETH = address(0xC3D03e4F041Fd4cD388c549Ee2A29a9E5075882f);
+    address public constant COMP_WETH = address(0x31503dcb60119A812feE820bb7042752019F2355);
+    address public constant SNX_WETH = address(0xA1d7b2d891e3A1f9ef4bBC5be20630C2FEB1c470);
+    address public constant LINK_WETH = address(0xC40D16476380e4037e6b1A2594cAF6a6cc8Da967);
+    address public constant SUSHI_WETH = address(0x795065dCc9f64b5614C407a6EFDC400DA6221FB0);
+    address public constant UNI_WETH = address(0xDafd66636E2561b0284EDdE37e42d192F2844D40);
+    address public constant XSUSHI_WETH = address(0x36e2FCCCc59e5747Ff63a03ea2e5C0c2C14911e7);
+    address public constant WBTC_WETH = address(0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58);
+    address public constant AAVE_WETH = address(0xD75EA151a61d06868E31F8988D28DFE5E9df57B4);
+    address public constant LDO_WETH = address(0xC558F600B34A5f69dD2f0D06Cb8A88d829B7420a);
+    address public constant MANA_WETH = address(0x1bEC4db6c3Bc499F3DbF289F5499C30d541FEc97);
+    address public constant ILV_WETH = address(0x6a091a3406E0073C3CD6340122143009aDac0EDa);
 
     constructor(address _registry) public Modifiers(_registry) {
         maxDepositProtocolPct = uint256(10000); // 100% (basis points)
         maxDepositProtocolMode = MaxExposure.Pct;
-        underlyingTokenToMasterChefToPid[SUSHI_WETH_USDC][MASTERCHEF_V1] = uint256(1);
+        underlyingTokenToPid[USDC_WETH] = uint256(1);
+        underlyingTokenToPid[DAI_WETH] = uint256(2);
+        underlyingTokenToPid[COMP_WETH] = uint256(4);
+        underlyingTokenToPid[SNX_WETH] = uint256(6);
+        underlyingTokenToPid[LINK_WETH] = uint256(8);
+        underlyingTokenToPid[SUSHI_WETH] = uint256(12);
+        underlyingTokenToPid[UNI_WETH] = uint256(18);
+        underlyingTokenToPid[XSUSHI_WETH] = uint256(19);
+        underlyingTokenToPid[WBTC_WETH] = uint256(21);
+        underlyingTokenToPid[AAVE_WETH] = uint256(37);
+        underlyingTokenToPid[LDO_WETH] = uint256(109);
+        underlyingTokenToPid[MANA_WETH] = uint256(240);
+        underlyingTokenToPid[ILV_WETH] = uint256(244);
     }
 
     /**
@@ -93,8 +111,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef
     ) external view override returns (bytes[] memory) {
-        uint256 _amount = IERC20(_underlyingToken).balanceOf(_vault);
-        return getDepositSomeCodes(_vault, _underlyingToken, _masterChef, _amount);
+        return getDepositSomeCodes(_vault, _underlyingToken, _masterChef, IERC20(_underlyingToken).balanceOf(_vault));
     }
 
     /**
@@ -105,8 +122,13 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef
     ) external view override returns (bytes[] memory) {
-        uint256 _redeemAmount = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _masterChef);
-        return getWithdrawSomeCodes(_vault, _underlyingToken, _masterChef, _redeemAmount);
+        return
+            getWithdrawSomeCodes(
+                _vault,
+                _underlyingToken,
+                _masterChef,
+                getLiquidityPoolTokenBalance(_vault, _underlyingToken, _masterChef)
+            );
     }
 
     /**
@@ -122,9 +144,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     function getSomeAmountInToken(
         address,
         address,
-        uint256
+        uint256 _amount
     ) external view override returns (uint256) {
-        revert("!empty");
+        return _amount;
     }
 
     /**
@@ -133,9 +155,9 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
     function calculateAmountInLPToken(
         address,
         address,
-        uint256
+        uint256 _amount
     ) external view override returns (uint256) {
-        revert("!empty");
+        return _amount;
     }
 
     /**
@@ -147,8 +169,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _masterChef,
         uint256
     ) external view override returns (uint256) {
-        uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
-        return ISushiswapMasterChef(_masterChef).userInfo(_pid, _vault).amount;
+        return ISushiswapMasterChef(_masterChef).userInfo(underlyingTokenToPid[_underlyingToken], _vault).amount;
     }
 
     /**
@@ -160,8 +181,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _masterChef,
         uint256 _redeemAmount
     ) external view override returns (bool) {
-        uint256 _balanceInToken = getAllAmountInToken(_vault, _underlyingToken, _masterChef);
-        return _balanceInToken >= _redeemAmount;
+        return getAllAmountInToken(_vault, _underlyingToken, _masterChef) >= _redeemAmount;
     }
 
     /* solhint-disable no-empty-blocks */
@@ -181,8 +201,13 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef
     ) external view override returns (bytes[] memory) {
-        uint256 _rewardTokenAmount = IERC20(getRewardToken(_masterChef)).balanceOf(_vault);
-        return getHarvestSomeCodes(_vault, _underlyingToken, _masterChef, _rewardTokenAmount);
+        return
+            getHarvestSomeCodes(
+                _vault,
+                _underlyingToken,
+                _masterChef,
+                IERC20(getRewardToken(_masterChef)).balanceOf(_vault)
+            );
     }
 
     /**
@@ -194,20 +219,16 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
 
     /**
      * @notice Map underlyingToken to its pool ID
-     * @param _underlyingToken pair contract address to be mapped with pool ID
-     * @param _pid pool ID to be linked with pair address
+     * @param _underlyingTokens pair contract addresses to be mapped with pool ID
+     * @param _pids pool IDs to be linked with pair address
      */
-    function setUnderlyingTokenToMasterChefToPid(
-        address _underlyingToken,
-        address _masterChef,
-        uint256 _pid
-    ) public onlyOperator {
-        require(_underlyingToken != address(0) && _masterChef != address(0), "!address(0)");
-        require(
-            underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef] == uint256(0),
-            "underlyingTokenToMasterChefToPid already set"
-        );
-        underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef] = _pid;
+    function setUnderlyingTokenToPid(address[] memory _underlyingTokens, uint256[] memory _pids) public onlyOperator {
+        uint256 _underlyingTokensLen = _underlyingTokens.length;
+        uint256 _pidsLen = _pids.length;
+        require(_underlyingTokensLen == _pidsLen, "inequal length of underlyingtokens and pids");
+        for (uint256 _i; _i < _underlyingTokensLen; _i++) {
+            underlyingTokenToPid[_underlyingTokens[_i]] = _pids[_i];
+        }
     }
 
     /**
@@ -238,7 +259,6 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         if (_amount > 0) {
-            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
             uint256 _depositAmount = _getDepositAmount(_masterChef, _underlyingToken, _amount);
             _codes = new bytes[](3);
             _codes[0] = abi.encode(
@@ -251,7 +271,11 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
             );
             _codes[2] = abi.encode(
                 _masterChef,
-                abi.encodeWithSignature("deposit(uint256,uint256)", _pid, _depositAmount)
+                abi.encodeWithSignature(
+                    "deposit(uint256,uint256)",
+                    underlyingTokenToPid[_underlyingToken],
+                    _depositAmount
+                )
             );
         }
     }
@@ -266,11 +290,14 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         uint256 _redeemAmount
     ) public view override returns (bytes[] memory _codes) {
         if (_redeemAmount > 0) {
-            uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
             _codes = new bytes[](1);
             _codes[0] = abi.encode(
                 _masterChef,
-                abi.encodeWithSignature("withdraw(uint256,uint256)", _pid, _redeemAmount)
+                abi.encodeWithSignature(
+                    "withdraw(uint256,uint256)",
+                    underlyingTokenToPid[_underlyingToken],
+                    _redeemAmount
+                )
             );
         }
     }
@@ -297,19 +324,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef
     ) public view override returns (uint256) {
-        uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
-        uint256 _balance = ISushiswapMasterChef(_masterChef).userInfo(_pid, _vault).amount;
-        uint256 _unclaimedReward = getUnclaimedRewardTokenAmount(_vault, _masterChef, _underlyingToken);
-        if (_unclaimedReward > 0) {
-            _balance = _balance.add(
-                IHarvestCodeProvider(registryContract.getHarvestCodeProvider()).rewardBalanceInUnderlyingTokens(
-                    getRewardToken(_masterChef),
-                    _underlyingToken,
-                    _unclaimedReward
-                )
-            );
-        }
-        return _balance;
+        return ISushiswapMasterChef(_masterChef).userInfo(underlyingTokenToPid[_underlyingToken], _vault).amount;
     }
 
     /**
@@ -320,9 +335,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _underlyingToken,
         address _masterChef
     ) public view override returns (uint256) {
-        uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
-        uint256 _lpTokenBalance = ISushiswapMasterChef(_masterChef).userInfo(_pid, _vault).amount;
-        return _lpTokenBalance;
+        return ISushiswapMasterChef(_masterChef).userInfo(underlyingTokenToPid[_underlyingToken], _vault).amount;
     }
 
     /**
@@ -340,8 +353,7 @@ contract SushiswapAdapter is IAdapter, IAdapterInvestLimit, IAdapterHarvestRewar
         address _masterChef,
         address _underlyingToken
     ) public view override returns (uint256) {
-        uint256 _pid = underlyingTokenToMasterChefToPid[_underlyingToken][_masterChef];
-        return ISushiswapMasterChef(_masterChef).pendingSushi(_pid, _vault);
+        return ISushiswapMasterChef(_masterChef).pendingSushi(underlyingTokenToPid[_underlyingToken], _vault);
     }
 
     /**

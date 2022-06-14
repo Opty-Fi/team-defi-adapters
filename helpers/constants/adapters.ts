@@ -9,7 +9,7 @@ export const DFORCE_ADAPTER_NAME = "DForceAdapter";
 export const FULCRUM_ADAPTER_NAME = "FulcrumAdapter";
 export const HARVEST_V1_ADAPTER_NAME = "HarvestV1Adapter";
 export const YVAULT_ADAPTER_NAME = "YVaultAdapter";
-export const SUSHISWAP_ADAPTER_NAME = "SushiswapAdapter";
+export const SUSHISWAP_FARM_ADAPTER_NAME = "SushiswapMasterChefV1Adapter";
 
 export const ADAPTERS = [
   AAVE_V1_ADAPTER_NAME,
@@ -23,5 +23,5 @@ export const ADAPTERS = [
   FULCRUM_ADAPTER_NAME,
   HARVEST_V1_ADAPTER_NAME,
   YVAULT_ADAPTER_NAME,
-  SUSHISWAP_ADAPTER_NAME,
+  SUSHISWAP_FARM_ADAPTER_NAME,
 ];
