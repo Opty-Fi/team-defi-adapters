@@ -31,9 +31,6 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
     /** @notice max deposit value datatypes */
     MaxExposure public maxDepositProtocolMode;
 
-    /** @notice Sushiswap's reward token address */
-    address public rewardToken;
-
     /** @notice Sushiswap router contract address */
     address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
