@@ -225,11 +225,16 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
 
     /**
      * @notice Map underlyingToken to its pool ID
-     * @param _underlyingToken pair contract address to be mapped with pool ID
-     * @param _pid pool ID to be linked with pair address
+     * @param _underlyingTokens pair contract addresses to be mapped with pool ID
+     * @param _pids pool IDs to be linked with pair address
      */
-    function setUnderlyingTokenToPid(address _underlyingToken, uint256 _pid) public onlyOperator {
-        underlyingTokenToPid[_underlyingToken] = _pid;
+    function setUnderlyingTokenToPid(address[] memory _underlyingTokens, uint256[] memory _pids) public onlyOperator {
+        uint256 _underlyingTokensLen = _underlyingTokens.length;
+        uint256 _pidsLen = _pids.length;
+        require(_underlyingTokensLen == _pidsLen, "inequal length of underlyingtokens and pids");
+        for (uint256 _i; _i < _underlyingTokensLen; _i++) {
+            underlyingTokenToPid[_underlyingTokens[_i]] = _pids[_i];
+        }
     }
 
     /**
