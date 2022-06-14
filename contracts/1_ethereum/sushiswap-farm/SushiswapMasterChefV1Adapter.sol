@@ -34,9 +34,6 @@ contract SushiswapMasterChefV1Adapter is IAdapter, IAdapterInvestLimit, IAdapter
     /** @notice Sushiswap router contract address */
     address public constant SUSHISWAP_ROUTER = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    /** @notice Sushiswap MasterChef V1 contract address */
-    address public constant MASTERCHEF_V1 = address(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
-
     /** @notice max deposit's protocol value in percentage */
     uint256 public maxDepositProtocolPct; // basis points
 
