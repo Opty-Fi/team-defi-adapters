@@ -98,7 +98,8 @@ contract CurveSwapPoolAdapter is
             new CurveSwapETHGateway(
                 WETH,
                 _registry,
-                [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP]
+                [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP],
+                true
             )
         );
         maxDepositProtocolPct = uint256(10000); // 100% (basis points)
