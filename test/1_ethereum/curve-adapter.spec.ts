@@ -12,7 +12,7 @@ import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-acti
 import scenarios from "./scenarios/adapters.json";
 import testDeFiAdapterScenario from "./scenarios/curve-test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/helpers";
-import { ERC20 } from "../../typechain/ERC20";
+import { ERC20 } from "../../typechain";
 import { to_10powNumber_BN } from "../../helpers/utils";
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 import { default as CurveExports } from "@optyfi/defi-legos/ethereum/curve/contracts";
