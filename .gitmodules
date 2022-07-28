@@ -1,3 +1,6 @@
 [submodule "contracts/earn-protocol-configuration"]
 	path = contracts/earn-protocol-configuration
 	url = https://github.com/Opty-Fi/earn-protocol-configuration.git
+[submodule "contracts/utils/optyfi-oracle"]
+	path = contracts/utils/optyfi-oracle
+	url = https://github.com/Opty-Fi/optyfi-oracle.git
