@@ -15,6 +15,12 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "./interfaces/IHarvestCodeProvider.sol";
+import { IOptyFiOracle } from "../utils/optyfi-oracle/contracts/interfaces/IOptyFiOracle.sol";
+
+interface IERC20Metadata {
+    /** @dev Returns the decimals places of the token */
+    function decimals() external view returns (uint8);
+}
 
 /**
  * @title HarvestCodeProvider Contract
@@ -26,30 +32,54 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
-    /**
-     * @notice Uniswap V2 router contract address
-     */
+    /** @notice Uniswap V2 router contract address */
     address public constant uniswapV2Router02 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    /**
-     * @notice Sushiswap router contract address
-     */
+    /** @notice Sushiswap router contract address */
     address public constant sushiswapRouter = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
-    /**
-     * @notice SUSHI token contract address
-     */
+    /** @notice SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
-    /**
-     * @notice UNI token contract address
-     */
+    /** @notice UNI token contract address */
     address public constant UNI = address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984);
 
-    /* solhint-disable no-empty-blocks */
-    constructor(address _registry) public Modifiers(_registry) {}
+    /** @notice Denominator for basis points calculations */
+    uint256 public constant DENOMINATOR = 10000;
 
-    /* solhint-disable no-empty-blocks */
+    /** @notice OptyFi Oracle contract on Ethereum mainnet */
+    IOptyFiOracle public optyFiOracle;
+
+    /** @notice Maps rewardToken to underlyingToken to slippage */
+    mapping(address => mapping(address => uint256)) public rewardTokenToUnderlyingTokenSlippage;
+
+    constructor(address _registry, address _optyFiOracle) public Modifiers(_registry) {
+        optyFiOracle = IOptyFiOracle(_optyFiOracle);
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function setOptyFiOracle(address _optyFiOracle) external override onlyOperator {
+        optyFiOracle = IOptyFiOracle(_optyFiOracle);
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function setRewardTokenToUnderlyingTokenSlippage(Slippage[] calldata _slippages)
+        external
+        override
+        onlyRiskOperator
+    {
+        uint256 _len = _slippages.length;
+        for (uint256 i; i < _len; i++) {
+            rewardTokenToUnderlyingTokenSlippage[_slippages[i].rewardToken][_slippages[i].underlyingToken] = _slippages[
+                i
+            ]
+                .slippage;
+        }
+    }
 
     /**
      * @inheritdoc IHarvestCodeProvider
@@ -84,6 +114,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         _getPath(_rewardToken, _underlyingToken)
                     );
                 if (_amounts[_amounts.length - 1] > 0) {
+                    uint256 swapOutAmount = _calculateSwapOutAmount(_rewardTokenAmount, _rewardToken, _underlyingToken);
                     _codes = new bytes[](3);
                     _codes[0] = abi.encode(
                         _rewardToken,
@@ -98,7 +129,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         abi.encodeWithSignature(
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount,
-                            uint256(0),
+                            swapOutAmount *
+                                ((DENOMINATOR - rewardTokenToUnderlyingTokenSlippage[_rewardToken][_underlyingToken]) /
+                                    DENOMINATOR),
                             _getPath(_rewardToken, _underlyingToken),
                             _vault,
                             uint256(-1)
@@ -342,5 +375,23 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
             _path[1] = _weth;
             _path[2] = _finalToken;
         }
+    }
+
+    /**
+     * @dev Get the expected amount to receive of _token1 after swapping _token0
+     * @param _swapInAmount Amount of _token0 to be swapped for _token1
+     * @param _token0 Contract address of one of the liquidity pool's underlying tokens
+     * @param _token1 Contract address of one of the liquidity pool's underlying tokens
+     */
+    function _calculateSwapOutAmount(
+        uint256 _swapInAmount,
+        address _token0,
+        address _token1
+    ) internal view returns (uint256 _swapOutAmount) {
+        uint256 price = optyFiOracle.getTokenPrice(_token0, _token1);
+        require(price > uint256(0), "!price");
+        uint256 decimals0 = uint256(IERC20Metadata(_token0).decimals());
+        uint256 decimals1 = uint256(IERC20Metadata(_token1).decimals());
+        _swapOutAmount = (_swapInAmount * price * 10**decimals1) / 10**(18 + decimals0);
     }
 }
