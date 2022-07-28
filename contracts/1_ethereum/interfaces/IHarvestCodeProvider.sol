@@ -10,6 +10,12 @@ pragma experimental ABIEncoderV2;
  * @dev Interface for facilitating the logic for harvest reward token codes
  */
 interface IHarvestCodeProvider {
+    struct Slippage {
+        address rewardToken;
+        address underlyingToken;
+        uint256 slippage;
+    }
+
     /**
      * @dev Get the codes for harvesting the tokens using uniswap router
      * @param _vault Vault contract address
@@ -71,4 +77,16 @@ interface IHarvestCodeProvider {
      * @return equivalent WETH token balance in Underlying token value
      */
     function getWETHInToken(address _underlyingToken, uint256 _amount) external view returns (uint256);
+
+    /**
+     * @dev Sets the OptyFi Oracle contract
+     * @param _optyFiOracle OptyFi Oracle contract address
+     */
+    function setOptyFiOracle(address _optyFiOracle) external;
+
+    /**
+     * @notice Sets slippage per want token of pair contract
+     * @param _slippages array of Slippage structs that links liquidity pools to slippage per want token
+     */
+    function setRewardTokenToUnderlyingTokenSlippage(Slippage[] calldata _slippages) external;
 }
