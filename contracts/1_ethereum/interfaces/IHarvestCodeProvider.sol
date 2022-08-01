@@ -10,9 +10,14 @@ pragma experimental ABIEncoderV2;
  * @dev Interface for facilitating the logic for harvest reward token codes
  */
 interface IHarvestCodeProvider {
+    struct Tolerance {
+        address liquidityPool;
+        uint256 tolerance;
+    }
+
     struct Slippage {
-        address rewardToken;
-        address underlyingToken;
+        address liquidityPool;
+        address wantToken;
         uint256 slippage;
     }
 
@@ -88,5 +93,11 @@ interface IHarvestCodeProvider {
      * @notice Sets slippage per want token of pair contract
      * @param _slippages array of Slippage structs that links liquidity pools to slippage per want token
      */
-    function setRewardTokenToUnderlyingTokenSlippage(Slippage[] calldata _slippages) external;
+    function setLiquidityPoolToWantTokenToSlippage(Slippage[] calldata _slippages) external;
+
+    /**
+     * @notice Sets the price deviation tolerance for a set of liquidity pools
+     * @param _tolerances array of Tolerance structs that links liquidity pools to tolerances
+     */
+    function setLiquidityPoolToTolerance(Tolerance[] calldata _tolerances) external;
 }
