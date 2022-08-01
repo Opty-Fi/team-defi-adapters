@@ -13,9 +13,12 @@ import { Modifiers } from "../earn-protocol-configuration/contracts/Modifiers.so
 // interfaces
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "./interfaces/IHarvestCodeProvider.sol";
 import { IOptyFiOracle } from "../utils/optyfi-oracle/contracts/interfaces/IOptyFiOracle.sol";
+
+///UniswapFactory
 
 interface IERC20Metadata {
     /** @dev Returns the decimals places of the token */
@@ -38,11 +41,44 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     /** @notice Sushiswap router contract address */
     address public constant sushiswapRouter = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
+    /** @notice Sushiswap factory contract on Ethereum mainnet */
+    IUniswapV2Factory public constant sushiswapFactory = IUniswapV2Factory(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac);
+
+    /** @notice WETH address */
+    address public constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
     /** @notice SUSHI token contract address */
     address public constant SUSHI = address(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
     /** @notice UNI token contract address */
     address public constant UNI = address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984);
+
+    /** @notice CRV token contract address */
+    address public constant CRV = address(0xD533a949740bb3306d119CC777fa900bA034cd52);
+
+    /** @notice COMP token contract address */
+    address public constant COMP = address(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+
+    /** @notice FARM token contract address */
+    address public constant FARM = address(0xa0246c9032bC3A600820415aE600c6388619A14D);
+
+    /** @notice CREAM token contract address */
+    address public constant CREAM = address(0x2ba592F78dB6436527729929AAf6c908497cB200);
+
+    /** @notice Sushiswap USDC-WETH liquidity pool address */
+    address public constant USDC_WETH = address(0x397FF1542f962076d0BFE58eA045FfA2d347ACa0);
+
+    /** @notice Sushiswap CRV-WETH liquidity pool address */
+    address public constant CRV_WETH = address(0x58Dc5a51fE44589BEb22E8CE67720B5BC5378009);
+
+    /** @notice Sushiswap SUSHI-WETH liquidity pool address */
+    address public constant SUSHI_WETH = address(0x795065dCc9f64b5614C407a6EFDC400DA6221FB0);
+
+    /** @notice Sushiswap COMP-WETH liquidity pool address */
+    address public constant COMP_WETH = address(0x31503dcb60119A812feE820bb7042752019F2355);
+
+    /** @notice Sushiswap CREAM-WETH liquidity pool address */
+    address public constant CREAM_WETH = address(0xf169CeA51EB51774cF107c88309717ddA20be167);
 
     /** @notice Denominator for basis points calculations */
     uint256 public constant DENOMINATOR = 10000;
@@ -50,11 +86,23 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     /** @notice OptyFi Oracle contract on Ethereum mainnet */
     IOptyFiOracle public optyFiOracle;
 
-    /** @notice Maps rewardToken to underlyingToken to slippage */
-    mapping(address => mapping(address => uint256)) public rewardTokenToUnderlyingTokenSlippage;
+    /** @notice Maps liquidity pool to maximum price deviation */
+    mapping(address => uint256) public liquidityPoolToTolerance;
+
+    /** @notice Maps liquidity pool to want token to slippage */
+    mapping(address => mapping(address => uint256)) public liquidityPoolToWantTokenToSlippage;
 
     constructor(address _registry, address _optyFiOracle) public Modifiers(_registry) {
         optyFiOracle = IOptyFiOracle(_optyFiOracle);
+        liquidityPoolToTolerance[USDC_WETH] = uint256(100); // 1%
+        liquidityPoolToTolerance[CRV_WETH] = uint256(100); // 1%
+        liquidityPoolToTolerance[SUSHI_WETH] = uint256(100); // 1%
+        liquidityPoolToTolerance[COMP_WETH] = uint256(100); // 1%
+        liquidityPoolToTolerance[CREAM_WETH] = uint256(100); // 1%
+        liquidityPoolToWantTokenToSlippage[CRV_WETH][WETH] = uint256(100); // 1%
+        liquidityPoolToWantTokenToSlippage[SUSHI_WETH][WETH] = uint256(100); // 1%
+        liquidityPoolToWantTokenToSlippage[COMP_WETH][WETH] = uint256(100); // 1%
+        liquidityPoolToWantTokenToSlippage[CREAM_WETH][WETH] = uint256(100); // 1%
     }
 
     /**
@@ -67,17 +115,21 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     /**
      * @inheritdoc IHarvestCodeProvider
      */
-    function setRewardTokenToUnderlyingTokenSlippage(Slippage[] calldata _slippages)
-        external
-        override
-        onlyRiskOperator
-    {
+    function setLiquidityPoolToWantTokenToSlippage(Slippage[] calldata _slippages) external override onlyRiskOperator {
         uint256 _len = _slippages.length;
         for (uint256 i; i < _len; i++) {
-            rewardTokenToUnderlyingTokenSlippage[_slippages[i].rewardToken][_slippages[i].underlyingToken] = _slippages[
-                i
-            ]
+            liquidityPoolToWantTokenToSlippage[_slippages[i].liquidityPool][_slippages[i].wantToken] = _slippages[i]
                 .slippage;
+        }
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function setLiquidityPoolToTolerance(Tolerance[] calldata _tolerances) external override onlyRiskOperator {
+        uint256 _len = _tolerances.length;
+        for (uint256 i; i < _len; i++) {
+            liquidityPoolToTolerance[_tolerances[i].liquidityPool] = _tolerances[i].tolerance;
         }
     }
 
@@ -91,29 +143,14 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
         if (_rewardTokenAmount > 0) {
-            if (_rewardToken == SUSHI) {
-                _codes = _getHarvestSushiOrUniCodes(
-                    _vault,
-                    _rewardToken,
-                    _underlyingToken,
-                    _rewardTokenAmount,
-                    sushiswapRouter
-                );
-            } else if (_rewardToken == UNI) {
-                _codes = _getHarvestSushiOrUniCodes(
-                    _vault,
-                    _rewardToken,
-                    _underlyingToken,
-                    _rewardTokenAmount,
-                    sushiswapRouter
-                );
-            } else if (_rewardToken != _underlyingToken) {
-                uint256[] memory _amounts =
+            if (_rewardToken != _underlyingToken) {
+                uint256[] memory amounts =
                     IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
                         _rewardTokenAmount,
                         _getPath(_rewardToken, _underlyingToken)
                     );
-                if (_amounts[_amounts.length - 1] > 0) {
+                if (amounts[amounts.length - 1] > 0) {
+                    uint256 slippage = _getSlippageCheckPoolBalanced(_rewardToken, _underlyingToken);
                     uint256 swapOutAmount = _calculateSwapOutAmount(_rewardTokenAmount, _rewardToken, _underlyingToken);
                     _codes = new bytes[](3);
                     _codes[0] = abi.encode(
@@ -129,9 +166,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                         abi.encodeWithSignature(
                             "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                             _rewardTokenAmount,
-                            swapOutAmount *
-                                ((DENOMINATOR - rewardTokenToUnderlyingTokenSlippage[_rewardToken][_underlyingToken]) /
-                                    DENOMINATOR),
+                            swapOutAmount.mul(DENOMINATOR.sub(slippage)).div(DENOMINATOR),
                             _getPath(_rewardToken, _underlyingToken),
                             _vault,
                             uint256(-1)
@@ -257,70 +292,6 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         return _amounts[1];
     }
 
-    function _getHarvestSushiOrUniCodes(
-        address payable _vault,
-        address _rewardToken,
-        address _underlyingToken,
-        uint256 _rewardTokenAmount,
-        address _router
-    ) internal view returns (bytes[] memory _codes) {
-        address _token0 = IUniswapV2Pair(_underlyingToken).token0();
-        address _token1 = IUniswapV2Pair(_underlyingToken).token1();
-        uint256[] memory _amounts0 =
-            IUniswapV2Router02(_router).getAmountsOut(
-                _rewardTokenAmount.div(uint256(2)),
-                _getPath(_rewardToken, _token0)
-            );
-        uint256[] memory _amounts1 =
-            IUniswapV2Router02(_router).getAmountsOut(
-                _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                _getPath(_rewardToken, _token1)
-            );
-        if (_amounts0[_amounts0.length - 1] > 0 && _amounts1[_amounts1.length - 1] > 0) {
-            uint8 maxLength = 4;
-            if (_token0 == _rewardToken || _token1 == _rewardToken) {
-                maxLength--;
-            }
-            _codes = new bytes[](maxLength);
-            _codes[0] = abi.encode(
-                _rewardToken,
-                abi.encodeWithSignature("approve(address,uint256)", _router, uint256(0))
-            );
-            _codes[1] = abi.encode(
-                _rewardToken,
-                abi.encodeWithSignature("approve(address,uint256)", _router, _rewardTokenAmount)
-            );
-            uint8 count = 2;
-            if (_token0 != _rewardToken) {
-                _codes[count] = abi.encode(
-                    _router,
-                    abi.encodeWithSignature(
-                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                        _rewardTokenAmount.div(uint256(2)),
-                        uint256(0),
-                        _getPath(_rewardToken, _token0),
-                        _vault,
-                        uint256(-1)
-                    )
-                );
-                count++;
-            }
-            if (_token1 != _rewardToken) {
-                _codes[count] = abi.encode(
-                    _router,
-                    abi.encodeWithSignature(
-                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                        _rewardTokenAmount.sub(_rewardTokenAmount.div(uint256(2))),
-                        uint256(0),
-                        _getPath(_rewardToken, _token1),
-                        _vault,
-                        uint256(-1)
-                    )
-                );
-            }
-        }
-    }
-
     function _getRewardBalanceInUnderlyingTokensSushiOrUni(
         address _rewardToken,
         address _underlyingToken,
@@ -392,6 +363,67 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         require(price > uint256(0), "!price");
         uint256 decimals0 = uint256(IERC20Metadata(_token0).decimals());
         uint256 decimals1 = uint256(IERC20Metadata(_token1).decimals());
-        _swapOutAmount = (_swapInAmount * price * 10**decimals1) / 10**(18 + decimals0);
+        _swapOutAmount = ((_swapInAmount * price * 10**decimals1) / 10**(18 + decimals0));
+    }
+
+    /**
+     * @dev Check whether the pool is balanced or not according to OptyFi Oracle's prices
+     * @param _token0 Contract address of one of the liquidity pool's underlying tokens
+     * @param _token1 Contract address of one of the liquidity pool's underlying tokens
+     * @param _reserve0 Liquidity pool's reserve for _token0
+     * @param _reserve1 Liquidity pool's reserve for _token1
+     * @param _liquidityPool Liquidity pool's contract address
+     */
+    function _isPoolBalanced(
+        address _token0,
+        address _token1,
+        uint256 _reserve0,
+        uint256 _reserve1,
+        address _liquidityPool
+    ) internal view {
+        uint256 price = optyFiOracle.getTokenPrice(_token0, _token1);
+        require(price > uint256(0), "!price");
+        uint256 decimals0 = uint256(IERC20Metadata(_token0).decimals());
+        uint256 decimals1 = uint256(IERC20Metadata(_token1).decimals());
+        uint256 uniswapPrice = (_reserve1 * 10**(36 - decimals1)) / (_reserve0 * 10**(18 - decimals0));
+        uint256 upperLimit = (price * (DENOMINATOR + liquidityPoolToTolerance[_liquidityPool])) / DENOMINATOR;
+        uint256 lowerLimit = (price * (DENOMINATOR - liquidityPoolToTolerance[_liquidityPool])) / DENOMINATOR;
+        require((uniswapPrice < upperLimit) && (uniswapPrice > lowerLimit), "!imbalanced pool");
+    }
+
+    /**
+     * @dev Check whether the pools to get the underlying token are balanced or not according
+     * to OptyFi Oracle's prices and return the allowed slippage
+     * @param _rewardToken Contract address of one of the liquidity pool's underlying tokens
+     * @param _underlyingToken Contract address of one of the liquidity pool's underlying tokens
+     * @return the allowed slippage for the pair
+     */
+    function _getSlippageCheckPoolBalanced(address _rewardToken, address _underlyingToken)
+        internal
+        view
+        returns (uint256)
+    {
+        address[] memory path = _getPath(_rewardToken, _underlyingToken);
+        address liquidityPool;
+        address token0;
+        address token1;
+        uint256 reserve0;
+        uint256 reserve1;
+        uint256 slippage;
+        for (uint256 i; i < path.length.sub(uint256(1)); i++) {
+            liquidityPool = sushiswapFactory.getPair(path[i], path[i.add(uint256(1))]);
+            if (slippage < liquidityPoolToWantTokenToSlippage[liquidityPool][path[i.add(uint256(1))]]) {
+                slippage = liquidityPoolToWantTokenToSlippage[liquidityPool][path[i.add(uint256(1))]];
+            }
+            if (liquidityPool != address(0)) {
+                token0 = IUniswapV2Pair(liquidityPool).token0();
+                token1 = IUniswapV2Pair(liquidityPool).token1();
+                (reserve0, reserve1, ) = IUniswapV2Pair(liquidityPool).getReserves();
+                (token0 != _underlyingToken && token0 != WETH)
+                    ? _isPoolBalanced(token0, token1, reserve0, reserve1, liquidityPool)
+                    : _isPoolBalanced(token1, token0, reserve1, reserve0, liquidityPool);
+            }
+        }
+        return slippage;
     }
 }
