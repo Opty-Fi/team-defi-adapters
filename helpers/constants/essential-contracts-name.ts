@@ -14,6 +14,7 @@ export const ESSENTIAL_CONTRACTS: DATA_OBJECT = {
   VAULT: "Vault",
   RISK_MANAGER_PROXY: "RiskManagerProxy",
   PRICE_ORACLE: "PriceOracle",
+  OPTYFI_ORACLE: "OptyFiOracle",
   OPTY_STAKING_VAULT: "OPTYStakingVault",
   OPTY_STAKING_RATE_BALANCER: "OPTYStakingRateBalancer",
   OPTY_STAKING_RATE_BALANCER_PROXY: "OPTYStakingRateBalancerProxy",
