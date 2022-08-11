@@ -450,8 +450,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
-        uint256 _vaultBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
-        if (_amount > 0 && _vaultBalance != uint256(0)) {
+        if (_amount > 0) {
             if (_underlyingToken == ETH) {
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
@@ -460,7 +459,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                 );
                 _codes[1] = abi.encode(
                     AETH,
-                    abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, _vaultBalance)
+                    abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, _amount)
                 );
                 _codes[2] = abi.encode(
                     aaveV1ETHGatewayContract,
@@ -469,7 +468,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                         _vault,
                         _liquidityPoolAddressProvider,
                         AETH,
-                        _vaultBalance,
+                        _amount,
                         int128(0)
                     )
                 );
