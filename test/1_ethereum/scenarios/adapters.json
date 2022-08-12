@@ -65,16 +65,6 @@
           "args": {}
         }
       ]
-    },
-    {
-      "description": "User should get correct code in getRepayAndWithdrawAllCodes()",
-      "actions": [
-        {
-          "contract": "adapter",
-          "action": "getRepayAndWithdrawAllCodes(address,address,address,address)",
-          "args": {}
-        }
-      ]
     }
   ]
 }
