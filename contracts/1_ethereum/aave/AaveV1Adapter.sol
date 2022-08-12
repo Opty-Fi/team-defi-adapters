@@ -263,7 +263,19 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory _codes) {
-        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, uint256(-1));
+        uint256 _lpTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
+        if (_lpTokenBalance > 0) {
+            _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
+            if (_underlyingToken == ETH) {
+                _codes = getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, _lpTokenBalance);
+            } else {
+                _codes = new bytes[](1);
+                _codes[0] = abi.encode(
+                    getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
+                    abi.encodeWithSignature("redeem(uint256)", uint256(-1))
+                );
+            }
+        }
     }
 
     /**
