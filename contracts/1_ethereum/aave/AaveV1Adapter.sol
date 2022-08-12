@@ -29,7 +29,6 @@ import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
-import { AaveV1ETHGateway } from "./AaveV1ETHGateway.sol";
 
 /**
  * @title Adapter for AaveV1 protocol
@@ -85,7 +84,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     address public immutable aaveV1ETHGatewayContract;
 
     constructor(address _registry, address _aaveV1ETHGatewayContract) public Modifiers(_registry) {
-        aaveV1ETHGatewayContract = address(new AaveV1ETHGateway(WETH, _registry, AETH));
+        aaveV1ETHGatewayContract = _aaveV1ETHGatewayContract;
         maxDepositProtocolPct = 10000; // 100% (basis points)
         maxDepositProtocolMode = MaxExposure.Pct;
     }
