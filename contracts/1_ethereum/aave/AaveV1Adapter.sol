@@ -84,10 +84,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     /** @dev ETH gateway contract for aavev1 adapter */
     address public immutable aaveV1ETHGatewayContract;
 
-    constructor(address _registry) public Modifiers(_registry) {
+    constructor(address _registry, address _aaveV1ETHGatewayContract) public Modifiers(_registry) {
         aaveV1ETHGatewayContract = address(new AaveV1ETHGateway(WETH, _registry, AETH));
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+        maxDepositProtocolPct = 10000; // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**

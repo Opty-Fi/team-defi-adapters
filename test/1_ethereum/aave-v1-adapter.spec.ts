@@ -7,7 +7,7 @@ import { ADDRESS_ZERO, TESTING_DEPLOYMENT_ONCE } from "../../helpers/constants/u
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 import { AAVE_V1_ADAPTER_NAME } from "../../helpers/constants/adapters";
 import { TypedAdapterStrategies, TypedDefiPools, TypedTokens, TypedContracts } from "../../helpers/data";
-import { deployAdapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
+import { deployAaveV1Adapter, deployAdapterPrerequisites } from "../../helpers/contracts-deployments";
 import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-actions";
 import {
   deployContract,
@@ -53,11 +53,12 @@ describe(`${AAVE_V1_ADAPTER_NAME} Unit test`, () => {
       ownerAddress = await owner.getAddress();
       adapterPrerequisites = await deployAdapterPrerequisites(hre, owner, TESTING_DEPLOYMENT_ONCE);
       assert.isDefined(adapterPrerequisites, "Adapter pre-requisites contracts not deployed");
-      aaveV1Adapter = await deployAdapter(
+      aaveV1Adapter = await deployAaveV1Adapter(
         hre,
         owner,
         AAVE_V1_ADAPTER_NAME,
         adapterPrerequisites["registry"].address,
+        "0x68d2BA9fc2009c39384F5a0e28a4f1E72E6AB1fA",
         TESTING_DEPLOYMENT_ONCE,
       );
       assert.isDefined(aaveV1Adapter, "Adapter not deployed");

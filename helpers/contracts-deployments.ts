@@ -78,6 +78,21 @@ export async function deployAdapter(
   return contract;
 }
 
+export async function deployAaveV1Adapter(
+  hre: HardhatRuntimeEnvironment,
+  owner: Signer,
+  adapterName: string,
+  registryAddr: string,
+  aaveV1ETHGatewayContractAddr: string,
+  isDeployedOnce: boolean,
+): Promise<Contract> {
+  const contract: Contract = await deployContract(hre, adapterName, isDeployedOnce, owner, [
+    registryAddr,
+    aaveV1ETHGatewayContractAddr,
+  ]);
+  return contract;
+}
+
 export async function deployAdapters(
   hre: HardhatRuntimeEnvironment,
   owner: Signer,
