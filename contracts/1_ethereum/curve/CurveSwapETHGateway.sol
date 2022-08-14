@@ -93,9 +93,8 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
             );
         if (convertToStEth && _liquidityPool == ETH_stETH_STABLESWAP) {
             ILidoDeposit(stEth).submit{ value: address(this).balance }(referralAddress);
-            uint256 stEthAmount = IERC20(stEth).balanceOf(address(this));
-            uint256[2] memory amounts = [uint256(0), stEthAmount];
-            IERC20(stEth).approve(_liquidityPool, stEthAmount);
+            uint256[2] memory amounts = [uint256(0), IERC20(stEth).balanceOf(address(this))];
+            IERC20(stEth).approve(_liquidityPool, amounts[1]);
             ICurveETHSwap(_liquidityPool).add_liquidity(amounts, _minAmount);
         } else {
             ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, _minAmount);
