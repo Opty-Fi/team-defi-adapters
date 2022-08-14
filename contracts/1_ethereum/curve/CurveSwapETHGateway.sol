@@ -71,7 +71,7 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
      * @notice Sets the convertToStEth flag
      * @param _convertToStEth if true convert ETH to stETH before adding liquidity
      **/
-    function setConvertToStEth(bool _convertToStEth) external onlyOperator {
+    function setConvertToStEth(bool _convertToStEth) external onlyStrategyOperator {
         convertToStEth = _convertToStEth;
     }
 
