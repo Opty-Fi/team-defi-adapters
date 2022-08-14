@@ -18,13 +18,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IHarvestCodeProvider } from "./interfaces/IHarvestCodeProvider.sol";
 import { IOptyFiOracle } from "../utils/optyfi-oracle/contracts/interfaces/IOptyFiOracle.sol";
 
-///UniswapFactory
-
-interface IERC20Metadata {
-    /** @dev Returns the decimals places of the token */
-    function decimals() external view returns (uint8);
-}
-
 /**
  * @title HarvestCodeProvider Contract
  * @author Opty.fi
@@ -361,8 +354,8 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     ) internal view returns (uint256 _swapOutAmount) {
         uint256 price = optyFiOracle.getTokenPrice(_token0, _token1);
         require(price > uint256(0), "!price");
-        uint256 decimals0 = uint256(IERC20Metadata(_token0).decimals());
-        uint256 decimals1 = uint256(IERC20Metadata(_token1).decimals());
+        uint256 decimals0 = uint256(ERC20(_token0).decimals());
+        uint256 decimals1 = uint256(ERC20(_token1).decimals());
         _swapOutAmount = ((_swapInAmount * price * 10**decimals1) / 10**(18 + decimals0));
     }
 
@@ -383,8 +376,8 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     ) internal view {
         uint256 price = optyFiOracle.getTokenPrice(_token0, _token1);
         require(price > uint256(0), "!price");
-        uint256 decimals0 = uint256(IERC20Metadata(_token0).decimals());
-        uint256 decimals1 = uint256(IERC20Metadata(_token1).decimals());
+        uint256 decimals0 = uint256(ERC20(_token0).decimals());
+        uint256 decimals1 = uint256(ERC20(_token1).decimals());
         uint256 uniswapPrice = (_reserve1 * 10**(36 - decimals1)) / (_reserve0 * 10**(18 - decimals0));
         uint256 upperLimit = (price * (DENOMINATOR + liquidityPoolToTolerance[_liquidityPool])) / DENOMINATOR;
         uint256 lowerLimit = (price * (DENOMINATOR - liquidityPoolToTolerance[_liquidityPool])) / DENOMINATOR;
