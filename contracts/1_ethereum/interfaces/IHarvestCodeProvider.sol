@@ -54,32 +54,32 @@ interface IHarvestCodeProvider {
      * @param _borrowToken Address of token which has to be borrowed
      * @param _underlyingToken Token address acting as underlying Asset for the vault contract
      * @param _borrowTokenAmount amount of token to borrow
-     * @return borrow token's optimal amount
+     * @return amount the borrow token's optimal amount
      */
     function getOptimalTokenAmount(
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) external view returns (uint256);
+    ) external view returns (uint256 amount);
 
     /**
      * @dev Get the underlying token amount equivalent to reward token amount
      * @param _rewardToken Reward token address
      * @param _underlyingToken Token address acting as underlying Asset for the vault contract
      * @param _amount reward token balance amount
-     * @return equivalent reward token balance in Underlying token value
+     * @return amount the equivalent reward token balance in Underlying token value
      */
     function rewardBalanceInUnderlyingTokens(
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) external view returns (uint256);
+    ) external view returns (uint256 amount);
 
     /**
      * @dev Get the no. of tokens equivalent to the amount provided
      * @param _underlyingToken Underlying token address
      * @param _amount amount in weth
-     * @return equivalent WETH token balance in Underlying token value
+     * @return amount the equivalent WETH token balance in Underlying token value
      */
     function getWETHInToken(address _underlyingToken, uint256 _amount) external view returns (uint256);
 
@@ -88,6 +88,18 @@ interface IHarvestCodeProvider {
      * @param _optyFiOracle OptyFi Oracle contract address
      */
     function setOptyFiOracle(address _optyFiOracle) external;
+
+    /**
+     * @dev Sets the router address for exchange between _token0 and _token1
+     * @param _token0 Contract address of one of the liquidity pool's underlying tokens
+     * @param _token1 Contract address of one of the liquidity pool's underlying tokens
+     * @param _router the dex router address
+     */
+    function setRouter(
+        address _token0,
+        address _token1,
+        address _router
+    ) external;
 
     /**
      * @notice Sets slippage per want token of pair contract

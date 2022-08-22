@@ -9,6 +9,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 //  helper contracts
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { Modifiers } from "../earn-protocol-configuration/contracts/Modifiers.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // interfaces
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
@@ -85,6 +86,9 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
     /** @notice Maps liquidity pool to want token to slippage */
     mapping(address => mapping(address => uint256)) public liquidityPoolToWantTokenToSlippage;
 
+    /** @notice Maps token pairs to router address */
+    mapping(address => mapping(address => address)) public router;
+
     constructor(address _registry, address _optyFiOracle) public Modifiers(_registry) {
         optyFiOracle = IOptyFiOracle(_optyFiOracle);
         liquidityPoolToTolerance[USDC_WETH] = uint256(100); // 1%
@@ -96,6 +100,17 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         liquidityPoolToWantTokenToSlippage[SUSHI_WETH][WETH] = uint256(100); // 1%
         liquidityPoolToWantTokenToSlippage[COMP_WETH][WETH] = uint256(100); // 1%
         liquidityPoolToWantTokenToSlippage[CREAM_WETH][WETH] = uint256(100); // 1%
+    }
+
+    /**
+     * @inheritdoc IHarvestCodeProvider
+     */
+    function setRouter(
+        address _token0,
+        address _token1,
+        address _router
+    ) external override onlyOperator {
+        router[_token0][_token1] = _router;
     }
 
     /**
@@ -135,37 +150,31 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _underlyingToken,
         uint256 _rewardTokenAmount
     ) public view override returns (bytes[] memory _codes) {
-        if (_rewardTokenAmount > 0) {
-            if (_rewardToken != _underlyingToken) {
-                uint256[] memory amounts =
-                    IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
+        if (_rewardTokenAmount > 0 && _rewardToken != _underlyingToken) {
+            address router = _getRouter(_rewardToken, _underlyingToken);
+            uint256 swapOutAmount = _calculateSwapOutAmount(_rewardTokenAmount, _rewardToken, _underlyingToken);
+            if (swapOutAmount > 0) {
+                uint256 slippage = _getSlippageCheckPoolBalanced(_rewardToken, _underlyingToken);
+                _codes = new bytes[](3);
+                _codes[0] = abi.encode(
+                    _rewardToken,
+                    abi.encodeWithSignature("approve(address,uint256)", router, uint256(0))
+                );
+                _codes[1] = abi.encode(
+                    _rewardToken,
+                    abi.encodeWithSignature("approve(address,uint256)", router, _rewardTokenAmount)
+                );
+                _codes[2] = abi.encode(
+                    router,
+                    abi.encodeWithSignature(
+                        "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
                         _rewardTokenAmount,
-                        _getPath(_rewardToken, _underlyingToken)
-                    );
-                if (amounts[amounts.length - 1] > 0) {
-                    uint256 slippage = _getSlippageCheckPoolBalanced(_rewardToken, _underlyingToken);
-                    uint256 swapOutAmount = _calculateSwapOutAmount(_rewardTokenAmount, _rewardToken, _underlyingToken);
-                    _codes = new bytes[](3);
-                    _codes[0] = abi.encode(
-                        _rewardToken,
-                        abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, uint256(0))
-                    );
-                    _codes[1] = abi.encode(
-                        _rewardToken,
-                        abi.encodeWithSignature("approve(address,uint256)", uniswapV2Router02, _rewardTokenAmount)
-                    );
-                    _codes[2] = abi.encode(
-                        uniswapV2Router02,
-                        abi.encodeWithSignature(
-                            "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
-                            _rewardTokenAmount,
-                            swapOutAmount.mul(DENOMINATOR.sub(slippage)).div(DENOMINATOR),
-                            _getPath(_rewardToken, _underlyingToken),
-                            _vault,
-                            uint256(-1)
-                        )
-                    );
-                }
+                        swapOutAmount.mul(DENOMINATOR.sub(slippage)).div(DENOMINATOR),
+                        _getPath(_rewardToken, _underlyingToken),
+                        _vault,
+                        uint256(-1)
+                    )
+                );
             }
         }
     }
@@ -216,20 +225,10 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _borrowToken,
         address _underlyingToken,
         uint256 _borrowTokenAmount
-    ) public view override returns (uint256) {
-        if (_borrowTokenAmount > 0) {
-            try
-                IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
-                    _borrowTokenAmount,
-                    _getPath(_borrowToken, _underlyingToken)
-                )
-            returns (uint256[] memory _amounts) {
-                return _amounts[_amounts.length - 1];
-            } catch {
-                return uint256(0);
-            }
-        }
-        return uint256(0);
+    ) public view override returns (uint256 amount) {
+        _borrowTokenAmount > 0
+            ? amount = _calculateSwapOutAmount(_borrowTokenAmount, _borrowToken, _underlyingToken)
+            : amount = uint256(0);
     }
 
     /**
@@ -239,88 +238,15 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
         address _rewardToken,
         address _underlyingToken,
         uint256 _amount
-    ) public view override returns (uint256) {
-        if (_amount > 0) {
-            if (_rewardToken == SUSHI) {
-                return
-                    _getRewardBalanceInUnderlyingTokensSushiOrUni(
-                        _rewardToken,
-                        _underlyingToken,
-                        _amount,
-                        sushiswapRouter
-                    );
-            } else if (_rewardToken == UNI) {
-                return
-                    _getRewardBalanceInUnderlyingTokensSushiOrUni(
-                        _rewardToken,
-                        _underlyingToken,
-                        _amount,
-                        uniswapV2Router02
-                    );
-            } else {
-                try
-                    IUniswapV2Router02(uniswapV2Router02).getAmountsOut(
-                        _amount,
-                        _getPath(_rewardToken, _underlyingToken)
-                    )
-                returns (uint256[] memory _amountsA) {
-                    return _amountsA[_amountsA.length - 1];
-                } catch {
-                    return uint256(0);
-                }
-            }
-        }
+    ) public view override returns (uint256 amount) {
+        _amount > 0 ? amount = _calculateSwapOutAmount(_amount, _rewardToken, _underlyingToken) : amount = uint256(0);
     }
 
     /**
      * @inheritdoc IHarvestCodeProvider
      */
-    function getWETHInToken(address _underlyingToken, uint256 _amount) public view override returns (uint256) {
-        address _weth = IUniswapV2Router02(uniswapV2Router02).WETH();
-        if (_underlyingToken == _weth) {
-            return _amount;
-        }
-        uint256[] memory _amounts =
-            IUniswapV2Router02(uniswapV2Router02).getAmountsOut(_amount, _getPath(_weth, _underlyingToken));
-        return _amounts[1];
-    }
-
-    function _getRewardBalanceInUnderlyingTokensSushiOrUni(
-        address _rewardToken,
-        address _underlyingToken,
-        uint256 _amount,
-        address _router
-    ) internal view returns (uint256 _finalAmount) {
-        address _tokenA = IUniswapV2Pair(_underlyingToken).token0();
-        address _tokenB = IUniswapV2Pair(_underlyingToken).token1();
-
-        try
-            IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenA))
-        returns (uint256[] memory _amountsA) {
-            try
-                IUniswapV2Router02(_router).getAmountsOut(_amount.div(uint256(2)), _getPath(_rewardToken, _tokenB))
-            returns (uint256[] memory _amountsB) {
-                try IUniswapV2Pair(_underlyingToken).getReserves() returns (
-                    uint112 reserve0,
-                    uint112 reserve1,
-                    uint32
-                ) {
-                    try IUniswapV2Router02(_router).quote(_amountsA[_amountsA.length - 1], reserve0, reserve1) returns (
-                        uint256 _quoteAmount
-                    ) {
-                        if (_quoteAmount >= _amountsB[_amountsB.length - 1]) {
-                            _finalAmount = _amountsB[_amountsB.length - 1]
-                                .mul(IUniswapV2Pair(_underlyingToken).totalSupply())
-                                .div(reserve1);
-                        } else {
-                            _finalAmount = _quoteAmount.mul(IUniswapV2Pair(_underlyingToken).totalSupply()).div(
-                                reserve1
-                            );
-                        }
-                    } catch {}
-                } catch {}
-            } catch {}
-        } catch {}
+    function getWETHInToken(address _underlyingToken, uint256 _amount) public view override returns (uint256 amount) {
+        _underlyingToken == WETH ? amount = _amount : amount = _calculateSwapOutAmount(_amount, _underlyingToken, WETH);
     }
 
     function _getPath(address _initialToken, address _finalToken) internal pure returns (address[] memory _path) {
@@ -346,6 +272,7 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
      * @param _swapInAmount Amount of _token0 to be swapped for _token1
      * @param _token0 Contract address of one of the liquidity pool's underlying tokens
      * @param _token1 Contract address of one of the liquidity pool's underlying tokens
+     * @return _swapOutAmount oracle price
      */
     function _calculateSwapOutAmount(
         uint256 _swapInAmount,
@@ -389,12 +316,12 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
      * to OptyFi Oracle's prices and return the allowed slippage
      * @param _rewardToken Contract address of one of the liquidity pool's underlying tokens
      * @param _underlyingToken Contract address of one of the liquidity pool's underlying tokens
-     * @return the allowed slippage for the pair
+     * @return slippage the allowed slippage for the pair
      */
     function _getSlippageCheckPoolBalanced(address _rewardToken, address _underlyingToken)
         internal
         view
-        returns (uint256)
+        returns (uint256 slippage)
     {
         address[] memory path = _getPath(_rewardToken, _underlyingToken);
         address liquidityPool;
@@ -417,6 +344,19 @@ contract HarvestCodeProvider is IHarvestCodeProvider, Modifiers {
                     : _isPoolBalanced(token1, token0, reserve1, reserve0, liquidityPool);
             }
         }
-        return slippage;
+    }
+
+    /**
+     * @dev Get the address of the chosen router to exchange `_token0` to `_token1`
+     * @param _token0 Contract address of one of the liquidity pool's underlying tokens
+     * @param _token1 Contract address of one of the liquidity pool's underlying tokens
+     * @return _router the address of the router for the exchange
+     */
+    function _getRouter(address _token0, address _token1) internal view returns (address _router) {
+        router[_token0][_token1] != address(0)
+            ? _router = router[_token0][_token1]
+            : router[_token1][_token0] != address(0)
+            ? _router = router[_token1][_token0]
+            : _router = sushiswapRouter;
     }
 }
