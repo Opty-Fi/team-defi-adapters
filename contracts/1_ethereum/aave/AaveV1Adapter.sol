@@ -29,7 +29,6 @@ import { IHarvestCodeProvider } from "../interfaces/IHarvestCodeProvider.sol";
 import { IAdapter } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapter.sol";
 import { IAdapterBorrow } from "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterBorrow.sol";
 import "@optyfi/defi-legos/interfaces/defiAdapters/contracts/IAdapterInvestLimit.sol";
-import { AaveV1ETHGateway } from "./AaveV1ETHGateway.sol";
 
 /**
  * @title Adapter for AaveV1 protocol
@@ -84,10 +83,10 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
     /** @dev ETH gateway contract for aavev1 adapter */
     address public immutable aaveV1ETHGatewayContract;
 
-    constructor(address _registry) public Modifiers(_registry) {
-        aaveV1ETHGatewayContract = address(new AaveV1ETHGateway(WETH, _registry, AETH));
-        setMaxDepositProtocolPct(uint256(10000)); // 100% (basis points)
-        setMaxDepositProtocolMode(MaxExposure.Pct);
+    constructor(address _registry, address _aaveV1ETHGatewayContract) public Modifiers(_registry) {
+        aaveV1ETHGatewayContract = _aaveV1ETHGatewayContract;
+        maxDepositProtocolPct = 10000; // 100% (basis points)
+        maxDepositProtocolMode = MaxExposure.Pct;
     }
 
     /**
@@ -263,7 +262,19 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         address _underlyingToken,
         address _liquidityPoolAddressProvider
     ) public view override returns (bytes[] memory _codes) {
-        return getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, uint256(-1));
+        uint256 _lpTokenBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
+        if (_lpTokenBalance > 0) {
+            _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
+            if (_underlyingToken == ETH) {
+                _codes = getWithdrawSomeCodes(_vault, _underlyingToken, _liquidityPoolAddressProvider, _lpTokenBalance);
+            } else {
+                _codes = new bytes[](1);
+                _codes[0] = abi.encode(
+                    getLiquidityPoolToken(_underlyingToken, _liquidityPoolAddressProvider),
+                    abi.encodeWithSignature("redeem(uint256)", uint256(-1))
+                );
+            }
+        }
     }
 
     /**
@@ -450,8 +461,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
         uint256 _amount
     ) public view override returns (bytes[] memory _codes) {
         _underlyingToken = _getToggledUnderlyingToken(_underlyingToken);
-        uint256 _vaultBalance = getLiquidityPoolTokenBalance(_vault, _underlyingToken, _liquidityPoolAddressProvider);
-        if (_amount > 0 && _vaultBalance != uint256(0)) {
+        if (_amount > 0) {
             if (_underlyingToken == ETH) {
                 _codes = new bytes[](3);
                 _codes[0] = abi.encode(
@@ -460,7 +470,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                 );
                 _codes[1] = abi.encode(
                     AETH,
-                    abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, _vaultBalance)
+                    abi.encodeWithSignature("approve(address,uint256)", aaveV1ETHGatewayContract, _amount)
                 );
                 _codes[2] = abi.encode(
                     aaveV1ETHGatewayContract,
@@ -469,7 +479,7 @@ contract AaveV1Adapter is IAdapter, IAdapterBorrow, IAdapterInvestLimit, Modifie
                         _vault,
                         _liquidityPoolAddressProvider,
                         AETH,
-                        _vaultBalance,
+                        _amount,
                         int128(0)
                     )
                 );
