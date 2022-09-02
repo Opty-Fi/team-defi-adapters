@@ -290,14 +290,16 @@ describe("CurveAdapters Unit test", () => {
                 ? (j = 2)
                 : (j = 1);
               for (let i = 0; i < j; i++) {
-                it(`${pool} ${i == 1 ? "(convertToStEth)" : ""}- ${story.description}`, async function () {
-                  curveSwapETHGateway = await hre.ethers.getContractAt(
-                    "CurveSwapETHGateway",
-                    await curveAdapters[curveAdapterName].curveSwapETHGatewayContract(),
-                  );
-                  await curveSwapETHGateway.setConvertToStEth(false);
-                  if (i == 1) {
-                    await curveSwapETHGateway.setConvertToStEth(true);
+                it(`${pool} ${i == 1 ? "(convertToStEth via Lido)" : ""}- ${story.description}`, async function () {
+                  if (curveAdapterName === "CurveSwapPoolAdapter" && pool === "eth_eth+steth") {
+                    curveSwapETHGateway = await hre.ethers.getContractAt(
+                      "CurveSwapETHGateway",
+                      await curveAdapters[curveAdapterName].curveSwapETHGatewayContract(),
+                    );
+                    await curveSwapETHGateway.setConvertToStEth(false);
+                    if (i == 1) {
+                      await curveSwapETHGateway.setConvertToStEth(true);
+                    }
                   }
                   const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
                   if (

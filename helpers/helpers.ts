@@ -86,12 +86,12 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.THREE_CRV):
     case getAddress(TypedTokens.LINK):
     case getAddress(TypedTokens.USDP): {
-      defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(decimal));
+      defaultFundAmount = BigNumber.from("20").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
     case getAddress(TypedTokens.TBTC):
     case getAddress(TypedTokens.WBTC): {
-      defaultFundAmount = BigNumber.from("5").mul(to_10powNumber_BN(decimal));
+      defaultFundAmount = BigNumber.from("5").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
     case getAddress(TypedTokens.YFI):
@@ -112,23 +112,23 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.CRV):
     case getAddress(TypedTokens.YVCURVE_SETH):
     case getAddress(TypedTokens.AETHC): {
-      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(decimal));
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
     case getAddress(TypedTokens.HBTC):
     case getAddress(TypedTokens.CRV_REN_BTC_WBTC_SBTC): {
-      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 1));
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
     case getAddress(TypedTokens.YWETH):
     case getAddress(TypedTokens.CRETH2): {
-      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 2));
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).mul(3).div(4)));
       break;
     }
     case getAddress(TypedTokens.OBTC):
     case getAddress(TypedTokens.SBTC):
     case getAddress(TypedTokens.REN_BTC): {
-      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 3));
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
     case getAddress(TypedTokens.UNI_V2_WBTC_ETH):
@@ -137,10 +137,9 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
     case getAddress(TypedTokens.UNI_V2_DAI_ETH):
     case getAddress(TypedTokens.BBADGER):
     case getAddress(TypedTokens.HFIL): {
-      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(+decimal.toString() - 8));
+      defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
-
     default:
       defaultFundAmount = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
   }
