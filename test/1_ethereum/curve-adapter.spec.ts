@@ -616,7 +616,6 @@ describe("CurveAdapters Unit test", () => {
                           const _gaugeContract = await hre.ethers.getContractAt(_gaugeABI, gaugeContract.address);
                           const _unclaimedAmount = await _gaugeContract.claimable_tokens(testDeFiAdapter.address);
                           if (BigNumber.from(_unclaimedAmount).gt(0)) {
-                            console.log("_unclaimedAmount ", _unclaimedAmount);
                             rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
                             await testDeFiAdapter[action.action](
                               liquidityPool,
