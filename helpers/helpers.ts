@@ -132,10 +132,6 @@ export function getDefaultFundAmountInDecimal(underlyingTokenAddress: string, de
       defaultFundAmount = BigNumber.from("2").mul(to_10powNumber_BN(BigNumber.from(decimal).div(2)));
       break;
     }
-    case getAddress(TypedTokens.EURS): {
-      defaultFundAmount = BigNumber.from("100").mul(to_10powNumber_BN(decimal));
-      break;
-    }
     default:
       defaultFundAmount = BigNumber.from("200").mul(to_10powNumber_BN(decimal));
   }
