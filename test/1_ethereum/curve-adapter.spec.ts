@@ -291,6 +291,16 @@ describe("CurveAdapters Unit test", () => {
                 : (j = 1);
               for (let i = 0; i < j; i++) {
                 it(`${pool} ${i == 1 ? "(convertToStEth via Lido)" : ""}- ${story.description}`, async function () {
+                  const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+                  if (
+                    ethers.utils.getAddress(liquidityPool) ===
+                      ethers.utils.getAddress("0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d") ||
+                    ethers.utils.getAddress(liquidityPool) ===
+                      ethers.utils.getAddress("0x890f4e345B1dAED0367A877a1612f86A1f86985f")
+                  ) {
+                    console.log("skipping ust3Crv pools");
+                    this.skip();
+                  }
                   if (curveAdapterName === "CurveSwapPoolAdapter" && pool === "eth_eth+steth") {
                     curveSwapETHGateway = await hre.ethers.getContractAt(
                       "CurveSwapETHGateway",
@@ -301,7 +311,7 @@ describe("CurveAdapters Unit test", () => {
                       await curveSwapETHGateway.setConvertToStEth(true);
                     }
                   }
-                  const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+
                   if (
                     curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME &&
                     OLD_DEPOSIT_POOLS.includes(liquidityPool)
