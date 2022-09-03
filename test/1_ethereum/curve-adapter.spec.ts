@@ -12,7 +12,7 @@ import { fundWalletToken, getBlockTimestamp } from "../../helpers/contracts-acti
 import scenarios from "./scenarios/adapters.json";
 import testDeFiAdapterScenario from "./scenarios/curve-test-defi-adapter.json";
 import { deployContract, getDefaultFundAmountInDecimal } from "../../helpers/helpers";
-import { ERC20 } from "../../typechain";
+import { ERC20, ICurveGauge, ICurveGauge__factory } from "../../typechain";
 import { to_10powNumber_BN } from "../../helpers/utils";
 import { VAULT_TOKENS } from "../../helpers/constants/tokens";
 import { default as CurveExports } from "@optyfi/defi-legos/ethereum/curve/contracts";
@@ -276,7 +276,7 @@ describe("CurveAdapters Unit test", () => {
         const pools = Object.keys(typedPools);
         for (const pool of pools) {
           if ((CurveExports[key] as LiquidityPool)[pool].tokens.length == 1) {
-            let gaugeContract: Contract;
+            let gaugeContract: ICurveGauge;
             let swapPoolContract: Contract;
             let liquidityPoolContract: Contract;
             let lpTokenContract: Contract;
@@ -291,6 +291,16 @@ describe("CurveAdapters Unit test", () => {
                 : (j = 1);
               for (let i = 0; i < j; i++) {
                 it(`${pool} ${i == 1 ? "(convertToStEth via Lido)" : ""}- ${story.description}`, async function () {
+                  const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+                  if (
+                    ethers.utils.getAddress(liquidityPool) ===
+                      ethers.utils.getAddress("0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d") ||
+                    ethers.utils.getAddress(liquidityPool) ===
+                      ethers.utils.getAddress("0x890f4e345B1dAED0367A877a1612f86A1f86985f")
+                  ) {
+                    console.log("skipping ust3Crv pools");
+                    this.skip();
+                  }
                   if (curveAdapterName === "CurveSwapPoolAdapter" && pool === "eth_eth+steth") {
                     curveSwapETHGateway = await hre.ethers.getContractAt(
                       "CurveSwapETHGateway",
@@ -301,7 +311,7 @@ describe("CurveAdapters Unit test", () => {
                       await curveSwapETHGateway.setConvertToStEth(true);
                     }
                   }
-                  const liquidityPool = (CurveExports[key] as LiquidityPool)[pool].pool;
+
                   if (
                     curveAdapterName == CURVE_DEPOSIT_POOL_ADAPTER_NAME &&
                     OLD_DEPOSIT_POOLS.includes(liquidityPool)
@@ -346,9 +356,11 @@ describe("CurveAdapters Unit test", () => {
                     : await hre.ethers.getContractAt("ICurveSwap", liquidityPool);
 
                   if ((CurveExports[key] as LiquidityPool)[pool].gauge != ADDRESS_ZERO) {
-                    gaugeContract = await hre.ethers.getContractAt(
-                      "ICurveGauge",
-                      <string>(CurveExports[key] as LiquidityPool)[pool].gauge,
+                    gaugeContract = <ICurveGauge>(
+                      await hre.ethers.getContractAt(
+                        ICurveGauge__factory.abi,
+                        <string>(CurveExports[key] as LiquidityPool)[pool].gauge,
+                      )
                     );
                   }
                   if (rewardTokenAddress != ADDRESS_ZERO) {
@@ -591,8 +603,28 @@ describe("CurveAdapters Unit test", () => {
                       }
                       case "testGetClaimRewardTokenCode(address,address)": {
                         if (gaugeContract) {
-                          rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
-                          await testDeFiAdapter[action.action](liquidityPool, curveAdapters[curveAdapterName].address);
+                          // if the unclaimed reward token is not zero
+                          const _gaugeABI = [
+                            {
+                              name: "claimable_tokens",
+                              outputs: [{ type: "uint256", name: "" }],
+                              inputs: [{ type: "address", name: "addr" }],
+                              stateMutability: "view",
+                              type: "function",
+                            },
+                          ];
+                          const _gaugeContract = await hre.ethers.getContractAt(_gaugeABI, gaugeContract.address);
+                          const _unclaimedAmount = await _gaugeContract.claimable_tokens(testDeFiAdapter.address);
+                          if (BigNumber.from(_unclaimedAmount).gt(0)) {
+                            rewardTokenBalanceBefore = await rewardTokenInstance.balanceOf(testDeFiAdapter.address);
+                            await testDeFiAdapter[action.action](
+                              liquidityPool,
+                              curveAdapters[curveAdapterName].address,
+                            );
+                          } else {
+                            console.log("skipping as no rewards are accrued");
+                            this.skip();
+                          }
                         }
                         break;
                       }
