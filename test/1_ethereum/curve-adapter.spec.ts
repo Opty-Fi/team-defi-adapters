@@ -977,11 +977,15 @@ describe("CurveAdapters Unit test", () => {
                         break;
                       }
                       case "getRewardTokenBalance(address)": {
-                        // dai+usdc+usdt+rsv provides RSR rewards
+                        // 0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7: dai+usdc+usdt+rsv provides RSR rewards
+                        // 0x6828bcF74279eE32f2723eC536c22c51Eed383C6: renbtc+wbtc+sbtc+tbtc provides KEEP rewards
+                        // 0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855: no rewards
                         // TODO curve adapters should handle mutiple rewards in future
                         if (
                           gaugeContract &&
-                          gaugeContract.address !== getAddress("0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7")
+                          gaugeContract.address !== getAddress("0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7") &&
+                          gaugeContract.address !== getAddress("0x6828bcF74279eE32f2723eC536c22c51Eed383C6") &&
+                          gaugeContract.address !== getAddress("0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855")
                         ) {
                           const rewardTokenBalance: BigNumber = await rewardTokenInstance.balanceOf(
                             testDeFiAdapter.address,
