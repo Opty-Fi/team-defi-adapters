@@ -11,6 +11,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IWETH } from "@optyfi/defi-legos/interfaces/misc/contracts/IWETH.sol";
 import { IETHGateway } from "@optyfi/defi-legos/interfaces/misc/contracts/IETHGateway.sol";
 import { ICurveETHSwapV1 as ICurveETHSwap } from "@optyfi/defi-legos/ethereum/curve/contracts/ICurveETHSwapV1.sol";
+import { ILidoDeposit } from "@optyfi/defi-legos/ethereum/lido/contracts/ILidoDeposit.sol";
 
 /**
  * @title ETH gateway for opty-fi's Curve Swap adapter
@@ -26,6 +27,20 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
     mapping(address => bool) public ethPools;
 
     /**
+     * @notice Optional address used as referral on deposit
+     */
+    address public referralAddress;
+
+    /** @notice Curve ETH/stETH StableSwap contract address to check for direct deposits into Lido */
+    address public constant ETH_stETH_STABLESWAP = address(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
+
+    /** @notice stETH address */
+    address public constant stEth = address(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
+
+    /** @notice Flag to convert ETH to stETH if true */
+    bool public convertToStEth;
+
+    /**
      * @dev Initializes the WETH address, registry and curve's Eth pools
      * @param _weth Address of the Wrapped Ether contract
      * @param _registry Address of the registry
@@ -34,12 +49,30 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
     constructor(
         address _weth,
         address _registry,
-        address[4] memory _ethPools
+        address[4] memory _ethPools,
+        bool _convertToStEth
     ) public Modifiers(_registry) {
         WETH = IWETH(_weth);
+        convertToStEth = _convertToStEth;
         for (uint256 _i = 0; _i < _ethPools.length; _i++) {
             ethPools[_ethPools[_i]] = true;
         }
+    }
+
+    /**
+     * @notice Sets the referralAddress for Lido deposits
+     * @param _referralAddress address used as referral on deposit
+     **/
+    function setLidoReferralAddress(address _referralAddress) external onlyOperator {
+        referralAddress = _referralAddress;
+    }
+
+    /**
+     * @notice Sets the convertToStEth flag
+     * @param _convertToStEth if true convert ETH to stETH before adding liquidity
+     **/
+    function setConvertToStEth(bool _convertToStEth) external onlyStrategyOperator {
+        convertToStEth = _convertToStEth;
     }
 
     /**
@@ -58,7 +91,14 @@ contract CurveSwapETHGateway is IETHGateway, Modifiers {
             (_amounts[uint256(_tokenIndex)].mul(10**18).mul(95)).div(
                 ICurveETHSwap(_liquidityPool).get_virtual_price().mul(100)
             );
-        ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, _minAmount);
+        if (convertToStEth && _liquidityPool == ETH_stETH_STABLESWAP) {
+            ILidoDeposit(stEth).submit{ value: address(this).balance }(referralAddress);
+            uint256[2] memory amounts = [uint256(0), IERC20(stEth).balanceOf(address(this))];
+            IERC20(stEth).approve(_liquidityPool, amounts[1]);
+            ICurveETHSwap(_liquidityPool).add_liquidity(amounts, _minAmount);
+        } else {
+            ICurveETHSwap(_liquidityPool).add_liquidity{ value: address(this).balance }(_amounts, _minAmount);
+        }
         IERC20(_liquidityPoolToken).transfer(_vault, IERC20(_liquidityPoolToken).balanceOf(address(this)));
     }
 

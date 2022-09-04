@@ -98,7 +98,8 @@ contract CurveSwapPoolAdapter is
             new CurveSwapETHGateway(
                 WETH,
                 _registry,
-                [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP]
+                [ETH_sETH_STABLESWAP, ETH_ankrETH_STABLESWAP, ETH_rETH_STABLESWAP, ETH_stETH_STABLESWAP],
+                true
             )
         );
         maxDepositProtocolPct = uint256(10000); // 100% (basis points)
@@ -265,6 +266,7 @@ contract CurveSwapPoolAdapter is
             uint256 _nCoins = _getNCoins(_liquidityPool, _getCurveRegistry());
             address[8] memory _underlyingTokens = _getUnderlyingTokens(_liquidityPool, _getCurveRegistry());
             uint256[] memory _amounts = new uint256[](_nCoins);
+            _underlyingToken = _underlyingToken == WETH ? ETH : _underlyingToken;
             for (uint256 _i; _i < _nCoins; _i++) {
                 if (_underlyingTokens[_i] == _underlyingToken) {
                     _amounts[_i] = _underlyingTokenAmount;
