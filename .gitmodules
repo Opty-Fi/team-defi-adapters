@@ -1,0 +1,4 @@
+[submodule "contracts/earn-protocol-configuration"]
+	path = contracts/earn-protocol-configuration
+	url = git@github.com:Opty-Fi/earn-protocol-configuration.git
+	branch = swap-step
